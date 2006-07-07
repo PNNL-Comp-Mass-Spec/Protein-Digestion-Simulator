@@ -1,0 +1,87 @@
+Protein Digestion Simulator Change Log
+
+Version 2.1.2369; June 27, 2006
+	- Added enzyme LysC, which cleaves after K
+		- See http://ca.expasy.org/tools/peptidecutter/peptidecutter_enzymes.html
+
+Version 2.1.2347; June 5, 2006
+	- Updated to new version of ValidateFastaFile.dll
+
+Version 2.1.2203; January 12, 2006
+	- Updated to new version of ValidateFastaFile.dll
+
+Version 2.1.2189; December 29, 2005
+	- Updated the copyright notice
+
+Version 2.1.2104.30263; October 5, 2005
+	- Updated to new version of ValidateFastaFile.dll
+		- In ValidateFastaFile, updated the SaveSettingsToParameterFile function to re-open the .Xml file and replace instances of "&gt;" with ">" to improve readability
+	- Updated to new version of NETPrediction.dll/NETPredictionBasic.dll
+
+Version 2.1.2091.33214; September 22, 2005
+	- Now using the name Basic version instead of Lite version for the version that does not contain the Kangas prediction algorithm
+
+Version 2.1.2090.22113; September 21, 2005
+	- Updated to use new NETPrediction DLL
+	- Added Help->About NET Prediction menu item
+		- Displays information about the algorithm's developers, including a journal reference or website with additional information
+
+Version 2.1.2082.22601; September 13, 2005
+	- Updated to use SharedVBNetRoutines.dll instead of clsSharedADONetFunctions.vb and clsSharedVBNetFunctions.vb
+
+Version 2.1.2064.27890; August 26, 2005
+	- Added option to compute pI and hydrophobicity of proteins and peptides
+		- Code provided by Gordon Anderson from ICR-2LS
+		- There are 6 available hydrophobicity modes
+	- GUI includes an interactive textbox where a peptide sequence can be pasted and the pI and hydrophobicity computed
+
+Version 2.1.2056.27567; August 18, 2005
+	- Updated to new version of ValidateFastaFile.dll; includes rule to check for escape characters in the protein description
+
+Version 2.1.2053.31162; August 15, 2005
+	- Updated the formula and mass of residues J and X to be the same as Leucine or Isoleucine (C6H11NO: 113.08 Da)
+		- Previously, J and X had the same formula and mass as Lysine (C6H12N2O: 128.09)
+
+Version 2.1.2049.28765; August 11, 2005
+	- Fixed bug that caused the program to crash if an invalid file fasta path was present and the user clicked Validate Fasta File
+	- Updated to a new version of ValidateFastaFile.dll which uses a VB.NET interface to define the functions and properties
+	- Updated to a new version of SharedVBNetRoutines.dll
+
+Version 2.1.2008.27908; June 30, 2005
+ 	- Updated to use new ValidateFastaFile.dll which implements user-editable RegEx-based definitions for the validation rules
+
+Version 2.1.1992; June 15, 2005
+	- Updated to use new NETPrediction DLL with 1052 node prediction model
+
+May 6, 2005
+	- Added option to identify matching peaks (for uniqueness calculations) using a simple Ellipse search range rather than SLiC score
+
+May 2, 2005
+	- Added Fasta file validation option (utilizing ValidateFastaFile.dll)
+
+January 26, 2005
+	- Abandoned storing data in the Sql Server database since inefficient
+
+January 18, 2005
+	- Redesigned feature info, peptide info, and protein info classes to optionally store data in a Sql Server Database, thereby allowing signficant decreases in memory consumption (at the cost of execution speed)
+
+December 17, 2004
+	- Added option to write out a percentage of the residues from reversed protein sequences
+
+December 3, 2004
+	- Added option to output data as new fasta file; added saving/loading addition info from Xml settings file.
+
+November 22, 2004
+	- Switched to writing results by threshold as they are computed to decrease memory usage
+
+November 21, 2004
+	- Moved peak matching results into a class that uses a DataTable rather than a UDT
+
+October 18, 2004
+	- Improved GUI for peptide uniqueness module
+
+October 12, 2004
+	- Parse fasta/delimited protein file functionality is working; working on clsProteinDigestionSimulator
+
+October 4, 2004
+	- Started writing Protein Digestion Simulator

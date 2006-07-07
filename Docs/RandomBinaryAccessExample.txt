@@ -1,0 +1,69 @@
+Module Main
+
+    Structure EmployeeRec
+        <VBFixedString(20)> Public Name As String  'not much point in fixing the length of string unless using FileGet and FilePut
+        Public ID As Int16
+        Public Pay As Single
+    End Structure
+
+    Sub Main()
+        Dim recEE As New EmployeeRec
+        Dim sFileNameOut As String = "c:\test.Out"
+        Dim btBuffer(100) As Byte 'dimension > needed
+        Dim iLen As Int16
+        Dim lCnt As Long
+        Dim iFileNum As Int16
+        Dim dDuration As Date
+        Dim fs As IO.FileStream = IO.File.Create(sFileNameOut)
+        Dim br As New IO.BinaryReader(fs)
+        Dim bw As New IO.BinaryWriter(fs)
+        Dim encoder As New System.Text.ASCIIEncoding
+        With recEE
+            'write the record using binary writer
+            .Name = "Karl"
+            .ID = 10
+            .Pay = 1001
+            encoder.GetBytes(LSet(.Name, 20), 0, 20, btBuffer, 0)
+            fs.Write(btBuffer, 0, 20) 'use the file stream to read and write strings compatible with VB < 7.0
+            bw.Write(.ID) 'use binary reader to read and write all other data types
+            bw.Write(.Pay) 'the binary writer writes strings with a length descriptor attached
+            .Name = ""
+            .ID = 0
+            .Pay = 0
+
+            'read the record with binary reader
+            dDuration = Now
+            For lCnt = 1 To 1000000
+                fs.Seek(0, IO.SeekOrigin.Begin)
+                fs.Read(btBuffer, 0, 20)
+                .Name = encoder.GetString(btBuffer, 0, 20)
+                .ID = br.ReadInt16
+                .Pay = br.ReadSingle
+            Next
+            lCnt = DateDiff(DateInterval.Second, dDuration, Now)
+            fs.Close()
+            br.Close()
+            bw.Close()
+            MsgBox("Binary access duration is " & lCnt & " seconds.")
+            MsgBox(.Name & " " & .ID.ToString & " " & .Pay.ToString)
+        End With
+        'read and write using random file access method
+        iFileNum = FreeFile()
+        FileOpen(iFileNum, sFileNameOut, OpenMode.Random, OpenAccess.ReadWrite)
+        With recEE
+            .Name = "Karl"
+            .ID = 12
+            .Pay = 201
+        End With
+        FilePut(iFileNum, recEE, 1)
+        dDuration = Now
+        For lCnt = 1 To 1000000
+            FileGet(iFileNum, recEE, 1)
+        Next
+        lCnt = DateDiff(DateInterval.Second, dDuration, Now) 'the IDE doesn't always automatically correct the capitalization of varibles that are dimed within if then block
+        MsgBox("Radom access duration is " & lCnt & " seconds.")
+        MsgBox(recEE.Name & " " & recEE.ID.ToString & " " & recEE.Pay.ToString)
+        FileClose(iFileNum)
+    End Sub
+
+End Module
