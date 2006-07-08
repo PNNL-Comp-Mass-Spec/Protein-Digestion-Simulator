@@ -84,11 +84,6 @@
                     HintPath = "..\ProgressForm.NET\bin\ProgressFormNET.dll"
                 />
                 <Reference
-                    Name = "NETPrediction"
-                    AssemblyName = "NETPrediction"
-                    HintPath = "..\GANET_Prediction.NET\NETPrediction\bin\NETPrediction.dll"
-                />
-                <Reference
                     Name = "PRISM"
                     AssemblyName = "PRISM"
                     HintPath = "..\DMS_Managers\Common_Files_Net\PRISM_Class_Library\bin\PRISM.dll"
@@ -104,9 +99,14 @@
                     HintPath = "..\SharedVBNetRoutines\bin\SharedVBNetRoutines.dll"
                 />
                 <Reference
+                    Name = "NETPrediction"
+                    AssemblyName = "NETPrediction"
+                    HintPath = "..\NET_Prediction_Utility\NETPrediction\bin\NETPrediction.dll"
+                />
+                <Reference
                     Name = "ProteinFileReader"
                     AssemblyName = "ProteinFileReader"
-                    HintPath = "..\FastaFileReader.NET\bin\ProteinFileReader.dll"
+                    HintPath = "..\ProteinFileReaderDLL\bin\ProteinFileReader.dll"
                 />
             </References>
             <Imports>

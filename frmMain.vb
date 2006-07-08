@@ -163,6 +163,10 @@ Public Class frmMain
     Friend WithEvents lblSequenceForpI As System.Windows.Forms.Label
     Friend WithEvents frapIAndHydrophobicity As System.Windows.Forms.GroupBox
     Friend WithEvents mnuHelpAboutElutionTime As System.Windows.Forms.MenuItem
+    Friend WithEvents txtDigestProteinsMaximumpI As System.Windows.Forms.TextBox
+    Friend WithEvents lblDigestProteinsMaximumpI As System.Windows.Forms.Label
+    Friend WithEvents txtDigestProteinsMinimumpI As System.Windows.Forms.TextBox
+    Friend WithEvents lblDigestProteinsMinimumpI As System.Windows.Forms.Label
     <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
         Me.txtProteinInputFilePath = New System.Windows.Forms.TextBox
         Me.cmdSelectFile = New System.Windows.Forms.Button
@@ -194,6 +198,10 @@ Public Class frmMain
         Me.lblProteinReversalOptions = New System.Windows.Forms.Label
         Me.chkDigestProteins = New System.Windows.Forms.CheckBox
         Me.fraDigestionOptions = New System.Windows.Forms.GroupBox
+        Me.txtDigestProteinsMaximumpI = New System.Windows.Forms.TextBox
+        Me.lblDigestProteinsMaximumpI = New System.Windows.Forms.Label
+        Me.txtDigestProteinsMinimumpI = New System.Windows.Forms.TextBox
+        Me.lblDigestProteinsMinimumpI = New System.Windows.Forms.Label
         Me.chkGenerateUniqueIDValues = New System.Windows.Forms.CheckBox
         Me.chkCysPeptidesOnly = New System.Windows.Forms.CheckBox
         Me.txtDigestProteinsMinimumResidueCount = New System.Windows.Forms.TextBox
@@ -229,6 +237,7 @@ Public Class frmMain
         Me.mnuEditResetOptions = New System.Windows.Forms.MenuItem
         Me.mnuHelp = New System.Windows.Forms.MenuItem
         Me.mnuHelpAbout = New System.Windows.Forms.MenuItem
+        Me.mnuHelpAboutElutionTime = New System.Windows.Forms.MenuItem
         Me.lblInputFileColumnOrdering = New System.Windows.Forms.Label
         Me.cboInputFileColumnOrdering = New System.Windows.Forms.ComboBox
         Me.fraDelimitedFileOptions = New System.Windows.Forms.GroupBox
@@ -292,7 +301,6 @@ Public Class frmMain
         Me.cboMassTolType = New System.Windows.Forms.ComboBox
         Me.lblMassTolType = New System.Windows.Forms.Label
         Me.dgPeakMatchingThresholds = New System.Windows.Forms.DataGrid
-        Me.mnuHelpAboutElutionTime = New System.Windows.Forms.MenuItem
         Me.fraInputFilePath.SuspendLayout()
         Me.fraInputOptions.SuspendLayout()
         Me.fraCalculationOptions.SuspendLayout()
@@ -583,6 +591,10 @@ Public Class frmMain
         '
         'fraDigestionOptions
         '
+        Me.fraDigestionOptions.Controls.Add(Me.txtDigestProteinsMaximumpI)
+        Me.fraDigestionOptions.Controls.Add(Me.lblDigestProteinsMaximumpI)
+        Me.fraDigestionOptions.Controls.Add(Me.txtDigestProteinsMinimumpI)
+        Me.fraDigestionOptions.Controls.Add(Me.lblDigestProteinsMinimumpI)
         Me.fraDigestionOptions.Controls.Add(Me.chkGenerateUniqueIDValues)
         Me.fraDigestionOptions.Controls.Add(Me.chkCysPeptidesOnly)
         Me.fraDigestionOptions.Controls.Add(Me.txtDigestProteinsMinimumResidueCount)
@@ -597,19 +609,51 @@ Public Class frmMain
         Me.fraDigestionOptions.Controls.Add(Me.chkIncludeDuplicateSequences)
         Me.fraDigestionOptions.Location = New System.Drawing.Point(8, 168)
         Me.fraDigestionOptions.Name = "fraDigestionOptions"
-        Me.fraDigestionOptions.Size = New System.Drawing.Size(616, 112)
+        Me.fraDigestionOptions.Size = New System.Drawing.Size(616, 128)
         Me.fraDigestionOptions.TabIndex = 2
         Me.fraDigestionOptions.TabStop = False
         Me.fraDigestionOptions.Text = "Digestion Options"
+        '
+        'txtDigestProteinsMaximumpI
+        '
+        Me.txtDigestProteinsMaximumpI.Location = New System.Drawing.Point(520, 80)
+        Me.txtDigestProteinsMaximumpI.Name = "txtDigestProteinsMaximumpI"
+        Me.txtDigestProteinsMaximumpI.Size = New System.Drawing.Size(40, 20)
+        Me.txtDigestProteinsMaximumpI.TabIndex = 13
+        Me.txtDigestProteinsMaximumpI.Text = "14"
+        '
+        'lblDigestProteinsMaximumpI
+        '
+        Me.lblDigestProteinsMaximumpI.Location = New System.Drawing.Point(440, 80)
+        Me.lblDigestProteinsMaximumpI.Name = "lblDigestProteinsMaximumpI"
+        Me.lblDigestProteinsMaximumpI.Size = New System.Drawing.Size(72, 16)
+        Me.lblDigestProteinsMaximumpI.TabIndex = 12
+        Me.lblDigestProteinsMaximumpI.Text = "Maximum pI"
+        '
+        'txtDigestProteinsMinimumpI
+        '
+        Me.txtDigestProteinsMinimumpI.Location = New System.Drawing.Point(520, 56)
+        Me.txtDigestProteinsMinimumpI.Name = "txtDigestProteinsMinimumpI"
+        Me.txtDigestProteinsMinimumpI.Size = New System.Drawing.Size(40, 20)
+        Me.txtDigestProteinsMinimumpI.TabIndex = 11
+        Me.txtDigestProteinsMinimumpI.Text = "0"
+        '
+        'lblDigestProteinsMinimumpI
+        '
+        Me.lblDigestProteinsMinimumpI.Location = New System.Drawing.Point(440, 56)
+        Me.lblDigestProteinsMinimumpI.Name = "lblDigestProteinsMinimumpI"
+        Me.lblDigestProteinsMinimumpI.Size = New System.Drawing.Size(72, 16)
+        Me.lblDigestProteinsMinimumpI.TabIndex = 10
+        Me.lblDigestProteinsMinimumpI.Text = "Minimum pI"
         '
         'chkGenerateUniqueIDValues
         '
         Me.chkGenerateUniqueIDValues.Checked = True
         Me.chkGenerateUniqueIDValues.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkGenerateUniqueIDValues.Location = New System.Drawing.Point(424, 48)
+        Me.chkGenerateUniqueIDValues.Location = New System.Drawing.Point(8, 104)
         Me.chkGenerateUniqueIDValues.Name = "chkGenerateUniqueIDValues"
         Me.chkGenerateUniqueIDValues.Size = New System.Drawing.Size(176, 16)
-        Me.chkGenerateUniqueIDValues.TabIndex = 11
+        Me.chkGenerateUniqueIDValues.TabIndex = 14
         Me.chkGenerateUniqueIDValues.Text = "Generate UniqueID Values"
         '
         'chkCysPeptidesOnly
@@ -617,7 +661,7 @@ Public Class frmMain
         Me.chkCysPeptidesOnly.Location = New System.Drawing.Point(424, 24)
         Me.chkCysPeptidesOnly.Name = "chkCysPeptidesOnly"
         Me.chkCysPeptidesOnly.Size = New System.Drawing.Size(176, 16)
-        Me.chkCysPeptidesOnly.TabIndex = 10
+        Me.chkCysPeptidesOnly.TabIndex = 15
         Me.chkCysPeptidesOnly.Text = "Include cysteine peptides only"
         '
         'txtDigestProteinsMinimumResidueCount
@@ -855,6 +899,11 @@ Public Class frmMain
         '
         Me.mnuHelpAbout.Index = 0
         Me.mnuHelpAbout.Text = "&About"
+        '
+        'mnuHelpAboutElutionTime
+        '
+        Me.mnuHelpAboutElutionTime.Index = 1
+        Me.mnuHelpAboutElutionTime.Text = "About &Elution Time Prediction"
         '
         'lblInputFileColumnOrdering
         '
@@ -1469,11 +1518,6 @@ Public Class frmMain
         Me.dgPeakMatchingThresholds.Size = New System.Drawing.Size(424, 208)
         Me.dgPeakMatchingThresholds.TabIndex = 0
         '
-        'mnuHelpAboutElutionTime
-        '
-        Me.mnuHelpAboutElutionTime.Index = 1
-        Me.mnuHelpAboutElutionTime.Text = "About &Elution Time Prediction"
-        '
         'frmMain
         '
         Me.AutoScaleBaseSize = New System.Drawing.Size(5, 13)
@@ -1879,6 +1923,9 @@ Public Class frmMain
 
         txtMaxpISequenceLength.Enabled = chkMaxpIModeEnabled.Checked
 
+        txtDigestProteinsMinimumpI.Enabled = blnEnableDigestionOptions And chkComputepI.Checked
+        txtDigestProteinsMaximumpI.Enabled = blnEnableDigestionOptions And chkComputepI.Checked
+
     End Sub
 
     Private Sub GenerateUniquenessStats()
@@ -2110,6 +2157,9 @@ Public Class frmMain
                     txtDigestProteinsMinimumResidueCount.Text = .GetParam(DigestionOptions, "DigestProteinsMinimumResidueCount", txtDigestProteinsMinimumResidueCount.Text)
                     txtDigestProteinsMaximumMissedCleavages.Text = .GetParam(DigestionOptions, "DigestProteinsMaximumMissedCleavages", txtDigestProteinsMaximumMissedCleavages.Text)
 
+                    txtDigestProteinsMinimumpI.Text = .GetParam(DigestionOptions, "DigestProteinsMinimumpI", txtDigestProteinsMinimumpI.Text)
+                    txtDigestProteinsMaximumpI.Text = .GetParam(DigestionOptions, "DigestProteinsMaximumpI", txtDigestProteinsMaximumpI.Text)
+
                     ' Load Uniqueness Options
                     chkAssumeInputFileIsDigested.Checked = .GetParam(UniquenessStatsOptions, "AssumeInputFileIsDigested", chkAssumeInputFileIsDigested.Checked)
 
@@ -2253,6 +2303,9 @@ Public Class frmMain
                         .SetParam(DigestionOptions, "DigestProteinsMaximumMass", txtDigestProteinsMaximumMass.Text)
                         .SetParam(DigestionOptions, "DigestProteinsMinimumResidueCount", txtDigestProteinsMinimumResidueCount.Text)
                         .SetParam(DigestionOptions, "DigestProteinsMaximumMissedCleavages", txtDigestProteinsMaximumMissedCleavages.Text)
+
+                        .SetParam(DigestionOptions, "DigestProteinsMinimumpI", txtDigestProteinsMinimumpI.Text)
+                        .SetParam(DigestionOptions, "DigestProteinsMaximumpI", txtDigestProteinsMaximumpI.Text)
 
                         ' Load Uniqueness Options
                         .SetParam(UniquenessStatsOptions, "AssumeInputFileIsDigested", chkAssumeInputFileIsDigested.Checked)
@@ -2475,6 +2528,12 @@ Public Class frmMain
                 If blnError Then Return False
 
                 .MinFragmentResidueCount = ParseTextboxValueInt(txtDigestProteinsMinimumResidueCount, lblDigestProteinsMinimumResidueCount.Text & " must be an integer value", blnError)
+                If blnError Then Return False
+
+                .MinIsoelectricPoint = ParseTextboxValueSng(txtDigestProteinsMinimumpI, lblDigestProteinsMinimumpI.Text & " must be a decimal value", blnError)
+                If blnError Then Return False
+
+                .MaxIsoelectricPoint = ParseTextboxValueSng(txtDigestProteinsMaximumpI, lblDigestProteinsMaximumpI.Text & " must be a decimal value", blnError)
                 If blnError Then Return False
 
                 .RemoveDuplicateSequences = Not chkIncludeDuplicateSequences.Checked
@@ -2926,6 +2985,9 @@ Public Class frmMain
         txtDigestProteinsMinimumResidueCount.Text = "0"
         txtDigestProteinsMaximumMissedCleavages.Text = "3"
 
+        txtDigestProteinsMinimumpI.Text = "0"
+        txtDigestProteinsMaximumpI.Text = "14"
+
         ' Load Uniqueness Options
         chkAssumeInputFileIsDigested.Checked = True
 
@@ -3251,6 +3313,10 @@ Public Class frmMain
 
     Private Sub chkAutoDefineSLiCScoreTolerances_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles chkAutoDefineSLiCScoreTolerances.CheckedChanged
         UpdateDataGridTableStyle()
+    End Sub
+
+    Private Sub chkComputepI_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles chkComputepI.CheckedChanged
+        EnableDisableControls()
     End Sub
 
     Private Sub chkDigestProteins_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles chkDigestProteins.CheckedChanged

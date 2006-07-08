@@ -38,6 +38,8 @@
     <item key="DigestProteinsMinimumResidueCount" value="0" />
     <item key="DigestProteinsMaximumMissedCleavages" value="3" />
     <item key="CysPeptidesOnly" value="False" />
+    <item key="DigestProteinsMinimumpI" value="0" />
+    <item key="DigestProteinsMaximumpI" value="14" />
   </section>
   <section name="UniquenessStatsOptions">
     <item key="AssumeInputFileIsDigested" value="True" />
@@ -59,8 +61,8 @@
     <item key="UseEllipseSearchRegion" value="True" />
   </section>
   <section name="ProteinDigestionSimulatorOptions">
-    <item key="WindowWidth" value="809" />
-    <item key="WindowHeight" value="693" />
+    <item key="WindowWidth" value="664" />
+    <item key="WindowHeight" value="710" />
     <item key="InputFilePath" value="QC_Standards_2004-01-21.fasta" />
     <item key="InputFileFormatIndex" value="0" />
     <item key="InputFileColumnDelimiterIndex" value="1" />

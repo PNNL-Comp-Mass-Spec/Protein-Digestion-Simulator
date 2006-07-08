@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.1.2379; July 7, 2006
+	- Added option to filter digested peptides by pI
+
 Version 2.1.2369; June 27, 2006
 	- Added enzyme LysC, which cleaves after K
 		- See http://ca.expasy.org/tools/peptidecutter/peptidecutter_enzymes.html

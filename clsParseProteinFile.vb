@@ -307,7 +307,7 @@ Public Class clsParseProteinFile
     Private Function ComputeSequenceHydrophobicity(ByVal strSequence As String) As Single
 
         ' Be sure to call InitializeObjectVariables before calling this function for the first time
-        ' Otherwise, objInSilicoDigest will be nothing
+        ' Otherwise, objpICalculator will be nothing
         If objpICalculator Is Nothing Then
             Return 0
         Else
@@ -319,7 +319,7 @@ Public Class clsParseProteinFile
     Private Function ComputeSequencepI(ByVal strSequence As String) As Single
 
         ' Be sure to call InitializeObjectVariables before calling this function for the first time
-        ' Otherwise, objInSilicoDigest will be nothing
+        ' Otherwise, objpICalculator will be nothing
         If objpICalculator Is Nothing Then
             Return 0
         Else
@@ -349,7 +349,7 @@ Public Class clsParseProteinFile
         If Not InitializeObjectVariables() Then Return 0
 
         Try
-            intPeptideCount = objInSilicoDigest.DigestSequence(strSequence, udtPeptides, objDigestionOptions, strProteinName, objProgressForm)
+            intPeptideCount = objInSilicoDigest.DigestSequence(strSequence, udtPeptides, objDigestionOptions, mComputepI, strProteinName, objProgressForm)
         Catch ex As Exception
             SetLocalErrorCode(eParseProteinFileErrorCodes.DigestProteinSequenceError)
             intPeptideCount = 0
@@ -547,6 +547,7 @@ Public Class clsParseProteinFile
         ' Do not re-initialize object variables
         If mObjectVariablesLoaded Then
             objInSilicoDigest.ShowMessages = MyBase.ShowMessages
+            objInSilicoDigest.InitializepICalculator(objpICalculator)
             Return True
         End If
 
@@ -560,6 +561,7 @@ Public Class clsParseProteinFile
 
         Try
             objpICalculator = New clspICalculation
+            objInSilicoDigest.InitializepICalculator(objpICalculator)
         Catch ex As Exception
             strErrorMessage = "Error initializing pI Calculation class"
             Me.SetLocalErrorCode(eParseProteinFileErrorCodes.ErrorInitializingObjectVariables)
@@ -820,10 +822,18 @@ Public Class clsParseProteinFile
                 strProteinOutputFilePath = System.IO.Path.Combine(strOutputFolderPath, strOutputFileName)
 
                 If strOutputFileName.EndsWith("_parsed.txt") Then
-                    strOutputFileName = strOutputFileName.Substring(0, strOutputFileName.Length - "_parsed.txt".Length) & "_digested.txt"
+                    strOutputFileName = strOutputFileName.Substring(0, strOutputFileName.Length - "_parsed.txt".Length) & "_digested"
                 Else
-                    strOutputFileName = System.IO.Path.GetFileNameWithoutExtension(strOutputFileName) & "_digested.txt"
+                    strOutputFileName = System.IO.Path.GetFileNameWithoutExtension(strOutputFileName) & "_digested"
                 End If
+
+                strOutputFileName &= "_Mass" & Math.Round(DigestionOptions.MinFragmentMass, 0).ToString & "to" & Math.Round(DigestionOptions.MaxFragmentMass, 0).ToString
+
+                If mComputepI AndAlso (DigestionOptions.MinIsoelectricPoint > 0 OrElse DigestionOptions.MaxIsoelectricPoint < 14) Then
+                    strOutputFileName &= "_pI" & Math.Round(DigestionOptions.MinIsoelectricPoint, 1).ToString & "to" & Math.Round(DigestionOptions.MaxIsoelectricPoint, 2).ToString
+                End If
+
+                strOutputFileName &= ".txt"
 
                 ' Define the full path to the digested proteins output file
                 strDigestedProteinOutputFilePath = System.IO.Path.Combine(strOutputFolderPath, strOutputFileName)
@@ -841,6 +851,7 @@ Public Class clsParseProteinFile
 
         Try
             ' Set the options for objpICalculator
+            ' Note that this will also update the pICalculator object in objInSilicoDigest
             If Not objpICalculator Is Nothing Then
                 With objpICalculator
                     .HydrophobicityType = mHydrophobicityType
