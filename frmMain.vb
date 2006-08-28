@@ -167,6 +167,9 @@ Public Class frmMain
     Friend WithEvents lblDigestProteinsMaximumpI As System.Windows.Forms.Label
     Friend WithEvents txtDigestProteinsMinimumpI As System.Windows.Forms.TextBox
     Friend WithEvents lblDigestProteinsMinimumpI As System.Windows.Forms.Label
+    Friend WithEvents chkExcludeProteinSequence As System.Windows.Forms.CheckBox
+    Friend WithEvents lblProteinScramblingLoopCount As System.Windows.Forms.Label
+    Friend WithEvents txtProteinScramblingLoopCount As System.Windows.Forms.TextBox
     <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
         Me.txtProteinInputFilePath = New System.Windows.Forms.TextBox
         Me.cmdSelectFile = New System.Windows.Forms.Button
@@ -191,6 +194,7 @@ Public Class frmMain
         Me.txtAddnlRefSepChar = New System.Windows.Forms.TextBox
         Me.chkLookForAddnlRefInDescription = New System.Windows.Forms.CheckBox
         Me.fraCalculationOptions = New System.Windows.Forms.GroupBox
+        Me.chkExcludeProteinSequence = New System.Windows.Forms.CheckBox
         Me.chkComputepI = New System.Windows.Forms.CheckBox
         Me.chkIncludeXResidues = New System.Windows.Forms.CheckBox
         Me.chkComputeProteinMass = New System.Windows.Forms.CheckBox
@@ -301,6 +305,8 @@ Public Class frmMain
         Me.cboMassTolType = New System.Windows.Forms.ComboBox
         Me.lblMassTolType = New System.Windows.Forms.Label
         Me.dgPeakMatchingThresholds = New System.Windows.Forms.DataGrid
+        Me.lblProteinScramblingLoopCount = New System.Windows.Forms.Label
+        Me.txtProteinScramblingLoopCount = New System.Windows.Forms.TextBox
         Me.fraInputFilePath.SuspendLayout()
         Me.fraInputOptions.SuspendLayout()
         Me.fraCalculationOptions.SuspendLayout()
@@ -523,44 +529,53 @@ Public Class frmMain
         '
         'fraCalculationOptions
         '
+        Me.fraCalculationOptions.Controls.Add(Me.chkExcludeProteinSequence)
         Me.fraCalculationOptions.Controls.Add(Me.chkComputepI)
         Me.fraCalculationOptions.Controls.Add(Me.chkIncludeXResidues)
         Me.fraCalculationOptions.Controls.Add(Me.chkComputeProteinMass)
-        Me.fraCalculationOptions.Location = New System.Drawing.Point(376, 72)
+        Me.fraCalculationOptions.Location = New System.Drawing.Point(376, 56)
         Me.fraCalculationOptions.Name = "fraCalculationOptions"
-        Me.fraCalculationOptions.Size = New System.Drawing.Size(248, 88)
+        Me.fraCalculationOptions.Size = New System.Drawing.Size(248, 104)
         Me.fraCalculationOptions.TabIndex = 1
         Me.fraCalculationOptions.TabStop = False
         Me.fraCalculationOptions.Text = "Calculation Options"
+        '
+        'chkExcludeProteinSequence
+        '
+        Me.chkExcludeProteinSequence.Location = New System.Drawing.Point(16, 16)
+        Me.chkExcludeProteinSequence.Name = "chkExcludeProteinSequence"
+        Me.chkExcludeProteinSequence.Size = New System.Drawing.Size(192, 16)
+        Me.chkExcludeProteinSequence.TabIndex = 0
+        Me.chkExcludeProteinSequence.Text = "Exclude Protein Sequence"
         '
         'chkComputepI
         '
         Me.chkComputepI.Checked = True
         Me.chkComputepI.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkComputepI.Location = New System.Drawing.Point(16, 64)
+        Me.chkComputepI.Location = New System.Drawing.Point(16, 80)
         Me.chkComputepI.Name = "chkComputepI"
         Me.chkComputepI.Size = New System.Drawing.Size(216, 16)
-        Me.chkComputepI.TabIndex = 2
+        Me.chkComputepI.TabIndex = 3
         Me.chkComputepI.Text = "Compute Isoelectric Point (pI)"
         '
         'chkIncludeXResidues
         '
         Me.chkIncludeXResidues.Checked = True
         Me.chkIncludeXResidues.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkIncludeXResidues.Location = New System.Drawing.Point(16, 40)
+        Me.chkIncludeXResidues.Location = New System.Drawing.Point(16, 56)
         Me.chkIncludeXResidues.Name = "chkIncludeXResidues"
         Me.chkIncludeXResidues.Size = New System.Drawing.Size(216, 16)
-        Me.chkIncludeXResidues.TabIndex = 1
+        Me.chkIncludeXResidues.TabIndex = 2
         Me.chkIncludeXResidues.Text = "Include X Residues in Mass (113 Da)"
         '
         'chkComputeProteinMass
         '
         Me.chkComputeProteinMass.Checked = True
         Me.chkComputeProteinMass.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkComputeProteinMass.Location = New System.Drawing.Point(16, 24)
+        Me.chkComputeProteinMass.Location = New System.Drawing.Point(16, 40)
         Me.chkComputeProteinMass.Name = "chkComputeProteinMass"
         Me.chkComputeProteinMass.Size = New System.Drawing.Size(144, 16)
-        Me.chkComputeProteinMass.TabIndex = 0
+        Me.chkComputeProteinMass.TabIndex = 1
         Me.chkComputeProteinMass.Text = "Compute Protein Mass"
         '
         'cboProteinReversalOptions
@@ -1058,6 +1073,8 @@ Public Class frmMain
         '
         'fraProcessingOptions
         '
+        Me.fraProcessingOptions.Controls.Add(Me.lblProteinScramblingLoopCount)
+        Me.fraProcessingOptions.Controls.Add(Me.txtProteinScramblingLoopCount)
         Me.fraProcessingOptions.Controls.Add(Me.lblSamplingPercentageUnits)
         Me.fraProcessingOptions.Controls.Add(Me.lblProteinReversalSamplingPercentage)
         Me.fraProcessingOptions.Controls.Add(Me.txtProteinReversalSamplingPercentage)
@@ -1079,7 +1096,7 @@ Public Class frmMain
         '
         'lblSamplingPercentageUnits
         '
-        Me.lblSamplingPercentageUnits.Location = New System.Drawing.Point(232, 43)
+        Me.lblSamplingPercentageUnits.Location = New System.Drawing.Point(208, 42)
         Me.lblSamplingPercentageUnits.Name = "lblSamplingPercentageUnits"
         Me.lblSamplingPercentageUnits.Size = New System.Drawing.Size(16, 16)
         Me.lblSamplingPercentageUnits.TabIndex = 4
@@ -1087,7 +1104,7 @@ Public Class frmMain
         '
         'lblProteinReversalSamplingPercentage
         '
-        Me.lblProteinReversalSamplingPercentage.Location = New System.Drawing.Point(72, 42)
+        Me.lblProteinReversalSamplingPercentage.Location = New System.Drawing.Point(48, 42)
         Me.lblProteinReversalSamplingPercentage.Name = "lblProteinReversalSamplingPercentage"
         Me.lblProteinReversalSamplingPercentage.Size = New System.Drawing.Size(112, 16)
         Me.lblProteinReversalSamplingPercentage.TabIndex = 2
@@ -1096,7 +1113,7 @@ Public Class frmMain
         '
         'txtProteinReversalSamplingPercentage
         '
-        Me.txtProteinReversalSamplingPercentage.Location = New System.Drawing.Point(192, 40)
+        Me.txtProteinReversalSamplingPercentage.Location = New System.Drawing.Point(168, 40)
         Me.txtProteinReversalSamplingPercentage.MaxLength = 3
         Me.txtProteinReversalSamplingPercentage.Name = "txtProteinReversalSamplingPercentage"
         Me.txtProteinReversalSamplingPercentage.Size = New System.Drawing.Size(32, 20)
@@ -1518,6 +1535,24 @@ Public Class frmMain
         Me.dgPeakMatchingThresholds.Size = New System.Drawing.Size(424, 208)
         Me.dgPeakMatchingThresholds.TabIndex = 0
         '
+        'lblProteinScramblingLoopCount
+        '
+        Me.lblProteinScramblingLoopCount.Location = New System.Drawing.Point(232, 42)
+        Me.lblProteinScramblingLoopCount.Name = "lblProteinScramblingLoopCount"
+        Me.lblProteinScramblingLoopCount.Size = New System.Drawing.Size(72, 16)
+        Me.lblProteinScramblingLoopCount.TabIndex = 12
+        Me.lblProteinScramblingLoopCount.Text = "Loop Count"
+        Me.lblProteinScramblingLoopCount.TextAlign = System.Drawing.ContentAlignment.TopRight
+        '
+        'txtProteinScramblingLoopCount
+        '
+        Me.txtProteinScramblingLoopCount.Location = New System.Drawing.Point(312, 40)
+        Me.txtProteinScramblingLoopCount.MaxLength = 3
+        Me.txtProteinScramblingLoopCount.Name = "txtProteinScramblingLoopCount"
+        Me.txtProteinScramblingLoopCount.Size = New System.Drawing.Size(32, 20)
+        Me.txtProteinScramblingLoopCount.TabIndex = 13
+        Me.txtProteinScramblingLoopCount.Text = "1"
+        '
         'frmMain
         '
         Me.AutoScaleBaseSize = New System.Drawing.Size(5, 13)
@@ -1867,7 +1902,7 @@ Public Class frmMain
         lblInputFileColumnDelimiter.Enabled = blnEnableDelimitedFileOptions
         chkAssumeInputFileIsDigested.Enabled = blnEnableDelimitedFileOptions
 
-        txtInputFileColumnDelimiter.Enabled = (cboInputFileColumnDelimiter.SelectedIndex = clsProteinDigestionSimulator.DelimiterCharConstants.Other) And blnEnableDelimitedFileOptions
+        txtInputFileColumnDelimiter.Enabled = (cboInputFileColumnDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Other) And blnEnableDelimitedFileOptions
 
         blnEnableDigestionOptions = chkDigestProteins.Checked
         If blnEnableDigestionOptions Then
@@ -1889,8 +1924,8 @@ Public Class frmMain
         fraDigestionOptions.Enabled = blnEnableDigestionOptions
         chkIncludePrefixAndSuffixResidues.Enabled = blnEnableDigestionOptions
 
-        txtOutputFileFieldDelimeter.Enabled = (cboOutputFileFieldDelimeter.SelectedIndex = clsProteinDigestionSimulator.DelimiterCharConstants.Other)
-        txtRefEndChar.Enabled = (cboRefEndChar.SelectedIndex = clsProteinDigestionSimulator.DelimiterCharConstants.Other)
+        txtOutputFileFieldDelimeter.Enabled = (cboOutputFileFieldDelimeter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Other)
+        txtRefEndChar.Enabled = (cboRefEndChar.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Other)
 
         blnEnableDelimitedFileOptions = chkLookForAddnlRefInDescription.Checked
         txtAddnlRefSepChar.Enabled = blnEnableDelimitedFileOptions
@@ -1915,6 +1950,12 @@ Public Class frmMain
             txtProteinReversalSamplingPercentage.Enabled = False
         Else
             txtProteinReversalSamplingPercentage.Enabled = True
+        End If
+
+        If cboProteinReversalOptions.SelectedIndex = 2 Then
+            txtProteinScramblingLoopCount.Enabled = True
+        Else
+            txtProteinScramblingLoopCount.Enabled = False
         End If
 
         txtMinimumSLiCScore.Enabled = chkUseSLiCScoreForUniqueness.Checked
@@ -2077,11 +2118,11 @@ Public Class frmMain
 
     Private Sub IniFileLoadOptions()
 
-        Const OptionsSection As String = clsProteinDigestionSimulator.XML_SECTION_OPTIONS
-        Const FASTAOptions As String = clsProteinDigestionSimulator.XML_SECTION_FASTA_OPTIONS
-        Const ProcessingOptions As String = clsProteinDigestionSimulator.XML_SECTION_PROCESSING_OPTIONS
-        Const DigestionOptions As String = clsProteinDigestionSimulator.XML_SECTION_DIGESTION_OPTIONS
-        Const UniquenessStatsOptions As String = clsProteinDigestionSimulator.XML_SECTION_UNIQUENESS_STATS_OPTIONS
+        Const OptionsSection As String = clsParseProteinFile.XML_SECTION_OPTIONS
+        Const FASTAOptions As String = clsParseProteinFile.XML_SECTION_FASTA_OPTIONS
+        Const ProcessingOptions As String = clsParseProteinFile.XML_SECTION_PROCESSING_OPTIONS
+        Const DigestionOptions As String = clsParseProteinFile.XML_SECTION_DIGESTION_OPTIONS
+        Const UniquenessStatsOptions As String = clsParseProteinFile.XML_SECTION_UNIQUENESS_STATS_OPTIONS
         Const PMOptions As String = clsProteinDigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS
 
         Dim objXmlFile As New PRISM.Files.XmlSettingsFileAccessor
@@ -2134,11 +2175,13 @@ Public Class frmMain
                     txtAddnlRefSepChar.Text = .GetParam(FASTAOptions, "AddnlRefSepChar", txtAddnlRefSepChar.Text)
                     txtAddnlRefAccessionSepChar.Text = .GetParam(FASTAOptions, "AddnlRefAccessionSepChar", txtAddnlRefAccessionSepChar.Text)
 
+                    chkExcludeProteinSequence.Checked = .GetParam(ProcessingOptions, "ExcludeProteinSequence", chkExcludeProteinSequence.Checked)
                     chkComputeProteinMass.Checked = .GetParam(ProcessingOptions, "ComputeProteinMass", chkComputeProteinMass.Checked)
                     chkComputepI.Checked = .GetParam(ProcessingOptions, "ComputepI", chkComputepI.Checked)
                     chkIncludeXResidues.Checked = .GetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
                     chkDigestProteins.Checked = .GetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked)
                     cboProteinReversalOptions.SelectedIndex = .GetParam(ProcessingOptions, "ProteinReversalIndex", cboProteinReversalOptions.SelectedIndex)
+                    txtProteinScramblingLoopCount.text = .GetParam(ProcessingOptions, "ProteinScramblingLoopCount", txtProteinScramblingLoopCount.text)
 
                     Try
                         cboHydrophobicityMode.SelectedIndex = .GetParam(ProcessingOptions, "HydrophobicityMode", cboHydrophobicityMode.SelectedIndex)
@@ -2237,11 +2280,11 @@ Public Class frmMain
 
     Private Sub IniFileSaveOptions(Optional ByVal blnSaveWindowDimensionsOnly As Boolean = False)
 
-        Const OptionsSection As String = clsProteinDigestionSimulator.XML_SECTION_OPTIONS
-        Const FASTAOptions As String = clsProteinDigestionSimulator.XML_SECTION_FASTA_OPTIONS
-        Const ProcessingOptions As String = clsProteinDigestionSimulator.XML_SECTION_PROCESSING_OPTIONS
-        Const DigestionOptions As String = clsProteinDigestionSimulator.XML_SECTION_DIGESTION_OPTIONS
-        Const UniquenessStatsOptions As String = clsProteinDigestionSimulator.XML_SECTION_UNIQUENESS_STATS_OPTIONS
+        Const OptionsSection As String = clsParseProteinFile.XML_SECTION_OPTIONS
+        Const FASTAOptions As String = clsParseProteinFile.XML_SECTION_FASTA_OPTIONS
+        Const ProcessingOptions As String = clsParseProteinFile.XML_SECTION_PROCESSING_OPTIONS
+        Const DigestionOptions As String = clsParseProteinFile.XML_SECTION_DIGESTION_OPTIONS
+        Const UniquenessStatsOptions As String = clsParseProteinFile.XML_SECTION_UNIQUENESS_STATS_OPTIONS
         Const PMOptions As String = clsProteinDigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS
 
         Dim objXmlFile As New PRISM.Files.XmlSettingsFileAccessor
@@ -2285,11 +2328,13 @@ Public Class frmMain
                         .SetParam(FASTAOptions, "AddnlRefSepChar", txtAddnlRefSepChar.Text)
                         .SetParam(FASTAOptions, "AddnlRefAccessionSepChar", txtAddnlRefAccessionSepChar.Text)
 
+                        .SetParam(ProcessingOptions, "ExcludeProteinSequence", chkExcludeProteinSequence.Checked)
                         .SetParam(ProcessingOptions, "ComputeProteinMass", chkComputeProteinMass.Checked)
                         .SetParam(ProcessingOptions, "ComputepI", chkComputepI.Checked)
                         .SetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
                         .SetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked)
                         .SetParam(ProcessingOptions, "ProteinReversalIndex", cboProteinReversalOptions.SelectedIndex)
+                        .SetParam(ProcessingOptions, "ProteinScramblingLoopCount", txtProteinScramblingLoopCount.text)
 
                         .SetParam(ProcessingOptions, "HydrophobicityMode", cboHydrophobicityMode.SelectedIndex)
                         .SetParam(ProcessingOptions, "MaxpIModeEnabled", chkMaxpIModeEnabled.Checked)
@@ -2380,6 +2425,7 @@ Public Class frmMain
         IniFileLoadOptions()
         SetToolTips()
 
+        EnableDisableControls()
     End Sub
 
     Private Sub InitializePeakMatchingDataGrid()
@@ -2503,6 +2549,7 @@ Public Class frmMain
 
             End With
 
+            .ExcludeProteinSequence = chkExcludeProteinSequence.Checked
             .ComputeProteinMass = chkComputeProteinMass.Checked
             .ComputepI = chkComputepI.Checked
 
@@ -2553,7 +2600,7 @@ Public Class frmMain
 
     Private Function LookupColumnDelimiter(ByVal DelimiterCombobox As ComboBox, ByVal DelimiterTextbox As TextBox, ByVal strDefaultDelimiter As Char) As Char
         Try
-            Return clsProteinDigestionSimulator.LookupColumnDelimiterChar(DelimiterCombobox.SelectedIndex, DelimiterTextbox.Text, strDefaultDelimiter)
+            Return clsParseProteinFile.LookupColumnDelimiterChar(DelimiterCombobox.SelectedIndex, DelimiterTextbox.Text, strDefaultDelimiter)
         Catch ex As Exception
             Return ControlChars.Tab
         End Try
@@ -2593,9 +2640,12 @@ Public Class frmMain
 
             .SetToolTip(chkGenerateUniqueIDValues, "Set this to false to use less memory when digesting huge protein input files.")
             .SetToolTip(txtProteinReversalSamplingPercentage, "Set this to a value less than 100 to only include a portion of the residues from the input file in the output file.")
+            .SetToolTip(txtProteinScramblingLoopCount, "Set this to a value greater than 1 to create multiple scrambled versions of the intput file.")
 
             .SetToolTip(optUseEllipseSearchRegion, "This setting only takes effect if 'Use SLiC Score when gauging uniqueness' is false.")
             .SetToolTip(optUseRectangleSearchRegion, "This setting only takes effect if 'Use SLiC Score when gauging uniqueness' is false.")
+
+            .SetToolTip(chkExcludeProteinSequence, "Enabling this setting will prevent protein sequences from being written to the output file; useful when processing extremely large files.")
         End With
 
         objToolTipControl = Nothing
@@ -2616,6 +2666,7 @@ Public Class frmMain
                     .CreateProteinOutputFile = True
                     .ProteinScramblingMode = CType(cboProteinReversalOptions.SelectedIndex, clsParseProteinFile.ProteinScramblingModeConstants)
                     .ProteinScramblingSamplingPercentage = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtProteinReversalSamplingPercentage, "", False, 100, False)
+                    .ProteinScramblingLoopCount = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtProteinScramblingLoopCount, "", False, 1, False)
                     .CreateDigestedProteinOutputFile = chkDigestProteins.Checked
                     .CreateFastaOutputFile = chkCreateFastaOutputFile.Checked
 
@@ -2829,12 +2880,12 @@ Public Class frmMain
         With cboInputFileColumnDelimiter
             With .Items
                 .Clear()
-                .Insert(clsProteinDigestionSimulator.DelimiterCharConstants.Space, "Space")
-                .Insert(clsProteinDigestionSimulator.DelimiterCharConstants.Tab, "Tab")
-                .Insert(clsProteinDigestionSimulator.DelimiterCharConstants.Comma, "Comma")
-                .Insert(clsProteinDigestionSimulator.DelimiterCharConstants.Other, "Other")
+                .Insert(clsParseProteinFile.DelimiterCharConstants.Space, "Space")
+                .Insert(clsParseProteinFile.DelimiterCharConstants.Tab, "Tab")
+                .Insert(clsParseProteinFile.DelimiterCharConstants.Comma, "Comma")
+                .Insert(clsParseProteinFile.DelimiterCharConstants.Other, "Other")
             End With
-            .SelectedIndex = clsProteinDigestionSimulator.DelimiterCharConstants.Tab
+            .SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Tab
         End With
 
         With cboOutputFileFieldDelimeter
@@ -2844,7 +2895,7 @@ Public Class frmMain
                     .Insert(intIndex, cboInputFileColumnDelimiter.Items(intIndex))
                 Next
             End With
-            .SelectedIndex = clsProteinDigestionSimulator.DelimiterCharConstants.Space
+            .SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Space
         End With
 
         With cboRefEndChar
@@ -2854,7 +2905,7 @@ Public Class frmMain
                     .Insert(intIndex, cboInputFileColumnDelimiter.Items(intIndex))
                 Next
             End With
-            .SelectedIndex = clsProteinDigestionSimulator.DelimiterCharConstants.Space
+            .SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Space
         End With
 
         With cboInputFileColumnOrdering
@@ -2946,10 +2997,10 @@ Public Class frmMain
         End If
 
         cboInputFileFormat.SelectedIndex = InputFileFormatConstants.AutoDetermine
-        cboInputFileColumnDelimiter.SelectedIndex = clsProteinDigestionSimulator.DelimiterCharConstants.Tab
+        cboInputFileColumnDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Tab
         txtInputFileColumnDelimiter.Text = ";"c
 
-        cboOutputFileFieldDelimeter.SelectedIndex = clsProteinDigestionSimulator.DelimiterCharConstants.Tab
+        cboOutputFileFieldDelimeter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Tab
         txtOutputFileFieldDelimeter.Text = ";"c
 
         chkEnableLogging.Checked = False
@@ -2957,13 +3008,14 @@ Public Class frmMain
         chkIncludePrefixAndSuffixResidues.Checked = False
 
         txtRefStartChar.Text = mDefaultFastaFileOptions.ProteinLineStartChar            ' ">"
-        cboRefEndChar.SelectedIndex = clsProteinDigestionSimulator.DelimiterCharConstants.Space
+        cboRefEndChar.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Space
         txtRefEndChar.Text = mDefaultFastaFileOptions.ProteinLineAccessionEndChar                ' " "
 
         chkLookForAddnlRefInDescription.Checked = False
         txtAddnlRefSepChar.Text = mDefaultFastaFileOptions.AddnlRefSepChar                      ' "|"
         txtAddnlRefAccessionSepChar.Text = mDefaultFastaFileOptions.AddnlRefAccessionSepChar    ' ":"
 
+        chkExcludeProteinSequence.Checked = False
         chkComputeProteinMass.Checked = True
         chkComputepI.Checked = True
 
@@ -2974,6 +3026,8 @@ Public Class frmMain
         chkIncludeXResidues.Checked = True
         chkDigestProteins.Checked = False
         cboProteinReversalOptions.SelectedIndex = clsParseProteinFile.ProteinScramblingModeConstants.None
+        txtProteinReversalSamplingPercentage.Text = "100"
+        txtProteinScramblingLoopCount.Text = "1"
 
         cboCleavageRuleType.SelectedIndex = clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
         chkIncludeDuplicateSequences.Checked = False
@@ -3457,6 +3511,10 @@ Public Class frmMain
 
     Private Sub txtProteinReversalSamplingPercentage_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles txtProteinReversalSamplingPercentage.KeyPress
         SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtProteinReversalSamplingPercentage, e, True)
+    End Sub
+
+    Private Sub txtProteinScramblingLoopCount_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles txtProteinScramblingLoopCount.KeyPress
+        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtProteinScramblingLoopCount, e, True)
     End Sub
 
     Private Sub txtSequenceForpI_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtSequenceForpI.TextChanged

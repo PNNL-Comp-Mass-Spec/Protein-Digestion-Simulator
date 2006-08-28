@@ -17,12 +17,12 @@ Public Class clspICalculation
 
 #Region "Constants and Enums"
     Public Enum eHydrophobicityTypeConstants As Integer
-        HW = 0
-        KD = 1
-        Eisenberg = 2
-        GES = 3
-        MeekPH7p4 = 4
-        MeekPH2p1 = 5
+        HW = 0                  ' Hopp and Woods
+        KD = 1                  ' Kyte and Doolittle
+        Eisenberg = 2           ' Eisenberg
+        GES = 3                 ' Engleman et. al.
+        MeekPH7p4 = 4           ' Meek, pH 7.4
+        MeekPH2p1 = 5           ' Meek, pH 2.1
     End Enum
 
     ' Dissociation constants

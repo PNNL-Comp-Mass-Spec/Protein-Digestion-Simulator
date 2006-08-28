@@ -1,16 +1,18 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <sections>
-  <section name="FileOptions">
+  <section name="ProteinDigestionSimulatorOptions">
+    <item key="InputFilePath" value="D:\My Documents\Projects\DataMining\Protein_Digestion_Simulator\bin\QC_Standards_2004-01-21.fasta" />
     <item key="InputFileFormatIndex" value="0" />
     <item key="InputFileColumnDelimiterIndex" value="1" />
     <item key="InputFileColumnDelimiter" value=";" />
+    <item key="InputFileColumnOrdering" value="2" />
     <item key="OutputFileFieldDelimeterIndex" value="1" />
     <item key="OutputFileFieldDelimeter" value=";" />
     <item key="IncludePrefixAndSuffixResidues" value="False" />
+    <item key="EnableLogging" value="False" />
+    <item key="CustomValidationRulesFilePath" value="" />
     <item key="WindowWidth" value="664" />
-    <item key="WindowHeight" value="600" />
-    <item key="InputFilePath" value="QC_Standards_2004-01-21.fasta" />
-    <item key="InputFileColumnOrdering" value="4" />
+    <item key="WindowHeight" value="770" />
   </section>
   <section name="FastaInputOptions">
     <item key="RefStartChar" value="&gt;" />
@@ -21,11 +23,13 @@
     <item key="AddnlRefAccessionSepChar" value=":" />
   </section>
   <section name="ProcessingOptions">
+    <item key="ExcludeProteinSequence" value="False" />
     <item key="ComputeProteinMass" value="True" />
+    <item key="ComputepI" value="True" />
     <item key="IncludeXResidues" value="True" />
     <item key="DigestProteins" value="False" />
     <item key="ProteinReversalIndex" value="0" />
-    <item key="ComputepI" value="True" />
+    <item key="ProteinScramblingLoopCount" value="1" />
     <item key="HydrophobicityMode" value="0" />
     <item key="MaxpIModeEnabled" value="False" />
     <item key="MaxpISequenceLength" value="10" />
@@ -33,11 +37,11 @@
   <section name="DigestionOptions">
     <item key="CleavageRuleTypeIndex" value="1" />
     <item key="IncludeDuplicateSequences" value="False" />
+    <item key="CysPeptidesOnly" value="False" />
     <item key="DigestProteinsMinimumMass" value="400" />
     <item key="DigestProteinsMaximumMass" value="6000" />
     <item key="DigestProteinsMinimumResidueCount" value="0" />
     <item key="DigestProteinsMaximumMissedCleavages" value="3" />
-    <item key="CysPeptidesOnly" value="False" />
     <item key="DigestProteinsMinimumpI" value="0" />
     <item key="DigestProteinsMaximumpI" value="14" />
   </section>
@@ -50,33 +54,11 @@
     <item key="MaxPeakMatchingResultsPerFeatureToSave" value="3" />
     <item key="UseSLiCScoreForUniqueness" value="True" />
     <item key="MinimumSLiCScore" value="0.95" />
-    <item key="SqlServerName" value="Albert" />
-    <item key="SqlServerDatabase" value="PD_Work" />
-    <item key="SqlServerUseIntegratedSecurity" value="True" />
-    <item key="SqlServerUsername" value="user" />
-    <item key="SqlServerPassword" value="" />
-    <item key="UseSqlServerDBToCacheData" value="True" />
-    <item key="AllowSqlServerCaching" value="False" />
-    <item key="SqlServerUseExistingData" value="True" />
     <item key="UseEllipseSearchRegion" value="True" />
-  </section>
-  <section name="ProteinDigestionSimulatorOptions">
-    <item key="WindowWidth" value="664" />
-    <item key="WindowHeight" value="710" />
-    <item key="InputFilePath" value="QC_Standards_2004-01-21.fasta" />
-    <item key="InputFileFormatIndex" value="0" />
-    <item key="InputFileColumnDelimiterIndex" value="1" />
-    <item key="InputFileColumnDelimiter" value=";" />
-    <item key="InputFileColumnOrdering" value="5" />
-    <item key="OutputFileFieldDelimeterIndex" value="1" />
-    <item key="OutputFileFieldDelimeter" value=";" />
-    <item key="IncludePrefixAndSuffixResidues" value="False" />
-    <item key="EnableLogging" value="False" />
-    <item key="CustomValidationRulesFilePath" value="" />
   </section>
   <section name="PeakMatchingOptions">
     <item key="MassToleranceType" value="0" />
     <item key="AutoDefineSLiCScoreThresholds" value="True" />
-    <item key="ThresholdData" value="0.1,100; 1,100; 5,100; 10,100; 0.1,0.05; 1,0.05; 5,0.05; 10,0.05; 0.1,0.01; 1,0.01; 5,0.01; 10,0.01" />
+    <item key="ThresholdData" value="5,0.05" />
   </section>
 </sections>

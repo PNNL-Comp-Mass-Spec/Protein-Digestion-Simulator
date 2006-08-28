@@ -1,5 +1,9 @@
 Protein Digestion Simulator Change Log
 
+Version 2.1.2419; August 16, 2006
+	- Added the ability to create multiple scrambled fasta files for a given input file using the Protein Scrambling Loop Count option
+	- Fixed loading of options from a parameter file specified at the command line
+
 Version 2.1.2379; July 7, 2006
 	- Added option to filter digested peptides by pI
 

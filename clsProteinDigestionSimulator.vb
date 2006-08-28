@@ -37,17 +37,12 @@ Public Class clsProteinDigestionSimulator
     End Sub
 
     Public Sub New(ByVal blnShowMessages As Boolean, ByRef objLogger As PRISM.Logging.ILogger)
-        MyBase.mFileDate = "June 30, 2005"
+        MyBase.mFileDate = "August 16, 2006"
         mLogger = objLogger
         InitializeLocalVariables()
     End Sub
 
 #Region "Constants and Enums"
-    Public Const XML_SECTION_OPTIONS As String = "ProteinDigestionSimulatorOptions"
-    Public Const XML_SECTION_FASTA_OPTIONS As String = "FastaInputOptions"
-    Public Const XML_SECTION_PROCESSING_OPTIONS As String = "ProcessingOptions"
-    Public Const XML_SECTION_DIGESTION_OPTIONS As String = "DigestionOptions"
-    Public Const XML_SECTION_UNIQUENESS_STATS_OPTIONS As String = "UniquenessStatsOptions"
 
     Public Const XML_SECTION_PEAK_MATCHING_OPTIONS As String = "PeakMatchingOptions"
 
@@ -66,13 +61,6 @@ Public Class clsProteinDigestionSimulator
         ErrorWritingOutputFile = 16
         UserAbortedSearch = 32
         UnspecifiedError = -1
-    End Enum
-
-    Public Enum DelimiterCharConstants
-        Space = 0
-        Tab = 1
-        Comma = 2
-        Other = 3
     End Enum
 
 #End Region
@@ -989,7 +977,7 @@ Public Class clsProteinDigestionSimulator
                     strErrorMessage = ""
 
                 Case eProteinDigestionSimulatorErrorCodes.ProteinDigestionSimulatorSectionNotFound
-                    strErrorMessage = "The section " & XML_SECTION_OPTIONS & " was not found in the parameter file"
+                    strErrorMessage = "The section " & clsParseProteinFile.XML_SECTION_OPTIONS & " was not found in the parameter file"
 
                 Case eProteinDigestionSimulatorErrorCodes.ErrorReadingInputFile
                     strErrorMessage = "Error reading input file"
@@ -1320,7 +1308,6 @@ Public Class clsProteinDigestionSimulator
 
     Private Function LoadParameterFileSettings(ByVal strParameterFilePath As String) As Boolean
 
-        Dim objSettingsFile As New PRISM.Files.XmlSettingsFileAccessor
         Dim ioFile As System.IO.File
         Dim ioPath As System.IO.Path
 
@@ -1345,81 +1332,7 @@ Public Class clsProteinDigestionSimulator
                 End If
             End If
 
-            ' Pass False to .LoadSettings() here to turn off case sensitive matching
-            If objSettingsFile.LoadSettings(strParameterFilePath, False) Then
-                If Not objSettingsFile.SectionPresent(XML_SECTION_OPTIONS) Then
-                    If MyBase.ShowMessages Then
-                        MsgBox("The node '<section name=""" & XML_SECTION_OPTIONS & """> was not found in the parameter file: " & strParameterFilePath, MsgBoxStyle.Exclamation Or MsgBoxStyle.OKOnly, "Invalid File")
-                    End If
-                    SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ProteinDigestionSimulatorSectionNotFound)
-                    Return False
-                Else
-                    'Me.ComparisonFastaFile = objSettingsFile.GetParam(XML_SECTION_OPTIONS, "ComparisonFastaFile", Me.ComparisonFastaFile)
-
-                    With ProteinFileParser
-                        intDelimeterIndex = DelimiterCharConstants.Tab
-                        strCustomDelimiter = ControlChars.Tab
-
-                        intDelimeterIndex = objSettingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiterIndex", intDelimeterIndex)
-                        strCustomDelimiter = objSettingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiter", strCustomDelimiter)
-
-                        .InputFileDelimiter = LookupColumnDelimiterChar(intDelimeterIndex, strCustomDelimiter, .InputFileDelimiter)
-
-                        .DelimitedFileFormatCode = CType(objSettingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnOrdering", CInt(.DelimitedFileFormatCode)), ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode)
-
-                        intDelimeterIndex = DelimiterCharConstants.Tab
-                        strCustomDelimiter = ControlChars.Tab
-                        intDelimeterIndex = objSettingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimeterIndex", intDelimeterIndex)
-                        strCustomDelimiter = objSettingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimeter", strCustomDelimiter)
-
-                        .OutputFileDelimiter = LookupColumnDelimiterChar(intDelimeterIndex, strCustomDelimiter, .OutputFileDelimiter)
-
-                        With .DigestionOptions
-                            .IncludePrefixAndSuffixResidues = objSettingsFile.GetParam(XML_SECTION_OPTIONS, "IncludePrefixAndSuffixResidues", .IncludePrefixAndSuffixResidues)
-                        End With
-
-                        With .FastaFileOptions
-                            .ProteinLineStartChar = objSettingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "RefStartChar", .ProteinLineStartChar.ToString).Chars(0)
-
-                            intDelimeterIndex = DelimiterCharConstants.Space
-                            strCustomDelimiter = " "c
-
-                            intDelimeterIndex = objSettingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "RefEndCharIndex", intDelimeterIndex)
-
-                            .ProteinLineAccessionEndChar = LookupColumnDelimiterChar(intDelimeterIndex, strCustomDelimiter, .ProteinLineAccessionEndChar)
-
-                            .LookForAddnlRefInDescription = objSettingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "LookForAddnlRefInDescription", .LookForAddnlRefInDescription)
-
-                            .AddnlRefSepChar = objSettingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "AddnlRefSepChar", .AddnlRefSepChar.ToString).Chars(0)
-                            .AddnlRefAccessionSepChar = objSettingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "AddnlRefAccessionSepChar", .AddnlRefAccessionSepChar.ToString).Chars(0)
-                        End With
-
-                        .ComputeProteinMass = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeProteinMass", .ComputeProteinMass)
-                        .IncludeXResiduesInMass = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "IncludeXResidues", .IncludeXResiduesInMass)
-                        .CreateDigestedProteinOutputFile = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "DigestProteins", .CreateDigestedProteinOutputFile)
-                        .ProteinScramblingMode = CType(objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinReversalIndex", CInt(.ProteinScramblingMode)), clsParseProteinFile.ProteinScramblingModeConstants)
-
-                        With .DigestionOptions
-                            .CleavageRuleID = CType(objSettingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CleavageRuleTypeIndex", CInt(.CleavageRuleID)), clsInSilicoDigest.CleavageRuleConstants)
-                            .RemoveDuplicateSequences = Not objSettingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "IncludeDuplicateSequences", Not .RemoveDuplicateSequences)
-
-                            blnCysPeptidesOnly = objSettingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CysPeptidesOnly", False)
-                            If blnCysPeptidesOnly Then
-                                .AminoAcidResidueFilterChars = New Char() {"C"c}
-                            Else
-                                .AminoAcidResidueFilterChars = New Char() {}
-                            End If
-
-                            .MinFragmentMass = objSettingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMinimumMass", .MinFragmentMass)
-                            .MaxFragmentMass = objSettingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMaximumMass", .MaxFragmentMass)
-                            .MinFragmentResidueCount = objSettingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMinimumResidueCount", .MinFragmentResidueCount)
-                            .MaxMissedCleavages = objSettingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMaximumMissedCleavages", .MaxMissedCleavages)
-                        End With
-
-                    End With
-
-                End If
-            End If
+            ProteinFileParser.LoadParameterFileSettings(strParameterFilePath)
 
         Catch ex As Exception
             If MyBase.ShowMessages Then
@@ -1725,34 +1638,6 @@ Public Class clsProteinDigestionSimulator
         End Try
 
         Return blnSuccess
-
-    End Function
-
-    Public Shared Function LookupColumnDelimiterChar(ByVal intDelimiterIndex As Integer, ByVal strCustomDelimiter As String, ByVal strDefaultDelimiter As Char) As Char
-
-        Dim strDelimiter As String
-
-        Select Case intDelimiterIndex
-            Case DelimiterCharConstants.Space
-                strDelimiter = " "
-            Case DelimiterCharConstants.Tab
-                strDelimiter = ControlChars.Tab
-            Case DelimiterCharConstants.Comma
-                strDelimiter = ","
-            Case Else
-                ' Includes DelimiterCharConstants.Other
-                strDelimiter = String.Copy(strCustomDelimiter)
-        End Select
-
-        If strDelimiter Is Nothing OrElse strDelimiter.Length = 0 Then
-            strDelimiter = String.Copy(strDefaultDelimiter)
-        End If
-
-        Try
-            Return strDelimiter.Chars(0)
-        Catch ex As Exception
-            Return ControlChars.Tab
-        End Try
 
     End Function
 
