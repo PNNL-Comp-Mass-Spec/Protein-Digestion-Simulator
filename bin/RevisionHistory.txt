@@ -1,5 +1,13 @@
 Protein Digestion Simulator Change Log
 
+Version 2.1.2481; October 17, 2006
+	- Now including a header line when converting a .Fasta file to a text file
+		- If "Look for addnl Ref in description" is enabled, then includes each of the accession names in the header line
+		- When writing out the accession numbers, no longer includes the accession name in each data line, since the header line contains that information
+	- Fixed a parsing bug that caused proteins with descriptions like the following to throw an error when splitting on | and : to find addnl Refs in protein descriptions
+		- Tax_Id=9606 PREDICTED: hypothetical
+	- Updated to new version of NETPrediction.dll (v 1.0.2481)
+
 Version 2.1.2419; August 16, 2006
 	- Added the ability to create multiple scrambled fasta files for a given input file using the Protein Scrambling Loop Count option
 	- Fixed loading of options from a parameter file specified at the command line

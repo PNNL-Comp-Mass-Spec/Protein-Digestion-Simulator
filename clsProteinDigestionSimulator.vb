@@ -37,7 +37,7 @@ Public Class clsProteinDigestionSimulator
     End Sub
 
     Public Sub New(ByVal blnShowMessages As Boolean, ByRef objLogger As PRISM.Logging.ILogger)
-        MyBase.mFileDate = "August 16, 2006"
+        MyBase.mFileDate = "October 5, 2006"
         mLogger = objLogger
         InitializeLocalVariables()
     End Sub

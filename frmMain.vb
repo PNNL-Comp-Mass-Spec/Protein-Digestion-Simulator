@@ -2125,6 +2125,8 @@ Public Class frmMain
         Const UniquenessStatsOptions As String = clsParseProteinFile.XML_SECTION_UNIQUENESS_STATS_OPTIONS
         Const PMOptions As String = clsProteinDigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS
 
+        Const MAX_AUTO_WINDOW_HEIGHT As Integer = 650
+
         Dim objXmlFile As New PRISM.Files.XmlSettingsFileAccessor
 
         Dim blnAutoDefineSLiCScoreThresholds As Boolean
@@ -2133,6 +2135,7 @@ Public Class frmMain
         Dim blnRadioButtonChecked As Boolean
 
         Dim intIndex As Integer
+        Dim intWindowHeight As Integer
 
         Dim strThresholdData As String
         Dim strThresholds() As String
@@ -2165,7 +2168,11 @@ Public Class frmMain
                     mCustomValidationRulesFilePath = .GetParam(OptionsSection, "CustomValidationRulesFilePath", String.Empty)
 
                     Me.Width = .GetParam(OptionsSection, "WindowWidth", Me.Width)
-                    Me.Height = .GetParam(OptionsSection, "WindowHeight", Me.Height)
+                    intWindowHeight = .GetParam(OptionsSection, "WindowHeight", Me.Height)
+                    If intWindowHeight > MAX_AUTO_WINDOW_HEIGHT Then
+                        intWindowHeight = MAX_AUTO_WINDOW_HEIGHT
+                    End If
+                    Me.Height = intWindowHeight
 
                     txtRefStartChar.Text = .GetParam(FASTAOptions, "RefStartChar", txtRefStartChar.Text)
                     cboRefEndChar.SelectedIndex = .GetParam(FASTAOptions, "RefEndCharIndex", cboRefEndChar.SelectedIndex)
@@ -2181,7 +2188,7 @@ Public Class frmMain
                     chkIncludeXResidues.Checked = .GetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
                     chkDigestProteins.Checked = .GetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked)
                     cboProteinReversalOptions.SelectedIndex = .GetParam(ProcessingOptions, "ProteinReversalIndex", cboProteinReversalOptions.SelectedIndex)
-                    txtProteinScramblingLoopCount.text = .GetParam(ProcessingOptions, "ProteinScramblingLoopCount", txtProteinScramblingLoopCount.text)
+                    txtProteinScramblingLoopCount.Text = .GetParam(ProcessingOptions, "ProteinScramblingLoopCount", txtProteinScramblingLoopCount.Text)
 
                     Try
                         cboHydrophobicityMode.SelectedIndex = .GetParam(ProcessingOptions, "HydrophobicityMode", cboHydrophobicityMode.SelectedIndex)

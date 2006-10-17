@@ -714,8 +714,8 @@ Public Class clsInSilicoDigest
 #End If
             End If
 
-
-            mAutoComputeNET = True
+            ' Disable mAutoComputeNET for now so that the call to SetSequence() below doesn't auto-call UpdateNET
+            mAutoComputeNET = False
 
             mPeptideName = String.Empty
             SetSequence(String.Empty)
@@ -723,6 +723,8 @@ Public Class clsInSilicoDigest
             mPrefixResidue = PROTEIN_TERMINUS_SYMBOL
             mSuffixResidue = PROTEIN_TERMINUS_SYMBOL
 
+            ' Re-enable mAutoComputeNET 
+            mAutoComputeNET = True
         End Sub
 
 #Region "Constants and Enums"

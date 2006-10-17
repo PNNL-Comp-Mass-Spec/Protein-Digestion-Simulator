@@ -15,7 +15,7 @@ Public Class clsParseProteinFile
     Inherits clsProcessFilesBaseClass
 
     Public Sub New()
-        MyBase.mFileDate = "August 16, 2006"
+        MyBase.mFileDate = "October 5, 2006"
         InitializeLocalVariables()
     End Sub
 
@@ -394,7 +394,7 @@ Public Class clsParseProteinFile
         ' strDescription is passed ByRef since the additional protein references will be removed from it
 
         Dim intIndex As Integer
-        Dim intCharLoc, intSpaceLoc As Integer
+        Dim intCharIndex, intSpaceIndex As Integer
 
         Dim intAlternateNameCount As Integer
         Dim strRefs() As String
@@ -409,27 +409,33 @@ Public Class clsParseProteinFile
                 ReDim udtAlternateNames(strRefs.Length - 1)
 
                 For intIndex = 0 To strRefs.Length - 1
-                    intCharLoc = strRefs(intIndex).IndexOf(FastaFileOptions.AddnlRefAccessionSepChar)
+                    intCharIndex = strRefs(intIndex).IndexOf(FastaFileOptions.AddnlRefAccessionSepChar)
 
-                    If intCharLoc > 0 Then
+                    If intCharIndex > 0 Then
                         If intIndex = strRefs.Length - 1 Then
-                            ' Need to find the next space and truncate strRefs() at that location
-                            intSpaceLoc = strRefs(intIndex).IndexOf(" "c)
-                            If intSpaceLoc >= 0 Then
-                                strRefs(intIndex) = strRefs(intIndex).Substring(0, intSpaceLoc)
+                            ' Need to find the next space after intCharIndex and truncate strRefs() at that location
+                            intSpaceIndex = strRefs(intIndex).IndexOf(" "c, intCharIndex)
+                            If intSpaceIndex >= 0 Then
+                                strRefs(intIndex) = strRefs(intIndex).Substring(0, intSpaceIndex)
                             End If
                         End If
 
                         With udtAlternateNames(intIndex)
-                            .RefName = strRefs(intIndex).Substring(0, intCharLoc)
-                            .RefAccession = strRefs(intIndex).Substring(intCharLoc + 1)
+                            If intCharIndex >= strRefs(intIndex).Length - 1 Then
+                                ' No accession after the colon; invalid entry so discard this entry and stop parsing
+                                ReDim Preserve udtAlternateNames(intIndex - 1)
+                                Exit For
+                            End If
+
+                            .RefName = strRefs(intIndex).Substring(0, intCharIndex)
+                            .RefAccession = strRefs(intIndex).Substring(intCharIndex + 1)
                             intAlternateNameCount += 1
                         End With
 
-                        intCharLoc = strDescription.IndexOf(strRefs(intIndex))
-                        If intCharLoc >= 0 Then
-                            If intCharLoc + strRefs(intIndex).Length + 1 < strDescription.Length Then
-                                strDescription = strDescription.Substring(intCharLoc + strRefs(intIndex).Length + 1)
+                        intCharIndex = strDescription.IndexOf(strRefs(intIndex))
+                        If intCharIndex >= 0 Then
+                            If intCharIndex + strRefs(intIndex).Length + 1 < strDescription.Length Then
+                                strDescription = strDescription.Substring(intCharIndex + strRefs(intIndex).Length + 1)
                             Else
                                 strDescription = String.Empty
                             End If
@@ -1172,6 +1178,35 @@ Public Class clsParseProteinFile
                 objProgressForm.Visible = True
                 Windows.Forms.Application.DoEvents()
 
+                If Not mCreateFastaOutputFile Then
+                    ' Write the header line to the output file
+                    strLineOut = "ProteinName" & mOutputFileDelimiter
+
+                    If blnLookForAddnlRefInDescription Then
+
+                        For intIndex = 0 To udtAddnlRefsToOutput.Length - 1
+                            With udtAddnlRefsToOutput(intIndex)
+                                strLineOut &= .RefName & mOutputFileDelimiter
+                            End With
+                        Next intIndex
+                    End If
+
+                    strLineOut &= "Description"
+
+                    If Not mExcludeProteinSequence Then
+                        strLineOut &= mOutputFileDelimiter & "Sequence"
+                    End If
+
+                    If mComputeProteinMass OrElse mComputepI Then
+                        strLineOut &= mOutputFileDelimiter & "Mass"
+                        If mComputepI Then
+                            strLineOut &= mOutputFileDelimiter & "pI" & mOutputFileDelimiter & "Hydrophobicity"
+                        End If
+                    End If
+
+                    srProteinOutputFile.WriteLine(strLineOut)
+                End If
+
                 ' Read each protein in the input file and process appropriately
                 mProteinCount = 0
                 ReDim mProteins(PROTEIN_CACHE_MEMORY_RESERVE_COUNT)
@@ -1259,7 +1294,7 @@ Public Class clsParseProteinFile
                                             strLineOut = .Name & mOutputFileDelimiter
                                             For intIndex = 0 To udtAddnlRefsToOutput.Length - 1
                                                 With udtAddnlRefsToOutput(intIndex)
-                                                    strLineOut &= .RefName & FastaFileOptions.AddnlRefAccessionSepChar & .RefAccession & mOutputFileDelimiter
+                                                    strLineOut &= .RefAccession & mOutputFileDelimiter
                                                 End With
                                             Next intIndex
 
