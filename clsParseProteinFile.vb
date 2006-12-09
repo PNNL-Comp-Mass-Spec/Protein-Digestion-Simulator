@@ -15,7 +15,7 @@ Public Class clsParseProteinFile
     Inherits clsProcessFilesBaseClass
 
     Public Sub New()
-        MyBase.mFileDate = "October 5, 2006"
+        MyBase.mFileDate = "November 13, 2006"
         InitializeLocalVariables()
     End Sub
 
@@ -1445,6 +1445,15 @@ Public Class clsParseProteinFile
                 blnSuccess = False
             End If
         Finally
+            If Not srProteinOutputFile Is Nothing Then
+                srProteinOutputFile.Close()
+            End If
+            If Not srDigestOutputFile Is Nothing Then
+                srDigestOutputFile.Close()
+            End If
+            If Not srScrambledOutStream Is Nothing Then
+                srScrambledOutStream.Close()
+            End If
             If Not blnUsingExistingProgressForm AndAlso Not objProgressForm Is Nothing Then
                 objProgressForm.HideForm()
             End If

@@ -1,5 +1,9 @@
 Protein Digestion Simulator Change Log
 
+Version 2.1.2508; November 13, 2006
+	- Updated clsInSilicoDigest.vb to support using "No Enzyme" for in-silico digestion
+		- Defines the residues to cleavage after as all residues: ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
 Version 2.1.2481; October 17, 2006
 	- Now including a header line when converting a .Fasta file to a text file
 		- If "Look for addnl Ref in description" is enabled, then includes each of the accession names in the header line

@@ -11,7 +11,7 @@ Public Class clsInSilicoDigest
     '
     ' Utilizes the PeptideInfoClass class
     '
-    ' Last Modified July 6, 2006
+    ' Last Modified November 13, 2006
     '
 
     Public Sub New()
@@ -177,6 +177,7 @@ Public Class clsInSilicoDigest
         ' Returns the number of fragments
         ' Returns the fragment info in objPeptideFragments()
 
+        Const MAX_FRAGMENT_COUNT_PRE_RESERVE As Integer = 100000
         Dim htFragmentsUniqueList As New System.Collections.Specialized.StringDictionary
 
         Dim intTrypticFragmentCount As Integer, intFragmentCountTotal As Integer
@@ -189,6 +190,7 @@ Public Class clsInSilicoDigest
         Dim intProteinSequenceLength As Integer
 
         Dim intIndex As Integer
+        Dim intMaxMissedCleavagesStart As Integer
 
         Dim intTrypticFragCacheCount As Integer
         Dim strTrypticFragCache() As String                 ' 0-based array
@@ -220,11 +222,21 @@ Public Class clsInSilicoDigest
             ' Increment intTrypticFragmentCount to account for missed cleavages
             ' This will be drastically low if using partial cleavage, but it is a starting point
             intFragmentCountTotal = 0
-            For intIndex = objDigestionOptions.MaxMissedCleavages + 1 To 1 Step -1
-                intFragmentCountTotal = intFragmentCountTotal + intIndex * intTrypticFragmentCount
+
+            intMaxMissedCleavagesStart = objDigestionOptions.MaxMissedCleavages
+            If intMaxMissedCleavagesStart > strProteinSequence.Length Then
+                intMaxMissedCleavagesStart = strProteinSequence.Length
+            End If
+
+            For intIndex = intMaxMissedCleavagesStart + 1 To 1 Step -1
+                intFragmentCountTotal += intIndex * intTrypticFragmentCount
+                If intFragmentCountTotal > MAX_FRAGMENT_COUNT_PRE_RESERVE Then
+                    intFragmentCountTotal = MAX_FRAGMENT_COUNT_PRE_RESERVE
+                    Exit For
+                End If
             Next intIndex
 
-            ReDim objPeptideFragments(intFragmentCountTotal)
+            ReDim objPeptideFragments(intFragmentCountTotal - 1)
             objPeptideFragments(0) = New PeptideInfoClass
             objPeptideFragments(0).AutoComputeNET = False
 
@@ -481,7 +493,7 @@ Public Class clsInSilicoDigest
 
             With .Rules(CleavageRuleConstants.NoRule)
                 .Description = "No cleavage rule"
-                .Residues = String.Empty
+                .Residues = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                 .RuleIDInParallax = 0
             End With
 
@@ -612,7 +624,7 @@ Public Class clsInSilicoDigest
             With objPeptideFragments(intFragmentCountTotal)
                 .SequenceOneLetter = strPeptideSequence
 
-                If .Mass < objDigestionOptions.MinFragmentMass orelse _
+                If .Mass < objDigestionOptions.MinFragmentMass OrElse _
                    .Mass > objDigestionOptions.MaxFragmentMass Then
                     blnAddFragment = False
                 Else
@@ -662,11 +674,7 @@ Public Class clsInSilicoDigest
             If blnAddFragment Then
                 intFragmentCountTotal += 1
                 If intFragmentCountTotal >= objPeptideFragments.Length Then
-                    If objDigestionOptions.CleavageRuleID = CleavageRuleConstants.KROneEnd Then
-                        ReDim Preserve objPeptideFragments(objPeptideFragments.Length + 1000)
-                    Else
-                        ReDim Preserve objPeptideFragments(objPeptideFragments.Length + 100)
-                    End If
+                    ReDim Preserve objPeptideFragments(objPeptideFragments.Length * 2 - 1)
                 End If
             End If
         End If
@@ -899,7 +907,7 @@ Public Class clsInSilicoDigest
             End Get
             Set(ByVal Value As Integer)
                 If Value < 0 Then Value = 0
-                If Value > 20 Then Value = 20
+                If Value > 500000 Then Value = 500000
                 mMaxMissedCleavages = Value
             End Set
         End Property
