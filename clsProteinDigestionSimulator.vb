@@ -37,7 +37,7 @@ Public Class clsProteinDigestionSimulator
     End Sub
 
     Public Sub New(ByVal blnShowMessages As Boolean, ByRef objLogger As PRISM.Logging.ILogger)
-        MyBase.mFileDate = "October 5, 2006"
+        MyBase.mFileDate = "November 9, 2007"
         mLogger = objLogger
         InitializeLocalVariables()
     End Sub
@@ -982,7 +982,7 @@ Public Class clsProteinDigestionSimulator
                 Case eProteinDigestionSimulatorErrorCodes.ErrorReadingInputFile
                     strErrorMessage = "Error reading input file"
                 Case eProteinDigestionSimulatorErrorCodes.ProteinsNotFoundInInputFile
-                    strErrorMessage = "No proteins were found in the input file"
+                    strErrorMessage = "No proteins were found in the input file (make sure the Column Order is correct on the File Format Options tab)"
 
                 Case eProteinDigestionSimulatorErrorCodes.ErrorIdentifyingSequences
                     strErrorMessage = "Error identifying sequences"
@@ -1159,6 +1159,7 @@ Public Class clsProteinDigestionSimulator
         mCreateSeparateOutputFileForEachThreshold = False
 
         mLocalErrorCode = eProteinDigestionSimulatorErrorCodes.NoError
+        mLastErrorMessage = String.Empty
 
         InitializeProteinToIdentifiedPeptideMappingTable()
 
@@ -1441,6 +1442,10 @@ Public Class clsProteinDigestionSimulator
         Dim blnSuccess As Boolean
         Dim blnInputPeptideFound As Boolean
 
+        Dim intInputFileLinesRead As Integer
+        Dim intInputFileLineSkipCount As Integer
+        Dim strSkipMessage As String
+
         Try
             objDelimitedFileReader = New ProteinFileReader.DelimitedFileReader
             With objDelimitedFileReader
@@ -1489,6 +1494,9 @@ Public Class clsProteinDigestionSimulator
             Do
                 blnInputPeptideFound = objDelimitedFileReader.ReadNextProteinEntry()
 
+                intInputFileLinesRead = objDelimitedFileReader.LinesRead
+                intInputFileLineSkipCount += objDelimitedFileReader.LineSkipCount
+
                 If blnInputPeptideFound Then
 
                     With objNewPeptide
@@ -1513,6 +1521,12 @@ Public Class clsProteinDigestionSimulator
 
             Loop While blnInputPeptideFound
 
+            If intInputFileLineSkipCount > 0 Then
+                strSkipMessage = "Note that " & intInputFileLineSkipCount.ToString & " out of " & intInputFileLinesRead.ToString & " lines were skipped in the input file because they did not match the column order defined on the File Format Options Tab (" & ProteinFileParser.DelimitedFileFormatCode.ToString & ")"
+                PostLogEntry(strSkipMessage, PRISM.Logging.ILogger.logMsgType.logWarning)
+                mLastErrorMessage = String.Copy(strSkipMessage)
+            End If
+
             blnSuccess = Not objProgressForm.KeyPressAbortProcess
 
         Catch ex As Exception
@@ -1531,6 +1545,9 @@ Public Class clsProteinDigestionSimulator
 
         Dim blnSuccess As Boolean
         Dim blnGenerateUniqueSequenceID As Boolean
+        Dim blnIsFastaFile As Boolean
+
+        Dim strSkipMessage As String
 
         Dim htMasterSequences As Hashtable
         Dim intUniqueSeqID As Integer
@@ -1560,6 +1577,13 @@ Public Class clsProteinDigestionSimulator
 
             With ProteinFileParser
 
+                If .IsFastaFile(strProteinInputFilePath) Or .AssumeFastaFile Then
+                    blnIsFastaFile = True
+                Else
+                    blnIsFastaFile = False
+                End If
+
+
                 ' Disable mass calculation
                 .ComputeProteinMass = False
                 .CreateProteinOutputFile = False
@@ -1576,13 +1600,31 @@ Public Class clsProteinDigestionSimulator
                 blnSuccess = .ParseProteinFile(strProteinInputFilePath, "", objProgressForm)
             End With
 
+            If ProteinFileParser.InputFileLineSkipCount > 0 And Not blnIsFastaFile Then
+                strSkipMessage = "Note that " & ProteinFileParser.InputFileLineSkipCount.ToString & " out of " & ProteinFileParser.InputFileLinesRead.ToString & " lines were skipped in the input file because they did not match the column order defined on the File Format Options Tab (" & ProteinFileParser.DelimitedFileFormatCode.ToString & ")"
+                PostLogEntry(strSkipMessage, PRISM.Logging.ILogger.logMsgType.logWarning)
+                mLastErrorMessage = String.Copy(strSkipMessage)
+            End If
+
             If ProteinFileParser.GetProteinCountCached <= 0 Then
                 If blnSuccess Then
                     ' File was successfully loaded, but no proteins were found
-                    ' Not sure if this can happen
+                    ' This could easily happen for delimited files that only have a header line, or that don't have a format that matches what the user specified
                     SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ProteinsNotFoundInInputFile)
+                    mLastErrorMessage = String.Empty
                     blnSuccess = False
+                Else
+                    SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ErrorReadingInputFile)
+                    mLastErrorMessage = "Error using ParseProteinFile to read the proteins from " & System.IO.Path.GetFileName(strProteinInputFilePath)
                 End If
+
+                If ProteinFileParser.InputFileLineSkipCount > 0 And Not blnIsFastaFile Then
+                    If mLastErrorMessage.Length > 0 Then
+                        mLastErrorMessage &= ". "
+                    End If
+                    mLastErrorMessage &= strSkipMessage
+                End If
+
             ElseIf blnSuccess Then
 
                 blnSuccess = False

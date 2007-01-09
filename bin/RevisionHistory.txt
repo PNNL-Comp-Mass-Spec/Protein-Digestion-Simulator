@@ -1,5 +1,12 @@
 Protein Digestion Simulator Change Log
 
+Version 2.1.2565; January 9, 2007
+	- Fixed a bug in the Uniqueness Stats algorithm that prevented the program from reading the protein input file
+	- Now informing the user if any lines are skipped from a delimited text file (which will typically occur if the input file format defined by the user doesn't match the data in the protein input file)
+
+Version 2.1.2546; December 21, 2006
+	- Fixed a bug that failed to insert a period between the end of a sequence and the suffix residue when "Include prefix and suffix residues" is enabled during In Silico digestion of proteins
+
 Version 2.1.2508; November 13, 2006
 	- Updated clsInSilicoDigest.vb to support using "No Enzyme" for in-silico digestion
 		- Defines the residues to cleavage after as all residues: ABCDEFGHIJKLMNOPQRSTUVWXYZ

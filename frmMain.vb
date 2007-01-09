@@ -258,6 +258,8 @@ Public Class frmMain
         Me.lblSequenceForpI = New System.Windows.Forms.Label
         Me.TabPageParseAndDigest = New System.Windows.Forms.TabPage
         Me.fraProcessingOptions = New System.Windows.Forms.GroupBox
+        Me.lblProteinScramblingLoopCount = New System.Windows.Forms.Label
+        Me.txtProteinScramblingLoopCount = New System.Windows.Forms.TextBox
         Me.lblSamplingPercentageUnits = New System.Windows.Forms.Label
         Me.lblProteinReversalSamplingPercentage = New System.Windows.Forms.Label
         Me.txtProteinReversalSamplingPercentage = New System.Windows.Forms.TextBox
@@ -305,8 +307,6 @@ Public Class frmMain
         Me.cboMassTolType = New System.Windows.Forms.ComboBox
         Me.lblMassTolType = New System.Windows.Forms.Label
         Me.dgPeakMatchingThresholds = New System.Windows.Forms.DataGrid
-        Me.lblProteinScramblingLoopCount = New System.Windows.Forms.Label
-        Me.txtProteinScramblingLoopCount = New System.Windows.Forms.TextBox
         Me.fraInputFilePath.SuspendLayout()
         Me.fraInputOptions.SuspendLayout()
         Me.fraCalculationOptions.SuspendLayout()
@@ -1094,6 +1094,24 @@ Public Class frmMain
         Me.fraProcessingOptions.TabStop = False
         Me.fraProcessingOptions.Text = "Processing Options"
         '
+        'lblProteinScramblingLoopCount
+        '
+        Me.lblProteinScramblingLoopCount.Location = New System.Drawing.Point(232, 42)
+        Me.lblProteinScramblingLoopCount.Name = "lblProteinScramblingLoopCount"
+        Me.lblProteinScramblingLoopCount.Size = New System.Drawing.Size(72, 16)
+        Me.lblProteinScramblingLoopCount.TabIndex = 12
+        Me.lblProteinScramblingLoopCount.Text = "Loop Count"
+        Me.lblProteinScramblingLoopCount.TextAlign = System.Drawing.ContentAlignment.TopRight
+        '
+        'txtProteinScramblingLoopCount
+        '
+        Me.txtProteinScramblingLoopCount.Location = New System.Drawing.Point(312, 40)
+        Me.txtProteinScramblingLoopCount.MaxLength = 3
+        Me.txtProteinScramblingLoopCount.Name = "txtProteinScramblingLoopCount"
+        Me.txtProteinScramblingLoopCount.Size = New System.Drawing.Size(32, 20)
+        Me.txtProteinScramblingLoopCount.TabIndex = 13
+        Me.txtProteinScramblingLoopCount.Text = "1"
+        '
         'lblSamplingPercentageUnits
         '
         Me.lblSamplingPercentageUnits.Location = New System.Drawing.Point(208, 42)
@@ -1534,24 +1552,6 @@ Public Class frmMain
         Me.dgPeakMatchingThresholds.Name = "dgPeakMatchingThresholds"
         Me.dgPeakMatchingThresholds.Size = New System.Drawing.Size(424, 208)
         Me.dgPeakMatchingThresholds.TabIndex = 0
-        '
-        'lblProteinScramblingLoopCount
-        '
-        Me.lblProteinScramblingLoopCount.Location = New System.Drawing.Point(232, 42)
-        Me.lblProteinScramblingLoopCount.Name = "lblProteinScramblingLoopCount"
-        Me.lblProteinScramblingLoopCount.Size = New System.Drawing.Size(72, 16)
-        Me.lblProteinScramblingLoopCount.TabIndex = 12
-        Me.lblProteinScramblingLoopCount.Text = "Loop Count"
-        Me.lblProteinScramblingLoopCount.TextAlign = System.Drawing.ContentAlignment.TopRight
-        '
-        'txtProteinScramblingLoopCount
-        '
-        Me.txtProteinScramblingLoopCount.Location = New System.Drawing.Point(312, 40)
-        Me.txtProteinScramblingLoopCount.MaxLength = 3
-        Me.txtProteinScramblingLoopCount.Name = "txtProteinScramblingLoopCount"
-        Me.txtProteinScramblingLoopCount.Size = New System.Drawing.Size(32, 20)
-        Me.txtProteinScramblingLoopCount.TabIndex = 13
-        Me.txtProteinScramblingLoopCount.Text = "1"
         '
         'frmMain
         '
@@ -2653,6 +2653,8 @@ Public Class frmMain
             .SetToolTip(optUseRectangleSearchRegion, "This setting only takes effect if 'Use SLiC Score when gauging uniqueness' is false.")
 
             .SetToolTip(chkExcludeProteinSequence, "Enabling this setting will prevent protein sequences from being written to the output file; useful when processing extremely large files.")
+
+            .SetToolTip(chkEnableLogging, "Logs status and error messages to file ProteinDigestionSimulatorLog*.txt in the program directory.")
         End With
 
         objToolTipControl = Nothing

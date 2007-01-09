@@ -79,21 +79,6 @@
                     HintPath = "C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Drawing.dll"
                 />
                 <Reference
-                    Name = "PRISM"
-                    AssemblyName = "PRISM"
-                    HintPath = "..\DMS_Managers\Common_Files_Net\PRISM_Class_Library\bin\PRISM.dll"
-                />
-                <Reference
-                    Name = "ProgressFormNET"
-                    AssemblyName = "ProgressFormNET"
-                    HintPath = "..\ProgressForm.NET\bin\ProgressFormNET.dll"
-                />
-                <Reference
-                    Name = "ValidateFastaFile"
-                    AssemblyName = "ValidateFastaFile"
-                    HintPath = "..\ValidateFastaFiles.NET\bin\ValidateFastaFile.dll"
-                />
-                <Reference
                     Name = "SharedVBNetRoutines"
                     AssemblyName = "SharedVBNetRoutines"
                     HintPath = "..\SharedVBNetRoutines\bin\SharedVBNetRoutines.dll"
@@ -107,6 +92,21 @@
                     Name = "NETPredictionBasic"
                     AssemblyName = "NETPredictionBasic"
                     HintPath = "..\NET_Prediction_Utility\NETPrediction\bin\NETPredictionBasic.dll"
+                />
+                <Reference
+                    Name = "ProgressFormNET"
+                    AssemblyName = "ProgressFormNET"
+                    HintPath = "bin\ProgressFormNET.dll"
+                />
+                <Reference
+                    Name = "PRISM"
+                    AssemblyName = "PRISM"
+                    HintPath = "bin\PRISM.dll"
+                />
+                <Reference
+                    Name = "ValidateFastaFile"
+                    AssemblyName = "ValidateFastaFile"
+                    HintPath = "bin\ValidateFastaFile.dll"
                 />
             </References>
             <Imports>

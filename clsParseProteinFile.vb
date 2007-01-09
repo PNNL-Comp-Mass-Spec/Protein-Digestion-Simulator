@@ -15,7 +15,7 @@ Public Class clsParseProteinFile
     Inherits clsProcessFilesBaseClass
 
     Public Sub New()
-        MyBase.mFileDate = "November 13, 2006"
+        MyBase.mFileDate = "January 9, 2007"
         InitializeLocalVariables()
     End Sub
 
@@ -99,6 +99,10 @@ Public Class clsParseProteinFile
     Private mAssumeFastaFile As Boolean
     Private mInputFileDelimiter As Char                              ' Only used for delimited protein input files, not for fasta files
     Private mDelimitedInputFileFormatCode As ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode
+
+    Private mInputFileProteinsProcessed As Integer
+    Private mInputFileLinesRead As Integer
+    Private mInputFileLineSkipCount As Integer
 
     Private mOutputFileDelimiter As Char
     Private mExcludeProteinSequence As Boolean
@@ -254,6 +258,24 @@ Public Class clsParseProteinFile
                 mInputFileDelimiter = Value
             End If
         End Set
+    End Property
+
+    Public ReadOnly Property InputFileProteinsProcessed() As Integer
+        Get
+            Return mInputFileProteinsProcessed
+        End Get
+    End Property
+
+    Public ReadOnly Property InputFileLinesRead() As Integer
+        Get
+            Return mInputFileLinesRead
+        End Get
+    End Property
+
+    Public ReadOnly Property InputFileLineSkipCount() As Integer
+        Get
+            Return mInputFileLineSkipCount
+        End Get
     End Property
 
     Public ReadOnly Property LocalErrorCode() As eParseProteinFileErrorCodes
@@ -543,6 +565,10 @@ Public Class clsParseProteinFile
         mInputFileDelimiter = ControlChars.Tab
         mDelimitedInputFileFormatCode = ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
 
+        mInputFileProteinsProcessed = 0
+        mInputFileLinesRead = 0
+        mInputFileLineSkipCount = 0
+
         mOutputFileDelimiter = ControlChars.Tab
         mExcludeProteinSequence = False
         mComputeProteinMass = True
@@ -795,9 +821,6 @@ Public Class clsParseProteinFile
         Dim intPeptideCount As Integer
         Dim udtPeptides() As clsInSilicoDigest.PeptideInfoClass
 
-        Dim intProteinsProcessed As Integer
-        Dim intInputFileLinesRead As Integer
-
         Dim blnAllowLookForAddnlRefInDescription As Boolean
         Dim blnLookForAddnlRefInDescription As Boolean
         Dim htAddnlRefMasterNames As System.Collections.Specialized.StringDictionary        ' Note that StringDictionary keys are case-insensitive, and are therefore stored lowercase
@@ -899,7 +922,7 @@ Public Class clsParseProteinFile
                     objProteinFileReader = objDelimitedFileReader
 
                     If mDelimitedInputFileFormatCode = ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID Or _
-                    mDelimitedInputFileFormatCode = ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence Then
+                       mDelimitedInputFileFormatCode = ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence Then
                         blnUseUniqueIDValuesFromInputFile = True
                     Else
                         blnUseUniqueIDValuesFromInputFile = False
@@ -1178,7 +1201,7 @@ Public Class clsParseProteinFile
                 objProgressForm.Visible = True
                 Windows.Forms.Application.DoEvents()
 
-                If Not mCreateFastaOutputFile Then
+                If mCreateProteinOutputFile And Not mCreateFastaOutputFile Then
                     ' Write the header line to the output file
                     strLineOut = "ProteinName" & mOutputFileDelimiter
 
@@ -1210,13 +1233,17 @@ Public Class clsParseProteinFile
                 ' Read each protein in the input file and process appropriately
                 mProteinCount = 0
                 ReDim mProteins(PROTEIN_CACHE_MEMORY_RESERVE_COUNT)
-                intProteinsProcessed = 0
+
+                mInputFileProteinsProcessed = 0
+                mInputFileLineSkipCount = 0
+                mInputFileLinesRead = 0
                 Do
                     blnInputProteinFound = objProteinFileReader.ReadNextProteinEntry()
+                    mInputFileLineSkipCount += objProteinFileReader.LineSkipCount
 
                     If blnInputProteinFound Then
-                        intProteinsProcessed += 1
-                        intInputFileLinesRead = objProteinFileReader.LinesRead
+                        mInputFileProteinsProcessed += 1
+                        mInputFileLinesRead = objProteinFileReader.LinesRead
 
                         With mProteins(mProteinCount)
                             .Name = objProteinFileReader.ProteinName
@@ -1346,7 +1373,7 @@ Public Class clsParseProteinFile
                                         strBaseSequence = .SequenceOneLetter
                                         If Not mExcludeProteinSequence Then
                                             If DigestionOptions.IncludePrefixAndSuffixResidues Then
-                                                strLineOut = mProteins(mProteinCount).Name & mOutputFileDelimiter & .PrefixResidue & "." & strBaseSequence & .SuffixResidue
+                                                strLineOut = mProteins(mProteinCount).Name & mOutputFileDelimiter & .PrefixResidue & "." & strBaseSequence & "." & .SuffixResidue
                                             Else
                                                 strLineOut = mProteins(mProteinCount).Name & mOutputFileDelimiter & strBaseSequence
                                             End If
@@ -1427,7 +1454,16 @@ Public Class clsParseProteinFile
             End If
 
             If MyBase.ShowMessages Then
-                strMessage = "Done: Processed " & intProteinsProcessed.ToString("###,##0") & " proteins (" & intInputFileLinesRead.ToString("###,###,##0") & " lines)"
+                strMessage = "Done: Processed " & mInputFileProteinsProcessed.ToString("###,##0") & " proteins (" & mInputFileLinesRead.ToString("###,###,##0") & " lines)"
+                If mInputFileLineSkipCount > 0 Then
+                    strMessage &= ControlChars.NewLine & "Note that " & mInputFileLineSkipCount.ToString("###,##0") & " lines were skipped in the input file due to having an unexpected format. "
+                    If mParsedFileIsFastaFile Then
+                        strMessage &= "This is an unexpected error for fasta files."
+                    Else
+                        strMessage &= "Make sure that " & mDelimitedInputFileFormatCode.ToString & " is the appropriate format for this file (see the File Format Options tab)."
+                    End If
+                End If
+
                 If intLoopCount > 1 Then
                     strMessage &= ControlChars.NewLine & "Created " & intLoopCount.ToString & " replicates of the scrambled output file"
                 End If
