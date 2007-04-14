@@ -1,18 +1,16 @@
 Option Strict On
+'
+' This class can be used to perform an in-silico digest of an amino acid sequence
+' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in November 2003
+' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
 
+' Ported by VB.NET by Matthew Monroe in October 2004
+'
+' Utilizes the PeptideInfoClass class
+'
+' Last Modified April 13, 2007
+'
 Public Class clsInSilicoDigest
-
-    '
-    ' This class can be used to perform an in-silico digest of an amino acid sequence
-    ' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in November 2003
-    ' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
-
-    ' Ported by VB.NET by Matthew Monroe in October 2004
-    '
-    ' Utilizes the PeptideInfoClass class
-    '
-    ' Last Modified November 13, 2006
-    '
 
     Public Sub New()
         mShowMessages = True
@@ -22,10 +20,9 @@ Public Class clsInSilicoDigest
     End Sub
 
 #Region "Constants and Enums"
-    Private Const ONE_END_TOKEN As String = "one end"
 
     ' Note: Good list of enzymes is at http://ca.expasy.org/tools/peptidecutter/peptidecutter_enzymes.html
-    Private Const CleavageRuleCount As Integer = 11
+    Private Const CleavageRuleCount As Integer = 18
     Public Enum CleavageRuleConstants
         NoRule = 0
         ConventionalTrypsin = 1
@@ -36,16 +33,31 @@ Public Class clsInSilicoDigest
         Chymotrypsin = 6
         ChymotrypsinAndTrypsin = 7
         GluC = 8
-        CyanBr = 9
+        CyanBr = 9                      ' Aka CNBr
         LysC = 10
+        GluC_EOnly = 11
+        ArgC = 12
+        AspN = 13
+        ProteinaseK = 14
+        PepsinA = 15
+        PepsinB = 16
+        PepsinC = 17
     End Enum
+
 #End Region
 
 #Region "Structures"
 
     Private Structure udtCleavageRulesType
         Public Description As String
-        Public Residues As String
+        Public CleavageResidues As String
+        Public ExceptionResidues As String
+
+        ' If ReversedCleavageDirection= False, then cleave after the CleavageResidues, unless followed by the ExceptionResidues, e.g. Trypsin, CNBr, GluC
+        ' If ReversedCleavageDirection= True, then cleave before the CleavageResidues, unless preceded by the ExceptionResidues, e.g. Asp-N
+        Public ReversedCleavageDirection As Boolean
+
+        Public AllowPartialCleavage As Boolean
         Public RuleIDInParallax As Integer             ' Unused in this software
     End Structure
 
@@ -93,29 +105,32 @@ Public Class clsInSilicoDigest
         '
         ' In order to check for Exception residues, strSequence must be in the form "R.ABCDEFGK.L" so that the residue following the final residue of the fragment can be examined
 
-        Dim strRuleResidues As String, strExceptionSuffixResidues As String
-        Dim blnAllowPartialCleavage As Boolean
+        Dim blnRuleMatch As Boolean
 
+        blnRuleMatch = False
         intRuleMatchCount = 0
+
         If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
             If eRuleID = CleavageRuleConstants.NoRule Then
                 ' No cleavage rule; no point in checking
-                CheckSequenceAgainstCleavageRule = True
+                blnRuleMatch = True
                 intRuleMatchCount = 2
             Else
-
-                strRuleResidues = GetCleaveageRuleResiduesSymbols(eRuleID)
-                strExceptionSuffixResidues = GetCleavageExceptionSuffixResidues(eRuleID)
-                blnAllowPartialCleavage = GetCleavageAllowPartialCleavage(eRuleID)
-
-                CheckSequenceAgainstCleavageRule = mPeptideSequence.CheckSequenceAgainstCleavageRule(strSequence, strRuleResidues, strExceptionSuffixResidues, blnAllowPartialCleavage, , , , intRuleMatchCount)
-
+                blnRuleMatch = mPeptideSequence.CheckSequenceAgainstCleavageRule( _
+                                                            strSequence, _
+                                                            mCleavageRules.Rules(eRuleID).CleavageResidues, _
+                                                            mCleavageRules.Rules(eRuleID).ExceptionResidues, _
+                                                            mCleavageRules.Rules(eRuleID).ReversedCleavageDirection, _
+                                                            mCleavageRules.Rules(eRuleID).AllowPartialCleavage, _
+                                                            , , , intRuleMatchCount)
             End If
         Else
             ' No rule selected; assume True
-            CheckSequenceAgainstCleavageRule = True
             intRuleMatchCount = 2
+            blnRuleMatch = True
         End If
+
+        Return blnRuleMatch
 
     End Function
 
@@ -199,6 +214,7 @@ Public Class clsInSilicoDigest
 
         Dim strPeptideSequence As String, strPeptideSequenceBase As String
         Dim strRuleResidues As String, strExceptionSuffixResidues As String
+        Dim blnReversedCleavageDirection As Boolean
 
         Dim blnPeptideAdded As Boolean
         Dim blnUsingExistingProgressForm As Boolean
@@ -216,7 +232,9 @@ Public Class clsInSilicoDigest
 
             strRuleResidues = GetCleaveageRuleResiduesSymbols(objDigestionOptions.CleavageRuleID)
             strExceptionSuffixResidues = GetCleavageExceptionSuffixResidues(objDigestionOptions.CleavageRuleID)
+            blnReversedCleavageDirection = GetCleavageIsReversedDirection(objDigestionOptions.CleavageRuleID)
 
+            ' We initially count the number of tryptic peptides in the sequence (regardless of the cleavage rule)
             intTrypticFragmentCount = CountTrypticsInSequence(strProteinSequence)
 
             ' Increment intTrypticFragmentCount to account for missed cleavages
@@ -252,7 +270,7 @@ Public Class clsInSilicoDigest
             '   is faster than using the GetTrypticPeptideByFragmentNumber function
             ' Populate strTrypticFragCache()
             Do
-                strPeptideSequence = mPeptideSequence.GetTrypticPeptideNext(strProteinSequence, intSearchStartLoc, intResidueStartLoc, intResidueEndLoc, strRuleResidues, strExceptionSuffixResidues)
+                strPeptideSequence = mPeptideSequence.GetTrypticPeptideNext(strProteinSequence, intSearchStartLoc, intResidueStartLoc, intResidueEndLoc, strRuleResidues, strExceptionSuffixResidues, blnReversedCleavageDirection)
                 If strPeptideSequence.Length > 0 Then
 
                     strTrypticFragCache(intTrypticFragCacheCount) = strPeptideSequence
@@ -412,32 +430,27 @@ Public Class clsInSilicoDigest
     End Function
 
     Public Function GetCleavageAllowPartialCleavage(ByVal eRuleID As CleavageRuleConstants) As Boolean
-        Dim blnAllowPartialCleavage As Boolean
-
-        Select Case eRuleID
-            Case CleavageRuleConstants.EricPartialTrypsin
-                blnAllowPartialCleavage = True
-            Case CleavageRuleConstants.KROneEnd
-                blnAllowPartialCleavage = True
-            Case Else
-                blnAllowPartialCleavage = False
-        End Select
-
-        If InStr(UCase(mCleavageRules.Rules(eRuleID).Residues), UCase(ONE_END_TOKEN)) > 0 Then
-            blnAllowPartialCleavage = True
+        If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
+            Return mCleavageRules.Rules(eRuleID).AllowPartialCleavage
+        Else
+            Return False
         End If
+    End Function
 
-        Return blnAllowPartialCleavage
+    Public Function GetCleavageIsReversedDirection(ByVal eRuleID As CleavageRuleConstants) As Boolean
+        If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
+            Return mCleavageRules.Rules(eRuleID).ReversedCleavageDirection
+        Else
+            Return False
+        End If
     End Function
 
     Public Function GetCleavageExceptionSuffixResidues(ByVal eRuleID As CleavageRuleConstants) As String
-
-        If eRuleID = CleavageRuleConstants.ConventionalTrypsin Or eRuleID = CleavageRuleConstants.KROneEnd Then
-            Return "P"
+        If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
+            Return mCleavageRules.Rules(eRuleID).ExceptionResidues
         Else
             Return String.Empty
         End If
-
     End Function
 
     Public Function GetCleaveageRuleName(ByVal eRuleID As CleavageRuleConstants) As String
@@ -449,31 +462,35 @@ Public Class clsInSilicoDigest
     End Function
 
     Public Function GetCleaveageRuleResiduesDescription(ByVal eRuleID As CleavageRuleConstants) As String
+        Dim strDescription As String
+
         If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
-            Return mCleavageRules.Rules(eRuleID).Residues
+            With mCleavageRules.Rules(eRuleID)
+                If .ReversedCleavageDirection Then
+                    strDescription = "Before " & .CleavageResidues
+                    If .ExceptionResidues.Length > 0 Then
+                        strDescription &= " not preceded by " & .ExceptionResidues
+                    End If
+                Else
+                    strDescription = .CleavageResidues
+                    If .ExceptionResidues.Length > 0 Then
+                        strDescription &= " not " & .ExceptionResidues
+                    End If
+                End If
+            End With
+
+            Return strDescription
         Else
             Return String.Empty
         End If
     End Function
 
     Public Function GetCleaveageRuleResiduesSymbols(ByVal eRuleID As CleavageRuleConstants) As String
-        Dim strResiduesSymbols As String
-
-        Select Case eRuleID
-            Case CleavageRuleConstants.KROneEnd
-                strResiduesSymbols = "KR"
-            Case CleavageRuleConstants.TerminiiOnly
-                strResiduesSymbols = PeptideInfoClass.PROTEIN_TERMINUS_SYMBOL
-            Case Else
-                strResiduesSymbols = mCleavageRules.Rules(eRuleID).Residues
-        End Select
-
-        If InStr(UCase(strResiduesSymbols), UCase(ONE_END_TOKEN)) > 0 Then
-            strResiduesSymbols = Trim(Replace(strResiduesSymbols, ONE_END_TOKEN, String.Empty))
+        If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
+            Return mCleavageRules.Rules(eRuleID).CleavageResidues
+        Else
+            Return String.Empty
         End If
-
-        Return strResiduesSymbols
-
     End Function
 
     Public Function GetCleaveageRuleIDInParallax(ByVal eRuleID As CleavageRuleConstants) As Integer
@@ -493,67 +510,147 @@ Public Class clsInSilicoDigest
 
             With .Rules(CleavageRuleConstants.NoRule)
                 .Description = "No cleavage rule"
-                .Residues = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                .CleavageResidues = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                .ExceptionResidues = String.Empty
+                .ReversedCleavageDirection = False
                 .RuleIDInParallax = 0
             End With
 
             With .Rules(CleavageRuleConstants.ConventionalTrypsin)
                 .Description = "Fully Tryptic"
-                .Residues = "KR"
+                .CleavageResidues = "KR"
+                .ExceptionResidues = "P"
+                .ReversedCleavageDirection = False
                 .RuleIDInParallax = 10
             End With
 
             With .Rules(CleavageRuleConstants.EricPartialTrypsin)
-                .Description = "Eric's Partial Trypsin"         ' Allows partial cleavage
-                .Residues = "KRFYVEL"
+                .Description = "Eric's Partial Trypsin"
+                .CleavageResidues = "KRFYVEL"
+                .ExceptionResidues = String.Empty
+                .ReversedCleavageDirection = False
+                .AllowPartialCleavage = True                        ' Allows partial cleavage
                 .RuleIDInParallax = 11
             End With
 
             With .Rules(CleavageRuleConstants.TrypsinPlusFVLEY)
-                .Description = "Trypsin Plus FVLEY"             ' Does not allow partial cleavage
-                .Residues = "KRFYVEL"
+                .Description = "Trypsin Plus FVLEY"
+                .CleavageResidues = "KRFYVEL"
+                .ExceptionResidues = ""
+                .ReversedCleavageDirection = False
                 .RuleIDInParallax = 12
             End With
 
             With .Rules(CleavageRuleConstants.KROneEnd)
                 .Description = "Half (Partial) Trypsin "
-                .Residues = "KR" & " " & ONE_END_TOKEN
+                .CleavageResidues = "KR"
+                .ExceptionResidues = "P"
+                .ReversedCleavageDirection = False
+                .AllowPartialCleavage = True
                 .RuleIDInParallax = 13
             End With
 
             With .Rules(CleavageRuleConstants.TerminiiOnly)
-                .Description = "Peptide Database"
-                .Residues = "terminii only"
+                .Description = "Peptide Database; terminii only"
+                .CleavageResidues = "-"
+                .ExceptionResidues = String.Empty
+                .ReversedCleavageDirection = False
                 .RuleIDInParallax = 20
             End With
 
             With .Rules(CleavageRuleConstants.Chymotrypsin)
                 .Description = "Chymotrypsin"
-                .Residues = "FWYL"
+                .CleavageResidues = "FWYL"
+                .ExceptionResidues = String.Empty
+                .ReversedCleavageDirection = False
                 .RuleIDInParallax = 30
             End With
 
             With .Rules(CleavageRuleConstants.ChymotrypsinAndTrypsin)
                 .Description = "Chymotrypsin + Trypsin"
-                .Residues = "FWYLKR"
+                .CleavageResidues = "FWYLKR"
+                .ExceptionResidues = String.Empty
+                .ReversedCleavageDirection = False
                 .RuleIDInParallax = 31
             End With
 
             With .Rules(CleavageRuleConstants.GluC)
-                .Description = "GluC"
-                .Residues = "ED"
+                .Description = "Glu-C"
+                .CleavageResidues = "ED"
+                .ExceptionResidues = String.Empty
+                .ReversedCleavageDirection = False
                 .RuleIDInParallax = 40
             End With
 
             With .Rules(CleavageRuleConstants.CyanBr)
                 .Description = "CyanBr"
-                .Residues = "M"
+                .CleavageResidues = "M"
+                .ExceptionResidues = String.Empty
+                .ReversedCleavageDirection = False
                 .RuleIDInParallax = 50
             End With
 
             With .Rules(CleavageRuleConstants.LysC)
-                .Description = "LysC"
-                .Residues = "K"
+                .Description = "Lys-C"
+                .CleavageResidues = "K"
+                .ExceptionResidues = String.Empty
+                .ReversedCleavageDirection = False
+                .RuleIDInParallax = 0
+            End With
+
+            With .Rules(CleavageRuleConstants.GluC_EOnly)
+                .Description = "Glu-C, just Glu"
+                .CleavageResidues = "E"
+                .ExceptionResidues = String.Empty
+                .ReversedCleavageDirection = False
+                .RuleIDInParallax = 0
+            End With
+
+            With .Rules(CleavageRuleConstants.ArgC)
+                .Description = "Arg-C"
+                .CleavageResidues = "R"
+                .ExceptionResidues = String.Empty
+                .ReversedCleavageDirection = False
+                .RuleIDInParallax = 0
+            End With
+
+            With .Rules(CleavageRuleConstants.AspN)
+                .Description = "Asp-N"
+                .CleavageResidues = "D"
+                .ExceptionResidues = String.Empty
+                .ReversedCleavageDirection = True
+                .RuleIDInParallax = 0
+            End With
+
+            With .Rules(CleavageRuleConstants.ProteinaseK)
+                .Description = "Proteinase K"
+                .CleavageResidues = "AEFILTVWY"
+                .ExceptionResidues = String.Empty
+                .ReversedCleavageDirection = False
+                .RuleIDInParallax = 0
+            End With
+
+            With .Rules(CleavageRuleConstants.PepsinA)
+                .Description = "PepsinA"
+                .CleavageResidues = "FLIWY"
+                .ExceptionResidues = "P"
+                .ReversedCleavageDirection = True
+                .RuleIDInParallax = 0
+            End With
+
+            With .Rules(CleavageRuleConstants.PepsinB)
+                .Description = "PepsinB"
+                .CleavageResidues = "FLIWY"
+                .ExceptionResidues = "PVAG"
+                .ReversedCleavageDirection = True
+                .RuleIDInParallax = 0
+            End With
+
+            With .Rules(CleavageRuleConstants.PepsinC)
+                .Description = "PepsinC"
+                .CleavageResidues = "FLWYA"
+                .ExceptionResidues = "P"
+                .ReversedCleavageDirection = True
                 .RuleIDInParallax = 0
             End With
 

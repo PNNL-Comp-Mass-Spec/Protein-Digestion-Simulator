@@ -1,5 +1,9 @@
 Protein Digestion Simulator Change Log
 
+Version 1.1.2659; April 13, 2007
+	 - Added several additional enzymes for in-silico digestion, including some that cleave on the N-terminal side of the target residues (e.g. Asp-N)
+		- New enzymes: Lys-C, Arg-C, Asp-N, Proteinase K, and 3 variants of Pepsin
+
 Version 2.1.2565; January 9, 2007
 	- Fixed a bug in the Uniqueness Stats algorithm that prevented the program from reading the protein input file
 	- Now informing the user if any lines are skipped from a delimited text file (which will typically occur if the input file format defined by the user doesn't match the data in the protein input file)

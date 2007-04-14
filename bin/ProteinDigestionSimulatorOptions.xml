@@ -11,7 +11,7 @@
     <item key="IncludePrefixAndSuffixResidues" value="False" />
     <item key="EnableLogging" value="False" />
     <item key="CustomValidationRulesFilePath" value="" />
-    <item key="WindowWidth" value="831" />
+    <item key="WindowWidth" value="664" />
     <item key="WindowHeight" value="670" />
   </section>
   <section name="FastaInputOptions">

@@ -673,9 +673,9 @@ Public Class frmMain
         '
         'chkCysPeptidesOnly
         '
-        Me.chkCysPeptidesOnly.Location = New System.Drawing.Point(424, 24)
+        Me.chkCysPeptidesOnly.Location = New System.Drawing.Point(496, 16)
         Me.chkCysPeptidesOnly.Name = "chkCysPeptidesOnly"
-        Me.chkCysPeptidesOnly.Size = New System.Drawing.Size(176, 16)
+        Me.chkCysPeptidesOnly.Size = New System.Drawing.Size(112, 32)
         Me.chkCysPeptidesOnly.TabIndex = 15
         Me.chkCysPeptidesOnly.Text = "Include cysteine peptides only"
         '
@@ -748,12 +748,12 @@ Public Class frmMain
         Me.cboCleavageRuleType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cboCleavageRuleType.Location = New System.Drawing.Point(8, 24)
         Me.cboCleavageRuleType.Name = "cboCleavageRuleType"
-        Me.cboCleavageRuleType.Size = New System.Drawing.Size(216, 21)
+        Me.cboCleavageRuleType.Size = New System.Drawing.Size(288, 21)
         Me.cboCleavageRuleType.TabIndex = 0
         '
         'chkIncludeDuplicateSequences
         '
-        Me.chkIncludeDuplicateSequences.Location = New System.Drawing.Point(240, 16)
+        Me.chkIncludeDuplicateSequences.Location = New System.Drawing.Point(312, 16)
         Me.chkIncludeDuplicateSequences.Name = "chkIncludeDuplicateSequences"
         Me.chkIncludeDuplicateSequences.Size = New System.Drawing.Size(168, 32)
         Me.chkIncludeDuplicateSequences.TabIndex = 1
