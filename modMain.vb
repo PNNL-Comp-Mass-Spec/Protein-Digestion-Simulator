@@ -33,7 +33,7 @@ Option Strict On
 
 Module modMain
 
-    Public Const PROGRAM_DATE As String = "April 13, 2007"
+    Public Const PROGRAM_DATE As String = "May 7, 2007"
 
     Private mInputFilePath As String
     Private mAssumeFastaFile As Boolean

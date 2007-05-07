@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.1.2683; May 7, 2007
+	 - New version of ValidateFastaFile.dll
+
 Version 1.1.2659; April 13, 2007
 	 - Added several additional enzymes for in-silico digestion, including some that cleave on the N-terminal side of the target residues (e.g. Asp-N)
 		- New enzymes: Lys-C, Arg-C, Asp-N, Proteinase K, and 3 variants of Pepsin

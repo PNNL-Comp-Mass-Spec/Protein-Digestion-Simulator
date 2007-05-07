@@ -89,11 +89,6 @@
                     HintPath = "..\DMS_Managers\Common_Files_Net\PRISM_Class_Library\bin\PRISM.dll"
                 />
                 <Reference
-                    Name = "ValidateFastaFile"
-                    AssemblyName = "ValidateFastaFile"
-                    HintPath = "bin\ValidateFastaFile.dll"
-                />
-                <Reference
                     Name = "SharedVBNetRoutines"
                     AssemblyName = "SharedVBNetRoutines"
                     HintPath = "..\SharedVBNetRoutines\bin\SharedVBNetRoutines.dll"
@@ -107,6 +102,11 @@
                     Name = "ProteinFileReader"
                     AssemblyName = "ProteinFileReader"
                     HintPath = "..\ProteinFileReaderDLL\bin\ProteinFileReader.dll"
+                />
+                <Reference
+                    Name = "ValidateFastaFile"
+                    AssemblyName = "ValidateFastaFile"
+                    HintPath = "..\Validate_Fasta_File\bin\ValidateFastaFile.dll"
                 />
             </References>
             <Imports>
