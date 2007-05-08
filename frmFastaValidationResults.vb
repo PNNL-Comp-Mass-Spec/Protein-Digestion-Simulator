@@ -73,12 +73,12 @@ Public Class frmFastaValidation
     Friend WithEvents TabPageRuleOptions As System.Windows.Forms.TabPage
     Friend WithEvents cmdSelectCustomRulesFile As System.Windows.Forms.Button
     Friend WithEvents txtCustomValidationRulesFilePath As System.Windows.Forms.TextBox
-    Friend WithEvents chkCheckForDuplicateProteinNames As System.Windows.Forms.CheckBox
     Friend WithEvents chkAllowAsteriskInResidues As System.Windows.Forms.CheckBox
     Friend WithEvents cmdCreateDefaultValidationRulesFile As System.Windows.Forms.Button
     Friend WithEvents MenuItem1 As System.Windows.Forms.MenuItem
     Friend WithEvents mnuHelpAbout As System.Windows.Forms.MenuItem
     Friend WithEvents txtResults As System.Windows.Forms.TextBox
+    Friend WithEvents chkCheckForDuplicateProteinInfo As System.Windows.Forms.CheckBox
     <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
         Me.txtResults = New System.Windows.Forms.TextBox
         Me.MainMenuControl = New System.Windows.Forms.MainMenu
@@ -105,7 +105,7 @@ Public Class frmFastaValidation
         Me.tbsOptions = New System.Windows.Forms.TabControl
         Me.TabPageErrorOptions = New System.Windows.Forms.TabPage
         Me.chkAllowAsteriskInResidues = New System.Windows.Forms.CheckBox
-        Me.chkCheckForDuplicateProteinNames = New System.Windows.Forms.CheckBox
+        Me.chkCheckForDuplicateProteinInfo = New System.Windows.Forms.CheckBox
         Me.txtMaxFileErrorsToTrack = New System.Windows.Forms.TextBox
         Me.lblMaxFileErrorsToTrack = New System.Windows.Forms.Label
         Me.chkLogResults = New System.Windows.Forms.CheckBox
@@ -296,7 +296,7 @@ Public Class frmFastaValidation
         'TabPageErrorOptions
         '
         Me.TabPageErrorOptions.Controls.Add(Me.chkAllowAsteriskInResidues)
-        Me.TabPageErrorOptions.Controls.Add(Me.chkCheckForDuplicateProteinNames)
+        Me.TabPageErrorOptions.Controls.Add(Me.chkCheckForDuplicateProteinInfo)
         Me.TabPageErrorOptions.Controls.Add(Me.txtMaxFileErrorsToTrack)
         Me.TabPageErrorOptions.Controls.Add(Me.lblMaxFileErrorsToTrack)
         Me.TabPageErrorOptions.Controls.Add(Me.chkLogResults)
@@ -314,15 +314,15 @@ Public Class frmFastaValidation
         Me.chkAllowAsteriskInResidues.TabIndex = 4
         Me.chkAllowAsteriskInResidues.Text = "Allow asterisks in residues"
         '
-        'chkCheckForDuplicateProteinNames
+        'chkCheckForDuplicateProteinInfo
         '
-        Me.chkCheckForDuplicateProteinNames.Checked = True
-        Me.chkCheckForDuplicateProteinNames.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkCheckForDuplicateProteinNames.Location = New System.Drawing.Point(8, 72)
-        Me.chkCheckForDuplicateProteinNames.Name = "chkCheckForDuplicateProteinNames"
-        Me.chkCheckForDuplicateProteinNames.Size = New System.Drawing.Size(183, 30)
-        Me.chkCheckForDuplicateProteinNames.TabIndex = 2
-        Me.chkCheckForDuplicateProteinNames.Text = "Check for duplicate protein names (uses more memory)"
+        Me.chkCheckForDuplicateProteinInfo.Checked = True
+        Me.chkCheckForDuplicateProteinInfo.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.chkCheckForDuplicateProteinInfo.Location = New System.Drawing.Point(8, 72)
+        Me.chkCheckForDuplicateProteinInfo.Name = "chkCheckForDuplicateProteinInfo"
+        Me.chkCheckForDuplicateProteinInfo.Size = New System.Drawing.Size(200, 30)
+        Me.chkCheckForDuplicateProteinInfo.TabIndex = 2
+        Me.chkCheckForDuplicateProteinInfo.Text = "Check for duplicate protein names and duplicate protein sequences"
         '
         'txtMaxFileErrorsToTrack
         '
@@ -1054,7 +1054,8 @@ Public Class frmFastaValidation
 
                 .MaximumFileErrorsToTrack = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtMaxFileErrorsToTrack, "Max file errors or warnings should be a positive number", False, 10, False)
 
-                .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.CheckForDuplicateProteinNames, chkCheckForDuplicateProteinNames.Checked)
+                .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.CheckForDuplicateProteinNames, chkCheckForDuplicateProteinInfo.Checked)
+                .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.CheckForDuplicateProteinSequences, chkCheckForDuplicateProteinInfo.Checked)
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.OutputToStatsFile, chkLogResults.Checked)
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.GenerateFixedFASTAFile, chkGenerateFixedFastaFile.Checked)
 
