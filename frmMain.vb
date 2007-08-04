@@ -170,6 +170,9 @@ Public Class frmMain
     Friend WithEvents chkExcludeProteinSequence As System.Windows.Forms.CheckBox
     Friend WithEvents lblProteinScramblingLoopCount As System.Windows.Forms.Label
     Friend WithEvents txtProteinScramblingLoopCount As System.Windows.Forms.TextBox
+    Friend WithEvents lblMassMode As System.Windows.Forms.Label
+    Friend WithEvents cboElementMassMode As System.Windows.Forms.ComboBox
+    Friend WithEvents lblPeptideUniquenessMassMode As System.Windows.Forms.Label
     <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
         Me.txtProteinInputFilePath = New System.Windows.Forms.TextBox
         Me.cmdSelectFile = New System.Windows.Forms.Button
@@ -194,6 +197,8 @@ Public Class frmMain
         Me.txtAddnlRefSepChar = New System.Windows.Forms.TextBox
         Me.chkLookForAddnlRefInDescription = New System.Windows.Forms.CheckBox
         Me.fraCalculationOptions = New System.Windows.Forms.GroupBox
+        Me.lblMassMode = New System.Windows.Forms.Label
+        Me.cboElementMassMode = New System.Windows.Forms.ComboBox
         Me.chkExcludeProteinSequence = New System.Windows.Forms.CheckBox
         Me.chkComputepI = New System.Windows.Forms.CheckBox
         Me.chkIncludeXResidues = New System.Windows.Forms.CheckBox
@@ -289,6 +294,7 @@ Public Class frmMain
         Me.txtSqlServerName = New System.Windows.Forms.TextBox
         Me.chkUseSqlServerDBToCacheData = New System.Windows.Forms.CheckBox
         Me.fraUniquenessBinningOptions = New System.Windows.Forms.GroupBox
+        Me.lblPeptideUniquenessMassMode = New System.Windows.Forms.Label
         Me.txtUniquenessBinWidth = New System.Windows.Forms.TextBox
         Me.lblUniquenessBinWidth = New System.Windows.Forms.Label
         Me.chkAutoComputeRangeForBinning = New System.Windows.Forms.CheckBox
@@ -529,16 +535,35 @@ Public Class frmMain
         '
         'fraCalculationOptions
         '
+        Me.fraCalculationOptions.Controls.Add(Me.lblMassMode)
+        Me.fraCalculationOptions.Controls.Add(Me.cboElementMassMode)
         Me.fraCalculationOptions.Controls.Add(Me.chkExcludeProteinSequence)
         Me.fraCalculationOptions.Controls.Add(Me.chkComputepI)
         Me.fraCalculationOptions.Controls.Add(Me.chkIncludeXResidues)
         Me.fraCalculationOptions.Controls.Add(Me.chkComputeProteinMass)
-        Me.fraCalculationOptions.Location = New System.Drawing.Point(376, 56)
+        Me.fraCalculationOptions.Location = New System.Drawing.Point(376, 40)
         Me.fraCalculationOptions.Name = "fraCalculationOptions"
-        Me.fraCalculationOptions.Size = New System.Drawing.Size(248, 104)
+        Me.fraCalculationOptions.Size = New System.Drawing.Size(248, 120)
         Me.fraCalculationOptions.TabIndex = 1
         Me.fraCalculationOptions.TabStop = False
         Me.fraCalculationOptions.Text = "Calculation Options"
+        '
+        'lblMassMode
+        '
+        Me.lblMassMode.Location = New System.Drawing.Point(16, 74)
+        Me.lblMassMode.Name = "lblMassMode"
+        Me.lblMassMode.Size = New System.Drawing.Size(64, 16)
+        Me.lblMassMode.TabIndex = 5
+        Me.lblMassMode.Text = "Mass type"
+        Me.lblMassMode.TextAlign = System.Drawing.ContentAlignment.TopRight
+        '
+        'cboElementMassMode
+        '
+        Me.cboElementMassMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboElementMassMode.Location = New System.Drawing.Point(88, 72)
+        Me.cboElementMassMode.Name = "cboElementMassMode"
+        Me.cboElementMassMode.Size = New System.Drawing.Size(144, 21)
+        Me.cboElementMassMode.TabIndex = 4
         '
         'chkExcludeProteinSequence
         '
@@ -552,7 +577,7 @@ Public Class frmMain
         '
         Me.chkComputepI.Checked = True
         Me.chkComputepI.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkComputepI.Location = New System.Drawing.Point(16, 80)
+        Me.chkComputepI.Location = New System.Drawing.Point(16, 96)
         Me.chkComputepI.Name = "chkComputepI"
         Me.chkComputepI.Size = New System.Drawing.Size(216, 16)
         Me.chkComputepI.TabIndex = 3
@@ -1380,6 +1405,7 @@ Public Class frmMain
         '
         'fraUniquenessBinningOptions
         '
+        Me.fraUniquenessBinningOptions.Controls.Add(Me.lblPeptideUniquenessMassMode)
         Me.fraUniquenessBinningOptions.Controls.Add(Me.txtUniquenessBinWidth)
         Me.fraUniquenessBinningOptions.Controls.Add(Me.lblUniquenessBinWidth)
         Me.fraUniquenessBinningOptions.Controls.Add(Me.chkAutoComputeRangeForBinning)
@@ -1387,12 +1413,20 @@ Public Class frmMain
         Me.fraUniquenessBinningOptions.Controls.Add(Me.lblUniquenessBinEndMass)
         Me.fraUniquenessBinningOptions.Controls.Add(Me.txtUniquenessBinStartMass)
         Me.fraUniquenessBinningOptions.Controls.Add(Me.lblUniquenessBinStartMass)
-        Me.fraUniquenessBinningOptions.Location = New System.Drawing.Point(8, 144)
+        Me.fraUniquenessBinningOptions.Location = New System.Drawing.Point(8, 120)
         Me.fraUniquenessBinningOptions.Name = "fraUniquenessBinningOptions"
-        Me.fraUniquenessBinningOptions.Size = New System.Drawing.Size(208, 136)
+        Me.fraUniquenessBinningOptions.Size = New System.Drawing.Size(208, 160)
         Me.fraUniquenessBinningOptions.TabIndex = 3
         Me.fraUniquenessBinningOptions.TabStop = False
         Me.fraUniquenessBinningOptions.Text = "Binning Options"
+        '
+        'lblPeptideUniquenessMassMode
+        '
+        Me.lblPeptideUniquenessMassMode.Location = New System.Drawing.Point(16, 136)
+        Me.lblPeptideUniquenessMassMode.Name = "lblPeptideUniquenessMassMode"
+        Me.lblPeptideUniquenessMassMode.Size = New System.Drawing.Size(176, 16)
+        Me.lblPeptideUniquenessMassMode.TabIndex = 7
+        Me.lblPeptideUniquenessMassMode.Text = "Using monoisotopic masses"
         '
         'txtUniquenessBinWidth
         '
@@ -2054,6 +2088,7 @@ Public Class frmMain
 
                     .DigestSequences = Not chkAssumeInputFileIsDigested.Checked
                     .CysPeptidesOnly = chkCysPeptidesOnly.Checked
+                    .ElementMassMode = CType(cboElementMassMode.SelectedIndex, PeptideSequenceClass.ElementModeConstants)
 
                     .AutoDetermineMassRangeForBinning = chkAutoComputeRangeForBinning.Checked
 
@@ -2184,6 +2219,8 @@ Public Class frmMain
 
                     chkExcludeProteinSequence.Checked = .GetParam(ProcessingOptions, "ExcludeProteinSequence", chkExcludeProteinSequence.Checked)
                     chkComputeProteinMass.Checked = .GetParam(ProcessingOptions, "ComputeProteinMass", chkComputeProteinMass.Checked)
+                    cboElementMassMode.SelectedIndex = .GetParam(ProcessingOptions, "ElementMassMode", cboElementMassMode.SelectedIndex)
+
                     chkComputepI.Checked = .GetParam(ProcessingOptions, "ComputepI", chkComputepI.Checked)
                     chkIncludeXResidues.Checked = .GetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
                     chkDigestProteins.Checked = .GetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked)
@@ -2341,7 +2378,8 @@ Public Class frmMain
                         .SetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
                         .SetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked)
                         .SetParam(ProcessingOptions, "ProteinReversalIndex", cboProteinReversalOptions.SelectedIndex)
-                        .SetParam(ProcessingOptions, "ProteinScramblingLoopCount", txtProteinScramblingLoopCount.text)
+                        .SetParam(ProcessingOptions, "ProteinScramblingLoopCount", txtProteinScramblingLoopCount.Text)
+                        .SetParam(ProcessingOptions, "ElementMassMode", cboElementMassMode.SelectedIndex)
 
                         .SetParam(ProcessingOptions, "HydrophobicityMode", cboHydrophobicityMode.SelectedIndex)
                         .SetParam(ProcessingOptions, "MaxpIModeEnabled", chkMaxpIModeEnabled.Checked)
@@ -2652,6 +2690,8 @@ Public Class frmMain
             .SetToolTip(optUseEllipseSearchRegion, "This setting only takes effect if 'Use SLiC Score when gauging uniqueness' is false.")
             .SetToolTip(optUseRectangleSearchRegion, "This setting only takes effect if 'Use SLiC Score when gauging uniqueness' is false.")
 
+            .SetToolTip(lblPeptideUniquenessMassMode, "Current mass mode; to change go to the 'Parse and Digest File Options' tab")
+
             .SetToolTip(chkExcludeProteinSequence, "Enabling this setting will prevent protein sequences from being written to the output file; useful when processing extremely large files.")
 
             .SetToolTip(chkEnableLogging, "Logs status and error messages to file ProteinDigestionSimulatorLog*.txt in the program directory.")
@@ -2678,6 +2718,8 @@ Public Class frmMain
                     .ProteinScramblingLoopCount = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtProteinScramblingLoopCount, "", False, 1, False)
                     .CreateDigestedProteinOutputFile = chkDigestProteins.Checked
                     .CreateFastaOutputFile = chkCreateFastaOutputFile.Checked
+
+                    .ElementMassMode = CType(cboElementMassMode.SelectedIndex, PeptideSequenceClass.ElementModeConstants)
 
                     Me.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
                     mWorking = True
@@ -2938,6 +2980,15 @@ Public Class frmMain
             .SelectedIndex = ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
         End With
 
+        With cboElementMassMode
+            With .Items
+                .Clear()
+                .Insert(PeptideSequenceClass.ElementModeConstants.AverageMass, "Average")
+                .Insert(PeptideSequenceClass.ElementModeConstants.IsotopicMass, "Monoisotopic")
+            End With
+            .SelectedIndex = PeptideSequenceClass.ElementModeConstants.IsotopicMass
+        End With
+
         With cboProteinReversalOptions
             With .Items
                 .Clear()
@@ -3026,13 +3077,15 @@ Public Class frmMain
 
         chkExcludeProteinSequence.Checked = False
         chkComputeProteinMass.Checked = True
+        cboElementMassMode.SelectedIndex = PeptideSequenceClass.ElementModeConstants.IsotopicMass
+
         chkComputepI.Checked = True
+        chkIncludeXResidues.Checked = True
 
         cboHydrophobicityMode.SelectedIndex = clspICalculation.eHydrophobicityTypeConstants.HW
         chkMaxpIModeEnabled.Checked = False
         txtMaxpISequenceLength.Text = "10"
 
-        chkIncludeXResidues.Checked = True
         chkDigestProteins.Checked = False
         cboProteinReversalOptions.SelectedIndex = clsParseProteinFile.ProteinScramblingModeConstants.None
         txtProteinReversalSamplingPercentage.Text = "100"
@@ -3198,6 +3251,13 @@ Public Class frmMain
 #End If
     End Sub
 
+    Private Sub UpdatePeptideUniquenessMassMode()
+        If cboElementMassMode.SelectedIndex = PeptideSequenceClass.ElementModeConstants.AverageMass Then
+            lblPeptideUniquenessMassMode.Text = "Using average masses"
+        Else
+            lblPeptideUniquenessMassMode.Text = "Using monoisotopic masses"
+        End If
+    End Sub
     Private Sub ValidateFastaFile(ByVal strFastaFilePath As String)
 
         Dim objFastaValidation As frmFastaValidation
@@ -3354,6 +3414,10 @@ Public Class frmMain
 #End Region
 
 #Region "Control Handlers"
+
+    Private Sub cboElementMassMode_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cboElementMassMode.SelectedIndexChanged
+        UpdatePeptideUniquenessMassMode()
+    End Sub
 
     Private Sub cboHydrophobicityMode_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cboHydrophobicityMode.SelectedIndexChanged
         ComputeSequencepI()

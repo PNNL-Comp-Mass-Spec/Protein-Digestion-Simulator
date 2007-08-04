@@ -15,7 +15,7 @@ Public Class clsParseProteinFile
     Inherits clsProcessFilesBaseClass
 
     Public Sub New()
-        MyBase.mFileDate = "January 9, 2007"
+        MyBase.mFileDate = "July 30, 2007"
         InitializeLocalVariables()
     End Sub
 
@@ -214,6 +214,21 @@ Public Class clsParseProteinFile
         End Set
     End Property
 
+    Public Property ElementMassMode() As PeptideSequenceClass.ElementModeConstants
+        Get
+            If objInSilicoDigest Is Nothing Then
+                Return PeptideSequenceClass.ElementModeConstants.IsotopicMass
+            Else
+                Return objInSilicoDigest.ElementMassMode
+            End If
+        End Get
+        Set(ByVal Value As PeptideSequenceClass.ElementModeConstants)
+            If objInSilicoDigest Is Nothing Then
+                InitializeObjectVariables()
+            End If
+            objInSilicoDigest.ElementMassMode = Value
+        End Set
+    End Property
     Public Property ExcludeProteinSequence() As Boolean
         Get
             Return mExcludeProteinSequence
@@ -724,6 +739,8 @@ Public Class clsParseProteinFile
 
                     Me.ComputeProteinMass = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeProteinMass", Me.ComputeProteinMass)
                     Me.IncludeXResiduesInMass = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "IncludeXResidues", Me.IncludeXResiduesInMass)
+                    Me.ElementMassMode = CType(objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ElementMassMode", CInt(Me.ElementMassMode)), PeptideSequenceClass.ElementModeConstants)
+
                     Me.CreateDigestedProteinOutputFile = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "DigestProteins", Me.CreateDigestedProteinOutputFile)
                     Me.ProteinScramblingMode = CType(objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinReversalIndex", CInt(Me.ProteinScramblingMode)), clsParseProteinFile.ProteinScramblingModeConstants)
                     Me.ProteinScramblingLoopCount = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinScramblingLoopCount", Me.ProteinScramblingLoopCount)
@@ -1221,7 +1238,12 @@ Public Class clsParseProteinFile
                     End If
 
                     If mComputeProteinMass OrElse mComputepI Then
-                        strLineOut &= mOutputFileDelimiter & "Mass"
+                        If ElementMassMode = PeptideSequenceClass.ElementModeConstants.AverageMass Then
+                            strLineOut &= mOutputFileDelimiter & "Average Mass"
+                        Else
+                            strLineOut &= mOutputFileDelimiter & "Mass"
+                        End If
+
                         If mComputepI Then
                             strLineOut &= mOutputFileDelimiter & "pI" & mOutputFileDelimiter & "Hydrophobicity"
                         End If

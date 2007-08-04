@@ -1,10 +1,21 @@
 Protein Digestion Simulator Change Log
 
+Version 2.1.2771; August 3, 2007
+	- New version of ValidateFastaFile.dll that creates a text file that lists the hash value for each unique sequence found in the input file
+		- This file is created if a fixed fasta file is generated
+
+Version 2.1.2769; August 1, 2007
+	- New version of ValidateFastaFile.dll that allows for renaming proteins with duplicate names when generating a fixed .Fasta file
+
+Version 2.1.2767; July 30, 2007
+	- Added option to use average elemental masses in addition to monoisotopic masses
+		- Customize on the "Parse and Digest File Options" tab
+
 Version 2.1.2684; May 8, 2007
-	 - New version of ValidateFastaFile.dll that raises a warning if duplicate protein sequences are found
+	- New version of ValidateFastaFile.dll that raises a warning if duplicate protein sequences are found
 
 Version 1.1.2659; April 13, 2007
-	 - Added several additional enzymes for in-silico digestion, including some that cleave on the N-terminal side of the target residues (e.g. Asp-N)
+	- Added several additional enzymes for in-silico digestion, including some that cleave on the N-terminal side of the target residues (e.g. Asp-N)
 		- New enzymes: Lys-C, Arg-C, Asp-N, Proteinase K, and 3 variants of Pepsin
 
 Version 2.1.2565; January 9, 2007

@@ -37,7 +37,7 @@ Public Class clsProteinDigestionSimulator
     End Sub
 
     Public Sub New(ByVal blnShowMessages As Boolean, ByRef objLogger As PRISM.Logging.ILogger)
-        MyBase.mFileDate = "November 9, 2007"
+        MyBase.mFileDate = "July 30, 2007"
         mLogger = objLogger
         InitializeLocalVariables()
     End Sub
@@ -172,6 +172,22 @@ Public Class clsProteinDigestionSimulator
         End Get
         Set(ByVal Value As Boolean)
             mDigestSequences = Value
+        End Set
+    End Property
+
+    Public Property ElementMassMode() As PeptideSequenceClass.ElementModeConstants
+        Get
+            If ProteinFileParser Is Nothing Then
+                Return PeptideSequenceClass.ElementModeConstants.IsotopicMass
+            Else
+                Return ProteinFileParser.ElementMassMode
+            End If
+        End Get
+        Set(ByVal Value As PeptideSequenceClass.ElementModeConstants)
+            If ProteinFileParser Is Nothing Then
+                InitializeProteinFileParser()
+            End If
+            ProteinFileParser.ElementMassMode = Value
         End Set
     End Property
 
@@ -1261,6 +1277,8 @@ Public Class clsProteinDigestionSimulator
         If blnResetToDefaults Then
             With ProteinFileParser
                 .ComputeProteinMass = True
+                .ElementMassMode = PeptideSequenceClass.ElementModeConstants.IsotopicMass
+
                 .CreateDigestedProteinOutputFile = False
                 .CreateProteinOutputFile = False
 

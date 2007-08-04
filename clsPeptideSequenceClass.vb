@@ -46,8 +46,8 @@ Public Class PeptideSequenceClass
     End Enum
 
     Public Enum ElementModeConstants
-        AverageMass = 1
-        IsotopicMass = 2
+        AverageMass = 0
+        IsotopicMass = 1
     End Enum
 #End Region
 

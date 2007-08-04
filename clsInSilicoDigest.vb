@@ -8,13 +8,15 @@ Option Strict On
 '
 ' Utilizes the PeptideInfoClass class
 '
-' Last Modified April 13, 2007
+' Last Modified July 30, 2007
 '
 Public Class clsInSilicoDigest
 
     Public Sub New()
         mShowMessages = True
         mPeptideSequence = New PeptideSequenceClass
+        mPeptideSequence.ElementMode = PeptideSequenceClass.ElementModeConstants.IsotopicMass
+
         InitializeCleavageRules()
         InitializepICalculator()
     End Sub
@@ -93,6 +95,22 @@ Public Class clsInSilicoDigest
         End Get
         Set(ByVal Value As Boolean)
             mShowMessages = Value
+        End Set
+    End Property
+
+    Public Property ElementMassMode() As PeptideSequenceClass.ElementModeConstants
+        Get
+            If mPeptideSequence Is Nothing Then
+                Return PeptideSequenceClass.ElementModeConstants.IsotopicMass
+            Else
+                Return mPeptideSequence.ElementMode
+            End If
+        End Get
+        Set(ByVal Value As PeptideSequenceClass.ElementModeConstants)
+            If mPeptideSequence Is Nothing Then
+                mPeptideSequence = New PeptideSequenceClass
+            End If
+            mPeptideSequence.ElementMode = Value
         End Set
     End Property
 #End Region

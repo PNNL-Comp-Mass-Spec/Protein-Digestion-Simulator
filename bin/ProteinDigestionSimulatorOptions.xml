@@ -25,6 +25,7 @@
   <section name="ProcessingOptions">
     <item key="ExcludeProteinSequence" value="False" />
     <item key="ComputeProteinMass" value="True" />
+    <item key="ElementMassMode" value="1" />
     <item key="ComputepI" value="True" />
     <item key="IncludeXResidues" value="True" />
     <item key="DigestProteins" value="False" />
