@@ -39,20 +39,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_5685849E0D0E8187C7F688D99A5ACAB7"
-        "OwnerKey" = "8:_CC7F4A107C8D4CD2133FBDC629106776"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_65BC772F05F9494688BF6FE22731A7E8"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_6B68502BDE2CB9DFF956E73DF064C5AA"
-        "OwnerKey" = "8:_CC7F4A107C8D4CD2133FBDC629106776"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -69,55 +57,49 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_7E92816946C34337ABE50205BC4048A5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_8071FDA6C7E637E28A69AAC4527EE381"
         "OwnerKey" = "8:_EA82F944D02742F9B6412527801B65CC"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_8E285845FA3540D7B3712FF1BD1E9D85"
+        "MsmKey" = "8:_9FB2B85D451C46469F17606B48ADC135"
         "OwnerKey" = "8:_EA82F944D02742F9B6412527801B65CC"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_8E285845FA3540D7B3712FF1BD1E9D85"
+        "MsmKey" = "8:_9FB2B85D451C46469F17606B48ADC135"
         "OwnerKey" = "8:_6B68502BDE2CB9DFF956E73DF064C5AA"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_8E285845FA3540D7B3712FF1BD1E9D85"
+        "MsmKey" = "8:_9FB2B85D451C46469F17606B48ADC135"
         "OwnerKey" = "8:_CC7F4A107C8D4CD2133FBDC629106776"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_8E285845FA3540D7B3712FF1BD1E9D85"
+        "MsmKey" = "8:_9FB2B85D451C46469F17606B48ADC135"
         "OwnerKey" = "8:_B35E9901B7A352E6BAEF1F23E9F2AF7F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_8E285845FA3540D7B3712FF1BD1E9D85"
+        "MsmKey" = "8:_9FB2B85D451C46469F17606B48ADC135"
         "OwnerKey" = "8:_5685849E0D0E8187C7F688D99A5ACAB7"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_8E285845FA3540D7B3712FF1BD1E9D85"
+        "MsmKey" = "8:_9FB2B85D451C46469F17606B48ADC135"
         "OwnerKey" = "8:_7C675D70001AF8C6DB6128506F4CA378"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_8E285845FA3540D7B3712FF1BD1E9D85"
+        "MsmKey" = "8:_9FB2B85D451C46469F17606B48ADC135"
         "OwnerKey" = "8:_8071FDA6C7E637E28A69AAC4527EE381"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -325,7 +307,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:SharedVBNetRoutines, Version=1.0.2517.35494, Culture=neutral"
+            "AssemblyAsmDisplayName" = "8:SharedVBNetRoutines, Version=1.0.2797.40342, Culture=neutral"
                 "ScatterAssemblies"
                 {
                     "_6B68502BDE2CB9DFF956E73DF064C5AA"
@@ -383,31 +365,11 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_7E92816946C34337ABE50205BC4048A5"
-            {
-            "SourcePath" = "8:..\\bin\\Elute1052.wts"
-            "TargetName" = "8:Elute1052.wts"
-            "Tag" = "8:"
-            "Folder" = "8:_14D1D5D1D6F847CAA581AD55A163FF2B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{FB480208-1853-44D0-9ABD-A3B734C3FAAA}:_8071FDA6C7E637E28A69AAC4527EE381"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:NETPrediction, Version=1.0.2481.25426, Culture=neutral"
+            "AssemblyAsmDisplayName" = "8:NETPrediction, Version=1.0.2797.35783, Culture=neutral"
                 "ScatterAssemblies"
                 {
                     "_8071FDA6C7E637E28A69AAC4527EE381"
@@ -489,7 +451,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:ValidateFastaFile, Version=2.0.2769.34030, Culture=neutral"
+            "AssemblyAsmDisplayName" = "8:ValidateFastaFile, Version=2.0.2900.33557, Culture=neutral"
                 "ScatterAssemblies"
                 {
                     "_CC7F4A107C8D4CD2133FBDC629106776"
@@ -582,13 +544,13 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ProteinDigestionSimulator"
-        "ProductCode" = "8:{744D8D44-0597-4257-8523-02AEF93731E0}"
-        "PackageCode" = "8:{F73CE134-1124-47F0-AA71-8A395B9A82C2}"
+        "ProductCode" = "8:{200408DD-0712-489C-96CC-8864CA21ABDE}"
+        "PackageCode" = "8:{C80956C8-A4D0-4D36-B049-D16DB76CC056}"
         "UpgradeCode" = "8:{0612F968-E285-4419-AEC6-739DC8FF1BB3}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
-        "ProductVersion" = "8:2.1.17"
+        "ProductVersion" = "8:2.1.20"
         "Manufacturer" = "8:Battelle Memorial Institute"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -1094,7 +1056,7 @@
         }
         "MergeModule"
         {
-            "{35A69C6E-5BA4-440D-803D-762B59A45393}:_8E285845FA3540D7B3712FF1BD1E9D85"
+            "{35A69C6E-5BA4-440D-803D-762B59A45393}:_9FB2B85D451C46469F17606B48ADC135"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"

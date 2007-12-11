@@ -11,7 +11,7 @@ Option Strict On
 Public MustInherit Class clsProcessFilesBaseClass
 
     Public Sub New()
-        mFileDate = "January 1, 2006"
+        mFileDate = "September 5, 2007"
         mErrorCode = eProcessFilesErrorCodes.NoError
         mProgressStepDescription = String.Empty
     End Sub
@@ -108,7 +108,7 @@ Public MustInherit Class clsProcessFilesBaseClass
     End Property
 #End Region
 
-    Public Sub AbortProcessingNow()
+    Public Overridable Sub AbortProcessingNow()
         mAbortProcessing = True
     End Sub
 
@@ -117,6 +117,7 @@ Public MustInherit Class clsProcessFilesBaseClass
 
         Dim ioFileInfo As System.IO.FileInfo
         Dim ioFolder As System.IO.DirectoryInfo
+        Dim blnSuccess As Boolean
 
         Try
             ' Make sure strInputFilePath points to a valid file
@@ -127,7 +128,7 @@ Public MustInherit Class clsProcessFilesBaseClass
                     System.Windows.Forms.MessageBox.Show("Input file not found: " & ControlChars.NewLine & strInputFilePath, "File not found", Windows.Forms.MessageBoxButtons.OK, Windows.Forms.MessageBoxIcon.Exclamation)
                 End If
                 mErrorCode = eProcessFilesErrorCodes.InvalidInputFilePath
-                CleanupFilePaths = False
+                blnSuccess = False
             Else
                 If strOutputFolderPath Is Nothing OrElse strOutputFolderPath.Length = 0 Then
                     ' Define strOutputFolderPath based on strInputFilePath
@@ -142,7 +143,7 @@ Public MustInherit Class clsProcessFilesBaseClass
                     ioFolder.Create()
                 End If
 
-                CleanupFilePaths = True
+                blnSuccess = True
             End If
 
         Catch ex As Exception
@@ -153,6 +154,7 @@ Public MustInherit Class clsProcessFilesBaseClass
             End If
         End Try
 
+        Return blnSuccess
     End Function
 
     Protected Function GetBaseClassErrorMessage() As String
@@ -211,6 +213,10 @@ Public MustInherit Class clsProcessFilesBaseClass
 
     Public MustOverride Function GetErrorMessage() As String
 
+    Public Function ProcessFilesWildcard(ByVal strInputFolderPath As String) As Boolean
+        Return ProcessFilesWildcard(strInputFolderPath, String.Empty, String.Empty)
+    End Function
+
     Public Function ProcessFilesWildcard(ByVal strInputFilePath As String, ByVal strOutputFolderPath As String) As Boolean
         Return ProcessFilesWildcard(strInputFilePath, strOutputFolderPath, String.Empty)
     End Function
@@ -240,7 +246,7 @@ Public MustInherit Class clsProcessFilesBaseClass
             ' Possibly reset the error code
             If blnResetErrorCode Then mErrorCode = eProcessFilesErrorCodes.NoError
 
-            ' See if strInputFilePath contains a wildcard
+            ' See if strInputFilePath contains a wildcard (* or ?)
             If Not strInputFilePath Is Nothing AndAlso (strInputFilePath.IndexOf("*") >= 0 Or strInputFilePath.IndexOf("?") >= 0) Then
                 ' Obtain a list of the matching  files
 
@@ -280,6 +286,7 @@ Public MustInherit Class clsProcessFilesBaseClass
                 Else
                     Console.WriteLine()
                 End If
+
             Else
                 blnSuccess = ProcessFile(strInputFilePath, strOutputFolderPath, strParameterFilePath, blnResetErrorCode)
             End If
@@ -296,8 +303,12 @@ Public MustInherit Class clsProcessFilesBaseClass
 
     End Function
 
+    Public Function ProcessFile(ByVal strInputFilePath As String) As Boolean
+        Return ProcessFile(strInputFilePath, String.Empty, String.Empty)
+    End Function
+
     Public Function ProcessFile(ByVal strInputFilePath As String, ByVal strOutputFolderPath As String) As Boolean
-        Return ProcessFile(strInputFilePath, strOutputFolderPath, String.Empty, True)
+        Return ProcessFile(strInputFilePath, strOutputFolderPath, String.Empty)
     End Function
 
     Public Function ProcessFile(ByVal strInputFilePath As String, ByVal strOutputFolderPath As String, ByVal strParameterFilePath As String) As Boolean
@@ -305,6 +316,11 @@ Public MustInherit Class clsProcessFilesBaseClass
     End Function
 
     Public MustOverride Function ProcessFile(ByVal strInputFilePath As String, ByVal strOutputFolderPath As String, ByVal strParameterFilePath As String, ByVal blnResetErrorCode As Boolean) As Boolean
+
+
+    Public Function ProcessFilesAndRecurseFolders(ByVal strInputFolderPath As String) As Boolean
+        Return ProcessFilesAndRecurseFolders(strInputFolderPath, String.Empty, String.Empty)
+    End Function
 
     Public Function ProcessFilesAndRecurseFolders(ByVal strInputFilePathOrFolder As String, ByVal strOutputFolderName As String) As Boolean
         Return ProcessFilesAndRecurseFolders(strInputFilePathOrFolder, strOutputFolderName, String.Empty)
@@ -392,7 +408,7 @@ Public MustInherit Class clsProcessFilesBaseClass
                         If Not ioFolderInfo.Exists Then ioFolderInfo.Create()
                     Catch ex As Exception
                         Debug.Assert(False, ex.Message)
-                        mErrorCode = clsProcessFilesBaseClass.eProcessFilesErrorCodes.InvalidOutputFolderPath
+                        mErrorCode = Me.eProcessFilesErrorCodes.InvalidOutputFolderPath
                         Return False
                     End Try
                 End If
@@ -406,7 +422,7 @@ Public MustInherit Class clsProcessFilesBaseClass
                 blnSuccess = RecurseFoldersWork(strInputFolderPath, strInputFilePathOrFolder, strOutputFolderName, strParameterFilePath, strOutputFolderAlternatePath, blnRecreateFolderHierarchyInAlternatePath, strExtensionsToParse, intFileProcessCount, intFileProcessFailCount, 1, intRecurseFoldersMaxLevels)
 
             Else
-                mErrorCode = clsProcessFilesBaseClass.eProcessFilesErrorCodes.InvalidInputFilePath
+                mErrorCode = Me.eProcessFilesErrorCodes.InvalidInputFilePath
                 Return False
             End If
 

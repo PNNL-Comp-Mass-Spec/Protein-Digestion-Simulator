@@ -80,6 +80,8 @@ Public Class frmFastaValidation
     Friend WithEvents txtResults As System.Windows.Forms.TextBox
     Friend WithEvents chkCheckForDuplicateProteinInfo As System.Windows.Forms.CheckBox
     Friend WithEvents chkRenameDuplicateProteins As System.Windows.Forms.CheckBox
+    Friend WithEvents chkConsolidateDuplicateProteinSeqs As System.Windows.Forms.CheckBox
+    Friend WithEvents chkConsolidateDupsIgnoreILDiff As System.Windows.Forms.CheckBox
     <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
         Me.txtResults = New System.Windows.Forms.TextBox
         Me.MainMenuControl = New System.Windows.Forms.MainMenu
@@ -111,6 +113,7 @@ Public Class frmFastaValidation
         Me.lblMaxFileErrorsToTrack = New System.Windows.Forms.Label
         Me.chkLogResults = New System.Windows.Forms.CheckBox
         Me.TabPageNewFastaOptions = New System.Windows.Forms.TabPage
+        Me.chkConsolidateDuplicateProteinSeqs = New System.Windows.Forms.CheckBox
         Me.chkRenameDuplicateProteins = New System.Windows.Forms.CheckBox
         Me.chkSplitOutMultipleRefsInProteinName = New System.Windows.Forms.CheckBox
         Me.txtInvalidProteinNameCharsToRemove = New System.Windows.Forms.TextBox
@@ -122,6 +125,7 @@ Public Class frmFastaValidation
         Me.cmdCreateDefaultValidationRulesFile = New System.Windows.Forms.Button
         Me.txtCustomValidationRulesFilePath = New System.Windows.Forms.TextBox
         Me.cmdSelectCustomRulesFile = New System.Windows.Forms.Button
+        Me.chkConsolidateDupsIgnoreILDiff = New System.Windows.Forms.CheckBox
         CType(Me.dgErrors, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgWarnings, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.tbsOptions.SuspendLayout()
@@ -223,10 +227,10 @@ Public Class frmFastaValidation
                     Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.dgErrors.DataMember = ""
         Me.dgErrors.HeaderForeColor = System.Drawing.SystemColors.ControlText
-        Me.dgErrors.Location = New System.Drawing.Point(3, 200)
+        Me.dgErrors.Location = New System.Drawing.Point(4, 208)
         Me.dgErrors.Name = "dgErrors"
         Me.dgErrors.Size = New System.Drawing.Size(961, 120)
-        Me.dgErrors.TabIndex = 5
+        Me.dgErrors.TabIndex = 7
         '
         'dgWarnings
         '
@@ -234,10 +238,10 @@ Public Class frmFastaValidation
                     Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.dgWarnings.DataMember = ""
         Me.dgWarnings.HeaderForeColor = System.Drawing.SystemColors.ControlText
-        Me.dgWarnings.Location = New System.Drawing.Point(3, 328)
+        Me.dgWarnings.Location = New System.Drawing.Point(4, 336)
         Me.dgWarnings.Name = "dgWarnings"
         Me.dgWarnings.Size = New System.Drawing.Size(961, 104)
-        Me.dgWarnings.TabIndex = 6
+        Me.dgWarnings.TabIndex = 8
         '
         'cmdValidateFastaFile
         '
@@ -264,7 +268,7 @@ Public Class frmFastaValidation
         Me.txtFilterData.Location = New System.Drawing.Point(488, 144)
         Me.txtFilterData.Name = "txtFilterData"
         Me.txtFilterData.Size = New System.Drawing.Size(472, 20)
-        Me.txtFilterData.TabIndex = 4
+        Me.txtFilterData.TabIndex = 6
         Me.txtFilterData.Text = ""
         '
         'lblFilterData
@@ -272,7 +276,7 @@ Public Class frmFastaValidation
         Me.lblFilterData.Location = New System.Drawing.Point(424, 148)
         Me.lblFilterData.Name = "lblFilterData"
         Me.lblFilterData.Size = New System.Drawing.Size(96, 15)
-        Me.lblFilterData.TabIndex = 3
+        Me.lblFilterData.TabIndex = 5
         Me.lblFilterData.Text = "Filter data"
         '
         'cmdCancel
@@ -280,7 +284,7 @@ Public Class frmFastaValidation
         Me.cmdCancel.Location = New System.Drawing.Point(304, 144)
         Me.cmdCancel.Name = "cmdCancel"
         Me.cmdCancel.Size = New System.Drawing.Size(104, 24)
-        Me.cmdCancel.TabIndex = 13
+        Me.cmdCancel.TabIndex = 3
         Me.cmdCancel.Text = "Cancel"
         Me.cmdCancel.Visible = False
         '
@@ -292,7 +296,7 @@ Public Class frmFastaValidation
         Me.tbsOptions.Location = New System.Drawing.Point(7, 7)
         Me.tbsOptions.Name = "tbsOptions"
         Me.tbsOptions.SelectedIndex = 0
-        Me.tbsOptions.Size = New System.Drawing.Size(281, 177)
+        Me.tbsOptions.Size = New System.Drawing.Size(281, 192)
         Me.tbsOptions.TabIndex = 0
         '
         'TabPageErrorOptions
@@ -304,7 +308,7 @@ Public Class frmFastaValidation
         Me.TabPageErrorOptions.Controls.Add(Me.chkLogResults)
         Me.TabPageErrorOptions.Location = New System.Drawing.Point(4, 22)
         Me.TabPageErrorOptions.Name = "TabPageErrorOptions"
-        Me.TabPageErrorOptions.Size = New System.Drawing.Size(273, 151)
+        Me.TabPageErrorOptions.Size = New System.Drawing.Size(273, 166)
         Me.TabPageErrorOptions.TabIndex = 0
         Me.TabPageErrorOptions.Text = "Error Options"
         '
@@ -313,7 +317,7 @@ Public Class frmFastaValidation
         Me.chkAllowAsteriskInResidues.Location = New System.Drawing.Point(8, 48)
         Me.chkAllowAsteriskInResidues.Name = "chkAllowAsteriskInResidues"
         Me.chkAllowAsteriskInResidues.Size = New System.Drawing.Size(168, 16)
-        Me.chkAllowAsteriskInResidues.TabIndex = 4
+        Me.chkAllowAsteriskInResidues.TabIndex = 2
         Me.chkAllowAsteriskInResidues.Text = "Allow asterisks in residues"
         '
         'chkCheckForDuplicateProteinInfo
@@ -323,7 +327,7 @@ Public Class frmFastaValidation
         Me.chkCheckForDuplicateProteinInfo.Location = New System.Drawing.Point(8, 72)
         Me.chkCheckForDuplicateProteinInfo.Name = "chkCheckForDuplicateProteinInfo"
         Me.chkCheckForDuplicateProteinInfo.Size = New System.Drawing.Size(200, 30)
-        Me.chkCheckForDuplicateProteinInfo.TabIndex = 2
+        Me.chkCheckForDuplicateProteinInfo.TabIndex = 3
         Me.chkCheckForDuplicateProteinInfo.Text = "Check for duplicate protein names and duplicate protein sequences"
         '
         'txtMaxFileErrorsToTrack
@@ -347,11 +351,13 @@ Public Class frmFastaValidation
         Me.chkLogResults.Location = New System.Drawing.Point(8, 104)
         Me.chkLogResults.Name = "chkLogResults"
         Me.chkLogResults.Size = New System.Drawing.Size(127, 16)
-        Me.chkLogResults.TabIndex = 3
+        Me.chkLogResults.TabIndex = 4
         Me.chkLogResults.Text = "Log results to file"
         '
         'TabPageNewFastaOptions
         '
+        Me.TabPageNewFastaOptions.Controls.Add(Me.chkConsolidateDupsIgnoreILDiff)
+        Me.TabPageNewFastaOptions.Controls.Add(Me.chkConsolidateDuplicateProteinSeqs)
         Me.TabPageNewFastaOptions.Controls.Add(Me.chkRenameDuplicateProteins)
         Me.TabPageNewFastaOptions.Controls.Add(Me.chkSplitOutMultipleRefsInProteinName)
         Me.TabPageNewFastaOptions.Controls.Add(Me.txtInvalidProteinNameCharsToRemove)
@@ -361,15 +367,27 @@ Public Class frmFastaValidation
         Me.TabPageNewFastaOptions.Controls.Add(Me.chkGenerateFixedFastaFile)
         Me.TabPageNewFastaOptions.Location = New System.Drawing.Point(4, 22)
         Me.TabPageNewFastaOptions.Name = "TabPageNewFastaOptions"
-        Me.TabPageNewFastaOptions.Size = New System.Drawing.Size(273, 151)
+        Me.TabPageNewFastaOptions.Size = New System.Drawing.Size(273, 166)
         Me.TabPageNewFastaOptions.TabIndex = 1
         Me.TabPageNewFastaOptions.Text = "Fixed Fasta Options"
         '
+        'chkConsolidateDuplicateProteinSeqs
+        '
+        Me.chkConsolidateDuplicateProteinSeqs.Checked = True
+        Me.chkConsolidateDuplicateProteinSeqs.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.chkConsolidateDuplicateProteinSeqs.Location = New System.Drawing.Point(8, 128)
+        Me.chkConsolidateDuplicateProteinSeqs.Name = "chkConsolidateDuplicateProteinSeqs"
+        Me.chkConsolidateDuplicateProteinSeqs.Size = New System.Drawing.Size(224, 16)
+        Me.chkConsolidateDuplicateProteinSeqs.TabIndex = 7
+        Me.chkConsolidateDuplicateProteinSeqs.Text = "Consolidate duplicate proteins"
+        '
         'chkRenameDuplicateProteins
         '
-        Me.chkRenameDuplicateProteins.Location = New System.Drawing.Point(8, 120)
+        Me.chkRenameDuplicateProteins.Checked = True
+        Me.chkRenameDuplicateProteins.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.chkRenameDuplicateProteins.Location = New System.Drawing.Point(8, 112)
         Me.chkRenameDuplicateProteins.Name = "chkRenameDuplicateProteins"
-        Me.chkRenameDuplicateProteins.Size = New System.Drawing.Size(224, 23)
+        Me.chkRenameDuplicateProteins.Size = New System.Drawing.Size(224, 16)
         Me.chkRenameDuplicateProteins.TabIndex = 6
         Me.chkRenameDuplicateProteins.Text = "Rename proteins with duplicate names"
         '
@@ -377,7 +395,7 @@ Public Class frmFastaValidation
         '
         Me.chkSplitOutMultipleRefsInProteinName.Location = New System.Drawing.Point(8, 97)
         Me.chkSplitOutMultipleRefsInProteinName.Name = "chkSplitOutMultipleRefsInProteinName"
-        Me.chkSplitOutMultipleRefsInProteinName.Size = New System.Drawing.Size(256, 23)
+        Me.chkSplitOutMultipleRefsInProteinName.Size = New System.Drawing.Size(256, 15)
         Me.chkSplitOutMultipleRefsInProteinName.TabIndex = 5
         Me.chkSplitOutMultipleRefsInProteinName.Text = "Split out multiple references in protein names"
         '
@@ -428,7 +446,7 @@ Public Class frmFastaValidation
         Me.TabPageRuleOptions.Controls.Add(Me.cmdSelectCustomRulesFile)
         Me.TabPageRuleOptions.Location = New System.Drawing.Point(4, 22)
         Me.TabPageRuleOptions.Name = "TabPageRuleOptions"
-        Me.TabPageRuleOptions.Size = New System.Drawing.Size(273, 151)
+        Me.TabPageRuleOptions.Size = New System.Drawing.Size(273, 166)
         Me.TabPageRuleOptions.TabIndex = 2
         Me.TabPageRuleOptions.Text = "Rule Options"
         '
@@ -437,7 +455,7 @@ Public Class frmFastaValidation
         Me.cmdCreateDefaultValidationRulesFile.Location = New System.Drawing.Point(144, 8)
         Me.cmdCreateDefaultValidationRulesFile.Name = "cmdCreateDefaultValidationRulesFile"
         Me.cmdCreateDefaultValidationRulesFile.Size = New System.Drawing.Size(104, 32)
-        Me.cmdCreateDefaultValidationRulesFile.TabIndex = 6
+        Me.cmdCreateDefaultValidationRulesFile.TabIndex = 1
         Me.cmdCreateDefaultValidationRulesFile.Text = "Create XML file with default rules"
         '
         'txtCustomValidationRulesFilePath
@@ -447,7 +465,7 @@ Public Class frmFastaValidation
         Me.txtCustomValidationRulesFilePath.Location = New System.Drawing.Point(8, 56)
         Me.txtCustomValidationRulesFilePath.Name = "txtCustomValidationRulesFilePath"
         Me.txtCustomValidationRulesFilePath.Size = New System.Drawing.Size(256, 20)
-        Me.txtCustomValidationRulesFilePath.TabIndex = 5
+        Me.txtCustomValidationRulesFilePath.TabIndex = 2
         Me.txtCustomValidationRulesFilePath.Text = ""
         '
         'cmdSelectCustomRulesFile
@@ -455,13 +473,23 @@ Public Class frmFastaValidation
         Me.cmdSelectCustomRulesFile.Location = New System.Drawing.Point(8, 8)
         Me.cmdSelectCustomRulesFile.Name = "cmdSelectCustomRulesFile"
         Me.cmdSelectCustomRulesFile.Size = New System.Drawing.Size(104, 32)
-        Me.cmdSelectCustomRulesFile.TabIndex = 4
+        Me.cmdSelectCustomRulesFile.TabIndex = 0
         Me.cmdSelectCustomRulesFile.Text = "Select Custom Rules File"
+        '
+        'chkConsolidateDupsIgnoreILDiff
+        '
+        Me.chkConsolidateDupsIgnoreILDiff.Checked = True
+        Me.chkConsolidateDupsIgnoreILDiff.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.chkConsolidateDupsIgnoreILDiff.Location = New System.Drawing.Point(8, 144)
+        Me.chkConsolidateDupsIgnoreILDiff.Name = "chkConsolidateDupsIgnoreILDiff"
+        Me.chkConsolidateDupsIgnoreILDiff.Size = New System.Drawing.Size(248, 16)
+        Me.chkConsolidateDupsIgnoreILDiff.TabIndex = 8
+        Me.chkConsolidateDupsIgnoreILDiff.Text = "Ignore I/L differences when consolidating"
         '
         'frmFastaValidation
         '
         Me.AutoScaleBaseSize = New System.Drawing.Size(5, 13)
-        Me.ClientSize = New System.Drawing.Size(968, 513)
+        Me.ClientSize = New System.Drawing.Size(968, 457)
         Me.Controls.Add(Me.tbsOptions)
         Me.Controls.Add(Me.txtFilterData)
         Me.Controls.Add(Me.txtResults)
@@ -650,6 +678,8 @@ Public Class frmFastaValidation
         txtInvalidProteinNameCharsToRemove.Enabled = blnEnableFixedFastaOptions
         chkSplitOutMultipleRefsInProteinName.Enabled = blnEnableFixedFastaOptions
         chkRenameDuplicateProteins.Enabled = blnEnableFixedFastaOptions
+        chkConsolidateDuplicateProteinSeqs.Enabled = blnEnableFixedFastaOptions
+        chkConsolidateDupsIgnoreILDiff.Enabled = blnEnableFixedFastaOptions And chkConsolidateDuplicateProteinSeqs.Checked
 
         If txtCustomValidationRulesFilePath.TextLength > 0 Then
             chkAllowAsteriskInResidues.Enabled = False
@@ -1074,6 +1104,8 @@ Public Class frmFastaValidation
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.OutputToStatsFile, chkLogResults.Checked)
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.GenerateFixedFASTAFile, chkGenerateFixedFastaFile.Checked)
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaRenameDuplicateNameProteins, chkRenameDuplicateProteins.Checked)
+                .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs, chkConsolidateDuplicateProteinSeqs.Checked)
+                .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaConsolidateDupsIgnoreILDiff, chkConsolidateDupsIgnoreILDiff.Checked)
 
                 ' Also apply chkGenerateFixedFastaFile to SaveProteinSequenceHashInfoFiles
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.SaveProteinSequenceHashInfoFiles, chkGenerateFixedFastaFile.Checked)
@@ -1123,6 +1155,10 @@ Public Class frmFastaValidation
                             AppendToString(strResults, "Count of proteins renamed due to duplicate names = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.DuplicateProteinNamesRenamedCount))
                         ElseIf .OptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.CheckForDuplicateProteinNames) Then
                             AppendToString(strResults, "Count of proteins skipped due to duplicate names = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.DuplicateProteinNamesSkippedCount))
+                        End If
+
+                        If .OptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs) Then
+                            AppendToString(strResults, "Count of proteins removed due to duplicate sequences = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.DuplicateProteinSeqsSkippedCount))
                         End If
 
                     End If
@@ -1217,11 +1253,27 @@ Public Class frmFastaValidation
 
 #Region "Control Handlers"
 
+    Private Sub chkGenerateFixedFastaFile_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles chkGenerateFixedFastaFile.CheckedChanged
+        EnableDisableControls()
+    End Sub
+
+    Private Sub chkConsolidateDuplicateProteinSeqs_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles chkConsolidateDuplicateProteinSeqs.CheckedChanged
+        EnableDisableControls()
+    End Sub
+
     Private Sub cmdCancel_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdCancel.Click
         If Not mValidateFastaFile Is Nothing Then
             cmdCancel.Enabled = False
             mValidateFastaFile.AbortProcessingNow()
         End If
+    End Sub
+
+    Private Sub cmdCreateDefaultValidationRulesFile_Click_1(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdCreateDefaultValidationRulesFile.Click
+        CreateDefaultValidationRulesFile()
+    End Sub
+
+    Private Sub cmdSelectCustomRulesFile_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdSelectCustomRulesFile.Click
+        SelectCustomRulesFile()
     End Sub
 
     Private Sub cmdValidateFastaFile_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdValidateFastaFile.Click
@@ -1230,6 +1282,10 @@ Public Class frmFastaValidation
 
     Private Sub frmFastaValidationResults_Resize(ByVal sender As Object, ByVal e As System.EventArgs) Handles MyBase.Resize
         PositionControls()
+    End Sub
+
+    Private Sub txtCustomValidationRulesFilePath_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtCustomValidationRulesFilePath.TextChanged
+        EnableDisableControls()
     End Sub
 
     Private Sub txtFilterData_Validated(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtFilterData.Validated
@@ -1300,11 +1356,11 @@ Public Class frmFastaValidation
         End If
     End Sub
 
-#End Region
-
-    Private Sub chkGenerateFixedFastaFile_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles chkGenerateFixedFastaFile.CheckedChanged
-        EnableDisableControls()
+    Private Sub mnuHelpAbout_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles mnuHelpAbout.Click
+        ShowAboutBox()
     End Sub
+
+#End Region
 
     Private Sub mValidateFastaFile_ProgressChanged(ByVal taskDescription As String, ByVal percentComplete As Single) Handles mValidateFastaFile.ProgressChanged
         Try
@@ -1315,20 +1371,5 @@ Public Class frmFastaValidation
         End Try
     End Sub
 
-    Private Sub cmdSelectCustomRulesFile_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdSelectCustomRulesFile.Click
-        SelectCustomRulesFile()
-    End Sub
-
-    Private Sub cmdCreateDefaultValidationRulesFile_Click_1(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdCreateDefaultValidationRulesFile.Click
-        CreateDefaultValidationRulesFile()
-    End Sub
-
-    Private Sub txtCustomValidationRulesFilePath_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtCustomValidationRulesFilePath.TextChanged
-        EnableDisableControls()
-    End Sub
-
-    Private Sub mnuHelpAbout_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles mnuHelpAbout.Click
-        ShowAboutBox()
-    End Sub
-
+   
 End Class

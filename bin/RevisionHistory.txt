@@ -1,5 +1,11 @@
 Protein Digestion Simulator Change Log
 
+Version 2.1.2900; December 10, 2007
+	- New version of ValidateFastaFile.dll that can ignore I/L differences when consolidating proteins with duplicate sequences
+
+Version 2.1.2896; December 6, 2007
+	- New version of ValidateFastaFile.dll that can consolidate proteins with duplicate sequences when a fixed fasta file is generated
+
 Version 2.1.2771; August 3, 2007
 	- New version of ValidateFastaFile.dll that creates a text file that lists the hash value for each unique sequence found in the input file
 		- This file is created if a fixed fasta file is generated
