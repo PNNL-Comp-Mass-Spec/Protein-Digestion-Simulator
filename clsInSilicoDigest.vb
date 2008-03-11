@@ -24,7 +24,7 @@ Public Class clsInSilicoDigest
 #Region "Constants and Enums"
 
     ' Note: Good list of enzymes is at http://ca.expasy.org/tools/peptidecutter/peptidecutter_enzymes.html
-    Private Const CleavageRuleCount As Integer = 18
+    Private Const CleavageRuleCount As Integer = 19
     Public Enum CleavageRuleConstants
         NoRule = 0
         ConventionalTrypsin = 1
@@ -44,6 +44,7 @@ Public Class clsInSilicoDigest
         PepsinA = 15
         PepsinB = 16
         PepsinC = 17
+        AceticAcidD = 18
     End Enum
 
 #End Region
@@ -669,6 +670,14 @@ Public Class clsInSilicoDigest
                 .CleavageResidues = "FLWYA"
                 .ExceptionResidues = "P"
                 .ReversedCleavageDirection = True
+                .RuleIDInParallax = 0
+            End With
+
+            With .Rules(CleavageRuleConstants.AceticAcidD)
+                .Description = "Acetic Acid Hydrolysis"
+                .CleavageResidues = "D"
+                .ExceptionResidues = String.Empty
+                .ReversedCleavageDirection = False
                 .RuleIDInParallax = 0
             End With
 

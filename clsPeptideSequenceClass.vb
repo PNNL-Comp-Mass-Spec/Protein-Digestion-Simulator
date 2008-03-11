@@ -161,7 +161,7 @@ Public Class PeptideSequenceClass
         Return strSequence
     End Function
 
-    ' Set blnReversedCleavageDirection to True to cleave on the N-terminal side of  strRuleResidues
+    ' Set blnReversedCleavageDirection to True to cleave on the N-terminal side of strRuleResidues
     Public Function CheckSequenceAgainstCleavageRule( _
                                         ByVal strSequence As String, _
                                         ByVal strRuleResidues As String, _
