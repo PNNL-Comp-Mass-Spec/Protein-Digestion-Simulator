@@ -82,6 +82,20 @@ Public Class frmFastaValidation
     Friend WithEvents chkRenameDuplicateProteins As System.Windows.Forms.CheckBox
     Friend WithEvents chkConsolidateDuplicateProteinSeqs As System.Windows.Forms.CheckBox
     Friend WithEvents chkConsolidateDupsIgnoreILDiff As System.Windows.Forms.CheckBox
+    Friend WithEvents chkTruncateLongProteinNames As System.Windows.Forms.CheckBox
+    Friend WithEvents chkSplitOutMultipleRefsForKnownAccession As System.Windows.Forms.CheckBox
+    Friend WithEvents chkWrapLongResidueLines As System.Windows.Forms.CheckBox
+    Friend WithEvents chkRemoveInvalidResidues As System.Windows.Forms.CheckBox
+    Friend WithEvents lblCustomRulesFile As System.Windows.Forms.Label
+    Friend WithEvents txtMaximumResiduesPerLine As System.Windows.Forms.TextBox
+    Friend WithEvents lblMaximumResiduesPerLine As System.Windows.Forms.Label
+    Friend WithEvents lblProteinNameLengthUnits As System.Windows.Forms.Label
+    Friend WithEvents lblProteinNameLength2 As System.Windows.Forms.Label
+    Friend WithEvents txtProteinNameLengthMaximum As System.Windows.Forms.TextBox
+    Friend WithEvents txtProteinNameLengthMinimum As System.Windows.Forms.TextBox
+    Friend WithEvents lblProteinNameLength As System.Windows.Forms.Label
+    Friend WithEvents MenuItem2 As System.Windows.Forms.MenuItem
+    Friend WithEvents mnuEditResetToDefaults As System.Windows.Forms.MenuItem
     <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
         Me.txtResults = New System.Windows.Forms.TextBox
         Me.MainMenuControl = New System.Windows.Forms.MainMenu
@@ -96,6 +110,8 @@ Public Class frmFastaValidation
         Me.mnuEditSep2 = New System.Windows.Forms.MenuItem
         Me.mnuEditFontSizeDecrease = New System.Windows.Forms.MenuItem
         Me.mnuEditFontSizeIncrease = New System.Windows.Forms.MenuItem
+        Me.MenuItem2 = New System.Windows.Forms.MenuItem
+        Me.mnuEditResetToDefaults = New System.Windows.Forms.MenuItem
         Me.MenuItem1 = New System.Windows.Forms.MenuItem
         Me.mnuHelpAbout = New System.Windows.Forms.MenuItem
         Me.dgErrors = New System.Windows.Forms.DataGrid
@@ -107,12 +123,24 @@ Public Class frmFastaValidation
         Me.cmdCancel = New System.Windows.Forms.Button
         Me.tbsOptions = New System.Windows.Forms.TabControl
         Me.TabPageErrorOptions = New System.Windows.Forms.TabPage
+        Me.lblProteinNameLengthUnits = New System.Windows.Forms.Label
+        Me.lblProteinNameLength2 = New System.Windows.Forms.Label
+        Me.txtProteinNameLengthMaximum = New System.Windows.Forms.TextBox
+        Me.txtProteinNameLengthMinimum = New System.Windows.Forms.TextBox
+        Me.lblProteinNameLength = New System.Windows.Forms.Label
+        Me.txtMaximumResiduesPerLine = New System.Windows.Forms.TextBox
+        Me.lblMaximumResiduesPerLine = New System.Windows.Forms.Label
         Me.chkAllowAsteriskInResidues = New System.Windows.Forms.CheckBox
         Me.chkCheckForDuplicateProteinInfo = New System.Windows.Forms.CheckBox
         Me.txtMaxFileErrorsToTrack = New System.Windows.Forms.TextBox
         Me.lblMaxFileErrorsToTrack = New System.Windows.Forms.Label
         Me.chkLogResults = New System.Windows.Forms.CheckBox
         Me.TabPageNewFastaOptions = New System.Windows.Forms.TabPage
+        Me.chkRemoveInvalidResidues = New System.Windows.Forms.CheckBox
+        Me.chkWrapLongResidueLines = New System.Windows.Forms.CheckBox
+        Me.chkSplitOutMultipleRefsForKnownAccession = New System.Windows.Forms.CheckBox
+        Me.chkTruncateLongProteinNames = New System.Windows.Forms.CheckBox
+        Me.chkConsolidateDupsIgnoreILDiff = New System.Windows.Forms.CheckBox
         Me.chkConsolidateDuplicateProteinSeqs = New System.Windows.Forms.CheckBox
         Me.chkRenameDuplicateProteins = New System.Windows.Forms.CheckBox
         Me.chkSplitOutMultipleRefsInProteinName = New System.Windows.Forms.CheckBox
@@ -122,10 +150,10 @@ Public Class frmFastaValidation
         Me.lblLongProteinNameSplitChars = New System.Windows.Forms.Label
         Me.chkGenerateFixedFastaFile = New System.Windows.Forms.CheckBox
         Me.TabPageRuleOptions = New System.Windows.Forms.TabPage
+        Me.lblCustomRulesFile = New System.Windows.Forms.Label
         Me.cmdCreateDefaultValidationRulesFile = New System.Windows.Forms.Button
         Me.txtCustomValidationRulesFilePath = New System.Windows.Forms.TextBox
         Me.cmdSelectCustomRulesFile = New System.Windows.Forms.Button
-        Me.chkConsolidateDupsIgnoreILDiff = New System.Windows.Forms.CheckBox
         CType(Me.dgErrors, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgWarnings, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.tbsOptions.SuspendLayout()
@@ -138,11 +166,11 @@ Public Class frmFastaValidation
         '
         Me.txtResults.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
                     Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.txtResults.Location = New System.Drawing.Point(296, 8)
+        Me.txtResults.Location = New System.Drawing.Point(440, 8)
         Me.txtResults.Multiline = True
         Me.txtResults.Name = "txtResults"
         Me.txtResults.ScrollBars = System.Windows.Forms.ScrollBars.Both
-        Me.txtResults.Size = New System.Drawing.Size(664, 130)
+        Me.txtResults.Size = New System.Drawing.Size(520, 152)
         Me.txtResults.TabIndex = 1
         Me.txtResults.Text = ""
         Me.txtResults.WordWrap = False
@@ -165,7 +193,7 @@ Public Class frmFastaValidation
         'mnuEdit
         '
         Me.mnuEdit.Index = 1
-        Me.mnuEdit.MenuItems.AddRange(New System.Windows.Forms.MenuItem() {Me.mnuEditCopyAllResults, Me.mnuEditSep1, Me.mnuEditCopySummary, Me.mnuEditCopyAllErrors, Me.mnuEditCopyAllWarnings, Me.mnuEditSep2, Me.mnuEditFontSizeDecrease, Me.mnuEditFontSizeIncrease})
+        Me.mnuEdit.MenuItems.AddRange(New System.Windows.Forms.MenuItem() {Me.mnuEditCopyAllResults, Me.mnuEditSep1, Me.mnuEditCopySummary, Me.mnuEditCopyAllErrors, Me.mnuEditCopyAllWarnings, Me.mnuEditSep2, Me.mnuEditFontSizeDecrease, Me.mnuEditFontSizeIncrease, Me.MenuItem2, Me.mnuEditResetToDefaults})
         Me.mnuEdit.Text = "&Edit"
         '
         'mnuEditCopyAllResults
@@ -210,6 +238,16 @@ Public Class frmFastaValidation
         Me.mnuEditFontSizeIncrease.Shortcut = System.Windows.Forms.Shortcut.F4
         Me.mnuEditFontSizeIncrease.Text = "&Increase Font Size"
         '
+        'MenuItem2
+        '
+        Me.MenuItem2.Index = 8
+        Me.MenuItem2.Text = "-"
+        '
+        'mnuEditResetToDefaults
+        '
+        Me.mnuEditResetToDefaults.Index = 9
+        Me.mnuEditResetToDefaults.Text = "&Reset options to Default"
+        '
         'MenuItem1
         '
         Me.MenuItem1.Index = 2
@@ -227,9 +265,9 @@ Public Class frmFastaValidation
                     Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.dgErrors.DataMember = ""
         Me.dgErrors.HeaderForeColor = System.Drawing.SystemColors.ControlText
-        Me.dgErrors.Location = New System.Drawing.Point(4, 208)
+        Me.dgErrors.Location = New System.Drawing.Point(8, 208)
         Me.dgErrors.Name = "dgErrors"
-        Me.dgErrors.Size = New System.Drawing.Size(961, 120)
+        Me.dgErrors.Size = New System.Drawing.Size(952, 120)
         Me.dgErrors.TabIndex = 7
         '
         'dgWarnings
@@ -245,7 +283,7 @@ Public Class frmFastaValidation
         '
         'cmdValidateFastaFile
         '
-        Me.cmdValidateFastaFile.Location = New System.Drawing.Point(304, 144)
+        Me.cmdValidateFastaFile.Location = New System.Drawing.Point(440, 174)
         Me.cmdValidateFastaFile.Name = "cmdValidateFastaFile"
         Me.cmdValidateFastaFile.Size = New System.Drawing.Size(104, 24)
         Me.cmdValidateFastaFile.TabIndex = 2
@@ -255,9 +293,9 @@ Public Class frmFastaValidation
         '
         Me.pbarProgress.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
                     Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.pbarProgress.Location = New System.Drawing.Point(432, 144)
+        Me.pbarProgress.Location = New System.Drawing.Point(624, 176)
         Me.pbarProgress.Name = "pbarProgress"
-        Me.pbarProgress.Size = New System.Drawing.Size(528, 20)
+        Me.pbarProgress.Size = New System.Drawing.Size(336, 20)
         Me.pbarProgress.TabIndex = 8
         Me.pbarProgress.Visible = False
         '
@@ -265,23 +303,23 @@ Public Class frmFastaValidation
         '
         Me.txtFilterData.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
                     Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.txtFilterData.Location = New System.Drawing.Point(488, 144)
+        Me.txtFilterData.Location = New System.Drawing.Point(624, 176)
         Me.txtFilterData.Name = "txtFilterData"
-        Me.txtFilterData.Size = New System.Drawing.Size(472, 20)
+        Me.txtFilterData.Size = New System.Drawing.Size(336, 20)
         Me.txtFilterData.TabIndex = 6
         Me.txtFilterData.Text = ""
         '
         'lblFilterData
         '
-        Me.lblFilterData.Location = New System.Drawing.Point(424, 148)
+        Me.lblFilterData.Location = New System.Drawing.Point(552, 178)
         Me.lblFilterData.Name = "lblFilterData"
-        Me.lblFilterData.Size = New System.Drawing.Size(96, 15)
+        Me.lblFilterData.Size = New System.Drawing.Size(64, 15)
         Me.lblFilterData.TabIndex = 5
         Me.lblFilterData.Text = "Filter data"
         '
         'cmdCancel
         '
-        Me.cmdCancel.Location = New System.Drawing.Point(304, 144)
+        Me.cmdCancel.Location = New System.Drawing.Point(440, 174)
         Me.cmdCancel.Name = "cmdCancel"
         Me.cmdCancel.Size = New System.Drawing.Size(104, 24)
         Me.cmdCancel.TabIndex = 3
@@ -296,11 +334,18 @@ Public Class frmFastaValidation
         Me.tbsOptions.Location = New System.Drawing.Point(7, 7)
         Me.tbsOptions.Name = "tbsOptions"
         Me.tbsOptions.SelectedIndex = 0
-        Me.tbsOptions.Size = New System.Drawing.Size(281, 192)
+        Me.tbsOptions.Size = New System.Drawing.Size(409, 192)
         Me.tbsOptions.TabIndex = 0
         '
         'TabPageErrorOptions
         '
+        Me.TabPageErrorOptions.Controls.Add(Me.lblProteinNameLengthUnits)
+        Me.TabPageErrorOptions.Controls.Add(Me.lblProteinNameLength2)
+        Me.TabPageErrorOptions.Controls.Add(Me.txtProteinNameLengthMaximum)
+        Me.TabPageErrorOptions.Controls.Add(Me.txtProteinNameLengthMinimum)
+        Me.TabPageErrorOptions.Controls.Add(Me.lblProteinNameLength)
+        Me.TabPageErrorOptions.Controls.Add(Me.txtMaximumResiduesPerLine)
+        Me.TabPageErrorOptions.Controls.Add(Me.lblMaximumResiduesPerLine)
         Me.TabPageErrorOptions.Controls.Add(Me.chkAllowAsteriskInResidues)
         Me.TabPageErrorOptions.Controls.Add(Me.chkCheckForDuplicateProteinInfo)
         Me.TabPageErrorOptions.Controls.Add(Me.txtMaxFileErrorsToTrack)
@@ -308,31 +353,87 @@ Public Class frmFastaValidation
         Me.TabPageErrorOptions.Controls.Add(Me.chkLogResults)
         Me.TabPageErrorOptions.Location = New System.Drawing.Point(4, 22)
         Me.TabPageErrorOptions.Name = "TabPageErrorOptions"
-        Me.TabPageErrorOptions.Size = New System.Drawing.Size(273, 166)
+        Me.TabPageErrorOptions.Size = New System.Drawing.Size(401, 166)
         Me.TabPageErrorOptions.TabIndex = 0
         Me.TabPageErrorOptions.Text = "Error Options"
         '
+        'lblProteinNameLengthUnits
+        '
+        Me.lblProteinNameLengthUnits.Location = New System.Drawing.Point(312, 59)
+        Me.lblProteinNameLengthUnits.Name = "lblProteinNameLengthUnits"
+        Me.lblProteinNameLengthUnits.Size = New System.Drawing.Size(80, 17)
+        Me.lblProteinNameLengthUnits.TabIndex = 8
+        Me.lblProteinNameLengthUnits.Text = "characters"
+        '
+        'lblProteinNameLength2
+        '
+        Me.lblProteinNameLength2.Location = New System.Drawing.Point(240, 59)
+        Me.lblProteinNameLength2.Name = "lblProteinNameLength2"
+        Me.lblProteinNameLength2.Size = New System.Drawing.Size(16, 17)
+        Me.lblProteinNameLength2.TabIndex = 6
+        Me.lblProteinNameLength2.Text = "to"
+        '
+        'txtProteinNameLengthMaximum
+        '
+        Me.txtProteinNameLengthMaximum.Location = New System.Drawing.Point(264, 56)
+        Me.txtProteinNameLengthMaximum.Name = "txtProteinNameLengthMaximum"
+        Me.txtProteinNameLengthMaximum.Size = New System.Drawing.Size(40, 20)
+        Me.txtProteinNameLengthMaximum.TabIndex = 7
+        Me.txtProteinNameLengthMaximum.Text = "34"
+        '
+        'txtProteinNameLengthMinimum
+        '
+        Me.txtProteinNameLengthMinimum.Location = New System.Drawing.Point(192, 56)
+        Me.txtProteinNameLengthMinimum.Name = "txtProteinNameLengthMinimum"
+        Me.txtProteinNameLengthMinimum.Size = New System.Drawing.Size(40, 20)
+        Me.txtProteinNameLengthMinimum.TabIndex = 5
+        Me.txtProteinNameLengthMinimum.Text = "3"
+        '
+        'lblProteinNameLength
+        '
+        Me.lblProteinNameLength.Location = New System.Drawing.Point(8, 58)
+        Me.lblProteinNameLength.Name = "lblProteinNameLength"
+        Me.lblProteinNameLength.Size = New System.Drawing.Size(176, 17)
+        Me.lblProteinNameLength.TabIndex = 4
+        Me.lblProteinNameLength.Text = "Valid protein name length range"
+        '
+        'txtMaximumResiduesPerLine
+        '
+        Me.txtMaximumResiduesPerLine.Location = New System.Drawing.Point(192, 32)
+        Me.txtMaximumResiduesPerLine.Name = "txtMaximumResiduesPerLine"
+        Me.txtMaximumResiduesPerLine.Size = New System.Drawing.Size(40, 20)
+        Me.txtMaximumResiduesPerLine.TabIndex = 3
+        Me.txtMaximumResiduesPerLine.Text = "120"
+        '
+        'lblMaximumResiduesPerLine
+        '
+        Me.lblMaximumResiduesPerLine.Location = New System.Drawing.Point(8, 34)
+        Me.lblMaximumResiduesPerLine.Name = "lblMaximumResiduesPerLine"
+        Me.lblMaximumResiduesPerLine.Size = New System.Drawing.Size(168, 17)
+        Me.lblMaximumResiduesPerLine.TabIndex = 2
+        Me.lblMaximumResiduesPerLine.Text = "Maximum residues per line"
+        '
         'chkAllowAsteriskInResidues
         '
-        Me.chkAllowAsteriskInResidues.Location = New System.Drawing.Point(8, 48)
+        Me.chkAllowAsteriskInResidues.Location = New System.Drawing.Point(8, 80)
         Me.chkAllowAsteriskInResidues.Name = "chkAllowAsteriskInResidues"
         Me.chkAllowAsteriskInResidues.Size = New System.Drawing.Size(168, 16)
-        Me.chkAllowAsteriskInResidues.TabIndex = 2
+        Me.chkAllowAsteriskInResidues.TabIndex = 9
         Me.chkAllowAsteriskInResidues.Text = "Allow asterisks in residues"
         '
         'chkCheckForDuplicateProteinInfo
         '
         Me.chkCheckForDuplicateProteinInfo.Checked = True
         Me.chkCheckForDuplicateProteinInfo.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkCheckForDuplicateProteinInfo.Location = New System.Drawing.Point(8, 72)
+        Me.chkCheckForDuplicateProteinInfo.Location = New System.Drawing.Point(8, 102)
         Me.chkCheckForDuplicateProteinInfo.Name = "chkCheckForDuplicateProteinInfo"
         Me.chkCheckForDuplicateProteinInfo.Size = New System.Drawing.Size(200, 30)
-        Me.chkCheckForDuplicateProteinInfo.TabIndex = 3
+        Me.chkCheckForDuplicateProteinInfo.TabIndex = 10
         Me.chkCheckForDuplicateProteinInfo.Text = "Check for duplicate protein names and duplicate protein sequences"
         '
         'txtMaxFileErrorsToTrack
         '
-        Me.txtMaxFileErrorsToTrack.Location = New System.Drawing.Point(143, 14)
+        Me.txtMaxFileErrorsToTrack.Location = New System.Drawing.Point(296, 8)
         Me.txtMaxFileErrorsToTrack.Name = "txtMaxFileErrorsToTrack"
         Me.txtMaxFileErrorsToTrack.Size = New System.Drawing.Size(40, 20)
         Me.txtMaxFileErrorsToTrack.TabIndex = 1
@@ -340,22 +441,26 @@ Public Class frmFastaValidation
         '
         'lblMaxFileErrorsToTrack
         '
-        Me.lblMaxFileErrorsToTrack.Location = New System.Drawing.Point(7, 7)
+        Me.lblMaxFileErrorsToTrack.Location = New System.Drawing.Point(7, 10)
         Me.lblMaxFileErrorsToTrack.Name = "lblMaxFileErrorsToTrack"
-        Me.lblMaxFileErrorsToTrack.Size = New System.Drawing.Size(135, 32)
+        Me.lblMaxFileErrorsToTrack.Size = New System.Drawing.Size(273, 17)
         Me.lblMaxFileErrorsToTrack.TabIndex = 0
         Me.lblMaxFileErrorsToTrack.Text = "Maximum # of errors or warnings to track in detail"
         '
         'chkLogResults
         '
-        Me.chkLogResults.Location = New System.Drawing.Point(8, 104)
+        Me.chkLogResults.Location = New System.Drawing.Point(8, 136)
         Me.chkLogResults.Name = "chkLogResults"
         Me.chkLogResults.Size = New System.Drawing.Size(127, 16)
-        Me.chkLogResults.TabIndex = 4
+        Me.chkLogResults.TabIndex = 11
         Me.chkLogResults.Text = "Log results to file"
         '
         'TabPageNewFastaOptions
         '
+        Me.TabPageNewFastaOptions.Controls.Add(Me.chkRemoveInvalidResidues)
+        Me.TabPageNewFastaOptions.Controls.Add(Me.chkWrapLongResidueLines)
+        Me.TabPageNewFastaOptions.Controls.Add(Me.chkSplitOutMultipleRefsForKnownAccession)
+        Me.TabPageNewFastaOptions.Controls.Add(Me.chkTruncateLongProteinNames)
         Me.TabPageNewFastaOptions.Controls.Add(Me.chkConsolidateDupsIgnoreILDiff)
         Me.TabPageNewFastaOptions.Controls.Add(Me.chkConsolidateDuplicateProteinSeqs)
         Me.TabPageNewFastaOptions.Controls.Add(Me.chkRenameDuplicateProteins)
@@ -367,41 +472,89 @@ Public Class frmFastaValidation
         Me.TabPageNewFastaOptions.Controls.Add(Me.chkGenerateFixedFastaFile)
         Me.TabPageNewFastaOptions.Location = New System.Drawing.Point(4, 22)
         Me.TabPageNewFastaOptions.Name = "TabPageNewFastaOptions"
-        Me.TabPageNewFastaOptions.Size = New System.Drawing.Size(273, 166)
+        Me.TabPageNewFastaOptions.Size = New System.Drawing.Size(401, 166)
         Me.TabPageNewFastaOptions.TabIndex = 1
         Me.TabPageNewFastaOptions.Text = "Fixed Fasta Options"
+        '
+        'chkRemoveInvalidResidues
+        '
+        Me.chkRemoveInvalidResidues.Location = New System.Drawing.Point(8, 144)
+        Me.chkRemoveInvalidResidues.Name = "chkRemoveInvalidResidues"
+        Me.chkRemoveInvalidResidues.Size = New System.Drawing.Size(152, 16)
+        Me.chkRemoveInvalidResidues.TabIndex = 8
+        Me.chkRemoveInvalidResidues.Text = "Remove invalid residues"
+        '
+        'chkWrapLongResidueLines
+        '
+        Me.chkWrapLongResidueLines.Checked = True
+        Me.chkWrapLongResidueLines.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.chkWrapLongResidueLines.Location = New System.Drawing.Point(8, 120)
+        Me.chkWrapLongResidueLines.Name = "chkWrapLongResidueLines"
+        Me.chkWrapLongResidueLines.Size = New System.Drawing.Size(152, 16)
+        Me.chkWrapLongResidueLines.TabIndex = 7
+        Me.chkWrapLongResidueLines.Text = "Wrap long residue lines"
+        '
+        'chkSplitOutMultipleRefsForKnownAccession
+        '
+        Me.chkSplitOutMultipleRefsForKnownAccession.Checked = True
+        Me.chkSplitOutMultipleRefsForKnownAccession.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.chkSplitOutMultipleRefsForKnownAccession.Location = New System.Drawing.Point(184, 64)
+        Me.chkSplitOutMultipleRefsForKnownAccession.Name = "chkSplitOutMultipleRefsForKnownAccession"
+        Me.chkSplitOutMultipleRefsForKnownAccession.Size = New System.Drawing.Size(192, 32)
+        Me.chkSplitOutMultipleRefsForKnownAccession.TabIndex = 9
+        Me.chkSplitOutMultipleRefsForKnownAccession.Text = "Split out multiple references only if IPI, GI, or JGI"
+        '
+        'chkTruncateLongProteinNames
+        '
+        Me.chkTruncateLongProteinNames.Checked = True
+        Me.chkTruncateLongProteinNames.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.chkTruncateLongProteinNames.Location = New System.Drawing.Point(8, 64)
+        Me.chkTruncateLongProteinNames.Name = "chkTruncateLongProteinNames"
+        Me.chkTruncateLongProteinNames.Size = New System.Drawing.Size(176, 24)
+        Me.chkTruncateLongProteinNames.TabIndex = 5
+        Me.chkTruncateLongProteinNames.Text = "Truncate long protein names"
+        '
+        'chkConsolidateDupsIgnoreILDiff
+        '
+        Me.chkConsolidateDupsIgnoreILDiff.Checked = True
+        Me.chkConsolidateDupsIgnoreILDiff.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.chkConsolidateDupsIgnoreILDiff.Location = New System.Drawing.Point(184, 144)
+        Me.chkConsolidateDupsIgnoreILDiff.Name = "chkConsolidateDupsIgnoreILDiff"
+        Me.chkConsolidateDupsIgnoreILDiff.Size = New System.Drawing.Size(208, 16)
+        Me.chkConsolidateDupsIgnoreILDiff.TabIndex = 12
+        Me.chkConsolidateDupsIgnoreILDiff.Text = "Ignore I/L diffs when consolidating"
         '
         'chkConsolidateDuplicateProteinSeqs
         '
         Me.chkConsolidateDuplicateProteinSeqs.Checked = True
         Me.chkConsolidateDuplicateProteinSeqs.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkConsolidateDuplicateProteinSeqs.Location = New System.Drawing.Point(8, 128)
+        Me.chkConsolidateDuplicateProteinSeqs.Location = New System.Drawing.Point(184, 128)
         Me.chkConsolidateDuplicateProteinSeqs.Name = "chkConsolidateDuplicateProteinSeqs"
-        Me.chkConsolidateDuplicateProteinSeqs.Size = New System.Drawing.Size(224, 16)
-        Me.chkConsolidateDuplicateProteinSeqs.TabIndex = 7
+        Me.chkConsolidateDuplicateProteinSeqs.Size = New System.Drawing.Size(200, 16)
+        Me.chkConsolidateDuplicateProteinSeqs.TabIndex = 11
         Me.chkConsolidateDuplicateProteinSeqs.Text = "Consolidate duplicate proteins"
         '
         'chkRenameDuplicateProteins
         '
         Me.chkRenameDuplicateProteins.Checked = True
         Me.chkRenameDuplicateProteins.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkRenameDuplicateProteins.Location = New System.Drawing.Point(8, 112)
+        Me.chkRenameDuplicateProteins.Location = New System.Drawing.Point(8, 88)
         Me.chkRenameDuplicateProteins.Name = "chkRenameDuplicateProteins"
-        Me.chkRenameDuplicateProteins.Size = New System.Drawing.Size(224, 16)
+        Me.chkRenameDuplicateProteins.Size = New System.Drawing.Size(128, 32)
         Me.chkRenameDuplicateProteins.TabIndex = 6
         Me.chkRenameDuplicateProteins.Text = "Rename proteins with duplicate names"
         '
         'chkSplitOutMultipleRefsInProteinName
         '
-        Me.chkSplitOutMultipleRefsInProteinName.Location = New System.Drawing.Point(8, 97)
+        Me.chkSplitOutMultipleRefsInProteinName.Location = New System.Drawing.Point(184, 96)
         Me.chkSplitOutMultipleRefsInProteinName.Name = "chkSplitOutMultipleRefsInProteinName"
-        Me.chkSplitOutMultipleRefsInProteinName.Size = New System.Drawing.Size(256, 15)
-        Me.chkSplitOutMultipleRefsInProteinName.TabIndex = 5
-        Me.chkSplitOutMultipleRefsInProteinName.Text = "Split out multiple references in protein names"
+        Me.chkSplitOutMultipleRefsInProteinName.Size = New System.Drawing.Size(192, 32)
+        Me.chkSplitOutMultipleRefsInProteinName.TabIndex = 10
+        Me.chkSplitOutMultipleRefsInProteinName.Text = "Split out multiple references in protein names (always)"
         '
         'txtInvalidProteinNameCharsToRemove
         '
-        Me.txtInvalidProteinNameCharsToRemove.Location = New System.Drawing.Point(133, 66)
+        Me.txtInvalidProteinNameCharsToRemove.Location = New System.Drawing.Point(336, 30)
         Me.txtInvalidProteinNameCharsToRemove.Name = "txtInvalidProteinNameCharsToRemove"
         Me.txtInvalidProteinNameCharsToRemove.Size = New System.Drawing.Size(40, 20)
         Me.txtInvalidProteinNameCharsToRemove.TabIndex = 4
@@ -409,15 +562,15 @@ Public Class frmFastaValidation
         '
         'lblInvalidProteinNameCharsToRemove
         '
-        Me.lblInvalidProteinNameCharsToRemove.Location = New System.Drawing.Point(13, 62)
+        Me.lblInvalidProteinNameCharsToRemove.Location = New System.Drawing.Point(128, 32)
         Me.lblInvalidProteinNameCharsToRemove.Name = "lblInvalidProteinNameCharsToRemove"
-        Me.lblInvalidProteinNameCharsToRemove.Size = New System.Drawing.Size(114, 28)
+        Me.lblInvalidProteinNameCharsToRemove.Size = New System.Drawing.Size(208, 16)
         Me.lblInvalidProteinNameCharsToRemove.TabIndex = 3
         Me.lblInvalidProteinNameCharsToRemove.Text = "Invalid protein name chars to remove"
         '
         'txtLongProteinNameSplitChars
         '
-        Me.txtLongProteinNameSplitChars.Location = New System.Drawing.Point(133, 31)
+        Me.txtLongProteinNameSplitChars.Location = New System.Drawing.Point(336, 8)
         Me.txtLongProteinNameSplitChars.Name = "txtLongProteinNameSplitChars"
         Me.txtLongProteinNameSplitChars.Size = New System.Drawing.Size(40, 20)
         Me.txtLongProteinNameSplitChars.TabIndex = 2
@@ -425,9 +578,9 @@ Public Class frmFastaValidation
         '
         'lblLongProteinNameSplitChars
         '
-        Me.lblLongProteinNameSplitChars.Location = New System.Drawing.Point(13, 28)
+        Me.lblLongProteinNameSplitChars.Location = New System.Drawing.Point(128, 8)
         Me.lblLongProteinNameSplitChars.Name = "lblLongProteinNameSplitChars"
-        Me.lblLongProteinNameSplitChars.Size = New System.Drawing.Size(114, 27)
+        Me.lblLongProteinNameSplitChars.Size = New System.Drawing.Size(208, 16)
         Me.lblLongProteinNameSplitChars.TabIndex = 1
         Me.lblLongProteinNameSplitChars.Text = "Char(s) to split long protein names on"
         '
@@ -435,20 +588,29 @@ Public Class frmFastaValidation
         '
         Me.chkGenerateFixedFastaFile.Location = New System.Drawing.Point(8, 7)
         Me.chkGenerateFixedFastaFile.Name = "chkGenerateFixedFastaFile"
-        Me.chkGenerateFixedFastaFile.Size = New System.Drawing.Size(184, 16)
+        Me.chkGenerateFixedFastaFile.Size = New System.Drawing.Size(104, 25)
         Me.chkGenerateFixedFastaFile.TabIndex = 0
         Me.chkGenerateFixedFastaFile.Text = "Generate fixed Fasta file"
         '
         'TabPageRuleOptions
         '
+        Me.TabPageRuleOptions.Controls.Add(Me.lblCustomRulesFile)
         Me.TabPageRuleOptions.Controls.Add(Me.cmdCreateDefaultValidationRulesFile)
         Me.TabPageRuleOptions.Controls.Add(Me.txtCustomValidationRulesFilePath)
         Me.TabPageRuleOptions.Controls.Add(Me.cmdSelectCustomRulesFile)
         Me.TabPageRuleOptions.Location = New System.Drawing.Point(4, 22)
         Me.TabPageRuleOptions.Name = "TabPageRuleOptions"
-        Me.TabPageRuleOptions.Size = New System.Drawing.Size(273, 166)
+        Me.TabPageRuleOptions.Size = New System.Drawing.Size(401, 166)
         Me.TabPageRuleOptions.TabIndex = 2
         Me.TabPageRuleOptions.Text = "Rule Options"
+        '
+        'lblCustomRulesFile
+        '
+        Me.lblCustomRulesFile.Location = New System.Drawing.Point(8, 48)
+        Me.lblCustomRulesFile.Name = "lblCustomRulesFile"
+        Me.lblCustomRulesFile.Size = New System.Drawing.Size(320, 15)
+        Me.lblCustomRulesFile.TabIndex = 2
+        Me.lblCustomRulesFile.Text = "Custom rules file (i.e. ValidateFastaFile parameter file)"
         '
         'cmdCreateDefaultValidationRulesFile
         '
@@ -462,10 +624,10 @@ Public Class frmFastaValidation
         '
         Me.txtCustomValidationRulesFilePath.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
                     Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.txtCustomValidationRulesFilePath.Location = New System.Drawing.Point(8, 56)
+        Me.txtCustomValidationRulesFilePath.Location = New System.Drawing.Point(8, 72)
         Me.txtCustomValidationRulesFilePath.Name = "txtCustomValidationRulesFilePath"
-        Me.txtCustomValidationRulesFilePath.Size = New System.Drawing.Size(256, 20)
-        Me.txtCustomValidationRulesFilePath.TabIndex = 2
+        Me.txtCustomValidationRulesFilePath.Size = New System.Drawing.Size(384, 20)
+        Me.txtCustomValidationRulesFilePath.TabIndex = 3
         Me.txtCustomValidationRulesFilePath.Text = ""
         '
         'cmdSelectCustomRulesFile
@@ -475,16 +637,6 @@ Public Class frmFastaValidation
         Me.cmdSelectCustomRulesFile.Size = New System.Drawing.Size(104, 32)
         Me.cmdSelectCustomRulesFile.TabIndex = 0
         Me.cmdSelectCustomRulesFile.Text = "Select Custom Rules File"
-        '
-        'chkConsolidateDupsIgnoreILDiff
-        '
-        Me.chkConsolidateDupsIgnoreILDiff.Checked = True
-        Me.chkConsolidateDupsIgnoreILDiff.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkConsolidateDupsIgnoreILDiff.Location = New System.Drawing.Point(8, 144)
-        Me.chkConsolidateDupsIgnoreILDiff.Name = "chkConsolidateDupsIgnoreILDiff"
-        Me.chkConsolidateDupsIgnoreILDiff.Size = New System.Drawing.Size(248, 16)
-        Me.chkConsolidateDupsIgnoreILDiff.TabIndex = 8
-        Me.chkConsolidateDupsIgnoreILDiff.Text = "Ignore I/L differences when consolidating"
         '
         'frmFastaValidation
         '
@@ -681,6 +833,11 @@ Public Class frmFastaValidation
         chkConsolidateDuplicateProteinSeqs.Enabled = blnEnableFixedFastaOptions
         chkConsolidateDupsIgnoreILDiff.Enabled = blnEnableFixedFastaOptions And chkConsolidateDuplicateProteinSeqs.Checked
 
+        chkTruncateLongProteinNames.Enabled = blnEnableFixedFastaOptions
+        chkSplitOutMultipleRefsForKnownAccession.Enabled = blnEnableFixedFastaOptions
+        chkWrapLongResidueLines.Enabled = blnEnableFixedFastaOptions
+        chkRemoveInvalidResidues.Enabled = blnEnableFixedFastaOptions
+
         If txtCustomValidationRulesFilePath.TextLength > 0 Then
             chkAllowAsteriskInResidues.Enabled = False
         Else
@@ -855,6 +1012,9 @@ Public Class frmFastaValidation
 
         EnableDisableControls()
         SetToolTips()
+
+        ResetOptionsToDefault()
+
     End Sub
 
     Private Sub PopulateMsgResultsDatagrid(ByRef objValidateFastaFile As ValidateFastaFile.clsValidateFastaFile, ByRef dgDataGrid As Windows.Forms.DataGrid, ByRef dsDataset As System.Data.DataSet, ByRef udtMsgInfoList() As ValidateFastaFile.IValidateFastaFile.udtMsgInfoType)
@@ -938,6 +1098,35 @@ Public Class frmFastaValidation
         If intDesiredHeight < 5 Then intDesiredHeight = 5
         dgWarnings.Height = intDesiredHeight
 
+    End Sub
+
+    Private Sub ResetOptionsToDefault()
+        txtMaxFileErrorsToTrack.Text = "10"
+
+        txtMaximumResiduesPerLine.Text = "120"
+
+        txtProteinNameLengthMinimum.Text = "3"
+        txtProteinNameLengthMaximum.Text = "34"
+
+        txtLongProteinNameSplitChars.Text = ValidateFastaFile.clsValidateFastaFile.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR
+        txtInvalidProteinNameCharsToRemove.Text = ""
+
+        chkAllowAsteriskInResidues.Checked = False
+        chkCheckForDuplicateProteinInfo.Checked = True
+        chkLogResults.Checked = False
+
+        ' Note: Leave this option unchanged
+        'chkGenerateFixedFastaFile.Checked = False
+
+        chkConsolidateDuplicateProteinSeqs.Checked = True
+        chkConsolidateDupsIgnoreILDiff.Checked = True
+
+        chkRemoveInvalidResidues.Checked = False
+        chkRenameDuplicateProteins.Checked = True
+        chkSplitOutMultipleRefsForKnownAccession.Checked = True
+        chkSplitOutMultipleRefsInProteinName.Checked = False
+        chkTruncateLongProteinNames.Checked = True
+        chkWrapLongResidueLines.Checked = True
     End Sub
 
     Private Sub SelectCustomRulesFile()
@@ -1038,6 +1227,7 @@ Public Class frmFastaValidation
         With objToolTipControl
             .SetToolTip(txtLongProteinNameSplitChars, "Enter one or more characters to look for when truncating long protein names (do not separate the characters by commas).  Default character is a vertical bar.")
             .SetToolTip(txtInvalidProteinNameCharsToRemove, "Enter one or more characters to look and replace with an underscore (do not separate the characters by commas).  Leave blank to not replace any characters.")
+            .SetToolTip(chkSplitOutMultipleRefsForKnownAccession, "If a protein name matches the standard IPI, GI, or JGI accession numbers, and if it contains additional reference information, then the additional information will be moved to the protein's description.")
         End With
 
         objToolTipControl = Nothing
@@ -1069,13 +1259,12 @@ Public Class frmFastaValidation
                 .ShowMessages = True
 
                 ' Note: the following settings will be overridden if a parameter file with these settings defined is provided to .ProcessFile()
-                '.AddMissingLinefeedAtEOF = False
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.WarnBlankLinesBetweenProteins, True)
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.AllowAsteriskInResidues, chkAllowAsteriskInResidues.Checked)
 
-                '.MinimumProteinNameLength = 3
-                '.MaximumProteinNameLength = 34
-                '.WarnCommaInProteinName = chkWarnCommaInProteinName.Checked
+                .MinimumProteinNameLength = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtProteinNameLengthMinimum, "Minimum protein name length should be a number", False, 3, False)
+                .MaximumProteinNameLength = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtProteinNameLengthMaximum, "Maximum protein name length should be a number", False, 34, False)
+                .MaximumResiduesPerLine = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtMaximumResiduesPerLine, "Maximum residues per line should be a number", False, 120, False)
 
                 strParameterFilePath = txtCustomValidationRulesFilePath.Text
                 If strParameterFilePath.Length > 0 Then
@@ -1102,10 +1291,21 @@ Public Class frmFastaValidation
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.CheckForDuplicateProteinNames, chkCheckForDuplicateProteinInfo.Checked)
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.CheckForDuplicateProteinSequences, chkCheckForDuplicateProteinInfo.Checked)
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.OutputToStatsFile, chkLogResults.Checked)
+
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.GenerateFixedFASTAFile, chkGenerateFixedFastaFile.Checked)
+
+                .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaSplitOutMultipleRefsForKnownAccession, chkSplitOutMultipleRefsForKnownAccession.Checked)
+                .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.SplitOutMultipleRefsInProteinName, chkSplitOutMultipleRefsInProteinName.Checked)
+
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaRenameDuplicateNameProteins, chkRenameDuplicateProteins.Checked)
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs, chkConsolidateDuplicateProteinSeqs.Checked)
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaConsolidateDupsIgnoreILDiff, chkConsolidateDupsIgnoreILDiff.Checked)
+                .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaTruncateLongProteinNames, chkTruncateLongProteinNames.Checked)
+                .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaWrapLongResidueLines, chkWrapLongResidueLines.Checked)
+                .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaRemoveInvalidResidues, chkRemoveInvalidResidues.Checked())
+
+                .ProteinNameFirstRefSepChars = ValidateFastaFile.clsValidateFastaFile.DEFAULT_PROTEIN_NAME_FIRST_REF_SEP_CHARS
+                .ProteinNameSubsequentRefSepChars = ValidateFastaFile.clsValidateFastaFile.DEFAULT_PROTEIN_NAME_SUBSEQUENT_REF_SEP_CHARS
 
                 ' Also apply chkGenerateFixedFastaFile to SaveProteinSequenceHashInfoFiles
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.SaveProteinSequenceHashInfoFiles, chkGenerateFixedFastaFile.Checked)
@@ -1117,7 +1317,6 @@ Public Class frmFastaValidation
                 End If
 
                 .ProteinNameInvalidCharsToRemove = txtInvalidProteinNameCharsToRemove.Text
-                .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.SplitOutMultipleRefsinProteinName, chkSplitOutMultipleRefsInProteinName.Checked)
 
             End With
 
@@ -1302,6 +1501,22 @@ Public Class frmFastaValidation
         SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtMaxFileErrorsToTrack, e, True)
     End Sub
 
+    Private Sub txtMaxFileErrorsToTrack_KeyPress1(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles txtMaxFileErrorsToTrack.KeyPress
+        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtMaxFileErrorsToTrack, e, True)
+    End Sub
+
+    Private Sub txtMaximumResiduesPerLine_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles txtMaximumResiduesPerLine.KeyPress
+        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtMaximumResiduesPerLine, e, True)
+    End Sub
+
+    Private Sub txtProteinNameLengthMinimum_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles txtProteinNameLengthMinimum.KeyPress
+        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtProteinNameLengthMinimum, e, True)
+    End Sub
+
+    Private Sub txtProteinNameLengthMaximum_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles txtProteinNameLengthMaximum.KeyPress
+        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtProteinNameLengthMaximum, e, True)
+    End Sub
+
     Private Sub txtResults_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles txtResults.KeyDown
         If e.Control = True Then
             If e.KeyCode = Keys.A Then
@@ -1356,6 +1571,10 @@ Public Class frmFastaValidation
         End If
     End Sub
 
+    Private Sub mnuEditResetToDefaults_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles mnuEditResetToDefaults.Click
+        ResetOptionsToDefault()
+    End Sub
+
     Private Sub mnuHelpAbout_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles mnuHelpAbout.Click
         ShowAboutBox()
     End Sub
@@ -1371,5 +1590,4 @@ Public Class frmFastaValidation
         End Try
     End Sub
 
-   
 End Class

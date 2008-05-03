@@ -45,6 +45,48 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_6F02C473B63F40408F7741012BA19E7E"
+        "OwnerKey" = "8:_6E62BC4956D04CF9B82610DFB0473517"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6F02C473B63F40408F7741012BA19E7E"
+        "OwnerKey" = "8:_DD411873DF6066AC60D4158AA9D91028"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6F02C473B63F40408F7741012BA19E7E"
+        "OwnerKey" = "8:_F0EB2815EE0E403FA7825F594F4BEBD1"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6F02C473B63F40408F7741012BA19E7E"
+        "OwnerKey" = "8:_AA501CAA850432100C66AE6921235AFD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6F02C473B63F40408F7741012BA19E7E"
+        "OwnerKey" = "8:_3E09D00F3F3E921A9E990C9C29BAB517"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6F02C473B63F40408F7741012BA19E7E"
+        "OwnerKey" = "8:_D2FEA79469A61AF6E4F9C5618719E9D1"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6F02C473B63F40408F7741012BA19E7E"
+        "OwnerKey" = "8:_648CB5574190AFD82BE008F370F28A37"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_AA501CAA850432100C66AE6921235AFD"
         "OwnerKey" = "8:_6E62BC4956D04CF9B82610DFB0473517"
         "MsmSig" = "8:_UNDEFINED"
@@ -53,48 +95,6 @@
         {
         "MsmKey" = "8:_C733498CAF3B4E50A9406296745AB3D0"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D2D5BE5B02044A9A89A566D3B00D60FE"
-        "OwnerKey" = "8:_6E62BC4956D04CF9B82610DFB0473517"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D2D5BE5B02044A9A89A566D3B00D60FE"
-        "OwnerKey" = "8:_DD411873DF6066AC60D4158AA9D91028"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D2D5BE5B02044A9A89A566D3B00D60FE"
-        "OwnerKey" = "8:_F0EB2815EE0E403FA7825F594F4BEBD1"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D2D5BE5B02044A9A89A566D3B00D60FE"
-        "OwnerKey" = "8:_AA501CAA850432100C66AE6921235AFD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D2D5BE5B02044A9A89A566D3B00D60FE"
-        "OwnerKey" = "8:_3E09D00F3F3E921A9E990C9C29BAB517"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D2D5BE5B02044A9A89A566D3B00D60FE"
-        "OwnerKey" = "8:_D2FEA79469A61AF6E4F9C5618719E9D1"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D2D5BE5B02044A9A89A566D3B00D60FE"
-        "OwnerKey" = "8:_648CB5574190AFD82BE008F370F28A37"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -425,7 +425,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:ValidateFastaFile, Version=2.0.2900.33557, Culture=neutral"
+            "AssemblyAsmDisplayName" = "8:ValidateFastaFile, Version=2.0.3044.26106, Culture=neutral"
                 "ScatterAssemblies"
                 {
                     "_F0EB2815EE0E403FA7825F594F4BEBD1"
@@ -518,13 +518,13 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ProteinDigestionSimulatorBasic"
-        "ProductCode" = "8:{383E7B77-0C3D-4422-A904-3DAFA0510EF4}"
-        "PackageCode" = "8:{74091816-1F4D-4880-AB85-B68A9A06F440}"
+        "ProductCode" = "8:{E59B7CB0-5A9D-4E9E-B977-94EC234E0000}"
+        "PackageCode" = "8:{A7FFB374-2A06-4A8F-A75F-9793A4A98613}"
         "UpgradeCode" = "8:{AE519419-308C-4CC7-9209-DE97AAC497EC}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
-        "ProductVersion" = "8:2.1.20"
+        "ProductVersion" = "8:2.1.21"
         "Manufacturer" = "8:Battelle Memorial Institute"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -1030,7 +1030,7 @@
         }
         "MergeModule"
         {
-            "{35A69C6E-5BA4-440D-803D-762B59A45393}:_D2D5BE5B02044A9A89A566D3B00D60FE"
+            "{35A69C6E-5BA4-440D-803D-762B59A45393}:_6F02C473B63F40408F7741012BA19E7E"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"

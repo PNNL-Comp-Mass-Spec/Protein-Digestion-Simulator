@@ -1,5 +1,18 @@
 Protein Digestion Simulator Change Log
 
+Version 2.1.3044; May 2, 2008
+	- New version of ValidateFastaFile.dll that has additional Fixed Fasta options
+		- Ability to control whether or not long protein names are truncated
+		- Added option WrapLongResidueLines
+			- When true, then wraps residue lines to length MaximumResiduesPerLine (default is 120 characters)
+		- Added option RemoveInvalidResidues
+		- You can now define additional special character lists in the XML parameter file:
+			- LongProteinNameSplitChars
+			- ProteinNameInvalidCharsToRemove
+			- ProteinNameFirstRefSepChars
+			- ProteinNameSubsequentRefSepChars
+		- Added new option for splitting out multiple references from protein names, whereby this process is only performed if the name matches a known pattern (IPI, gi, and jgi)
+
 Version 2.1.2952; January 31, 2008
 	- Added a new enzyme: "Acetic Acid Hydrolysis" cleaves after aspartic acid (D)
 		- Note that Asp-N can be used for cleavage before aspartic acid
