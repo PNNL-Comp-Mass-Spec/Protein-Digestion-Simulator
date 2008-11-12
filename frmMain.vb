@@ -442,7 +442,7 @@ Public Class frmMain
         Me.fraInputOptions.Controls.Add(Me.lblRefStartChar)
         Me.fraInputOptions.Location = New System.Drawing.Point(8, 8)
         Me.fraInputOptions.Name = "fraInputOptions"
-        Me.fraInputOptions.Size = New System.Drawing.Size(288, 88)
+        Me.fraInputOptions.Size = New System.Drawing.Size(288, 80)
         Me.fraInputOptions.TabIndex = 0
         Me.fraInputOptions.TabStop = False
         Me.fraInputOptions.Text = "Fasta File Input Options"
@@ -969,7 +969,7 @@ Public Class frmMain
         Me.fraDelimitedFileOptions.Controls.Add(Me.txtInputFileColumnDelimiter)
         Me.fraDelimitedFileOptions.Controls.Add(Me.lblInputFileColumnDelimiter)
         Me.fraDelimitedFileOptions.Controls.Add(Me.cboInputFileColumnDelimiter)
-        Me.fraDelimitedFileOptions.Location = New System.Drawing.Point(8, 104)
+        Me.fraDelimitedFileOptions.Location = New System.Drawing.Point(8, 96)
         Me.fraDelimitedFileOptions.Name = "fraDelimitedFileOptions"
         Me.fraDelimitedFileOptions.Size = New System.Drawing.Size(496, 88)
         Me.fraDelimitedFileOptions.TabIndex = 1
@@ -1009,9 +1009,9 @@ Public Class frmMain
         Me.frapIAndHydrophobicity.Controls.Add(Me.txtpIStats)
         Me.frapIAndHydrophobicity.Controls.Add(Me.txtSequenceForpI)
         Me.frapIAndHydrophobicity.Controls.Add(Me.lblSequenceForpI)
-        Me.frapIAndHydrophobicity.Location = New System.Drawing.Point(8, 200)
+        Me.frapIAndHydrophobicity.Location = New System.Drawing.Point(8, 192)
         Me.frapIAndHydrophobicity.Name = "frapIAndHydrophobicity"
-        Me.frapIAndHydrophobicity.Size = New System.Drawing.Size(616, 104)
+        Me.frapIAndHydrophobicity.Size = New System.Drawing.Size(616, 112)
         Me.frapIAndHydrophobicity.TabIndex = 2
         Me.frapIAndHydrophobicity.TabStop = False
         Me.frapIAndHydrophobicity.Text = "pI And Hydrophobicity"
@@ -1064,7 +1064,7 @@ Public Class frmMain
         Me.txtpIStats.Multiline = True
         Me.txtpIStats.Name = "txtpIStats"
         Me.txtpIStats.ReadOnly = True
-        Me.txtpIStats.Size = New System.Drawing.Size(272, 40)
+        Me.txtpIStats.Size = New System.Drawing.Size(272, 56)
         Me.txtpIStats.TabIndex = 7
         Me.txtpIStats.Text = ""
         '
@@ -1682,6 +1682,10 @@ Public Class frmMain
 
     Private objpICalculator As clspICalculation
 
+#If IncludePNNLNETRoutines Then
+    Private objSCXNETCalculator As NETPrediction.SCXElutionTimePredictionKangas
+#End If
+
 #End Region
 
 #Region "Procedures"
@@ -1807,6 +1811,9 @@ Public Class frmMain
         Dim strSequence As String
         Dim sngpI As Single
         Dim sngHydrophobicity As Single
+        Dim sngNET As Single
+        Dim sngSCXNET As Single
+
         Dim intCharge As Integer
         Dim strMessage As String
 
@@ -1815,6 +1822,12 @@ Public Class frmMain
         If objpICalculator Is Nothing Then
             objpICalculator = New clspICalculation
         End If
+
+#If IncludePNNLNETRoutines Then
+        If objSCXNETCalculator Is Nothing Then
+            objSCXNETCalculator = New NETPrediction.SCXElutionTimePredictionKangas
+        End If
+#End If
 
         strSequence = txtSequenceForpI.Text
 
@@ -1826,9 +1839,17 @@ Public Class frmMain
         sngHydrophobicity = objpICalculator.CalculateSequenceHydrophobicity(strSequence)
         intCharge = objpICalculator.CalculateSequenceChargeState(strSequence, sngpI)
 
+#If IncludePNNLNETRoutines Then
+        sngSCXNET = objSCXNETCalculator.GetElutionTime(strSequence)
+#End If
+
         strMessage = "pI = " & sngpI.ToString & ControlChars.NewLine
-        strMessage &= "Hydrophobicity = " & sngHydrophobicity.ToString & ControlChars.NewLine
-        'strMessage &= "Predicted charge state = " & intCharge.ToString & " at pH = " & sngpI.ToString
+        strMessage &= "Hydrophobicity = " & sngHydrophobicity.ToString
+        'strMessage &= "Predicted charge state = " & ControlChars.NewLine & intCharge.ToString & " at pH = " & sngpI.ToString
+
+#If IncludePNNLNETRoutines Then
+        strMessage &= ControlChars.NewLine & "Predicted SCX NET = " & sngSCXNET.ToString("0.000")
+#End If
 
         txtpIStats.Text = strMessage
     End Sub
@@ -2459,9 +2480,13 @@ Public Class frmMain
 #If IncludePNNLNETRoutines Then
         Me.Text = "Protein Digestion Simulator"
         lblUniquenessCalculationsNote.Text = "The Protein Digestion Simulator uses an elution time prediction algorithm developed by Lars Kangas and Kostas Petritis. See Help->About Elution Time Prediction for more info.  Note that you can provide custom time values for peptides by separately generating a tab or comma delimited text file with information corresponding to one of the options in the 'Column Order' list on the 'File Format' option tab, then checking 'Assume Input file is Already Digested' on this tab."
+
+        chkComputepI.Text = "Compute pI and SCX NET"
 #Else
         Me.Text = "Protein Digestion Simulator Basic"
         lblUniquenessCalculationsNote.Text = "The Protein Digestion Simulator Basic uses an elution time prediction algorithm developed by Oleg Krokhin. See Help->About Elution Time Prediction for more info.  Note that you can provide custom time values for peptides by separately generating a tab or comma delimited text file with information corresponding to one of the options in the 'Column Order' list on the 'File Format' option tab, then checking 'Assume Input file is Already Digested' on this tab."
+
+        chkComputepI.Text = "Compute Isoelectric Point (pI)"
 #End If
 
         PopulateComboBoxes()
@@ -2597,6 +2622,7 @@ Public Class frmMain
             .ExcludeProteinSequence = chkExcludeProteinSequence.Checked
             .ComputeProteinMass = chkComputeProteinMass.Checked
             .ComputepI = chkComputepI.Checked
+            .ComputeSCXNET = chkComputepI.Checked
 
             .HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, clspICalculation.eHydrophobicityTypeConstants)
             .ReportMaximumpI = chkMaxpIModeEnabled.Checked

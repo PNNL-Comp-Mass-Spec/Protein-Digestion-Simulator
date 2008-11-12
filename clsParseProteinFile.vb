@@ -108,6 +108,7 @@ Public Class clsParseProteinFile
     Private mExcludeProteinSequence As Boolean
     Private mComputeProteinMass As Boolean
     Private mComputepI As Boolean
+    Private mComputeSCXNET As Boolean
 
     Private mIncludeXResiduesInMass As Boolean
     Private mProteinScramblingMode As ProteinScramblingModeConstants
@@ -130,6 +131,10 @@ Public Class clsParseProteinFile
     Private mObjectVariablesLoaded As Boolean
     Private objInSilicoDigest As clsInSilicoDigest
     Private objpICalculator As clspICalculation
+
+#If IncludePNNLNETRoutines Then
+    Private objSCXNETCalculator As NETPrediction.SCXElutionTimePredictionKangas
+#End If
 
     Private mProteinCount As Integer
     Private mProteins() As udtProteinInfoType
@@ -175,6 +180,15 @@ Public Class clsParseProteinFile
         End Get
         Set(ByVal Value As Boolean)
             mComputeProteinMass = Value
+        End Set
+    End Property
+
+    Public Property ComputeSCXNET() As Boolean
+        Get
+            Return mComputeSCXNET
+        End Get
+        Set(ByVal Value As Boolean)
+            mComputeSCXNET = Value
         End Set
     End Property
 
@@ -408,6 +422,22 @@ Public Class clsParseProteinFile
 
     End Function
 
+    Private Function ComputeSequenceSCXNET(ByVal strSequence As String) As Single
+
+#If IncludePNNLNETRoutines Then
+        ' Be sure to call InitializeObjectVariables before calling this function for the first time
+        ' Otherwise, objpICalculator will be nothing
+        If objSCXNETCalculator Is Nothing Then
+            Return 0
+        Else
+            Return objSCXNETCalculator.GetElutionTime(strSequence)
+        End If
+#Else
+        Return 0
+#End If
+
+    End Function
+
     Public Function DigestProteinSequence(ByVal strSequence As String, ByRef udtPeptides() As clsInSilicoDigest.PeptideInfoClass, ByVal objDigestionOptions As clsInSilicoDigest.DigestionOptionsClass, Optional ByVal strProteinName As String = "", Optional ByRef objProgressForm As ProgressFormNET.frmProgress = Nothing) As Integer
         ' Returns the number of digested peptides in udtPeptides
 
@@ -588,6 +618,7 @@ Public Class clsParseProteinFile
         mExcludeProteinSequence = False
         mComputeProteinMass = True
         mComputepI = True
+        mComputeSCXNET = True
 
         mIncludeXResiduesInMass = False
         mProteinScramblingMode = ProteinScramblingModeConstants.None
@@ -628,36 +659,54 @@ Public Class clsParseProteinFile
 
         Dim strErrorMessage As String = String.Empty
 
-        ' Do not re-initialize object variables
-        If mObjectVariablesLoaded Then
-            objInSilicoDigest.ShowMessages = MyBase.ShowMessages
-            objInSilicoDigest.InitializepICalculator(objpICalculator)
-            Return True
+        If Not mObjectVariablesLoaded Then
+            ' Need to initialize the object variables
+
+            Try
+                objInSilicoDigest = New clsInSilicoDigest
+            Catch ex As Exception
+                strErrorMessage = "Error initializing InSilicoDigest class"
+                Me.SetLocalErrorCode(eParseProteinFileErrorCodes.ErrorInitializingObjectVariables)
+            End Try
+
+            Try
+                objpICalculator = New clspICalculation
+            Catch ex As Exception
+                strErrorMessage = "Error initializing pI Calculation class"
+                Me.SetLocalErrorCode(eParseProteinFileErrorCodes.ErrorInitializingObjectVariables)
+            End Try
+
+#If IncludePNNLNETRoutines Then
+            Try
+                objSCXNETCalculator = New NETPrediction.SCXElutionTimePredictionKangas
+            Catch ex As Exception
+                strErrorMessage = "Error initializing SCX NET Calculation class"
+                Me.SetLocalErrorCode(eParseProteinFileErrorCodes.ErrorInitializingObjectVariables)
+            End Try
+#End If
+
+            If strErrorMessage.Length > 0 Then
+                If MyBase.ShowMessages Then MsgBox(strErrorMessage, MsgBoxStyle.Exclamation Or MsgBoxStyle.OKOnly, "Error")
+                Console.WriteLine(strErrorMessage)
+                mObjectVariablesLoaded = False
+            Else
+                mObjectVariablesLoaded = True
+            End If
         End If
 
-        Try
-            objInSilicoDigest = New clsInSilicoDigest
+        If Not objInSilicoDigest Is Nothing Then
             objInSilicoDigest.ShowMessages = MyBase.ShowMessages
-        Catch ex As Exception
-            strErrorMessage = "Error initializing InSilicoDigest class"
-            Me.SetLocalErrorCode(eParseProteinFileErrorCodes.ErrorInitializingObjectVariables)
-        End Try
 
-        Try
-            objpICalculator = New clspICalculation
-            objInSilicoDigest.InitializepICalculator(objpICalculator)
-        Catch ex As Exception
-            strErrorMessage = "Error initializing pI Calculation class"
-            Me.SetLocalErrorCode(eParseProteinFileErrorCodes.ErrorInitializingObjectVariables)
-        End Try
-
-        If strErrorMessage.Length > 0 Then
-            If MyBase.ShowMessages Then MsgBox(strErrorMessage, MsgBoxStyle.Exclamation Or MsgBoxStyle.OKOnly, "Error")
-            Console.WriteLine(strErrorMessage)
-            mObjectVariablesLoaded = False
-        Else
-            mObjectVariablesLoaded = True
+            If Not objpICalculator Is Nothing Then
+                objInSilicoDigest.InitializepICalculator(objpICalculator)
+            End If
         End If
+
+#If IncludePNNLNETRoutines Then
+        If Not objSCXNETCalculator Is Nothing Then
+            objSCXNETCalculator.ShowMessages = MyBase.ShowMessages
+        End If
+#End If
 
         Return mObjectVariablesLoaded
 
@@ -854,6 +903,9 @@ Public Class clsParseProteinFile
         Dim strBaseSequence As String
         Dim sngpI As Single
         Dim sngHydrophobicity As Single
+        Dim sngSCXNET As Single
+
+        Dim sngProteinSCXNET As Single
 
         Dim objRandomNumberGenerator As Random
         Dim intRandomNumberSeed As Integer
@@ -1053,7 +1105,7 @@ Public Class clsParseProteinFile
 
             If mCreateProteinOutputFile AndAlso mCreateDigestedProteinOutputFile AndAlso Not mCreateFastaOutputFile Then
                 Try
-                    ' Open the digested protein output file (if required)
+                    ' Create the digested protein output file
                     srDigestOutputFile = New System.IO.StreamWriter(strDigestedProteinOutputFilePath)
 #If IncludePNNLNETRoutines Then
                     strLineOut = "Protein_Name" & mOutputFileDelimiter & "Sequence" & mOutputFileDelimiter & "Unique_ID" & mOutputFileDelimiter & "Monoisotopic_Mass" & mOutputFileDelimiter & "GANET" & mOutputFileDelimiter & "Tryptic_Name"
@@ -1064,6 +1116,13 @@ Public Class clsParseProteinFile
                     If mComputepI Then
                         strLineOut &= mOutputFileDelimiter & "pI" & mOutputFileDelimiter & "Hydrophobicity"
                     End If
+
+#If IncludePNNLNETRoutines Then
+                    If mComputeSCXNET Then
+                        strLineOut &= mOutputFileDelimiter & "SCX_NET"
+                    End If
+#End If
+
                     srDigestOutputFile.WriteLine(strLineOut)
 
                     If mGenerateUniqueSequenceIDValues Then
@@ -1237,7 +1296,7 @@ Public Class clsParseProteinFile
                         strLineOut &= mOutputFileDelimiter & "Sequence"
                     End If
 
-                    If mComputeProteinMass OrElse mComputepI Then
+                    If mComputeProteinMass OrElse mComputepI OrElse mComputeSCXNET Then
                         If ElementMassMode = PeptideSequenceClass.ElementModeConstants.AverageMass Then
                             strLineOut &= mOutputFileDelimiter & "Average Mass"
                         Else
@@ -1247,6 +1306,12 @@ Public Class clsParseProteinFile
                         If mComputepI Then
                             strLineOut &= mOutputFileDelimiter & "pI" & mOutputFileDelimiter & "Hydrophobicity"
                         End If
+
+#If IncludePNNLNETRoutines Then
+                        If mComputeSCXNET Then
+                            strLineOut &= mOutputFileDelimiter & "SCX_NET"
+                        End If
+#End If
                     End If
 
                     srProteinOutputFile.WriteLine(strLineOut)
@@ -1294,6 +1359,12 @@ Public Class clsParseProteinFile
                                 .pI = 0
                                 .Hydrophobicity = 0
                             End If
+
+#If IncludePNNLNETRoutines Then
+                            If mComputeSCXNET Then
+                                sngProteinSCXNET = objSCXNETCalculator.GetElutionTime(.Sequence)
+                            End If
+#End If
 
                             If blnUseUniqueIDValuesFromInputFile Then
                                 .UniqueSequenceID = objProteinFileReader.EntryUniqueID
@@ -1356,12 +1427,17 @@ Public Class clsParseProteinFile
                                             strLineOut &= mOutputFileDelimiter & .Sequence
                                         End If
 
-                                        If mComputeProteinMass OrElse mComputepI Then
+                                        If mComputeProteinMass OrElse mComputepI OrElse mComputeSCXNET Then
                                             strLineOut &= mOutputFileDelimiter & Math.Round(.Mass, 5).ToString
 
                                             If mComputepI Then
-                                                strLineOut &= mOutputFileDelimiter & .pI.ToString & mOutputFileDelimiter & .Hydrophobicity.ToString
+                                                strLineOut &= mOutputFileDelimiter & .pI.ToString("0.000") & mOutputFileDelimiter & .Hydrophobicity.ToString("0.0000")
                                             End If
+#If IncludePNNLNETRoutines Then
+                                            If mComputeSCXNET Then
+                                                strLineOut &= mOutputFileDelimiter & sngProteinSCXNET.ToString("0.0000")
+                                            End If
+#End If
                                         End If
 
                                         srProteinOutputFile.WriteLine(strLineOut)
@@ -1406,8 +1482,16 @@ Public Class clsParseProteinFile
                                             sngpI = ComputeSequencepI(strBaseSequence)
                                             sngHydrophobicity = ComputeSequenceHydrophobicity(strBaseSequence)
 
-                                            strLineOut &= mOutputFileDelimiter & sngpI.ToString & mOutputFileDelimiter & sngHydrophobicity.ToString
+                                            strLineOut &= mOutputFileDelimiter & sngpI.ToString("0.000") & mOutputFileDelimiter & sngHydrophobicity.ToString("0.0000")
                                         End If
+
+#If IncludePNNLNETRoutines Then
+                                        If mComputeSCXNET Then
+                                            sngSCXNET = ComputeSequenceSCXNET(strBaseSequence)
+
+                                            strLineOut &= mOutputFileDelimiter & sngSCXNET.ToString("0.0000")
+                                        End If
+#End If
 
                                         srDigestOutputFile.WriteLine(strLineOut)
                                     End With

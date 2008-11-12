@@ -1,7 +1,7 @@
 <VisualStudioProject>
     <VisualBasic
         ProjectType = "Local"
-        ProductVersion = "7.10.3077"
+        ProductVersion = "7.10.6030"
         SchemaVersion = "2.0"
         ProjectGuid = "{50E90535-A587-4B20-B519-922B055580E1}"
     >
@@ -106,7 +106,7 @@
                 <Reference
                     Name = "ValidateFastaFile"
                     AssemblyName = "ValidateFastaFile"
-                    HintPath = "..\Validate_Fasta_File\bin\ValidateFastaFile.dll"
+                    HintPath = "bin\ValidateFastaFile.dll"
                 />
             </References>
             <Imports>

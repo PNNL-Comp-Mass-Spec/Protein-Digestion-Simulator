@@ -1,5 +1,14 @@
 Protein Digestion Simulator Change Log
 
+Version 2.1.3237; November 11, 2008
+	- New version of NETPrediction.dll
+		- Computes predicted SCX NET values for proteins and for in-silico digestion peptides
+
+Version 2.1.3131; July 28, 2008
+	- New version of ValidateFastaFile.dll that includes option Save Basic Protein Hash Info File
+		- When enabled, will create file _ProteinHashes.txt, which includes protein name, residue count, and a hash value for each protein sequence
+		- If you enable "Save Basic Protein Hash Info File" but disable "Check for Duplicate Protein Names and protein Sequences", then the memory usage of the validator will be minimal, even with huge .Fasta files
+
 Version 2.1.3044; May 2, 2008
 	- New version of ValidateFastaFile.dll that has additional Fixed Fasta options
 		- Ability to control whether or not long protein names are truncated

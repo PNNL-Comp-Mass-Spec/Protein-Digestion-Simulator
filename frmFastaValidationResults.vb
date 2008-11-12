@@ -96,6 +96,7 @@ Public Class frmFastaValidation
     Friend WithEvents lblProteinNameLength As System.Windows.Forms.Label
     Friend WithEvents MenuItem2 As System.Windows.Forms.MenuItem
     Friend WithEvents mnuEditResetToDefaults As System.Windows.Forms.MenuItem
+    Friend WithEvents chkSaveBasicProteinHashInfoFile As System.Windows.Forms.CheckBox
     <System.Diagnostics.DebuggerStepThrough()> Private Sub InitializeComponent()
         Me.txtResults = New System.Windows.Forms.TextBox
         Me.MainMenuControl = New System.Windows.Forms.MainMenu
@@ -154,6 +155,7 @@ Public Class frmFastaValidation
         Me.cmdCreateDefaultValidationRulesFile = New System.Windows.Forms.Button
         Me.txtCustomValidationRulesFilePath = New System.Windows.Forms.TextBox
         Me.cmdSelectCustomRulesFile = New System.Windows.Forms.Button
+        Me.chkSaveBasicProteinHashInfoFile = New System.Windows.Forms.CheckBox
         CType(Me.dgErrors, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgWarnings, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.tbsOptions.SuspendLayout()
@@ -339,6 +341,7 @@ Public Class frmFastaValidation
         '
         'TabPageErrorOptions
         '
+        Me.TabPageErrorOptions.Controls.Add(Me.chkSaveBasicProteinHashInfoFile)
         Me.TabPageErrorOptions.Controls.Add(Me.lblProteinNameLengthUnits)
         Me.TabPageErrorOptions.Controls.Add(Me.lblProteinNameLength2)
         Me.TabPageErrorOptions.Controls.Add(Me.txtProteinNameLengthMaximum)
@@ -637,6 +640,14 @@ Public Class frmFastaValidation
         Me.cmdSelectCustomRulesFile.Size = New System.Drawing.Size(104, 32)
         Me.cmdSelectCustomRulesFile.TabIndex = 0
         Me.cmdSelectCustomRulesFile.Text = "Select Custom Rules File"
+        '
+        'chkSaveBasicProteinHashInfoFile
+        '
+        Me.chkSaveBasicProteinHashInfoFile.Location = New System.Drawing.Point(224, 96)
+        Me.chkSaveBasicProteinHashInfoFile.Name = "chkSaveBasicProteinHashInfoFile"
+        Me.chkSaveBasicProteinHashInfoFile.Size = New System.Drawing.Size(128, 32)
+        Me.chkSaveBasicProteinHashInfoFile.TabIndex = 12
+        Me.chkSaveBasicProteinHashInfoFile.Text = "Save basic protein hash info file"
         '
         'frmFastaValidation
         '
@@ -1113,6 +1124,8 @@ Public Class frmFastaValidation
 
         chkAllowAsteriskInResidues.Checked = False
         chkCheckForDuplicateProteinInfo.Checked = True
+        chkSaveBasicProteinHashInfoFile.Checked = False
+
         chkLogResults.Checked = False
 
         ' Note: Leave this option unchanged
@@ -1228,6 +1241,7 @@ Public Class frmFastaValidation
             .SetToolTip(txtLongProteinNameSplitChars, "Enter one or more characters to look for when truncating long protein names (do not separate the characters by commas).  Default character is a vertical bar.")
             .SetToolTip(txtInvalidProteinNameCharsToRemove, "Enter one or more characters to look and replace with an underscore (do not separate the characters by commas).  Leave blank to not replace any characters.")
             .SetToolTip(chkSplitOutMultipleRefsForKnownAccession, "If a protein name matches the standard IPI, GI, or JGI accession numbers, and if it contains additional reference information, then the additional information will be moved to the protein's description.")
+            .SetToolTip(chkSaveBasicProteinHashInfoFile, "To minimize memory usage, enable this option by disable 'Check for Duplicate Proteins'")
         End With
 
         objToolTipControl = Nothing
@@ -1290,6 +1304,7 @@ Public Class frmFastaValidation
 
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.CheckForDuplicateProteinNames, chkCheckForDuplicateProteinInfo.Checked)
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.CheckForDuplicateProteinSequences, chkCheckForDuplicateProteinInfo.Checked)
+                .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.SaveBasicProteinHashInfoFile, chkSaveBasicProteinHashInfoFile.Checked)
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.OutputToStatsFile, chkLogResults.Checked)
 
                 .SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.GenerateFixedFASTAFile, chkGenerateFixedFastaFile.Checked)

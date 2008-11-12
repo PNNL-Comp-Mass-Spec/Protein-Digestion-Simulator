@@ -37,7 +37,7 @@ echo.
 echo 3) Updating Source Code file for %ProgramName%
 Move %SourceCodeFile% ..\..\
 CD ..\..
-"c:\program files\winrar\winRar.exe" f %SourceCodeFile%
+for %%i in (%SourceCodeFile%) do "c:\program files\winrar\winRar.exe" f %%i
 Move %SourceCodeFile% %SourceCodeFolder%\SourceAndSupportingDLLs\
 
 cd %SourceCodeFolder%

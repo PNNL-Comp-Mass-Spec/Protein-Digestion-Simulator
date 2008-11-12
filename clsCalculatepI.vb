@@ -1,6 +1,6 @@
 Option Strict On
 
-' This class will compute the pI and hydrophobicity for a peptide or protein seuqence
+' This class will compute the pI and hydrophobicity for a peptide or protein sequence
 ' Code originally written by Gordon Anderson for the application ICR-2LS
 ' Ported to VB.NET by Matthew Monroe in August 2005
 '

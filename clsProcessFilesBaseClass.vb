@@ -234,8 +234,6 @@ Public MustInherit Class clsProcessFilesBaseClass
         Dim strCleanPath As String
         Dim strInputFolderPath As String
 
-        Dim ioPath As System.IO.Path
-
         Dim ioFileMatch As System.IO.FileInfo
         Dim ioFileInfo As System.IO.FileInfo
         Dim ioFolderInfo As System.IO.DirectoryInfo
@@ -259,13 +257,13 @@ Public MustInherit Class clsProcessFilesBaseClass
                     strInputFolderPath = ioFileInfo.DirectoryName
                 Else
                     ' Use the current working directory
-                    strInputFolderPath = ioPath.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
+                    strInputFolderPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
                 End If
 
                 ioFolderInfo = New System.io.DirectoryInfo(strInputFolderPath)
 
                 ' Remove any directory information from strInputFilePath
-                strInputFilePath = ioPath.GetFileName(strInputFilePath)
+                strInputFilePath = System.IO.Path.GetFileName(strInputFilePath)
 
                 intMatchCount = 0
                 For Each ioFileMatch In ioFolderInfo.GetFiles(strInputFilePath)
@@ -358,7 +356,6 @@ Public MustInherit Class clsProcessFilesBaseClass
         Dim strInputFolderPath As String
 
         Dim ioFileInfo As System.IO.FileInfo
-        Dim ioPath As System.IO.Path
         Dim ioFolderInfo As System.IO.DirectoryInfo
 
         Dim blnSuccess As Boolean
@@ -377,11 +374,11 @@ Public MustInherit Class clsProcessFilesBaseClass
                     strInputFolderPath = ioFileInfo.DirectoryName
                 Else
                     ' Use the current working directory
-                    strInputFolderPath = ioPath.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
+                    strInputFolderPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
                 End If
 
                 ' Remove any directory information from strInputFilePath
-                strInputFilePathOrFolder = ioPath.GetFileName(strInputFilePathOrFolder)
+                strInputFilePathOrFolder = System.IO.Path.GetFileName(strInputFilePathOrFolder)
 
             Else
                 ioFolderInfo = New System.IO.DirectoryInfo(strInputFilePathOrFolder)

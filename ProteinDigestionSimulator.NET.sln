@@ -8,6 +8,8 @@ Global
 		Debug = Debug
 		Release = Release
 	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
 		{50E90535-A587-4B20-B519-922B055580E1}.Debug.ActiveCfg = Debug|.NET
 		{50E90535-A587-4B20-B519-922B055580E1}.Debug.Build.0 = Debug|.NET
