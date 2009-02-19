@@ -797,11 +797,10 @@ Public Class frmFastaValidation
                 Try
                     .InitialDirectory = System.IO.Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString
                 Catch
-                    ' Could use Application.StartupPath, but .GetExecutingAssembly is better
-                    .InitialDirectory = GetAppFolderPath()
+                    .InitialDirectory = GetApplicationDataFolderPath()
                 End Try
             Else
-                .InitialDirectory = GetAppFolderPath()
+                .InitialDirectory = GetApplicationDataFolderPath()
             End If
 
             .Title = "Select/Create file to save custom rule definitions"
@@ -941,8 +940,28 @@ Public Class frmFastaValidation
 
     End Sub
 
-    Private Function GetAppFolderPath() As String
-        Return System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
+    Private Function GetApplicationDataFolderPath() As String
+        Dim strAppDataFolderPath As String
+
+        Try
+            strAppDataFolderPath = System.IO.Path.Combine( _
+                                    System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), _
+                                    "PAST Toolkit\ProteinDigestionSimulator")
+
+            If Not System.IO.Directory.Exists(strAppDataFolderPath) Then
+                System.IO.Directory.CreateDirectory(strAppDataFolderPath)
+            End If
+
+        Catch ex As Exception
+            ' Ignore errors here; an exception will likely be thrown by the calling function that is trying to access this non-existent application data folder
+        End Try
+
+        Return strAppDataFolderPath
+
+    End Function
+
+    Private Function GetMyDocsFolderPath() As String
+        Return System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal)
     End Function
 
     Private Sub InitializeDataGrid(ByRef dgDataGrid As Windows.Forms.DataGrid, ByRef dsDataset As System.Data.DataSet, ByRef dvDataView As System.Data.DataView, ByVal eMsgType As ValidateFastaFile.IValidateFastaFile.eMsgTypeConstants)
@@ -1162,11 +1181,10 @@ Public Class frmFastaValidation
                 Try
                     .InitialDirectory = System.IO.Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString
                 Catch
-                    ' Could use Application.StartupPath, but .GetExecutingAssembly is better
-                    .InitialDirectory = GetAppFolderPath()
+                    .InitialDirectory = GetApplicationDataFolderPath()
                 End Try
             Else
-                .InitialDirectory = GetAppFolderPath()
+                .InitialDirectory = GetApplicationDataFolderPath()
             End If
 
             .Title = "Select custom rules file"

@@ -30,8 +30,8 @@ Public Class clsParseProteinFile
     Private Const PROTEIN_CACHE_MEMORY_RESERVE_COUNT As Integer = 500
 
     Private Const SCRAMBLING_CACHE_LENGTH As Integer = 4000
-    Private Const PROTEIN_PREFIX_SCRAMBLED As String = "Scrambled_"
-    Private Const PROTEIN_PREFIX_REVERSED As String = "Reversed_"
+    Private Const PROTEIN_PREFIX_SCRAMBLED As String = "Random_"
+    Private Const PROTEIN_PREFIX_REVERSED As String = "XXX."
 
     Private Const MAXIMUM_PROTEIN_NAME_LENGTH As Integer = 34
 

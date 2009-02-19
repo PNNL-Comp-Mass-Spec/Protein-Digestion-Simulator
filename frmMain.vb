@@ -581,7 +581,7 @@ Public Class frmMain
         Me.chkComputepI.Name = "chkComputepI"
         Me.chkComputepI.Size = New System.Drawing.Size(216, 16)
         Me.chkComputepI.TabIndex = 3
-        Me.chkComputepI.Text = "Compute Isoelectric Point (pI)"
+        Me.chkComputepI.Text = "Compute pI and SCX NET"
         '
         'chkIncludeXResidues
         '
@@ -1684,6 +1684,8 @@ Public Class frmMain
 
 #If IncludePNNLNETRoutines Then
     Private objSCXNETCalculator As NETPrediction.SCXElutionTimePredictionKangas
+#Else
+    Private objSCXNETCalculator As NETPredictionBasic.SCXElutionTimePredictionKangas
 #End If
 
 #End Region
@@ -1827,6 +1829,10 @@ Public Class frmMain
         If objSCXNETCalculator Is Nothing Then
             objSCXNETCalculator = New NETPrediction.SCXElutionTimePredictionKangas
         End If
+#Else
+        If objSCXNETCalculator Is Nothing Then
+            objSCXNETCalculator = New NETPredictionBasic.SCXElutionTimePredictionKangas
+        End If
 #End If
 
         strSequence = txtSequenceForpI.Text
@@ -1839,17 +1845,13 @@ Public Class frmMain
         sngHydrophobicity = objpICalculator.CalculateSequenceHydrophobicity(strSequence)
         intCharge = objpICalculator.CalculateSequenceChargeState(strSequence, sngpI)
 
-#If IncludePNNLNETRoutines Then
         sngSCXNET = objSCXNETCalculator.GetElutionTime(strSequence)
-#End If
 
         strMessage = "pI = " & sngpI.ToString & ControlChars.NewLine
         strMessage &= "Hydrophobicity = " & sngHydrophobicity.ToString
         'strMessage &= "Predicted charge state = " & ControlChars.NewLine & intCharge.ToString & " at pH = " & sngpI.ToString
-
-#If IncludePNNLNETRoutines Then
         strMessage &= ControlChars.NewLine & "Predicted SCX NET = " & sngSCXNET.ToString("0.000")
-#End If
+
 
         txtpIStats.Text = strMessage
     End Sub
@@ -2055,7 +2057,7 @@ Public Class frmMain
                 End If
 
                 If chkEnableLogging.Checked Then
-                    strLogFilePath = System.IO.Path.Combine(GetAppFolderPath(), "ProteinDigestionSimulatorLog")
+                    strLogFilePath = System.IO.Path.Combine(GetApplicationDataFolderPath(), "ProteinDigestionSimulatorLog")
                     objLogger = New PRISM.Logging.clsFileLogger(strLogFilePath)
                     objProteinDigestionSimulator = New clsProteinDigestionSimulator(False, objLogger)
                 Else
@@ -2068,7 +2070,7 @@ Public Class frmMain
                 strOutputFilePath = txtProteinOutputFilePath.Text
 
                 If Not System.IO.Path.IsPathRooted(strOutputFilePath) Then
-                    strOutputFilePath = System.IO.Path.Combine(GetAppFolderPath(), strOutputFilePath)
+                    strOutputFilePath = System.IO.Path.Combine(GetMyDocsFolderPath(), strOutputFilePath)
                 End If
 
                 If System.IO.Directory.Exists(strOutputFilePath) Then
@@ -2168,8 +2170,51 @@ Public Class frmMain
         Return System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
     End Function
 
+    Private Function GetApplicationDataFolderPath() As String
+        Dim strAppDataFolderPath As String
+
+        Try
+            strAppDataFolderPath = System.IO.Path.Combine( _
+                                    System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), _
+                                    "PAST Toolkit\ProteinDigestionSimulator")
+
+            If Not System.IO.Directory.Exists(strAppDataFolderPath) Then
+                System.IO.Directory.CreateDirectory(strAppDataFolderPath)
+            End If
+
+        Catch ex As Exception
+            ' Ignore errors here; an exception will likely be thrown by the calling function that is trying to access this non-existent application data folder
+        End Try
+
+        Return strAppDataFolderPath
+
+    End Function
+
+    Private Function GetMyDocsFolderPath() As String
+        Return System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal)
+    End Function
+
     Private Function GetSettingsFilePath() As String
-        Return System.IO.Path.Combine(GetAppFolderPath(), XML_SETTINGS_FILE_NAME)
+        Dim strModelSettingsFilePath As String
+        Dim strSettingsFilePath As String
+
+        strModelSettingsFilePath = System.IO.Path.Combine(GetAppFolderPath, XML_SETTINGS_FILE_NAME)
+        strSettingsFilePath = System.IO.Path.Combine(GetApplicationDataFolderPath, XML_SETTINGS_FILE_NAME)
+
+        Try
+            If Not System.IO.File.Exists(strSettingsFilePath) AndAlso _
+               System.IO.File.Exists(strModelSettingsFilePath) Then
+
+                ' The .Xml settings file doesn't exist in the user's application data folder
+                ' Try to copy the model one from the Folder containing this program's .Exe to the application data folder
+                System.IO.File.Copy(strModelSettingsFilePath, strSettingsFilePath)
+            End If
+        Catch ex As Exception
+            ' Ignore errors here
+        End Try
+
+        Return strSettingsFilePath
+
     End Function
 
     Private Sub IniFileLoadOptions()
@@ -2480,13 +2525,9 @@ Public Class frmMain
 #If IncludePNNLNETRoutines Then
         Me.Text = "Protein Digestion Simulator"
         lblUniquenessCalculationsNote.Text = "The Protein Digestion Simulator uses an elution time prediction algorithm developed by Lars Kangas and Kostas Petritis. See Help->About Elution Time Prediction for more info.  Note that you can provide custom time values for peptides by separately generating a tab or comma delimited text file with information corresponding to one of the options in the 'Column Order' list on the 'File Format' option tab, then checking 'Assume Input file is Already Digested' on this tab."
-
-        chkComputepI.Text = "Compute pI and SCX NET"
 #Else
         Me.Text = "Protein Digestion Simulator Basic"
         lblUniquenessCalculationsNote.Text = "The Protein Digestion Simulator Basic uses an elution time prediction algorithm developed by Oleg Krokhin. See Help->About Elution Time Prediction for more info.  Note that you can provide custom time values for peptides by separately generating a tab or comma delimited text file with information corresponding to one of the options in the 'Column Order' list on the 'File Format' option tab, then checking 'Assume Input file is Already Digested' on this tab."
-
-        chkComputepI.Text = "Compute Isoelectric Point (pI)"
 #End If
 
         PopulateComboBoxes()
@@ -3184,11 +3225,10 @@ Public Class frmMain
                 Try
                     .InitialDirectory = System.IO.Directory.GetParent(txtProteinInputFilePath.Text).ToString
                 Catch
-                    ' Could use Application.StartupPath, but .GetExecutingAssembly is better
-                    .InitialDirectory = GetAppFolderPath()
+                    .InitialDirectory = GetMyDocsFolderPath()
                 End Try
             Else
-                .InitialDirectory = GetAppFolderPath()
+                .InitialDirectory = GetMyDocsFolderPath()
             End If
 
             .Title = "Select input file"
@@ -3221,11 +3261,10 @@ Public Class frmMain
                 Try
                     .InitialDirectory = System.IO.Directory.GetParent(txtProteinOutputFilePath.Text).ToString
                 Catch
-                    ' Could use Application.StartupPath, but .GetExecutingAssembly is better
-                    .InitialDirectory = GetAppFolderPath()
+                    .InitialDirectory = GetMyDocsFolderPath()
                 End Try
             Else
-                .InitialDirectory = GetAppFolderPath()
+                .InitialDirectory = GetMyDocsFolderPath()
             End If
 
             .Title = "Select/Create output file"

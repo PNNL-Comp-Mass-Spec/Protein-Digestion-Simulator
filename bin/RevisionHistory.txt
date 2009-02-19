@@ -1,8 +1,13 @@
 Protein Digestion Simulator Change Log
 
-Version 2.1.3237; November 11, 2008
+Version 2.1.3336; February 18, 2009
+	- New version of NETPredictionBasic.dll
+		- Computes predicted SCX NET values for proteins and for in-silico digestion peptides
+
+Version 2.1.3238; November 12, 2008
 	- New version of NETPrediction.dll
 		- Computes predicted SCX NET values for proteins and for in-silico digestion peptides
+	- Now saving the Xml parameter file at C:\Documents and Settings\%User%\Application Data\PAST Toolkit instead of in the folder that contains ProteinDigestionSimulator.exe
 
 Version 2.1.3131; July 28, 2008
 	- New version of ValidateFastaFile.dll that includes option Save Basic Protein Hash Info File
