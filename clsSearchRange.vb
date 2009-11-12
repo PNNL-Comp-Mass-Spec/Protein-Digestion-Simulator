@@ -432,7 +432,6 @@ Public Class clsSearchRange
     Public Function FillWithDataAddBlock(ByVal intValuesToAdd() As Integer) As Boolean
 
         Dim blnSuccess As Boolean
-        Dim intIndex As Integer
 
         Try
 
@@ -459,7 +458,6 @@ Public Class clsSearchRange
     Public Function FillWithDataAddBlock(ByVal sngValuesToAdd() As Single) As Boolean
 
         Dim blnSuccess As Boolean
-        Dim intIndex As Integer
 
         Try
 
@@ -481,7 +479,6 @@ Public Class clsSearchRange
     Public Function FillWithDataAddBlock(ByVal dblValuesToAdd() As Double) As Boolean
 
         Dim blnSuccess As Boolean
-        Dim intIndex As Integer
 
         Try
 

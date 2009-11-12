@@ -715,8 +715,6 @@ Public Class clsParseProteinFile
     Public Function LoadParameterFileSettings(ByVal strParameterFilePath As String) As Boolean
 
         Dim objSettingsFile As New PRISM.Files.XmlSettingsFileAccessor
-        Dim ioFile As System.IO.File
-        Dim ioPath As System.IO.Path
 
         Dim intDelimeterIndex As Integer
         Dim strCustomDelimiter As String
@@ -730,10 +728,10 @@ Public Class clsParseProteinFile
                 Return True
             End If
 
-            If Not ioFile.Exists(strParameterFilePath) Then
+            If Not System.IO.File.Exists(strParameterFilePath) Then
                 ' See if strParameterFilePath points to a file in the same directory as the application
-                strParameterFilePath = ioPath.Combine(ioPath.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), ioPath.GetFileName(strParameterFilePath))
-                If Not ioFile.Exists(strParameterFilePath) Then
+                strParameterFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), System.IO.Path.GetFileName(strParameterFilePath))
+                If Not System.IO.File.Exists(strParameterFilePath) Then
                     MyBase.SetBaseClassErrorCode(clsProcessFilesBaseClass.eProcessFilesErrorCodes.ParameterFileNotFound)
                     Return False
                 End If
@@ -870,11 +868,11 @@ Public Class clsParseProteinFile
         Dim srDigestOutputFile As System.IO.StreamWriter
         Dim srScrambledOutStream As System.IO.StreamWriter
 
-        Dim strLineOut As String
+        Dim strLineOut As String = String.Empty
 
         Dim strOutputFileName As String
-        Dim strProteinOutputFilePath As String
-        Dim strDigestedProteinOutputFilePath As String
+        Dim strProteinOutputFilePath As String = String.Empty
+        Dim strDigestedProteinOutputFilePath As String = String.Empty
         Dim strScrambledFastaOutputFilePath As String
         Dim strSuffix As String
 
@@ -897,8 +895,6 @@ Public Class clsParseProteinFile
         Dim htMasterSequences As Hashtable
         Dim intUniqueSeqID As Integer
         Dim intNextUniqueIDForMasterSeqs As Integer
-
-        Dim intCharLoc As Integer
 
         Dim strBaseSequence As String
         Dim sngpI As Single
@@ -1108,7 +1104,7 @@ Public Class clsParseProteinFile
                     ' Create the digested protein output file
                     srDigestOutputFile = New System.IO.StreamWriter(strDigestedProteinOutputFilePath)
 #If IncludePNNLNETRoutines Then
-                    strLineOut = "Protein_Name" & mOutputFileDelimiter & "Sequence" & mOutputFileDelimiter & "Unique_ID" & mOutputFileDelimiter & "Monoisotopic_Mass" & mOutputFileDelimiter & "GANET" & mOutputFileDelimiter & "Tryptic_Name"
+                    strLineOut = "Protein_Name" & mOutputFileDelimiter & "Sequence" & mOutputFileDelimiter & "Unique_ID" & mOutputFileDelimiter & "Monoisotopic_Mass" & mOutputFileDelimiter & "Predicted_NET" & mOutputFileDelimiter & "Tryptic_Name"
 #Else
                     strLineOut = "Protein_Name" & mOutputFileDelimiter & "Sequence" & mOutputFileDelimiter & "Unique_ID" & mOutputFileDelimiter & "Monoisotopic_Mass" & mOutputFileDelimiter & "Time" & mOutputFileDelimiter & "Tryptic_Name"
 #End If
@@ -1873,7 +1869,6 @@ Public Class clsParseProteinFile
         ' Returns True if success, False if failure
 
         Dim ioFile As System.IO.FileInfo
-
         Dim strInputFilePathFull As String
         Dim strStatusMessage As String
 

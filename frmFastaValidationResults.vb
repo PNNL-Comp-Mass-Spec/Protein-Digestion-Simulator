@@ -861,7 +861,7 @@ Public Class frmFastaValidation
 
         Const chSepChar As Char = ControlChars.Tab
 
-        Dim strText As String
+        Dim strText As String = String.Empty
         Dim intIndex As Integer
         Dim intColumnCount As Integer
 
@@ -870,8 +870,6 @@ Public Class frmFastaValidation
         Dim objRow As System.Data.DataRow
 
         Try
-            strText = String.Empty
-
             intColumnCount = dvDataView.Table.Columns.Count
             With dvDataView.Table.Columns
                 For intIndex = 0 To intColumnCount - 1
@@ -941,7 +939,7 @@ Public Class frmFastaValidation
     End Sub
 
     Private Function GetApplicationDataFolderPath() As String
-        Dim strAppDataFolderPath As String
+        Dim strAppDataFolderPath As String = String.Empty
 
         Try
             strAppDataFolderPath = System.IO.Path.Combine( _
@@ -967,7 +965,6 @@ Public Class frmFastaValidation
     Private Sub InitializeDataGrid(ByRef dgDataGrid As Windows.Forms.DataGrid, ByRef dsDataset As System.Data.DataSet, ByRef dvDataView As System.Data.DataView, ByVal eMsgType As ValidateFastaFile.IValidateFastaFile.eMsgTypeConstants)
 
         Dim dtDataTable As System.Data.DataTable
-        Dim tsTableStyle As Windows.Forms.DataGridTableStyle
 
         Dim strMsgColumnName As String
         Dim strDatasetName As String
@@ -1270,13 +1267,11 @@ Public Class frmFastaValidation
 
         Dim strResults As String
         Dim strSepChar As String
-        Dim strMessage As String
 
         Dim strParameterFilePath As String
         Dim blnFileExists As Boolean
 
         Dim blnSuccess As Boolean
-        Dim intIndex As Integer
 
         Try
             If mValidateFastaFile Is Nothing Then
@@ -1284,7 +1279,7 @@ Public Class frmFastaValidation
             End If
 
             ShowHideObjectsDuringValidation(True)
-            Me.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
+            Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
             Windows.Forms.Application.DoEvents()
 
             With mValidateFastaFile
@@ -1441,7 +1436,7 @@ Public Class frmFastaValidation
             mValidateFastaFile = Nothing
             ShowHideObjectsDuringValidation(False)
 
-            Me.Cursor.Current = System.Windows.Forms.Cursors.Default
+            Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
             Windows.Forms.Application.DoEvents()
         End Try
 

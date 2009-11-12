@@ -8,7 +8,7 @@ Option Strict On
 Friend Class clsProteinInfo
     Public Enum eCleavageStateConstants
         None = 0
-        Partial = 1
+        [Partial] = 1
         Full = 2
         Unknown = -1
     End Enum
@@ -465,7 +465,7 @@ Friend Class clsProteinInfo
 
             If GetRowIndicesForProteinID(intProteinID, intIndexFirst, intIndexLast) Then
 
-                ReDim mMappings(intIndexLast - intIndexFirst)
+                ReDim intMatchingIDs(intIndexLast - intIndexFirst)
 
                 For intIndex = intIndexFirst To intIndexLast
                     intMatchingIDs(intIndex - intIndexFirst) = mMappings(intIndex).PeptideID

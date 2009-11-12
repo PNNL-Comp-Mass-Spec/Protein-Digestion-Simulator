@@ -589,7 +589,7 @@ Public Class clsProteinDigestionSimulator
         Dim intProteinIndex As Integer
 
         Dim intProteinID As Integer
-        Dim strProteinName As String
+        Dim strProteinName As String = String.Empty
 
         Dim dtLastFlushTime As DateTime
         Dim blnSuccess As Boolean
@@ -635,11 +635,9 @@ Public Class clsProteinDigestionSimulator
         Const DATA_SOURCE_TEXT As String = "data source"
 
         Dim intCharLoc, intCharLoc2 As Integer
-        Dim strServerName As String
+        Dim strServerName As String = String.Empty
 
         Try
-            strServerName = String.Empty
-
             intCharLoc = strConnectionString.ToLower.IndexOf(DATA_SOURCE_TEXT)
             If intCharLoc >= 0 Then
                 intCharLoc += DATA_SOURCE_TEXT.Length
@@ -744,11 +742,9 @@ Public Class clsProteinDigestionSimulator
         Dim intProgressStepCount As Integer
         Dim intProgressStep As Integer
 
-        Dim intIndex As Integer
         Dim intThresholdIndex As Integer
 
         Dim objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass
-        Dim udtFeatureInfo As clsPeakMatchingClass.udtFeatureInfoType
 
         Dim blnSuccess As Boolean
         Dim blnSearchAborted As Boolean = False
@@ -1327,14 +1323,6 @@ Public Class clsProteinDigestionSimulator
 
     Private Function LoadParameterFileSettings(ByVal strParameterFilePath As String) As Boolean
 
-        Dim ioFile As System.IO.File
-        Dim ioPath As System.IO.Path
-
-        Dim intDelimeterIndex As Integer
-        Dim strCustomDelimiter As String
-
-        Dim blnCysPeptidesOnly As Boolean
-
         Try
 
             If strParameterFilePath Is Nothing OrElse strParameterFilePath.Length = 0 Then
@@ -1342,10 +1330,10 @@ Public Class clsProteinDigestionSimulator
                 Return True
             End If
 
-            If Not ioFile.Exists(strParameterFilePath) Then
+            If Not System.IO.File.Exists(strParameterFilePath) Then
                 ' See if strParameterFilePath points to a file in the same directory as the application
-                strParameterFilePath = ioPath.Combine(ioPath.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), ioPath.GetFileName(strParameterFilePath))
-                If Not ioFile.Exists(strParameterFilePath) Then
+                strParameterFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), System.IO.Path.GetFileName(strParameterFilePath))
+                If Not System.IO.File.Exists(strParameterFilePath) Then
                     MyBase.SetBaseClassErrorCode(clsProcessFilesBaseClass.eProcessFilesErrorCodes.ParameterFileNotFound)
                     Return False
                 End If
@@ -1392,18 +1380,16 @@ Public Class clsProteinDigestionSimulator
                 InitializeProteinFileParser()
             End If
 
-            With ProteinFileParser
-                ' Note that ProteinFileParser is exposed as public so that options can be set directly in it
+            ' Note that ProteinFileParser is exposed as public so that options can be set directly in it
 
-                If .IsFastaFile(strProteinInputFilePath) Or .AssumeFastaFile Then
-                    PostLogEntry("Input file format = Fasta", PRISM.Logging.ILogger.logMsgType.logNormal)
-                    blnDigestSequences = True
-                Else
-                    eDelimitedFileFormatCode = ProteinFileParser.DelimitedFileFormatCode
-                    PostLogEntry("Input file format = " & eDelimitedFileFormatCode.ToString, PRISM.Logging.ILogger.logMsgType.logNormal)
-                    blnDigestSequences = mDigestSequences
-                End If
-            End With
+            If clsParseProteinFile.IsFastaFile(strProteinInputFilePath) Or ProteinFileParser.AssumeFastaFile Then
+                PostLogEntry("Input file format = Fasta", PRISM.Logging.ILogger.logMsgType.logNormal)
+                blnDigestSequences = True
+            Else
+                eDelimitedFileFormatCode = ProteinFileParser.DelimitedFileFormatCode
+                PostLogEntry("Input file format = " & eDelimitedFileFormatCode.ToString, PRISM.Logging.ILogger.logMsgType.logNormal)
+                blnDigestSequences = mDigestSequences
+            End If
 
             ' Increment progress bar
             objProgressForm.UpdateProgressBar(1)
@@ -1565,7 +1551,7 @@ Public Class clsProteinDigestionSimulator
         Dim blnGenerateUniqueSequenceID As Boolean
         Dim blnIsFastaFile As Boolean
 
-        Dim strSkipMessage As String
+        Dim strSkipMessage As String = String.Empty
 
         Dim htMasterSequences As Hashtable
         Dim intUniqueSeqID As Integer
@@ -1595,7 +1581,7 @@ Public Class clsProteinDigestionSimulator
 
             With ProteinFileParser
 
-                If .IsFastaFile(strProteinInputFilePath) Or .AssumeFastaFile Then
+                If clsParseProteinFile.IsFastaFile(strProteinInputFilePath) Or .AssumeFastaFile Then
                     blnIsFastaFile = True
                 Else
                     blnIsFastaFile = False
@@ -1705,7 +1691,7 @@ Public Class clsProteinDigestionSimulator
 
         Dim sngFeatureMass As Single
 
-        Dim intThresholdIndex, intMatchIndex As Integer
+        Dim intMatchIndex As Integer
 
         Dim intCurrentFeatureID As Integer
         Dim udtFeatureInfo As clsPeakMatchingClass.udtFeatureInfoType
@@ -1901,8 +1887,6 @@ Public Class clsProteinDigestionSimulator
         Dim strWorkingFilenameBase As String
         Dim strOutputFilePath As String
 
-        Dim intInnerIndex As Integer
-
         Dim intPeptideIndex As Integer
         Dim intFeaturesToIdentifyCount As Integer
 
@@ -2065,9 +2049,8 @@ Public Class clsProteinDigestionSimulator
     Private Function SummarizeResultsByProtein(ByRef objThresholds As clsPeakMatchingClass.clsSearchThresholds, ByVal intThresholdIndex As Integer, ByRef objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass, ByRef objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, ByVal strOutputFolderPath As String, ByVal strOutputFilenameBase As String, ByRef srProteinStatsOutFile As System.IO.StreamWriter, ByRef objProgressForm As ProgressFormNET.frmProgress) As Boolean
 
         Dim strWorkingFilenameBase As String
-        Dim strOutputFilePath As String
+        Dim strOutputFilePath As String = String.Empty
 
-        Dim intInnerIndex As Integer
         Dim intPeptideIndex As Integer
         Dim intFeaturesToIdentifyCount As Integer
 

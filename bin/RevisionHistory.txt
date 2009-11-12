@@ -1,5 +1,15 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.3603; November 12, 2009
+	- Updated to Visual Studio 2008
+	- Updated to new version of NETPrediction.dll
+	- Added a splash screen that informs the user that the Kangas/Petritis retention time prediction algorithm is protected by patent 7,136,759 and pending patent 2005-0267688A1
+		- The splash screen will be shown every 6 months
+		- You can also see this information by choosing About from the Help menu
+	- Changed normalized elution time (NET) column header from GANET to NET
+		- This value is computed for peptides when using the Parse and Digest mode
+	- Updated to new version of ValidateFastaFile.dll
+
 Version 2.1.3336; February 18, 2009
 	- New version of NETPredictionBasic.dll
 		- Computes predicted SCX NET values for proteins and for in-silico digestion peptides

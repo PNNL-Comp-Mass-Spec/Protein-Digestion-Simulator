@@ -1813,7 +1813,6 @@ Public Class frmMain
         Dim strSequence As String
         Dim sngpI As Single
         Dim sngHydrophobicity As Single
-        Dim sngNET As Single
         Dim sngSCXNET As Single
 
         Dim intCharge As Integer
@@ -2043,8 +2042,6 @@ Public Class frmMain
         Dim blnAutoDefineSLiCScoreThresholds As Boolean
         Dim eMassToleranceType As clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants
 
-        Dim strNewConnectionString As String
-
         Dim blnSuccess As Boolean
         Dim blnError As Boolean
 
@@ -2140,13 +2137,13 @@ Public Class frmMain
                     .UseSLiCScoreForUniqueness = chkUseSLiCScoreForUniqueness.Checked
                     .UseEllipseSearchRegion = optUseEllipseSearchRegion.Checked             ' Only applicable if .UseSLiCScoreForUniqueness = True
 
-                    Me.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
+                    Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
                     mWorking = True
                     cmdGenerateUniquenessStats.Enabled = False
 
                     blnSuccess = .GenerateUniquenessStats(txtProteinInputFilePath.Text, System.IO.Path.GetDirectoryName(strOutputFilePath), System.IO.Path.GetFileNameWithoutExtension(strOutputFilePath))
 
-                    Me.Cursor.Current = System.Windows.Forms.Cursors.Default
+                    Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
 
                     If Not blnSuccess Then
                         Windows.Forms.MessageBox.Show("Unable to Generate Uniqueness Stats: " & .GetErrorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
@@ -2171,7 +2168,7 @@ Public Class frmMain
     End Function
 
     Private Function GetApplicationDataFolderPath() As String
-        Dim strAppDataFolderPath As String
+        Dim strAppDataFolderPath As String = String.Empty
 
         Try
             strAppDataFolderPath = System.IO.Path.Combine( _
@@ -2232,7 +2229,6 @@ Public Class frmMain
 
         Dim blnAutoDefineSLiCScoreThresholds As Boolean
         Dim valueNotPresent As Boolean
-        Dim blnListCleared As Boolean
         Dim blnRadioButtonChecked As Boolean
 
         Dim intIndex As Integer
@@ -2536,6 +2532,8 @@ Public Class frmMain
         IniFileLoadOptions()
         SetToolTips()
 
+        ShowSplashScreen()
+
         EnableDisableControls()
     End Sub
 
@@ -2788,7 +2786,7 @@ Public Class frmMain
 
                     .ElementMassMode = CType(cboElementMassMode.SelectedIndex, PeptideSequenceClass.ElementModeConstants)
 
-                    Me.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
+                    Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
                     mWorking = True
                     cmdParseInputFile.Enabled = False
 
@@ -2800,7 +2798,7 @@ Public Class frmMain
                         blnSuccess = .ParseProteinFile(txtProteinInputFilePath.Text, "", "")
                     End If
 
-                    Me.Cursor.Current = System.Windows.Forms.Cursors.Default
+                    Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
 
                     If Not blnSuccess Then
                         Windows.Forms.MessageBox.Show("Error parsing protein file: " & .GetErrorMessage(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
@@ -3290,8 +3288,7 @@ Public Class frmMain
         strMessage &= "E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com" & ControlChars.NewLine
         strMessage &= "Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/" & ControlChars.NewLine & ControlChars.NewLine
 
-        strMessage &= "Licensed under the Apache License, Version 2.0; you may not use this file except in compliance with the License.  "
-        strMessage &= "You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0" & ControlChars.NewLine & ControlChars.NewLine
+        strMessage &= frmDisclaimer.GetKangasPetritisDisclaimerText() & ControlChars.NewLine & ControlChars.NewLine
 
         strMessage &= "Notice: This computer software was prepared by Battelle Memorial Institute, "
         strMessage &= "hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the "
@@ -3314,6 +3311,85 @@ Public Class frmMain
         Dim objNETPrediction As New NETPredictionBasic.ElutionTimePredictionKrokhin
         Windows.Forms.MessageBox.Show(objNETPrediction.ProgramDescription, "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
 #End If
+    End Sub
+
+    Private Sub ShowSplashScreen()
+
+        ' See if the user has been shown the splash screen sometime in the last 6 months (SPLASH_INTERVAL_DAYS)
+        ' Keep track of the last splash screen display date using the registry
+        ' The data is stored in key HKEY_CURRENT_USER\Software\VB and VBA Program Settings\PNNL_ProteinDigestionSimulator\Options
+        '
+        ' If the current user cannot update the registry due to permissions errors, then we will not show 
+        ' the splash screen (so that they don't end up seeing the splash every time the program runs)
+
+        Const APP_NAME_IN_REGISTRY As String = "PNNL_ProteinDigestionSimulator"
+        Const REG_SECTION_OPTIONS As String = "Options"
+        Const REG_KEY_SPLASHDATE As String = "SplashDate"
+        Const DEFAULT_DATE As DateTime = #1/1/2000#
+
+        Const SPLASH_INTERVAL_DAYS As Integer = 182
+
+        Dim strLastSplashDate As String
+        Dim dtLastSplashDate As System.DateTime = DEFAULT_DATE
+        Dim dtCurrentDateTime As System.DateTime = System.DateTime.Now
+
+        Try
+            strLastSplashDate = GetSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASHDATE, "")
+        Catch ex As Exception
+            ' Error looking up the last splash date; don't continue
+            Exit Sub
+        End Try
+
+        If strLastSplashDate Is Nothing Then strLastSplashDate = String.Empty
+
+        If strLastSplashDate.Length > 0 Then
+            Try
+                ' Convert the text to a date
+                dtLastSplashDate = System.DateTime.Parse(strLastSplashDate)
+            Catch ex As Exception
+                ' Conversion failed
+                strLastSplashDate = String.Empty
+                dtLastSplashDate = DEFAULT_DATE
+            End Try
+        End If
+
+        If strLastSplashDate = String.Empty Then
+            ' Entry isn't present (or it is present, but isn't the correct format)
+            ' Try to add it
+            Try
+                SaveSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASHDATE, dtLastSplashDate.ToShortDateString)
+            Catch ex As Exception
+                ' Error adding the splash date; don't continue
+                Exit Sub
+            End Try
+        End If
+
+        If dtCurrentDateTime.Subtract(dtLastSplashDate).TotalDays >= SPLASH_INTERVAL_DAYS Then
+            Try
+                dtLastSplashDate = dtCurrentDateTime
+                SaveSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASHDATE, dtLastSplashDate.ToShortDateString)
+
+                ' Now make sure the setting actually saved
+                strLastSplashDate = String.Empty
+                strLastSplashDate = GetSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASHDATE, "")
+                dtLastSplashDate = System.DateTime.Parse(strLastSplashDate)
+
+                If dtLastSplashDate.ToShortDateString <> dtCurrentDateTime.ToShortDateString Then
+                    ' Error saving/retrieving date; don't continue
+                    Exit Sub
+                End If
+
+            Catch ex As Exception
+                ' Error saving the new splash date; don't continue
+                Exit Sub
+            End Try
+
+            Dim objSplashForm As New frmDisclaimer
+            objSplashForm.ShowDialog()
+
+            objSplashForm = Nothing
+        End If
+
     End Sub
 
     Private Sub UpdatePeptideUniquenessMassMode()
@@ -3370,7 +3446,6 @@ Public Class frmMain
         Const SAMPLING_LINE_COUNT As Integer = 10000
 
         Dim blnIsFastaFile As Boolean
-        Dim eDelimitedFileFormatCode As ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode
 
         Dim fiFileInfo As System.IO.FileInfo
         Dim intFileSizeKB As Integer

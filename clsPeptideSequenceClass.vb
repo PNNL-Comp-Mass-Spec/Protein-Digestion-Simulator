@@ -398,7 +398,8 @@ Public Class PeptideSequenceClass
         ' Converts a sequence from 1 letter to 3 letter codes or vice versa
 
         Dim objPeptide As New PeptideSequenceClass
-        Dim strPrefix As String, strSuffix As String
+        Dim strPrefix As String = String.Empty
+        Dim strSuffix As String = String.Empty
         Dim strSequenceOut As String
 
         Try
@@ -430,7 +431,6 @@ Public Class PeptideSequenceClass
         ' Returns the symbol, if found
         ' Otherwise, returns ""
 
-        Dim intIndex As Integer
         Dim strSymbol As Char
 
         If bln1LetterTo3Letter Then
@@ -516,7 +516,7 @@ Public Class PeptideSequenceClass
         ' Construct a text sequence using Residues() and the N and C Terminus info
 
         Dim strSequence As String, strSymbol3Letter As String
-        Dim strDashAdd As String
+        Dim strDashAdd As String = String.Empty
         Dim intIndex As Integer
         Dim intLastIndex As Integer
 
