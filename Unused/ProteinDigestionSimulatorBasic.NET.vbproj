@@ -87,23 +87,15 @@
   <ItemGroup>
     <Reference Include="NETPredictionBasic">
       <Name>NETPredictionBasic</Name>
-      <HintPath>..\NET_Prediction_Utility\NETPrediction\bin\NETPredictionBasic.dll</HintPath>
-    </Reference>
-    <Reference Include="PRISM">
-      <Name>PRISM</Name>
-      <HintPath>bin\PRISM.dll</HintPath>
-    </Reference>
-    <Reference Include="ProgressFormNET">
-      <Name>ProgressFormNET</Name>
-      <HintPath>bin\ProgressFormNET.dll</HintPath>
+      <HintPath>..\..\NET_Prediction_Utility\NETPrediction\bin\NETPredictionBasic.dll</HintPath>
     </Reference>
     <Reference Include="ProteinFileReader">
       <Name>ProteinFileReader</Name>
-      <HintPath>..\ProteinFileReaderDLL\bin\ProteinFileReader.dll</HintPath>
+      <HintPath>..\..\ProteinFileReaderDLL\bin\ProteinFileReader.dll</HintPath>
     </Reference>
     <Reference Include="SharedVBNetRoutines">
       <Name>SharedVBNetRoutines</Name>
-      <HintPath>..\SharedVBNetRoutines\bin\SharedVBNetRoutines.dll</HintPath>
+      <HintPath>..\..\SharedVBNetRoutines\bin\SharedVBNetRoutines.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -122,7 +114,7 @@
     </Reference>
     <Reference Include="ValidateFastaFile">
       <Name>ValidateFastaFile</Name>
-      <HintPath>bin\ValidateFastaFile.dll</HintPath>
+      <HintPath>..\..\Validate_Fasta_File\bin\ValidateFastaFile.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -134,59 +126,59 @@
     <Import Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyInfo.vb">
+    <Compile Include="..\AssemblyInfo.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsCalculatepI.vb">
+    <Compile Include="..\clsCalculatepI.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsInSilicoDigest.vb">
+    <Compile Include="..\clsInSilicoDigest.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsParseProteinFile.vb">
+    <Compile Include="..\clsParseProteinFile.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsPeakMatchingClass.vb">
+    <Compile Include="..\clsPeakMatchingClass.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsPeptideSequenceClass.vb">
+    <Compile Include="..\clsPeptideSequenceClass.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsProcessFilesBaseClass.vb">
+    <Compile Include="..\clsProcessFilesBaseClass.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsProteinDigestionSimulator.vb">
+    <Compile Include="..\clsProteinDigestionSimulator.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsProteinInfoClass.vb">
+    <Compile Include="..\clsProteinInfoClass.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsSearchRange.vb">
+    <Compile Include="..\clsSearchRange.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsXmlSettingsFileAccessor.vb" />
-    <Compile Include="frmDisclaimer.vb">
+    <Compile Include="..\clsXmlSettingsFileAccessor.vb" />
+    <Compile Include="..\frmDisclaimer.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmFastaValidationResults.Designer.vb">
+    <Compile Include="..\frmFastaValidationResults.Designer.vb">
       <DependentUpon>frmFastaValidationResults.vb</DependentUpon>
     </Compile>
-    <Compile Include="frmFastaValidationResults.vb">
+    <Compile Include="..\frmFastaValidationResults.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmMain.Designer.vb">
+    <Compile Include="..\frmMain.Designer.vb">
       <DependentUpon>frmMain.vb</DependentUpon>
     </Compile>
-    <Compile Include="frmMain.vb">
+    <Compile Include="..\frmMain.vb">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="modMain.vb">
+    <Compile Include="..\modMain.vb">
       <SubType>Code</SubType>
     </Compile>
-    <EmbeddedResource Include="frmFastaValidationResults.resx">
+    <EmbeddedResource Include="..\frmFastaValidationResults.resx">
       <DependentUpon>frmFastaValidationResults.vb</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmMain.resx">
+    <EmbeddedResource Include="..\frmMain.resx">
       <DependentUpon>frmMain.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
