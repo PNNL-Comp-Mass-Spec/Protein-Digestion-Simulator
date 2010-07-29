@@ -15,7 +15,7 @@ Public Class clsParseProteinFile
     Inherits clsProcessFilesBaseClass
 
     Public Sub New()
-        MyBase.mFileDate = "July 30, 2007"
+        MyBase.mFileDate = "July 28, 2010"
         InitializeLocalVariables()
     End Sub
 
@@ -47,7 +47,6 @@ Public Class clsParseProteinFile
         ErrorCreatingScrambledProteinOutputFile = 16
         ErrorWritingOutputFile = 32
         ErrorInitializingObjectVariables = 64
-        ErrorInitializing
         DigestProteinSequenceError = 128
         UnspecifiedError = -1
     End Enum
@@ -129,7 +128,7 @@ Public Class clsParseProteinFile
 
     Public FastaFileOptions As FastaFileOptionsClass
     Private mObjectVariablesLoaded As Boolean
-    Private objInSilicoDigest As clsInSilicoDigest
+    Private WithEvents mInSilicoDigest As clsInSilicoDigest
     Private objpICalculator As clspICalculation
 
 #If IncludePNNLNETRoutines Then
@@ -144,6 +143,13 @@ Public Class clsParseProteinFile
 
     Private mShowDebugPrompts As Boolean
     Private mLocalErrorCode As eParseProteinFileErrorCodes
+
+    Private mSubtaskProgressStepDescription As String = String.Empty
+    Private mSubtaskProgressPercentComplete As Single = 0
+
+    ' PercentComplete ranges from 0 to 100, but can contain decimal percentage values
+    Public Event SubtaskProgressChanged(ByVal taskDescription As String, ByVal percentComplete As Single)
+
 #End Region
 
 #Region "Processing Options Interface Functions"
@@ -230,17 +236,17 @@ Public Class clsParseProteinFile
 
     Public Property ElementMassMode() As PeptideSequenceClass.ElementModeConstants
         Get
-            If objInSilicoDigest Is Nothing Then
+            If mInSilicoDigest Is Nothing Then
                 Return PeptideSequenceClass.ElementModeConstants.IsotopicMass
             Else
-                Return objInSilicoDigest.ElementMassMode
+                Return mInSilicoDigest.ElementMassMode
             End If
         End Get
         Set(ByVal Value As PeptideSequenceClass.ElementModeConstants)
-            If objInSilicoDigest Is Nothing Then
+            If mInSilicoDigest Is Nothing Then
                 InitializeObjectVariables()
             End If
-            objInSilicoDigest.ElementMassMode = Value
+            mInSilicoDigest.ElementMassMode = Value
         End Set
     End Property
     Public Property ExcludeProteinSequence() As Boolean
@@ -414,10 +420,10 @@ Public Class clsParseProteinFile
 
         ' Be sure to call InitializeObjectVariables before calling this function for the first time
         ' Otherwise, objInSilicoDigest will be nothing
-        If objInSilicoDigest Is Nothing Then
+        If mInSilicoDigest Is Nothing Then
             Return 0
         Else
-            Return objInSilicoDigest.ComputeSequenceMass(strSequence, mIncludeXResiduesInMass)
+            Return mInSilicoDigest.ComputeSequenceMass(strSequence, mIncludeXResiduesInMass)
         End If
 
     End Function
@@ -438,7 +444,7 @@ Public Class clsParseProteinFile
 
     End Function
 
-    Public Function DigestProteinSequence(ByVal strSequence As String, ByRef udtPeptides() As clsInSilicoDigest.PeptideInfoClass, ByVal objDigestionOptions As clsInSilicoDigest.DigestionOptionsClass, Optional ByVal strProteinName As String = "", Optional ByRef objProgressForm As ProgressFormNET.frmProgress = Nothing) As Integer
+    Public Function DigestProteinSequence(ByVal strSequence As String, ByRef udtPeptides() As clsInSilicoDigest.PeptideInfoClass, ByVal objDigestionOptions As clsInSilicoDigest.DigestionOptionsClass, Optional ByVal strProteinName As String = "") As Integer
         ' Returns the number of digested peptides in udtPeptides
 
         Dim intPeptideCount As Integer
@@ -447,7 +453,7 @@ Public Class clsParseProteinFile
         If Not InitializeObjectVariables() Then Return 0
 
         Try
-            intPeptideCount = objInSilicoDigest.DigestSequence(strSequence, udtPeptides, objDigestionOptions, mComputepI, strProteinName, objProgressForm)
+            intPeptideCount = mInSilicoDigest.DigestSequence(strSequence, udtPeptides, objDigestionOptions, mComputepI, strProteinName)
         Catch ex As Exception
             SetLocalErrorCode(eParseProteinFileErrorCodes.DigestProteinSequenceError)
             intPeptideCount = 0
@@ -507,7 +513,7 @@ Public Class clsParseProteinFile
                                 strDescription = String.Empty
                             End If
                         Else
-                            Debug.Assert(False, "This code in ExtractAlternateProteinNamesFromDescription shouldn't be reached")
+                            ShowErrorMessage("This code in ExtractAlternateProteinNamesFromDescription should never be reached")
                         End If
                     Else
                         Exit For
@@ -517,7 +523,7 @@ Public Class clsParseProteinFile
             End If
 
         Catch ex As Exception
-            Debug.Assert(False, "Error parsing out additional Ref Names from the Protein Description: " & ex.Message)
+            ShowErrorMessage("Error parsing out additional Ref Names from the Protein Description: " & ex.Message)
         End Try
 
         Return intAlternateNameCount
@@ -663,7 +669,7 @@ Public Class clsParseProteinFile
             ' Need to initialize the object variables
 
             Try
-                objInSilicoDigest = New clsInSilicoDigest
+                mInSilicoDigest = New clsInSilicoDigest
             Catch ex As Exception
                 strErrorMessage = "Error initializing InSilicoDigest class"
                 Me.SetLocalErrorCode(eParseProteinFileErrorCodes.ErrorInitializingObjectVariables)
@@ -687,18 +693,16 @@ Public Class clsParseProteinFile
 
             If strErrorMessage.Length > 0 Then
                 If MyBase.ShowMessages Then MsgBox(strErrorMessage, MsgBoxStyle.Exclamation Or MsgBoxStyle.OKOnly, "Error")
-                Console.WriteLine(strErrorMessage)
+                ShowErrorMessage(strErrorMessage)
                 mObjectVariablesLoaded = False
             Else
                 mObjectVariablesLoaded = True
             End If
         End If
 
-        If Not objInSilicoDigest Is Nothing Then
-            objInSilicoDigest.ShowMessages = MyBase.ShowMessages
-
+        If Not mInSilicoDigest Is Nothing Then
             If Not objpICalculator Is Nothing Then
-                objInSilicoDigest.InitializepICalculator(objpICalculator)
+                mInSilicoDigest.InitializepICalculator(objpICalculator)
             End If
         End If
 
@@ -714,7 +718,7 @@ Public Class clsParseProteinFile
 
     Public Function LoadParameterFileSettings(ByVal strParameterFilePath As String) As Boolean
 
-        Dim objSettingsFile As New PRISM.Files.XmlSettingsFileAccessor
+        Dim objSettingsFile As New XmlSettingsFileAccessor
 
         Dim intDelimeterIndex As Integer
         Dim strCustomDelimiter As String
@@ -853,11 +857,11 @@ Public Class clsParseProteinFile
 
     End Function
 
-    Public Function ParseProteinFile(ByVal strProteinInputFilePath As String, ByVal strOutputFolderPath As String, Optional ByRef objProgressForm As ProgressFormNET.frmProgress = Nothing) As Boolean
-        Return ParseProteinFile(strProteinInputFilePath, strOutputFolderPath, String.Empty, objProgressForm)
+    Public Function ParseProteinFile(ByVal strProteinInputFilePath As String, ByVal strOutputFolderPath As String) As Boolean
+        Return ParseProteinFile(strProteinInputFilePath, strOutputFolderPath, String.Empty)
     End Function
 
-    Public Function ParseProteinFile(ByVal strProteinInputFilePath As String, ByVal strOutputFolderPath As String, ByVal strOutputFileNameBaseOverride As String, Optional ByRef objProgressForm As ProgressFormNET.frmProgress = Nothing) As Boolean
+    Public Function ParseProteinFile(ByVal strProteinInputFilePath As String, ByVal strOutputFolderPath As String, ByVal strOutputFileNameBaseOverride As String) As Boolean
         ' If strOutputFileNameBaseOverride is defined, then uses that name for the protein output filename rather than auto-defining the name
 
         Dim objProteinFileReader As ProteinFileReader.ProteinFileReaderBaseClass
@@ -907,8 +911,6 @@ Public Class clsParseProteinFile
         Dim intRandomNumberSeed As Integer
         Dim eScramblingMode As ProteinScramblingModeConstants
         Dim udtResidueCache As udtScrambingResidueCacheType
-
-        Dim blnUsingExistingProgressForm As Boolean
 
         Dim dtStartTime As Date
 
@@ -1136,16 +1138,6 @@ Public Class clsParseProteinFile
                 If Not blnSuccess Then Exit Try
             End If
 
-            ' Show the progress form
-            If Not objProgressForm Is Nothing Then
-                blnUsingExistingProgressForm = True
-            Else
-                objProgressForm = New ProgressFormNET.frmProgress
-                blnUsingExistingProgressForm = False
-            End If
-            objProgressForm.Visible = True
-            Windows.Forms.Application.DoEvents()
-
             If mProteinScramblingMode = ProteinScramblingModeConstants.Randomized Then
                 intLoopCount = mProteinScramblingLoopCount
                 If intLoopCount < 1 Then intLoopCount = 1
@@ -1242,7 +1234,7 @@ Public Class clsParseProteinFile
                     ' Need to pre-scan the fasta file to find all of the possible additional reference values
 
                     htAddnlRefMasterNames = New System.Collections.Specialized.StringDictionary
-                    PreScanProteinFileForAddnlRefsInDescription(objProgressForm, strProteinInputFilePath, htAddnlRefMasterNames)
+                    PreScanProteinFileForAddnlRefsInDescription(strProteinInputFilePath, htAddnlRefMasterNames)
 
                     If htAddnlRefMasterNames.Keys.Count > 0 Then
                         ' Need to extract out the key names from htAddnlRefMasterNames and sort them alphabetically
@@ -1265,13 +1257,7 @@ Public Class clsParseProteinFile
                     End If
                 End If
 
-                If blnUsingExistingProgressForm Then
-                    objProgressForm.InitializeSubtask("Parsing protein input file", 0, 100, True)
-                Else
-                    objProgressForm.InitializeProgressForm("Parsing protein input file", 0, 100, True)
-                End If
-                objProgressForm.Visible = True
-                Windows.Forms.Application.DoEvents()
+                ResetProgress("Parsing protein input file")
 
                 If mCreateProteinOutputFile And Not mCreateFastaOutputFile Then
                     ' Write the header line to the output file
@@ -1444,7 +1430,7 @@ Public Class clsParseProteinFile
                             End If
 
                             If intLoopIndex = 1 AndAlso Not srDigestOutputFile Is Nothing Then
-                                intPeptideCount = DigestProteinSequence(mProteins(mProteinCount).Sequence, udtPeptides, DigestionOptions, mProteins(mProteinCount).Name, objProgressForm)
+                                intPeptideCount = DigestProteinSequence(mProteins(mProteinCount).Sequence, udtPeptides, DigestionOptions, mProteins(mProteinCount).Name)
 
                                 For intIndex = 0 To intPeptideCount - 1
                                     With udtPeptides(intIndex)
@@ -1506,14 +1492,10 @@ Public Class clsParseProteinFile
                         End If
 
                         sngPercentProcessed = (intLoopIndex - 1) / CSng(intLoopCount) * 100.0! + objProteinFileReader.PercentFileProcessed() / intLoopCount
-                        If blnUsingExistingProgressForm Then
-                            objProgressForm.UpdateSubtaskProgressBar(sngPercentProcessed)
-                        Else
-                            objProgressForm.UpdateProgressBar(sngPercentProcessed)
-                        End If
-                        Windows.Forms.Application.DoEvents()
+                        UpdateProgress(sngPercentProcessed)
 
-                        If objProgressForm.KeyPressAbortProcess Then Exit Do
+                        If Me.AbortProcessing Then Exit Do
+
                     End If
                 Loop While blnInputProteinFound
 
@@ -1552,7 +1534,7 @@ Public Class clsParseProteinFile
             Next intLoopIndex
 
             If mShowDebugPrompts Then
-                MsgBox(System.IO.Path.GetFileName(strProteinInputFilePath) & ControlChars.NewLine & "Elapsed time: " & Math.Round(System.DateTime.Now.Subtract(dtStartTime).TotalSeconds, 2).ToString & " seconds", MsgBoxStyle.Information Or MsgBoxStyle.OKOnly, "Status")
+                MsgBox(System.IO.Path.GetFileName(strProteinInputFilePath) & ControlChars.NewLine & "Elapsed time: " & Math.Round(System.DateTime.Now.Subtract(dtStartTime).TotalSeconds, 2).ToString & " seconds", MsgBoxStyle.Information Or MsgBoxStyle.OkOnly, "Status")
             End If
 
             If MyBase.ShowMessages Then
@@ -1569,7 +1551,7 @@ Public Class clsParseProteinFile
                 If intLoopCount > 1 Then
                     strMessage &= ControlChars.NewLine & "Created " & intLoopCount.ToString & " replicates of the scrambled output file"
                 End If
-                MsgBox(strMessage, MsgBoxStyle.Information Or MsgBoxStyle.OKOnly, "Done")
+                MsgBox(strMessage, MsgBoxStyle.Information Or MsgBoxStyle.OkOnly, "Done")
             End If
 
             blnSuccess = True
@@ -1592,16 +1574,13 @@ Public Class clsParseProteinFile
             If Not srScrambledOutStream Is Nothing Then
                 srScrambledOutStream.Close()
             End If
-            If Not blnUsingExistingProgressForm AndAlso Not objProgressForm Is Nothing Then
-                objProgressForm.HideForm()
-            End If
         End Try
 
         Return blnSuccess
 
     End Function
 
-    Private Function PreScanProteinFileForAddnlRefsInDescription(ByRef objProgressForm As ProgressFormNET.frmProgress, ByVal strProteinInputFilePath As String, ByRef htAddnlRefMasterNames As System.Collections.Specialized.StringDictionary) As Boolean
+    Private Function PreScanProteinFileForAddnlRefsInDescription(ByVal strProteinInputFilePath As String, ByRef htAddnlRefMasterNames As System.Collections.Specialized.StringDictionary) As Boolean
 
         Dim objFastaFileReader As ProteinFileReader.FastaFileReader
         Dim udtProtein As udtProteinInfoType
@@ -1637,9 +1616,7 @@ Public Class clsParseProteinFile
 
         Try
 
-            objProgressForm.InitializeProgressForm("Pre-reading Fasta file; looking for possible additional reference names", 0, 100, True)
-            objProgressForm.Visible = True
-            Windows.Forms.Application.DoEvents()
+            ResetProgress("Pre-reading Fasta file; looking for possible additional reference names")
 
             ' Read each protein in the output file and process appropriately
             Do
@@ -1661,10 +1638,9 @@ Public Class clsParseProteinFile
                         Next intIndex
                     End With
 
-                    objProgressForm.UpdateProgressBar(objFastaFileReader.PercentFileProcessed())
-                    Windows.Forms.Application.DoEvents()
+                    UpdateProgress(objFastaFileReader.PercentFileProcessed())
 
-                    If objProgressForm.KeyPressAbortProcess Then Exit Do
+                    If Me.AbortProcessing Then Exit Do
                 End If
             Loop While blnInputProteinFound
 
@@ -1810,7 +1786,9 @@ Public Class clsParseProteinFile
             intResidueCount = strSequence.Length
 
             Do While intResidueCount > 0
-                Debug.Assert(intResidueCount = strSequence.Length)
+                If intResidueCount <> strSequence.Length Then
+                    ShowErrorMessage("Assertion failed in WriteScrambledFasta: intResidueCount should equal strSequence.Length: " & intResidueCount & " vs. " & strSequence.Length)
+                End If
 
                 ' Randomly extract residues from strSequence
                 intIndex = objRandomNumberGenerator.Next(intResidueCount)
@@ -1881,7 +1859,7 @@ Public Class clsParseProteinFile
         If Not LoadParameterFileSettings(strParameterFilePath) Then
             strStatusMessage = "Parameter file load error: " & strParameterFilePath
             If MyBase.ShowMessages Then MsgBox(strStatusMessage, MsgBoxStyle.Exclamation Or MsgBoxStyle.OKOnly, "Error")
-            Console.WriteLine(strStatusMessage)
+            ShowErrorMessage(strStatusMessage)
             If MyBase.ErrorCode = clsProcessFilesBaseClass.eProcessFilesErrorCodes.NoError Then
                 MyBase.SetBaseClassErrorCode(clsProcessFilesBaseClass.eProcessFilesErrorCodes.InvalidParameterFile)
             End If
@@ -1890,12 +1868,12 @@ Public Class clsParseProteinFile
 
         Try
             If strInputFilePath Is Nothing OrElse strInputFilePath.Length = 0 Then
-                Console.WriteLine("Input file name is empty")
+                ShowErrorMessage("Input file name is empty")
                 MyBase.SetBaseClassErrorCode(clsProcessFilesBaseClass.eProcessFilesErrorCodes.InvalidInputFilePath)
             Else
 
                 Console.WriteLine()
-                Console.WriteLine("Parsing " & System.IO.Path.GetFileName(strInputFilePath))
+                ShowMessage("Parsing " & System.IO.Path.GetFileName(strInputFilePath))
 
                 If Not CleanupFilePaths(strInputFilePath, strOutputFolderPath) Then
                     MyBase.SetBaseClassErrorCode(clsProcessFilesBaseClass.eProcessFilesErrorCodes.FilePathError)
@@ -1947,6 +1925,41 @@ Public Class clsParseProteinFile
                 MyBase.SetBaseClassErrorCode(clsProcessFilesBaseClass.eProcessFilesErrorCodes.LocalizedError)
             End If
         End If
+
+    End Sub
+
+    Protected Sub UpdateSubtaskProgress(ByVal strProgressStepDescription As String)
+        UpdateProgress(strProgressStepDescription, mProgressPercentComplete)
+    End Sub
+
+    Protected Sub UpdateSubtaskProgress(ByVal sngPercentComplete As Single)
+        UpdateProgress(Me.ProgressStepDescription, sngPercentComplete)
+    End Sub
+
+    Protected Sub UpdateSubtaskProgress(ByVal strProgressStepDescription As String, ByVal sngPercentComplete As Single)
+        Dim blnDescriptionChanged As Boolean = False
+
+        If strProgressStepDescription <> mSubtaskProgressStepDescription Then
+            blnDescriptionChanged = True
+        End If
+
+        mSubtaskProgressStepDescription = String.Copy(strProgressStepDescription)
+        If sngPercentComplete < 0 Then
+            sngPercentComplete = 0
+        ElseIf sngPercentComplete > 100 Then
+            sngPercentComplete = 100
+        End If
+        mSubtaskProgressPercentComplete = sngPercentComplete
+
+        If blnDescriptionChanged Then
+            If mSubtaskProgressPercentComplete = 0 Then
+                LogMessage(mSubtaskProgressStepDescription.Replace(ControlChars.NewLine, "; "))
+            Else
+                LogMessage(mSubtaskProgressStepDescription & " (" & mSubtaskProgressPercentComplete.ToString("0.0") & "% complete)".Replace(ControlChars.NewLine, "; "))
+            End If
+        End If
+
+        RaiseEvent SubtaskProgressChanged(strProgressStepDescription, sngPercentComplete)
 
     End Sub
 
@@ -2073,4 +2086,19 @@ Public Class clsParseProteinFile
 
     End Class
 
+    Private Sub mInSilicoDigest_ErrorEvent(ByVal strMessage As String) Handles mInSilicoDigest.ErrorEvent
+        ShowErrorMessage("Error in mInSilicoDigest: " & strMessage)
+    End Sub
+
+    Private Sub mInSilicoDigest_ProgressChanged(ByVal taskDescription As String, ByVal percentComplete As Single) Handles mInSilicoDigest.ProgressChanged
+        UpdateSubtaskProgress(taskDescription, percentComplete)
+    End Sub
+
+    Private Sub mInSilicoDigest_ProgressComplete() Handles mInSilicoDigest.ProgressComplete
+        UpdateSubtaskProgress(100)
+    End Sub
+
+    Private Sub mInSilicoDigest_ProgressReset() Handles mInSilicoDigest.ProgressReset
+        ' Don't do anything with this event
+    End Sub
 End Class

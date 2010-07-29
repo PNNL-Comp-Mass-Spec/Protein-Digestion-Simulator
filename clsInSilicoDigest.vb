@@ -8,12 +8,11 @@ Option Strict On
 '
 ' Utilizes the PeptideInfoClass class
 '
-' Last Modified July 30, 2007
+' Last Modified July 28, 2010
 '
 Public Class clsInSilicoDigest
 
     Public Sub New()
-        mShowMessages = True
         mPeptideSequence = New PeptideSequenceClass
         mPeptideSequence.ElementMode = PeptideSequenceClass.ElementModeConstants.IsotopicMass
 
@@ -74,12 +73,20 @@ Public Class clsInSilicoDigest
 #Region "Classwide Variables"
 
     Private mCleavageRules As udtCleavageRuleList
-    Private mShowMessages As Boolean
 
     ' General purpose object for computing mass and calling cleavage and digestion functions
     Private mPeptideSequence As PeptideSequenceClass
 
     Private mpICalculator As clspICalculation
+
+    Public Event ErrorEvent(ByVal strMessage As String)
+
+    Public Event ProgressReset()
+    Public Event ProgressChanged(ByVal taskDescription As String, ByVal percentComplete As Single)     ' PercentComplete ranges from 0 to 100, but can contain decimal percentage values
+    Public Event ProgressComplete()
+
+    Protected mProgressStepDescription As String
+    Protected mProgressPercentComplete As Single        ' Ranges from 0 to 100, but can contain decimal percentage values
 
 #End Region
 
@@ -88,15 +95,6 @@ Public Class clsInSilicoDigest
         Get
             Return mCleavageRules.RuleCount
         End Get
-    End Property
-
-    Public Property ShowMessages() As Boolean
-        Get
-            Return mShowMessages
-        End Get
-        Set(ByVal Value As Boolean)
-            mShowMessages = Value
-        End Set
     End Property
 
     Public Property ElementMassMode() As PeptideSequenceClass.ElementModeConstants
@@ -114,6 +112,20 @@ Public Class clsInSilicoDigest
             mPeptideSequence.ElementMode = Value
         End Set
     End Property
+
+    Public Overridable ReadOnly Property ProgressStepDescription() As String
+        Get
+            Return mProgressStepDescription
+        End Get
+    End Property
+
+    ' ProgressPercentComplete ranges from 0 to 100, but can contain decimal percentage values
+    Public ReadOnly Property ProgressPercentComplete() As Single
+        Get
+            Return CType(Math.Round(mProgressPercentComplete, 2), Single)
+        End Get
+    End Property
+
 #End Region
 
     Public Function CheckSequenceAgainstCleavageRule(ByVal strSequence As String, ByVal eRuleID As CleavageRuleConstants, Optional ByRef intRuleMatchCount As Integer = 0) As Boolean
@@ -204,7 +216,20 @@ Public Class clsInSilicoDigest
 
     End Function
 
-    Public Function DigestSequence(ByVal strProteinSequence As String, ByRef objPeptideFragments() As PeptideInfoClass, ByVal objDigestionOptions As DigestionOptionsClass, ByVal blnFilterByIsoelectricPoint As Boolean, Optional ByVal strProteinName As String = "", Optional ByRef objProgressForm As ProgressFormNET.frmProgress = Nothing) As Integer
+    Public Function DigestSequence(ByVal strProteinSequence As String, _
+                                   ByRef objPeptideFragments() As PeptideInfoClass, _
+                                   ByVal objDigestionOptions As DigestionOptionsClass, _
+                                   ByVal blnFilterByIsoelectricPoint As Boolean) As Integer
+
+        Return DigestSequence(strProteinSequence, objPeptideFragments, objDigestionOptions, blnFilterByIsoelectricPoint, "")
+
+    End Function
+
+    Public Function DigestSequence(ByVal strProteinSequence As String, _
+                                   ByRef objPeptideFragments() As PeptideInfoClass, _
+                                   ByVal objDigestionOptions As DigestionOptionsClass, _
+                                   ByVal blnFilterByIsoelectricPoint As Boolean, _
+                                    ByVal strProteinName As String) As Integer
         ' Digests strProteinSequence using the sequence rule given by objDigestionOptions.CleavageRuleID
         ' If blnRemoveDuplicateSequences = True, then only returns the first occurrence of each unique sequence
         '
@@ -236,7 +261,6 @@ Public Class clsInSilicoDigest
         Dim blnReversedCleavageDirection As Boolean
 
         Dim blnPeptideAdded As Boolean
-        Dim blnUsingExistingProgressForm As Boolean
 
         Try
 
@@ -309,20 +333,8 @@ Public Class clsInSilicoDigest
                 End If
             Loop
 
-            If objDigestionOptions.CleavageRuleID = CleavageRuleConstants.KROneEnd Then
-                If objProgressForm Is Nothing Then
-                    objProgressForm = New ProgressFormNET.frmProgress
-                    objProgressForm.MoveToBottomCenter()
-                    objProgressForm.InitializeProgressForm("Digesting protein " & strProteinName, 0, intTrypticFragCacheCount * 2, False, False)
-                    blnUsingExistingProgressForm = False
-                Else
-                    blnUsingExistingProgressForm = True
-                    objProgressForm.InitializeSubtask("Digesting protein " & strProteinName, 0, intTrypticFragCacheCount * 2)
-                End If
-                objProgressForm.Visible = True
-                Windows.Forms.Application.DoEvents()
-            End If
-
+            ResetProgress("Digesting protein " & strProteinName)
+            
             For intTrypticIndex = 0 To intTrypticFragCacheCount - 1
                 strPeptideSequenceBase = String.Empty
                 strPeptideSequence = String.Empty
@@ -369,12 +381,7 @@ Public Class clsInSilicoDigest
                 Next intIndex
 
                 If objDigestionOptions.CleavageRuleID = CleavageRuleConstants.KROneEnd Then
-                    If blnUsingExistingProgressForm Then
-                        objProgressForm.UpdateSubtaskProgressBar(intTrypticIndex)
-                    Else
-                        objProgressForm.UpdateProgressBar(intTrypticIndex)
-                    End If
-                    Windows.Forms.Application.DoEvents()
+                    UpdateProgress(CSng(intTrypticIndex / (intTrypticFragCacheCount * 2) * 100.0))
                 End If
             Next intTrypticIndex
 
@@ -416,12 +423,7 @@ Public Class clsInSilicoDigest
                         strPeptideSequenceBase = strTrypticFragCache(intTrypticIndex - intIndex) & strPeptideSequenceBase
                     Next intIndex
 
-                    If blnUsingExistingProgressForm Then
-                        objProgressForm.UpdateSubtaskProgressBar(intTrypticFragCacheCount * 2 - intTrypticIndex)
-                    Else
-                        objProgressForm.UpdateProgressBar(intTrypticFragCacheCount * 2 - intTrypticIndex)
-                    End If
-                    Windows.Forms.Application.DoEvents()
+                    UpdateProgress(CSng((intTrypticFragCacheCount * 2 - intTrypticIndex) / (intTrypticFragCacheCount * 2) * 100))
 
                 Next intTrypticIndex
 
@@ -436,14 +438,6 @@ Public Class clsInSilicoDigest
         Catch ex As Exception
             ReportError("DigestSequence", ex)
             Return intFragmentCountTotal
-        Finally
-            If objDigestionOptions.CleavageRuleID = CleavageRuleConstants.KROneEnd AndAlso Not objProgressForm Is Nothing Then
-                If Not blnUsingExistingProgressForm Then
-                    objProgressForm.HideForm()
-                    objProgressForm.Close()
-                    objProgressForm = Nothing
-                End If
-            End If
         End Try
 
     End Function
@@ -818,15 +812,47 @@ Public Class clsInSilicoDigest
 
             Console.WriteLine(strErrorMessage)
 
-            If mShowMessages Then
-                MsgBox(strErrorMessage, MsgBoxStyle.Exclamation Or MsgBoxStyle.OKOnly, "Error")
-            Else
-                Debug.Assert(False, strErrorMessage)
-            End If
+            RaiseEvent ErrorEvent(strErrorMessage)
 
         Catch exNew As Exception
             ' Ignore errors here
         End Try
+    End Sub
+
+    Protected Sub ResetProgress()
+        RaiseEvent ProgressReset()
+    End Sub
+
+    Protected Sub ResetProgress(ByVal strProgressStepDescription As String)
+        UpdateProgress(strProgressStepDescription, 0)
+        RaiseEvent ProgressReset()
+    End Sub
+
+    Protected Sub UpdateProgress(ByVal strProgressStepDescription As String)
+        UpdateProgress(strProgressStepDescription, mProgressPercentComplete)
+    End Sub
+
+    Protected Sub UpdateProgress(ByVal sngPercentComplete As Single)
+        UpdateProgress(Me.ProgressStepDescription, sngPercentComplete)
+    End Sub
+
+    Protected Sub UpdateProgress(ByVal strProgressStepDescription As String, ByVal sngPercentComplete As Single)
+        Dim blnDescriptionChanged As Boolean = False
+
+        If strProgressStepDescription <> mProgressStepDescription Then
+            blnDescriptionChanged = True
+        End If
+
+        mProgressStepDescription = String.Copy(strProgressStepDescription)
+        If sngPercentComplete < 0 Then
+            sngPercentComplete = 0
+        ElseIf sngPercentComplete > 100 Then
+            sngPercentComplete = 100
+        End If
+        mProgressPercentComplete = sngPercentComplete
+
+        RaiseEvent ProgressChanged(Me.ProgressStepDescription, Me.ProgressPercentComplete)
+
     End Sub
 
 #Region "Peptide Info class"

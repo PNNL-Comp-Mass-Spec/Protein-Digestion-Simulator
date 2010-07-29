@@ -215,7 +215,7 @@ Public Class PeptideSequenceClass
         intPeriodLoc1 = strSequence.IndexOf(strSeparationChar)
         If intPeriodLoc1 < 0 Then
             ' No periods, can't check
-            Debug.Assert(False, "CheckSequenceAgainstCleavageRule called with a sequence that doesn't contain prefix or suffix separation characters")
+            Console.WriteLine("CheckSequenceAgainstCleavageRule called with a sequence that doesn't contain prefix or suffix separation characters; unable to process: " & strSequence)
             Return True
         Else
             intPeriodLoc2 = strSequence.IndexOf(strSeparationChar, intPeriodLoc1 + 1)
@@ -952,7 +952,7 @@ Public Class PeptideSequenceClass
                 End If
             Else
                 ' I don't think I'll ever reach this code
-                Debug.Assert(False, "Unexpected code point reached in GetTrypticPeptideByFragmentNumber")
+                Console.WriteLine("Unexpected code point reached in GetTrypticPeptideByFragmentNumber")
                 Exit Do
             End If
         Loop While intCurrentTrypticPeptideNumber < intDesiredPeptideNumber

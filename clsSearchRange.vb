@@ -63,7 +63,7 @@ Public Class clsSearchRange
                 Case eDataTypeToUse.NoDataPresent
                     Return 0
                 Case Else
-                    Debug.Assert(False, "Unknown data type encountered: " & mDataType.ToString)
+                    Console.WriteLine("Unknown data type encountered: " & mDataType.ToString)
                     Return 0
             End Select
         End Get

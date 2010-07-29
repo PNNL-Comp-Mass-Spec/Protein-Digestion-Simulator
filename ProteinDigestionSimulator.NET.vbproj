@@ -89,18 +89,7 @@
       <Name>NETPrediction</Name>
       <HintPath>..\NET_Prediction_Utility\NETPrediction\bin\NETPrediction.dll</HintPath>
     </Reference>
-    <Reference Include="PRISM">
-      <Name>PRISM</Name>
-      <HintPath>..\DMS_Managers\Common_Files_Net\PRISM_Class_Library\bin\PRISM.dll</HintPath>
-    </Reference>
-    <Reference Include="ProgressFormNET">
-      <Name>ProgressFormNET</Name>
-      <HintPath>..\ProgressForm.NET\bin\ProgressFormNET.dll</HintPath>
-    </Reference>
-    <Reference Include="ProteinFileReader">
-      <Name>ProteinFileReader</Name>
-      <HintPath>..\ProteinFileReaderDLL\bin\ProteinFileReader.dll</HintPath>
-    </Reference>
+    <Reference Include="ProteinFileReader, Version=1.1.3847.22126, Culture=neutral, processorArchitecture=x86" />
     <Reference Include="SharedVBNetRoutines">
       <Name>SharedVBNetRoutines</Name>
       <HintPath>..\SharedVBNetRoutines\bin\SharedVBNetRoutines.dll</HintPath>
@@ -111,6 +100,7 @@
     <Reference Include="System.Data">
       <Name>System.Data</Name>
     </Reference>
+    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing">
       <Name>System.Drawing</Name>
     </Reference>
@@ -120,9 +110,9 @@
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
-    <Reference Include="ValidateFastaFile">
-      <Name>ValidateFastaFile</Name>
-      <HintPath>bin\ValidateFastaFile.dll</HintPath>
+    <Reference Include="ValidateFastaFile, Version=2.0.3637.33746, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Validate_Fasta_File\bin\ValidateFastaFile.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -164,11 +154,18 @@
     <Compile Include="clsSearchRange.vb">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="clsXmlSettingsFileAccessor.vb" />
     <Compile Include="frmDisclaimer.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmFastaValidationResults.Designer.vb">
+      <DependentUpon>frmFastaValidationResults.vb</DependentUpon>
+    </Compile>
     <Compile Include="frmFastaValidationResults.vb">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmMain.Designer.vb">
+      <DependentUpon>frmMain.vb</DependentUpon>
     </Compile>
     <Compile Include="frmMain.vb">
       <SubType>Form</SubType>

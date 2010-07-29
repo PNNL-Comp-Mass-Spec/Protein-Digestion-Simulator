@@ -29,16 +29,7 @@ Public Class clsProteinDigestionSimulator
     Inherits clsProcessFilesBaseClass
 
     Public Sub New()
-        MyClass.New(False)
-    End Sub
-
-    Public Sub New(ByVal blnShowMessages As Boolean)
-        MyClass.New(blnShowMessages, Nothing)
-    End Sub
-
-    Public Sub New(ByVal blnShowMessages As Boolean, ByRef objLogger As PRISM.Logging.ILogger)
-        MyBase.mFileDate = "July 30, 2007"
-        mLogger = objLogger
+        MyBase.mFileDate = "July 28, 2010"
         InitializeLocalVariables()
     End Sub
 
@@ -94,7 +85,7 @@ Public Class clsProteinDigestionSimulator
 
 #Region "Classwide Variables"
 
-    Public ProteinFileParser As clsParseProteinFile     ' This class is exposed as public so that we can directly access some of its properties without having to create wrapper properties in this class
+    Public WithEvents mProteinFileParser As clsParseProteinFile     ' This class is exposed as public so that we can directly access some of its properties without having to create wrapper properties in this class
 
     Private mDigestSequences As Boolean                 ' Ignored for fasta files; they are always digested
     Private mCysPeptidesOnly As Boolean
@@ -111,8 +102,6 @@ Public Class clsProteinDigestionSimulator
 
     Private mLocalErrorCode As eProteinDigestionSimulatorErrorCodes
     Private mLastErrorMessage As String
-
-    Private mProgressForm As ProgressFormNET.frmProgress
 
     Private WithEvents mPeakMatchingClass As clsPeakMatchingClass
     Private WithEvents mComparisonPeptideInfo As clsPeakMatchingClass.PMComparisonFeatureInfoClass             ' Comparison peptides to match against
@@ -134,7 +123,12 @@ Public Class clsProteinDigestionSimulator
     ''Private mTableNameProteinInfo As String
     ''Private mTableNameProteinToPeptideMap As String
 
-    Private mLogger As PRISM.Logging.ILogger
+    Private mSubtaskProgressStepDescription As String = String.Empty
+    Private mSubtaskProgressPercentComplete As Single = 0
+
+    ' PercentComplete ranges from 0 to 100, but can contain decimal percentage values
+    Public Event SubtaskProgressChanged(ByVal taskDescription As String, ByVal percentComplete As Single)
+
 #End Region
 
 #Region "Processing Options Interface Functions"
@@ -177,17 +171,17 @@ Public Class clsProteinDigestionSimulator
 
     Public Property ElementMassMode() As PeptideSequenceClass.ElementModeConstants
         Get
-            If ProteinFileParser Is Nothing Then
+            If mProteinFileParser Is Nothing Then
                 Return PeptideSequenceClass.ElementModeConstants.IsotopicMass
             Else
-                Return ProteinFileParser.ElementMassMode
+                Return mProteinFileParser.ElementMassMode
             End If
         End Get
         Set(ByVal Value As PeptideSequenceClass.ElementModeConstants)
-            If ProteinFileParser Is Nothing Then
+            If mProteinFileParser Is Nothing Then
                 InitializeProteinFileParser()
             End If
-            ProteinFileParser.ElementMassMode = Value
+            mProteinFileParser.ElementMassMode = Value
         End Set
     End Property
 
@@ -403,7 +397,13 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Private Function ExportPeakMatchingResults(ByRef objThresholds As clsPeakMatchingClass.clsSearchThresholds, ByVal intThresholdIndex As Integer, ByRef intComparisonFeatureCount As Integer, ByRef objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, ByVal strOutputFolderPath As String, ByVal strOutputFilenameBase As String, ByRef srPMResultsOutFile As System.IO.StreamWriter, ByRef objProgressForm As ProgressFormNET.frmProgress) As Boolean
+    Private Function ExportPeakMatchingResults(ByRef objThresholds As clsPeakMatchingClass.clsSearchThresholds, _
+                                               ByVal intThresholdIndex As Integer, _
+                                               ByRef intComparisonFeatureCount As Integer, _
+                                               ByRef objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, _
+                                               ByVal strOutputFolderPath As String, _
+                                               ByVal strOutputFilenameBase As String, _
+                                               ByRef srPMResultsOutFile As System.IO.StreamWriter) As Boolean
 
         Dim strWorkingFilenameBase As String
         Dim strOutputFilePath As String
@@ -424,9 +424,7 @@ Public Class clsProteinDigestionSimulator
 
         Try
 
-            objProgressForm.InitializeSubtask("Exporting peak matching results", 0, objPeptideMatchResults.Count, True)
-            objProgressForm.Visible = True
-            Windows.Forms.Application.DoEvents()
+            ResetProgress("Exporting peak matching results")
 
             If mCreateSeparateOutputFileForEachThreshold Then
                 ' Create one file for each search threshold level
@@ -481,9 +479,7 @@ Public Class clsProteinDigestionSimulator
                 End If
 
                 If intMatchIndex Mod 100 = 0 Then
-                    objProgressForm.UpdateSubtaskProgressBar(intMatchIndex)
-                    Windows.Forms.Application.DoEvents()
-                    If objProgressForm.KeyPressAbortProcess Then Exit For
+                    UpdateProgress(CSng(intMatchIndex / objPeptideMatchResults.Count * 100))
 
                     If System.DateTime.Now.Subtract(dtLastFlushTime).TotalSeconds > 30 Then
                         srPMResultsOutFile.Flush()
@@ -498,8 +494,7 @@ Public Class clsProteinDigestionSimulator
                 srPMResultsOutFile = Nothing
             End If
 
-            objProgressForm.UpdateSubtaskProgressBar(objPeptideMatchResults.Count)
-            Windows.Forms.Application.DoEvents()
+            UpdateProgress(100)
 
             blnSuccess = True
 
@@ -768,25 +763,19 @@ Public Class clsProteinDigestionSimulator
             intProgressStep = 0
             intProgressStepCount = 1 + mThresholdLevels.Length * 3
 
-            mProgressForm = New ProgressFormNET.frmProgress
-            mProgressForm.InitializeProgressForm("Generating uniqueness stats", 0, intProgressStepCount, False)
-            mProgressForm.Visible = True
-            Windows.Forms.Application.DoEvents()
-
-            PostLogEntry("Caching data in memory", PRISM.Logging.ILogger.logMsgType.logNormal)
-            PostLogEntry("Caching peak matching results in memory", PRISM.Logging.ILogger.logMsgType.logNormal)
+            MyBase.LogMessage("Caching data in memory", eMessageTypeConstants.Normal)
+            MyBase.LogMessage("Caching peak matching results in memory", eMessageTypeConstants.Normal)
 
             '----------------------------------------------------
             ' Load the proteins and digest them, or simply load the peptides
             '----------------------------------------------------
-            PostLogEntry("Load proteins or peptides from " & System.IO.Path.GetFileName(strProteinInputFilePath), PRISM.Logging.ILogger.logMsgType.logNormal)
-            blnSuccess = LoadProteinsOrPeptides(strProteinInputFilePath, mProgressForm)
+            MyBase.LogMessage("Load proteins or peptides from " & System.IO.Path.GetFileName(strProteinInputFilePath), eMessageTypeConstants.Normal)
+            blnSuccess = LoadProteinsOrPeptides(strProteinInputFilePath)
 
             ' ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
 
             intProgressStep = 1
-            mProgressForm.UpdateProgressBar(intProgressStep)
-            Windows.Forms.Application.DoEvents()
+            Me.UpdateProgress(CSng(intProgressStep / intProgressStepCount * 100))
 
         Catch ex As Exception
             SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ErrorReadingInputFile, ex)
@@ -796,7 +785,7 @@ Public Class clsProteinDigestionSimulator
         If blnSuccess AndAlso mComparisonPeptideInfo.Count = 0 Then
             SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ProteinsNotFoundInInputFile, True)
             blnSuccess = False
-        ElseIf Not blnSuccess OrElse mProgressForm.KeyPressAbortProcess Then
+        ElseIf Not blnSuccess OrElse Me.AbortProcessing Then
             blnSuccess = False
         Else
             Try
@@ -807,8 +796,7 @@ Public Class clsProteinDigestionSimulator
                 ' This way, we don't use double the memory necessary
                 '----------------------------------------------------
 
-                mProgressForm.InitializeSubtask("Initializing structures ", 0, 1)
-                Windows.Forms.Application.DoEvents()
+                UpdateProgress("Initializing structures")
 
                 ' Initialize objFeaturesToIdentify by linking to mComparisonPeptideInfo
                 objFeaturesToIdentify = mComparisonPeptideInfo
@@ -842,7 +830,7 @@ Public Class clsProteinDigestionSimulator
                     ' Initialize objRangeSearch
                     '----------------------------------------------------
 
-                    PostLogEntry("Uniqueness Stats processing starting, Threshold Count = " & mThresholdLevels.Length.ToString, PRISM.Logging.ILogger.logMsgType.logNormal)
+                    MyBase.LogMessage("Uniqueness Stats processing starting, Threshold Count = " & mThresholdLevels.Length.ToString, eMessageTypeConstants.Normal)
 
                     If Not clsPeakMatchingClass.FillRangeSearchObject(objRangeSearch, mComparisonPeptideInfo) Then
                         blnSuccess = False
@@ -852,7 +840,7 @@ Public Class clsProteinDigestionSimulator
                         ' Initialize the peak matching class
                         '----------------------------------------------------
 
-                        mPeakMatchingClass = New clsPeakMatchingClass(mLogger)
+                        mPeakMatchingClass = New clsPeakMatchingClass()
                         With mPeakMatchingClass
                             .MaxPeakMatchingResultsPerFeatureToSave = mMaxPeakMatchingResultsPerFeatureToSave
                             .UseMaxSearchDistanceMultiplierAndSLiCScore = mUseSLiCScoreForUniqueness
@@ -874,46 +862,41 @@ Public Class clsProteinDigestionSimulator
 
                         For intThresholdIndex = 0 To mThresholdLevels.Length - 1
 
-                            mProgressForm.UpdateCurrentTask("Generating uniqueness stats, threshold " & (intThresholdIndex + 1).ToString & " / " & mThresholdLevels.Length.ToString)
-                            Windows.Forms.Application.DoEvents()
+                            UpdateProgress("Generating uniqueness stats, threshold " & (intThresholdIndex + 1).ToString & " / " & mThresholdLevels.Length.ToString)
 
-                            mProgressForm.InitializeSubtask("Finding matching peptides for given search thresholds", 0, 100, True)
-
+                            UpdateSubtaskProgress("Finding matching peptides for given search thresholds", 0)
 
                             ' Perform the actual peak matching
-                            PostLogEntry("Threshold " & (intThresholdIndex + 1).ToString & ", IdentifySequences", PRISM.Logging.ILogger.logMsgType.logHealth)
+                            MyBase.LogMessage("Threshold " & (intThresholdIndex + 1).ToString & ", IdentifySequences", eMessageTypeConstants.Normal)
                             blnSuccess = mPeakMatchingClass.IdentifySequences(mThresholdLevels(intThresholdIndex), objFeaturesToIdentify, mComparisonPeptideInfo, mPeptideMatchResults, objRangeSearch)
                             If Not blnSuccess Then Exit For
 
                             If mSavePeakMatchingResults Then
                                 ' Write out the raw peak matching results
-                                blnSuccess = ExportPeakMatchingResults(mThresholdLevels(intThresholdIndex), intThresholdIndex, mComparisonPeptideInfo.Count, mPeptideMatchResults, strOutputFolderPath, strOutputFilenameBase, srPMResultsOutFile, mProgressForm)
+                                blnSuccess = ExportPeakMatchingResults(mThresholdLevels(intThresholdIndex), intThresholdIndex, mComparisonPeptideInfo.Count, mPeptideMatchResults, strOutputFolderPath, strOutputFilenameBase, srPMResultsOutFile)
                                 If Not blnSuccess Then Exit For
                             End If
 
                             intProgressStep += 1
-                            mProgressForm.UpdateProgressBar(intProgressStep)
-                            Windows.Forms.Application.DoEvents()
+                            UpdateProgress(CSng(intProgressStep / intProgressStepCount * 100))
 
                             ' Summarize the results by peptide
-                            PostLogEntry("Threshold " & (intThresholdIndex + 1).ToString & ", SummarizeResultsByPeptide", PRISM.Logging.ILogger.logMsgType.logHealth)
-                            blnSuccess = SummarizeResultsByPeptide(mThresholdLevels(intThresholdIndex), intThresholdIndex, objFeaturesToIdentify, mPeptideMatchResults, strOutputFolderPath, strOutputFilenameBase, srPeptideUniquenessOutFile, mProgressForm)
+                            MyBase.LogMessage("Threshold " & (intThresholdIndex + 1).ToString & ", SummarizeResultsByPeptide", eMessageTypeConstants.Normal)
+                            blnSuccess = SummarizeResultsByPeptide(mThresholdLevels(intThresholdIndex), intThresholdIndex, objFeaturesToIdentify, mPeptideMatchResults, strOutputFolderPath, strOutputFilenameBase, srPeptideUniquenessOutFile)
                             If Not blnSuccess Then Exit For
 
                             intProgressStep += 1
-                            mProgressForm.UpdateProgressBar(intProgressStep)
-                            Windows.Forms.Application.DoEvents()
+                            UpdateProgress(CSng(intProgressStep / intProgressStepCount * 100))
 
                             ' Summarize the results by protein
-                            PostLogEntry("Threshold " & (intThresholdIndex + 1).ToString & ", SummarizeResultsByProtein", PRISM.Logging.ILogger.logMsgType.logHealth)
-                            blnSuccess = SummarizeResultsByProtein(mThresholdLevels(intThresholdIndex), intThresholdIndex, objFeaturesToIdentify, mPeptideMatchResults, strOutputFolderPath, strOutputFilenameBase, srProteinStatsOutFile, mProgressForm)
+                            MyBase.LogMessage("Threshold " & (intThresholdIndex + 1).ToString & ", SummarizeResultsByProtein", eMessageTypeConstants.Normal)
+                            blnSuccess = SummarizeResultsByProtein(mThresholdLevels(intThresholdIndex), intThresholdIndex, objFeaturesToIdentify, mPeptideMatchResults, strOutputFolderPath, strOutputFilenameBase, srProteinStatsOutFile)
                             If Not blnSuccess Then Exit For
 
                             intProgressStep += 1
-                            mProgressForm.UpdateProgressBar(intProgressStep)
-                            Windows.Forms.Application.DoEvents()
+                            UpdateProgress(CSng(intProgressStep / intProgressStepCount * 100))
 
-                            If Not blnSuccess OrElse mProgressForm.KeyPressAbortProcess Then
+                            If Not blnSuccess OrElse Me.AbortProcessing Then
                                 blnSuccess = False
                                 Exit For
                             End If
@@ -928,8 +911,7 @@ Public Class clsProteinDigestionSimulator
                     blnSuccess = False
                 End Try
 
-                mProgressForm.UpdateProgressBar(intProgressStepCount)
-                Windows.Forms.Application.DoEvents()
+                UpdateProgress(100)
 
             Catch ex As Exception
                 SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ErrorIdentifyingSequences, ex)
@@ -947,20 +929,8 @@ Public Class clsProteinDigestionSimulator
 
         End If
 
-        If Not mProgressForm Is Nothing Then
-            If mProgressForm.KeyPressAbortProcess Then
-                blnSearchAborted = True
-                SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.UserAbortedSearch, True)
-                PostLogEntry("User aborted search", PRISM.Logging.ILogger.logMsgType.logError)
-            End If
-
-            mProgressForm.HideForm()
-            mProgressForm.Close()
-            mProgressForm = Nothing
-        End If
-
         If Not blnSearchAborted And blnSuccess Then
-            PostLogEntry("Uniqueness Stats processing complete", PRISM.Logging.ILogger.logMsgType.logNormal)
+            MyBase.LogMessage("Uniqueness Stats processing complete", eMessageTypeConstants.Normal)
         End If
 
         Return blnSuccess
@@ -1265,13 +1235,13 @@ Public Class clsProteinDigestionSimulator
 
     Public Sub InitializeProteinFileParser(Optional ByVal blnResetToDefaults As Boolean = False)
 
-        If ProteinFileParser Is Nothing Then
-            ProteinFileParser = New clsParseProteinFile
+        If mProteinFileParser Is Nothing Then
+            mProteinFileParser = New clsParseProteinFile
             blnResetToDefaults = True
         End If
 
         If blnResetToDefaults Then
-            With ProteinFileParser
+            With mProteinFileParser
                 .ComputeProteinMass = True
                 .ElementMassMode = PeptideSequenceClass.ElementModeConstants.IsotopicMass
 
@@ -1339,11 +1309,11 @@ Public Class clsProteinDigestionSimulator
                 End If
             End If
 
-            ProteinFileParser.LoadParameterFileSettings(strParameterFilePath)
+            mProteinFileParser.LoadParameterFileSettings(strParameterFilePath)
 
         Catch ex As Exception
             If MyBase.ShowMessages Then
-                MsgBox("Error in LoadParameterFileSettings:" & ControlChars.NewLine & ex.Message, MsgBoxStyle.Exclamation Or MsgBoxStyle.OKOnly, "Error")
+                MsgBox("Error in LoadParameterFileSettings:" & ControlChars.NewLine & ex.Message, MsgBoxStyle.Exclamation Or MsgBoxStyle.OkOnly, "Error")
             Else
                 Throw New System.Exception("Error in LoadParameterFileSettings", ex)
             End If
@@ -1354,7 +1324,7 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Private Function LoadProteinsOrPeptides(ByVal strProteinInputFilePath As String, ByRef objProgressForm As ProgressFormNET.frmProgress) As Boolean
+    Private Function LoadProteinsOrPeptides(ByVal strProteinInputFilePath As String) As Boolean
 
         Dim eDelimitedFileFormatCode As ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode
 
@@ -1376,23 +1346,20 @@ Public Class clsProteinDigestionSimulator
             mProteinInfo = New clsProteinInfo
 
             ' Possibly initialize the ProteinFileParser object
-            If ProteinFileParser Is Nothing Then
+            If mProteinFileParser Is Nothing Then
                 InitializeProteinFileParser()
             End If
 
             ' Note that ProteinFileParser is exposed as public so that options can be set directly in it
 
-            If clsParseProteinFile.IsFastaFile(strProteinInputFilePath) Or ProteinFileParser.AssumeFastaFile Then
-                PostLogEntry("Input file format = Fasta", PRISM.Logging.ILogger.logMsgType.logNormal)
+            If clsParseProteinFile.IsFastaFile(strProteinInputFilePath) Or mProteinFileParser.AssumeFastaFile Then
+                MyBase.LogMessage("Input file format = Fasta", eMessageTypeConstants.Normal)
                 blnDigestSequences = True
             Else
-                eDelimitedFileFormatCode = ProteinFileParser.DelimitedFileFormatCode
-                PostLogEntry("Input file format = " & eDelimitedFileFormatCode.ToString, PRISM.Logging.ILogger.logMsgType.logNormal)
+                eDelimitedFileFormatCode = mProteinFileParser.DelimitedFileFormatCode
+                MyBase.LogMessage("Input file format = " & eDelimitedFileFormatCode.ToString, eMessageTypeConstants.Normal)
                 blnDigestSequences = mDigestSequences
             End If
-
-            ' Increment progress bar
-            objProgressForm.UpdateProgressBar(1)
 
             Select Case eDelimitedFileFormatCode
                 Case ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID, _
@@ -1410,21 +1377,21 @@ Public Class clsProteinDigestionSimulator
                     blnDelimitedFileHasMassAndNET = False
             End Select
 
-            PostLogEntry("Digest sequences = " & blnDigestSequences.ToString, PRISM.Logging.ILogger.logMsgType.logNormal)
+            MyBase.LogMessage("Digest sequences = " & blnDigestSequences.ToString, eMessageTypeConstants.Normal)
 
             If blnDigestSequences Then
-                blnSuccess = LoadProteinsOrPeptidesWork(strProteinInputFilePath, objProgressForm)
+                blnSuccess = LoadProteinsOrPeptidesWork(strProteinInputFilePath)
             Else
                 ' We can assume peptides in the input file are already digested and thus do not need to pre-cache the entire file in memory
                 ' Load the data directly using this class instead
 
                 ' Load each peptide using ProteinFileReader.DelimitedFileReader
-                blnSuccess = LoadPeptidesFromDelimitedFile(strProteinInputFilePath, blnDelimitedFileHasMassAndNET, objProgressForm)
+                blnSuccess = LoadPeptidesFromDelimitedFile(strProteinInputFilePath, blnDelimitedFileHasMassAndNET)
                 ' ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
             End If
 
             If blnSuccess Then
-                PostLogEntry("Loaded " & mComparisonPeptideInfo.Count & " peptides corresponding to " & mProteinInfo.Count & " proteins", PRISM.Logging.ILogger.logMsgType.logNormal)
+                MyBase.LogMessage("Loaded " & mComparisonPeptideInfo.Count & " peptides corresponding to " & mProteinInfo.Count & " proteins", eMessageTypeConstants.Normal)
             End If
 
         Catch ex As Exception
@@ -1435,7 +1402,9 @@ Public Class clsProteinDigestionSimulator
         Return blnSuccess
     End Function
 
-    Private Function LoadPeptidesFromDelimitedFile(ByVal strProteinInputFilePath As String, ByVal blnDelimitedFileHasMassAndNET As Boolean, ByRef objProgressForm As ProgressFormNET.frmProgress) As Boolean
+    Private Function LoadPeptidesFromDelimitedFile(ByVal strProteinInputFilePath As String, _
+                                                   ByVal blnDelimitedFileHasMassAndNET As Boolean) As Boolean
+
         ' Assumes the peptides in the input file are already digested and that they already have unique ID values generated
         ' They could optionally have Mass and NET values defined
 
@@ -1453,8 +1422,8 @@ Public Class clsProteinDigestionSimulator
         Try
             objDelimitedFileReader = New ProteinFileReader.DelimitedFileReader
             With objDelimitedFileReader
-                .Delimiter = ProteinFileParser.InputFileDelimiter
-                .DelimitedFileFormatCode = ProteinFileParser.DelimitedFileFormatCode
+                .Delimiter = mProteinFileParser.InputFileDelimiter
+                .DelimitedFileFormatCode = mProteinFileParser.DelimitedFileFormatCode
             End With
 
             ' Verify that the input file exists
@@ -1471,9 +1440,7 @@ Public Class clsProteinDigestionSimulator
                 Exit Try
             End If
 
-            objProgressForm.InitializeSubtask("Parsing digested input file", 0, 100, True)
-            objProgressForm.Visible = True
-            Windows.Forms.Application.DoEvents()
+            ResetProgress("Parsing digested input file")
 
             ' Read each peptide in the input file and add to mComparisonPeptideInfo
 
@@ -1518,20 +1485,19 @@ Public Class clsProteinDigestionSimulator
 
                     End With
 
-                    objProgressForm.UpdateSubtaskProgressBar(objDelimitedFileReader.PercentFileProcessed())
-                    Windows.Forms.Application.DoEvents()
-                    If objProgressForm.KeyPressAbortProcess Then Exit Do
+                    UpdateProgress(objDelimitedFileReader.PercentFileProcessed())
+                    If Me.AbortProcessing Then Exit Do
                 End If
 
             Loop While blnInputPeptideFound
 
             If intInputFileLineSkipCount > 0 Then
-                strSkipMessage = "Note that " & intInputFileLineSkipCount.ToString & " out of " & intInputFileLinesRead.ToString & " lines were skipped in the input file because they did not match the column order defined on the File Format Options Tab (" & ProteinFileParser.DelimitedFileFormatCode.ToString & ")"
-                PostLogEntry(strSkipMessage, PRISM.Logging.ILogger.logMsgType.logWarning)
+                strSkipMessage = "Note that " & intInputFileLineSkipCount.ToString & " out of " & intInputFileLinesRead.ToString & " lines were skipped in the input file because they did not match the column order defined on the File Format Options Tab (" & mProteinFileParser.DelimitedFileFormatCode.ToString & ")"
+                MyBase.LogMessage(strSkipMessage, eMessageTypeConstants.Warning)
                 mLastErrorMessage = String.Copy(strSkipMessage)
             End If
 
-            blnSuccess = Not objProgressForm.KeyPressAbortProcess
+            blnSuccess = Not (Me.AbortProcessing)
 
         Catch ex As Exception
             SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ErrorReadingInputFile, ex)
@@ -1545,7 +1511,7 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Private Function LoadProteinsOrPeptidesWork(ByVal strProteinInputFilePath As String, ByRef objProgressForm As ProgressFormNET.frmProgress) As Boolean
+    Private Function LoadProteinsOrPeptidesWork(ByVal strProteinInputFilePath As String) As Boolean
 
         Dim blnSuccess As Boolean
         Dim blnGenerateUniqueSequenceID As Boolean
@@ -1567,7 +1533,7 @@ Public Class clsProteinDigestionSimulator
 
         Try
 
-            If ProteinFileParser.GenerateUniqueIDValuesForPeptides Then
+            If mProteinFileParser.GenerateUniqueIDValuesForPeptides Then
                 ' Need to generate unique sequence ID values
                 blnGenerateUniqueSequenceID = True
 
@@ -1579,7 +1545,7 @@ Public Class clsProteinDigestionSimulator
             End If
             intNextUniqueIDForMasterSeqs = 1
 
-            With ProteinFileParser
+            With mProteinFileParser
 
                 If clsParseProteinFile.IsFastaFile(strProteinInputFilePath) Or .AssumeFastaFile Then
                     blnIsFastaFile = True
@@ -1601,16 +1567,16 @@ Public Class clsProteinDigestionSimulator
                 End If
 
                 ' Load the proteins in the input file into memory
-                blnSuccess = .ParseProteinFile(strProteinInputFilePath, "", objProgressForm)
+                blnSuccess = .ParseProteinFile(strProteinInputFilePath, "")
             End With
 
-            If ProteinFileParser.InputFileLineSkipCount > 0 And Not blnIsFastaFile Then
-                strSkipMessage = "Note that " & ProteinFileParser.InputFileLineSkipCount.ToString & " out of " & ProteinFileParser.InputFileLinesRead.ToString & " lines were skipped in the input file because they did not match the column order defined on the File Format Options Tab (" & ProteinFileParser.DelimitedFileFormatCode.ToString & ")"
-                PostLogEntry(strSkipMessage, PRISM.Logging.ILogger.logMsgType.logWarning)
+            If mProteinFileParser.InputFileLineSkipCount > 0 And Not blnIsFastaFile Then
+                strSkipMessage = "Note that " & mProteinFileParser.InputFileLineSkipCount.ToString & " out of " & mProteinFileParser.InputFileLinesRead.ToString & " lines were skipped in the input file because they did not match the column order defined on the File Format Options Tab (" & mProteinFileParser.DelimitedFileFormatCode.ToString & ")"
+                MyBase.LogMessage(strSkipMessage, eMessageTypeConstants.Warning)
                 mLastErrorMessage = String.Copy(strSkipMessage)
             End If
 
-            If ProteinFileParser.GetProteinCountCached <= 0 Then
+            If mProteinFileParser.GetProteinCountCached <= 0 Then
                 If blnSuccess Then
                     ' File was successfully loaded, but no proteins were found
                     ' This could easily happen for delimited files that only have a header line, or that don't have a format that matches what the user specified
@@ -1622,7 +1588,7 @@ Public Class clsProteinDigestionSimulator
                     mLastErrorMessage = "Error using ParseProteinFile to read the proteins from " & System.IO.Path.GetFileName(strProteinInputFilePath)
                 End If
 
-                If ProteinFileParser.InputFileLineSkipCount > 0 And Not blnIsFastaFile Then
+                If mProteinFileParser.InputFileLineSkipCount > 0 And Not blnIsFastaFile Then
                     If mLastErrorMessage.Length > 0 Then
                         mLastErrorMessage &= ". "
                     End If
@@ -1634,48 +1600,37 @@ Public Class clsProteinDigestionSimulator
                 blnSuccess = False
 
                 ' Re-enable mass calculation
-                ProteinFileParser.ComputeProteinMass = True
+                mProteinFileParser.ComputeProteinMass = True
 
-                ' Increment progress bar
-                objProgressForm.UpdateProgressBar(1)
+                ResetProgress("Digesting proteins in input file")
 
-                objProgressForm.InitializeSubtask("Digesting proteins in input file", 0, ProteinFileParser.GetProteinCountCached, True)
-                objProgressForm.Visible = True
-                Windows.Forms.Application.DoEvents()
+                For intProteinIndex = 0 To mProteinFileParser.GetProteinCountCached - 1
+                    objProteinOrPeptide = mProteinFileParser.GetCachedProtein(intProteinIndex)
 
-                With ProteinFileParser
+                    intPeptideCount = mProteinFileParser.GetDigestedPeptidesForCachedProtein(intProteinIndex, objPeptides, mProteinFileParser.DigestionOptions)
 
-                    For intProteinIndex = 0 To .GetProteinCountCached - 1
-                        objProteinOrPeptide = .GetCachedProtein(intProteinIndex)
+                    If intPeptideCount > 0 Then
+                        For intPeptideIndex = 0 To intPeptideCount - 1
+                            If blnGenerateUniqueSequenceID Then
+                                intUniqueSeqID = GetNextUniqueSequenceID(objPeptides(intPeptideIndex).SequenceOneLetter, htMasterSequences, intNextUniqueIDForMasterSeqs)
+                            Else
+                                ' Must assume each sequence is unique; probably an incorrect assumption
+                                intUniqueSeqID = intNextUniqueIDForMasterSeqs
+                                intNextUniqueIDForMasterSeqs += 1
+                            End If
 
-                        intPeptideCount = .GetDigestedPeptidesForCachedProtein(intProteinIndex, objPeptides, .DigestionOptions)
+                            With objPeptides(intPeptideIndex)
+                                AddOrUpdatePeptide(intUniqueSeqID, .Mass, .NET, 0, 0, objProteinOrPeptide.Name, clsProteinInfo.eCleavageStateConstants.Unknown, .PeptideName)
+                            End With
+                        Next
+                    End If
 
-                        If intPeptideCount > 0 Then
-                            For intPeptideIndex = 0 To intPeptideCount - 1
-                                If blnGenerateUniqueSequenceID Then
-                                    intUniqueSeqID = GetNextUniqueSequenceID(objPeptides(intPeptideIndex).SequenceOneLetter, htMasterSequences, intNextUniqueIDForMasterSeqs)
-                                Else
-                                    ' Must assume each sequence is unique; probably an incorrect assumption
-                                    intUniqueSeqID = intNextUniqueIDForMasterSeqs
-                                    intNextUniqueIDForMasterSeqs += 1
-                                End If
+                    UpdateProgress(CSng((intProteinIndex + 1) / mProteinFileParser.GetProteinCountCached * 100))
 
-                                With objPeptides(intPeptideIndex)
-                                    AddOrUpdatePeptide(intUniqueSeqID, .Mass, .NET, 0, 0, objProteinOrPeptide.Name, clsProteinInfo.eCleavageStateConstants.Unknown, .PeptideName)
-                                End With
-                            Next
-                        End If
+                    If Me.AbortProcessing Then Exit For
+                Next intProteinIndex
 
-                        objProgressForm.UpdateSubtaskProgressBar(intProteinIndex + 1)
-                        Windows.Forms.Application.DoEvents()
-
-                        If objProgressForm.KeyPressAbortProcess Then Exit For
-
-                    Next intProteinIndex
-
-                End With
-
-                blnSuccess = Not objProgressForm.KeyPressAbortProcess
+                blnSuccess = Not (Me.AbortProcessing)
             End If
 
         Catch ex As Exception
@@ -1789,20 +1744,6 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Private Sub PostLogEntry(ByVal strMessage As String, ByVal EntryType As PRISM.Logging.ILogger.logMsgType)
-        PostLogEntry(strMessage, EntryType, True)
-    End Sub
-
-    Private Sub PostLogEntry(ByVal strMessage As String, ByVal EntryType As PRISM.Logging.ILogger.logMsgType, ByVal localOnly As Boolean)
-        Try
-            If Not mLogger Is Nothing Then
-                mLogger.PostEntry(strMessage, EntryType, localOnly)
-            End If
-        Catch ex As Exception
-            Debug.Assert(False, "Error calling mLogger.PostEntry in clsProteinDigestionSimulator: " & ex.Message)
-        End Try
-    End Sub
-
     ' Main processing function
     Public Overloads Overrides Function ProcessFile(ByVal strInputFilePath As String, ByVal strOutputFolderPath As String, ByVal strParameterFilePath As String, ByVal blnResetErrorCode As Boolean) As Boolean
         ' Returns True if success, False if failure
@@ -1820,7 +1761,7 @@ Public Class clsProteinDigestionSimulator
 
         If Not LoadParameterFileSettings(strParameterFilePath) Then
             strStatusMessage = "Parameter file load error: " & strParameterFilePath
-            If MyBase.ShowMessages Then MsgBox(strStatusMessage, MsgBoxStyle.Exclamation Or MsgBoxStyle.OKOnly, "Error")
+            If MyBase.ShowMessages Then MsgBox(strStatusMessage, MsgBoxStyle.Exclamation Or MsgBoxStyle.OkOnly, "Error")
             Console.WriteLine(strStatusMessage)
             If MyBase.ErrorCode = clsProcessFilesBaseClass.eProcessFilesErrorCodes.NoError Then
                 MyBase.SetBaseClassErrorCode(clsProcessFilesBaseClass.eProcessFilesErrorCodes.InvalidParameterFile)
@@ -1849,7 +1790,7 @@ Public Class clsProteinDigestionSimulator
 
                     Catch ex As Exception
                         If MyBase.ShowMessages Then
-                            MsgBox("Error calling ParseProteinFile" & ControlChars.NewLine & ex.message, MsgBoxStyle.Exclamation Or MsgBoxStyle.OKOnly, "Error")
+                            MsgBox("Error calling ParseProteinFile" & ControlChars.NewLine & ex.Message, MsgBoxStyle.Exclamation Or MsgBoxStyle.OkOnly, "Error")
                         Else
                             Throw New System.Exception("Error calling ParseProteinFile", ex)
                         End If
@@ -1858,7 +1799,7 @@ Public Class clsProteinDigestionSimulator
             End If
         Catch ex As Exception
             If MyBase.ShowMessages Then
-                MsgBox("Error in ProcessFile:" & ControlChars.NewLine & ex.Message, MsgBoxStyle.Exclamation Or MsgBoxStyle.OKOnly, "Error")
+                MsgBox("Error in ProcessFile:" & ControlChars.NewLine & ex.Message, MsgBoxStyle.Exclamation Or MsgBoxStyle.OkOnly, "Error")
             Else
                 Throw New System.Exception("Error in ProcessFile", ex)
             End If
@@ -1867,6 +1808,16 @@ Public Class clsProteinDigestionSimulator
         Return blnSuccess
 
     End Function
+
+    Protected Shadows Sub ResetProgress()
+        Me.AbortProcessing = False
+        MyBase.ResetProgress()
+    End Sub
+
+    Protected Shadows Sub ResetProgress(ByVal strProgressStepDescription As String)
+        Me.AbortProcessing = False
+        MyBase.ResetProgress(strProgressStepDescription)
+    End Sub
 
     Public Function SetPeptideUniquenessMassRangeForBinning(ByVal MassMinimum As Single, ByVal MassMaximum As Single) As Boolean
         ' Returns True if the minimum and maximum mass specified were valid
@@ -1882,7 +1833,13 @@ Public Class clsProteinDigestionSimulator
         End With
     End Function
 
-    Private Function SummarizeResultsByPeptide(ByRef objThresholds As clsPeakMatchingClass.clsSearchThresholds, ByVal intThresholdIndex As Integer, ByRef objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass, ByRef objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, ByVal strOutputFolderPath As String, ByVal strOutputFilenameBase As String, ByRef srPeptideUniquenessOutFile As System.IO.StreamWriter, ByRef objProgressForm As ProgressFormNET.frmProgress) As Boolean
+    Private Function SummarizeResultsByPeptide(ByRef objThresholds As clsPeakMatchingClass.clsSearchThresholds, _
+                                               ByVal intThresholdIndex As Integer, _
+                                               ByRef objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass, _
+                                               ByRef objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, _
+                                               ByVal strOutputFolderPath As String, _
+                                               ByVal strOutputFilenameBase As String, _
+                                               ByRef srPeptideUniquenessOutFile As System.IO.StreamWriter) As Boolean
 
         Dim strWorkingFilenameBase As String
         Dim strOutputFilePath As String
@@ -1912,9 +1869,8 @@ Public Class clsProteinDigestionSimulator
             InitializeBinningRanges(objThresholds, objFeaturesToIdentify, objPeptideMatchResults, udtPeptideStatsBinned)
 
             intFeaturesToIdentifyCount = objFeaturesToIdentify.Count
-            objProgressForm.InitializeSubtask("Summarizing results by peptide", 0, intFeaturesToIdentifyCount, True)
-            objProgressForm.Visible = True
-            Windows.Forms.Application.DoEvents()
+
+            ResetProgress("Summarizing results by peptide")
 
             ' --------------------------------------
             ' Compute the stats for objThresholds
@@ -1928,7 +1884,7 @@ Public Class clsProteinDigestionSimulator
 
             ' ToDo: When using Sql Server, switch this to use a SP that performs the same function as this For Loop, sotring the results in a table in the DB, but using Bulk Update queries
 
-            PostLogEntry("SummarizeResultsByPeptide starting, total feature count = " & intFeaturesToIdentifyCount.ToString, PRISM.Logging.ILogger.logMsgType.logNormal)
+            MyBase.LogMessage("SummarizeResultsByPeptide starting, total feature count = " & intFeaturesToIdentifyCount.ToString, eMessageTypeConstants.Normal)
 
             intPeptideSkipCount = 0
             For intPeptideIndex = 0 To intFeaturesToIdentifyCount - 1
@@ -1958,13 +1914,12 @@ Public Class clsProteinDigestionSimulator
                 End If
 
                 If intPeptideIndex Mod 100 = 0 Then
-                    objProgressForm.UpdateSubtaskProgressBar(intPeptideIndex)
-                    Windows.Forms.Application.DoEvents()
-                    If objProgressForm.KeyPressAbortProcess Then Exit For
+                    UpdateProgress(CSng(intPeptideIndex / intFeaturesToIdentifyCount * 100))
+                    If Me.AbortProcessing Then Exit For
                 End If
 
                 If intPeptideIndex Mod 100000 = 0 AndAlso intPeptideIndex > 0 Then
-                    PostLogEntry("SummarizeResultsByPeptide, intPeptideIndex = " & intPeptideIndex.ToString, PRISM.Logging.ILogger.logMsgType.logHealth)
+                    MyBase.LogMessage("SummarizeResultsByPeptide, intPeptideIndex = " & intPeptideIndex.ToString, eMessageTypeConstants.Normal)
                 End If
             Next intPeptideIndex
 
@@ -1983,7 +1938,7 @@ Public Class clsProteinDigestionSimulator
 
 
             If intPeptideSkipCount > 0 Then
-                PostLogEntry("Skipped " & intPeptideSkipCount.ToString & " peptides since their masses were outside the defined bin range", PRISM.Logging.ILogger.logMsgType.logWarning)
+                MyBase.LogMessage("Skipped " & intPeptideSkipCount.ToString & " peptides since their masses were outside the defined bin range", eMessageTypeConstants.Warning)
             End If
 
             ' Write out the peptide results for this threshold level
@@ -2006,10 +1961,9 @@ Public Class clsProteinDigestionSimulator
                 srPeptideUniquenessOutFile = Nothing
             End If
 
-            PostLogEntry("SummarizeResultsByPeptide complete", PRISM.Logging.ILogger.logMsgType.logNormal)
+            MyBase.LogMessage("SummarizeResultsByPeptide complete", eMessageTypeConstants.Normal)
 
-            objProgressForm.UpdateSubtaskProgressBar(intFeaturesToIdentifyCount)
-            Windows.Forms.Application.DoEvents()
+            UpdateProgress(100)
 
         Catch ex As Exception
             blnSuccess = False
@@ -2046,7 +2000,12 @@ Public Class clsProteinDigestionSimulator
 
     End Sub
 
-    Private Function SummarizeResultsByProtein(ByRef objThresholds As clsPeakMatchingClass.clsSearchThresholds, ByVal intThresholdIndex As Integer, ByRef objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass, ByRef objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, ByVal strOutputFolderPath As String, ByVal strOutputFilenameBase As String, ByRef srProteinStatsOutFile As System.IO.StreamWriter, ByRef objProgressForm As ProgressFormNET.frmProgress) As Boolean
+    Private Function SummarizeResultsByProtein(ByRef objThresholds As clsPeakMatchingClass.clsSearchThresholds, _
+                                               ByVal intThresholdIndex As Integer, _
+                                               ByRef objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass, _
+                                               ByRef objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, _
+                                               ByVal strOutputFolderPath As String, ByVal strOutputFilenameBase As String, _
+                                               ByRef srProteinStatsOutFile As System.IO.StreamWriter) As Boolean
 
         Dim strWorkingFilenameBase As String
         Dim strOutputFilePath As String = String.Empty
@@ -2067,9 +2026,7 @@ Public Class clsProteinDigestionSimulator
         Try
 
             intFeaturesToIdentifyCount = objFeaturesToIdentify.Count
-            objProgressForm.InitializeSubtask("Summarizing results by protein", 0, intFeaturesToIdentifyCount, True)
-            objProgressForm.Visible = True
-            Windows.Forms.Application.DoEvents()
+            ResetProgress("Summarizing results by protein")
 
             ' Compute the stats for objThresholds
 
@@ -2079,7 +2036,7 @@ Public Class clsProteinDigestionSimulator
             ' Initialize mProteinToIdentifiedPeptideMappingTable
             mProteinToIdentifiedPeptideMappingTable.Clear()
 
-            PostLogEntry("SummarizeResultsByProtein starting, total feature count = " & intFeaturesToIdentifyCount.ToString, PRISM.Logging.ILogger.logMsgType.logNormal)
+            MyBase.LogMessage("SummarizeResultsByProtein starting, total feature count = " & intFeaturesToIdentifyCount.ToString, eMessageTypeConstants.Normal)
 
             For intPeptideIndex = 0 To intFeaturesToIdentifyCount - 1
                 If objFeaturesToIdentify.GetFeatureInfoByRowIndex(intPeptideIndex, udtFeatureInfo) Then
@@ -2099,13 +2056,12 @@ Public Class clsProteinDigestionSimulator
                 End If
 
                 If intPeptideIndex Mod 100 = 0 Then
-                    objProgressForm.UpdateSubtaskProgressBar(intPeptideIndex)
-                    Windows.Forms.Application.DoEvents()
-                    If objProgressForm.KeyPressAbortProcess Then Exit For
+                    UpdateProgress(CSng(intPeptideIndex / intFeaturesToIdentifyCount * 100))
+                    If Me.AbortProcessing Then Exit For
                 End If
 
                 If intPeptideIndex Mod 100000 = 0 AndAlso intPeptideIndex > 0 Then
-                    PostLogEntry("SummarizeResultsByProtein, intPeptideIndex = " & intPeptideIndex.ToString, PRISM.Logging.ILogger.logMsgType.logHealth)
+                    MyBase.LogMessage("SummarizeResultsByProtein, intPeptideIndex = " & intPeptideIndex.ToString, eMessageTypeConstants.Normal)
                 End If
 
             Next intPeptideIndex
@@ -2130,10 +2086,9 @@ Public Class clsProteinDigestionSimulator
                 srProteinStatsOutFile = Nothing
             End If
 
-            objProgressForm.UpdateSubtaskProgressBar(intFeaturesToIdentifyCount)
-            Windows.Forms.Application.DoEvents()
+            UpdateProgress(100)
 
-            PostLogEntry("SummarizeResultsByProtein complete", PRISM.Logging.ILogger.logMsgType.logNormal)
+            MyBase.LogMessage("SummarizeResultsByProtein complete", eMessageTypeConstants.Normal)
 
         Catch ex As Exception
             blnSuccess = False
@@ -2170,7 +2125,7 @@ Public Class clsProteinDigestionSimulator
     Private Sub SetLocalErrorCode(ByVal eNewErrorCode As eProteinDigestionSimulatorErrorCodes, ByVal ex As Exception)
         SetLocalErrorCode(eNewErrorCode, False)
 
-        PostLogEntry(eNewErrorCode.ToString & ": " & ex.Message, PRISM.Logging.ILogger.logMsgType.logError)
+        MyBase.LogMessage(eNewErrorCode.ToString & ": " & ex.Message, eMessageTypeConstants.ErrorMsg)
         mLastErrorMessage = ex.Message
     End Sub
 
@@ -2185,13 +2140,50 @@ Public Class clsProteinDigestionSimulator
 
     End Sub
 
+    Protected Sub UpdateSubtaskProgress(ByVal strProgressStepDescription As String)
+        UpdateProgress(strProgressStepDescription, mProgressPercentComplete)
+    End Sub
+
+    Protected Sub UpdateSubtaskProgress(ByVal sngPercentComplete As Single)
+        UpdateProgress(Me.ProgressStepDescription, sngPercentComplete)
+    End Sub
+
+    Protected Sub UpdateSubtaskProgress(ByVal strProgressStepDescription As String, ByVal sngPercentComplete As Single)
+        Dim blnDescriptionChanged As Boolean = False
+
+        If strProgressStepDescription <> mSubtaskProgressStepDescription Then
+            blnDescriptionChanged = True
+        End If
+
+        mSubtaskProgressStepDescription = String.Copy(strProgressStepDescription)
+        If sngPercentComplete < 0 Then
+            sngPercentComplete = 0
+        ElseIf sngPercentComplete > 100 Then
+            sngPercentComplete = 100
+        End If
+        mSubtaskProgressPercentComplete = sngPercentComplete
+
+        If blnDescriptionChanged Then
+            If mSubtaskProgressPercentComplete = 0 Then
+                LogMessage(mSubtaskProgressStepDescription.Replace(ControlChars.NewLine, "; "))
+            Else
+                LogMessage(mSubtaskProgressStepDescription & " (" & mSubtaskProgressPercentComplete.ToString("0.0") & "% complete)".Replace(ControlChars.NewLine, "; "))
+            End If
+        End If
+
+        RaiseEvent SubtaskProgressChanged(Me.ProgressStepDescription, Me.ProgressPercentComplete)
+
+    End Sub
+
+#Region "Event Handlers"
+
     Private Sub mProteinInfo_SortingList() Handles mProteinInfo.SortingList
         Static intSortCount As Integer = 0
         Static dtLastPostTime As DateTime = System.DateTime.Now()
 
         intSortCount += 1
         If System.DateTime.Now.Subtract(dtLastPostTime).TotalSeconds >= 10 Then
-            PostLogEntry("Sorting protein list (SortCount = " & intSortCount & ")", PRISM.Logging.ILogger.logMsgType.logHealth)
+            MyBase.LogMessage("Sorting protein list (SortCount = " & intSortCount & ")", eMessageTypeConstants.Normal)
             dtLastPostTime = System.DateTime.Now()
         End If
     End Sub
@@ -2202,7 +2194,7 @@ Public Class clsProteinDigestionSimulator
 
         intSortCount += 1
         If System.DateTime.Now.Subtract(dtLastPostTime).TotalSeconds >= 10 Then
-            PostLogEntry("Sorting protein to peptide mapping info (SortCount = " & intSortCount & ")", PRISM.Logging.ILogger.logMsgType.logHealth)
+            MyBase.LogMessage("Sorting protein to peptide mapping info (SortCount = " & intSortCount & ")", eMessageTypeConstants.Normal)
             dtLastPostTime = System.DateTime.Now()
         End If
     End Sub
@@ -2213,20 +2205,36 @@ Public Class clsProteinDigestionSimulator
 
         intSortCount += 1
         If System.DateTime.Now.Subtract(dtLastPostTime).TotalSeconds >= 10 Then
-            PostLogEntry("Sorting peptide match results list (SortCount = " & intSortCount & ")", PRISM.Logging.ILogger.logMsgType.logHealth)
+            MyBase.LogMessage("Sorting peptide match results list (SortCount = " & intSortCount & ")", eMessageTypeConstants.Normal)
             dtLastPostTime = System.DateTime.Now()
         End If
     End Sub
 
-    Private Sub mPeakMatchingClass_ProgressContinues() Handles mPeakMatchingClass.ProgressContinues
-        If Not mProgressForm Is Nothing Then
-            mProgressForm.UpdateSubtaskProgressBar(mPeakMatchingClass.ProgessPct)
-            Windows.Forms.Application.DoEvents()
+    Private Sub mPeakMatchingClass_LogEvent(ByVal Message As String, ByVal EventType As clsPeakMatchingClass.eMessageTypeConstants) Handles mPeakMatchingClass.LogEvent
+        Select Case EventType
+            Case clsPeakMatchingClass.eMessageTypeConstants.Normal
+                MyBase.LogMessage(Message, eMessageTypeConstants.Normal)
 
-            If mProgressForm.KeyPressAbortProcess Then
-                mPeakMatchingClass.AbortProcessingNow()
-            End If
-        End If
+            Case clsPeakMatchingClass.eMessageTypeConstants.Warning
+                MyBase.LogMessage(Message, eMessageTypeConstants.Warning)
+
+            Case clsPeakMatchingClass.eMessageTypeConstants.ErrorMsg
+                MyBase.LogMessage(Message, eMessageTypeConstants.ErrorMsg)
+
+            Case clsPeakMatchingClass.eMessageTypeConstants.Health
+                ' Don't log this type of message
+        End Select
     End Sub
+
+    Private Sub mPeakMatchingClass_ProgressContinues() Handles mPeakMatchingClass.ProgressContinues
+        UpdateSubtaskProgress(mPeakMatchingClass.ProgessPct)       
+    End Sub
+
+    Private Sub mProteinFileParser_ErrorEvent(ByVal strMessage As String) Handles mProteinFileParser.ErrorEvent
+        ShowErrorMessage("Error in mProteinFileParser: " & strMessage)
+    End Sub
+
+#End Region
+
 End Class
 

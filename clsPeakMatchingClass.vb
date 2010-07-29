@@ -5,14 +5,9 @@ Public Class clsPeakMatchingClass
     ' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in October 2004
     ' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
     '
-    ' Last modified May 5, 2005
+    ' Last modified July 27, 2010
 
     Public Sub New()
-        Me.New(Nothing)
-    End Sub
-
-    Public Sub New(ByVal Logger As PRISM.Logging.ILogger)
-        mLogger = Logger
         InitializeLocalVariables()
     End Sub
 
@@ -21,6 +16,14 @@ Public Class clsPeakMatchingClass
 
     Private Const STDEV_SCALING_FACTOR As Integer = 2
     Private Const ONE_PART_PER_MILLION As Double = 1000000.0#
+
+    Public Enum eMessageTypeConstants
+        Normal = 0
+        ErrorMsg = 1
+        Warning = 2
+        Health = 3
+    End Enum
+
 #End Region
 
 #Region "Structures"
@@ -731,12 +734,12 @@ Public Class clsPeakMatchingClass
     Private mMaxPeakMatchingResultsPerFeatureToSave As Integer
     Private mSearchModeOptions As udtSearchModeOptionsType
 
-    Private mLogger As PRISM.Logging.ILogger
-
     Private mProgressDescription As String
     Private mProgessPct As Single
     Private mAbortProcessing As Boolean
+
     Public Event ProgressContinues()
+    Public Event LogEvent(ByVal Message As String, ByVal EventType As eMessageTypeConstants)
 
 #End Region
 
@@ -839,6 +842,8 @@ Public Class clsPeakMatchingClass
 
         Dim udtComparisonFeatureInfo As udtFeatureInfoType
 
+        Dim strMessage As String
+
         ' Compute the match scores (aka SLiC scores)
 
         dblMassStDevPPM = objSearchThresholds.SLiCScoreMassPPMStDev
@@ -846,7 +851,9 @@ Public Class clsPeakMatchingClass
 
         dblMassStDevAbs = objSearchThresholds.PPMToMass(dblMassStDevPPM, udtFeatureToIdentify.Mass)
         If dblMassStDevAbs <= 0 Then
-            Debug.Assert(False, "dblMassStDevAbs was <= 0, which isn't allowed")
+            strMessage = "Assertion failed in ComputeSLiCScores; dblMassStDevAbs is <= 0, which isn't allowed; will assume 0.003"
+            Console.WriteLine(strMessage)
+            PostLogEntry(strMessage, eMessageTypeConstants.ErrorMsg)
             dblMassStDevAbs = 0.003
         End If
 
@@ -864,7 +871,9 @@ Public Class clsPeakMatchingClass
             End If
 
             If dblNETStDevCombined <= 0 Then
-                Debug.Assert(False, "dblNETStDevCombined was <= 0, which isn't allowed")
+                strMessage = "Assertion failed in ComputeSLiCScores; dblNETStDevCombined is <= 0, which isn't allowed; will assume 0.025"
+                Console.WriteLine(strMessage)
+                PostLogEntry(strMessage, eMessageTypeConstants.ErrorMsg)
                 dblNETStDevCombined = 0.025
             End If
 
@@ -1024,6 +1033,8 @@ Public Class clsPeakMatchingClass
         Dim blnStoreMatch As Boolean
         Dim blnSuccess As Boolean
 
+        Dim strMessage As String
+
         If objFeatureMatchResults Is Nothing Then
             ''If mUseSqlServerForMatchResults Then
             ''    objFeatureMatchResults = New PMFeatureMatchResultsClass(mSqlServerConnectionString, mTableNameFeatureMatchResults)
@@ -1050,7 +1061,7 @@ Public Class clsPeakMatchingClass
             UpdateProgress("Finding matching peptides for given search thresholds", 0)
             mAbortProcessing = False
 
-            PostLogEntry("IdentifySequences starting, total feature count = " & intFeatureCount.ToString, PRISM.Logging.ILogger.logMsgType.logNormal)
+            PostLogEntry("IdentifySequences starting, total feature count = " & intFeatureCount.ToString, eMessageTypeConstants.Normal)
 
             For intFeatureIndex = 0 To intFeatureCount - 1
                 ' Use objRangeSearch to search for matches to each peptide in udtComparisonFeatures
@@ -1123,7 +1134,9 @@ Public Class clsPeakMatchingClass
                         intMatchResultsCount += 1
                     End If
                 Else
-                    Debug.Assert(False, "Feature not found in objFeaturesToIdentify using feature index: " & intFeatureIndex.ToString)
+                    strMessage = "Programming error in IdentifySequences: Feature not found in objFeaturesToIdentify using feature index: " & intFeatureIndex.ToString
+                    Console.WriteLine(strMessage)
+                    PostLogEntry(strMessage, eMessageTypeConstants.ErrorMsg)
                 End If
 
                 If intFeatureIndex Mod 100 = 0 Then
@@ -1132,12 +1145,12 @@ Public Class clsPeakMatchingClass
                 End If
 
                 If intFeatureIndex Mod 10000 = 0 AndAlso intFeatureIndex > 0 Then
-                    PostLogEntry("IdentifySequences, intFeatureIndex = " & intFeatureIndex.ToString, PRISM.Logging.ILogger.logMsgType.logHealth)
+                    PostLogEntry("IdentifySequences, intFeatureIndex = " & intFeatureIndex.ToString, eMessageTypeConstants.Health)
                 End If
             Next intFeatureIndex
 
             UpdateProgress("IdentifySequences complete", 100)
-            PostLogEntry("IdentifySequences complete", PRISM.Logging.ILogger.logMsgType.logNormal)
+            PostLogEntry("IdentifySequences complete", eMessageTypeConstants.Normal)
 
             blnSuccess = Not mAbortProcessing
 
@@ -1163,18 +1176,8 @@ Public Class clsPeakMatchingClass
         ''mTableNameFeatureMatchResults = PMFeatureMatchResultsClass.DEFAULT_FEATURE_MATCH_RESULTS_TABLE_NAME
     End Sub
 
-    Private Sub PostLogEntry(ByVal strMessage As String, ByVal EntryType As PRISM.Logging.ILogger.logMsgType)
-        PostLogEntry(strMessage, EntryType, True)
-    End Sub
-
-    Private Sub PostLogEntry(ByVal strMessage As String, ByVal EntryType As PRISM.Logging.ILogger.logMsgType, ByVal localOnly As Boolean)
-        Try
-            If Not mLogger Is Nothing Then
-                mLogger.PostEntry(strMessage, EntryType, localOnly)
-            End If
-        Catch ex As Exception
-            Debug.Assert(False, "Error calling mLogger.PostEntry in clsProteinDigestionSimulator: " & ex.Message)
-        End Try
+    Private Sub PostLogEntry(ByVal strMessage As String, ByVal EntryType As eMessageTypeConstants)
+        RaiseEvent LogEvent(strMessage, EntryType)
     End Sub
 
     Private Function TestPointInEllipse(ByVal dblPointX As Double, ByVal dblPointY As Double, ByVal dblXTol As Double, ByVal dblYTol As Double) As Boolean
@@ -1412,7 +1415,7 @@ Public Class clsPeakMatchingClass
                             MWTolPPMBroad = mSLiCScoreOptions.MassPPMStDev
                         End If
                     Case Else
-                        Debug.Assert(False, "Unknown MassToleranceType: " & mMassTolType.ToString)
+                        Console.WriteLine("Programming error in DefinePeakMatchingTolerances; Unknown MassToleranceType: " & mMassTolType.ToString)
                 End Select
 
                 With mSLiCScoreOptions

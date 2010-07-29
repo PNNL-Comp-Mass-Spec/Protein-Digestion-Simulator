@@ -6,6 +6,344 @@ ProteinDigestionSimulator
 </name>
 </assembly>
 <members>
-
+<member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.LoadSettings">
+	<summary>
+ Loads the settings for the defined Xml Settings File.  Assumes names are not case sensitive
+ </summary>
+	<return>The function returns a boolean that shows if the file was successfully loaded.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.LoadSettings(System.String)">
+	<summary>
+ Loads the settings for the defined Xml Settings File.   Assumes names are not case sensitive
+ </summary>
+	<param name="XmlSettingsFilePath">The path to the XML settings file.</param>
+	<return>The function returns a boolean that shows if the file was successfully loaded.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.LoadSettings(System.String,System.Boolean)">
+	<summary>
+ Loads the settings for the defined Xml Settings File
+ </summary>
+	<param name="XmlSettingsFilePath">The path to the XML settings file.</param>
+	<param name="IsCaseSensitive">Case sensitive names if True.  Non-case sensitive if false.</param>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.SaveSettings">
+	<summary>
+ Saves the settings for the defined Xml Settings File.  Note that you must call LoadSettings to initialize the class prior to setting any values.
+ </summary>
+	<return>The function returns a boolean that shows if the file was successfully saved.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.SectionPresent(System.String)">
+	<summary>Checks if a section is present in the settings file.</summary>
+	<param name="sectionName">The name of the section to look for.</param>
+	<return>The function returns a boolean that shows if the section is present.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.GetParam(System.String,System.String,System.String,System.Boolean@)">
+	<summary>
+ The function gets the name of the "value" attribute in section "sectionName".
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="valueIfMissing">Value to return if "sectionName" or "keyName" is missing.</param>
+	<param name="valueNotPresent">Set to True if "sectionName" or "keyName" is missing.  Returned ByRef.</param>
+	<return>The function returns the name of the "value" attribute as a String.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.GetParam(System.String,System.String,System.Boolean,System.Boolean@)">
+	<summary>
+ The function gets the name of the "value" attribute in section "sectionName".
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="valueIfMissing">Value to return if "sectionName" or "keyName" is missing.</param>
+	<param name="valueNotPresent">Set to True if "sectionName" or "keyName" is missing.  Returned ByRef.</param>
+	<return>The function returns boolean True if the "value" attribute is "true".  Otherwise, returns boolean False.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.GetParam(System.String,System.String,System.Int16,System.Boolean@)">
+	<summary>
+ The function gets the name of the "value" attribute in section "sectionName".
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="valueIfMissing">Value to return if "sectionName" or "keyName" is missing.</param>
+	<param name="valueNotPresent">Set to True if "sectionName" or "keyName" is missing.  Returned ByRef.</param>
+	<return>The function returns the name of the "value" attribute as a Short.  If "value" is "true" returns -1.  If "value" is "false" returns 0.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.GetParam(System.String,System.String,System.Int32,System.Boolean@)">
+	<summary>
+ The function gets the name of the "value" attribute in section "sectionName".
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="valueIfMissing">Value to return if "sectionName" or "keyName" is missing.</param>
+	<param name="valueNotPresent">Set to True if "sectionName" or "keyName" is missing.  Returned ByRef.</param>
+	<return>The function returns the name of the "value" attribute as an Integer.  If "value" is "true" returns -1.  If "value" is "false" returns 0.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.GetParam(System.String,System.String,System.Int64,System.Boolean@)">
+	<summary>
+ The function gets the name of the "value" attribute in section "sectionName".
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="valueIfMissing">Value to return if "sectionName" or "keyName" is missing.</param>
+	<param name="valueNotPresent">Set to True if "sectionName" or "keyName" is missing.  Returned ByRef.</param>
+	<return>The function returns the name of the "value" attribute as a Long.  If "value" is "true" returns -1.  If "value" is "false" returns 0.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.GetParam(System.String,System.String,System.Single,System.Boolean@)">
+	<summary>
+ The function gets the name of the "value" attribute in section "sectionName".
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="valueIfMissing">Value to return if "sectionName" or "keyName" is missing.</param>
+	<param name="valueNotPresent">Set to True if "sectionName" or "keyName" is missing.  Returned ByRef.</param>
+	<return>The function returns the name of the "value" attribute as a Single.  If "value" is "true" returns -1.  If "value" is "false" returns 0.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.GetParam(System.String,System.String,System.Double,System.Boolean@)">
+	<summary>
+ The function gets the name of the "value" attribute in section "sectionName".
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="valueIfMissing">Value to return if "sectionName" or "keyName" is missing.</param>
+	<param name="valueNotPresent">Set to True if "sectionName" or "keyName" is missing.  Returned ByRef.</param>
+	<return>The function returns the name of the "value" attribute as a Double.  If "value" is "true" returns -1.  If "value" is "false" returns 0.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.SetIniFilePath(System.String)">
+	<summary>
+ The function sets the path to the Xml Settings File.
+ </summary>
+	<param name="XmlSettingsFilePath">The path to the XML settings file.</param>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.SetParam(System.String,System.String,System.String)">
+	<summary>
+ The function sets a new String value for the "value" attribute.
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="newValue">The new value for the "value".</param>
+	<return>The function returns a boolean that shows if the change was done.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.SetParam(System.String,System.String,System.Boolean)">
+	<summary>
+ The function sets a new Boolean value for the "value" attribute.
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="newValue">The new value for the "value".</param>
+	<return>The function returns a boolean that shows if the change was done.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.SetParam(System.String,System.String,System.Int16)">
+	<summary>
+ The function sets a new Short value for the "value" attribute.
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="newValue">The new value for the "value".</param>
+	<return>The function returns a boolean that shows if the change was done.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.SetParam(System.String,System.String,System.Int32)">
+	<summary>
+ The function sets a new Integer value for the "value" attribute.
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="newValue">The new value for the "value".</param>
+	<return>The function returns a boolean that shows if the change was done.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.SetParam(System.String,System.String,System.Int64)">
+	<summary>
+ The function sets a new Long value for the "value" attribute.
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="newValue">The new value for the "value".</param>
+	<return>The function returns a boolean that shows if the change was done.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.SetParam(System.String,System.String,System.Single)">
+	<summary>
+ The function sets a new Single value for the "value" attribute.
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="newValue">The new value for the "value".</param>
+	<return>The function returns a boolean that shows if the change was done.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.SetParam(System.String,System.String,System.Double)">
+	<summary>
+ The function sets a new Double value for the "value" attribute.
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="newValue">The new value for the "value".</param>
+	<return>The function returns a boolean that shows if the change was done.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.RenameSection(System.String,System.String)">
+	<summary>
+ The function renames a section.
+ </summary>
+	<param name="sectionNameOld">The name of the old ini section name.</param>
+	<param name="sectionNameNew">The new name for the ini section.</param>
+	<return>The function returns a boolean that shows if the change was done.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.#ctor(System.String)">
+	<summary>Initializes a new instance of the IniFileReader.</summary>
+	<param name="IniFileName">The name of the ini file.</param>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.#ctor(System.String,System.Boolean)">
+	<summary>Initializes a new instance of the IniFileReader.</summary>
+	<param name="IniFileName">The name of the ini file.</param>
+	<param name="IsCaseSensitive">Case sensitive as boolean.</param>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.InitIniFileReader(System.String,System.Boolean)">
+	<summary>
+ This routine is called by each of the constructors to make the actual assignments.
+ </summary>
+</member><member name="P:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.IniFilename">
+	<summary>
+ This routine returns the name of the ini file.
+ </summary>
+	<return>The function returns the name of ini file.</return>
+</member><member name="P:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.Initialized">
+	<summary>
+ This routine returns a boolean showing if the file was initialized or not.
+ </summary>
+	<return>The function returns a Boolean.</return>
+</member><member name="P:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.CaseSensitive">
+	<summary>
+ This routine returns a boolean showing if the name is case sensitive or not.
+ </summary>
+	<return>The function returns a Boolean.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.SetNameCase(System.String)">
+	<summary>
+ This routine sets a name.
+ </summary>
+	<param name="aName">The name to be set.</param>
+	<return>The function returns a string.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.GetRoot">
+	<summary>
+ TBD.
+ </summary>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.GetLastSection">
+	<summary>
+ The function gets the last section.
+ </summary>
+	<return>The function returns the last section as System.Xml.XmlElement.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.GetSection(System.String)">
+	<summary>
+ The function gets a section as System.Xml.XmlElement.
+ </summary>
+	<param name="sectionName">The name of a section.</param>
+	<return>The function returns a section as System.Xml.XmlElement.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.GetItem(System.String,System.String)">
+	<summary>
+ The function gets an item.
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<return>The function returns a XML element.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.SetIniSection(System.String,System.String)">
+	<summary>
+ The function sets the ini section name.
+ </summary>
+	<param name="oldSection">The name of the old ini section name.</param>
+	<param name="newSection">The new name for the ini section.</param>
+	<return>The function returns a boolean that shows if the change was done.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.SetIniValue(System.String,System.String,System.String)">
+	<summary>
+ The function sets a new value for the "value" attribute.
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="newValue">The new value for the "value".</param>
+	<return>The function returns a boolean that shows if the change was done.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.DeleteSection(System.String)">
+	<summary>
+ The function deletes a section in the file.
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<return>The function returns a boolean that shows if the delete was completed.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.DeleteItem(System.String,System.String)">
+	<summary>
+ The function deletes a item in a specific section.
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<return>The function returns a boolean that shows if the delete was completed.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.SetIniKey(System.String,System.String,System.String)">
+	<summary>
+ The function sets a new value for the "key" attribute.
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="newValue">The new value for the "key".</param>
+	<return>The function returns a boolean that shows if the change was done.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.GetIniValue(System.String,System.String)">
+	<summary>
+ The function gets the name of the "value" attribute.
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<return>The function returns the name of the "value" attribute.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.GetIniComments(System.String)">
+	<summary>
+ The function gets the comments for a section name.
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<return>The function returns a string collection with comments</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.SetIniComments(System.String,System.Collections.Specialized.StringCollection)">
+	<summary>
+ The function sets a the comments for a section name.
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="comments">A string collection.</param>
+	<return>The function returns a Boolean that shows if the change was done.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.UpdateSections">
+	<summary>
+ The subroutine updades the sections.
+ </summary>
+</member><member name="P:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.AllSections">
+	<summary>
+ The subroutine gets the sections.
+ </summary>
+	<return>The subroutine returns a strin collection of sections.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.GetItemsInSection(System.String,ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.IniItemTypeEnum)">
+	<summary>
+ The function gets a collection of items for a section name.
+ </summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="itemType">Item type.</param>
+	<return>The function returns a string colection of items in a section.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.AllKeysInSection(System.String)">
+	<summary>The funtions gets a collection of keys in a section.</summary>
+	<param name="sectionName">The name of the section.</param>
+	<return>The function returns a string colection of all the keys in a section.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.AllValuesInSection(System.String)">
+	<summary>The funtions gets a collection of values in a section.</summary>
+	<param name="sectionName">The name of the section.</param>
+	<return>The function returns a string colection of all the values in a section.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.AllItemsInSection(System.String)">
+	<summary>The funtions gets a collection of items in a section.</summary>
+	<param name="sectionName">The name of the section.</param>
+	<return>The function returns a string colection of all the items in a section.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.GetCustomIniAttribute(System.String,System.String,System.String)">
+	<summary>The funtions gets a custom attribute name.</summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="attributeName">The name of the attribute.</param>
+	<return>The function returns a string.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.SetCustomIniAttribute(System.String,System.String,System.String,System.String)">
+	<summary>The funtions sets a custom attribute name.</summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="attributeName">The name of the attribute.</param>
+	<param name="attributeValue">The value of the attribute.</param>
+	<return>The function returns a Boolean.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.CreateSection(System.String)">
+	<summary>The funtions creates a section name.</summary>
+	<param name="sectionName">The name of the section to be created.</param>
+	<return>The function returns a Boolean.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.CreateItem(System.String,System.String,System.String)">
+	<summary>The funtions creates a section name.</summary>
+	<param name="sectionName">The name of the section.</param>
+	<param name="keyName">The name of the key.</param>
+	<param name="newValue">The new value to be created.</param>
+	<return>The function returns a Boolean.</return>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.ParseLineXml(System.String,System.Xml.XmlDocument)">
+	<summary>It parses a string and adds atribbutes to the System.Xml.XmlDocument.</summary>
+	<param name="s">The name of the string to be parse.</param>
+	<param name="doc">The name of the System.Xml.XmlDocument.</param>
+</member><member name="P:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.OutputFilename">
+	<summary>It Sets or Gets the output file name.</summary>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.Save">
+	<summary>It saves the data to the Xml output file.</summary>
+</member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.AsIniFile">
+	<summary>It transforms a XML file to an INI file.</summary>
+	<return>The function returns document formatted as a string.</return>
+</member><member name="P:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.XmlDoc">
+	<summary>It gets the System.Xml.XmlDocument.</summary>
+</member><member name="P:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader.XML">
+	<summary>Converts an XML document to a string.</summary>
+	<return>It returns the XML document formatted as a string.</return>
+</member><member name="T:ProteinDigestionSimulator.XmlSettingsFileAccessor.IniFileReader">
+	<summary>
+ Tools to manipulates INI files.
+ </summary>
+</member>
 </members>
 </doc>

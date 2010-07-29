@@ -33,7 +33,7 @@ Option Strict On
 
 Module modMain
 
-    Public Const PROGRAM_DATE As String = "February 18, 2009"
+    Public Const PROGRAM_DATE As String = "July 28, 2010"
 
     Private mInputFilePath As String
     Private mAssumeFastaFile As Boolean
@@ -53,6 +53,10 @@ Module modMain
 
     Private mQuietMode As Boolean
     Private mShowDebugPrompts As Boolean
+
+    Private WithEvents mParseProteinFile As clsParseProteinFile
+    Private mLastProgressReportTime As System.DateTime
+    Private mLastProgressReportValue As Integer
 
     'Private Sub TestPeptideCode()
 
@@ -125,8 +129,6 @@ Module modMain
     Public Function Main() As Integer
         ' Returns 0 if no error, error code if an error
 
-        Dim objParseProteinFile As clsParseProteinFile
-
         Dim intReturnCode As Integer
         Dim objParseCommandLine As New SharedVBNetRoutines.clsParseCommandLine
         Dim blnProceed As Boolean
@@ -158,12 +160,12 @@ Module modMain
                 intReturnCode = -1
             Else
 
-                objParseProteinFile = New clsParseProteinFile
-                objParseProteinFile.ShowMessages = Not mQuietMode
-                objParseProteinFile.ShowDebugPrompts = mShowDebugPrompts
+                mParseProteinFile = New clsParseProteinFile
+                mParseProteinFile.ShowMessages = Not mQuietMode
+                mParseProteinFile.ShowDebugPrompts = mShowDebugPrompts
 
                 ' Note: the following settings will be overridden if mParameterFilePath points to a valid parameter file that has these settings defined
-                With objParseProteinFile
+                With mParseProteinFile
                     .AssumeFastaFile = mAssumeFastaFile
                     .CreateProteinOutputFile = True
                     .CreateDigestedProteinOutputFile = mCreateDigestedProteinOutputFile
@@ -178,18 +180,18 @@ Module modMain
                 End With
 
                 If mRecurseFolders Then
-                    If objParseProteinFile.ProcessFilesAndRecurseFolders(mInputFilePath, mOutputFolderName, mOutputFolderAlternatePath, mRecreateFolderHierarchyInAlternatePath, mParameterFilePath, mRecurseFoldersMaxLevels) Then
+                    If mParseProteinFile.ProcessFilesAndRecurseFolders(mInputFilePath, mOutputFolderName, mOutputFolderAlternatePath, mRecreateFolderHierarchyInAlternatePath, mParameterFilePath, mRecurseFoldersMaxLevels) Then
                         intReturnCode = 0
                     Else
-                        intReturnCode = objParseProteinFile.ErrorCode
+                        intReturnCode = mParseProteinFile.ErrorCode
                     End If
                 Else
-                    If objParseProteinFile.ProcessFilesWildcard(mInputFilePath, mOutputFolderName, mParameterFilePath) Then
+                    If mParseProteinFile.ProcessFilesWildcard(mInputFilePath, mOutputFolderName, mParameterFilePath) Then
                         intReturnCode = 0
                     Else
-                        intReturnCode = objParseProteinFile.ErrorCode
+                        intReturnCode = mParseProteinFile.ErrorCode
                         If intReturnCode <> 0 AndAlso Not mQuietMode Then
-                            MsgBox("Error while processing: " & objParseProteinFile.GetErrorMessage(), MsgBoxStyle.Exclamation Or MsgBoxStyle.OKOnly, "Error")
+                            MsgBox("Error while processing: " & mParseProteinFile.GetErrorMessage(), MsgBoxStyle.Exclamation Or MsgBoxStyle.OKOnly, "Error")
                         End If
                     End If
                 End If
@@ -197,16 +199,29 @@ Module modMain
             End If
 
         Catch ex As Exception
-            If mQuietMode Then
-                Throw ex
-            Else
-                MsgBox("Error occurred in modMain->Main: " & ControlChars.NewLine & ex.Message, MsgBoxStyle.Exclamation Or MsgBoxStyle.OKOnly, "Error")
-            End If
+            Console.WriteLine("Error occurred in modMain->Main: " & ControlChars.NewLine & ex.Message)
             intReturnCode = -1
         End Try
 
         Return intReturnCode
 
+    End Function
+
+    Private Sub DisplayProgressPercent(ByVal intPercentComplete As Integer, ByVal blnAddCarriageReturn As Boolean)
+        If blnAddCarriageReturn Then
+            Console.WriteLine()
+        End If
+        If intPercentComplete > 100 Then intPercentComplete = 100
+        Console.Write("Processing: " & intPercentComplete.ToString & "% ")
+        If blnAddCarriageReturn Then
+            Console.WriteLine()
+        End If
+    End Sub
+
+    Private Function GetAppVersion() As String
+        'Return System.Windows.Forms.Application.ProductVersion & " (" & PROGRAM_DATE & ")"
+
+        Return System.Reflection.Assembly.GetExecutingAssembly.GetName.Version.ToString & " (" & PROGRAM_DATE & ")"
     End Function
 
     Private Function SetOptionsUsingCommandLineParameters(ByVal objParseCommandLine As SharedVBNetRoutines.clsParseCommandLine) As Boolean
@@ -247,11 +262,7 @@ Module modMain
             End If
 
         Catch ex As Exception
-            If mQuietMode Then
-                Throw New System.Exception("Error parsing the command line parameters", ex)
-            Else
-                MsgBox("Error parsing the command line parameters: " & ControlChars.NewLine & ex.Message, MsgBoxStyle.Exclamation Or MsgBoxStyle.OKOnly, "Error")
-            End If
+             Console.WriteLine("Error parsing the command line parameters: " & ControlChars.NewLine & ex.Message)
         End Try
 
     End Function
@@ -272,6 +283,7 @@ Module modMain
         Dim strSyntax As String
 
         Try
+
             strSyntax = String.Empty
 
             strSyntax &= "This program can be used to read a fasta file or tab delimited file containing protein or peptide sequences, then output "
@@ -295,36 +307,45 @@ Module modMain
             strSyntax &= "The optional /Q switch will suppress all error messages." & ControlChars.NewLine & ControlChars.NewLine
 
             strSyntax &= "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004" & ControlChars.NewLine
-            strSyntax &= "Copyright 2005, Battelle Memorial Institute.  All Rights Reserved." & ControlChars.NewLine & ControlChars.NewLine
-
-            strSyntax &= "This is version " & System.Windows.Forms.Application.ProductVersion & " (" & PROGRAM_DATE & ")" & ControlChars.NewLine & ControlChars.NewLine
+            strSyntax &= "Version: " & GetAppVersion() & ControlChars.NewLine & ControlChars.NewLine
 
             strSyntax &= "E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com" & ControlChars.NewLine
             strSyntax &= "Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/" & ControlChars.NewLine & ControlChars.NewLine
 
             strSyntax &= frmDisclaimer.GetKangasPetritisDisclaimerText() & ControlChars.NewLine & ControlChars.NewLine
 
-            strSyntax &= "Notice: This computer software was prepared by Battelle Memorial Institute, "
-            strSyntax &= "hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the "
-            strSyntax &= "Department of Energy (DOE).  All rights in the computer software are reserved "
-            strSyntax &= "by DOE on behalf of the United States Government and the Contractor as "
-            strSyntax &= "provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY "
-            strSyntax &= "WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS "
-            strSyntax &= "SOFTWARE.  This notice including this sentence must appear on any copies of "
-            strSyntax &= "this computer software." & ControlChars.NewLine
-
+          
             If Not mQuietMode Then
-                MsgBox(strSyntax, MsgBoxStyle.Information Or MsgBoxStyle.OKOnly, "Syntax")
+                System.Windows.Forms.MessageBox.Show(strSyntax, "Syntax", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
 
         Catch ex As Exception
-            If mQuietMode Then
-                Throw New System.Exception("Error displaying the program syntax", ex)
-            Else
-                MsgBox("Error displaying the program syntax: " & ControlChars.NewLine & ex.Message, MsgBoxStyle.Exclamation Or MsgBoxStyle.OKOnly, "Error")
-            End If
+            Console.WriteLine("Error displaying the program syntax: " & ex.Message)
         End Try
 
     End Sub
 
+    Private Sub mParseProteinFile_ProgressChanged(ByVal taskDescription As String, ByVal percentComplete As Single) Handles mParseProteinFile.ProgressChanged
+        Const PERCENT_REPORT_INTERVAL As Integer = 25
+        Const PROGRESS_DOT_INTERVAL_MSEC As Integer = 250
+
+        If percentComplete >= mLastProgressReportValue Then
+            If mLastProgressReportValue > 0 Then
+                Console.WriteLine()
+            End If
+            DisplayProgressPercent(mLastProgressReportValue, False)
+            mLastProgressReportValue += PERCENT_REPORT_INTERVAL
+            mLastProgressReportTime = DateTime.Now
+        Else
+            If DateTime.Now.Subtract(mLastProgressReportTime).TotalMilliseconds > PROGRESS_DOT_INTERVAL_MSEC Then
+                mLastProgressReportTime = DateTime.Now
+                Console.Write(".")
+            End If
+        End If
+    End Sub
+
+    Private Sub mProcessingClass_ProgressReset() Handles mParseProteinFile.ProgressReset
+        mLastProgressReportTime = DateTime.Now
+        mLastProgressReportValue = 0
+    End Sub
 End Module

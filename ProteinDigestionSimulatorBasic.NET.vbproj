@@ -164,11 +164,18 @@
     <Compile Include="clsSearchRange.vb">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="clsXmlSettingsFileAccessor.vb" />
     <Compile Include="frmDisclaimer.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="frmFastaValidationResults.Designer.vb">
+      <DependentUpon>frmFastaValidationResults.vb</DependentUpon>
+    </Compile>
     <Compile Include="frmFastaValidationResults.vb">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmMain.Designer.vb">
+      <DependentUpon>frmMain.vb</DependentUpon>
     </Compile>
     <Compile Include="frmMain.vb">
       <SubType>Form</SubType>
