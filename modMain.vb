@@ -33,7 +33,7 @@ Option Strict On
 
 Module modMain
 
-    Public Const PROGRAM_DATE As String = "July 28, 2010"
+    Public Const PROGRAM_DATE As String = "July 29, 2010"
 
     Private mInputFilePath As String
     Private mAssumeFastaFile As Boolean
@@ -153,7 +153,8 @@ Module modMain
                 If SetOptionsUsingCommandLineParameters(objParseCommandLine) Then blnProceed = True
             End If
 
-            If objParseCommandLine.ParameterCount = 0 And Not objParseCommandLine.NeedToShowHelp Then
+            If (objParseCommandLine.ParameterCount + objParseCommandLine.NonSwitchParameterCount) = 0 AndAlso _
+               Not objParseCommandLine.NeedToShowHelp Then
                 ShowGUI()
             ElseIf Not blnProceed OrElse objParseCommandLine.NeedToShowHelp OrElse mInputFilePath.Length = 0 Then
                 ShowProgramHelp()
@@ -191,7 +192,7 @@ Module modMain
                     Else
                         intReturnCode = mParseProteinFile.ErrorCode
                         If intReturnCode <> 0 AndAlso Not mQuietMode Then
-                            MsgBox("Error while processing: " & mParseProteinFile.GetErrorMessage(), MsgBoxStyle.Exclamation Or MsgBoxStyle.OKOnly, "Error")
+                            MsgBox("Error while processing: " & mParseProteinFile.GetErrorMessage(), MsgBoxStyle.Exclamation Or MsgBoxStyle.OkOnly, "Error")
                         End If
                     End If
                 End If
@@ -237,7 +238,15 @@ Module modMain
             Else
                 With objParseCommandLine
                     ' Query objParseCommandLine to see if various parameters are present
-                    If .RetrieveValueForParameter("I", strValue) Then mInputFilePath = strValue
+                    If .RetrieveValueForParameter("I", strValue) Then
+                        mInputFilePath = strValue
+                    Else
+                        ' User didn't use /I:InputFile
+                        ' See if they simply provided the file name
+                        If .NonSwitchParameterCount > 0 Then
+                            mInputFilePath = .RetrieveNonSwitchParameter(0)
+                        End If
+                    End If
                     If .RetrieveValueForParameter("F", strValue) Then mAssumeFastaFile = True
                     If .RetrieveValueForParameter("D", strValue) Then mCreateDigestedProteinOutputFile = True
                     If .RetrieveValueForParameter("M", strValue) Then mComputeProteinMass = True

@@ -1,12 +1,14 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.3862; July 29, 2010
+	- New version of ValidateFastaFile.dll
+
 Version 2.2.3861; July 28, 2010
 	- Removed dependency on PRISM.DLL and ProgressFormNET.dll
 		- Now showing progress on the Progress Tab in the main window
 	- Split frmMain and frmFastaValidationResults into separate files (one for control definitions and one for code)
 	- New versions of ProteinFileReader.dll and ValidateFastaFile.dll
 	- Updated Fasta File Validation to remember settings between validating .Fasta files
-
 
 Version 2.2.3637; December 16, 2009
 	- New version of ValidateFastaFile.dll

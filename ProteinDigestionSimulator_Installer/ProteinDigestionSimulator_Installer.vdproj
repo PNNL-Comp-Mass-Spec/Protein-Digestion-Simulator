@@ -344,16 +344,16 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:ValidateFastaFile, Version=2.0.3637.33746, Culture=neutral"
+            "AssemblyAsmDisplayName" = "8:ValidateFastaFile, Version=2.0.3862.36547, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_C1E98F63EB75AB21B2AA7DD22E1FCE67"
                     {
-                    "Name" = "8:ValidateFastaFile.dll"
+                    "Name" = "8:validateFastaFile.dll"
                     "Attributes" = "3:512"
                     }
                 }
-            "SourcePath" = "8:ValidateFastaFile.dll"
+            "SourcePath" = "8:validateFastaFile.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_14D1D5D1D6F847CAA581AD55A163FF2B"
@@ -500,14 +500,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ProteinDigestionSimulator"
-        "ProductCode" = "8:{216042F0-9224-4A8A-BBBC-7A8E089FFF1A}"
-        "PackageCode" = "8:{23041C37-CA3D-49FC-9100-C0E74A02B785}"
+        "ProductCode" = "8:{EAE1B3BC-E088-430B-9BEA-141632813074}"
+        "PackageCode" = "8:{E4ABAF80-EDE0-43A9-B157-F15AF44EDD0B}"
         "UpgradeCode" = "8:{0612F968-E285-4419-AEC6-739DC8FF1BB3}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.2.2"
+        "ProductVersion" = "8:2.2.4"
         "Manufacturer" = "8:PNNL"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
