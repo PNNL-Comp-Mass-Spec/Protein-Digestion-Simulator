@@ -110,7 +110,7 @@
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
-    <Reference Include="validateFastaFile, Version=2.0.3862.36547, Culture=neutral, processorArchitecture=x86" />
+    <Reference Include="ValidateFastaFile, Version=2.0.3863.16685, Culture=neutral, processorArchitecture=x86" />
   </ItemGroup>
   <ItemGroup>
     <Import Include="Microsoft.VisualBasic" />

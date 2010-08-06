@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.3870; August 6, 2010
+	- New version of ValidateFastaFile.dll
+
 Version 2.2.3862; July 29, 2010
 	- New version of ValidateFastaFile.dll
 
