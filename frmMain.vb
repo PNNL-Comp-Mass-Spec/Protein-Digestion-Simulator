@@ -1431,134 +1431,140 @@ Public Class frmMain
         Const NET_UNITS As String = "time"
 #End If
 
-        With cboInputFileFormat
-            With .Items
-                .Clear()
-                .Insert(InputFileFormatConstants.AutoDetermine, "Auto-determine")
-                .Insert(InputFileFormatConstants.FastaFile, "Fasta file")
-                .Insert(InputFileFormatConstants.DelimitedText, "Delimited text")
+        Try
+            With cboInputFileFormat
+                With .Items
+                    .Clear()
+                    .Insert(InputFileFormatConstants.AutoDetermine, "Auto-determine")
+                    .Insert(InputFileFormatConstants.FastaFile, "Fasta file")
+                    .Insert(InputFileFormatConstants.DelimitedText, "Delimited text")
+                End With
+                .SelectedIndex = InputFileFormatConstants.AutoDetermine
             End With
-            .SelectedIndex = InputFileFormatConstants.AutoDetermine
-        End With
 
-        With cboInputFileColumnDelimiter
-            With .Items
-                .Clear()
-                .Insert(clsParseProteinFile.DelimiterCharConstants.Space, "Space")
-                .Insert(clsParseProteinFile.DelimiterCharConstants.Tab, "Tab")
-                .Insert(clsParseProteinFile.DelimiterCharConstants.Comma, "Comma")
-                .Insert(clsParseProteinFile.DelimiterCharConstants.Other, "Other")
+            With cboInputFileColumnDelimiter
+                With .Items
+                    .Clear()
+                    .Insert(clsParseProteinFile.DelimiterCharConstants.Space, "Space")
+                    .Insert(clsParseProteinFile.DelimiterCharConstants.Tab, "Tab")
+                    .Insert(clsParseProteinFile.DelimiterCharConstants.Comma, "Comma")
+                    .Insert(clsParseProteinFile.DelimiterCharConstants.Other, "Other")
+                End With
+                .SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Tab
             End With
-            .SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Tab
-        End With
 
-        With cboOutputFileFieldDelimeter
-            With .Items
-                .Clear()
-                For intIndex = 0 To cboInputFileColumnDelimiter.Items.Count - 1
-                    .Insert(intIndex, cboInputFileColumnDelimiter.Items(intIndex))
-                Next
+            With cboOutputFileFieldDelimeter
+                With .Items
+                    .Clear()
+                    For intIndex = 0 To cboInputFileColumnDelimiter.Items.Count - 1
+                        .Insert(intIndex, cboInputFileColumnDelimiter.Items(intIndex))
+                    Next
+                End With
+                .SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Space
             End With
-            .SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Space
-        End With
 
-        With cboRefEndChar
-            With .Items()
-                .Clear()
-                For intIndex = 0 To cboInputFileColumnDelimiter.Items.Count - 1
-                    .Insert(intIndex, cboInputFileColumnDelimiter.Items(intIndex))
-                Next
+            With cboRefEndChar
+                With .Items()
+                    .Clear()
+                    For intIndex = 0 To cboInputFileColumnDelimiter.Items.Count - 1
+                        .Insert(intIndex, cboInputFileColumnDelimiter.Items(intIndex))
+                    Next
+                End With
+                .SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Space
             End With
-            .SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Space
-        End With
 
-        With cboInputFileColumnOrdering
-            With .Items
-                .Clear()
-                .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.SequenceOnly, "Sequence Only")
-                .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Sequence, "ProteinName and Sequence")
-                .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence, "ProteinName, Descr, Seq")
-                .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence, "UniqueID and Seq")
-                .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID, "ProteinName, Seq, UniqueID")
+            With cboInputFileColumnOrdering
+                With .Items
+                    .Clear()
+                    .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.SequenceOnly, "Sequence Only")
+                    .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Sequence, "ProteinName and Sequence")
+                    .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence, "ProteinName, Descr, Seq")
+                    .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence, "UniqueID and Seq")
+                    .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID, "ProteinName, Seq, UniqueID")
 #If IncludePNNLNETRoutines Then
-                .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET, "ProteinName, Seq, UniqueID, Mass, NET")
-                .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore, "ProteinName, Seq, UniqueID, Mass, NET, NETStDev, DiscriminantScore")
-                .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence_Mass_NET, "UniqueID, Seq, Mass, NET")
+                    .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET, "ProteinName, Seq, UniqueID, Mass, NET")
+                    .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore, "ProteinName, Seq, UniqueID, Mass, NET, NETStDev, DiscriminantScore")
+                    .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence_Mass_NET, "UniqueID, Seq, Mass, NET")
 #Else
                 .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET, "ProteinName, Seq, UniqueID, Mass, Time")
                 .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore, "ProteinName, Seq, UniqueID, Mass, Time, TimeStDev, DiscriminantScore")
                 .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence_Mass_NET, "UniqueID, Seq, Mass, Time")
 #End If
+                End With
+                .SelectedIndex = ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
             End With
-            .SelectedIndex = ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
-        End With
 
-        With cboElementMassMode
-            With .Items
-                .Clear()
-                .Insert(PeptideSequenceClass.ElementModeConstants.AverageMass, "Average")
-                .Insert(PeptideSequenceClass.ElementModeConstants.IsotopicMass, "Monoisotopic")
+            With cboElementMassMode
+                With .Items
+                    .Clear()
+                    .Insert(PeptideSequenceClass.ElementModeConstants.AverageMass, "Average")
+                    .Insert(PeptideSequenceClass.ElementModeConstants.IsotopicMass, "Monoisotopic")
+                End With
+                .SelectedIndex = PeptideSequenceClass.ElementModeConstants.IsotopicMass
             End With
-            .SelectedIndex = PeptideSequenceClass.ElementModeConstants.IsotopicMass
-        End With
 
-        With cboProteinReversalOptions
-            With .Items
-                .Clear()
-                .Insert(clsParseProteinFile.ProteinScramblingModeConstants.None, "Normal output")
-                .Insert(clsParseProteinFile.ProteinScramblingModeConstants.Reversed, "Reverse ORF sequences")
-                .Insert(clsParseProteinFile.ProteinScramblingModeConstants.Randomized, "Randomized ORF sequences")
+            With cboProteinReversalOptions
+                With .Items
+                    .Clear()
+                    .Insert(clsParseProteinFile.ProteinScramblingModeConstants.None, "Normal output")
+                    .Insert(clsParseProteinFile.ProteinScramblingModeConstants.Reversed, "Reverse ORF sequences")
+                    .Insert(clsParseProteinFile.ProteinScramblingModeConstants.Randomized, "Randomized ORF sequences")
+                End With
+                .SelectedIndex = clsParseProteinFile.ProteinScramblingModeConstants.None
             End With
-            .SelectedIndex = clsParseProteinFile.ProteinScramblingModeConstants.None
-        End With
 
-        objInSilicoDigest = New clsInSilicoDigest
-        With cboCleavageRuleType
-            With .Items
-                For intIndex = 0 To objInSilicoDigest.CleaveageRuleCount - 1
-                    eRuleID = CType(intIndex, clsInSilicoDigest.CleavageRuleConstants)
-                    .Add(objInSilicoDigest.GetCleaveageRuleName(eRuleID) & " (" & objInSilicoDigest.GetCleaveageRuleResiduesDescription(eRuleID) & ")")
-                Next intIndex
+            objInSilicoDigest = New clsInSilicoDigest
+            With cboCleavageRuleType
+                With .Items
+                    For intIndex = 0 To objInSilicoDigest.CleaveageRuleCount - 1
+                        eRuleID = CType(intIndex, clsInSilicoDigest.CleavageRuleConstants)
+                        .Add(objInSilicoDigest.GetCleaveageRuleName(eRuleID) & " (" & objInSilicoDigest.GetCleaveageRuleResiduesDescription(eRuleID) & ")")
+                    Next intIndex
+                End With
+                If .Items.Count > clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin Then
+                    .SelectedIndex = clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
+                End If
             End With
-            If .Items.Count > clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin Then
-                .SelectedIndex = clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
-            End If
-        End With
-        objInSilicoDigest = Nothing
+            objInSilicoDigest = Nothing
 
-        With cboMassTolType
-            With .Items
-                .Clear()
-                .Insert(clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.PPM, "PPM")
-                .Insert(clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.Absolute, "Absolute (Da)")
+            With cboMassTolType
+                With .Items
+                    .Clear()
+                    .Insert(clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.PPM, "PPM")
+                    .Insert(clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.Absolute, "Absolute (Da)")
+                End With
+                .SelectedIndex = clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.PPM
             End With
-            .SelectedIndex = clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.PPM
-        End With
 
-        With cboPMPredefinedThresholds
-            With .Items
-                .Clear()
-                .Insert(PredefinedPMThresholdsConstants.OneMassOneNET, "5 ppm; 0.05 " & NET_UNITS)
-                .Insert(PredefinedPMThresholdsConstants.OneMassThreeNET, "5 ppm; 0.01, 0.05, 100 " & NET_UNITS)
-                .Insert(PredefinedPMThresholdsConstants.OneNETThreeMass, "0.5, 1, & 5 ppm; 0.05 " & NET_UNITS)
-                .Insert(PredefinedPMThresholdsConstants.ThreeMassThreeNET, "0.5, 1, 5 ppm; 0.01, 0.05, & 100 " & NET_UNITS)
-                .Insert(PredefinedPMThresholdsConstants.FiveMassThreeNET, "0.5, 1, 5, 10, & 50 ppm; 0.01, 0.05, & 100 " & NET_UNITS)
+            With cboPMPredefinedThresholds
+                With .Items
+                    .Clear()
+                    .Insert(PredefinedPMThresholdsConstants.OneMassOneNET, "5 ppm; 0.05 " & NET_UNITS)
+                    .Insert(PredefinedPMThresholdsConstants.OneMassThreeNET, "5 ppm; 0.01, 0.05, 100 " & NET_UNITS)
+                    .Insert(PredefinedPMThresholdsConstants.OneNETThreeMass, "0.5, 1, & 5 ppm; 0.05 " & NET_UNITS)
+                    .Insert(PredefinedPMThresholdsConstants.ThreeMassThreeNET, "0.5, 1, 5 ppm; 0.01, 0.05, & 100 " & NET_UNITS)
+                    .Insert(PredefinedPMThresholdsConstants.FiveMassThreeNET, "0.5, 1, 5, 10, & 50 ppm; 0.01, 0.05, & 100 " & NET_UNITS)
+                End With
+                .SelectedIndex = PredefinedPMThresholdsConstants.OneMassOneNET
             End With
-            .SelectedIndex = PredefinedPMThresholdsConstants.OneMassOneNET
-        End With
 
-        With cboHydrophobicityMode
-            With .Items
-                .Clear()
-                .Insert(clspICalculation.eHydrophobicityTypeConstants.HW, "Hopp and Woods")
-                .Insert(clspICalculation.eHydrophobicityTypeConstants.KD, "Kyte and Doolittle")
-                .Insert(clspICalculation.eHydrophobicityTypeConstants.Eisenberg, "Eisenberg")
-                .Insert(clspICalculation.eHydrophobicityTypeConstants.GES, "Engleman et. al.")
-                .Insert(clspICalculation.eHydrophobicityTypeConstants.MeekPH7p4, "Meek pH 7.4")
-                .Insert(clspICalculation.eHydrophobicityTypeConstants.MeekPH2p1, "Meek pH 2.1")
+            With cboHydrophobicityMode
+                With .Items
+                    .Clear()
+                    .Insert(clspICalculation.eHydrophobicityTypeConstants.HW, "Hopp and Woods")
+                    .Insert(clspICalculation.eHydrophobicityTypeConstants.KD, "Kyte and Doolittle")
+                    .Insert(clspICalculation.eHydrophobicityTypeConstants.Eisenberg, "Eisenberg")
+                    .Insert(clspICalculation.eHydrophobicityTypeConstants.GES, "Engleman et. al.")
+                    .Insert(clspICalculation.eHydrophobicityTypeConstants.MeekPH7p4, "Meek pH 7.4")
+                    .Insert(clspICalculation.eHydrophobicityTypeConstants.MeekPH2p1, "Meek pH 2.1")
+                End With
+                .SelectedIndex = clspICalculation.eHydrophobicityTypeConstants.HW
             End With
-            .SelectedIndex = clspICalculation.eHydrophobicityTypeConstants.HW
-        End With
+
+        Catch ex As Exception
+            Windows.Forms.MessageBox.Show("Error initializing the combo boxes: " & ex.Message)
+        End Try
+       
     End Sub
 
     Private Sub ResetProgress(ByVal blnHideSubtaskProgress As Boolean)

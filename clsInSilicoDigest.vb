@@ -8,7 +8,7 @@ Option Strict On
 '
 ' Utilizes the PeptideInfoClass class
 '
-' Last Modified July 28, 2010
+' Last Modified December 6, 2010
 '
 Public Class clsInSilicoDigest
 
@@ -23,27 +23,30 @@ Public Class clsInSilicoDigest
 #Region "Constants and Enums"
 
     ' Note: Good list of enzymes is at http://ca.expasy.org/tools/peptidecutter/peptidecutter_enzymes.html
-    Private Const CleavageRuleCount As Integer = 19
+    '                              and http://expasy.org/tools/peptide-mass-doc.html#table1
+    Private Const CleavageRuleCount As Integer = 21
     Public Enum CleavageRuleConstants
         NoRule = 0
         ConventionalTrypsin = 1
-        EricPartialTrypsin = 2
-        TrypsinPlusFVLEY = 3
-        KROneEnd = 4
-        TerminiiOnly = 5
-        Chymotrypsin = 6
-        ChymotrypsinAndTrypsin = 7
-        GluC = 8
-        CyanBr = 9                      ' Aka CNBr
-        LysC = 10
-        GluC_EOnly = 11
-        ArgC = 12
-        AspN = 13
-        ProteinaseK = 14
-        PepsinA = 15
-        PepsinB = 16
-        PepsinC = 17
-        AceticAcidD = 18
+        TrypsinWithoutProlineException = 2
+        EricPartialTrypsin = 3
+        TrypsinPlusFVLEY = 4
+        KROneEnd = 5
+        TerminiiOnly = 6
+        Chymotrypsin = 7
+        ChymotrypsinAndTrypsin = 8
+        GluC = 9
+        CyanBr = 10                     ' Aka CNBr
+        LysC = 11
+        GluC_EOnly = 12
+        ArgC = 13
+        AspN = 14
+        ProteinaseK = 15
+        PepsinA = 16
+        PepsinB = 17
+        PepsinC = 18
+        PepsinD = 19
+        AceticAcidD = 20
     End Enum
 
 #End Region
@@ -517,6 +520,8 @@ Public Class clsInSilicoDigest
 
     Private Sub InitializeCleavageRules()
 
+        ' Useful site for cleavage rule info is http://expasy.org/tools/peptide-mass-doc.html#table1
+
         With mCleavageRules
             .RuleCount = CleavageRuleCount
             ReDim .Rules(.RuleCount - 1)          ' 0-based array
@@ -535,6 +540,14 @@ Public Class clsInSilicoDigest
                 .ExceptionResidues = "P"
                 .ReversedCleavageDirection = False
                 .RuleIDInParallax = 10
+            End With
+
+            With .Rules(CleavageRuleConstants.TrypsinWithoutProlineException)
+                .Description = "Fully Tryptic (no Proline Rule)"
+                .CleavageResidues = "KR"
+                .ExceptionResidues = String.Empty
+                .ReversedCleavageDirection = False
+                .RuleIDInParallax = 0
             End With
 
             With .Rules(CleavageRuleConstants.EricPartialTrypsin)
@@ -647,7 +660,7 @@ Public Class clsInSilicoDigest
                 .Description = "PepsinA"
                 .CleavageResidues = "FLIWY"
                 .ExceptionResidues = "P"
-                .ReversedCleavageDirection = True
+                .ReversedCleavageDirection = False
                 .RuleIDInParallax = 0
             End With
 
@@ -655,7 +668,7 @@ Public Class clsInSilicoDigest
                 .Description = "PepsinB"
                 .CleavageResidues = "FLIWY"
                 .ExceptionResidues = "PVAG"
-                .ReversedCleavageDirection = True
+                .ReversedCleavageDirection = False
                 .RuleIDInParallax = 0
             End With
 
@@ -663,7 +676,15 @@ Public Class clsInSilicoDigest
                 .Description = "PepsinC"
                 .CleavageResidues = "FLWYA"
                 .ExceptionResidues = "P"
-                .ReversedCleavageDirection = True
+                .ReversedCleavageDirection = False
+                .RuleIDInParallax = 0
+            End With
+
+            With .Rules(CleavageRuleConstants.PepsinD)
+                .Description = "PepsinD"
+                .CleavageResidues = "FLWYAEQ"
+                .ExceptionResidues = ""
+                .ReversedCleavageDirection = False
                 .RuleIDInParallax = 0
             End With
 
@@ -780,7 +801,8 @@ Public Class clsInSilicoDigest
                         End If
 
 
-                        If objDigestionOptions.CleavageRuleID = CleavageRuleConstants.ConventionalTrypsin Then
+                        If objDigestionOptions.CleavageRuleID = CleavageRuleConstants.ConventionalTrypsin OrElse _
+                           objDigestionOptions.CleavageRuleID = CleavageRuleConstants.TrypsinWithoutProlineException Then
                             .PeptideName = "t" & (intTrypticIndex + 1).ToString & "." & (intMissedCleavageCount + 1).ToString
                         Else
                             .PeptideName = (intResidueStartLoc).ToString & "." & (intResidueEndLoc).ToString

@@ -1,5 +1,12 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.3988; December 6, 2010
+	- Added two new enzymes
+		- Fully Tryptic without the proline rule (C-terminal of K or R, no proline rule)
+		- PepsinD (C-terminal of FLWYAEQ, no proline rule)
+	- Fixed bug with Pepsin
+		- Was cleaving N-terminal of the target residues; should have been cleaving C-terminal of the target residues (FLIWY or FLWYA)
+
 Version 2.2.3870; August 6, 2010
 	- New version of ValidateFastaFile.dll
 

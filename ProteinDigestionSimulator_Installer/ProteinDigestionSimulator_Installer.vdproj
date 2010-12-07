@@ -51,6 +51,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C1E98F63EB75AB21B2AA7DD22E1FCE67"
+        "OwnerKey" = "8:_EA82F944D02742F9B6412527801B65CC"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D229F5EE3249780741358B9A186F5B76"
         "OwnerKey" = "8:_EA82F944D02742F9B6412527801B65CC"
         "MsmSig" = "8:_UNDEFINED"
@@ -77,6 +83,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_D229F5EE3249780741358B9A186F5B76"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_C1E98F63EB75AB21B2AA7DD22E1FCE67"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -328,6 +340,37 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_C1E98F63EB75AB21B2AA7DD22E1FCE67"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:ValidateFastaFile, Version=2.0.3863.16685, Culture=neutral, processorArchitecture=x86"
+                "ScatterAssemblies"
+                {
+                    "_C1E98F63EB75AB21B2AA7DD22E1FCE67"
+                    {
+                    "Name" = "8:ValidateFastaFile.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:ValidateFastaFile.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_14D1D5D1D6F847CAA581AD55A163FF2B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_D229F5EE3249780741358B9A186F5B76"
             {
             "AssemblyRegister" = "3:1"
@@ -457,14 +500,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ProteinDigestionSimulator"
-        "ProductCode" = "8:{83CE4697-E350-450E-959A-3E589BDD05FF}"
-        "PackageCode" = "8:{2737C3E0-637A-4860-820C-371AF706F146}"
+        "ProductCode" = "8:{AD0E35D8-E15D-42AB-A017-3C2901D11899}"
+        "PackageCode" = "8:{B4C94251-FF93-41D9-A0AD-28A16F5EF13E}"
         "UpgradeCode" = "8:{0612F968-E285-4419-AEC6-739DC8FF1BB3}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.2.5"
+        "ProductVersion" = "8:2.2.7"
         "Manufacturer" = "8:PNNL"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
