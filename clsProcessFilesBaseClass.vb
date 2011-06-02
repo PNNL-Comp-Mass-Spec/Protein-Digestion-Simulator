@@ -11,7 +11,7 @@ Option Strict On
 Public MustInherit Class clsProcessFilesBaseClass
 
     Public Sub New()
-        mFileDate = "July 27, 2010"
+        mFileDate = "April 28, 2011"
         mErrorCode = eProcessFilesErrorCodes.NoError
         mProgressStepDescription = String.Empty
 
@@ -73,9 +73,14 @@ Public MustInherit Class clsProcessFilesBaseClass
     Public Event ProgressComplete()
 
     Public Event ErrorEvent(ByVal strMessage As String)
+    Public Event WarningEvent(ByVal strMessage As String)
+    Public Event MessageEvent(ByVal strMessage As String)
 
     Protected mProgressStepDescription As String
     Protected mProgressPercentComplete As Single        ' Ranges from 0 to 100, but can contain decimal percentage values
+
+    Private mRaiseMessageEventLastReportTime As System.DateTime = System.DateTime.MinValue
+    Private mRaiseMessageEventLastMessage As String = String.Empty
 
 #End Region
 
@@ -97,13 +102,13 @@ Public MustInherit Class clsProcessFilesBaseClass
 
     Public ReadOnly Property FileVersion() As String
         Get
-            FileVersion = GetVersionForExecutingAssembly()
+            Return GetVersionForExecutingAssembly()
         End Get
     End Property
 
     Public ReadOnly Property FileDate() As String
         Get
-            FileDate = mFileDate
+            Return mFileDate
         End Get
     End Property
 
@@ -173,7 +178,7 @@ Public MustInherit Class clsProcessFilesBaseClass
             ' Make sure strInputFilePath points to a valid file
             ioFileInfo = New System.IO.FileInfo(strInputFilePath)
 
-            If Not ioFileInfo.Exists() Then
+            If Not ioFileInfo.Exists Then
                 If Me.ShowMessages Then
                     ShowErrorMessage("Input file not found: " & strInputFilePath)
                 Else
@@ -183,7 +188,7 @@ Public MustInherit Class clsProcessFilesBaseClass
                 mErrorCode = eProcessFilesErrorCodes.InvalidInputFilePath
                 blnSuccess = False
             Else
-                If strOutputFolderPath Is Nothing OrElse strOutputFolderPath.Length = 0 Then
+                If String.IsNullOrEmpty(strOutputFolderPath) Then
                     ' Define strOutputFolderPath based on strInputFilePath
                     strOutputFolderPath = ioFileInfo.DirectoryName
                 End If
@@ -191,12 +196,12 @@ Public MustInherit Class clsProcessFilesBaseClass
                 ' Make sure strOutputFolderPath points to a folder
                 ioFolder = New System.IO.DirectoryInfo(strOutputFolderPath)
 
-                If Not ioFolder.Exists() Then
+                If Not ioFolder.Exists Then
                     ' strOutputFolderPath points to a non-existent folder; attempt to create it
                     ioFolder.Create()
                 End If
 
-                mOutputFolderPath = String.Copy(strOutputFolderPath)
+                mOutputFolderPath = String.Copy(ioFolder.FullName)
 
                 blnSuccess = True
             End If
@@ -229,7 +234,7 @@ Public MustInherit Class clsProcessFilesBaseClass
             ' Make sure strInputFilePath points to a valid file
             ioFileInfo = New System.IO.FileInfo(strInputFilePath)
 
-            If Not ioFileInfo.Exists() Then
+            If Not ioFileInfo.Exists Then
                 If Me.ShowMessages Then
                     ShowErrorMessage("Input file not found: " & strInputFilePath)
                 Else
@@ -248,6 +253,33 @@ Public MustInherit Class clsProcessFilesBaseClass
 
         Return blnSuccess
     End Function
+    
+    Protected Function GetAppDataFolderPath(ByVal strAppName As String) As String
+        Dim strAppDataFolder As String = String.Empty
+
+		If String.IsNullOrEmpty(strAppName) Then
+			strAppName = String.Empty
+		End If
+		
+        Try
+            strAppDataFolder = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), strAppName)
+            If Not System.IO.Directory.Exists(strAppDataFolder) Then
+                System.IO.Directory.CreateDirectory(strAppDataFolder)
+            End If
+
+        Catch ex As Exception
+            ' Error creating the folder, revert to using the system Temp folder
+            strAppDataFolder = System.IO.Path.GetTempPath()
+        End Try
+
+        Return strAppDataFolder
+
+    End Function
+
+    Protected Function GetAppPath() As String
+        Return System.Reflection.Assembly.GetExecutingAssembly().Location
+    End Function
+
     Protected Function GetBaseClassErrorMessage() As String
         ' Returns String.Empty if no error
 
@@ -284,7 +316,7 @@ Public MustInherit Class clsProcessFilesBaseClass
         Dim strVersion As String
 
         Try
-            strVersion = System.Reflection.Assembly.GetExecutingAssembly.GetName.Version.ToString()
+            strVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()
         Catch ex As Exception
             strVersion = "??.??.??.??"
         End Try
@@ -305,7 +337,7 @@ Public MustInherit Class clsProcessFilesBaseClass
     Public MustOverride Function GetErrorMessage() As String
 
     Protected Sub HandleException(ByVal strBaseMessage As String, ByVal ex As System.Exception)
-        If strBaseMessage Is Nothing OrElse strBaseMessage.Length = 0 Then
+        If String.IsNullOrEmpty(strBaseMessage) Then
             strBaseMessage = "Error"
         End If
 
@@ -332,7 +364,7 @@ Public MustInherit Class clsProcessFilesBaseClass
 
         If mLogFile Is Nothing AndAlso mLogMessagesToFile Then
             Try
-                If mLogFilePath Is Nothing OrElse mLogFilePath.Length = 0 Then
+                If String.IsNullOrEmpty(mLogFilePath) Then
                     ' Auto-name the log file
                     mLogFilePath = System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetExecutingAssembly().Location)
                     mLogFilePath &= "_log_" & System.DateTime.Now.ToString("yyyy-MM-dd") & ".txt"
@@ -376,6 +408,7 @@ Public MustInherit Class clsProcessFilesBaseClass
             Catch ex As Exception
                 ' Error creating the log file; set mLogMessagesToFile to false so we don't repeatedly try to create it
                 mLogMessagesToFile = False
+                HandleException("Error opening log file", ex)
             End Try
 
         End If
@@ -396,6 +429,8 @@ Public MustInherit Class clsProcessFilesBaseClass
                                strMessageType & ControlChars.Tab & _
                                strMessage)
         End If
+
+        RaiseMessageEvent(strMessage, eMessageType)
 
     End Sub
 
@@ -420,7 +455,6 @@ Public MustInherit Class clsProcessFilesBaseClass
         Dim strCleanPath As String
         Dim strInputFolderPath As String
 
-        Dim ioFileMatch As System.IO.FileInfo
         Dim ioFileInfo As System.IO.FileInfo
         Dim ioFolderInfo As System.IO.DirectoryInfo
 
@@ -430,7 +464,7 @@ Public MustInherit Class clsProcessFilesBaseClass
             ' Possibly reset the error code
             If blnResetErrorCode Then mErrorCode = eProcessFilesErrorCodes.NoError
 
-            If Not strOutputFolderPath Is Nothing AndAlso strOutputFolderPath.Length > 0 Then
+            If Not String.IsNullOrEmpty(strOutputFolderPath) Then
                 ' Update the cached output folder path
                 mOutputFolderPath = String.Copy(strOutputFolderPath)
             End If
@@ -451,17 +485,17 @@ Public MustInherit Class clsProcessFilesBaseClass
                     strInputFolderPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
                 End If
 
-                ioFolderInfo = New System.io.DirectoryInfo(strInputFolderPath)
+                ioFolderInfo = New System.IO.DirectoryInfo(strInputFolderPath)
 
                 ' Remove any directory information from strInputFilePath
                 strInputFilePath = System.IO.Path.GetFileName(strInputFilePath)
 
                 intMatchCount = 0
-                For Each ioFileMatch In ioFolderInfo.GetFiles(strInputFilePath)
+                For Each ioFileMatch As System.IO.FileInfo In ioFolderInfo.GetFiles(strInputFilePath)
 
                     blnSuccess = ProcessFile(ioFileMatch.FullName, strOutputFolderPath, strParameterFilePath, blnResetErrorCode)
 
-                    If Not blnSuccess Or mAbortProcessing Then Exit For
+                    If Not blnSuccess OrElse mAbortProcessing Then Exit For
                     intMatchCount += 1
 
                     If intMatchCount Mod 100 = 0 Then Console.Write(".")
@@ -504,6 +538,7 @@ Public MustInherit Class clsProcessFilesBaseClass
         Return ProcessFile(strInputFilePath, strOutputFolderPath, strParameterFilePath, True)
     End Function
 
+    ' Main function for processing a single file
     Public MustOverride Function ProcessFile(ByVal strInputFilePath As String, ByVal strOutputFolderPath As String, ByVal strParameterFilePath As String, ByVal blnResetErrorCode As Boolean) As Boolean
 
 
@@ -535,6 +570,7 @@ Public MustInherit Class clsProcessFilesBaseClass
         Return ProcessFilesAndRecurseFolders(strInputFilePathOrFolder, strOutputFolderName, strOutputFolderAlternatePath, blnRecreateFolderHierarchyInAlternatePath, strParameterFilePath, intRecurseFoldersMaxLevels, GetDefaultExtensionsToParse())
     End Function
 
+    ' Main function for processing a files in a folder (and subfolders)
     Public Function ProcessFilesAndRecurseFolders(ByVal strInputFilePathOrFolder As String, ByVal strOutputFolderName As String, ByVal strOutputFolderAlternatePath As String, ByVal blnRecreateFolderHierarchyInAlternatePath As Boolean, ByVal strParameterFilePath As String, ByVal intRecurseFoldersMaxLevels As Integer, ByVal strExtensionsToParse() As String) As Boolean
         ' Calls ProcessFiles for all files in strInputFilePathOrFolder and below having an extension listed in strExtensionsToParse()
         ' The extensions should be of the form ".TXT" or ".RAW" (i.e. a period then the extension)
@@ -587,10 +623,10 @@ Public MustInherit Class clsProcessFilesBaseClass
                 End If
             End If
 
-            If Not strInputFolderPath Is Nothing AndAlso strInputFolderPath.Length > 0 Then
+            If Not String.IsNullOrEmpty(strInputFolderPath) Then
 
                 ' Validate the output folder path
-                If Not strOutputFolderAlternatePath Is Nothing AndAlso strOutputFolderAlternatePath.Length > 0 Then
+                If Not String.IsNullOrEmpty(strOutputFolderAlternatePath) Then
                     Try
                         ioFolderInfo = New System.IO.DirectoryInfo(strOutputFolderAlternatePath)
                         If Not ioFolderInfo.Exists Then ioFolderInfo.Create()
@@ -607,7 +643,12 @@ Public MustInherit Class clsProcessFilesBaseClass
                 intFileProcessFailCount = 0
 
                 ' Call RecurseFoldersWork
-                blnSuccess = RecurseFoldersWork(strInputFolderPath, strInputFilePathOrFolder, strOutputFolderName, strParameterFilePath, strOutputFolderAlternatePath, blnRecreateFolderHierarchyInAlternatePath, strExtensionsToParse, intFileProcessCount, intFileProcessFailCount, 1, intRecurseFoldersMaxLevels)
+                Dim intRecursionLevel As Integer = 1
+                blnSuccess = RecurseFoldersWork(strInputFolderPath, strInputFilePathOrFolder, strOutputFolderName, _
+                                                strParameterFilePath, strOutputFolderAlternatePath, _
+                                                blnRecreateFolderHierarchyInAlternatePath, strExtensionsToParse, _
+                                                intFileProcessCount, intFileProcessFailCount, _
+                                                intRecursionLevel, intRecurseFoldersMaxLevels)
 
             Else
                 mErrorCode = clsProcessFilesBaseClass.eProcessFilesErrorCodes.InvalidInputFilePath
@@ -623,12 +664,44 @@ Public MustInherit Class clsProcessFilesBaseClass
 
     End Function
 
-    Private Function RecurseFoldersWork(ByVal strInputFolderPath As String, ByVal strFileNameMatch As String, ByVal strOutputFolderName As String, ByVal strParameterFilePath As String, ByVal strOutputFolderAlternatePath As String, ByVal blnRecreateFolderHierarchyInAlternatePath As Boolean, ByVal strExtensionsToParse() As String, ByRef intFileProcessCount As Integer, ByRef intFileProcessFailCount As Integer, ByVal intRecursionLevel As Integer, ByVal intRecurseFoldersMaxLevels As Integer) As Boolean
+    Private Sub RaiseMessageEvent(ByVal strMessage As String, ByVal eMessageType As eMessageTypeConstants)
+        Static strLastMessage As String = String.Empty
+        Static dtLastReportTime As System.DateTime
+
+        If Not String.IsNullOrEmpty(strMessage) Then
+            If String.Equals(strMessage, strLastMessage) AndAlso _
+               System.DateTime.Now.Subtract(dtLastReportTime).TotalMilliseconds < 500 Then
+                ' Duplicate message; do not raise any events
+            Else
+                dtLastReportTime = System.DateTime.Now
+                strLastMessage = String.Copy(strMessage)
+
+                Select Case eMessageType
+                    Case eMessageTypeConstants.Normal
+                        RaiseEvent MessageEvent(strMessage)
+
+                    Case eMessageTypeConstants.Warning
+                        RaiseEvent WarningEvent(strMessage)
+
+                    Case eMessageTypeConstants.ErrorMsg
+                        RaiseEvent ErrorEvent(strMessage)
+
+                    Case Else
+                        RaiseEvent MessageEvent(strMessage)
+                End Select
+            End If
+        End If
+
+    End Sub
+
+    Private Function RecurseFoldersWork(ByVal strInputFolderPath As String, ByVal strFileNameMatch As String, ByVal strOutputFolderName As String, _
+                                        ByVal strParameterFilePath As String, ByVal strOutputFolderAlternatePath As String, _
+                                        ByVal blnRecreateFolderHierarchyInAlternatePath As Boolean, ByVal strExtensionsToParse() As String, _
+                                        ByRef intFileProcessCount As Integer, ByRef intFileProcessFailCount As Integer, _
+                                        ByVal intRecursionLevel As Integer, ByVal intRecurseFoldersMaxLevels As Integer) As Boolean
         ' If intRecurseFoldersMaxLevels is <=0 then we recurse infinitely
 
         Dim ioInputFolderInfo As System.IO.DirectoryInfo
-        Dim ioSubFolderInfo As System.IO.DirectoryInfo
-        Dim ioFileMatch As System.io.FileInfo
 
         Dim intExtensionIndex As Integer
         Dim blnProcessAllExtensions As Boolean
@@ -646,7 +719,7 @@ Public MustInherit Class clsProcessFilesBaseClass
         End Try
 
         Try
-            If Not strOutputFolderAlternatePath Is Nothing AndAlso strOutputFolderAlternatePath.Length > 0 Then
+            If Not String.IsNullOrEmpty(strOutputFolderAlternatePath) Then
                 If blnRecreateFolderHierarchyInAlternatePath Then
                     strOutputFolderAlternatePath = System.IO.Path.Combine(strOutputFolderAlternatePath, ioInputFolderInfo.Name)
                 End If
@@ -675,7 +748,7 @@ Public MustInherit Class clsProcessFilesBaseClass
                         blnProcessAllExtensions = True
                         Exit For
                     Else
-                        strExtensionsToParse(intExtensionIndex) = strExtensionsToParse(intExtensionIndex).ToUpper
+                        strExtensionsToParse(intExtensionIndex) = strExtensionsToParse(intExtensionIndex).ToUpper()
                     End If
                 End If
             Next intExtensionIndex
@@ -686,7 +759,7 @@ Public MustInherit Class clsProcessFilesBaseClass
         End Try
 
         Try
-            If Not strOutputFolderPathToUse Is Nothing AndAlso strOutputFolderPathToUse.Length > 0 Then
+            If Not String.IsNullOrEmpty(strOutputFolderPathToUse) Then
                 ' Update the cached output folder path
                 mOutputFolderPath = String.Copy(strOutputFolderPathToUse)
             End If
@@ -695,10 +768,10 @@ Public MustInherit Class clsProcessFilesBaseClass
 
             ' Process any matching files in this folder
             blnSuccess = True
-            For Each ioFileMatch In ioInputFolderInfo.GetFiles(strFileNameMatch)
+            For Each ioFileMatch As System.IO.FileInfo In ioInputFolderInfo.GetFiles(strFileNameMatch)
 
                 For intExtensionIndex = 0 To strExtensionsToParse.Length - 1
-                    If blnProcessAllExtensions OrElse ioFileMatch.Extension.ToUpper = strExtensionsToParse(intExtensionIndex) Then
+                    If blnProcessAllExtensions OrElse ioFileMatch.Extension.ToUpper() = strExtensionsToParse(intExtensionIndex) Then
                         blnSuccess = ProcessFile(ioFileMatch.FullName, strOutputFolderPathToUse, strParameterFilePath, True)
                         If Not blnSuccess Then
                             intFileProcessFailCount += 1
@@ -724,8 +797,13 @@ Public MustInherit Class clsProcessFilesBaseClass
             '  otherwise, compare intRecursionLevel to intRecurseFoldersMaxLevels
             If intRecurseFoldersMaxLevels <= 0 OrElse intRecursionLevel <= intRecurseFoldersMaxLevels Then
                 ' Call this function for each of the subfolders of ioInputFolderInfo
-                For Each ioSubFolderInfo In ioInputFolderInfo.GetDirectories()
-                    blnSuccess = RecurseFoldersWork(ioSubFolderInfo.FullName, strFileNameMatch, strOutputFolderName, strParameterFilePath, strOutputFolderAlternatePath, blnRecreateFolderHierarchyInAlternatePath, strExtensionsToParse, intFileProcessCount, intFileProcessFailCount, intRecursionLevel + 1, intRecurseFoldersMaxLevels)
+                For Each ioSubFolderInfo As System.IO.DirectoryInfo In ioInputFolderInfo.GetDirectories()
+                    blnSuccess = RecurseFoldersWork(ioSubFolderInfo.FullName, strFileNameMatch, strOutputFolderName, _
+                                                    strParameterFilePath, strOutputFolderAlternatePath, _
+                                                    blnRecreateFolderHierarchyInAlternatePath, strExtensionsToParse, _
+                                                    intFileProcessCount, intFileProcessFailCount, _
+                                                    intRecursionLevel + 1, intRecurseFoldersMaxLevels)
+
                     If Not blnSuccess Then Exit For
                 Next ioSubFolderInfo
             End If
@@ -736,6 +814,7 @@ Public MustInherit Class clsProcessFilesBaseClass
     End Function
 
     Protected Sub ResetProgress()
+        mProgressPercentComplete = 0
         RaiseEvent ProgressReset()
     End Sub
 
@@ -763,9 +842,10 @@ Public MustInherit Class clsProcessFilesBaseClass
 
         If blnAllowLogToFile Then
             LogMessage(strMessage, eMessageTypeConstants.ErrorMsg)
+        Else
+            RaiseMessageEvent(strMessage, eMessageTypeConstants.ErrorMsg)
         End If
 
-        RaiseEvent ErrorEvent(strMessage)
     End Sub
 
     Protected Sub ShowMessage(ByVal strMessage As String)
@@ -785,6 +865,8 @@ Public MustInherit Class clsProcessFilesBaseClass
 
         If blnAllowLogToFile Then
             LogMessage(strMessage, eMessageTypeConstants.Normal)
+        Else
+            RaiseMessageEvent(strMessage, eMessageTypeConstants.Normal)
         End If
 
     End Sub
@@ -800,7 +882,7 @@ Public MustInherit Class clsProcessFilesBaseClass
     Protected Sub UpdateProgress(ByVal strProgressStepDescription As String, ByVal sngPercentComplete As Single)
         Dim blnDescriptionChanged As Boolean = False
 
-        If strProgressStepDescription <> mProgressStepDescription Then
+        If Not String.Equals(strProgressStepDescription, mProgressStepDescription) Then
             blnDescriptionChanged = True
         End If
 

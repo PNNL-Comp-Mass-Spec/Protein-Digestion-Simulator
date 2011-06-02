@@ -8,7 +8,7 @@ Del ValidateFastaFile_Source*.zip
 @echo off
 echo;
 
-Copy "F:\My Documents\Projects\DataMining\NET_Prediction_Utility\NETPredictionUtility_SourceCode\*.zip" .
+Copy "F:\My Documents\Projects\DataMining\NET_Prediction_Utility\NETPredictionUtility_SourceCode\*Source*.zip" .
 Copy "F:\My Documents\Projects\DataMining\ProteinFileReaderDLL\ProteinFileReader_SourceCode\*.zip" .
 Copy "F:\My Documents\Projects\DataMining\SharedVBNetRoutines\SharedVBNetRoutines_SourceCode\*.zip" .
 Copy "F:\My Documents\Projects\DataMining\SmoothProgressBarDLL\SmoothProgressBar_SourceCode\*.zip" .
