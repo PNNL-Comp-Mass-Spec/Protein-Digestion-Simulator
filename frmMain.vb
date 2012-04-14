@@ -1950,7 +1950,6 @@ Public Class frmMain
 		Dim fiFileInfo As System.IO.FileInfo
 		Dim intFileSizeKB As Integer
 
-		Dim srStreamReader As System.IO.StreamReader
 		Dim strLineIn As String
 		Dim intLineCount As Integer
 		Dim intTotalLineCount As Integer
@@ -1981,29 +1980,27 @@ Public Class frmMain
 			' Assume a delimited text file
 			' Estimate the total line count by reading the first SAMPLING_LINE_COUNT lines
 			Try
-				srStreamReader = New System.IO.StreamReader(strInputFilePath)
+				Using srStreamReader As System.IO.StreamReader = New System.IO.StreamReader(strInputFilePath)
 
-				lngBytesRead = 0
-				intLineCount = 0
-				Do While srStreamReader.Peek() >= 0 AndAlso intLineCount < SAMPLING_LINE_COUNT
-					strLineIn = srStreamReader.ReadLine
-					intLineCount += 1
-					lngBytesRead += strLineIn.Length + 2
-				Loop
+					lngBytesRead = 0
+					intLineCount = 0
+					Do While srStreamReader.Peek() >= 0 AndAlso intLineCount < SAMPLING_LINE_COUNT
+						strLineIn = srStreamReader.ReadLine
+						intLineCount += 1
+						lngBytesRead += strLineIn.Length + 2
+					Loop
 
-				If intLineCount < SAMPLING_LINE_COUNT OrElse lngBytesRead = 0 Then
-					intTotalLineCount = intLineCount
-				Else
-					intTotalLineCount = CInt(intLineCount * intFileSizeKB / (lngBytesRead / 1024))
-				End If
+					If intLineCount < SAMPLING_LINE_COUNT OrElse lngBytesRead = 0 Then
+						intTotalLineCount = intLineCount
+					Else
+						intTotalLineCount = CInt(intLineCount * intFileSizeKB / (lngBytesRead / 1024))
+					End If
+				End Using
+
 			Catch ex As Exception
 				' Error reading input file
 				blnSuggestEnableSqlServer = False
 				blnSuggestDisableSqlServer = False
-			Finally
-				If Not srStreamReader Is Nothing Then
-					srStreamReader.Close()
-				End If
 			End Try
 
 			If blnAssumeDigested Then

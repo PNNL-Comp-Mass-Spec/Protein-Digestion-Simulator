@@ -33,7 +33,7 @@ Option Strict On
 
 Module modMain
 
-	Public Const PROGRAM_DATE As String = "September 16, 2011"
+	Public Const PROGRAM_DATE As String = "April 13, 2012"
 
 	Private mInputFilePath As String
 	Private mAssumeFastaFile As Boolean
@@ -274,6 +274,8 @@ Module modMain
 			Console.WriteLine("Error parsing the command line parameters: " & ControlChars.NewLine & ex.Message)
 		End Try
 
+		Return False
+
 	End Function
 
 	Public Sub ShowGUI()
@@ -318,7 +320,7 @@ Module modMain
 			strSyntax &= "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004" & ControlChars.NewLine
 			strSyntax &= "Version: " & GetAppVersion() & ControlChars.NewLine & ControlChars.NewLine
 
-			strSyntax &= "E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com" & ControlChars.NewLine
+			strSyntax &= "E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com" & ControlChars.NewLine
 			strSyntax &= "Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/" & ControlChars.NewLine & ControlChars.NewLine
 
 			strSyntax &= frmDisclaimer.GetKangasPetritisDisclaimerText() & ControlChars.NewLine & ControlChars.NewLine

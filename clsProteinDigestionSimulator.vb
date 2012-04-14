@@ -746,9 +746,9 @@ Public Class clsProteinDigestionSimulator
 
 		Dim objRangeSearch As clsSearchRange
 
-		Dim srPMResultsOutFile As System.IO.StreamWriter
-		Dim srPeptideUniquenessOutFile As System.IO.StreamWriter
-		Dim srProteinStatsOutFile As System.IO.StreamWriter
+		Dim srPMResultsOutFile As System.IO.StreamWriter = Nothing
+		Dim srPeptideUniquenessOutFile As System.IO.StreamWriter = Nothing
+		Dim srProteinStatsOutFile As System.IO.StreamWriter = Nothing
 
 		Try
 

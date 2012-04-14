@@ -1199,6 +1199,7 @@ Public Class XmlSettingsFileAccessor
                 End If
                 Return False
             End If
+            Return False
         End Function
 
         ''' <summary>The funtions creates a section name.</summary>
@@ -1267,7 +1268,6 @@ Public Class XmlSettingsFileAccessor
             Try
                 Dim fi As System.IO.FileInfo
                 Dim s As String
-                Dim srInFile As System.IO.StreamReader
 
                 fi = New System.IO.FileInfo(strFilePath)
                 If (fi.Exists) Then
@@ -1283,25 +1283,26 @@ Public Class XmlSettingsFileAccessor
                     '     <item key="Setting1" value="ValueA" />
                     '   </section>
 
-                    srInFile = New System.IO.StreamReader(New System.IO.FileStream(fi.FullName, IO.FileMode.Open, IO.FileAccess.Read, IO.FileShare.ReadWrite))
+					Using srInFile As System.IO.StreamReader = New System.IO.StreamReader(New System.IO.FileStream(fi.FullName, IO.FileMode.Open, IO.FileAccess.Read, IO.FileShare.ReadWrite))
 
-                    Do While srInFile.Peek() >= 0
-                        s = srInFile.ReadLine()
+						Do While srInFile.Peek() > -1
+							s = srInFile.ReadLine()
 
-                        ' Try to manually parse this line
-                        ParseLineManual(s, m_XmlDoc)
-                    Loop
+							' Try to manually parse this line
+							ParseLineManual(s, m_XmlDoc)
+						Loop
 
-                    m_XmlFilename = strFilePath
-                    m_initialized = True
+						m_XmlFilename = strFilePath
+						m_initialized = True
 
-                    srInFile.Close()
-                Else
-                    ' File doesn't exist; create a new, blank .XML file
-                    m_XmlFilename = strFilePath
-                    m_XmlDoc.Save(m_XmlFilename)
-                    m_initialized = True
-                End If
+					End Using
+
+				Else
+					' File doesn't exist; create a new, blank .XML file
+					m_XmlFilename = strFilePath
+					m_XmlDoc.Save(m_XmlFilename)
+					m_initialized = True
+				End If
 
                 Return True
 
@@ -1322,6 +1323,7 @@ Public Class XmlSettingsFileAccessor
         ''' <param name="strLine">The name of the string to be parse.</param>
         ''' <param name="doc">The name of the System.Xml.XmlDocument.</param>
         ''' <returns>True if success, false if not a recognized line format</returns>
+        ''' <remarks>Returns True for blank lines</remarks>
         Private Function ParseLineManual(ByVal strLine As String, ByRef doc As System.Xml.XmlDocument) As Boolean
             Const SECTION_NAME_TAG As String = "<section name="
             Const KEY_TAG As String = "key="
@@ -1348,11 +1350,13 @@ Public Class XmlSettingsFileAccessor
                     strLine = strLine.TrimEnd("]"c)
                     ' create a new section element
                     CreateSection(strLine)
+                    Return True
                 Case ";"
                     ' new comment
                     N = doc.CreateElement("comment")
                     N.InnerText = strLine.Substring(1)
                     GetLastSection().AppendChild(N)
+                    Return True
                 Case Else
                     ' Look for typical XML settings file elements
 
@@ -1361,7 +1365,7 @@ Public Class XmlSettingsFileAccessor
 
                         ' Create a new section element
                         CreateSection(strKey)
-
+                        Return True
                     Else
                         If ParseLineManualCheckTag(strLine, KEY_TAG, strKey) Then
                             ' This is an XML-style key
@@ -1388,7 +1392,11 @@ Public Class XmlSettingsFileAccessor
                             strValue = String.Empty
                         End If
 
-                        If strKey.Length > 0 Then
+                        If strKey.Length = 0 Then
+                            Return False
+
+                        Else
+
                             blnAddSetting = True
 
                             Select Case strKey.ToLower().Trim()
@@ -1401,24 +1409,23 @@ Public Class XmlSettingsFileAccessor
 
                             End Select
 
-                        Else
-                            blnAddSetting = False
+                            If blnAddSetting Then
+                                N = doc.CreateElement("item")
+                                Natt = doc.CreateAttribute("key")
+                                Natt.Value = SetNameCase(strKey)
+                                N.Attributes.SetNamedItem(Natt)
+
+                                Natt = doc.CreateAttribute("value")
+                                Natt.Value = strValue
+                                N.Attributes.SetNamedItem(Natt)
+
+                                GetLastSection().AppendChild(N)
+
+                            End If
+
+                            Return True
                         End If
 
-                        If blnAddSetting Then
-                            N = doc.CreateElement("item")
-                            Natt = doc.CreateAttribute("key")
-                            Natt.Value = SetNameCase(strKey)
-                            N.Attributes.SetNamedItem(Natt)
-
-                            Natt = doc.CreateAttribute("value")
-                            Natt.Value = strValue
-                            N.Attributes.SetNamedItem(Natt)
-
-                            GetLastSection().AppendChild(N)
-
-                        End If
-                       
                     End If
 
             End Select

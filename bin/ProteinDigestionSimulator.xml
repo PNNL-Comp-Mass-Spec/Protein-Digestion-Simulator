@@ -371,6 +371,7 @@ ProteinDigestionSimulator
 	<param name="strLine">The name of the string to be parse.</param>
 	<param name="doc">The name of the System.Xml.XmlDocument.</param>
 	<returns>True if success, false if not a recognized line format</returns>
+	<remarks>Returns True for blank lines</remarks>
 </member><member name="P:ProteinDigestionSimulator.XmlSettingsFileAccessor.XMLFileReader.OutputFilename">
 	<summary>It Sets or Gets the output file name.</summary>
 </member><member name="M:ProteinDigestionSimulator.XmlSettingsFileAccessor.XMLFileReader.Save">
