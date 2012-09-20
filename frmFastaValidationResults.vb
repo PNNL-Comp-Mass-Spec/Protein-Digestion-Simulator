@@ -43,6 +43,7 @@ Public Class frmFastaValidation
 		Public GenerateFixedFasta As Boolean
 		Public TruncateLongProteinName As Boolean
 		Public RenameProteinWithDuplicateNames As Boolean
+		Public KeepDuplicateNamedProteins As Boolean
 		Public WrapLongResidueLines As Boolean
 		Public RemoveInvalidResidues As Boolean
 		Public SplitOutMultipleRefsForKnownAccession As Boolean
@@ -60,6 +61,8 @@ Public Class frmFastaValidation
 
 	Private mWarningsDataset As System.Data.DataSet
 	Private mWarningsDataView As System.Data.DataView
+
+	Private mKeepDuplicateNamedProteinsLastValue As Boolean = False
 
 	' This timer is used to cause StartValidation to be called after the form becomes visible
 	Private WithEvents mValidationTriggerTimer As System.Windows.Forms.Timer
@@ -210,13 +213,27 @@ Public Class frmFastaValidation
 		txtInvalidProteinNameCharsToRemove.Enabled = blnEnableFixedFastaOptions
 		chkSplitOutMultipleRefsInProteinName.Enabled = blnEnableFixedFastaOptions
 		chkRenameDuplicateProteins.Enabled = blnEnableFixedFastaOptions
+
+		If blnEnableFixedFastaOptions Then
+			If chkRenameDuplicateProteins.Checked Then
+				chkKeepDuplicateNamedProteins.Enabled = False
+				chkKeepDuplicateNamedProteins.Checked = False
+			Else
+				chkKeepDuplicateNamedProteins.Enabled = True
+				chkKeepDuplicateNamedProteins.Checked = mKeepDuplicateNamedProteinsLastValue
+			End If
+		Else
+			chkKeepDuplicateNamedProteins.Enabled = False
+		End If
+
+		
 		chkConsolidateDuplicateProteinSeqs.Enabled = blnEnableFixedFastaOptions
 		chkConsolidateDupsIgnoreILDiff.Enabled = blnEnableFixedFastaOptions And chkConsolidateDuplicateProteinSeqs.Checked
 
 		chkTruncateLongProteinNames.Enabled = blnEnableFixedFastaOptions
 		chkSplitOutMultipleRefsForKnownAccession.Enabled = blnEnableFixedFastaOptions
 		chkWrapLongResidueLines.Enabled = blnEnableFixedFastaOptions
-		chkRemoveInvalidResidues.Enabled = blnEnableFixedFastaOptions
+		chkRemoveInvalidResidues.Enabled = blnEnableFixedFastaOptions		
 
 		If txtCustomValidationRulesFilePath.TextLength > 0 Then
 			chkAllowAsteriskInResidues.Enabled = False
@@ -348,6 +365,7 @@ Public Class frmFastaValidation
 				.GenerateFixedFasta = chkGenerateFixedFastaFile.Checked
 				.TruncateLongProteinName = chkTruncateLongProteinNames.Checked
 				.RenameProteinWithDuplicateNames = chkRenameDuplicateProteins.Checked
+				.KeepDuplicateNamedProteins = chkKeepDuplicateNamedProteins.Checked
 				.WrapLongResidueLines = chkWrapLongResidueLines.Checked
 				.RemoveInvalidResidues = chkRemoveInvalidResidues.Checked
 				.SplitOutMultipleRefsForKnownAccession = chkSplitOutMultipleRefsForKnownAccession.Checked
@@ -557,6 +575,7 @@ Public Class frmFastaValidation
 
 		chkRemoveInvalidResidues.Checked = False
 		chkRenameDuplicateProteins.Checked = True
+		chkKeepDuplicateNamedProteins.Checked = False
 		chkSplitOutMultipleRefsForKnownAccession.Checked = True
 		chkSplitOutMultipleRefsInProteinName.Checked = False
 		chkTruncateLongProteinNames.Checked = True
@@ -685,6 +704,7 @@ Public Class frmFastaValidation
 				chkGenerateFixedFastaFile.Checked = .GenerateFixedFasta
 				chkTruncateLongProteinNames.Checked = .TruncateLongProteinName
 				chkRenameDuplicateProteins.Checked = .RenameProteinWithDuplicateNames
+				chkKeepDuplicateNamedProteins.Checked = .KeepDuplicateNamedProteins
 				chkWrapLongResidueLines.Checked = .WrapLongResidueLines
 				chkRemoveInvalidResidues.Checked = .RemoveInvalidResidues
 				chkSplitOutMultipleRefsForKnownAccession.Checked = .SplitOutMultipleRefsForKnownAccession
@@ -777,6 +797,7 @@ Public Class frmFastaValidation
 				.SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.SplitOutMultipleRefsInProteinName, chkSplitOutMultipleRefsInProteinName.Checked)
 
 				.SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaRenameDuplicateNameProteins, chkRenameDuplicateProteins.Checked)
+				.SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaKeepDuplicateNamedProteins, chkKeepDuplicateNamedProteins.Checked)
 				.SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs, chkConsolidateDuplicateProteinSeqs.Checked)
 				.SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaConsolidateDupsIgnoreILDiff, chkConsolidateDupsIgnoreILDiff.Checked)
 				.SetOptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaTruncateLongProteinNames, chkTruncateLongProteinNames.Checked)
@@ -939,6 +960,10 @@ Public Class frmFastaValidation
 		EnableDisableControls()
 	End Sub
 
+	Private Sub chkRenameDuplicateProteins_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkRenameDuplicateProteins.CheckedChanged
+		EnableDisableControls()
+	End Sub
+
 	Private Sub cmdCancel_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdCancel.Click
 		If Not mValidateFastaFile Is Nothing Then
 			cmdCancel.Enabled = False
@@ -1071,4 +1096,9 @@ Public Class frmFastaValidation
 	End Sub
 #End Region
 
+	Private Sub chkKeepDuplicateNamedProteins_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkKeepDuplicateNamedProteins.CheckedChanged
+		If chkKeepDuplicateNamedProteins.Enabled Then
+			mKeepDuplicateNamedProteinsLastValue = chkKeepDuplicateNamedProteins.Checked
+		End If
+	End Sub
 End Class

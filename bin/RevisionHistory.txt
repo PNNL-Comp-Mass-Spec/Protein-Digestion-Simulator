@@ -1,5 +1,11 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.4646; September 20, 2012
+	- New version of ValidateFastaFile.dll
+		- Adds option "Retain duplicate named proteins" to the Fixed Fasta Options tab of the Fasta File Validation window
+		- New version of ValidateFastaFile.dll
+	- Updated to .NET 4
+
 Version 2.2.4486; April 13, 2012
 	- New version of ValidateFastaFile.dll
 
