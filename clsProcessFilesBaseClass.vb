@@ -11,7 +11,7 @@ Option Strict On
 Public MustInherit Class clsProcessFilesBaseClass
 
 	Public Sub New()
-		mFileDate = "September 15, 2011"
+		mFileDate = "October 25, 2012"
 		mErrorCode = eProcessFilesErrorCodes.NoError
 		mProgressStepDescription = String.Empty
 
@@ -213,17 +213,6 @@ Public MustInherit Class clsProcessFilesBaseClass
 		Return blnSuccess
 	End Function
 
-	Public Sub CloseLogFileNow()
-		If Not mLogFile Is Nothing Then
-			mLogFile.Close()
-			mLogFile = Nothing
-
-			GC.Collect()
-			GC.WaitForPendingFinalizers()
-			System.Threading.Thread.Sleep(100)
-		End If
-	End Sub
-
 	Protected Function CleanupInputFilePath(ByRef strInputFilePath As String) As Boolean
 		' Returns True if success, False if failure
 
@@ -253,6 +242,56 @@ Public MustInherit Class clsProcessFilesBaseClass
 
 		Return blnSuccess
 	End Function
+
+	Public Sub CloseLogFileNow()
+		If Not mLogFile Is Nothing Then
+			mLogFile.Close()
+			mLogFile = Nothing
+
+			GarbageCollectNow()
+			System.Threading.Thread.Sleep(100)
+		End If
+	End Sub
+
+	Public Shared Sub GarbageCollectNow()
+		Dim intMaxWaitTimeMSec As Integer = 1000
+		GarbageCollectNow(intMaxWaitTimeMSec)
+	End Sub
+
+	Public Shared Sub GarbageCollectNow(ByVal intMaxWaitTimeMSec As Integer)
+		Const THREAD_SLEEP_TIME_MSEC As Integer = 100
+
+		Dim intTotalThreadWaitTimeMsec As Integer
+		If intMaxWaitTimeMSec < 100 Then intMaxWaitTimeMSec = 100
+		If intMaxWaitTimeMSec > 5000 Then intMaxWaitTimeMSec = 5000
+
+		System.Threading.Thread.Sleep(100)
+
+		Try
+			Dim gcThread As New Threading.Thread(AddressOf GarbageCollectWaitForGC)
+			gcThread.Start()
+
+			intTotalThreadWaitTimeMsec = 0
+			While gcThread.IsAlive AndAlso intTotalThreadWaitTimeMsec < intMaxWaitTimeMSec
+				Threading.Thread.Sleep(THREAD_SLEEP_TIME_MSEC)
+				intTotalThreadWaitTimeMsec += THREAD_SLEEP_TIME_MSEC
+			End While
+			If gcThread.IsAlive Then gcThread.Abort()
+
+		Catch ex As Exception
+			' Ignore errors here
+		End Try
+
+	End Sub
+
+	Protected Shared Sub GarbageCollectWaitForGC()
+		Try
+			GC.Collect()
+			GC.WaitForPendingFinalizers()
+		Catch
+			' Ignore errors here
+		End Try
+	End Sub
 
 	Protected Function GetAppDataFolderPath(ByVal strAppName As String) As String
 		Dim strAppDataFolder As String = String.Empty
@@ -492,12 +531,11 @@ Public MustInherit Class clsProcessFilesBaseClass
 
 				intMatchCount = 0
 				For Each ioFileMatch As System.IO.FileInfo In ioFolderInfo.GetFiles(strInputFilePath)
+					intMatchCount += 1
 
 					blnSuccess = ProcessFile(ioFileMatch.FullName, strOutputFolderPath, strParameterFilePath, blnResetErrorCode)
 
 					If Not blnSuccess OrElse mAbortProcessing Then Exit For
-					intMatchCount += 1
-
 					If intMatchCount Mod 100 = 0 Then Console.Write(".")
 
 				Next ioFileMatch
@@ -898,9 +936,9 @@ Public MustInherit Class clsProcessFilesBaseClass
 
 		If blnDescriptionChanged Then
 			If mProgressPercentComplete = 0 Then
-				LogMessage(mProgressStepDescription.Replace(ControlChars.NewLine, "; "))
+				LogMessage(mProgressStepDescription.Replace(System.Environment.NewLine, "; "))
 			Else
-				LogMessage(mProgressStepDescription & " (" & mProgressPercentComplete.ToString("0.0") & "% complete)".Replace(ControlChars.NewLine, "; "))
+				LogMessage(mProgressStepDescription & " (" & mProgressPercentComplete.ToString("0.0") & "% complete)".Replace(System.Environment.NewLine, "; "))
 			End If
 		End If
 
