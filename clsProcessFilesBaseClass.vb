@@ -11,7 +11,7 @@ Option Strict On
 Public MustInherit Class clsProcessFilesBaseClass
 
 	Public Sub New()
-		mFileDate = "October 25, 2012"
+		mFileDate = "December 11, 2012"
 		mErrorCode = eProcessFilesErrorCodes.NoError
 		mProgressStepDescription = String.Empty
 
@@ -54,7 +54,7 @@ Public MustInherit Class clsProcessFilesBaseClass
 	''    End Get
 	''End Property
 
-	Private mShowMessages As Boolean
+	Private mShowMessages As Boolean = True
 	Private mErrorCode As eProcessFilesErrorCodes
 
 	Protected mFileDate As String
