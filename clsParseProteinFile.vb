@@ -860,13 +860,13 @@ Public Class clsParseProteinFile
 	Public Function ParseProteinFile(ByVal strProteinInputFilePath As String, ByVal strOutputFolderPath As String, ByVal strOutputFileNameBaseOverride As String) As Boolean
 		' If strOutputFileNameBaseOverride is defined, then uses that name for the protein output filename rather than auto-defining the name
 
-		Dim objProteinFileReader As ProteinFileReader.ProteinFileReaderBaseClass
+		Dim objProteinFileReader As ProteinFileReader.ProteinFileReaderBaseClass = Nothing
 		Dim objFastaFileReader As ProteinFileReader.FastaFileReader
 		Dim objDelimitedFileReader As ProteinFileReader.DelimitedFileReader
 
-		Dim srProteinOutputFile As System.IO.StreamWriter
-		Dim srDigestOutputFile As System.IO.StreamWriter
-		Dim srScrambledOutStream As System.IO.StreamWriter
+		Dim srProteinOutputFile As System.IO.StreamWriter = Nothing
+		Dim srDigestOutputFile As System.IO.StreamWriter = Nothing
+		Dim srScrambledOutStream As System.IO.StreamWriter = Nothing
 
 		Dim strLineOut As String = String.Empty
 
@@ -903,7 +903,7 @@ Public Class clsParseProteinFile
 
 		Dim sngProteinSCXNET As Single
 
-		Dim objRandomNumberGenerator As Random
+		Dim objRandomNumberGenerator As Random = Nothing
 		Dim intRandomNumberSeed As Integer
 		Dim eScramblingMode As ProteinScramblingModeConstants
 		Dim udtResidueCache As udtScrambingResidueCacheType
@@ -1578,7 +1578,7 @@ Public Class clsParseProteinFile
 
 	Private Function PreScanProteinFileForAddnlRefsInDescription(ByVal strProteinInputFilePath As String, ByRef htAddnlRefMasterNames As System.Collections.Specialized.StringDictionary) As Boolean
 
-		Dim objFastaFileReader As ProteinFileReader.FastaFileReader
+		Dim objFastaFileReader As ProteinFileReader.FastaFileReader = Nothing
 		Dim udtProtein As udtProteinInfoType
 
 		Dim intIndex As Integer
@@ -1587,7 +1587,6 @@ Public Class clsParseProteinFile
 		Dim blnInputProteinFound As Boolean
 
 		Try
-
 			objFastaFileReader = New ProteinFileReader.FastaFileReader
 			With objFastaFileReader
 				.ProteinLineStartChar = FastaFileOptions.ProteinLineStartChar

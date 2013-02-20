@@ -11,7 +11,7 @@ Option Strict On
 Public MustInherit Class clsProcessFilesBaseClass
 
 	Public Sub New()
-		mFileDate = "December 11, 2012"
+		mFileDate = "February 19, 2013"
 		mErrorCode = eProcessFilesErrorCodes.NoError
 		mProgressStepDescription = String.Empty
 
@@ -253,11 +253,61 @@ Public MustInherit Class clsProcessFilesBaseClass
 		End If
 	End Sub
 
+	''' <summary>
+	''' Verifies that the specified .XML settings file exists in the user's local settings folder
+	''' </summary>
+	''' <param name="strApplicationName">Application name</param>
+	''' <param name="strSettingsFileName">Settings file name</param>
+	''' <returns></returns>
+	''' <remarks></remarks>
+	Public Shared Function CreateSettingsFileIfMissing(ByVal strApplicationName As String, ByVal strSettingsFileName As String) As Boolean
+		Dim strSettingsFilePathLocal As String = GetSettingsFilePathLocal(strApplicationName, strSettingsFileName)
+
+		Return CreateSettingsFileIfMissing(strSettingsFilePathLocal)
+
+	End Function
+
+	''' <summary>
+	''' Verifies that the specified .XML settings file exists in the user's local settings folder
+	''' </summary>
+	''' <param name="strSettingsFilePathLocal">Full path to the local settings file, for example C:\Users\username\AppData\Roaming\AppName\SettingsFileName.xml</param>
+	''' <returns></returns>
+	''' <remarks></remarks>
+	Public Shared Function CreateSettingsFileIfMissing(ByVal strSettingsFilePathLocal As String) As Boolean
+
+		Try
+			If Not IO.File.Exists(strSettingsFilePathLocal) Then
+				Dim fiMasterSettingsFile As System.IO.FileInfo
+				fiMasterSettingsFile = New System.IO.FileInfo(System.IO.Path.Combine(GetAppFolderPath(), System.IO.Path.GetFileName(strSettingsFilePathLocal)))
+
+				If fiMasterSettingsFile.Exists Then
+					fiMasterSettingsFile.CopyTo(strSettingsFilePathLocal)
+				End If
+			End If
+
+		Catch ex As Exception
+			' Ignore errors, but return false
+			Return False
+		End Try
+
+		Return True
+
+	End Function
+
+	''' <summary>
+	''' Perform garbage collection
+	''' </summary>
+	''' <remarks></remarks>
 	Public Shared Sub GarbageCollectNow()
 		Dim intMaxWaitTimeMSec As Integer = 1000
 		GarbageCollectNow(intMaxWaitTimeMSec)
 	End Sub
 
+	''' <summary>
+	''' Perform garbage collection
+	''' </summary>
+	''' <param name="intMaxWaitTimeMSec"></param>
+	''' <remarks></remarks>
 	Public Shared Sub GarbageCollectNow(ByVal intMaxWaitTimeMSec As Integer)
 		Const THREAD_SLEEP_TIME_MSEC As Integer = 100
 
@@ -293,7 +343,13 @@ Public MustInherit Class clsProcessFilesBaseClass
 		End Try
 	End Sub
 
-	Protected Function GetAppDataFolderPath(ByVal strAppName As String) As String
+	''' <summary>
+	''' Returns the full path to the folder into which this application should read/write settings file information
+	''' </summary>
+	''' <param name="strAppName"></param>
+	''' <returns></returns>
+	''' <remarks>For example, C:\Users\username\AppData\Roaming\AppName</remarks>
+	Public Shared Function GetAppDataFolderPath(ByVal strAppName As String) As String
 		Dim strAppDataFolder As String = String.Empty
 
 		If String.IsNullOrEmpty(strAppName) Then
@@ -315,8 +371,33 @@ Public MustInherit Class clsProcessFilesBaseClass
 
 	End Function
 
-	Protected Function GetAppPath() As String
+	''' <summary>
+	''' Returns the full path to the folder that contains the currently executing .Exe or .Dll
+	''' </summary>
+	''' <returns></returns>
+	''' <remarks></remarks>
+	Public Shared Function GetAppFolderPath() As String
+		' Could use Application.StartupPath, but .GetExecutingAssembly is better
+		Return System.IO.Path.GetDirectoryName(GetAppPath())
+	End Function
+
+	''' <summary>
+	''' Returns the full path to the executing .Exe or .Dll
+	''' </summary>
+	''' <returns>File path</returns>
+	''' <remarks></remarks>
+	Public Shared Function GetAppPath() As String
 		Return System.Reflection.Assembly.GetExecutingAssembly().Location
+	End Function
+
+	''' <summary>
+	''' Returns the .NET assembly version followed by the program date
+	''' </summary>
+	''' <param name="strProgramDate"></param>
+	''' <returns></returns>
+	''' <remarks></remarks>
+	Public Shared Function GetAppVersion(ByVal strProgramDate As String) As String
+		Return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() & " (" & strProgramDate & ")"
 	End Function
 
 	Protected Function GetBaseClassErrorMessage() As String
@@ -348,6 +429,17 @@ Public MustInherit Class clsProcessFilesBaseClass
 
 		Return strErrorMessage
 
+	End Function
+
+	''' <summary>
+	''' Returns the full path to this application's local settings file
+	''' </summary>
+	''' <param name="strApplicationName"></param>
+	''' <param name="strSettingsFileName"></param>
+	''' <returns></returns>
+	''' <remarks>For example, C:\Users\username\AppData\Roaming\AppName\SettingsFileName.xml</remarks>
+	Public Shared Function GetSettingsFilePathLocal(ByVal strApplicationName As String, ByVal strSettingsFileName As String) As String
+		Return System.IO.Path.Combine(clsProcessFilesBaseClass.GetAppDataFolderPath(strApplicationName), strSettingsFileName)
 	End Function
 
 	Private Function GetVersionForExecutingAssembly() As String
@@ -405,7 +497,7 @@ Public MustInherit Class clsProcessFilesBaseClass
 			Try
 				If String.IsNullOrEmpty(mLogFilePath) Then
 					' Auto-name the log file
-					mLogFilePath = System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetExecutingAssembly().Location)
+					mLogFilePath = System.IO.Path.GetFileNameWithoutExtension(GetAppPath())
 					mLogFilePath &= "_log_" & System.DateTime.Now.ToString("yyyy-MM-dd") & ".txt"
 				End If
 
@@ -440,8 +532,8 @@ Public MustInherit Class clsProcessFilesBaseClass
 
 				If Not blnOpeningExistingFile Then
 					mLogFile.WriteLine("Date" & ControlChars.Tab & _
-									   "Type" & ControlChars.Tab & _
-									   "Message")
+					 "Type" & ControlChars.Tab & _
+					 "Message")
 				End If
 
 			Catch ex As Exception
@@ -465,8 +557,8 @@ Public MustInherit Class clsProcessFilesBaseClass
 			End Select
 
 			mLogFile.WriteLine(System.DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss tt") & ControlChars.Tab & _
-							   strMessageType & ControlChars.Tab & _
-							   strMessage)
+			 strMessageType & ControlChars.Tab & _
+			 strMessage)
 		End If
 
 		RaiseMessageEvent(strMessage, eMessageType)
@@ -520,8 +612,8 @@ Public MustInherit Class clsProcessFilesBaseClass
 				If ioFileInfo.Directory.Exists Then
 					strInputFolderPath = ioFileInfo.DirectoryName
 				Else
-					' Use the current working directory
-					strInputFolderPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
+					' Use the directory that has the .exe file
+					strInputFolderPath = GetAppFolderPath()
 				End If
 
 				ioFolderInfo = New System.IO.DirectoryInfo(strInputFolderPath)
@@ -638,8 +730,8 @@ Public MustInherit Class clsProcessFilesBaseClass
 				If ioFileInfo.Directory.Exists Then
 					strInputFolderPath = ioFileInfo.DirectoryName
 				Else
-					' Use the current working directory
-					strInputFolderPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
+					' Use the directory that has the .exe file
+					strInputFolderPath = GetAppFolderPath()
 				End If
 
 				' Remove any directory information from strInputFilePath
@@ -683,10 +775,10 @@ Public MustInherit Class clsProcessFilesBaseClass
 				' Call RecurseFoldersWork
 				Dim intRecursionLevel As Integer = 1
 				blnSuccess = RecurseFoldersWork(strInputFolderPath, strInputFilePathOrFolder, strOutputFolderName, _
-												strParameterFilePath, strOutputFolderAlternatePath, _
-												blnRecreateFolderHierarchyInAlternatePath, strExtensionsToParse, _
-												intFileProcessCount, intFileProcessFailCount, _
-												intRecursionLevel, intRecurseFoldersMaxLevels)
+				  strParameterFilePath, strOutputFolderAlternatePath, _
+				  blnRecreateFolderHierarchyInAlternatePath, strExtensionsToParse, _
+				  intFileProcessCount, intFileProcessFailCount, _
+				  intRecursionLevel, intRecurseFoldersMaxLevels)
 
 			Else
 				mErrorCode = clsProcessFilesBaseClass.eProcessFilesErrorCodes.InvalidInputFilePath
@@ -733,10 +825,10 @@ Public MustInherit Class clsProcessFilesBaseClass
 	End Sub
 
 	Private Function RecurseFoldersWork(ByVal strInputFolderPath As String, ByVal strFileNameMatch As String, ByVal strOutputFolderName As String, _
-										ByVal strParameterFilePath As String, ByVal strOutputFolderAlternatePath As String, _
-										ByVal blnRecreateFolderHierarchyInAlternatePath As Boolean, ByVal strExtensionsToParse() As String, _
-										ByRef intFileProcessCount As Integer, ByRef intFileProcessFailCount As Integer, _
-										ByVal intRecursionLevel As Integer, ByVal intRecurseFoldersMaxLevels As Integer) As Boolean
+	   ByVal strParameterFilePath As String, ByVal strOutputFolderAlternatePath As String, _
+	   ByVal blnRecreateFolderHierarchyInAlternatePath As Boolean, ByVal strExtensionsToParse() As String, _
+	   ByRef intFileProcessCount As Integer, ByRef intFileProcessFailCount As Integer, _
+	   ByVal intRecursionLevel As Integer, ByVal intRecurseFoldersMaxLevels As Integer) As Boolean
 		' If intRecurseFoldersMaxLevels is <=0 then we recurse infinitely
 
 		Dim ioInputFolderInfo As System.IO.DirectoryInfo
@@ -837,10 +929,10 @@ Public MustInherit Class clsProcessFilesBaseClass
 				' Call this function for each of the subfolders of ioInputFolderInfo
 				For Each ioSubFolderInfo As System.IO.DirectoryInfo In ioInputFolderInfo.GetDirectories()
 					blnSuccess = RecurseFoldersWork(ioSubFolderInfo.FullName, strFileNameMatch, strOutputFolderName, _
-													strParameterFilePath, strOutputFolderAlternatePath, _
-													blnRecreateFolderHierarchyInAlternatePath, strExtensionsToParse, _
-													intFileProcessCount, intFileProcessFailCount, _
-													intRecursionLevel + 1, intRecurseFoldersMaxLevels)
+					  strParameterFilePath, strOutputFolderAlternatePath, _
+					  blnRecreateFolderHierarchyInAlternatePath, strExtensionsToParse, _
+					  intFileProcessCount, intFileProcessFailCount, _
+					  intRecursionLevel + 1, intRecurseFoldersMaxLevels)
 
 					If Not blnSuccess Then Exit For
 				Next ioSubFolderInfo

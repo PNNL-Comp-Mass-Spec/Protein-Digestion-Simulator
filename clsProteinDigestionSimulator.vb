@@ -29,7 +29,7 @@ Public Class clsProteinDigestionSimulator
 	Inherits clsProcessFilesBaseClass
 
 	Public Sub New()
-		MyBase.mFileDate = "December 6, 2010"
+		MyBase.mFileDate = "February 19, 2013"
 		InitializeLocalVariables()
 	End Sub
 
@@ -744,7 +744,7 @@ Public Class clsProteinDigestionSimulator
 		Dim blnSuccess As Boolean
 		Dim blnSearchAborted As Boolean = False
 
-		Dim objRangeSearch As clsSearchRange
+		Dim objRangeSearch As clsSearchRange = Nothing
 
 		Dim srPMResultsOutFile As System.IO.StreamWriter = Nothing
 		Dim srPeptideUniquenessOutFile As System.IO.StreamWriter = Nothing
@@ -1408,7 +1408,7 @@ Public Class clsProteinDigestionSimulator
 		' Assumes the peptides in the input file are already digested and that they already have unique ID values generated
 		' They could optionally have Mass and NET values defined
 
-		Dim objDelimitedFileReader As ProteinFileReader.DelimitedFileReader
+		Dim objDelimitedFileReader As ProteinFileReader.DelimitedFileReader = Nothing
 
 		Dim objNewPeptide As clsInSilicoDigest.PeptideInfoClass
 
@@ -1519,7 +1519,7 @@ Public Class clsProteinDigestionSimulator
 
 		Dim strSkipMessage As String = String.Empty
 
-		Dim htMasterSequences As Hashtable
+		Dim htMasterSequences As Hashtable = Nothing
 		Dim intUniqueSeqID As Integer
 		Dim intNextUniqueIDForMasterSeqs As Integer
 
@@ -1527,7 +1527,7 @@ Public Class clsProteinDigestionSimulator
 		Dim intPeptideIndex As Integer
 
 		Dim intPeptideCount As Integer
-		Dim objPeptides() As clsInSilicoDigest.PeptideInfoClass
+		Dim objPeptides() As clsInSilicoDigest.PeptideInfoClass = Nothing
 
 		Dim objProteinOrPeptide As clsParseProteinFile.udtProteinInfoType
 

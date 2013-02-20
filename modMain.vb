@@ -33,7 +33,7 @@ Option Strict On
 
 Module modMain
 
-	Public Const PROGRAM_DATE As String = "September 20, 2012"
+	Public Const PROGRAM_DATE As String = "February 19, 2013"
 
 	Private mInputFilePath As String
 	Private mAssumeFastaFile As Boolean
@@ -42,7 +42,7 @@ Module modMain
 
 	Private mInputFileDelimiter As Char
 
-	Private mOutputFolderName As String				' Optional
+	Private mOutputFolderPath As String				' Optional
 	Private mParameterFilePath As String			' Optional
 	Private mOutputFolderAlternatePath As String	' Optional
 
@@ -50,6 +50,10 @@ Module modMain
 
 	Private mRecurseFolders As Boolean
 	Private mRecurseFoldersMaxLevels As Integer
+
+	Private mLogMessagesToFile As Boolean
+	Private mLogFilePath As String = String.Empty
+	Private mLogFolderPath As String = String.Empty
 
 	Private mQuietMode As Boolean
 	Private mShowDebugPrompts As Boolean
@@ -130,22 +134,27 @@ Module modMain
 		' Returns 0 if no error, error code if an error
 
 		Dim intReturnCode As Integer
-		Dim objParseCommandLine As New SharedVBNetRoutines.clsParseCommandLine
+		Dim objParseCommandLine As New clsParseCommandLine
 		Dim blnProceed As Boolean
 
 		intReturnCode = 0
-		mInputFilePath = ""
+		mInputFilePath = String.Empty
 		mAssumeFastaFile = False
 		mCreateDigestedProteinOutputFile = False
 		mComputeProteinMass = False
 
 		mInputFileDelimiter = ControlChars.Tab
 
-		mOutputFolderName = ""
-		mParameterFilePath = ""
+		mOutputFolderPath = String.Empty
+		mParameterFilePath = String.Empty
 
 		mRecurseFolders = False
 		mRecurseFoldersMaxLevels = 0
+
+		mQuietMode = False
+		mLogMessagesToFile = False
+		mLogFilePath = String.Empty
+		mLogFolderPath = String.Empty
 
 		Try
 			blnProceed = False
@@ -178,16 +187,20 @@ Module modMain
 					With .DigestionOptions
 						.RemoveDuplicateSequences = False
 					End With
+
+					.LogMessagesToFile = mLogMessagesToFile
+					.LogFilePath = mLogFilePath
+					.LogFolderPath = mLogFolderPath
 				End With
 
 				If mRecurseFolders Then
-					If mParseProteinFile.ProcessFilesAndRecurseFolders(mInputFilePath, mOutputFolderName, mOutputFolderAlternatePath, mRecreateFolderHierarchyInAlternatePath, mParameterFilePath, mRecurseFoldersMaxLevels) Then
+					If mParseProteinFile.ProcessFilesAndRecurseFolders(mInputFilePath, mOutputFolderPath, mOutputFolderAlternatePath, mRecreateFolderHierarchyInAlternatePath, mParameterFilePath, mRecurseFoldersMaxLevels) Then
 						intReturnCode = 0
 					Else
 						intReturnCode = mParseProteinFile.ErrorCode
 					End If
 				Else
-					If mParseProteinFile.ProcessFilesWildcard(mInputFilePath, mOutputFolderName, mParameterFilePath) Then
+					If mParseProteinFile.ProcessFilesWildcard(mInputFilePath, mOutputFolderPath, mParameterFilePath) Then
 						intReturnCode = 0
 					Else
 						intReturnCode = mParseProteinFile.ErrorCode
@@ -197,10 +210,11 @@ Module modMain
 					End If
 				End If
 
+				DisplayProgressPercent(mLastProgressReportValue, True)
 			End If
 
 		Catch ex As Exception
-			Console.WriteLine("Error occurred in modMain->Main: " & ControlChars.NewLine & ex.Message)
+			ShowErrorMessage("Error occurred in modMain->Main: " & System.Environment.NewLine & ex.Message)
 			intReturnCode = -1
 		End Try
 
@@ -213,55 +227,67 @@ Module modMain
 			Console.WriteLine()
 		End If
 		If intPercentComplete > 100 Then intPercentComplete = 100
-		Console.Write("Processing: " & intPercentComplete.ToString & "% ")
+		Console.Write("Processing: " & intPercentComplete.ToString() & "% ")
 		If blnAddCarriageReturn Then
 			Console.WriteLine()
 		End If
 	End Sub
 
 	Private Function GetAppVersion() As String
-		'Return System.Windows.Forms.Application.ProductVersion & " (" & PROGRAM_DATE & ")"
-
-		Return System.Reflection.Assembly.GetExecutingAssembly.GetName.Version.ToString & " (" & PROGRAM_DATE & ")"
+		Return clsProcessFilesBaseClass.GetAppVersion(PROGRAM_DATE)
 	End Function
 
-	Private Function SetOptionsUsingCommandLineParameters(ByVal objParseCommandLine As SharedVBNetRoutines.clsParseCommandLine) As Boolean
+	Private Function SetOptionsUsingCommandLineParameters(ByVal objParseCommandLine As clsParseCommandLine) As Boolean
 		' Returns True if no problems; otherwise, returns false
 
 		Dim strValue As String = String.Empty
-		Dim strValidParameters() As String = New String() {"I", "F", "D", "M", "AD", "O", "P", "S", "A", "R", "Q", "DEBUG"}
+		Dim lstValidParameters As Generic.List(Of String) = New Generic.List(Of String) From {"I", "F", "D", "M", "AD", "O", "P", "S", "A", "R", "Q", "DEBUG"}
+		Dim intValue As Integer
 
 		Try
 			' Make sure no invalid parameters are present
-			If objParseCommandLine.InvalidParametersPresent(strValidParameters) Then
+			If objParseCommandLine.InvalidParametersPresent(lstValidParameters) Then
+				ShowErrorMessage("Invalid commmand line parameters",
+					(From item In objParseCommandLine.InvalidParameters(lstValidParameters) Select "/" + item).ToList())
 				Return False
 			Else
 				With objParseCommandLine
 					' Query objParseCommandLine to see if various parameters are present
 					If .RetrieveValueForParameter("I", strValue) Then
 						mInputFilePath = strValue
-					Else
-						' User didn't use /I:InputFile
-						' See if they simply provided the file name
-						If .NonSwitchParameterCount > 0 Then
-							mInputFilePath = .RetrieveNonSwitchParameter(0)
-						End If
+					ElseIf .NonSwitchParameterCount > 0 Then
+						mInputFilePath = .RetrieveNonSwitchParameter(0)
 					End If
+
 					If .RetrieveValueForParameter("F", strValue) Then mAssumeFastaFile = True
 					If .RetrieveValueForParameter("D", strValue) Then mCreateDigestedProteinOutputFile = True
 					If .RetrieveValueForParameter("M", strValue) Then mComputeProteinMass = True
 					If .RetrieveValueForParameter("AD", strValue) Then mInputFileDelimiter = strValue.Chars(0)
-					If .RetrieveValueForParameter("O", strValue) Then mOutputFolderName = strValue
+					If .RetrieveValueForParameter("O", strValue) Then mOutputFolderPath = strValue
 					If .RetrieveValueForParameter("P", strValue) Then mParameterFilePath = strValue
 
 					If .RetrieveValueForParameter("S", strValue) Then
 						mRecurseFolders = True
-						If IsNumeric(strValue) Then
-							mRecurseFoldersMaxLevels = CInt(strValue)
+						If Integer.TryParse(strValue, intValue) Then
+							mRecurseFoldersMaxLevels = intValue
 						End If
 					End If
 					If .RetrieveValueForParameter("A", strValue) Then mOutputFolderAlternatePath = strValue
 					If .RetrieveValueForParameter("R", strValue) Then mRecreateFolderHierarchyInAlternatePath = True
+
+					'If .RetrieveValueForParameter("L", strValue) Then
+					'	mLogMessagesToFile = True
+					'	If Not String.IsNullOrEmpty(strValue) Then
+					'		mLogFilePath = strValue
+					'	End If
+					'End If
+
+					'If .RetrieveValueForParameter("LogFolder", strValue) Then
+					'	mLogMessagesToFile = True
+					'	If Not String.IsNullOrEmpty(strValue) Then
+					'		mLogFolderPath = strValue
+					'	End If
+					'End If
 
 					If .RetrieveValueForParameter("Q", strValue) Then mQuietMode = True
 					If .RetrieveValueForParameter("DEBUG", strValue) Then mShowDebugPrompts = True
@@ -271,12 +297,43 @@ Module modMain
 			End If
 
 		Catch ex As Exception
-			Console.WriteLine("Error parsing the command line parameters: " & ControlChars.NewLine & ex.Message)
+			ShowErrorMessage("Error parsing the command line parameters: " & System.Environment.NewLine & ex.Message)
 		End Try
 
 		Return False
 
 	End Function
+
+	Private Sub ShowErrorMessage(ByVal strMessage As String)
+		Dim strSeparator As String = "------------------------------------------------------------------------------"
+
+		Console.WriteLine()
+		Console.WriteLine(strSeparator)
+		Console.WriteLine(strMessage)
+		Console.WriteLine(strSeparator)
+		Console.WriteLine()
+
+		WriteToErrorStream(strMessage)
+	End Sub
+
+	Private Sub ShowErrorMessage(ByVal strTitle As String, ByVal items As List(Of String))
+		Dim strSeparator As String = "------------------------------------------------------------------------------"
+		Dim strMessage As String
+
+		Console.WriteLine()
+		Console.WriteLine(strSeparator)
+		Console.WriteLine(strTitle)
+		strMessage = strTitle & ":"
+
+		For Each item As String In items
+			Console.WriteLine("   " + item)
+			strMessage &= " " & item
+		Next
+		Console.WriteLine(strSeparator)
+		Console.WriteLine()
+
+		WriteToErrorStream(strMessage)
+	End Sub
 
 	Public Sub ShowGUI()
 		Dim objFormMain As frmMain
@@ -321,7 +378,7 @@ Module modMain
 			strSyntax &= "Version: " & GetAppVersion() & ControlChars.NewLine & ControlChars.NewLine
 
 			strSyntax &= "E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com" & ControlChars.NewLine
-			strSyntax &= "Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/" & ControlChars.NewLine & ControlChars.NewLine
+			strSyntax &= "Website: http://panomics.pnnl.gov/ or http://omics.pnl.gov/" & ControlChars.NewLine & ControlChars.NewLine
 
 			strSyntax &= frmDisclaimer.GetKangasPetritisDisclaimerText() & ControlChars.NewLine & ControlChars.NewLine
 
@@ -331,9 +388,19 @@ Module modMain
 			End If
 
 		Catch ex As Exception
-			Console.WriteLine("Error displaying the program syntax: " & ex.Message)
+			ShowErrorMessage("Error displaying the program syntax: " & ex.Message)
 		End Try
 
+	End Sub
+
+	Private Sub WriteToErrorStream(strErrorMessage As String)
+		Try
+			Using swErrorStream As System.IO.StreamWriter = New System.IO.StreamWriter(Console.OpenStandardError())
+				swErrorStream.WriteLine(strErrorMessage)
+			End Using
+		Catch ex As Exception
+			' Ignore errors here
+		End Try
 	End Sub
 
 	Private Sub mParseProteinFile_ProgressChanged(ByVal taskDescription As String, ByVal percentComplete As Single) Handles mParseProteinFile.ProgressChanged

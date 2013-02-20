@@ -594,7 +594,7 @@ Public Class clsSearchRange
         ' Finalizes point-by-point data filling
         ' Call this after calling FillWithDataAddPoint with each point
 
-        Dim DataArray As Array
+		Dim DataArray As Array = Nothing
         Dim blnSuccess As Boolean
 
         Try

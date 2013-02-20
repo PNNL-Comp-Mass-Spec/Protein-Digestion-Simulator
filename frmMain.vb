@@ -491,7 +491,7 @@ Public Class frmMain
 					mProteinDigestionSimulator.ShowMessages = False
 					mProteinDigestionSimulator.LogMessagesToFile = True
 
-					strLogFilePath = System.IO.Path.Combine(GetApplicationDataFolderPath(), "ProteinDigestionSimulatorLog")
+					strLogFilePath = System.IO.Path.Combine(clsProcessFilesBaseClass.GetAppDataFolderPath("ProteinDigestionSimulator"), "ProteinDigestionSimulatorLog.txt")
 					mProteinDigestionSimulator.LogFilePath = strLogFilePath
 				End If
 
@@ -601,54 +601,18 @@ Public Class frmMain
 
 	End Sub
 
-	Private Function GetAppFolderPath() As String
-		Return System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
-	End Function
-
-	Private Function GetApplicationDataFolderPath() As String
-		Dim strAppDataFolderPath As String = String.Empty
-
-		Try
-			strAppDataFolderPath = System.IO.Path.Combine( _
-									System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), _
-									"PAST Toolkit\ProteinDigestionSimulator")
-
-			If Not System.IO.Directory.Exists(strAppDataFolderPath) Then
-				System.IO.Directory.CreateDirectory(strAppDataFolderPath)
-			End If
-
-		Catch ex As Exception
-			' Ignore errors here; an exception will likely be thrown by the calling function that is trying to access this non-existent application data folder
-		End Try
-
-		Return strAppDataFolderPath
-
-	End Function
-
 	Private Function GetMyDocsFolderPath() As String
 		Return System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal)
 	End Function
 
 	Private Function GetSettingsFilePath() As String
-		Dim strModelSettingsFilePath As String
-		Dim strSettingsFilePath As String
 
-		strModelSettingsFilePath = System.IO.Path.Combine(GetAppFolderPath, XML_SETTINGS_FILE_NAME)
-		strSettingsFilePath = System.IO.Path.Combine(GetApplicationDataFolderPath, XML_SETTINGS_FILE_NAME)
+		Dim strSettingsFilePathLocal As String
+		strSettingsFilePathLocal = clsProcessFilesBaseClass.GetSettingsFilePathLocal("ProteinDigestionSimulator", XML_SETTINGS_FILE_NAME)
 
-		Try
-			If Not System.IO.File.Exists(strSettingsFilePath) AndAlso _
-			   System.IO.File.Exists(strModelSettingsFilePath) Then
+		clsProcessFilesBaseClass.CreateSettingsFileIfMissing(strSettingsFilePathLocal)
 
-				' The .Xml settings file doesn't exist in the user's application data folder
-				' Try to copy the model one from the Folder containing this program's .Exe to the application data folder
-				System.IO.File.Copy(strModelSettingsFilePath, strSettingsFilePath)
-			End If
-		Catch ex As Exception
-			' Ignore errors here
-		End Try
-
-		Return strSettingsFilePath
+		Return strSettingsFilePathLocal
 
 	End Function
 
