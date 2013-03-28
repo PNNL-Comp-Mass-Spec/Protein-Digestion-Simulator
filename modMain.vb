@@ -33,7 +33,7 @@ Option Strict On
 
 Module modMain
 
-	Public Const PROGRAM_DATE As String = "February 19, 2013"
+	Public Const PROGRAM_DATE As String = "March 27, 2013"
 
 	Private mInputFilePath As String
 	Private mAssumeFastaFile As Boolean
@@ -205,7 +205,7 @@ Module modMain
 					Else
 						intReturnCode = mParseProteinFile.ErrorCode
 						If intReturnCode <> 0 AndAlso Not mQuietMode Then
-							MsgBox("Error while processing: " & mParseProteinFile.GetErrorMessage(), MsgBoxStyle.Exclamation Or MsgBoxStyle.OkOnly, "Error")
+							System.Windows.Forms.MessageBox.Show("Error while processing: " & mParseProteinFile.GetErrorMessage(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
 						End If
 					End If
 				End If

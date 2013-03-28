@@ -840,7 +840,7 @@ Public Class clsPeakMatchingClass
         Dim dblNETStDevCombined As Double
         Dim dblNumeratorSum As Double
 
-        Dim udtComparisonFeatureInfo As udtFeatureInfoType
+		Dim udtComparisonFeatureInfo As udtFeatureInfoType = New udtFeatureInfoType
 
         Dim strMessage As String
 
@@ -1015,8 +1015,8 @@ Public Class clsPeakMatchingClass
         Dim intMatchIndex As Integer
         Dim intComparisonFeaturesOriginalRowIndex As Integer
 
-        Dim udtCurrentFeatureToIdentify As udtFeatureInfoType
-        Dim udtCurrentComparisonFeature As udtFeatureInfoType
+		Dim udtCurrentFeatureToIdentify As udtFeatureInfoType = New udtFeatureInfoType
+		Dim udtCurrentComparisonFeature As udtFeatureInfoType = New udtFeatureInfoType
 
         Dim dblMassTol As Double, dblNETTol As Double
         Dim dblNetDiff As Double

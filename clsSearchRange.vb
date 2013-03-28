@@ -830,7 +830,8 @@ Public Class clsSearchRange
         Catch ex As Exception
             ' intIndex is probably out of range
             Return 0
-        End Try
+		End Try
+		Return 0
     End Function
 
     Public Function GetValueByIndexSng(ByVal intIndex As Integer) As Single
@@ -875,7 +876,8 @@ Public Class clsSearchRange
             Catch ex As Exception
                 Return 0
             End Try
-        End If
+		End If
+		Return 0
     End Function
 
     Public Function GetValueByOriginalIndexSng(ByVal intIndex As Integer) As Single

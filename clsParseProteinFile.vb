@@ -694,7 +694,7 @@ Public Class clsParseProteinFile
 #End If
 
 			If strErrorMessage.Length > 0 Then
-				If MyBase.ShowMessages Then MsgBox(strErrorMessage, MsgBoxStyle.Exclamation Or MsgBoxStyle.OkOnly, "Error")
+				If MyBase.ShowMessages Then System.Windows.Forms.MessageBox.Show(strErrorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
 				ShowErrorMessage(strErrorMessage)
 				mObjectVariablesLoaded = False
 			Else
@@ -741,7 +741,7 @@ Public Class clsParseProteinFile
 			If objSettingsFile.LoadSettings(strParameterFilePath, False) Then
 				If Not objSettingsFile.SectionPresent(XML_SECTION_OPTIONS) Then
 					If MyBase.ShowMessages Then
-						MsgBox("The node '<section name=""" & XML_SECTION_OPTIONS & """> was not found in the parameter file: " & strParameterFilePath, MsgBoxStyle.Exclamation Or MsgBoxStyle.OkOnly, "Invalid File")
+						System.Windows.Forms.MessageBox.Show("The node '<section name=""" & XML_SECTION_OPTIONS & """> was not found in the parameter file: " & strParameterFilePath, "Invalid File", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
 					End If
 					SetLocalErrorCode(eParseProteinFileErrorCodes.ProteinFileParsingOptionsSectionNotFound)
 					Return False
@@ -814,7 +814,7 @@ Public Class clsParseProteinFile
 
 		Catch ex As Exception
 			If MyBase.ShowMessages Then
-				MsgBox("Error in LoadParameterFileSettings:" & ControlChars.NewLine & ex.Message, MsgBoxStyle.Exclamation Or MsgBoxStyle.OkOnly, "Error")
+				System.Windows.Forms.MessageBox.Show("Error in LoadParameterFileSettings: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
 			Else
 				Throw New System.Exception("Error in LoadParameterFileSettings", ex)
 			End If
@@ -883,13 +883,13 @@ Public Class clsParseProteinFile
 		Dim intIndex, intCompareIndex As Integer
 		Dim intLength As Integer
 		Dim intPeptideCount As Integer
-		Dim udtPeptides() As clsInSilicoDigest.PeptideInfoClass
+		Dim udtPeptides() As clsInSilicoDigest.PeptideInfoClass = Nothing
 
 		Dim blnAllowLookForAddnlRefInDescription As Boolean
 		Dim blnLookForAddnlRefInDescription As Boolean
 		Dim htAddnlRefMasterNames As System.Collections.Specialized.StringDictionary		' Note that StringDictionary keys are case-insensitive, and are therefore stored lowercase
 
-		Dim udtAddnlRefsToOutput() As udtAddnlRefType
+		Dim udtAddnlRefsToOutput() As udtAddnlRefType = Nothing
 
 		Dim blnGenerateUniqueSequenceID As Boolean
 		Dim htMasterSequences As Hashtable
@@ -906,7 +906,7 @@ Public Class clsParseProteinFile
 		Dim objRandomNumberGenerator As Random = Nothing
 		Dim intRandomNumberSeed As Integer
 		Dim eScramblingMode As ProteinScramblingModeConstants
-		Dim udtResidueCache As udtScrambingResidueCacheType
+		Dim udtResidueCache As udtScrambingResidueCacheType = New udtScrambingResidueCacheType
 
 		Dim dtStartTime As Date
 
@@ -1097,6 +1097,8 @@ Public Class clsParseProteinFile
 				If Not blnSuccess Then Exit Try
 			End If
 
+			htMasterSequences = New Hashtable
+
 			If mCreateProteinOutputFile AndAlso mCreateDigestedProteinOutputFile AndAlso Not mCreateFastaOutputFile Then
 				Try
 					' Create the digested protein output file
@@ -1122,7 +1124,6 @@ Public Class clsParseProteinFile
 					If mGenerateUniqueSequenceIDValues Then
 						' Initialize htMasterSequences
 						blnGenerateUniqueSequenceID = True
-						htMasterSequences = New Hashtable
 						intNextUniqueIDForMasterSeqs = 1
 					End If
 
@@ -1530,7 +1531,7 @@ Public Class clsParseProteinFile
 			Next intLoopIndex
 
 			If mShowDebugPrompts Then
-				MsgBox(System.IO.Path.GetFileName(strProteinInputFilePath) & ControlChars.NewLine & "Elapsed time: " & Math.Round(System.DateTime.UtcNow.Subtract(dtStartTime).TotalSeconds, 2).ToString & " seconds", MsgBoxStyle.Information Or MsgBoxStyle.OkOnly, "Status")
+				System.Windows.Forms.MessageBox.Show(System.IO.Path.GetFileName(strProteinInputFilePath) & ControlChars.NewLine & "Elapsed time: " & Math.Round(System.DateTime.UtcNow.Subtract(dtStartTime).TotalSeconds, 2).ToString & " seconds", "Status", MessageBoxButtons.OK, MessageBoxIcon.Information)
 			End If
 
 			If MyBase.ShowMessages Then
@@ -1547,7 +1548,7 @@ Public Class clsParseProteinFile
 				If intLoopCount > 1 Then
 					strMessage &= ControlChars.NewLine & "Created " & intLoopCount.ToString & " replicates of the scrambled output file"
 				End If
-				MsgBox(strMessage, MsgBoxStyle.Information Or MsgBoxStyle.OkOnly, "Done")
+				System.Windows.Forms.MessageBox.Show(strMessage, "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
 			End If
 
 			blnSuccess = True
@@ -1623,6 +1624,7 @@ Public Class clsParseProteinFile
 						.Description = objFastaFileReader.ProteinDescription
 
 						' Look for additional protein names in .Description, delimited by FastaFileOptions.AddnlRefSepChar
+						ReDim .AlternateNames(0)
 						.AlternateNameCount = ExtractAlternateProteinNamesFromDescription(.Description, .AlternateNames)
 
 						' Make sure each of the names in .AlternateNames() is in htAddnlRefMasterNames
@@ -1853,7 +1855,7 @@ Public Class clsParseProteinFile
 
 		If Not LoadParameterFileSettings(strParameterFilePath) Then
 			strStatusMessage = "Parameter file load error: " & strParameterFilePath
-			If MyBase.ShowMessages Then MsgBox(strStatusMessage, MsgBoxStyle.Exclamation Or MsgBoxStyle.OkOnly, "Error")
+			If MyBase.ShowMessages Then System.Windows.Forms.MessageBox.Show(strStatusMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
 			ShowErrorMessage(strStatusMessage)
 			If MyBase.ErrorCode = clsProcessFilesBaseClass.eProcessFilesErrorCodes.NoError Then
 				MyBase.SetBaseClassErrorCode(clsProcessFilesBaseClass.eProcessFilesErrorCodes.InvalidParameterFile)
@@ -1882,7 +1884,7 @@ Public Class clsParseProteinFile
 
 					Catch ex As Exception
 						If MyBase.ShowMessages Then
-							MsgBox("Error calling ParseProteinFile" & ControlChars.NewLine & ex.Message, MsgBoxStyle.Exclamation Or MsgBoxStyle.OkOnly, "Error")
+							System.Windows.Forms.MessageBox.Show("Error calling ParseProteinFile: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
 						Else
 							Throw New System.Exception("Error calling ParseProteinFile", ex)
 						End If
@@ -1891,7 +1893,7 @@ Public Class clsParseProteinFile
 			End If
 		Catch ex As Exception
 			If MyBase.ShowMessages Then
-				MsgBox("Error in ProcessFile:" & ControlChars.NewLine & ex.Message, MsgBoxStyle.Exclamation Or MsgBoxStyle.OkOnly, "Error")
+				System.Windows.Forms.MessageBox.Show("Error in ProcessFile: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
 			Else
 				Throw New System.Exception("Error in ProcessFile", ex)
 			End If

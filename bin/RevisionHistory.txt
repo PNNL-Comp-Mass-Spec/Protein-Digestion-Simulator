@@ -1,5 +1,9 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.4834; March 27, 2013
+	- Created new project files due to DLL referencing issues
+	- Switched to AnyCPU
+
 Version 2.2.4798; February 19, 2013
 	- New version of clsProcessFilesBaseClass and clsParseCommandLine
 

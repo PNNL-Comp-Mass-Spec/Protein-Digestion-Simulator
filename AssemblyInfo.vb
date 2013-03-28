@@ -7,7 +7,6 @@ Imports System.Runtime.InteropServices
 ' associated with an assembly.
 
 ' Review the values of the assembly attributes
-' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
 
 <Assembly: AssemblyTitle("")> 
 <Assembly: AssemblyDescription("")> 

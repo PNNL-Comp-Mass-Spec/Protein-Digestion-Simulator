@@ -653,7 +653,7 @@ Public Class clsProteinDigestionSimulator
 
 	Private Function FeatureContainsUniqueMatch(ByRef udtFeatureInfo As clsPeakMatchingClass.udtFeatureInfoType, ByRef objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, ByRef intMatchCount As Integer, ByVal blnUseSLiCScoreForUniqueness As Boolean, ByVal sngMinimumSLiCScore As Single) As Boolean
 		Dim blnUniqueMatch As Boolean
-		Dim udtMatchResults() As clsPeakMatchingClass.PMFeatureMatchResultsClass.udtPeakMatchingResultType
+		Dim udtMatchResults() As clsPeakMatchingClass.PMFeatureMatchResultsClass.udtPeakMatchingResultType = Nothing
 
 		Dim intMatchIndex As Integer
 
@@ -1313,7 +1313,7 @@ Public Class clsProteinDigestionSimulator
 
 		Catch ex As Exception
 			If MyBase.ShowMessages Then
-				MsgBox("Error in LoadParameterFileSettings:" & ControlChars.NewLine & ex.Message, MsgBoxStyle.Exclamation Or MsgBoxStyle.OkOnly, "Error")
+				System.Windows.Forms.MessageBox.Show("Error in LoadParameterFileSettings: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
 			Else
 				Throw New System.Exception("Error in LoadParameterFileSettings", ex)
 			End If
@@ -1649,7 +1649,7 @@ Public Class clsProteinDigestionSimulator
 		Dim intMatchIndex As Integer
 
 		Dim intCurrentFeatureID As Integer
-		Dim udtFeatureInfo As clsPeakMatchingClass.udtFeatureInfoType
+		Dim udtFeatureInfo As clsPeakMatchingClass.udtFeatureInfoType = New clsPeakMatchingClass.udtFeatureInfoType
 
 		Dim udtMatchResultInfo As clsPeakMatchingClass.PMFeatureMatchResultsClass.udtPeakMatchingResultType
 
@@ -1761,7 +1761,7 @@ Public Class clsProteinDigestionSimulator
 
 		If Not LoadParameterFileSettings(strParameterFilePath) Then
 			strStatusMessage = "Parameter file load error: " & strParameterFilePath
-			If MyBase.ShowMessages Then MsgBox(strStatusMessage, MsgBoxStyle.Exclamation Or MsgBoxStyle.OkOnly, "Error")
+			If MyBase.ShowMessages Then System.Windows.Forms.MessageBox.Show(strStatusMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
 			Console.WriteLine(strStatusMessage)
 			If MyBase.ErrorCode = clsProcessFilesBaseClass.eProcessFilesErrorCodes.NoError Then
 				MyBase.SetBaseClassErrorCode(clsProcessFilesBaseClass.eProcessFilesErrorCodes.InvalidParameterFile)
@@ -1790,7 +1790,7 @@ Public Class clsProteinDigestionSimulator
 
 					Catch ex As Exception
 						If MyBase.ShowMessages Then
-							MsgBox("Error calling ParseProteinFile" & ControlChars.NewLine & ex.Message, MsgBoxStyle.Exclamation Or MsgBoxStyle.OkOnly, "Error")
+							System.Windows.Forms.MessageBox.Show("Error calling ParseProteinFile: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
 						Else
 							Throw New System.Exception("Error calling ParseProteinFile", ex)
 						End If
@@ -1799,7 +1799,7 @@ Public Class clsProteinDigestionSimulator
 			End If
 		Catch ex As Exception
 			If MyBase.ShowMessages Then
-				MsgBox("Error in ProcessFile:" & ControlChars.NewLine & ex.Message, MsgBoxStyle.Exclamation Or MsgBoxStyle.OkOnly, "Error")
+				System.Windows.Forms.MessageBox.Show("Error in ProcessFile: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
 			Else
 				Throw New System.Exception("Error in ProcessFile", ex)
 			End If
@@ -1847,7 +1847,7 @@ Public Class clsProteinDigestionSimulator
 		Dim intPeptideIndex As Integer
 		Dim intFeaturesToIdentifyCount As Integer
 
-		Dim udtFeatureInfo As clsPeakMatchingClass.udtFeatureInfoType
+		Dim udtFeatureInfo As clsPeakMatchingClass.udtFeatureInfoType = New clsPeakMatchingClass.udtFeatureInfoType
 
 		Dim intMatchCount As Integer
 		Dim intBinIndex As Integer
@@ -1856,7 +1856,7 @@ Public Class clsProteinDigestionSimulator
 
 		Dim intMaxMatchCount As Integer
 
-		Dim udtPeptideStatsBinned As udtBinnedPeptideCountStatsType
+		Dim udtPeptideStatsBinned As udtBinnedPeptideCountStatsType = New udtBinnedPeptideCountStatsType
 
 		Dim blnSuccess As Boolean
 
@@ -2021,7 +2021,7 @@ Public Class clsProteinDigestionSimulator
 
 		Dim blnSuccess As Boolean
 
-		Dim udtFeatureInfo As clsPeakMatchingClass.udtFeatureInfoType
+		Dim udtFeatureInfo As clsPeakMatchingClass.udtFeatureInfoType = New clsPeakMatchingClass.udtFeatureInfoType
 
 		Try
 
