@@ -22,7 +22,7 @@
         "Entry"
         {
         "MsmKey" = "8:_27CF9C1EF7EC870D672468A1662DAF72"
-        "OwnerKey" = "8:_A5E3C70291FD49F0AF7C7C5026C4B4CB"
+        "OwnerKey" = "8:_F7EF3F6774D649E8AD4A885CD90CAD40"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -45,38 +45,32 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A5E3C70291FD49F0AF7C7C5026C4B4CB"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_CA3FB65D56AEBFB097F071075CFEE84B"
-        "OwnerKey" = "8:_A5E3C70291FD49F0AF7C7C5026C4B4CB"
+        "OwnerKey" = "8:_F7EF3F6774D649E8AD4A885CD90CAD40"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_EADC578CF84C489339B7C3AA8E0C94BE"
-        "OwnerKey" = "8:_A5E3C70291FD49F0AF7C7C5026C4B4CB"
+        "OwnerKey" = "8:_F7EF3F6774D649E8AD4A885CD90CAD40"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_EB0E1C66C4180652F0FF42F1928EBA5D"
-        "OwnerKey" = "8:_A5E3C70291FD49F0AF7C7C5026C4B4CB"
+        "OwnerKey" = "8:_F7EF3F6774D649E8AD4A885CD90CAD40"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F7EF3F6774D649E8AD4A885CD90CAD40"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_CA3FB65D56AEBFB097F071075CFEE84B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A5E3C70291FD49F0AF7C7C5026C4B4CB"
+        "OwnerKey" = "8:_F7EF3F6774D649E8AD4A885CD90CAD40"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -95,6 +89,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_27CF9C1EF7EC870D672468A1662DAF72"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_CA3FB65D56AEBFB097F071075CFEE84B"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -349,7 +349,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:ValidateFastaFile, Version=2.1.4834.35819, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:ValidateFastaFile, Version=2.1.5053.22366, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_EADC578CF84C489339B7C3AA8E0C94BE"
@@ -474,15 +474,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ProteinDigestionSimulator"
-        "ProductCode" = "8:{8DC0952C-C242-4F42-A8BC-54303C7D6ABF}"
-        "PackageCode" = "8:{92ADB7D4-313C-4CEB-8439-BAFE69462FE9}"
+        "ProductCode" = "8:{D02EA59F-2DE9-4D44-8871-CFB1D5DED39A}"
+        "PackageCode" = "8:{FFDCBE61-C5EC-4493-91B9-3A155966F255}"
         "UpgradeCode" = "8:{0612F968-E285-4419-AEC6-739DC8FF1BB3}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.2.11"
+        "ProductVersion" = "8:2.2.13"
         "Manufacturer" = "8:PNNL"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -595,7 +595,7 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_7917FB1D52804AFBA172CFF6D0E29531"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_BA5E6FB4DDEB4DD295E23129DD5CD200"
             {
             "Name" = "8:Protein Digestion Simulator"
             "Arguments" = "8:"
@@ -603,7 +603,7 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_A5E3C70291FD49F0AF7C7C5026C4B4CB"
+            "Target" = "8:_F7EF3F6774D649E8AD4A885CD90CAD40"
             "Folder" = "8:_EA75EAB760614DF88F5978CE9671F56E"
             "WorkingFolder" = "8:_14D1D5D1D6F847CAA581AD55A163FF2B"
             "Icon" = "8:"
@@ -1008,9 +1008,9 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_A5E3C70291FD49F0AF7C7C5026C4B4CB"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F7EF3F6774D649E8AD4A885CD90CAD40"
             {
-            "SourcePath" = "8:..\\obj\\x86\\Release\\ProteinDigestionSimulator.NET.exe"
+            "SourcePath" = "8:..\\obj\\Release\\ProteinDigestionSimulator.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_14D1D5D1D6F847CAA581AD55A163FF2B"

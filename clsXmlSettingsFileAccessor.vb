@@ -149,7 +149,7 @@ Public Class XmlSettingsFileAccessor
 
         ' Lookup the correct capitalization for sectionName (only truly important if mCaseSensitive = False)
         sectionNameInFile = GetCachedSectionName(sectionName)
-        If sectionNameInFile.Length = 0 Then Return False
+		If String.IsNullOrWhiteSpace(sectionNameInFile) Then Return False
 
         Try
             ' Grab the keys for sectionName
@@ -224,7 +224,7 @@ Public Class XmlSettingsFileAccessor
 
         ' Lookup the correct capitalization for sectionName (only truly important if mCaseSensitive = False)
         sectionNameInFile = GetCachedSectionName(sectionName)
-        If sectionNameInFile.Length = 0 Then Return String.Empty
+		If String.IsNullOrWhiteSpace(sectionNameInFile) Then Return String.Empty
 
         If mCachedSection.SectionName = sectionNameInFile Then
             blnSuccess = True
@@ -1347,9 +1347,9 @@ Public Class XmlSettingsFileAccessor
             Dim parts() As String
 
             strLine = strLine.TrimStart()
-            If strLine.Length = 0 Then
-                Return True
-            End If
+			If String.IsNullOrWhiteSpace(strLine) Then
+				Return True
+			End If
 
             Select Case (strLine.Substring(0, 1))
                 Case "["
@@ -1401,39 +1401,39 @@ Public Class XmlSettingsFileAccessor
                             strValue = String.Empty
                         End If
 
-                        If strKey.Length = 0 Then
-                            Return False
+						If String.IsNullOrWhiteSpace(strKey) Then
+							Return False
 
-                        Else
+						Else
 
-                            blnAddSetting = True
+							blnAddSetting = True
 
-                            Select Case strKey.ToLower().Trim()
+							Select Case strKey.ToLower().Trim()
 
-                                Case "<sections>", "</section>", "</sections>"
-                                    ' Do not add a new key
-                                    If String.IsNullOrEmpty(strValue) Then
-                                        blnAddSetting = False
-                                    End If
+								Case "<sections>", "</section>", "</sections>"
+									' Do not add a new key
+									If String.IsNullOrEmpty(strValue) Then
+										blnAddSetting = False
+									End If
 
-                            End Select
+							End Select
 
-                            If blnAddSetting Then
-                                N = doc.CreateElement("item")
-                                Natt = doc.CreateAttribute("key")
-                                Natt.Value = SetNameCase(strKey)
-                                N.Attributes.SetNamedItem(Natt)
+							If blnAddSetting Then
+								N = doc.CreateElement("item")
+								Natt = doc.CreateAttribute("key")
+								Natt.Value = SetNameCase(strKey)
+								N.Attributes.SetNamedItem(Natt)
 
-                                Natt = doc.CreateAttribute("value")
-                                Natt.Value = strValue
-                                N.Attributes.SetNamedItem(Natt)
+								Natt = doc.CreateAttribute("value")
+								Natt.Value = strValue
+								N.Attributes.SetNamedItem(Natt)
 
-                                GetLastSection().AppendChild(N)
+								GetLastSection().AppendChild(N)
 
-                            End If
+							End If
 
-                            Return True
-                        End If
+							Return True
+						End If
 
                     End If
 

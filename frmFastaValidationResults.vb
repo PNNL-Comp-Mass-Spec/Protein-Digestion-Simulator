@@ -29,6 +29,7 @@ Public Class frmFastaValidation
 
 		Public MaximumErrorsToTrackInDetail As Integer
 		Public MaximumResiduesPerLine As Integer
+
 		Public ValidProteinNameLengthMinimum As Integer
 		Public ValidProteinNameLengthMaximum As Integer
 		Public AllowAstericksInResidues As Boolean
@@ -45,6 +46,7 @@ Public Class frmFastaValidation
 		Public RenameProteinWithDuplicateNames As Boolean
 		Public KeepDuplicateNamedProteins As Boolean
 		Public WrapLongResidueLines As Boolean
+		Public ResiduesPerLineForWrap As Integer
 		Public RemoveInvalidResidues As Boolean
 		Public SplitOutMultipleRefsForKnownAccession As Boolean
 		Public SplitOutMultipleRefsInProteinName As Boolean
@@ -56,16 +58,16 @@ Public Class frmFastaValidation
 #Region "Classwide variables"
 	Private mFastaFilePath As String
 
-	Private mErrorsDataset As System.Data.DataSet
-	Private mErrorsDataView As System.Data.DataView
+	Private mErrorsDataset As DataSet
+	Private mErrorsDataView As DataView
 
-	Private mWarningsDataset As System.Data.DataSet
-	Private mWarningsDataView As System.Data.DataView
+	Private mWarningsDataset As DataSet
+	Private mWarningsDataView As DataView
 
 	Private mKeepDuplicateNamedProteinsLastValue As Boolean = False
 
 	' This timer is used to cause StartValidation to be called after the form becomes visible
-	Private WithEvents mValidationTriggerTimer As System.Windows.Forms.Timer
+	Private WithEvents mValidationTriggerTimer As Windows.Forms.Timer
 	Private WithEvents mValidateFastaFile As ValidateFastaFile.clsValidateFastaFile
 
 	Public Event FastaValidationStarted()
@@ -102,10 +104,10 @@ Public Class frmFastaValidation
 			End If
 
 			Try
-				txtResults.Font = New System.Drawing.Font(txtResults.Font.FontFamily, Value)
+				txtResults.Font = New Font(txtResults.Font.FontFamily, Value)
 
-				dgErrors.Font = New System.Drawing.Font(txtResults.Font.FontFamily, Value)
-				dgWarnings.Font = New System.Drawing.Font(txtResults.Font.FontFamily, Value)
+				dgErrors.Font = New Font(txtResults.Font.FontFamily, Value)
+				dgWarnings.Font = New Font(txtResults.Font.FontFamily, Value)
 
 			Catch ex As Exception
 				' Ignore errors here
@@ -150,7 +152,7 @@ Public Class frmFastaValidation
 
 	Private Sub CreateDefaultValidationRulesFile()
 
-		Dim objSaveFile As New System.Windows.Forms.SaveFileDialog
+		Dim objSaveFile As New Windows.Forms.SaveFileDialog
 		Dim strCustomRuleDefsFilePath As String
 
 		With objSaveFile
@@ -168,7 +170,7 @@ Public Class frmFastaValidation
 
 			If Len(txtCustomValidationRulesFilePath.Text.Length) > 0 Then
 				Try
-					.InitialDirectory = System.IO.Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString
+					.InitialDirectory = IO.Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString
 				Catch
 					.InitialDirectory = GetApplicationDataFolderPath()
 				End Try
@@ -187,7 +189,6 @@ Public Class frmFastaValidation
 
 					objValidateFastaFile.ShowMessages = True
 					objValidateFastaFile.SaveSettingsToParameterFile(strCustomRuleDefsFilePath)
-					objValidateFastaFile = Nothing
 
 					If txtCustomValidationRulesFilePath.TextLength = 0 Then
 						txtCustomValidationRulesFilePath.Text = strCustomRuleDefsFilePath
@@ -211,6 +212,8 @@ Public Class frmFastaValidation
 
 		txtLongProteinNameSplitChars.Enabled = blnEnableFixedFastaOptions
 		txtInvalidProteinNameCharsToRemove.Enabled = blnEnableFixedFastaOptions
+		txtResiduesPerLineForWrap.Enabled = blnEnableFixedFastaOptions And chkWrapLongResidueLines.Checked
+
 		chkSplitOutMultipleRefsInProteinName.Enabled = blnEnableFixedFastaOptions
 		chkRenameDuplicateProteins.Enabled = blnEnableFixedFastaOptions
 
@@ -226,14 +229,14 @@ Public Class frmFastaValidation
 			chkKeepDuplicateNamedProteins.Enabled = False
 		End If
 
-		
+
 		chkConsolidateDuplicateProteinSeqs.Enabled = blnEnableFixedFastaOptions
 		chkConsolidateDupsIgnoreILDiff.Enabled = blnEnableFixedFastaOptions And chkConsolidateDuplicateProteinSeqs.Checked
 
 		chkTruncateLongProteinNames.Enabled = blnEnableFixedFastaOptions
 		chkSplitOutMultipleRefsForKnownAccession.Enabled = blnEnableFixedFastaOptions
 		chkWrapLongResidueLines.Enabled = blnEnableFixedFastaOptions
-		chkRemoveInvalidResidues.Enabled = blnEnableFixedFastaOptions		
+		chkRemoveInvalidResidues.Enabled = blnEnableFixedFastaOptions
 
 		If txtCustomValidationRulesFilePath.TextLength > 0 Then
 			chkAllowAsteriskInResidues.Enabled = False
@@ -243,7 +246,7 @@ Public Class frmFastaValidation
 
 	End Sub
 
-	Private Function FlattenDataView(ByVal dvDataView As System.Data.DataView) As String
+	Private Function FlattenDataView(ByVal dvDataView As DataView) As String
 		' Copy the contents of the datagrid to the clipboard
 
 		Const chSepChar As Char = ControlChars.Tab
@@ -252,9 +255,9 @@ Public Class frmFastaValidation
 		Dim intIndex As Integer
 		Dim intColumnCount As Integer
 
-		'Dim txtResults As New System.Windows.Forms.TextBox
+		'Dim txtResults As New Windows.Forms.TextBox
 
-		Dim objRow As System.Data.DataRow
+		Dim objRow As DataRow
 
 		Try
 			intColumnCount = dvDataView.Table.Columns.Count
@@ -329,12 +332,12 @@ Public Class frmFastaValidation
 		Dim strAppDataFolderPath As String = String.Empty
 
 		Try
-			strAppDataFolderPath = System.IO.Path.Combine( _
-									System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), _
-									"PAST Toolkit\ProteinDigestionSimulator")
+			strAppDataFolderPath = IO.Path.Combine( _
+			   Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _
+			   "PAST Toolkit\ProteinDigestionSimulator")
 
-			If Not System.IO.Directory.Exists(strAppDataFolderPath) Then
-				System.IO.Directory.CreateDirectory(strAppDataFolderPath)
+			If Not IO.Directory.Exists(strAppDataFolderPath) Then
+				IO.Directory.CreateDirectory(strAppDataFolderPath)
 			End If
 
 		Catch ex As Exception
@@ -352,7 +355,6 @@ Public Class frmFastaValidation
 		With udtFastaValidationOptions
 			.MaximumErrorsToTrackInDetail = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtMaxFileErrorsToTrack, "", False, 10, False)
 			.MaximumResiduesPerLine = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtMaximumResiduesPerLine, "", False, 120, False)
-
 			.ValidProteinNameLengthMinimum = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtProteinNameLengthMinimum, "", False, 3, False)
 			.ValidProteinNameLengthMaximum = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtProteinNameLengthMaximum, "", False, 34, False)
 
@@ -372,6 +374,7 @@ Public Class frmFastaValidation
 				.SplitOutMultipleRefsInProteinName = chkSplitOutMultipleRefsInProteinName.Checked
 				.ConsolidateDuplicateProteins = chkConsolidateDuplicateProteinSeqs.Checked
 				.ConsolidateDupsIgnoreILDiff = chkConsolidateDupsIgnoreILDiff.Checked
+				.ResiduesPerLineForWrap = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtResiduesPerLineForWrap, "", False, 60, False)
 			End With
 
 			.Initialized = True
@@ -381,13 +384,9 @@ Public Class frmFastaValidation
 
 	End Function
 
-	Private Function GetMyDocsFolderPath() As String
-		Return System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal)
-	End Function
+	Private Sub InitializeDataGrid(ByRef dgDataGrid As Windows.Forms.DataGrid, ByRef dsDataset As DataSet, ByRef dvDataView As DataView, ByVal eMsgType As ValidateFastaFile.IValidateFastaFile.eMsgTypeConstants)
 
-	Private Sub InitializeDataGrid(ByRef dgDataGrid As Windows.Forms.DataGrid, ByRef dsDataset As System.Data.DataSet, ByRef dvDataView As System.Data.DataView, ByVal eMsgType As ValidateFastaFile.IValidateFastaFile.eMsgTypeConstants)
-
-		Dim dtDataTable As System.Data.DataTable
+		Dim dtDataTable As DataTable
 
 		Dim strMsgColumnName As String
 		Dim strDatasetName As String
@@ -405,7 +404,7 @@ Public Class frmFastaValidation
 		strDatatableName = "T_" & strMsgColumnName
 
 		' Create a DataTable
-		dtDataTable = New System.Data.DataTable(strDatatableName)
+		dtDataTable = New DataTable(strDatatableName)
 
 		' Add the columns to the datatable
 		SharedVBNetRoutines.ADONetRoutines.AppendColumnIntegerToTable(dtDataTable, COL_NAME_LINE)
@@ -416,18 +415,18 @@ Public Class frmFastaValidation
 
 		' Could define a primary key
 		''With dtDataTable
-		''    Dim PrimaryKeyColumn As System.Data.DataColumn() = New System.Data.DataColumn() {.Columns(COL_NAME_LINE)}
+		''    Dim PrimaryKeyColumn As DataColumn() = New DataColumn() {.Columns(COL_NAME_LINE)}
 		''    .PrimaryKey = PrimaryKeyColumn
 		''End With
 
 		' Instantiate the DataSet
-		dsDataset = New System.Data.DataSet(strDatasetName)
+		dsDataset = New DataSet(strDatasetName)
 
 		' Add the table to the DataSet
 		dsDataset.Tables.Add(dtDataTable)
 
 		' Instantiate the DataView
-		dvDataView = New System.Data.DataView
+		dvDataView = New DataView
 		With dvDataView
 			.Table = dsDataset.Tables(strDatatableName)
 			.RowFilter = String.Empty
@@ -452,7 +451,7 @@ Public Class frmFastaValidation
 		InitializeDataGrid(dgErrors, mErrorsDataset, mErrorsDataView, ValidateFastaFile.IValidateFastaFile.eMsgTypeConstants.ErrorMsg)
 		InitializeDataGrid(dgWarnings, mWarningsDataset, mWarningsDataView, ValidateFastaFile.IValidateFastaFile.eMsgTypeConstants.WarningMsg)
 
-		mValidationTriggerTimer = New System.Windows.Forms.Timer
+		mValidationTriggerTimer = New Windows.Forms.Timer
 		With mValidationTriggerTimer
 			.Interval = 100
 			.Enabled = True
@@ -467,9 +466,9 @@ Public Class frmFastaValidation
 
 	End Sub
 
-	Private Sub PopulateMsgResultsDatagrid(ByRef objValidateFastaFile As ValidateFastaFile.clsValidateFastaFile, ByRef dgDataGrid As Windows.Forms.DataGrid, ByRef dsDataset As System.Data.DataSet, ByRef udtMsgInfoList() As ValidateFastaFile.IValidateFastaFile.udtMsgInfoType)
+	Private Sub PopulateMsgResultsDatagrid(ByRef objValidateFastaFile As ValidateFastaFile.clsValidateFastaFile, ByRef dgDataGrid As Windows.Forms.DataGrid, ByRef dsDataset As DataSet, ByRef udtMsgInfoList() As ValidateFastaFile.IValidateFastaFile.udtMsgInfoType)
 
-		Dim objRow As System.Data.DataRow
+		Dim objRow As DataRow
 		Dim intIndex As Integer
 
 		' Clear the table
@@ -536,7 +535,7 @@ Public Class frmFastaValidation
 			intDesiredHeight = CInt(Math.Round((Me.Height - dgErrors.Top - MENU_HEIGHT) / (dblErrorToWarningsRatio + 1) * dblErrorToWarningsRatio, 0))
 		Else
 			' Errors grid should be shorter
-			intDesiredHeight = CInt(Math.Round((Me.Height - dgErrors.Top - MENU_HEIGHT) / (1 / dblErrorToWarningsRatio + 1), 0))
+			intDesiredHeight = CInt(Math.Round((Me.Height - dgErrors.Top - MENU_HEIGHT) / (1 / dblErrorToWarningsRatio + 1), 0)) - 2
 		End If
 
 		If intDesiredHeight < 5 Then intDesiredHeight = 5
@@ -560,6 +559,7 @@ Public Class frmFastaValidation
 
 		txtLongProteinNameSplitChars.Text = ValidateFastaFile.clsValidateFastaFile.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR
 		txtInvalidProteinNameCharsToRemove.Text = ""
+		txtResiduesPerLineForWrap.Text = "60"
 
 		chkAllowAsteriskInResidues.Checked = False
 		chkCheckForDuplicateProteinInfo.Checked = True
@@ -584,7 +584,7 @@ Public Class frmFastaValidation
 
 	Private Sub SelectCustomRulesFile()
 
-		Dim objOpenFile As New System.Windows.Forms.OpenFileDialog
+		Dim objOpenFile As New Windows.Forms.OpenFileDialog
 
 		With objOpenFile
 			.AddExtension = True
@@ -600,7 +600,7 @@ Public Class frmFastaValidation
 
 			If Len(txtCustomValidationRulesFilePath.Text.Length) > 0 Then
 				Try
-					.InitialDirectory = System.IO.Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString
+					.InitialDirectory = IO.Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString
 				Catch
 					.InitialDirectory = GetApplicationDataFolderPath()
 				End Try
@@ -639,7 +639,7 @@ Public Class frmFastaValidation
 		strMessage &= "Fasta File Validation module written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2005" & ControlChars.NewLine
 		strMessage &= "Copyright 2005, Battelle Memorial Institute.  All Rights Reserved." & ControlChars.NewLine & ControlChars.NewLine
 
-		strMessage &= "This is version " & System.Windows.Forms.Application.ProductVersion & " (" & PROGRAM_DATE & ")" & ControlChars.NewLine & ControlChars.NewLine
+		strMessage &= "This is version " & Windows.Forms.Application.ProductVersion & " (" & PROGRAM_DATE & ")" & ControlChars.NewLine & ControlChars.NewLine
 
 		strMessage &= "E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com" & ControlChars.NewLine
 		strMessage &= "Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/" & ControlChars.NewLine & ControlChars.NewLine
@@ -674,26 +674,14 @@ Public Class frmFastaValidation
 
 	End Sub
 
-	Private Sub SummaryAppendText(ByVal strNewText As String)
-		txtResults.Text &= strNewText
-		txtResults.SelectionStart = txtResults.TextLength
-		txtResults.ScrollToCaret()
-	End Sub
-
-	Private Sub SummarySetText(ByVal strNewText As String)
-		txtResults.Text = strNewText
-		txtResults.SelectionStart = 1
-		txtResults.ScrollToCaret()
-	End Sub
-
 	Public Sub SetOptions(ByVal udtFastaValidationOptions As udtFastaValidationOptionsType)
 
 		With udtFastaValidationOptions
 			txtMaxFileErrorsToTrack.Text = .MaximumErrorsToTrackInDetail.ToString
-			txtMaximumResiduesPerLine.Text = .MaximumResiduesPerLine.ToString
+			txtMaximumResiduesPerLine.Text = .MaximumResiduesPerLine.ToString()
 
-			txtProteinNameLengthMinimum.Text = .ValidProteinNameLengthMinimum.ToString
-			txtProteinNameLengthMaximum.Text = .ValidProteinNameLengthMaximum.ToString
+			txtProteinNameLengthMinimum.Text = .ValidProteinNameLengthMinimum.ToString()
+			txtProteinNameLengthMaximum.Text = .ValidProteinNameLengthMaximum.ToString()
 
 			chkAllowAsteriskInResidues.Checked = .AllowAstericksInResidues
 			chkCheckForDuplicateProteinInfo.Checked = .CheckForDuplicateProteinNames
@@ -711,15 +699,16 @@ Public Class frmFastaValidation
 				chkSplitOutMultipleRefsInProteinName.Checked = .SplitOutMultipleRefsInProteinName
 				chkConsolidateDuplicateProteinSeqs.Checked = .ConsolidateDuplicateProteins
 				chkConsolidateDupsIgnoreILDiff.Checked = .ConsolidateDupsIgnoreILDiff
+				txtResiduesPerLineForWrap.Text = .ResiduesPerLineForWrap.ToString()
 			End With
 		End With
 
-		System.Windows.Forms.Application.DoEvents()
+		Windows.Forms.Application.DoEvents()
 
 	End Sub
 
 	Private Sub SetToolTips()
-		Dim objToolTipControl As New System.Windows.Forms.ToolTip
+		Dim objToolTipControl As New Windows.Forms.ToolTip
 
 		With objToolTipControl
 			.SetToolTip(txtLongProteinNameSplitChars, "Enter one or more characters to look for when truncating long protein names (do not separate the characters by commas).  Default character is a vertical bar.")
@@ -727,8 +716,6 @@ Public Class frmFastaValidation
 			.SetToolTip(chkSplitOutMultipleRefsForKnownAccession, "If a protein name matches the standard IPI, GI, or JGI accession numbers, and if it contains additional reference information, then the additional information will be moved to the protein's description.")
 			.SetToolTip(chkSaveBasicProteinHashInfoFile, "To minimize memory usage, enable this option by disable 'Check for Duplicate Proteins'")
 		End With
-
-		objToolTipControl = Nothing
 
 	End Sub
 
@@ -750,7 +737,7 @@ Public Class frmFastaValidation
 			RaiseEvent FastaValidationStarted()
 
 			ShowHideObjectsDuringValidation(True)
-			Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
+			Windows.Forms.Cursor.Current = Windows.Forms.Cursors.WaitCursor
 			Windows.Forms.Application.DoEvents()
 
 			With mValidateFastaFile
@@ -762,12 +749,17 @@ Public Class frmFastaValidation
 
 				.MinimumProteinNameLength = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtProteinNameLengthMinimum, "Minimum protein name length should be a number", False, 3, False)
 				.MaximumProteinNameLength = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtProteinNameLengthMaximum, "Maximum protein name length should be a number", False, 34, False)
-				.MaximumResiduesPerLine = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtMaximumResiduesPerLine, "Maximum residues per line should be a number", False, 120, False)
+
+				If chkGenerateFixedFastaFile.Checked AndAlso chkWrapLongResidueLines.Checked Then
+					.MaximumResiduesPerLine = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtResiduesPerLineForWrap, "Residues per line for wrapping should be a number", False, 60, False)
+				Else
+					.MaximumResiduesPerLine = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtMaximumResiduesPerLine, "Maximum residues per line should be a number", False, 120, False)
+				End If
 
 				strParameterFilePath = txtCustomValidationRulesFilePath.Text
 				If strParameterFilePath.Length > 0 Then
 					Try
-						blnFileExists = System.IO.File.Exists(strParameterFilePath)
+						blnFileExists = IO.File.Exists(strParameterFilePath)
 					Catch ex As Exception
 						blnFileExists = False
 					End Try
@@ -908,7 +900,7 @@ Public Class frmFastaValidation
 			mValidateFastaFile = Nothing
 			ShowHideObjectsDuringValidation(False)
 
-			Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
+			Windows.Forms.Cursor.Current = Windows.Forms.Cursors.Default
 			Windows.Forms.Application.DoEvents()
 		End Try
 
@@ -916,10 +908,10 @@ Public Class frmFastaValidation
 
 	Private Sub UpdateDatagridTableStyle(ByRef dgDataGrid As Windows.Forms.DataGrid, ByVal strTargetTableName As String)
 
-		Dim tsTableStyle As System.Windows.Forms.DataGridTableStyle
+		Dim tsTableStyle As Windows.Forms.DataGridTableStyle
 
 		' Instantiate the TableStyle
-		tsTableStyle = New System.Windows.Forms.DataGridTableStyle
+		tsTableStyle = New Windows.Forms.DataGridTableStyle
 
 		' Setting the MappingName of the table style to strTargetTableName will cause this style to be used with that table
 		With tsTableStyle
@@ -952,76 +944,86 @@ Public Class frmFastaValidation
 
 #Region "Control Handlers"
 
-	Private Sub chkGenerateFixedFastaFile_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles chkGenerateFixedFastaFile.CheckedChanged
+	Private Sub chkGenerateFixedFastaFile_CheckedChanged(ByVal sender As Object, ByVal e As EventArgs) Handles chkGenerateFixedFastaFile.CheckedChanged
 		EnableDisableControls()
 	End Sub
 
-	Private Sub chkConsolidateDuplicateProteinSeqs_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles chkConsolidateDuplicateProteinSeqs.CheckedChanged
+	Private Sub chkConsolidateDuplicateProteinSeqs_CheckedChanged(ByVal sender As Object, ByVal e As EventArgs) Handles chkConsolidateDuplicateProteinSeqs.CheckedChanged
 		EnableDisableControls()
 	End Sub
 
-	Private Sub chkRenameDuplicateProteins_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkRenameDuplicateProteins.CheckedChanged
+	Private Sub chkRenameDuplicateProteins_CheckedChanged(sender As Object, e As EventArgs) Handles chkRenameDuplicateProteins.CheckedChanged
 		EnableDisableControls()
 	End Sub
 
-	Private Sub cmdCancel_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdCancel.Click
+	Private Sub chkKeepDuplicateNamedProteins_CheckedChanged(sender As Object, e As EventArgs) Handles chkKeepDuplicateNamedProteins.CheckedChanged
+		If chkKeepDuplicateNamedProteins.Enabled Then
+			mKeepDuplicateNamedProteinsLastValue = chkKeepDuplicateNamedProteins.Checked
+		End If
+	End Sub
+
+	Private Sub chkWrapLongResidueLines_CheckedChanged(sender As Object, e As EventArgs) Handles chkWrapLongResidueLines.CheckedChanged
+		EnableDisableControls()
+	End Sub
+
+	Private Sub cmdCancel_Click(ByVal sender As Object, ByVal e As EventArgs) Handles cmdCancel.Click
 		If Not mValidateFastaFile Is Nothing Then
 			cmdCancel.Enabled = False
 			mValidateFastaFile.AbortProcessingNow()
 		End If
 	End Sub
 
-	Private Sub cmdCreateDefaultValidationRulesFile_Click_1(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdCreateDefaultValidationRulesFile.Click
+	Private Sub cmdCreateDefaultValidationRulesFile_Click_1(ByVal sender As Object, ByVal e As EventArgs) Handles cmdCreateDefaultValidationRulesFile.Click
 		CreateDefaultValidationRulesFile()
 	End Sub
 
-	Private Sub cmdSelectCustomRulesFile_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdSelectCustomRulesFile.Click
+	Private Sub cmdSelectCustomRulesFile_Click(ByVal sender As Object, ByVal e As EventArgs) Handles cmdSelectCustomRulesFile.Click
 		SelectCustomRulesFile()
 	End Sub
 
-	Private Sub cmdValidateFastaFile_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmdValidateFastaFile.Click
+	Private Sub cmdValidateFastaFile_Click(ByVal sender As Object, ByVal e As EventArgs) Handles cmdValidateFastaFile.Click
 		StartValidation()
 	End Sub
 
-	Private Sub frmFastaValidationResults_Resize(ByVal sender As Object, ByVal e As System.EventArgs) Handles MyBase.Resize
+	Private Sub frmFastaValidationResults_Resize(ByVal sender As Object, ByVal e As EventArgs) Handles MyBase.Resize
 		PositionControls()
 	End Sub
 
-	Private Sub txtCustomValidationRulesFilePath_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtCustomValidationRulesFilePath.TextChanged
+	Private Sub txtCustomValidationRulesFilePath_TextChanged(ByVal sender As Object, ByVal e As EventArgs) Handles txtCustomValidationRulesFilePath.TextChanged
 		EnableDisableControls()
 	End Sub
 
-	Private Sub txtFilterData_Validated(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles txtFilterData.Validated
+	Private Sub txtFilterData_Validated(ByVal sender As Object, ByVal e As EventArgs) Handles txtFilterData.Validated
 		FilterLists()
 	End Sub
 
-	Private Sub txtFilterData_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles txtFilterData.KeyDown
+	Private Sub txtFilterData_KeyDown(ByVal sender As Object, ByVal e As Windows.Forms.KeyEventArgs) Handles txtFilterData.KeyDown
 		If e.KeyCode = Keys.Enter Then
 			FilterLists()
 		End If
 	End Sub
 
-	Private Sub txtMaxFileErrorsToTrack_KeyPress(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyPressEventArgs)
+	Private Sub txtMaxFileErrorsToTrack_KeyPress1(ByVal sender As Object, ByVal e As Windows.Forms.KeyPressEventArgs) Handles txtMaxFileErrorsToTrack.KeyPress
 		SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtMaxFileErrorsToTrack, e, True)
 	End Sub
 
-	Private Sub txtMaxFileErrorsToTrack_KeyPress1(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles txtMaxFileErrorsToTrack.KeyPress
-		SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtMaxFileErrorsToTrack, e, True)
-	End Sub
-
-	Private Sub txtMaximumResiduesPerLine_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles txtMaximumResiduesPerLine.KeyPress
+	Private Sub txtMaximumResiduesPerLine_KeyPress(ByVal sender As Object, ByVal e As Windows.Forms.KeyPressEventArgs) Handles txtMaximumResiduesPerLine.KeyPress
 		SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtMaximumResiduesPerLine, e, True)
 	End Sub
 
-	Private Sub txtProteinNameLengthMinimum_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles txtProteinNameLengthMinimum.KeyPress
+	Private Sub txtProteinNameLengthMinimum_KeyPress(ByVal sender As Object, ByVal e As Windows.Forms.KeyPressEventArgs) Handles txtProteinNameLengthMinimum.KeyPress
 		SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtProteinNameLengthMinimum, e, True)
 	End Sub
 
-	Private Sub txtProteinNameLengthMaximum_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles txtProteinNameLengthMaximum.KeyPress
+	Private Sub txtProteinNameLengthMaximum_KeyPress(ByVal sender As Object, ByVal e As Windows.Forms.KeyPressEventArgs) Handles txtProteinNameLengthMaximum.KeyPress
 		SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtProteinNameLengthMaximum, e, True)
 	End Sub
 
-	Private Sub txtResults_KeyDown(ByVal sender As System.Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles txtResults.KeyDown
+	Private Sub txtResiduesPerLineForWrap_TextChanged(ByVal sender As Object, ByVal e As Windows.Forms.KeyPressEventArgs) Handles txtResiduesPerLineForWrap.KeyPress
+		SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtResiduesPerLineForWrap, e, True)
+	End Sub
+
+	Private Sub txtResults_KeyDown(ByVal sender As Object, ByVal e As Windows.Forms.KeyEventArgs) Handles txtResults.KeyDown
 		If e.Control = True Then
 			If e.KeyCode = Keys.A Then
 				txtResults.SelectAll()
@@ -1029,7 +1031,7 @@ Public Class frmFastaValidation
 		End If
 	End Sub
 
-	Private Sub mValidationTriggerTimer_Tick(ByVal sender As Object, ByVal e As System.EventArgs) Handles mValidationTriggerTimer.Tick
+	Private Sub mValidationTriggerTimer_Tick(ByVal sender As Object, ByVal e As EventArgs) Handles mValidationTriggerTimer.Tick
 		' This timer is used to cause StartValidation to be called after the form becomes visible
 		mValidationTriggerTimer.Enabled = False
 		StartValidation()
@@ -1039,27 +1041,27 @@ Public Class frmFastaValidation
 
 #Region "Menu Handlers"
 
-	Private Sub mnuFileExit_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles mnuFileExit.Click
+	Private Sub mnuFileExit_Click(ByVal sender As Object, ByVal e As EventArgs) Handles mnuFileExit.Click
 		Me.Close()
 	End Sub
 
-	Private Sub mnuEditCopySummary_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles mnuEditCopySummary.Click
+	Private Sub mnuEditCopySummary_Click(ByVal sender As Object, ByVal e As EventArgs) Handles mnuEditCopySummary.Click
 		CopySummaryText()
 	End Sub
 
-	Private Sub mnuEditCopyAllResults_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles mnuEditCopyAllResults.Click
+	Private Sub mnuEditCopyAllResults_Click(ByVal sender As Object, ByVal e As EventArgs) Handles mnuEditCopyAllResults.Click
 		CopyAllResults()
 	End Sub
 
-	Private Sub mnuEditCopyAllErrors_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles mnuEditCopyAllErrors.Click
+	Private Sub mnuEditCopyAllErrors_Click(ByVal sender As Object, ByVal e As EventArgs) Handles mnuEditCopyAllErrors.Click
 		CopyErrorsDataView()
 	End Sub
 
-	Private Sub mnuEditCopyAllWarnings_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles mnuEditCopyAllWarnings.Click
+	Private Sub mnuEditCopyAllWarnings_Click(ByVal sender As Object, ByVal e As EventArgs) Handles mnuEditCopyAllWarnings.Click
 		CopyWarningsDataView()
 	End Sub
 
-	Private Sub mnuEditFontSizeDecrease_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles mnuEditFontSizeDecrease.Click
+	Private Sub mnuEditFontSizeDecrease_Click(ByVal sender As Object, ByVal e As EventArgs) Handles mnuEditFontSizeDecrease.Click
 		If Me.TextFontSize > 14 Then
 			Me.TextFontSize = Me.TextFontSize - 2
 		Else
@@ -1067,7 +1069,7 @@ Public Class frmFastaValidation
 		End If
 	End Sub
 
-	Private Sub mnuEditFontSizeIncrease_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles mnuEditFontSizeIncrease.Click
+	Private Sub mnuEditFontSizeIncrease_Click(ByVal sender As Object, ByVal e As EventArgs) Handles mnuEditFontSizeIncrease.Click
 		If Me.TextFontSize >= 14 Then
 			Me.TextFontSize = Me.TextFontSize + 2
 		Else
@@ -1075,11 +1077,11 @@ Public Class frmFastaValidation
 		End If
 	End Sub
 
-	Private Sub mnuEditResetToDefaults_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles mnuEditResetToDefaults.Click
+	Private Sub mnuEditResetToDefaults_Click(ByVal sender As Object, ByVal e As EventArgs) Handles mnuEditResetToDefaults.Click
 		ResetOptionsToDefault()
 	End Sub
 
-	Private Sub mnuHelpAbout_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles mnuHelpAbout.Click
+	Private Sub mnuHelpAbout_Click(ByVal sender As Object, ByVal e As EventArgs) Handles mnuHelpAbout.Click
 		ShowAboutBox()
 	End Sub
 
@@ -1096,9 +1098,4 @@ Public Class frmFastaValidation
 	End Sub
 #End Region
 
-	Private Sub chkKeepDuplicateNamedProteins_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkKeepDuplicateNamedProteins.CheckedChanged
-		If chkKeepDuplicateNamedProteins.Enabled Then
-			mKeepDuplicateNamedProteinsLastValue = chkKeepDuplicateNamedProteins.Checked
-		End If
-	End Sub
 End Class

@@ -625,7 +625,7 @@ Public Class frmMain
 		Const UniquenessStatsOptions As String = clsParseProteinFile.XML_SECTION_UNIQUENESS_STATS_OPTIONS
 		Const PMOptions As String = clsProteinDigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS
 
-		Const MAX_AUTO_WINDOW_HEIGHT As Integer = 650
+		Const MAX_AUTO_WINDOW_HEIGHT As Integer = 775
 
 		Dim objXmlFile As New XmlSettingsFileAccessor
 

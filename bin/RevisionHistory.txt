@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.5053; November 1, 2013
+	- The Fasta File Validation window now includes "Residues per line" for wrapping (default is 60)
+
 Version 2.2.4834; March 27, 2013
 	- Created new project files due to DLL referencing issues
 	- Switched to AnyCPU

@@ -8,7 +8,7 @@ Option Strict On
 ' Program started November 8, 2003
 
 ' E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com
-' Website: http://ncrr.pnnl.gov/ or http://www.sysbio.org/resources/staff/
+' Website: http://panomics.pnnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 ' 
 ' Licensed under the Apache License, Version 2.0; you may not use this file except
@@ -25,7 +25,7 @@ Option Strict On
 ' this computer software.
 
 '
-' Last modified January 17, 2013
+' Last modified June 28, 2013
 
 Imports System.Collections.Generic
 
@@ -75,7 +75,7 @@ Public Class clsParseCommandLine
     ''' <param name="objParameterList">Parameter list</param>
     ''' <returns>True if any of the parameters are not present in strParameterList()</returns>
 	Public Function InvalidParametersPresent(ByVal objParameterList As List(Of String)) As Boolean
-		Dim blnCaseSensitive As Boolean = False
+		Const blnCaseSensitive As Boolean = False
 		Return InvalidParametersPresent(objParameterList, blnCaseSensitive)
 	End Function
 
@@ -85,7 +85,7 @@ Public Class clsParseCommandLine
     ''' <param name="strParameterList">Parameter list</param>
     ''' <returns>True if any of the parameters are not present in strParameterList()</returns>
     Public Function InvalidParametersPresent(ByVal strParameterList() As String) As Boolean
-    	Dim blnCaseSensitive As Boolean = False
+		Const blnCaseSensitive As Boolean = False
         Return InvalidParametersPresent(strParameterList, blnCaseSensitive)
     End Function
 
@@ -114,7 +114,7 @@ Public Class clsParseCommandLine
 	End Function
 
 	Public Function InvalidParameters(ByVal lstValidParameters As List(Of String)) As List(Of String)
-		Dim blnCaseSensitive As Boolean = False
+		Const blnCaseSensitive As Boolean = False
 		Return InvalidParameters(lstValidParameters, blnCaseSensitive)
 	End Function
 
@@ -155,7 +155,7 @@ Public Class clsParseCommandLine
 	''' <returns>True if present, otherwise false</returns>
 	Public Function IsParameterPresent(strParameterName As String) As Boolean
 		Dim strValue As String = String.Empty
-		Dim blnCaseSensitive As Boolean = False
+		Const blnCaseSensitive As Boolean = False
 		Return RetrieveValueForParameter(strParameterName, strValue, blnCaseSensitive)
 	End Function
 
@@ -259,9 +259,9 @@ Public Class clsParseCommandLine
 				Console.WriteLine()
 			End If
 
-			If strCmdLine Is Nothing OrElse strCmdLine.Length = 0 Then
+			If String.IsNullOrWhiteSpace(strCmdLine) Then
 				Return False
-			ElseIf strCmdLine.IndexOf(chSwitchStartChar & "?") > 0 Or strCmdLine.ToLower.IndexOf(chSwitchStartChar & "help") > 0 Then
+			ElseIf strCmdLine.IndexOf(chSwitchStartChar & "?") > 0 Or strCmdLine.ToLower().IndexOf(chSwitchStartChar & "help") > 0 Then
 				mShowHelp = True
 				Return False
 			End If
