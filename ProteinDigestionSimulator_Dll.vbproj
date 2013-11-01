@@ -126,6 +126,7 @@
     <Compile Include="clsProcessFilesBaseClass.vb">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="clsProcessFilesOrFoldersBase.vb" />
     <Compile Include="clsProteinDigestionSimulator.vb">
       <SubType>Code</SubType>
     </Compile>
