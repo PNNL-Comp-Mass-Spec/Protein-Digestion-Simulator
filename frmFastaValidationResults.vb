@@ -576,7 +576,7 @@ Public Class frmFastaValidation
 		chkRemoveInvalidResidues.Checked = False
 		chkRenameDuplicateProteins.Checked = True
 		chkKeepDuplicateNamedProteins.Checked = False
-		chkSplitOutMultipleRefsForKnownAccession.Checked = True
+		chkSplitOutMultipleRefsForKnownAccession.Checked = False
 		chkSplitOutMultipleRefsInProteinName.Checked = False
 		chkTruncateLongProteinNames.Checked = True
 		chkWrapLongResidueLines.Checked = True

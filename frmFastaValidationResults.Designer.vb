@@ -105,8 +105,6 @@ Partial Class frmFastaValidation
 		'
 		'chkSplitOutMultipleRefsForKnownAccession
 		'
-		Me.chkSplitOutMultipleRefsForKnownAccession.Checked = True
-		Me.chkSplitOutMultipleRefsForKnownAccession.CheckState = System.Windows.Forms.CheckState.Checked
 		Me.chkSplitOutMultipleRefsForKnownAccession.Location = New System.Drawing.Point(239, 81)
 		Me.chkSplitOutMultipleRefsForKnownAccession.Margin = New System.Windows.Forms.Padding(4)
 		Me.chkSplitOutMultipleRefsForKnownAccession.Name = "chkSplitOutMultipleRefsForKnownAccession"

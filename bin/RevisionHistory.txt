@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.5072; November 20, 2013
+	- Changed the default value for "Split out multiple references" to False in the Fasta File Validation Window
+
 Version 2.2.5053; November 1, 2013
 	- The Fasta File Validation window now includes "Residues per line" for wrapping (default is 60)
 
