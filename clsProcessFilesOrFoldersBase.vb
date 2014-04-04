@@ -4,6 +4,7 @@ Imports System.IO
 Imports System.Threading
 Imports System.Reflection
 Imports System.Text.RegularExpressions
+Imports System.Collections.Generic
 
 ''' <summary>
 ''' This class contains functions used by both clsProcessFilesBaseClass and clsProcessFoldersBaseClass
@@ -11,6 +12,7 @@ Imports System.Text.RegularExpressions
 ''' <remarks>
 ''' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
 ''' Created in October 2013
+''' Last updated in November 2013
 ''' </remarks>
 Public MustInherit Class clsProcessFilesOrFoldersBase
 
@@ -578,7 +580,22 @@ Public MustInherit Class clsProcessFilesOrFoldersBase
 		ShowMessage(strMessage, blnAllowLogToFile, blnPrecedeWithNewline, intDuplicateHoldoffHours:=0)
 	End Sub
 
-	Protected Sub ShowMessage(ByVal strMessage As String, ByVal blnAllowLogToFile As Boolean, ByVal blnPrecedeWithNewline As Boolean, ByVal intDuplicateHoldoffHours As Integer)
+								   
+	Protected Sub ShowMessage(
+	  ByVal strMessage As String, 
+	  ByVal blnAllowLogToFile As Boolean, 
+	  ByVal blnPrecedeWithNewline As Boolean, 
+	  ByVal intDuplicateHoldoffHours As Integer)
+
+		ShowMessage(strMessage, blnAllowLogToFile, blnPrecedeWithNewline, intDuplicateHoldoffHours, eMessageTypeConstants.Normal)
+	End Sub
+
+	Protected Sub ShowMessage(
+	  ByVal strMessage As String, 
+	  ByVal blnAllowLogToFile As Boolean, 
+	  ByVal blnPrecedeWithNewline As Boolean, 
+	  ByVal intDuplicateHoldoffHours As Integer,
+	  ByVal eMessageType as eMessageTypeConstants)
 
 		If blnPrecedeWithNewline Then
 			Console.WriteLine()
@@ -587,11 +604,23 @@ Public MustInherit Class clsProcessFilesOrFoldersBase
 
 		If blnAllowLogToFile Then
 			' Note that LogMessage will call RaiseMessageEvent
-			LogMessage(strMessage, eMessageTypeConstants.Normal, intDuplicateHoldoffHours)
+			LogMessage(strMessage, eMessageType, intDuplicateHoldoffHours)
 		Else
-			RaiseMessageEvent(strMessage, eMessageTypeConstants.Normal)
+			RaiseMessageEvent(strMessage, eMessageType)
 		End If
 
+	End Sub
+	
+	Protected Sub ShowWarning(strMessage As String)
+		ShowMessage(strMessage, blnAllowLogToFile := True, blnPrecedeWithNewline := False, intDuplicateHoldoffHours := 0, eMessageType := eMessageTypeConstants.Warning)
+	End Sub
+	
+	Protected Sub ShowWarning(strMessage As String, intDuplicateHoldoffHours As Integer)
+		ShowMessage(strMessage, blnAllowLogToFile := True, blnPrecedeWithNewline := False, intDuplicateHoldoffHours := intDuplicateHoldoffHours, eMessageType := eMessageTypeConstants.Warning)
+	End Sub
+	
+	Protected Sub ShowWarning(strMessage As String, blnAllowLogToFile As Boolean)
+		ShowMessage(strMessage, blnAllowLogToFile, blnPrecedeWithNewline := False, intDuplicateHoldoffHours := 0, eMessageType := eMessageTypeConstants.Warning)
 	End Sub
 
 	Private Sub TrimLogDataCache()
