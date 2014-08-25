@@ -3,6 +3,8 @@
 ' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in October 2004
 ' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
 
+Imports System.IO
+
 Public Class frmMain
 
 	Public Sub New()
@@ -78,11 +80,7 @@ Public Class frmMain
 
 	Private objpICalculator As clspICalculation
 
-#If IncludePNNLNETRoutines Then
 	Private objSCXNETCalculator As NETPrediction.SCXElutionTimePredictionKangas
-#Else
-    Private objSCXNETCalculator As NETPredictionBasic.SCXElutionTimePredictionKangas
-#End If
 
 	Private mTabPageIndexSaved As Integer = 0
 
@@ -168,24 +166,24 @@ Public Class frmMain
 		Dim strInputFileName As String
 		Dim strOutputFileName As String
 
-		strInputFileName = System.IO.Path.GetFileName(txtProteinInputFilePath.Text)
+		strInputFileName = Path.GetFileName(txtProteinInputFilePath.Text)
 
 		If chkCreateFastaOutputFile.Enabled AndAlso chkCreateFastaOutputFile.Checked Then
-			If System.IO.Path.GetExtension(strInputFileName).ToLower = ".fasta" Then
-				strOutputFileName = System.IO.Path.GetFileNameWithoutExtension(strInputFileName) & "_new.fasta"
+			If Path.GetExtension(strInputFileName).ToLower = ".fasta" Then
+				strOutputFileName = Path.GetFileNameWithoutExtension(strInputFileName) & "_new.fasta"
 			Else
-				strOutputFileName = System.IO.Path.ChangeExtension(strInputFileName, ".fasta")
+				strOutputFileName = Path.ChangeExtension(strInputFileName, ".fasta")
 			End If
 		Else
-			If System.IO.Path.GetExtension(strInputFileName).ToLower = ".txt" Then
-				strOutputFileName = System.IO.Path.GetFileNameWithoutExtension(strInputFileName) & "_output.txt"
+			If Path.GetExtension(strInputFileName).ToLower = ".txt" Then
+				strOutputFileName = Path.GetFileNameWithoutExtension(strInputFileName) & "_output.txt"
 			Else
-				strOutputFileName = System.IO.Path.ChangeExtension(strInputFileName, ".txt")
+				strOutputFileName = Path.ChangeExtension(strInputFileName, ".txt")
 			End If
 		End If
 
 
-		Return System.IO.Path.Combine(System.IO.Path.GetDirectoryName(strInputFilePath), strOutputFileName)
+		Return Path.Combine(Path.GetDirectoryName(strInputFilePath), strOutputFileName)
 
 	End Function
 
@@ -256,15 +254,9 @@ Public Class frmMain
 			objpICalculator = New clspICalculation
 		End If
 
-#If IncludePNNLNETRoutines Then
 		If objSCXNETCalculator Is Nothing Then
 			objSCXNETCalculator = New NETPrediction.SCXElutionTimePredictionKangas
 		End If
-#Else
-        If objSCXNETCalculator Is Nothing Then
-            objSCXNETCalculator = New NETPredictionBasic.SCXElutionTimePredictionKangas
-        End If
-#End If
 
 		strSequence = txtSequenceForpI.Text
 
@@ -375,11 +367,13 @@ Public Class frmMain
 		Dim blnEnableDigestionOptions As Boolean
 		Dim blnAllowSqlServerCaching As Boolean
 
+		Dim sourceIsFasta = Path.GetFileName(txtProteinInputFilePath.Text).ToLower().Contains(".fasta")
+
 		If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.DelimitedText Then
 			blnEnableDelimitedFileOptions = True
 		ElseIf cboInputFileFormat.SelectedIndex = InputFileFormatConstants.FastaFile OrElse _
-			txtProteinInputFilePath.TextLength = 0 OrElse _
-			System.IO.Path.GetFileName(txtProteinInputFilePath.Text).ToLower.IndexOf(".fasta") > 0 Then
+		   txtProteinInputFilePath.TextLength = 0 OrElse _
+		   sourceIsFasta Then
 			' Fasta file (or blank)
 			blnEnableDelimitedFileOptions = False
 		Else
@@ -399,8 +393,7 @@ Public Class frmMain
 			cmdParseInputFile.Text = "&Parse File"
 		End If
 
-		If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.FastaFile OrElse _
-			System.IO.Path.GetFileName(txtProteinInputFilePath.Text).ToLower.IndexOf(".fasta") > 0 Then
+		If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.FastaFile OrElse sourceIsFasta Then
 			cmdValidateFastaFile.Enabled = True
 		Else
 			cmdValidateFastaFile.Enabled = False
@@ -408,6 +401,7 @@ Public Class frmMain
 
 		chkCreateFastaOutputFile.Enabled = Not blnEnableDigestionOptions
 
+		chkComputeSequenceHashIgnoreILDiff.Enabled = chkComputeSequenceHashValues.Checked
 
 		fraDigestionOptions.Enabled = blnEnableDigestionOptions
 		chkIncludePrefixAndSuffixResidues.Enabled = blnEnableDigestionOptions
@@ -491,7 +485,7 @@ Public Class frmMain
 					mProteinDigestionSimulator.ShowMessages = False
 					mProteinDigestionSimulator.LogMessagesToFile = True
 
-					strLogFilePath = System.IO.Path.Combine(clsProcessFilesBaseClass.GetAppDataFolderPath("ProteinDigestionSimulator"), "ProteinDigestionSimulatorLog.txt")
+					strLogFilePath = Path.Combine(clsProcessFilesBaseClass.GetAppDataFolderPath("ProteinDigestionSimulator"), "ProteinDigestionSimulatorLog.txt")
 					mProteinDigestionSimulator.LogFilePath = strLogFilePath
 				End If
 
@@ -500,20 +494,20 @@ Public Class frmMain
 
 				strOutputFilePath = txtProteinOutputFilePath.Text
 
-				If Not System.IO.Path.IsPathRooted(strOutputFilePath) Then
-					strOutputFilePath = System.IO.Path.Combine(GetMyDocsFolderPath(), strOutputFilePath)
+				If Not Path.IsPathRooted(strOutputFilePath) Then
+					strOutputFilePath = Path.Combine(GetMyDocsFolderPath(), strOutputFilePath)
 				End If
 
-				If System.IO.Directory.Exists(strOutputFilePath) Then
+				If Directory.Exists(strOutputFilePath) Then
 					' strOutputFilePath points to a folder and not a file
-					strOutputFilePath = System.IO.Path.Combine(strOutputFilePath, System.IO.Path.GetFileNameWithoutExtension(txtProteinInputFilePath.Text) & PEAK_MATCHING_STATS_FILE_SUFFIX)
+					strOutputFilePath = Path.Combine(strOutputFilePath, Path.GetFileNameWithoutExtension(txtProteinInputFilePath.Text) & PEAK_MATCHING_STATS_FILE_SUFFIX)
 				Else
 					' Replace _output.txt" in strOutputFilePath with PEAK_MATCHING_STATS_FILE_SUFFIX
 					intCharLoc = strOutputFilePath.ToLower.IndexOf(OUTPUT_FILE_SUFFIX.ToLower)
 					If intCharLoc > 0 Then
 						strOutputFilePath = strOutputFilePath.Substring(0, intCharLoc) & PEAK_MATCHING_STATS_FILE_SUFFIX
 					Else
-						strOutputFilePath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(strOutputFilePath), System.IO.Path.GetFileNameWithoutExtension(strOutputFilePath) & PEAK_MATCHING_STATS_FILE_SUFFIX)
+						strOutputFilePath = Path.Combine(Path.GetDirectoryName(strOutputFilePath), Path.GetFileNameWithoutExtension(strOutputFilePath) & PEAK_MATCHING_STATS_FILE_SUFFIX)
 					End If
 				End If
 
@@ -578,7 +572,7 @@ Public Class frmMain
 					ResetProgress(True)
 					SwitchToProgressTab()
 
-					blnSuccess = .GenerateUniquenessStats(txtProteinInputFilePath.Text, System.IO.Path.GetDirectoryName(strOutputFilePath), System.IO.Path.GetFileNameWithoutExtension(strOutputFilePath))
+					blnSuccess = .GenerateUniquenessStats(txtProteinInputFilePath.Text, Path.GetDirectoryName(strOutputFilePath), Path.GetFileNameWithoutExtension(strOutputFilePath))
 
 					Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
 
@@ -687,6 +681,11 @@ Public Class frmMain
 
 					chkComputepI.Checked = .GetParam(ProcessingOptions, "ComputepI", chkComputepI.Checked)
 					chkIncludeXResidues.Checked = .GetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
+
+					chkComputeSequenceHashValues.Checked = .GetParam(ProcessingOptions, "ComputeSequenceHashValues", chkComputeSequenceHashValues.Checked)
+					chkComputeSequenceHashIgnoreILDiff.Checked = .GetParam(ProcessingOptions, "ComputeSequenceHashIgnoreILDiff", chkComputeSequenceHashIgnoreILDiff.Checked)
+					chkTruncateProteinDescription.Checked = .GetParam(ProcessingOptions, "TruncateProteinDescription", chkTruncateProteinDescription.Checked)
+
 					chkDigestProteins.Checked = .GetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked)
 					cboProteinReversalOptions.SelectedIndex = .GetParam(ProcessingOptions, "ProteinReversalIndex", cboProteinReversalOptions.SelectedIndex)
 					txtProteinScramblingLoopCount.Text = .GetParam(ProcessingOptions, "ProteinScramblingLoopCount", txtProteinScramblingLoopCount.Text)
@@ -762,9 +761,9 @@ Public Class frmMain
 
 								If strThresholdDetails.Length > 2 AndAlso Not blnAutoDefineSLiCScoreThresholds Then
 									If IsNumeric(strThresholdDetails(0)) And IsNumeric(strThresholdDetails(1)) And _
-										IsNumeric(strThresholdDetails(2)) And IsNumeric(strThresholdDetails(3)) Then
+									 IsNumeric(strThresholdDetails(2)) And IsNumeric(strThresholdDetails(3)) Then
 										AddPMThresholdRow(CDbl(strThresholdDetails(0)), CDbl(strThresholdDetails(1)), _
-															CDbl(strThresholdDetails(2)), CDbl(strThresholdDetails(3)))
+											 CDbl(strThresholdDetails(2)), CDbl(strThresholdDetails(3)))
 									End If
 								ElseIf strThresholdDetails.Length >= 2 Then
 									If IsNumeric(strThresholdDetails(0)) And IsNumeric(strThresholdDetails(1)) Then
@@ -776,7 +775,7 @@ Public Class frmMain
 					End If
 
 				Catch ex As Exception
-					System.Windows.Forms.MessageBox.Show("Invalid parameter in settings file: " & System.IO.Path.GetFileName(GetSettingsFilePath()), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+					System.Windows.Forms.MessageBox.Show("Invalid parameter in settings file: " & Path.GetFileName(GetSettingsFilePath()), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
 				End Try
 			End With
 
@@ -840,6 +839,11 @@ Public Class frmMain
 						.SetParam(ProcessingOptions, "ComputeProteinMass", chkComputeProteinMass.Checked)
 						.SetParam(ProcessingOptions, "ComputepI", chkComputepI.Checked)
 						.SetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
+
+						.SetParam(ProcessingOptions, "ComputeSequenceHashValues", chkComputeSequenceHashValues.Checked)
+						.SetParam(ProcessingOptions, "ComputeSequenceHashIgnoreILDiff", chkComputeSequenceHashIgnoreILDiff.Checked)
+						.SetParam(ProcessingOptions, "TruncateProteinDescription", chkTruncateProteinDescription.Checked)
+
 						.SetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked)
 						.SetParam(ProcessingOptions, "ProteinReversalIndex", cboProteinReversalOptions.SelectedIndex)
 						.SetParam(ProcessingOptions, "ProteinScramblingLoopCount", txtProteinScramblingLoopCount.Text)
@@ -902,7 +906,7 @@ Public Class frmMain
 						.SetParam(PMOptions, "ThresholdData", strThresholdData)
 					End If
 				Catch ex As Exception
-					System.Windows.Forms.MessageBox.Show("Error storing parameter in settings file: " & System.IO.Path.GetFileName(GetSettingsFilePath()), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+					System.Windows.Forms.MessageBox.Show("Error storing parameter in settings file: " & Path.GetFileName(GetSettingsFilePath()), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
 				End Try
 
 				.SaveSettings()
@@ -920,13 +924,8 @@ Public Class frmMain
 
 		DefineDefaultPMThresholds()
 
-#If IncludePNNLNETRoutines Then
 		Me.Text = "Protein Digestion Simulator"
 		lblUniquenessCalculationsNote.Text = "The Protein Digestion Simulator uses an elution time prediction algorithm developed by Lars Kangas and Kostas Petritis. See Help->About Elution Time Prediction for more info.  Note that you can provide custom time values for peptides by separately generating a tab or comma delimited text file with information corresponding to one of the options in the 'Column Order' list on the 'File Format' option tab, then checking 'Assume Input file is Already Digested' on this tab."
-#Else
-        Me.Text = "Protein Digestion Simulator Basic"
-        lblUniquenessCalculationsNote.Text = "The Protein Digestion Simulator Basic uses an elution time prediction algorithm developed by Oleg Krokhin. See Help->About Elution Time Prediction for more info.  Note that you can provide custom time values for peptides by separately generating a tab or comma delimited text file with information corresponding to one of the options in the 'Column Order' list on the 'File Format' option tab, then checking 'Assume Input file is Already Digested' on this tab."
-#End If
 
 		PopulateComboBoxes()
 		InitializePeakMatchingDataGrid()
@@ -995,22 +994,14 @@ Public Class frmMain
 		End With
 
 		SharedVBNetRoutines.ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_MASS_TOLERANCE, "Mass Tolerance", 90)
-#If IncludePNNLNETRoutines Then
 		SharedVBNetRoutines.ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_NET_TOLERANCE, "NET Tolerance", 90)
-#Else
-        SharedVBNetRoutines.ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_NET_TOLERANCE, "Time Tolerance", 90)
-#End If
 
 		If chkAutoDefineSLiCScoreTolerances.Checked Then
 			dgPeakMatchingThresholds.Width = 250
 		Else
 			dgPeakMatchingThresholds.Width = 425
 			SharedVBNetRoutines.ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_SLIC_MASS_STDEV, "SLiC Mass StDev", 90)
-#If IncludePNNLNETRoutines Then
 			SharedVBNetRoutines.ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_SLIC_NET_STDEV, "SLiC NET StDev", 90)
-#Else
-            SharedVBNetRoutines.ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_SLIC_NET_STDEV, "SLiC Time StDev", 90)
-#End If
 		End If
 
 		cmdPastePMThresholdsList.Left = dgPeakMatchingThresholds.Left + dgPeakMatchingThresholds.Width + 15
@@ -1066,6 +1057,10 @@ Public Class frmMain
 			.ComputeProteinMass = chkComputeProteinMass.Checked
 			.ComputepI = chkComputepI.Checked
 			.ComputeSCXNET = chkComputepI.Checked
+
+			.ComputeSequenceHashValues = chkComputeSequenceHashValues.Checked
+			.ComputeSequenceHashIgnoreILDiff = chkComputeSequenceHashIgnoreILDiff.Checked
+			.TruncateProteinDescription = chkTruncateProteinDescription.Checked
 
 			.HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, clspICalculation.eHydrophobicityTypeConstants)
 			.ReportMaximumpI = chkMaxpIModeEnabled.Checked
@@ -1199,13 +1194,15 @@ Public Class frmMain
 					ResetProgress(True)
 					SwitchToProgressTab()
 
+					Dim strOutputFolderPath As String = String.Empty
+					Dim strOutputFileNameBaseOverride As String = String.Empty
+
 					If txtProteinOutputFilePath.TextLength > 0 Then
-						blnSuccess = .ParseProteinFile(txtProteinInputFilePath.Text, _
-											System.IO.Path.GetDirectoryName(txtProteinOutputFilePath.Text), _
-											System.IO.Path.GetFileNameWithoutExtension(txtProteinOutputFilePath.Text))
-					Else
-						blnSuccess = .ParseProteinFile(txtProteinInputFilePath.Text, "", "")
+						strOutputFolderPath = Path.GetDirectoryName(txtProteinOutputFilePath.Text)
+						strOutputFileNameBaseOverride = Path.GetFileNameWithoutExtension(txtProteinOutputFilePath.Text)						
 					End If
+
+					blnSuccess = .ParseProteinFile(txtProteinInputFilePath.Text, strOutputFolderPath, strOutputFileNameBaseOverride)
 
 					Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
 
@@ -1389,11 +1386,7 @@ Public Class frmMain
 		Dim objInSilicoDigest As clsInSilicoDigest
 		Dim eRuleID As clsInSilicoDigest.CleavageRuleConstants
 
-#If IncludePNNLNETRoutines Then
 		Const NET_UNITS As String = "NET"
-#Else
-        Const NET_UNITS As String = "time"
-#End If
 
 		Try
 			With cboInputFileFormat
@@ -1445,15 +1438,9 @@ Public Class frmMain
 					.Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence, "ProteinName, Descr, Seq")
 					.Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence, "UniqueID and Seq")
 					.Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID, "ProteinName, Seq, UniqueID")
-#If IncludePNNLNETRoutines Then
 					.Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET, "ProteinName, Seq, UniqueID, Mass, NET")
 					.Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore, "ProteinName, Seq, UniqueID, Mass, NET, NETStDev, DiscriminantScore")
 					.Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence_Mass_NET, "UniqueID, Seq, Mass, NET")
-#Else
-                .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET, "ProteinName, Seq, UniqueID, Mass, Time")
-                .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore, "ProteinName, Seq, UniqueID, Mass, Time, TimeStDev, DiscriminantScore")
-                .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence_Mass_NET, "UniqueID, Seq, Mass, Time")
-#End If
 				End With
 				.SelectedIndex = ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
 			End With
@@ -1578,11 +1565,15 @@ Public Class frmMain
 		txtAddnlRefAccessionSepChar.Text = mDefaultFastaFileOptions.AddnlRefAccessionSepChar	' ":"
 
 		chkExcludeProteinSequence.Checked = False
-		chkComputeProteinMass.Checked = True
+		chkComputeProteinMass.Checked = False
 		cboElementMassMode.SelectedIndex = PeptideSequenceClass.ElementModeConstants.IsotopicMass
 
-		chkComputepI.Checked = True
-		chkIncludeXResidues.Checked = True
+		chkComputepI.Checked = False
+		chkIncludeXResidues.Checked = False
+
+		chkComputeSequenceHashValues.Checked = True
+		chkComputeSequenceHashIgnoreILDiff.Checked = True
+		chkTruncateProteinDescription.Checked = True
 
 		cboHydrophobicityMode.SelectedIndex = clspICalculation.eHydrophobicityTypeConstants.HW
 		chkMaxpIModeEnabled.Checked = False
@@ -1628,8 +1619,8 @@ Public Class frmMain
 		txtSqlServerUsername.Text = "user"
 		txtSqlServerPassword.Text = String.Empty
 
-		Me.Height = 650
-		Me.Width = 650
+		Me.Width = 960
+		Me.Height = 780
 
 		mCustomValidationRulesFilePath = String.Empty
 
@@ -1658,7 +1649,7 @@ Public Class frmMain
 
 			If Len(txtProteinInputFilePath.Text.Length) > 0 Then
 				Try
-					.InitialDirectory = System.IO.Directory.GetParent(txtProteinInputFilePath.Text).ToString
+					.InitialDirectory = Directory.GetParent(txtProteinInputFilePath.Text).ToString
 				Catch
 					.InitialDirectory = GetMyDocsFolderPath()
 				End Try
@@ -1694,7 +1685,7 @@ Public Class frmMain
 			.FilterIndex = 1
 			If Len(txtProteinOutputFilePath.Text.Length) > 0 Then
 				Try
-					.InitialDirectory = System.IO.Directory.GetParent(txtProteinOutputFilePath.Text).ToString
+					.InitialDirectory = Directory.GetParent(txtProteinOutputFilePath.Text).ToString
 				Catch
 					.InitialDirectory = GetMyDocsFolderPath()
 				End Try
@@ -1741,13 +1732,8 @@ Public Class frmMain
 	End Sub
 
 	Private Sub ShowElutionTimeInfo()
-#If IncludePNNLNETRoutines Then
 		Dim objNETPrediction As New NETPrediction.ElutionTimePredictionKangas
 		Windows.Forms.MessageBox.Show(objNETPrediction.ProgramDescription, "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
-#Else
-        Dim objNETPrediction As New NETPredictionBasic.ElutionTimePredictionKrokhin
-        Windows.Forms.MessageBox.Show(objNETPrediction.ProgramDescription, "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
-#End If
 	End Sub
 
 	Private Sub ShowSplashScreen()
@@ -1861,7 +1847,7 @@ Public Class frmMain
 			' Make sure an existing file has been chosen
 			If strFastaFilePath Is Nothing OrElse strFastaFilePath.Length = 0 Then Exit Try
 
-			If Not System.IO.File.Exists(strFastaFilePath) Then
+			If Not File.Exists(strFastaFilePath) Then
 				Windows.Forms.MessageBox.Show("File not found: " & ControlChars.NewLine & strFastaFilePath, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
 			Else
 				If mFastaValidation Is Nothing Then
@@ -1872,7 +1858,7 @@ Public Class frmMain
 
 				Try
 					If Not mCustomValidationRulesFilePath Is Nothing AndAlso mCustomValidationRulesFilePath.Length > 0 Then
-						If System.IO.File.Exists(mCustomValidationRulesFilePath) Then
+						If File.Exists(mCustomValidationRulesFilePath) Then
 							mFastaValidation.CustomRulesFilePath = mCustomValidationRulesFilePath
 						Else
 							mCustomValidationRulesFilePath = String.Empty
@@ -1911,7 +1897,7 @@ Public Class frmMain
 
 		Dim blnIsFastaFile As Boolean
 
-		Dim fiFileInfo As System.IO.FileInfo
+		Dim fiFileInfo As FileInfo
 		Dim intFileSizeKB As Integer
 
 		Dim strLineIn As String
@@ -1928,7 +1914,7 @@ Public Class frmMain
 		blnIsFastaFile = clsParseProteinFile.IsFastaFile(strInputFilePath) Or objProteinFileParser.AssumeFastaFile
 
 		' Lookup the file size
-		fiFileInfo = New System.IO.FileInfo(strInputFilePath)
+		fiFileInfo = New FileInfo(strInputFilePath)
 		intFileSizeKB = CType(fiFileInfo.Length / 1024.0, Integer)
 
 		If blnIsFastaFile Then
@@ -1944,7 +1930,7 @@ Public Class frmMain
 			' Assume a delimited text file
 			' Estimate the total line count by reading the first SAMPLING_LINE_COUNT lines
 			Try
-				Using srStreamReader As System.IO.StreamReader = New System.IO.StreamReader(strInputFilePath)
+				Using srStreamReader As StreamReader = New StreamReader(strInputFilePath)
 
 					lngBytesRead = 0
 					intLineCount = 0
@@ -2044,6 +2030,10 @@ Public Class frmMain
 	End Sub
 
 	Private Sub chkComputepI_CheckedChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles chkComputepI.CheckedChanged
+		EnableDisableControls()
+	End Sub
+
+	Private Sub chkComputeSequenceHashValues_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkComputeSequenceHashValues.CheckedChanged
 		EnableDisableControls()
 	End Sub
 
@@ -2329,6 +2319,5 @@ Public Class frmMain
 	End Sub
 
 #End Region
-
 
 End Class

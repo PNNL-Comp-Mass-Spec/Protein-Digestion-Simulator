@@ -887,12 +887,8 @@ Public Class clsInSilicoDigest
         Public Sub New()
 
             If objNETPrediction Is Nothing Then
-#If IncludePNNLNETRoutines Then
-                objNETPrediction = New NETPrediction.ElutionTimePredictionKangas
-#Else
-                objNETPrediction = New NETPredictionBasic.ElutionTimePredictionKrokhin
-#End If
-            End If
+				objNETPrediction = New NETPrediction.ElutionTimePredictionKangas
+			End If
 
             ' Disable mAutoComputeNET for now so that the call to SetSequence() below doesn't auto-call UpdateNET
             mAutoComputeNET = False
@@ -918,11 +914,7 @@ Public Class clsInSilicoDigest
 
         ' The following is declared Shared so that it is only initialized once per program execution
         ' All objects of type PeptideInfoClass will use the same instance of this object
-#If IncludePNNLNETRoutines Then
-        Private Shared objNETPrediction As NETPrediction.iPeptideElutionTime
-#Else
-        Private Shared objNETPrediction As NETPredictionBasic.iPeptideElutionTime
-#End If
+		Private Shared objNETPrediction As NETPrediction.iPeptideElutionTime
 
 
         Private mAutoComputeNET As Boolean      ' Set to False to skip computation of NET when Sequence changes; useful for speeding up things a little

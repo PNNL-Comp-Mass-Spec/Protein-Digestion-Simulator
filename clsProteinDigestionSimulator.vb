@@ -522,11 +522,7 @@ Public Class clsProteinDigestionSimulator
 					mOutputFileDelimiter & "Multi_AMT_Hit_Count" & _
 					mOutputFileDelimiter & "Matching_ID_Index" & _
 					mOutputFileDelimiter & "Mass_Err"
-#If IncludePNNLNETRoutines Then
 		strLineOut &= mOutputFileDelimiter & "NET_Err"
-#Else
-        strLineOut &= mOutputFileDelimiter & "Time_Err"
-#End If
 
 		strLineOut &= mOutputFileDelimiter & "SLiC_Score" & _
 					mOutputFileDelimiter & "Del_SLiC"
@@ -711,11 +707,7 @@ Public Class clsProteinDigestionSimulator
 					strLineOut &= "Unknown mass tolerance mode"
 			End Select
 
-#If IncludePNNLNETRoutines Then
 			strLineOut &= strDelimiter & "NET Tolerance: +- " & Math.Round(.NETTolerance, 4).ToString
-#Else
-            strLineOut &= strDelimiter & "Time Tolerance: +- " & Math.Round(.NETTolerance, 4).ToString
-#End If
 
 			If mUseSLiCScoreForUniqueness Then
 				strLineOut &= strDelimiter & "Minimum SLiC Score: " & Math.Round(mPeptideUniquenessBinningSettings.MinimumSLiCScore, 3).ToString & "; Max search distance multiplier: " & Math.Round(.SLiCScoreMaxSearchDistanceMultiplier, 1).ToString

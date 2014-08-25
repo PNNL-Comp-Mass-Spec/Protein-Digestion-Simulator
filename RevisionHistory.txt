@@ -1,5 +1,11 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.5350; August 25, 2014
+	- Added option of computing sequence hash values when converting from .fasta to .txt
+	- Now limiting protein descriptions to 7995 characters when consolidating duplicate proteins
+	- Removed conditional compilation constant IncludePNNLNETRoutines (since now always including NETPrediction.dll)
+	- Refactored large method in clsParseProteinFile
+
 Version 2.2.5072; November 20, 2013
 	- Changed the default value for "Split out multiple references" to False in the Fasta File Validation Window
 
