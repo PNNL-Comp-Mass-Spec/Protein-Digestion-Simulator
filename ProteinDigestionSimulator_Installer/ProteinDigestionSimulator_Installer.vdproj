@@ -76,13 +76,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_EADC578CF84C489339B7C3AA8E0C94BE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_EB0E1C66C4180652F0FF42F1928EBA5D"
+        "OwnerKey" = "8:_CA3FB65D56AEBFB097F071075CFEE84B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -94,7 +88,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_CA3FB65D56AEBFB097F071075CFEE84B"
+        "OwnerKey" = "8:_EB0E1C66C4180652F0FF42F1928EBA5D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_EADC578CF84C489339B7C3AA8E0C94BE"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -210,11 +210,6 @@
             "AssemblyAsmDisplayName" = "8:ProteinFileReader, Version=1.2.4834.35436, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_27CF9C1EF7EC870D672468A1662DAF72"
-                    {
-                    "Name" = "8:ProteinFileReader.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:ProteinFileReader.dll"
             "TargetName" = "8:"
@@ -321,11 +316,6 @@
             "AssemblyAsmDisplayName" = "8:NETPrediction, Version=1.3.4834.34882, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_CA3FB65D56AEBFB097F071075CFEE84B"
-                    {
-                    "Name" = "8:NETPrediction.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:NETPrediction.dll"
             "TargetName" = "8:"
@@ -352,11 +342,6 @@
             "AssemblyAsmDisplayName" = "8:ValidateFastaFile, Version=2.1.5350.18458, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_EADC578CF84C489339B7C3AA8E0C94BE"
-                    {
-                    "Name" = "8:ValidateFastaFile.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:ValidateFastaFile.dll"
             "TargetName" = "8:"
@@ -383,11 +368,6 @@
             "AssemblyAsmDisplayName" = "8:SharedVBNetRoutines, Version=1.0.4818.24389, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_EB0E1C66C4180652F0FF42F1928EBA5D"
-                    {
-                    "Name" = "8:SharedVBNetRoutines.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:SharedVBNetRoutines.dll"
             "TargetName" = "8:"
@@ -474,15 +454,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ProteinDigestionSimulator"
-        "ProductCode" = "8:{3DDC5426-6C66-452D-ADE3-B527B637B5B4}"
-        "PackageCode" = "8:{E3BACD20-D50C-4F9A-8AB5-80602B241CAF}"
+        "ProductCode" = "8:{7FB4AC28-C2B4-4D3D-B70F-444F2AB3D353}"
+        "PackageCode" = "8:{09886362-2B38-4467-8D44-C4DC57BB97A1}"
         "UpgradeCode" = "8:{0612F968-E285-4419-AEC6-739DC8FF1BB3}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.2.15"
+        "ProductVersion" = "8:2.2.16"
         "Manufacturer" = "8:PNNL"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

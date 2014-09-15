@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.5371; September 15, 2014
+	- ProteinFileReader.dll and ValidateFastaFile.dll now allow for files to be opened even if another application has them open with a read/write lock
+
 Version 2.2.5350; August 25, 2014
 	- Added option of computing sequence hash values when converting from .fasta to .txt
 	- Now limiting protein descriptions to 7995 characters when consolidating duplicate proteins

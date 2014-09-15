@@ -205,6 +205,73 @@ Public Class frmFastaValidation
 
 	End Sub
 
+	Private Sub DisplayResults(ByVal strParameterFilePath As String)
+		' Display the results
+
+		Const strSepChar = ControlChars.Tab
+
+		With mValidateFastaFile
+			Dim strResults = "Results for file " & .FastaFilePath & ControlChars.NewLine
+
+			AppendToString(strResults, "Protein count = " & .ProteinCount & strSepChar & strSepChar & "Residue count = ", .ResidueCount)
+			AppendToString(strResults, "Error count = " & .ErrorWarningCounts(ValidateFastaFile.IValidateFastaFile.eMsgTypeConstants.ErrorMsg, ValidateFastaFile.IValidateFastaFile.ErrorWarningCountTypes.Total))
+			AppendToString(strResults, "Warning count = ", .ErrorWarningCounts(ValidateFastaFile.IValidateFastaFile.eMsgTypeConstants.WarningMsg, ValidateFastaFile.IValidateFastaFile.ErrorWarningCountTypes.Total))
+
+			If .OptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.GenerateFixedFASTAFile) Then
+				AppendToString(strResults, "Count of long protein names that were truncated = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.TruncatedProteinNameCount))
+				AppendToString(strResults, "Count of protein names with invalid chars removed = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.ProteinNamesInvalidCharsReplaced))
+				AppendToString(strResults, "Count of protein names with multiple refs split out = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.ProteinNamesMultipleRefsRemoved))
+				AppendToString(strResults, "Count of residue lines with invalid chars removed = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.UpdatedResidueLines))
+
+				If .OptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaRenameDuplicateNameProteins) Then
+					AppendToString(strResults, "Count of proteins renamed due to duplicate names = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.DuplicateProteinNamesRenamedCount))
+				ElseIf .OptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.CheckForDuplicateProteinNames) Then
+					AppendToString(strResults, "Count of proteins skipped due to duplicate names = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.DuplicateProteinNamesSkippedCount))
+				End If
+
+				If .OptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs) Then
+					AppendToString(strResults, "Count of proteins removed due to duplicate sequences = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.DuplicateProteinSeqsSkippedCount))
+				End If
+
+			End If
+
+			If strParameterFilePath.Length > 0 Then
+				AppendToString(strResults, "Used validation rules from file " & strParameterFilePath)
+			Else
+				AppendToString(strResults, "Default validation rules were used.")
+			End If
+
+			If .OptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.OutputToStatsFile) Then
+				AppendToString(strResults, "Results were logged to file: " & .StatsFilePath())
+			End If
+
+			txtResults.Text = strResults
+			txtResults.SelectionStart = 0
+			txtResults.SelectionLength = 0
+
+			' Clear the filters
+			txtFilterData.Text = String.Empty
+
+			If .ErrorWarningCounts(ValidateFastaFile.IValidateFastaFile.eMsgTypeConstants.ErrorMsg, ValidateFastaFile.IValidateFastaFile.ErrorWarningCountTypes.Specified) > 0 Then
+				' List all of the errors
+				PopulateMsgResultsDatagrid(dgErrors, mErrorsDataset, .FileErrorList)
+			Else
+				mErrorsDataset.Tables(0).Clear()
+			End If
+
+			If .ErrorWarningCounts(ValidateFastaFile.IValidateFastaFile.eMsgTypeConstants.WarningMsg, ValidateFastaFile.IValidateFastaFile.ErrorWarningCountTypes.Specified) > 0 Then
+				' List all of the warnings in the datagrid
+				PopulateMsgResultsDatagrid(dgWarnings, mWarningsDataset, .FileWarningList)
+			Else
+				mWarningsDataset.Tables(0).Clear()
+			End If
+
+		End With
+
+		PositionControls()
+		FilterLists()
+	End Sub
+
 	Private Sub EnableDisableControls()
 		Dim blnEnableFixedFastaOptions As Boolean
 
@@ -466,7 +533,7 @@ Public Class frmFastaValidation
 
 	End Sub
 
-	Private Sub PopulateMsgResultsDatagrid(ByRef objValidateFastaFile As ValidateFastaFile.clsValidateFastaFile, ByRef dgDataGrid As Windows.Forms.DataGrid, ByRef dsDataset As DataSet, ByRef udtMsgInfoList() As ValidateFastaFile.IValidateFastaFile.udtMsgInfoType)
+	Private Sub PopulateMsgResultsDatagrid(ByRef dgDataGrid As Windows.Forms.DataGrid, ByRef dsDataset As DataSet, ByRef udtMsgInfoList() As ValidateFastaFile.IValidateFastaFile.udtMsgInfoType)
 
 		Dim objRow As DataRow
 		Dim intIndex As Integer
@@ -486,7 +553,7 @@ Public Class frmFastaValidation
 					objRow(COL_NAME_PROTEIN) = .ProteinName
 				End If
 
-				objRow(COL_NAME_DESCRIPTION) = objValidateFastaFile.LookupMessageDescription(.MessageCode, .ExtraInfo)
+				objRow(COL_NAME_DESCRIPTION) = mValidateFastaFile.LookupMessageDescription(.MessageCode, .ExtraInfo)
 				objRow(COL_NAME_CONTEXT) = .Context
 			End With
 
@@ -721,9 +788,6 @@ Public Class frmFastaValidation
 
 	Private Sub StartValidation()
 
-		Dim strResults As String
-		Dim strSepChar As String
-
 		Dim strParameterFilePath As String
 		Dim blnFileExists As Boolean
 
@@ -825,73 +889,9 @@ Public Class frmFastaValidation
 			cmdCancel.Enabled = False
 
 			If blnSuccess Then
-				' Display the results
-
-				strSepChar = ControlChars.Tab
-
-				With mValidateFastaFile
-					strResults = "Results for file " & .FastaFilePath & ControlChars.NewLine
-
-					AppendToString(strResults, "Protein count = " & .ProteinCount & strSepChar & strSepChar & "Residue count = ", .ResidueCount)
-					AppendToString(strResults, "Error count = " & .ErrorWarningCounts(ValidateFastaFile.IValidateFastaFile.eMsgTypeConstants.ErrorMsg, ValidateFastaFile.IValidateFastaFile.ErrorWarningCountTypes.Total))
-					AppendToString(strResults, "Warning count = ", .ErrorWarningCounts(ValidateFastaFile.IValidateFastaFile.eMsgTypeConstants.WarningMsg, ValidateFastaFile.IValidateFastaFile.ErrorWarningCountTypes.Total))
-
-					If .OptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.GenerateFixedFASTAFile) Then
-						AppendToString(strResults, "Count of long protein names that were truncated = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.TruncatedProteinNameCount))
-						AppendToString(strResults, "Count of protein names with invalid chars removed = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.ProteinNamesInvalidCharsReplaced))
-						AppendToString(strResults, "Count of protein names with multiple refs split out = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.ProteinNamesMultipleRefsRemoved))
-						AppendToString(strResults, "Count of residue lines with invalid chars removed = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.UpdatedResidueLines))
-
-						If .OptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaRenameDuplicateNameProteins) Then
-							AppendToString(strResults, "Count of proteins renamed due to duplicate names = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.DuplicateProteinNamesRenamedCount))
-						ElseIf .OptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.CheckForDuplicateProteinNames) Then
-							AppendToString(strResults, "Count of proteins skipped due to duplicate names = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.DuplicateProteinNamesSkippedCount))
-						End If
-
-						If .OptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs) Then
-							AppendToString(strResults, "Count of proteins removed due to duplicate sequences = " & .FixedFASTAFileStats(ValidateFastaFile.IValidateFastaFile.FixedFASTAFileValues.DuplicateProteinSeqsSkippedCount))
-						End If
-
-					End If
-
-					If strParameterFilePath.Length > 0 Then
-						AppendToString(strResults, "Used validation rules from file " & strParameterFilePath)
-					Else
-						AppendToString(strResults, "Default validation rules were used.")
-					End If
-
-					If .OptionSwitch(ValidateFastaFile.IValidateFastaFile.SwitchOptions.OutputToStatsFile) Then
-						AppendToString(strResults, "Results were logged to file: " & .StatsFilePath())
-					End If
-
-					txtResults.Text = strResults
-					txtResults.SelectionStart = 0
-					txtResults.SelectionLength = 0
-
-					' Clear the filters
-					txtFilterData.Text = String.Empty
-
-					If .ErrorWarningCounts(ValidateFastaFile.IValidateFastaFile.eMsgTypeConstants.ErrorMsg, ValidateFastaFile.IValidateFastaFile.ErrorWarningCountTypes.Specified) > 0 Then
-						' List all of the errors
-						PopulateMsgResultsDatagrid(mValidateFastaFile, dgErrors, mErrorsDataset, .FileErrorList)
-					Else
-						mErrorsDataset.Tables(0).Clear()
-					End If
-
-					If .ErrorWarningCounts(ValidateFastaFile.IValidateFastaFile.eMsgTypeConstants.WarningMsg, ValidateFastaFile.IValidateFastaFile.ErrorWarningCountTypes.Specified) > 0 Then
-						' List all of the warnings in the datagrid
-						PopulateMsgResultsDatagrid(mValidateFastaFile, dgWarnings, mWarningsDataset, .FileWarningList)
-					Else
-						mWarningsDataset.Tables(0).Clear()
-					End If
-
-				End With
-
-				PositionControls()
-				FilterLists()
-
+				DisplayResults(strParameterFilePath)
 			Else
-				txtResults.Text = "Error calling objValidateFastaFile.ProcessFile: " & mValidateFastaFile.GetErrorMessage()
+				txtResults.Text = "Error calling mValidateFastaFile.ProcessFile: " & mValidateFastaFile.GetErrorMessage()
 			End If
 
 		Catch ex As Exception
