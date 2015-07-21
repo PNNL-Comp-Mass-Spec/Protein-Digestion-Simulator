@@ -1,7 +1,11 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.5679; July 20, 2015
+	- Enabled visual styles to give rounded buttons and text boxes in the main window
+
 Version 2.2.5371; September 15, 2014
 	- ProteinFileReader.dll and ValidateFastaFile.dll now allow for files to be opened even if another application has them open with a read/write lock
+	- When converting from text to Fasta, if a protein named "ProteinName" is encountered, it is skipped if it has description "Description" and sequence "Sequence"
 
 Version 2.2.5350; August 25, 2014
 	- Added option of computing sequence hash values when converting from .fasta to .txt

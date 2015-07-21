@@ -76,13 +76,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_CA3FB65D56AEBFB097F071075CFEE84B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_27CF9C1EF7EC870D672468A1662DAF72"
+        "OwnerKey" = "8:_EADC578CF84C489339B7C3AA8E0C94BE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -94,7 +88,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_EADC578CF84C489339B7C3AA8E0C94BE"
+        "OwnerKey" = "8:_27CF9C1EF7EC870D672468A1662DAF72"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_CA3FB65D56AEBFB097F071075CFEE84B"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -454,15 +454,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ProteinDigestionSimulator"
-        "ProductCode" = "8:{7FB4AC28-C2B4-4D3D-B70F-444F2AB3D353}"
-        "PackageCode" = "8:{09886362-2B38-4467-8D44-C4DC57BB97A1}"
+        "ProductCode" = "8:{E8320AE7-BEE1-4473-8F9C-094ED98ADEB7}"
+        "PackageCode" = "8:{C91E65B5-37E4-4F96-884F-B323186E044D}"
         "UpgradeCode" = "8:{0612F968-E285-4419-AEC6-739DC8FF1BB3}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.2.16"
+        "ProductVersion" = "8:2.2.17"
         "Manufacturer" = "8:PNNL"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

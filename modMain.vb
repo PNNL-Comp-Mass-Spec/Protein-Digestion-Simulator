@@ -14,8 +14,8 @@ Option Strict On
 ' Program started October 11, 2004
 ' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
 
-' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com
+' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/ or http://panomics.pnnl.gov/
 ' -------------------------------------------------------------------------------
 ' 
 ' Licensed under the Apache License, Version 2.0; you may not use this file except
@@ -33,7 +33,7 @@ Option Strict On
 
 Module modMain
 
-	Public Const PROGRAM_DATE As String = "September 15, 2014"
+    Public Const PROGRAM_DATE As String = "April 30, 2015"
 
 	Private mInputFilePath As String
 	Private mAssumeFastaFile As Boolean
@@ -338,6 +338,9 @@ Module modMain
 	Public Sub ShowGUI()
 		Dim objFormMain As frmMain
 
+        System.Windows.Forms.Application.EnableVisualStyles()
+        System.Windows.Forms.Application.DoEvents()
+
 		objFormMain = New frmMain
 
 		objFormMain.ShowDialog()
@@ -378,7 +381,7 @@ Module modMain
 			strSyntax &= "Version: " & GetAppVersion() & ControlChars.NewLine & ControlChars.NewLine
 
 			strSyntax &= "E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com" & ControlChars.NewLine
-			strSyntax &= "Website: http://panomics.pnnl.gov/ or http://omics.pnl.gov/" & ControlChars.NewLine & ControlChars.NewLine
+			strSyntax &= "Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/" & ControlChars.NewLine & ControlChars.NewLine
 
 			strSyntax &= frmDisclaimer.GetKangasPetritisDisclaimerText() & ControlChars.NewLine & ControlChars.NewLine
 

@@ -19,7 +19,7 @@ Public Class clsParseProteinFile
 	Inherits clsProcessFilesBaseClass
 
 	Public Sub New()
-		MyBase.mFileDate = "August 25, 2014"
+		MyBase.mFileDate = "September 15, 2014"
 		InitializeLocalVariables()
 	End Sub
 
@@ -1344,6 +1344,11 @@ Public Class clsParseProteinFile
 		' Write the entry to the output fasta file
 
 		With mProteins(mProteinCount)
+			If .Name = "ProteinName" AndAlso .Description = "Description" AndAlso .Sequence = "Sequence" Then
+				' Skip this entry; it's an artifact from converting from a fasta file to a text file, then back to a fasta file
+				Return
+			End If
+
 			Dim strLineOut = FastaFileOptions.ProteinLineStartChar & .Name & FastaFileOptions.ProteinLineAccessionEndChar & .Description
 			swProteinOutputFile.WriteLine(strLineOut)
 
