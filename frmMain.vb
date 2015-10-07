@@ -1630,6 +1630,15 @@ Public Class frmMain
 
         Dim objOpenFile As New System.Windows.Forms.OpenFileDialog
 
+        Dim currentExtension = String.Empty
+        If txtProteinInputFilePath.TextLength > 0 Then
+            Try
+                currentExtension = Path.GetExtension(txtProteinInputFilePath.Text)
+            Catch ex As Exception
+                ' Ignore errors here
+            End Try
+        End If
+
         With objOpenFile
             .AddExtension = True
             .CheckFileExists = False
@@ -1642,6 +1651,8 @@ Public Class frmMain
             .Filter = "Fasta files (*.fasta)|*.fasta|Text files (*.txt)|*.txt|All files (*.*)|*.*"
 
             If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.DelimitedText Then
+                .FilterIndex = 2
+            ElseIf currentExtension.ToLower() = ".txt" Then
                 .FilterIndex = 2
             Else
                 .FilterIndex = 1

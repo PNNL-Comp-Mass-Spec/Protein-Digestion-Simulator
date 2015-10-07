@@ -1,5 +1,6 @@
 Option Strict On
 
+Imports System.Runtime.InteropServices
 ' This class will read two fasta files and look for overlap in protein sequence between the proteins of
 '  the first fasta file and the second fasta file
 '
@@ -403,7 +404,7 @@ Public Class clsProteinDigestionSimulator
                                                ByRef objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, _
                                                strOutputFolderPath As String, _
                                                strOutputFilenameBase As String, _
-                                               ByRef srPMResultsOutFile As System.IO.StreamWriter) As Boolean
+                                               srPMResultsOutFile As System.IO.StreamWriter) As Boolean
 
         Dim strWorkingFilenameBase As String
         Dim strOutputFilePath As String
@@ -506,7 +507,7 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Private Sub ExportPeakMatchingResultsWriteHeaders(ByRef srOutFile As System.IO.StreamWriter, blnCreateSeparateOutputFileForEachThreshold As Boolean)
+    Private Sub ExportPeakMatchingResultsWriteHeaders(srOutFile As System.IO.StreamWriter, blnCreateSeparateOutputFileForEachThreshold As Boolean)
 
         Dim strLineOut As String
 
@@ -530,7 +531,7 @@ Public Class clsProteinDigestionSimulator
 
     End Sub
 
-    Private Function ExportPeptideUniquenessResults(intThresholdIndex As Integer, ByRef udtBinResults As udtBinnedPeptideCountStatsType, ByRef srOutFile As System.IO.StreamWriter) As Boolean
+    Private Function ExportPeptideUniquenessResults(intThresholdIndex As Integer, ByRef udtBinResults As udtBinnedPeptideCountStatsType, srOutFile As System.IO.StreamWriter) As Boolean
 
         Dim strLineOut As String
         Dim intBinIndex As Integer
@@ -573,7 +574,7 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Private Function ExportProteinStats(intThresholdIndex As Integer, ByRef SearchThresholds As clsPeakMatchingClass.clsSearchThresholds, strOutputFilePath As String, ByRef srOutFile As System.IO.StreamWriter) As Boolean
+    Private Function ExportProteinStats(intThresholdIndex As Integer, ByRef SearchThresholds As clsPeakMatchingClass.clsSearchThresholds, strOutputFilePath As String, srOutFile As System.IO.StreamWriter) As Boolean
 
         Dim strLineOut As String
 
@@ -647,7 +648,7 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Private Function FeatureContainsUniqueMatch(ByRef udtFeatureInfo As clsPeakMatchingClass.udtFeatureInfoType, ByRef objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, ByRef intMatchCount As Integer, blnUseSLiCScoreForUniqueness As Boolean, sngMinimumSLiCScore As Single) As Boolean
+    Private Function FeatureContainsUniqueMatch(ByRef udtFeatureInfo As clsPeakMatchingClass.udtFeatureInfoType, objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, ByRef intMatchCount As Integer, blnUseSLiCScoreForUniqueness As Boolean, sngMinimumSLiCScore As Single) As Boolean
         Dim blnUniqueMatch As Boolean
         Dim udtMatchResults() As clsPeakMatchingClass.PMFeatureMatchResultsClass.udtPeakMatchingResultType = Nothing
 
@@ -1043,7 +1044,13 @@ Public Class clsProteinDigestionSimulator
 
     End Sub
 
-    Private Sub InitializePeptideAndProteinResultsFiles(strOutputFolderPath As String, strOutputFilenameBase As String, ByRef objThresholds() As clsPeakMatchingClass.clsSearchThresholds, ByRef srPeptideUniquenessOutFile As System.IO.StreamWriter, ByRef srProteinStatsOutFile As System.IO.StreamWriter)
+    Private Sub InitializePeptideAndProteinResultsFiles(
+      strOutputFolderPath As String,
+      strOutputFilenameBase As String,
+      objThresholds() As clsPeakMatchingClass.clsSearchThresholds,
+      <Out()> ByRef srPeptideUniquenessOutFile As System.IO.StreamWriter,
+      <Out()> ByRef srProteinStatsOutFile As System.IO.StreamWriter)
+
         ' Initialize the output file so that the peptide and protein summary results for all thresholds can be saved in the same file
 
         Dim strWorkingFilenameBase As String
@@ -1085,7 +1092,13 @@ Public Class clsProteinDigestionSimulator
 
     End Sub
 
-    Private Sub InitializePMResultsFile(strOutputFolderPath As String, strOutputFilenameBase As String, ByRef objThresholds() As clsPeakMatchingClass.clsSearchThresholds, intComparisonFeaturesCount As Integer, ByRef srOutFile As System.IO.StreamWriter)
+    Private Sub InitializePMResultsFile(
+      strOutputFolderPath As String,
+      strOutputFilenameBase As String,
+      ByRef objThresholds() As clsPeakMatchingClass.clsSearchThresholds,
+      intComparisonFeaturesCount As Integer,
+      <Out()> ByRef srOutFile As System.IO.StreamWriter)
+
         ' Initialize the output file so that the peak matching results for all thresholds can be saved in the same file
 
         Dim strWorkingFilenameBase As String
@@ -1831,7 +1844,7 @@ Public Class clsProteinDigestionSimulator
                                                ByRef objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, _
                                                strOutputFolderPath As String, _
                                                strOutputFilenameBase As String, _
-                                               ByRef srPeptideUniquenessOutFile As System.IO.StreamWriter) As Boolean
+                                               srPeptideUniquenessOutFile As System.IO.StreamWriter) As Boolean
 
         Dim strWorkingFilenameBase As String
         Dim strOutputFilePath As String
@@ -1965,7 +1978,7 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Private Sub SummarizeResultsByPeptideWriteHeaders(ByRef srOutFile As System.IO.StreamWriter, blnCreateSeparateOutputFileForEachThreshold As Boolean)
+    Private Sub SummarizeResultsByPeptideWriteHeaders(srOutFile As System.IO.StreamWriter, blnCreateSeparateOutputFileForEachThreshold As Boolean)
 
         Dim strLineOut As String
         Dim intIndex As Integer
@@ -1994,10 +2007,10 @@ Public Class clsProteinDigestionSimulator
 
     Private Function SummarizeResultsByProtein(ByRef objThresholds As clsPeakMatchingClass.clsSearchThresholds, _
                                                intThresholdIndex As Integer, _
-                                               ByRef objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass, _
-                                               ByRef objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, _
+                                               objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass, _
+                                               objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, _
                                                strOutputFolderPath As String, strOutputFilenameBase As String, _
-                                               ByRef srProteinStatsOutFile As System.IO.StreamWriter) As Boolean
+                                               srProteinStatsOutFile As System.IO.StreamWriter) As Boolean
 
         Dim strWorkingFilenameBase As String
         Dim strOutputFilePath As String = String.Empty
@@ -2090,7 +2103,7 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Private Sub SummarizeResultsByProteinWriteHeaders(ByRef srOutFile As System.IO.StreamWriter, blnCreateSeparateOutputFileForEachThreshold As Boolean)
+    Private Sub SummarizeResultsByProteinWriteHeaders(srOutFile As System.IO.StreamWriter, blnCreateSeparateOutputFileForEachThreshold As Boolean)
 
         Dim strLineOut As String
 

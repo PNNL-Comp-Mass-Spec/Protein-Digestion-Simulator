@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.5758; October 7, 2015
+	- Now automatically skips the header row when converting a .txt file of proteins to a .fasta file
+
 Version 2.2.5679; July 20, 2015
 	- Enabled visual styles to give rounded buttons and text boxes in the main window
 
