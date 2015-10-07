@@ -76,7 +76,7 @@ Public Class clspICalculation
         Get
             Return mHydrophobicityType
         End Get
-        Set(ByVal Value As eHydrophobicityTypeConstants)
+        Set(Value As eHydrophobicityTypeConstants)
             mHydrophobicityType = Value
         End Set
     End Property
@@ -85,7 +85,7 @@ Public Class clspICalculation
         Get
             Return mReportMaximumpI
         End Get
-        Set(ByVal Value As Boolean)
+        Set(Value As Boolean)
             mReportMaximumpI = Value
         End Set
     End Property
@@ -94,14 +94,14 @@ Public Class clspICalculation
         Get
             Return mSequenceWidthToExamineForMaximumpI
         End Get
-        Set(ByVal Value As Integer)
+        Set(Value As Integer)
             If Value < 1 Then mSequenceWidthToExamineForMaximumpI = 1
             mSequenceWidthToExamineForMaximumpI = Value
         End Set
     End Property
 #End Region
 
-    Private Function CalculateCharge(ByVal pH As Double, ByVal numC As Integer, ByVal numD As Integer, ByVal numE As Integer, ByVal numH As Integer, ByVal numK As Integer, ByVal numR As Integer, ByVal numY As Integer) As Double
+    Private Function CalculateCharge(pH As Double, numC As Integer, numD As Integer, numE As Integer, numH As Integer, numK As Integer, numR As Integer, numY As Integer) As Double
         Dim Value As Double
 
         Value = 0
@@ -119,7 +119,7 @@ Public Class clspICalculation
 
     End Function
 
-    Private Function CalculateHydrophobicity(ByVal seq As String, ByVal HT As eHydrophobicityTypeConstants) As Double
+    Private Function CalculateHydrophobicity(seq As String, HT As eHydrophobicityTypeConstants) As Double
         Dim objMatch As Object
         Dim li As Integer, i As Integer
         Dim Sum As Double, Num As Integer
@@ -166,11 +166,11 @@ Public Class clspICalculation
 
     End Function
 
-    Private Function CalculateNp(ByVal pH As Double, ByVal k As Double, ByVal n As Integer) As Double
+    Private Function CalculateNp(pH As Double, k As Double, n As Integer) As Double
         Return n * (10 ^ (-pH) / (10 ^ (-pH) + 10 ^ (-k)))
     End Function
 
-    Public Function CalculateSequenceChargeState(ByVal seq As String, ByVal pH As Double) As Integer
+    Public Function CalculateSequenceChargeState(seq As String, pH As Double) As Integer
         Dim li As Integer
         Dim intCS As Integer
 
@@ -209,7 +209,7 @@ Public Class clspICalculation
 
     End Function
 
-    Public Function CalculateSequenceHydrophobicity(ByVal seq As String) As Single
+    Public Function CalculateSequenceHydrophobicity(seq As String) As Single
         Dim intIndex As Integer
         Dim Hydro As Double, MaxHydro As Double
 
@@ -238,7 +238,7 @@ Public Class clspICalculation
 
     End Function
 
-    Public Function CalculateSequencepI(ByVal seq As String) As Single
+    Public Function CalculateSequencepI(seq As String) As Single
         Dim i As Integer
         Dim numC As Integer, numD As Integer, numE As Integer
         Dim numH As Integer, numK As Integer, numR As Integer
@@ -300,7 +300,7 @@ Public Class clspICalculation
 
     End Function
 
-    Private Sub DefineAminoAcid(ByRef udtAminoAcids() As AA, ByRef htAminoAcidLookup As Hashtable, ByVal intIndex As Integer, ByVal str1LetterSymbol As String, ByVal dblHW As Double, ByVal dblKD As Double, ByVal dblEisenberg As Double, ByVal dblGES As Double, ByVal dblMeekPH7p4 As Double, ByVal dblMeekPH2p1 As Double)
+    Private Sub DefineAminoAcid(ByRef udtAminoAcids() As AA, ByRef htAminoAcidLookup As Hashtable, intIndex As Integer, str1LetterSymbol As String, dblHW As Double, dblKD As Double, dblEisenberg As Double, dblGES As Double, dblMeekPH7p4 As Double, dblMeekPH2p1 As Double)
 
         With udtAminoAcids(intIndex)
             .Aname = str1LetterSymbol

@@ -33,7 +33,7 @@ Option Strict On
 
 Module modMain
 
-    Public Const PROGRAM_DATE As String = "April 30, 2015"
+    Public Const PROGRAM_DATE As String = "October 7, 2015"
 
 	Private mInputFilePath As String
 	Private mAssumeFastaFile As Boolean
@@ -222,208 +222,208 @@ Module modMain
 
 	End Function
 
-	Private Sub DisplayProgressPercent(ByVal intPercentComplete As Integer, ByVal blnAddCarriageReturn As Boolean)
-		If blnAddCarriageReturn Then
-			Console.WriteLine()
-		End If
-		If intPercentComplete > 100 Then intPercentComplete = 100
-		Console.Write("Processing: " & intPercentComplete.ToString() & "% ")
-		If blnAddCarriageReturn Then
-			Console.WriteLine()
-		End If
-	End Sub
+    Private Sub DisplayProgressPercent(intPercentComplete As Integer, blnAddCarriageReturn As Boolean)
+        If blnAddCarriageReturn Then
+            Console.WriteLine()
+        End If
+        If intPercentComplete > 100 Then intPercentComplete = 100
+        Console.Write("Processing: " & intPercentComplete.ToString() & "% ")
+        If blnAddCarriageReturn Then
+            Console.WriteLine()
+        End If
+    End Sub
 
-	Private Function GetAppVersion() As String
-		Return clsProcessFilesBaseClass.GetAppVersion(PROGRAM_DATE)
-	End Function
+    Private Function GetAppVersion() As String
+        Return clsProcessFilesBaseClass.GetAppVersion(PROGRAM_DATE)
+    End Function
 
-	Private Function SetOptionsUsingCommandLineParameters(ByVal objParseCommandLine As clsParseCommandLine) As Boolean
-		' Returns True if no problems; otherwise, returns false
+    Private Function SetOptionsUsingCommandLineParameters(objParseCommandLine As clsParseCommandLine) As Boolean
+        ' Returns True if no problems; otherwise, returns false
 
-		Dim strValue As String = String.Empty
-		Dim lstValidParameters As Generic.List(Of String) = New Generic.List(Of String) From {"I", "F", "D", "M", "AD", "O", "P", "S", "A", "R", "Q", "DEBUG"}
-		Dim intValue As Integer
+        Dim strValue As String = String.Empty
+        Dim lstValidParameters As Generic.List(Of String) = New Generic.List(Of String) From {"I", "F", "D", "M", "AD", "O", "P", "S", "A", "R", "Q", "DEBUG"}
+        Dim intValue As Integer
 
-		Try
-			' Make sure no invalid parameters are present
-			If objParseCommandLine.InvalidParametersPresent(lstValidParameters) Then
-				ShowErrorMessage("Invalid commmand line parameters",
-					(From item In objParseCommandLine.InvalidParameters(lstValidParameters) Select "/" + item).ToList())
-				Return False
-			Else
-				With objParseCommandLine
-					' Query objParseCommandLine to see if various parameters are present
-					If .RetrieveValueForParameter("I", strValue) Then
-						mInputFilePath = strValue
-					ElseIf .NonSwitchParameterCount > 0 Then
-						mInputFilePath = .RetrieveNonSwitchParameter(0)
-					End If
+        Try
+            ' Make sure no invalid parameters are present
+            If objParseCommandLine.InvalidParametersPresent(lstValidParameters) Then
+                ShowErrorMessage("Invalid commmand line parameters",
+                    (From item In objParseCommandLine.InvalidParameters(lstValidParameters) Select "/" + item).ToList())
+                Return False
+            Else
+                With objParseCommandLine
+                    ' Query objParseCommandLine to see if various parameters are present
+                    If .RetrieveValueForParameter("I", strValue) Then
+                        mInputFilePath = strValue
+                    ElseIf .NonSwitchParameterCount > 0 Then
+                        mInputFilePath = .RetrieveNonSwitchParameter(0)
+                    End If
 
-					If .RetrieveValueForParameter("F", strValue) Then mAssumeFastaFile = True
-					If .RetrieveValueForParameter("D", strValue) Then mCreateDigestedProteinOutputFile = True
-					If .RetrieveValueForParameter("M", strValue) Then mComputeProteinMass = True
-					If .RetrieveValueForParameter("AD", strValue) Then mInputFileDelimiter = strValue.Chars(0)
-					If .RetrieveValueForParameter("O", strValue) Then mOutputFolderPath = strValue
-					If .RetrieveValueForParameter("P", strValue) Then mParameterFilePath = strValue
+                    If .RetrieveValueForParameter("F", strValue) Then mAssumeFastaFile = True
+                    If .RetrieveValueForParameter("D", strValue) Then mCreateDigestedProteinOutputFile = True
+                    If .RetrieveValueForParameter("M", strValue) Then mComputeProteinMass = True
+                    If .RetrieveValueForParameter("AD", strValue) Then mInputFileDelimiter = strValue.Chars(0)
+                    If .RetrieveValueForParameter("O", strValue) Then mOutputFolderPath = strValue
+                    If .RetrieveValueForParameter("P", strValue) Then mParameterFilePath = strValue
 
-					If .RetrieveValueForParameter("S", strValue) Then
-						mRecurseFolders = True
-						If Integer.TryParse(strValue, intValue) Then
-							mRecurseFoldersMaxLevels = intValue
-						End If
-					End If
-					If .RetrieveValueForParameter("A", strValue) Then mOutputFolderAlternatePath = strValue
-					If .RetrieveValueForParameter("R", strValue) Then mRecreateFolderHierarchyInAlternatePath = True
+                    If .RetrieveValueForParameter("S", strValue) Then
+                        mRecurseFolders = True
+                        If Integer.TryParse(strValue, intValue) Then
+                            mRecurseFoldersMaxLevels = intValue
+                        End If
+                    End If
+                    If .RetrieveValueForParameter("A", strValue) Then mOutputFolderAlternatePath = strValue
+                    If .RetrieveValueForParameter("R", strValue) Then mRecreateFolderHierarchyInAlternatePath = True
 
-					'If .RetrieveValueForParameter("L", strValue) Then
-					'	mLogMessagesToFile = True
-					'	If Not String.IsNullOrEmpty(strValue) Then
-					'		mLogFilePath = strValue
-					'	End If
-					'End If
+                    'If .RetrieveValueForParameter("L", strValue) Then
+                    '	mLogMessagesToFile = True
+                    '	If Not String.IsNullOrEmpty(strValue) Then
+                    '		mLogFilePath = strValue
+                    '	End If
+                    'End If
 
-					'If .RetrieveValueForParameter("LogFolder", strValue) Then
-					'	mLogMessagesToFile = True
-					'	If Not String.IsNullOrEmpty(strValue) Then
-					'		mLogFolderPath = strValue
-					'	End If
-					'End If
+                    'If .RetrieveValueForParameter("LogFolder", strValue) Then
+                    '	mLogMessagesToFile = True
+                    '	If Not String.IsNullOrEmpty(strValue) Then
+                    '		mLogFolderPath = strValue
+                    '	End If
+                    'End If
 
-					If .RetrieveValueForParameter("Q", strValue) Then mQuietMode = True
-					If .RetrieveValueForParameter("DEBUG", strValue) Then mShowDebugPrompts = True
-				End With
+                    If .RetrieveValueForParameter("Q", strValue) Then mQuietMode = True
+                    If .RetrieveValueForParameter("DEBUG", strValue) Then mShowDebugPrompts = True
+                End With
 
-				Return True
-			End If
+                Return True
+            End If
 
-		Catch ex As Exception
-			ShowErrorMessage("Error parsing the command line parameters: " & System.Environment.NewLine & ex.Message)
-		End Try
+        Catch ex As Exception
+            ShowErrorMessage("Error parsing the command line parameters: " & System.Environment.NewLine & ex.Message)
+        End Try
 
-		Return False
+        Return False
 
-	End Function
+    End Function
 
-	Private Sub ShowErrorMessage(ByVal strMessage As String)
-		Dim strSeparator As String = "------------------------------------------------------------------------------"
+    Private Sub ShowErrorMessage(strMessage As String)
+        Dim strSeparator As String = "------------------------------------------------------------------------------"
 
-		Console.WriteLine()
-		Console.WriteLine(strSeparator)
-		Console.WriteLine(strMessage)
-		Console.WriteLine(strSeparator)
-		Console.WriteLine()
+        Console.WriteLine()
+        Console.WriteLine(strSeparator)
+        Console.WriteLine(strMessage)
+        Console.WriteLine(strSeparator)
+        Console.WriteLine()
 
-		WriteToErrorStream(strMessage)
-	End Sub
+        WriteToErrorStream(strMessage)
+    End Sub
 
-	Private Sub ShowErrorMessage(ByVal strTitle As String, ByVal items As List(Of String))
-		Dim strSeparator As String = "------------------------------------------------------------------------------"
-		Dim strMessage As String
+    Private Sub ShowErrorMessage(strTitle As String, items As List(Of String))
+        Dim strSeparator As String = "------------------------------------------------------------------------------"
+        Dim strMessage As String
 
-		Console.WriteLine()
-		Console.WriteLine(strSeparator)
-		Console.WriteLine(strTitle)
-		strMessage = strTitle & ":"
+        Console.WriteLine()
+        Console.WriteLine(strSeparator)
+        Console.WriteLine(strTitle)
+        strMessage = strTitle & ":"
 
-		For Each item As String In items
-			Console.WriteLine("   " + item)
-			strMessage &= " " & item
-		Next
-		Console.WriteLine(strSeparator)
-		Console.WriteLine()
+        For Each item As String In items
+            Console.WriteLine("   " + item)
+            strMessage &= " " & item
+        Next
+        Console.WriteLine(strSeparator)
+        Console.WriteLine()
 
-		WriteToErrorStream(strMessage)
-	End Sub
+        WriteToErrorStream(strMessage)
+    End Sub
 
-	Public Sub ShowGUI()
-		Dim objFormMain As frmMain
+    Public Sub ShowGUI()
+        Dim objFormMain As frmMain
 
         System.Windows.Forms.Application.EnableVisualStyles()
         System.Windows.Forms.Application.DoEvents()
 
-		objFormMain = New frmMain
+        objFormMain = New frmMain
 
-		objFormMain.ShowDialog()
+        objFormMain.ShowDialog()
 
-		objFormMain = Nothing
+        objFormMain = Nothing
 
-	End Sub
+    End Sub
 
-	Private Sub ShowProgramHelp()
+    Private Sub ShowProgramHelp()
 
-		Dim strSyntax As String
+        Dim strSyntax As String
 
-		Try
+        Try
 
-			strSyntax = String.Empty
+            strSyntax = String.Empty
 
-			strSyntax &= "This program can be used to read a fasta file or tab delimited file containing protein or peptide sequences, then output "
-			strSyntax &= "the data to a tab-delimited file.  It can optionally digest the input sequences using trypsin or partial trpysin rules, "
-			strSyntax &= "and can add the predicted normalized elution time (NET) values for the peptides.Additionally, it can calculate the "
-			strSyntax &= "number of uniquely identifiable peptides, using only mass, or both mass and NET, with appropriate tolerances." & ControlChars.NewLine & ControlChars.NewLine
+            strSyntax &= "This program can be used to read a fasta file or tab delimited file containing protein or peptide sequences, then output "
+            strSyntax &= "the data to a tab-delimited file.  It can optionally digest the input sequences using trypsin or partial trpysin rules, "
+            strSyntax &= "and can add the predicted normalized elution time (NET) values for the peptides.Additionally, it can calculate the "
+            strSyntax &= "number of uniquely identifiable peptides, using only mass, or both mass and NET, with appropriate tolerances." & ControlChars.NewLine & ControlChars.NewLine
 
-			strSyntax &= "Program syntax:" & ControlChars.NewLine & System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location)
-			strSyntax &= " /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimeter] [/O:OutputFolderPath] [/P:ParameterFilePath] [/S:[MaxLevel]] [/A:AlternateOutputFolderPath] [/R] [/Q]" & ControlChars.NewLine & ControlChars.NewLine
+            strSyntax &= "Program syntax:" & ControlChars.NewLine & System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location)
+            strSyntax &= " /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimeter] [/O:OutputFolderPath] [/P:ParameterFilePath] [/S:[MaxLevel]] [/A:AlternateOutputFolderPath] [/R] [/Q]" & ControlChars.NewLine & ControlChars.NewLine
 
-			strSyntax &= "The input file path can contain the wildcard character * and should point to a fasta file or tab-delimited text file." & ControlChars.NewLine
-			strSyntax &= "Use /F to indicate that the input file is a fasta file.  If /F is not used, then the format will be assumed to be fasta only if the file contains .fasta in the name" & ControlChars.NewLine
-			strSyntax &= "Use /D to indicate that an in-silico digestion of the proteins should be performed.  Digestion options must be specified in the Parameter file." & ControlChars.NewLine
-			strSyntax &= "Use /M to indicate that protein mass should be computed." & ControlChars.NewLine
-			strSyntax &= "Use /AD to specify a delimiter other than the Tab character (not applicable for fasta files)." & ControlChars.NewLine
-			strSyntax &= "The output folder path is optional.  If omitted, the output files will be created in the same folder as the input file." & ControlChars.NewLine
-			strSyntax &= "The parameter file path is optional.  If included, it should point to a valid XML parameter file." & ControlChars.NewLine
-			strSyntax &= "Use /S to process all valid files in the input folder and subfolders. Include a number after /S (like /S:2) to limit the level of subfolders to examine." & ControlChars.NewLine
-			strSyntax &= "When using /S, you can redirect the output of the results using /A." & ControlChars.NewLine
-			strSyntax &= "When using /S, you can use /R to re-create the input folder hierarchy in the alternate output folder (if defined)." & ControlChars.NewLine
-			strSyntax &= "The optional /Q switch will suppress all error messages." & ControlChars.NewLine & ControlChars.NewLine
+            strSyntax &= "The input file path can contain the wildcard character * and should point to a fasta file or tab-delimited text file." & ControlChars.NewLine
+            strSyntax &= "Use /F to indicate that the input file is a fasta file.  If /F is not used, then the format will be assumed to be fasta only if the file contains .fasta in the name" & ControlChars.NewLine
+            strSyntax &= "Use /D to indicate that an in-silico digestion of the proteins should be performed.  Digestion options must be specified in the Parameter file." & ControlChars.NewLine
+            strSyntax &= "Use /M to indicate that protein mass should be computed." & ControlChars.NewLine
+            strSyntax &= "Use /AD to specify a delimiter other than the Tab character (not applicable for fasta files)." & ControlChars.NewLine
+            strSyntax &= "The output folder path is optional.  If omitted, the output files will be created in the same folder as the input file." & ControlChars.NewLine
+            strSyntax &= "The parameter file path is optional.  If included, it should point to a valid XML parameter file." & ControlChars.NewLine
+            strSyntax &= "Use /S to process all valid files in the input folder and subfolders. Include a number after /S (like /S:2) to limit the level of subfolders to examine." & ControlChars.NewLine
+            strSyntax &= "When using /S, you can redirect the output of the results using /A." & ControlChars.NewLine
+            strSyntax &= "When using /S, you can use /R to re-create the input folder hierarchy in the alternate output folder (if defined)." & ControlChars.NewLine
+            strSyntax &= "The optional /Q switch will suppress all error messages." & ControlChars.NewLine & ControlChars.NewLine
 
-			strSyntax &= "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004" & ControlChars.NewLine
-			strSyntax &= "Version: " & GetAppVersion() & ControlChars.NewLine & ControlChars.NewLine
+            strSyntax &= "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004" & ControlChars.NewLine
+            strSyntax &= "Version: " & GetAppVersion() & ControlChars.NewLine & ControlChars.NewLine
 
-			strSyntax &= "E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com" & ControlChars.NewLine
-			strSyntax &= "Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/" & ControlChars.NewLine & ControlChars.NewLine
+            strSyntax &= "E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com" & ControlChars.NewLine
+            strSyntax &= "Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/" & ControlChars.NewLine & ControlChars.NewLine
 
-			strSyntax &= frmDisclaimer.GetKangasPetritisDisclaimerText() & ControlChars.NewLine & ControlChars.NewLine
+            strSyntax &= frmDisclaimer.GetKangasPetritisDisclaimerText() & ControlChars.NewLine & ControlChars.NewLine
 
 
-			If Not mQuietMode Then
-				System.Windows.Forms.MessageBox.Show(strSyntax, "Syntax", MessageBoxButtons.OK, MessageBoxIcon.Information)
-			End If
+            If Not mQuietMode Then
+                System.Windows.Forms.MessageBox.Show(strSyntax, "Syntax", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            End If
 
-		Catch ex As Exception
-			ShowErrorMessage("Error displaying the program syntax: " & ex.Message)
-		End Try
+        Catch ex As Exception
+            ShowErrorMessage("Error displaying the program syntax: " & ex.Message)
+        End Try
 
-	End Sub
+    End Sub
 
-	Private Sub WriteToErrorStream(strErrorMessage As String)
-		Try
-			Using swErrorStream As System.IO.StreamWriter = New System.IO.StreamWriter(Console.OpenStandardError())
-				swErrorStream.WriteLine(strErrorMessage)
-			End Using
-		Catch ex As Exception
-			' Ignore errors here
-		End Try
-	End Sub
+    Private Sub WriteToErrorStream(strErrorMessage As String)
+        Try
+            Using swErrorStream As System.IO.StreamWriter = New System.IO.StreamWriter(Console.OpenStandardError())
+                swErrorStream.WriteLine(strErrorMessage)
+            End Using
+        Catch ex As Exception
+            ' Ignore errors here
+        End Try
+    End Sub
 
-	Private Sub mParseProteinFile_ProgressChanged(ByVal taskDescription As String, ByVal percentComplete As Single) Handles mParseProteinFile.ProgressChanged
-		Const PERCENT_REPORT_INTERVAL As Integer = 25
-		Const PROGRESS_DOT_INTERVAL_MSEC As Integer = 250
+    Private Sub mParseProteinFile_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mParseProteinFile.ProgressChanged
+        Const PERCENT_REPORT_INTERVAL As Integer = 25
+        Const PROGRESS_DOT_INTERVAL_MSEC As Integer = 250
 
-		If percentComplete >= mLastProgressReportValue Then
-			If mLastProgressReportValue > 0 Then
-				Console.WriteLine()
-			End If
-			DisplayProgressPercent(mLastProgressReportValue, False)
-			mLastProgressReportValue += PERCENT_REPORT_INTERVAL
-			mLastProgressReportTime = DateTime.UtcNow
-		Else
-			If DateTime.UtcNow.Subtract(mLastProgressReportTime).TotalMilliseconds > PROGRESS_DOT_INTERVAL_MSEC Then
-				mLastProgressReportTime = DateTime.UtcNow
-				Console.Write(".")
-			End If
-		End If
-	End Sub
+        If percentComplete >= mLastProgressReportValue Then
+            If mLastProgressReportValue > 0 Then
+                Console.WriteLine()
+            End If
+            DisplayProgressPercent(mLastProgressReportValue, False)
+            mLastProgressReportValue += PERCENT_REPORT_INTERVAL
+            mLastProgressReportTime = DateTime.UtcNow
+        Else
+            If DateTime.UtcNow.Subtract(mLastProgressReportTime).TotalMilliseconds > PROGRESS_DOT_INTERVAL_MSEC Then
+                mLastProgressReportTime = DateTime.UtcNow
+                Console.Write(".")
+            End If
+        End If
+    End Sub
 
 	Private Sub mProcessingClass_ProgressReset() Handles mParseProteinFile.ProgressReset
 		mLastProgressReportTime = DateTime.UtcNow

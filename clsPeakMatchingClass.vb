@@ -76,7 +76,7 @@ Public Class clsPeakMatchingClass
             End With
         End Function
 
-        Public Overridable Function Add(ByVal intFeatureID As Integer, ByVal strPeptideName As String, ByVal dblPeptideMass As Double, ByVal sngPeptideNET As Single) As Boolean
+        Public Overridable Function Add(intFeatureID As Integer, strPeptideName As String, dblPeptideMass As Double, sngPeptideNET As Single) As Boolean
             ' Returns True if the feature was added
 
             If ContainsFeature(intFeatureID) Then
@@ -108,7 +108,7 @@ Public Class clsPeakMatchingClass
 
         End Function
 
-        Protected Function BinarySearchFindFeature(ByVal intFeatureIDToFind As Integer) As Integer
+        Protected Function BinarySearchFindFeature(intFeatureIDToFind As Integer) As Integer
             ' Looks through mFeatures() for intFeatureIDToFind, returning the index of the item if found, or -1 if not found
 
             Dim intMidIndex As Integer
@@ -174,11 +174,11 @@ Public Class clsPeakMatchingClass
             End If
         End Sub
 
-        Protected Function ContainsFeature(ByVal intFeatureID As Integer) As Boolean
+        Protected Function ContainsFeature(intFeatureID As Integer) As Boolean
             Return ContainsFeature(intFeatureID, 0)
         End Function
 
-        Protected Function ContainsFeature(ByVal intFeatureID As Integer, ByRef intRowIndex As Integer) As Boolean
+        Protected Function ContainsFeature(intFeatureID As Integer, ByRef intRowIndex As Integer) As Boolean
             ' Returns True if the features array contains the feature
             ' If found, returns the row index in intRowIndex
             ' Note that the data will be sorted if necessary, which could lead to slow execution if this function is called repeatedly, while adding new data between calls
@@ -208,7 +208,7 @@ Public Class clsPeakMatchingClass
             End Get
         End Property
 
-        Public Overridable Function GetFeatureInfoByFeatureID(ByVal intFeatureID As Integer, ByRef udtFeatureInfo As udtFeatureInfoType) As Boolean
+        Public Overridable Function GetFeatureInfoByFeatureID(intFeatureID As Integer, ByRef udtFeatureInfo As udtFeatureInfoType) As Boolean
             ' Return the feature info for feature intFeatureID
 
             Dim blnMatchFound As Boolean = False
@@ -231,7 +231,7 @@ Public Class clsPeakMatchingClass
             End If
         End Function
 
-        Public Overridable Function GetFeatureInfoByRowIndex(ByVal intRowIndex As Integer, ByRef udtFeatureInfo As udtFeatureInfoType) As Boolean
+        Public Overridable Function GetFeatureInfoByRowIndex(intRowIndex As Integer, ByRef udtFeatureInfo As udtFeatureInfoType) As Boolean
 
             If intRowIndex >= 0 And intRowIndex < mFeatureCount Then
                 udtFeatureInfo = mFeatures(intRowIndex)
@@ -248,7 +248,7 @@ Public Class clsPeakMatchingClass
 
         End Function
 
-        Public Overridable Function GetMassArrayByRowRange(ByVal intRowIndexStart As Integer, ByVal intRowIndexEnd As Integer) As Double()
+        Public Overridable Function GetMassArrayByRowRange(intRowIndexStart As Integer, intRowIndexEnd As Integer) As Double()
             Dim dblMasses() As Double
             Dim intMatchCount As Integer
 
@@ -283,7 +283,7 @@ Public Class clsPeakMatchingClass
             Return dblMasses
         End Function
 
-        Public Overridable Function GetMassByRowIndex(ByVal intRowIndex As Integer) As Double
+        Public Overridable Function GetMassByRowIndex(intRowIndex As Integer) As Double
             If intRowIndex >= 0 And intRowIndex < mFeatureCount Then
                 Return mFeatures(intRowIndex).Mass
             Else
@@ -291,7 +291,7 @@ Public Class clsPeakMatchingClass
             End If
         End Function
 
-        Protected Overridable Function SortFeatures(Optional ByVal blnForceSort As Boolean = False) As Boolean
+        Protected Overridable Function SortFeatures(Optional blnForceSort As Boolean = False) As Boolean
 
             If Not mFeaturesArrayIsSorted OrElse blnForceSort Then
                 RaiseEvent SortingList()
@@ -313,32 +313,28 @@ Public Class clsPeakMatchingClass
             Get
                 Return mUseFeatureIDHashTable
             End Get
-            Set(ByVal Value As Boolean)
+            Set(Value As Boolean)
                 mUseFeatureIDHashTable = Value
             End Set
         End Property
 
         Private Class FeatureInfoComparerClass
-            Implements IComparer
+            Implements IComparer(of udtFeatureInfoType)
 
-            Public Function Compare(ByVal x As Object, ByVal y As Object) As Integer Implements System.Collections.IComparer.Compare
-
-                Dim udtFeature, udtFeature2 As udtFeatureInfoType
-
-                udtFeature = CType(x, udtFeatureInfoType)
-                udtFeature2 = CType(y, udtFeatureInfoType)
+            Public Function Compare(x As udtFeatureInfoType, y As udtFeatureInfoType) As Integer Implements IComparer(Of udtFeatureInfoType).Compare
 
                 ' Sort by Feature ID, ascending
 
-                If udtFeature.FeatureID > udtFeature2.FeatureID Then
+                If x.FeatureID > y.FeatureID Then
                     Return 1
-                ElseIf udtFeature.FeatureID < udtFeature2.FeatureID Then
+                ElseIf x.FeatureID < y.FeatureID Then
                     Return -1
                 Else
                     Return 0
                 End If
 
             End Function
+
         End Class
     End Class
 
@@ -360,13 +356,13 @@ Public Class clsPeakMatchingClass
             Me.Clear()
         End Sub
 
-        Public Overloads Function Add(ByRef udtFeatureInfo As udtFeatureInfoType, ByVal sngPeptideNETStDev As Single, ByVal sngPeptideDiscriminantScore As Single) As Boolean
+        Public Overloads Function Add(ByRef udtFeatureInfo As udtFeatureInfoType, sngPeptideNETStDev As Single, sngPeptideDiscriminantScore As Single) As Boolean
             With udtFeatureInfo
                 Return Add(.FeatureID, .FeatureName, .Mass, .NET, sngPeptideNETStDev, sngPeptideDiscriminantScore)
             End With
         End Function
 
-        Public Overloads Function Add(ByVal intFeatureID As Integer, ByVal strPeptideName As String, ByVal dblPeptideMass As Double, ByVal sngPeptideNET As Single, ByVal sngPeptideNETStDev As Single, ByVal sngPeptideDiscriminantScore As Single) As Boolean
+        Public Overloads Function Add(intFeatureID As Integer, strPeptideName As String, dblPeptideMass As Double, sngPeptideNET As Single, sngPeptideNETStDev As Single, sngPeptideDiscriminantScore As Single) As Boolean
 
             ' Add the base feature info
             If Not MyBase.Add(intFeatureID, strPeptideName, dblPeptideMass, sngPeptideNET) Then
@@ -399,7 +395,7 @@ Public Class clsPeakMatchingClass
 
         End Sub
 
-        Public Overloads Function GetFeatureInfoByFeatureID(ByVal intFeatureID As Integer, ByRef udtFeatureInfo As udtFeatureInfoType, ByRef sngNETStDev As Single, ByRef sngDiscriminantScore As Single) As Boolean
+        Public Overloads Function GetFeatureInfoByFeatureID(intFeatureID As Integer, ByRef udtFeatureInfo As udtFeatureInfoType, ByRef sngNETStDev As Single, ByRef sngDiscriminantScore As Single) As Boolean
             ' Return the feature info for feature intFeatureID
 
             Dim blnMatchFound As Boolean = False
@@ -426,7 +422,7 @@ Public Class clsPeakMatchingClass
             End If
         End Function
 
-        Public Overloads Function GetFeatureInfoByRowIndex(ByVal intRowIndex As Integer, ByRef udtFeatureInfo As udtFeatureInfoType, ByRef sngNETStDev As Single, ByRef sngDiscriminantScore As Single) As Boolean
+        Public Overloads Function GetFeatureInfoByRowIndex(intRowIndex As Integer, ByRef udtFeatureInfo As udtFeatureInfoType, ByRef sngNETStDev As Single, ByRef sngDiscriminantScore As Single) As Boolean
 
             If intRowIndex >= 0 And intRowIndex < mFeatureCount Then
                 udtFeatureInfo = mFeatures(intRowIndex)
@@ -447,7 +443,7 @@ Public Class clsPeakMatchingClass
 
         End Function
 
-        Public Overridable Function GetNETStDevByRowIndex(ByVal intRowIndex As Integer) As Single
+        Public Overridable Function GetNETStDevByRowIndex(intRowIndex As Integer) As Single
             If intRowIndex >= 0 And intRowIndex < mFeatureCount Then
                 Return mExtendedInfo(intRowIndex).NETStDev
             Else
@@ -487,13 +483,13 @@ Public Class clsPeakMatchingClass
             Me.Clear()
         End Sub
 
-        Public Function AddMatch(ByVal intFeatureID As Integer, ByRef udtMatchResultInfo As udtPeakMatchingResultType) As Boolean
+        Public Function AddMatch(intFeatureID As Integer, ByRef udtMatchResultInfo As udtPeakMatchingResultType) As Boolean
             With udtMatchResultInfo
                 Return AddMatch(intFeatureID, .MatchingID, .SLiCScore, .DelSLiC, .MassErr, .NETErr, .MultiAMTHitCount)
             End With
         End Function
 
-        Public Function AddMatch(ByVal intFeatureID As Integer, ByVal intMatchingID As Integer, ByVal SLiCScore As Double, ByVal DelSLiC As Double, ByVal MassErr As Double, ByVal NETErr As Double, ByVal MultiAMTHitCount As Integer) As Boolean
+        Public Function AddMatch(intFeatureID As Integer, intMatchingID As Integer, SLiCScore As Double, DelSLiC As Double, MassErr As Double, NETErr As Double, MultiAMTHitCount As Integer) As Boolean
 
             ' Add the match
             If mPMResultsCount >= mPMResults.Length Then
@@ -519,7 +515,7 @@ Public Class clsPeakMatchingClass
 
         End Function
 
-        Private Function BinarySearchPMResults(ByVal intFeatureIDToFind As Integer) As Integer
+        Private Function BinarySearchPMResults(intFeatureIDToFind As Integer) As Integer
             ' Looks through mPMResults() for intFeatureIDToFind, returning the index of the item if found, or -1 if not found
             ' Since mPMResults() can contain multiple entries for a given Feature, this function returns the first entry found
 
@@ -580,7 +576,7 @@ Public Class clsPeakMatchingClass
             End Get
         End Property
 
-        Public Function GetMatchInfoByFeatureID(ByVal intFeatureID As Integer, ByRef udtMatchResults() As udtPeakMatchingResultType, ByRef intMatchCount As Integer) As Boolean
+        Public Function GetMatchInfoByFeatureID(intFeatureID As Integer, ByRef udtMatchResults() As udtPeakMatchingResultType, ByRef intMatchCount As Integer) As Boolean
             ' Returns all of the matches for the given feature ID row index
             ' Returns false if the feature has no matches
             ' Note that this function never shrinks udtMatchResults; it only expands it if needed
@@ -615,7 +611,7 @@ Public Class clsPeakMatchingClass
 
         End Function
 
-        Public Function GetMatchInfoByRowIndex(ByVal intRowIndex As Integer, ByRef intFeatureID As Integer, ByRef udtMatchResultInfo As udtPeakMatchingResultType) As Boolean
+        Public Function GetMatchInfoByRowIndex(intRowIndex As Integer, ByRef intFeatureID As Integer, ByRef udtMatchResultInfo As udtPeakMatchingResultType) As Boolean
             ' Populates intFeatureID and udtMatchResultInfo with the peak matching results for the given row index
 
             Dim blnMatchFound As Boolean = False
@@ -635,7 +631,7 @@ Public Class clsPeakMatchingClass
 
         End Function
 
-        Private Function GetRowIndicesForFeatureID(ByVal intFeatureID As Integer, ByRef intIndexFirst As Integer, ByRef intIndexLast As Integer) As Boolean
+        Private Function GetRowIndicesForFeatureID(intFeatureID As Integer, ByRef intIndexFirst As Integer, ByRef intIndexLast As Integer) As Boolean
             ' Looks for intFeatureID in mPMResults
             ' If found, returns the range of rows that contain matches for intFeatureID
 
@@ -667,7 +663,7 @@ Public Class clsPeakMatchingClass
 
         End Function
 
-        Public ReadOnly Property MatchCountForFeatureID(ByVal intFeatureID As Integer) As Integer
+        Public ReadOnly Property MatchCountForFeatureID(intFeatureID As Integer) As Integer
             Get
                 Dim intIndexFirst As Integer
                 Dim intIndexLast As Integer
@@ -681,7 +677,7 @@ Public Class clsPeakMatchingClass
             End Get
         End Property
 
-        Private Function SortPMResults(Optional ByVal blnForceSort As Boolean = False) As Boolean
+        Private Function SortPMResults(Optional blnForceSort As Boolean = False) As Boolean
 
             If Not mPMResultsIsSorted OrElse blnForceSort Then
                 RaiseEvent SortingList()
@@ -700,25 +696,20 @@ Public Class clsPeakMatchingClass
         End Function
 
         Private Class PeakMatchingResultsComparerClass
-            Implements IComparer
+            Implements IComparer(Of udtPeakMatchingResultsType)
 
-            Public Function Compare(ByVal x As Object, ByVal y As Object) As Integer Implements System.Collections.IComparer.Compare
-
-                Dim udtMatch, udtMatch2 As udtPeakMatchingResultsType
-
-                udtMatch = CType(x, udtPeakMatchingResultsType)
-                udtMatch2 = CType(y, udtPeakMatchingResultsType)
+            Public Function Compare(x As udtPeakMatchingResultsType, y As udtPeakMatchingResultsType) As Integer Implements IComparer(Of udtPeakMatchingResultsType).Compare
 
                 ' Sort by .SLiCScore descending, and by MatchingIDIndexOriginal ascending
 
-                If udtMatch.FeatureID > udtMatch2.FeatureID Then
+                If x.FeatureID > y.FeatureID Then
                     Return 1
-                ElseIf udtMatch.FeatureID < udtMatch2.FeatureID Then
+                ElseIf x.FeatureID < y.FeatureID Then
                     Return -1
                 Else
-                    If udtMatch.Details.MatchingID > udtMatch2.Details.MatchingID Then
+                    If x.Details.MatchingID > y.Details.MatchingID Then
                         Return 1
-                    ElseIf udtMatch.Details.MatchingID < udtMatch2.Details.MatchingID Then
+                    ElseIf x.Details.MatchingID < y.Details.MatchingID Then
                         Return -1
                     Else
                         Return 0
@@ -726,6 +717,7 @@ Public Class clsPeakMatchingClass
                 End If
 
             End Function
+
         End Class
     End Class
 #End Region
@@ -739,7 +731,7 @@ Public Class clsPeakMatchingClass
     Private mAbortProcessing As Boolean
 
     Public Event ProgressContinues()
-    Public Event LogEvent(ByVal Message As String, ByVal EventType As eMessageTypeConstants)
+    Public Event LogEvent(Message As String, EventType As eMessageTypeConstants)
 
 #End Region
 
@@ -749,7 +741,7 @@ Public Class clsPeakMatchingClass
         Get
             Return mMaxPeakMatchingResultsPerFeatureToSave
         End Get
-        Set(ByVal Value As Integer)
+        Set(Value As Integer)
             If Value < 0 Then Value = 0
             mMaxPeakMatchingResultsPerFeatureToSave = Value
         End Set
@@ -771,7 +763,7 @@ Public Class clsPeakMatchingClass
         Get
             Return mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore
         End Get
-        Set(ByVal Value As Boolean)
+        Set(Value As Boolean)
             mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore = Value
         End Set
     End Property
@@ -780,7 +772,7 @@ Public Class clsPeakMatchingClass
         Get
             Return mSearchModeOptions.UseEllipseSearchRegion
         End Get
-        Set(ByVal Value As Boolean)
+        Set(Value As Boolean)
             mSearchModeOptions.UseEllipseSearchRegion = Value
         End Set
     End Property
@@ -789,7 +781,7 @@ Public Class clsPeakMatchingClass
     ''    Get
     ''        Return mSqlServerConnectionString
     ''    End Get
-    ''    Set(ByVal Value As String)
+    ''    Set(Value As String)
     ''        mSqlServerConnectionString = Value
     ''    End Set
     ''End Property
@@ -798,7 +790,7 @@ Public Class clsPeakMatchingClass
     ''    Get
     ''        Return mTableNameFeatureMatchResults
     ''    End Get
-    ''    Set(ByVal Value As String)
+    ''    Set(Value As String)
     ''        mTableNameFeatureMatchResults = Value
     ''    End Set
     ''End Property
@@ -807,7 +799,7 @@ Public Class clsPeakMatchingClass
     ''    Get
     ''        Return mUseSqlServerDBToCacheData
     ''    End Get
-    ''    Set(ByVal Value As Boolean)
+    ''    Set(Value As Boolean)
     ''        mUseSqlServerDBToCacheData = Value
     ''    End Set
     ''End Property
@@ -816,7 +808,7 @@ Public Class clsPeakMatchingClass
     ''    Get
     ''        Return mUseSqlServerForMatchResults
     ''    End Get
-    ''    Set(ByVal Value As Boolean)
+    ''    Set(Value As Boolean)
     ''        mUseSqlServerForMatchResults = Value
     ''    End Set
     ''End Property
@@ -829,7 +821,7 @@ Public Class clsPeakMatchingClass
         mAbortProcessing = True
     End Sub
 
-    Private Sub ComputeSLiCScores(ByRef udtFeatureToIdentify As udtFeatureInfoType, ByRef objFeatureMatchResults As PMFeatureMatchResultsClass, ByRef udtRawMatches() As udtPeakMatchingRawMatchesType, ByRef objComparisonFeatures As PMComparisonFeatureInfoClass, ByRef objSearchThresholds As clsSearchThresholds, ByVal udtComputedTolerances As clsSearchThresholds.udtSearchTolerancesType)
+    Private Sub ComputeSLiCScores(ByRef udtFeatureToIdentify As udtFeatureInfoType, ByRef objFeatureMatchResults As PMFeatureMatchResultsClass, ByRef udtRawMatches() As udtPeakMatchingRawMatchesType, ByRef objComparisonFeatures As PMComparisonFeatureInfoClass, ByRef objSearchThresholds As clsSearchThresholds, udtComputedTolerances As clsSearchThresholds.udtSearchTolerancesType)
 
         Dim intIndex As Integer
         Dim intNewMatchCount As Integer
@@ -840,7 +832,7 @@ Public Class clsPeakMatchingClass
         Dim dblNETStDevCombined As Double
         Dim dblNumeratorSum As Double
 
-		Dim udtComparisonFeatureInfo As udtFeatureInfoType = New udtFeatureInfoType
+        Dim udtComparisonFeatureInfo As udtFeatureInfoType = New udtFeatureInfoType
 
         Dim strMessage As String
 
@@ -1000,7 +992,7 @@ Public Class clsPeakMatchingClass
 
     End Function
 
-    Friend Function IdentifySequences(ByVal objSearchThresholds As clsSearchThresholds, ByRef objFeaturesToIdentify As PMFeatureInfoClass, ByRef objComparisonFeatures As PMComparisonFeatureInfoClass, ByRef objFeatureMatchResults As PMFeatureMatchResultsClass, Optional ByRef objRangeSearch As clsSearchRange = Nothing) As Boolean
+    Friend Function IdentifySequences(objSearchThresholds As clsSearchThresholds, ByRef objFeaturesToIdentify As PMFeatureInfoClass, ByRef objComparisonFeatures As PMComparisonFeatureInfoClass, ByRef objFeatureMatchResults As PMFeatureMatchResultsClass, Optional ByRef objRangeSearch As clsSearchRange = Nothing) As Boolean
         ' Returns True if success, False if the search is cancelled
         ' Will return true even if none of the features match any of the comparison features
         '
@@ -1015,8 +1007,8 @@ Public Class clsPeakMatchingClass
         Dim intMatchIndex As Integer
         Dim intComparisonFeaturesOriginalRowIndex As Integer
 
-		Dim udtCurrentFeatureToIdentify As udtFeatureInfoType = New udtFeatureInfoType
-		Dim udtCurrentComparisonFeature As udtFeatureInfoType = New udtFeatureInfoType
+        Dim udtCurrentFeatureToIdentify As udtFeatureInfoType = New udtFeatureInfoType
+        Dim udtCurrentComparisonFeature As udtFeatureInfoType = New udtFeatureInfoType
 
         Dim dblMassTol As Double, dblNETTol As Double
         Dim dblNetDiff As Double
@@ -1176,11 +1168,11 @@ Public Class clsPeakMatchingClass
         ''mTableNameFeatureMatchResults = PMFeatureMatchResultsClass.DEFAULT_FEATURE_MATCH_RESULTS_TABLE_NAME
     End Sub
 
-    Private Sub PostLogEntry(ByVal strMessage As String, ByVal EntryType As eMessageTypeConstants)
+    Private Sub PostLogEntry(strMessage As String, EntryType As eMessageTypeConstants)
         RaiseEvent LogEvent(strMessage, EntryType)
     End Sub
 
-    Private Function TestPointInEllipse(ByVal dblPointX As Double, ByVal dblPointY As Double, ByVal dblXTol As Double, ByVal dblYTol As Double) As Boolean
+    Private Function TestPointInEllipse(dblPointX As Double, dblPointY As Double, dblXTol As Double, dblYTol As Double) As Boolean
         ' The equation for the points along the edge of an ellipse is x^2/a^2 + y^2/b^2 = 1 where a and b are 
         ' the half-widths of the ellipse and x and y are the coordinates of each point on the ellipse's perimeter
         '
@@ -1200,12 +1192,12 @@ Public Class clsPeakMatchingClass
 
     End Function
 
-    Private Sub UpdateProgress(ByVal sngProgessPct As Single)
+    Private Sub UpdateProgress(sngProgessPct As Single)
         mProgessPct = sngProgessPct
         RaiseEvent ProgressContinues()
     End Sub
 
-    Private Sub UpdateProgress(ByVal strProgressDescription As String, ByVal sngProgessPct As Single)
+    Private Sub UpdateProgress(strProgressDescription As String, sngProgessPct As Single)
         mProgressDescription = strProgressDescription
         mProgessPct = sngProgessPct
         RaiseEvent ProgressContinues()
@@ -1216,25 +1208,20 @@ Public Class clsPeakMatchingClass
 #Region "Peak Matching Raw Matches Sorting Class"
 
     Private Class PeakMatchingRawMatchesComparerClass
-        Implements IComparer
+        Implements IComparer(Of udtPeakMatchingRawMatchesType)
 
-        Public Function Compare(ByVal x As Object, ByVal y As Object) As Integer Implements System.Collections.IComparer.Compare
-
-            Dim udtRawMatch, udtRawMatch2 As udtPeakMatchingRawMatchesType
-
-            udtRawMatch = CType(x, udtPeakMatchingRawMatchesType)
-            udtRawMatch2 = CType(y, udtPeakMatchingRawMatchesType)
+        Public Function Compare(x As udtPeakMatchingRawMatchesType, y As udtPeakMatchingRawMatchesType) As Integer Implements IComparer(Of udtPeakMatchingRawMatchesType).Compare
 
             ' Sort by .SLiCScore descending, and by MatchingIDIndexOriginal Ascencing
 
-            If udtRawMatch.SLiCScore > udtRawMatch2.SLiCScore Then
+            If x.SLiCScore > y.SLiCScore Then
                 Return -1
-            ElseIf udtRawMatch.SLiCScore < udtRawMatch2.SLiCScore Then
+            ElseIf x.SLiCScore < y.SLiCScore Then
                 Return 1
             Else
-                If udtRawMatch.MatchingIDIndex > udtRawMatch2.MatchingIDIndex Then
+                If x.MatchingIDIndex > y.MatchingIDIndex Then
                     Return 1
-                ElseIf udtRawMatch.MatchingIDIndex < udtRawMatch2.MatchingIDIndex Then
+                ElseIf x.MatchingIDIndex < y.MatchingIDIndex Then
                     Return -1
                 Else
                     Return 0
@@ -1242,6 +1229,7 @@ Public Class clsPeakMatchingClass
             End If
 
         End Function
+
     End Class
 
 #End Region
@@ -1303,7 +1291,7 @@ Public Class clsPeakMatchingClass
             Get
                 Return mAutoDefineSLiCScoreThresholds
             End Get
-            Set(ByVal Value As Boolean)
+            Set(Value As Boolean)
                 mAutoDefineSLiCScoreThresholds = Value
             End Set
         End Property
@@ -1314,7 +1302,7 @@ Public Class clsPeakMatchingClass
             End Get
         End Property
 
-        Public ReadOnly Property ComputedSearchTolerances(ByVal dblReferenceMass As Double) As udtSearchTolerancesType
+        Public ReadOnly Property ComputedSearchTolerances(dblReferenceMass As Double) As udtSearchTolerancesType
             Get
                 DefinePeakMatchingTolerances(dblReferenceMass)
                 Return mComputedSearchTolerances
@@ -1325,7 +1313,7 @@ Public Class clsPeakMatchingClass
             Get
                 Return mMassTolType
             End Get
-            Set(ByVal Value As MassToleranceConstants)
+            Set(Value As MassToleranceConstants)
                 mMassTolType = Value
             End Set
         End Property
@@ -1334,7 +1322,7 @@ Public Class clsPeakMatchingClass
             Get
                 Return mMassTolerance
             End Get
-            Set(ByVal Value As Double)
+            Set(Value As Double)
                 mMassTolerance = Value
                 If mAutoDefineSLiCScoreThresholds Then
                     InitializeSLiCScoreOptions(True)
@@ -1346,7 +1334,7 @@ Public Class clsPeakMatchingClass
             Get
                 Return mNETTolerance
             End Get
-            Set(ByVal Value As Double)
+            Set(Value As Double)
                 mNETTolerance = Value
                 If mAutoDefineSLiCScoreThresholds Then
                     InitializeSLiCScoreOptions(True)
@@ -1358,7 +1346,7 @@ Public Class clsPeakMatchingClass
             Get
                 Return mSLiCScoreOptions.MassPPMStDev
             End Get
-            Set(ByVal Value As Double)
+            Set(Value As Double)
                 If Value < 0 Then Value = 0
                 mSLiCScoreOptions.MassPPMStDev = Value
             End Set
@@ -1368,7 +1356,7 @@ Public Class clsPeakMatchingClass
             Get
                 Return mSLiCScoreOptions.NETStDev
             End Get
-            Set(ByVal Value As Double)
+            Set(Value As Double)
                 If Value < 0 Then Value = 0
                 mSLiCScoreOptions.NETStDev = Value
             End Set
@@ -1378,7 +1366,7 @@ Public Class clsPeakMatchingClass
             Get
                 Return mSLiCScoreOptions.UseAMTNETStDev
             End Get
-            Set(ByVal Value As Boolean)
+            Set(Value As Boolean)
                 mSLiCScoreOptions.UseAMTNETStDev = Value
             End Set
         End Property
@@ -1387,7 +1375,7 @@ Public Class clsPeakMatchingClass
             Get
                 Return mSLiCScoreMaxSearchDistanceMultiplier
             End Get
-            Set(ByVal Value As Single)
+            Set(Value As Single)
                 If Value < 1 Then Value = 1
                 mSLiCScoreMaxSearchDistanceMultiplier = Value
                 If mAutoDefineSLiCScoreThresholds Then
@@ -1438,7 +1426,7 @@ Public Class clsPeakMatchingClass
 
         End Sub
 
-        Private Sub InitializeSLiCScoreOptions(ByVal blnComputeUsingSearchThresholds As Boolean)
+        Private Sub InitializeSLiCScoreOptions(blnComputeUsingSearchThresholds As Boolean)
 
             With mSLiCScoreOptions
                 If blnComputeUsingSearchThresholds Then
@@ -1482,12 +1470,12 @@ Public Class clsPeakMatchingClass
 
         End Sub
 
-        Public Function MassToPPM(ByVal MassToConvert As Double, ByVal ReferenceMZ As Double) As Double
+        Public Function MassToPPM(MassToConvert As Double, ReferenceMZ As Double) As Double
             ' Converts MassToConvert to ppm, which is dependent on ReferenceMZ
             Return MassToConvert * ONE_PART_PER_MILLION / ReferenceMZ
         End Function
 
-        Public Function PPMToMass(ByVal PPMToConvert As Double, ByVal ReferenceMZ As Double) As Double
+        Public Function PPMToMass(PPMToConvert As Double, ReferenceMZ As Double) As Double
             ' Converts PPMToConvert to a mass value, which is dependent on ReferenceMZ
             Return PPMToConvert / ONE_PART_PER_MILLION * ReferenceMZ
         End Function

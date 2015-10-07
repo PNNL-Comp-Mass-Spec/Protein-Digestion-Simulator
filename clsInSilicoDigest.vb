@@ -82,10 +82,10 @@ Public Class clsInSilicoDigest
 
     Private mpICalculator As clspICalculation
 
-    Public Event ErrorEvent(ByVal strMessage As String)
+    Public Event ErrorEvent(strMessage As String)
 
     Public Event ProgressReset()
-    Public Event ProgressChanged(ByVal taskDescription As String, ByVal percentComplete As Single)     ' PercentComplete ranges from 0 to 100, but can contain decimal percentage values
+    Public Event ProgressChanged(taskDescription As String, percentComplete As Single)     ' PercentComplete ranges from 0 to 100, but can contain decimal percentage values
     Public Event ProgressComplete()
 
     Protected mProgressStepDescription As String
@@ -108,7 +108,7 @@ Public Class clsInSilicoDigest
                 Return mPeptideSequence.ElementMode
             End If
         End Get
-        Set(ByVal Value As PeptideSequenceClass.ElementModeConstants)
+        Set(Value As PeptideSequenceClass.ElementModeConstants)
             If mPeptideSequence Is Nothing Then
                 mPeptideSequence = New PeptideSequenceClass
             End If
@@ -131,7 +131,7 @@ Public Class clsInSilicoDigest
 
 #End Region
 
-    Public Function CheckSequenceAgainstCleavageRule(ByVal strSequence As String, ByVal eRuleID As CleavageRuleConstants, Optional ByRef intRuleMatchCount As Integer = 0) As Boolean
+    Public Function CheckSequenceAgainstCleavageRule(strSequence As String, eRuleID As CleavageRuleConstants, Optional ByRef intRuleMatchCount As Integer = 0) As Boolean
         ' Checks strSequence against the rule given by eRuleID
         ' See sub InitializeCleavageRules for a list of the rules
         ' Returns True if valid, False if invalid
@@ -168,7 +168,7 @@ Public Class clsInSilicoDigest
 
     End Function
 
-    Public Function ComputeSequenceMass(ByVal strSequence As String, Optional ByVal blnIncludeXResiduesInMass As Boolean = True) As Double
+    Public Function ComputeSequenceMass(strSequence As String, Optional blnIncludeXResiduesInMass As Boolean = True) As Double
         ' Note that strSequence must be in 1-letter notation, and will automatically be converted to uppercase
 
         Try
@@ -188,7 +188,7 @@ Public Class clsInSilicoDigest
 
     End Function
 
-    Public Function CountTrypticsInSequence(ByVal strSequence As String) As Integer
+    Public Function CountTrypticsInSequence(strSequence As String) As Integer
         Dim intTrypticCount As Integer
         Dim intStartSearchLoc As Integer, intReturnResidueStart As Integer, intReturnResidueEnd As Integer
         Dim strFragment As String
@@ -219,20 +219,20 @@ Public Class clsInSilicoDigest
 
     End Function
 
-    Public Function DigestSequence(ByVal strProteinSequence As String, _
+    Public Function DigestSequence(strProteinSequence As String, _
                                    ByRef objPeptideFragments() As PeptideInfoClass, _
-                                   ByVal objDigestionOptions As DigestionOptionsClass, _
-                                   ByVal blnFilterByIsoelectricPoint As Boolean) As Integer
+                                   objDigestionOptions As DigestionOptionsClass, _
+                                   blnFilterByIsoelectricPoint As Boolean) As Integer
 
         Return DigestSequence(strProteinSequence, objPeptideFragments, objDigestionOptions, blnFilterByIsoelectricPoint, "")
 
     End Function
 
-    Public Function DigestSequence(ByVal strProteinSequence As String, _
+    Public Function DigestSequence(strProteinSequence As String, _
                                    ByRef objPeptideFragments() As PeptideInfoClass, _
-                                   ByVal objDigestionOptions As DigestionOptionsClass, _
-                                   ByVal blnFilterByIsoelectricPoint As Boolean, _
-                                    ByVal strProteinName As String) As Integer
+                                   objDigestionOptions As DigestionOptionsClass, _
+                                   blnFilterByIsoelectricPoint As Boolean, _
+                                    strProteinName As String) As Integer
         ' Digests strProteinSequence using the sequence rule given by objDigestionOptions.CleavageRuleID
         ' If blnRemoveDuplicateSequences = True, then only returns the first occurrence of each unique sequence
         '
@@ -337,7 +337,7 @@ Public Class clsInSilicoDigest
             Loop
 
             ResetProgress("Digesting protein " & strProteinName)
-            
+
             For intTrypticIndex = 0 To intTrypticFragCacheCount - 1
                 strPeptideSequenceBase = String.Empty
                 strPeptideSequence = String.Empty
@@ -445,7 +445,7 @@ Public Class clsInSilicoDigest
 
     End Function
 
-    Public Function GetCleavageAllowPartialCleavage(ByVal eRuleID As CleavageRuleConstants) As Boolean
+    Public Function GetCleavageAllowPartialCleavage(eRuleID As CleavageRuleConstants) As Boolean
         If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
             Return mCleavageRules.Rules(eRuleID).AllowPartialCleavage
         Else
@@ -453,7 +453,7 @@ Public Class clsInSilicoDigest
         End If
     End Function
 
-    Public Function GetCleavageIsReversedDirection(ByVal eRuleID As CleavageRuleConstants) As Boolean
+    Public Function GetCleavageIsReversedDirection(eRuleID As CleavageRuleConstants) As Boolean
         If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
             Return mCleavageRules.Rules(eRuleID).ReversedCleavageDirection
         Else
@@ -461,7 +461,7 @@ Public Class clsInSilicoDigest
         End If
     End Function
 
-    Public Function GetCleavageExceptionSuffixResidues(ByVal eRuleID As CleavageRuleConstants) As String
+    Public Function GetCleavageExceptionSuffixResidues(eRuleID As CleavageRuleConstants) As String
         If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
             Return mCleavageRules.Rules(eRuleID).ExceptionResidues
         Else
@@ -469,7 +469,7 @@ Public Class clsInSilicoDigest
         End If
     End Function
 
-    Public Function GetCleaveageRuleName(ByVal eRuleID As CleavageRuleConstants) As String
+    Public Function GetCleaveageRuleName(eRuleID As CleavageRuleConstants) As String
         If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
             Return mCleavageRules.Rules(eRuleID).Description
         Else
@@ -477,7 +477,7 @@ Public Class clsInSilicoDigest
         End If
     End Function
 
-    Public Function GetCleaveageRuleResiduesDescription(ByVal eRuleID As CleavageRuleConstants) As String
+    Public Function GetCleaveageRuleResiduesDescription(eRuleID As CleavageRuleConstants) As String
         Dim strDescription As String
 
         If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
@@ -501,7 +501,7 @@ Public Class clsInSilicoDigest
         End If
     End Function
 
-    Public Function GetCleaveageRuleResiduesSymbols(ByVal eRuleID As CleavageRuleConstants) As String
+    Public Function GetCleaveageRuleResiduesSymbols(eRuleID As CleavageRuleConstants) As String
         If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
             Return mCleavageRules.Rules(eRuleID).CleavageResidues
         Else
@@ -509,7 +509,7 @@ Public Class clsInSilicoDigest
         End If
     End Function
 
-    Public Function GetCleaveageRuleIDInParallax(ByVal eRuleID As CleavageRuleConstants) As Integer
+    Public Function GetCleaveageRuleIDInParallax(eRuleID As CleavageRuleConstants) As Integer
         If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
             Return mCleavageRules.Rules(eRuleID).RuleIDInParallax
         Else
@@ -717,7 +717,7 @@ Public Class clsInSilicoDigest
         mpICalculator = objpICalculator
     End Sub
 
-    Public Sub InitializepICalculator(ByVal eHydrophobicityType As clspICalculation.eHydrophobicityTypeConstants, ByVal blnReportMaximumpI As Boolean, ByVal intSequenceWidthToExamineForMaximumpI As Integer)
+    Public Sub InitializepICalculator(eHydrophobicityType As clspICalculation.eHydrophobicityTypeConstants, blnReportMaximumpI As Boolean, intSequenceWidthToExamineForMaximumpI As Integer)
         If mpICalculator Is Nothing Then
             mpICalculator = New clspICalculation
         End If
@@ -729,7 +729,7 @@ Public Class clsInSilicoDigest
         End With
     End Sub
 
-    Private Function PossiblyAddPeptide(ByVal strPeptideSequence As String, ByVal intTrypticIndex As Integer, ByVal intMissedCleavageCount As Integer, ByVal intResidueStartLoc As Integer, ByVal intResidueEndLoc As Integer, ByRef strProteinSequence As String, ByVal intProteinSequenceLength As Integer, ByRef htFragmentsUniqueList As System.Collections.Specialized.StringDictionary, ByRef objPeptideFragments() As PeptideInfoClass, ByRef intFragmentCountTotal As Integer, ByVal objDigestionOptions As DigestionOptionsClass, ByVal blnFilterByIsoelectricPoint As Boolean) As Boolean
+    Private Function PossiblyAddPeptide(strPeptideSequence As String, intTrypticIndex As Integer, intMissedCleavageCount As Integer, intResidueStartLoc As Integer, intResidueEndLoc As Integer, ByRef strProteinSequence As String, intProteinSequenceLength As Integer, ByRef htFragmentsUniqueList As System.Collections.Specialized.StringDictionary, ByRef objPeptideFragments() As PeptideInfoClass, ByRef intFragmentCountTotal As Integer, objDigestionOptions As DigestionOptionsClass, blnFilterByIsoelectricPoint As Boolean) As Boolean
         ' Note: strProteinSequence is passed ByRef for speed purposes since passing a reference of a large string is easier than passing it ByVal
         '       It is not modified by this function
 
@@ -822,7 +822,7 @@ Public Class clsInSilicoDigest
         Return blnAddFragment
     End Function
 
-    Private Sub ReportError(ByVal strFunctionName As String, ByVal ex As Exception)
+    Private Sub ReportError(strFunctionName As String, ex As Exception)
         Try
             Dim strErrorMessage As String
 
@@ -845,20 +845,20 @@ Public Class clsInSilicoDigest
         RaiseEvent ProgressReset()
     End Sub
 
-    Protected Sub ResetProgress(ByVal strProgressStepDescription As String)
+    Protected Sub ResetProgress(strProgressStepDescription As String)
         UpdateProgress(strProgressStepDescription, 0)
         RaiseEvent ProgressReset()
     End Sub
 
-    Protected Sub UpdateProgress(ByVal strProgressStepDescription As String)
+    Protected Sub UpdateProgress(strProgressStepDescription As String)
         UpdateProgress(strProgressStepDescription, mProgressPercentComplete)
     End Sub
 
-    Protected Sub UpdateProgress(ByVal sngPercentComplete As Single)
+    Protected Sub UpdateProgress(sngPercentComplete As Single)
         UpdateProgress(Me.ProgressStepDescription, sngPercentComplete)
     End Sub
 
-    Protected Sub UpdateProgress(ByVal strProgressStepDescription As String, ByVal sngPercentComplete As Single)
+    Protected Sub UpdateProgress(strProgressStepDescription As String, sngPercentComplete As Single)
         Dim blnDescriptionChanged As Boolean = False
 
         If strProgressStepDescription <> mProgressStepDescription Then
@@ -887,8 +887,8 @@ Public Class clsInSilicoDigest
         Public Sub New()
 
             If objNETPrediction Is Nothing Then
-				objNETPrediction = New NETPrediction.ElutionTimePredictionKangas
-			End If
+                objNETPrediction = New NETPrediction.ElutionTimePredictionKangas
+            End If
 
             ' Disable mAutoComputeNET for now so that the call to SetSequence() below doesn't auto-call UpdateNET
             mAutoComputeNET = False
@@ -914,7 +914,7 @@ Public Class clsInSilicoDigest
 
         ' The following is declared Shared so that it is only initialized once per program execution
         ' All objects of type PeptideInfoClass will use the same instance of this object
-		Private Shared objNETPrediction As NETPrediction.iPeptideElutionTime
+        Private Shared objNETPrediction As NETPrediction.iPeptideElutionTime
 
 
         Private mAutoComputeNET As Boolean      ' Set to False to skip computation of NET when Sequence changes; useful for speeding up things a little
@@ -931,7 +931,7 @@ Public Class clsInSilicoDigest
             Get
                 Return mAutoComputeNET
             End Get
-            Set(ByVal Value As Boolean)
+            Set(Value As Boolean)
                 mAutoComputeNET = Value
             End Set
         End Property
@@ -940,7 +940,7 @@ Public Class clsInSilicoDigest
             Get
                 Return mPeptideName
             End Get
-            Set(ByVal Value As String)
+            Set(Value As String)
                 mPeptideName = Value
             End Set
         End Property
@@ -955,7 +955,7 @@ Public Class clsInSilicoDigest
             Get
                 Return mPrefixResidue
             End Get
-            Set(ByVal Value As String)
+            Set(Value As String)
                 If Not Value Is Nothing AndAlso Value.Length > 0 Then
                     mPrefixResidue = Value.Chars(0)
                 Else
@@ -968,7 +968,7 @@ Public Class clsInSilicoDigest
             Get
                 Return MyBase.GetSequence(False)
             End Get
-            Set(ByVal Value As String)
+            Set(Value As String)
                 MyClass.SetSequence(Value, PeptideSequenceClass.NTerminusGroupConstants.Hydrogen, PeptideSequenceClass.CTerminusGroupConstants.Hydroxyl, False)
             End Set
         End Property
@@ -983,7 +983,7 @@ Public Class clsInSilicoDigest
             Get
                 Return mSuffixResidue
             End Get
-            Set(ByVal Value As String)
+            Set(Value As String)
                 If Not Value Is Nothing AndAlso Value.Length > 0 Then
                     mSuffixResidue = Value.Chars(0)
                 Else
@@ -993,7 +993,7 @@ Public Class clsInSilicoDigest
         End Property
 #End Region
 
-        Public Overrides Function SetSequence(ByVal strSequence As String, Optional ByVal eNTerminus As NTerminusGroupConstants = NTerminusGroupConstants.Hydrogen, Optional ByVal eCTerminus As CTerminusGroupConstants = CTerminusGroupConstants.Hydroxyl, Optional ByVal blnIs3LetterCode As Boolean = False, Optional ByVal bln1LetterCheckForPrefixAndSuffixResidues As Boolean = True, Optional ByVal bln3LetterCheckForPrefixHandSuffixOH As Boolean = True) As Integer
+        Public Overrides Function SetSequence(strSequence As String, Optional eNTerminus As NTerminusGroupConstants = NTerminusGroupConstants.Hydrogen, Optional eCTerminus As CTerminusGroupConstants = CTerminusGroupConstants.Hydroxyl, Optional blnIs3LetterCode As Boolean = False, Optional bln1LetterCheckForPrefixAndSuffixResidues As Boolean = True, Optional bln3LetterCheckForPrefixHandSuffixOH As Boolean = True) As Integer
             Dim intReturn As Integer
 
             intReturn = MyBase.SetSequence(strSequence, eNTerminus, eCTerminus, blnIs3LetterCode, bln1LetterCheckForPrefixAndSuffixResidues, bln3LetterCheckForPrefixHandSuffixOH)
@@ -1002,7 +1002,7 @@ Public Class clsInSilicoDigest
             Return intReturn
         End Function
 
-        Public Overrides Sub SetSequenceOneLetterCharactersOnly(ByVal strSequenceNoPrefixOrSuffix As String)
+        Public Overrides Sub SetSequenceOneLetterCharactersOnly(strSequenceNoPrefixOrSuffix As String)
             MyBase.SetSequenceOneLetterCharactersOnly(strSequenceNoPrefixOrSuffix)
             If mAutoComputeNET Then UpdateNET()
         End Sub
@@ -1060,7 +1060,7 @@ Public Class clsInSilicoDigest
             Get
                 Return mAminoAcidResidueFilterChars
             End Get
-            Set(ByVal Value As Char())
+            Set(Value As Char())
                 mAminoAcidResidueFilterChars = Value
             End Set
         End Property
@@ -1069,7 +1069,7 @@ Public Class clsInSilicoDigest
             Get
                 Return mMaxMissedCleavages
             End Get
-            Set(ByVal Value As Integer)
+            Set(Value As Integer)
                 If Value < 0 Then Value = 0
                 If Value > 500000 Then Value = 500000
                 mMaxMissedCleavages = Value
@@ -1080,7 +1080,7 @@ Public Class clsInSilicoDigest
             Get
                 Return mCleavageRuleID
             End Get
-            Set(ByVal Value As clsInSilicoDigest.CleavageRuleConstants)
+            Set(Value As clsInSilicoDigest.CleavageRuleConstants)
                 mCleavageRuleID = Value
             End Set
         End Property
@@ -1089,7 +1089,7 @@ Public Class clsInSilicoDigest
             Get
                 Return mMinFragmentResidueCount
             End Get
-            Set(ByVal Value As Integer)
+            Set(Value As Integer)
                 If Value < 1 Then Value = 1
                 mMinFragmentResidueCount = Value
             End Set
@@ -1099,7 +1099,7 @@ Public Class clsInSilicoDigest
             Get
                 Return mMinFragmentMass
             End Get
-            Set(ByVal Value As Integer)
+            Set(Value As Integer)
                 If Value < 0 Then Value = 0
                 mMinFragmentMass = Value
             End Set
@@ -1109,7 +1109,7 @@ Public Class clsInSilicoDigest
             Get
                 Return mMaxFragmentMass
             End Get
-            Set(ByVal Value As Integer)
+            Set(Value As Integer)
                 If Value < 0 Then Value = 0
                 mMaxFragmentMass = Value
             End Set
@@ -1119,7 +1119,7 @@ Public Class clsInSilicoDigest
             Get
                 Return mMinIsoelectricPoint
             End Get
-            Set(ByVal Value As Single)
+            Set(Value As Single)
                 mMinIsoelectricPoint = Value
             End Set
         End Property
@@ -1128,7 +1128,7 @@ Public Class clsInSilicoDigest
             Get
                 Return mMaxIsoelectricPoint
             End Get
-            Set(ByVal Value As Single)
+            Set(Value As Single)
                 mMaxIsoelectricPoint = Value
             End Set
         End Property
@@ -1137,7 +1137,7 @@ Public Class clsInSilicoDigest
             Get
                 Return mRemoveDuplicateSequences
             End Get
-            Set(ByVal Value As Boolean)
+            Set(Value As Boolean)
                 mRemoveDuplicateSequences = Value
             End Set
         End Property
@@ -1146,7 +1146,7 @@ Public Class clsInSilicoDigest
             Get
                 Return mIncludePrefixAndSuffixResidues
             End Get
-            Set(ByVal Value As Boolean)
+            Set(Value As Boolean)
                 mIncludePrefixAndSuffixResidues = Value
             End Set
         End Property
