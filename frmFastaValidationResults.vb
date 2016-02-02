@@ -70,6 +70,8 @@ Public Class frmFastaValidation
     Private WithEvents mValidationTriggerTimer As Windows.Forms.Timer
     Private WithEvents mValidateFastaFile As ValidateFastaFile.clsValidateFastaFile
 
+    Private mValidatorErrorMessage As String
+
     Public Event FastaValidationStarted()
 #End Region
 
@@ -798,6 +800,8 @@ Public Class frmFastaValidation
                 mValidateFastaFile = New ValidateFastaFile.clsValidateFastaFile
             End If
 
+            mValidatorErrorMessage = String.Empty
+
             RaiseEvent FastaValidationStarted()
 
             ShowHideObjectsDuringValidation(True)
@@ -892,6 +896,9 @@ Public Class frmFastaValidation
                 DisplayResults(strParameterFilePath)
             Else
                 txtResults.Text = "Error calling mValidateFastaFile.ProcessFile: " & mValidateFastaFile.GetErrorMessage()
+                If Not String.IsNullOrEmpty(mValidatorErrorMessage) Then
+                    txtResults.AppendText(ControlChars.NewLine & mValidatorErrorMessage)
+                End If
             End If
 
         Catch ex As Exception
@@ -1088,6 +1095,11 @@ Public Class frmFastaValidation
 #End Region
 
 #Region "Event Handlers"
+
+    Private Sub mValidateFastaFile_ErrorEvent(strMessage As String) Handles mValidateFastaFile.ErrorEvent
+        mValidatorErrorMessage = strMessage
+    End Sub
+
     Private Sub mValidateFastaFile_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mValidateFastaFile.ProgressChanged
         Try
             pbarProgress.Value = CType(percentComplete, Integer)
