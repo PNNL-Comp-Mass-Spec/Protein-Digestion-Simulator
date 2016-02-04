@@ -12,36 +12,36 @@ Imports System.Collections.Generic
 ''' <remarks>
 ''' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
 ''' Created in October 2013
-''' Last updated in November 2013
+''' Last updated in October 2015
 ''' </remarks>
 Public MustInherit Class clsProcessFilesOrFoldersBase
 
 #Region "Constants and Enums"
 
-	Protected Enum eMessageTypeConstants
-		Normal = 0
-		ErrorMsg = 1
-		Warning = 2
-	End Enum
+    Protected Enum eMessageTypeConstants
+        Normal = 0
+        ErrorMsg = 1
+        Warning = 2
+    End Enum
 
 #End Region
 
 #Region "Classwide Variables"
-	Protected mShowMessages As Boolean = True
+    Protected mShowMessages As Boolean = True
 
-	Protected mFileDate As String
-	Protected mAbortProcessing As Boolean
+    Protected mFileDate As String
+    Protected mAbortProcessing As Boolean
 
-	Protected mLogMessagesToFile As Boolean
-	Protected mLogFileUsesDateStamp As Boolean = True
-	Protected mLogFilePath As String
-	Protected mLogFile As StreamWriter
+    Protected mLogMessagesToFile As Boolean
+    Protected mLogFileUsesDateStamp As Boolean = True
+    Protected mLogFilePath As String
+    Protected mLogFile As StreamWriter
 
-	' This variable is updated when CleanupFilePaths() is called
-	Protected mOutputFolderPath As String
-	Protected mLogFolderPath As String			' If blank, then mOutputFolderPath will be used; if mOutputFolderPath is also blank, then the log is created in the same folder as the executing assembly
+    ' This variable is updated when CleanupFilePaths() is called
+    Protected mOutputFolderPath As String
+    Protected mLogFolderPath As String          ' If blank, then mOutputFolderPath will be used; if mOutputFolderPath is also blank, then the log is created in the same folder as the executing assembly
 
-	Public Event ProgressReset()
+    Public Event ProgressReset()
     Public Event ProgressChanged(taskDescription As String, percentComplete As Single)     ' PercentComplete ranges from 0 to 100, but can contain decimal percentage values
     Public Event ProgressComplete()
 
@@ -56,9 +56,9 @@ Public MustInherit Class clsProcessFilesOrFoldersBase
     ''' Keys in this dictionary are the log type and message (separated by an underscore), values are the most recent time the string was logged
     ''' </summary>
     ''' <remarks></remarks>
-    Protected mLogDataCache As Dictionary(Of String, DateTime)
-    Protected mLogDataCacheStartTime As DateTime
-    Protected Const MAX_LOGDATA_CACHE_SIZE As Integer = 100000
+    Private ReadOnly mLogDataCache As Dictionary(Of String, DateTime)
+
+    Private Const MAX_LOGDATA_CACHE_SIZE As Integer = 100000
 
 #End Region
 
@@ -148,8 +148,7 @@ Public MustInherit Class clsProcessFilesOrFoldersBase
         mLogFolderPath = String.Empty
         mLogFilePath = String.Empty
 
-        mLogDataCache = New Dictionary(Of String, DateTime)
-        mLogDataCacheStartTime = DateTime.UtcNow
+        mLogDataCache = New Dictionary(Of String, DateTime)        
     End Sub
 
 
@@ -434,8 +433,8 @@ Public MustInherit Class clsProcessFilesOrFoldersBase
                 mLogFile.AutoFlush = True
 
                 If Not blnOpeningExistingFile Then
-                    mLogFile.WriteLine("Date" & ControlChars.Tab & _
-                     "Type" & ControlChars.Tab & _
+                    mLogFile.WriteLine("Date" & ControlChars.Tab &
+                     "Type" & ControlChars.Tab &
                      "Message")
                 End If
 
@@ -469,8 +468,8 @@ Public MustInherit Class clsProcessFilesOrFoldersBase
             If blnWriteToLog Then
 
                 mLogFile.WriteLine(
-                  DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss tt") & ControlChars.Tab & _
-                  strMessageType & ControlChars.Tab & _
+                  DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss tt") & ControlChars.Tab &
+                  strMessageType & ControlChars.Tab &
                   strMessage)
 
                 If blnMessageCached Then
@@ -499,7 +498,7 @@ Public MustInherit Class clsProcessFilesOrFoldersBase
         Static dtLastReportTime As DateTime
 
         If Not String.IsNullOrWhiteSpace(strMessage) Then
-            If String.Equals(strMessage, strLastMessage) AndAlso _
+            If String.Equals(strMessage, strLastMessage) AndAlso
                DateTime.UtcNow.Subtract(dtLastReportTime).TotalSeconds < 0.5 Then
                 ' Duplicate message; do not raise any events
             Else
@@ -580,7 +579,6 @@ Public MustInherit Class clsProcessFilesOrFoldersBase
         ShowMessage(strMessage, blnAllowLogToFile, blnPrecedeWithNewline, intDuplicateHoldoffHours:=0)
     End Sub
 
-
     Protected Sub ShowMessage(
       strMessage As String,
       blnAllowLogToFile As Boolean,
@@ -636,7 +634,7 @@ Public MustInherit Class clsProcessFilesOrFoldersBase
             ' Sort by date
             lstDates.Sort()
 
-            Dim intThresholdIndex As Integer = CInt(Math.Floor(mLogDataCache.Count - MAX_LOGDATA_CACHE_SIZE * 0.8))
+            Dim intThresholdIndex = CInt(Math.Floor(mLogDataCache.Count - MAX_LOGDATA_CACHE_SIZE * 0.8))
             If intThresholdIndex < 0 Then intThresholdIndex = 0
 
             Dim dtThreshold = lstDates(intThresholdIndex)
@@ -658,11 +656,10 @@ Public MustInherit Class clsProcessFilesOrFoldersBase
     Private Sub UpdateLogDataCache(strLogFilePath As String, dtDateThresholdToStore As DateTime)
         Static dtLastErrorShown As DateTime = DateTime.UtcNow.AddSeconds(-60)
 
-        Dim reParseLine As Regex = New Regex("^([^\t]+)\t([^\t]+)\t(.+)", RegexOptions.Compiled)
+        Dim reParseLine = New Regex("^([^\t]+)\t([^\t]+)\t(.+)", RegexOptions.Compiled)
 
         Try
             mLogDataCache.Clear()
-            mLogDataCacheStartTime = dtDateThresholdToStore
 
             Using srLogFile = New StreamReader(New FileStream(strLogFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 While srLogFile.Peek > -1

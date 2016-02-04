@@ -1,6 +1,11 @@
 Option Strict On
 
-' This class can be used to read or write settings in an Xml settings file
+Imports System.Collections.Specialized
+Imports System.IO
+Imports System.Text
+Imports System.Xml
+
+' This class is used to read or write settings in an Xml settings file
 ' Based on a class from the DMS Analysis Manager software written by Dave Clark and Gary Kiebel (PNNL, Richland, WA)
 ' Additional features added by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in October 2003
 ' Copyright 2005, Battelle Memorial Institute
@@ -15,6 +20,7 @@ Public Class XmlSettingsFileAccessor
         mCaseSensitive = False
         htSectionNames = New Hashtable
 
+        mCachedSection = New udtRecentSectionType
         With mCachedSection
             .SectionName = String.Empty
             .htKeys = New Hashtable
@@ -36,7 +42,7 @@ Public Class XmlSettingsFileAccessor
     ' When mCaseSensitive = False, then htSectionNames stores mapping between lowercase section name and actual section name stored in file
     '   If section is present more than once in file, then only grabs the last occurence of the section
     ' When mCaseSensitive = True, then the mappings in htSectionNames are effectively not used
-    Private htSectionNames As Hashtable
+    Private ReadOnly htSectionNames As Hashtable
     Private mCachedSection As udtRecentSectionType
 
     Public Event InformationMessage(msg As String)
@@ -124,7 +130,7 @@ Public Class XmlSettingsFileAccessor
     ''' <param name="sectionName">The name of the section to look for.</param>
     ''' <return>The function returns a boolean that shows if the section is present.</return>
     Public Function SectionPresent(sectionName As String) As Boolean
-        Dim strSections As System.Collections.Specialized.StringCollection
+        Dim strSections As StringCollection
         Dim intIndex As Integer
 
         strSections = m_XMLFileAccessor.AllSections
@@ -141,7 +147,7 @@ Public Class XmlSettingsFileAccessor
         ' Looks up the Key Names for the given section, storing them in mCachedSection
         ' This is done so that this class will know the correct capitalization for the key names
 
-        Dim strKeys As System.Collections.Specialized.StringCollection
+        Dim strKeys As StringCollection
         Dim intIndex As Integer
 
         Dim sectionNameInFile As String
@@ -154,7 +160,7 @@ Public Class XmlSettingsFileAccessor
         Try
             ' Grab the keys for sectionName
             strKeys = m_XMLFileAccessor.AllKeysInSection(sectionNameInFile)
-        Catch ex As System.Exception
+        Catch ex As Exception
             ' Invalid section name; do not update anything
             Return False
         End Try
@@ -190,7 +196,7 @@ Public Class XmlSettingsFileAccessor
         ' Looks up the Section Names in the XML file
         ' This is done so that this class will know the correct capitalization for the section names
 
-        Dim strSections As System.Collections.Specialized.StringCollection
+        Dim strSections As StringCollection
         Dim strSectionNameToStore As String
 
         Dim intIndex As Integer
@@ -319,7 +325,7 @@ Public Class XmlSettingsFileAccessor
     ''' <return>The function returns boolean True if the "value" attribute is "true".  Otherwise, returns boolean False.</return>
     Public Function GetParam(sectionName As String, keyName As String, valueIfMissing As Boolean, Optional ByRef valueNotPresent As Boolean = False) As Boolean
         Dim strResult As String
-        Dim blnNotFound As Boolean = False
+        Dim blnNotFound = False
 
         strResult = Me.GetParam(sectionName, keyName, valueIfMissing.ToString, blnNotFound)
         If strResult Is Nothing OrElse blnNotFound Then
@@ -345,7 +351,7 @@ Public Class XmlSettingsFileAccessor
     ''' <return>The function returns the name of the "value" attribute as a Short.  If "value" is "true" returns -1.  If "value" is "false" returns 0.</return>
     Public Function GetParam(sectionName As String, keyName As String, valueIfMissing As Short, Optional ByRef valueNotPresent As Boolean = False) As Short
         Dim strResult As String
-        Dim blnNotFound As Boolean = False
+        Dim blnNotFound = False
         Dim intValue As Short
 
         strResult = Me.GetParam(sectionName, keyName, valueIfMissing.ToString, blnNotFound)
@@ -365,7 +371,7 @@ Public Class XmlSettingsFileAccessor
                     valueNotPresent = True
                     Return valueIfMissing
                 End If
-            Catch ex As System.Exception
+            Catch ex As Exception
                 valueNotPresent = True
                 Return valueIfMissing
             End Try
@@ -383,7 +389,7 @@ Public Class XmlSettingsFileAccessor
     ''' <return>The function returns the name of the "value" attribute as an Integer.  If "value" is "true" returns -1.  If "value" is "false" returns 0.</return>
     Public Function GetParam(sectionName As String, keyName As String, valueIfMissing As Integer, Optional ByRef valueNotPresent As Boolean = False) As Integer
         Dim strResult As String
-        Dim blnNotFound As Boolean = False
+        Dim blnNotFound = False
         Dim intValue As Integer
 
         strResult = Me.GetParam(sectionName, keyName, valueIfMissing.ToString, blnNotFound)
@@ -403,7 +409,7 @@ Public Class XmlSettingsFileAccessor
                     valueNotPresent = True
                     Return valueIfMissing
                 End If
-            Catch ex As System.Exception
+            Catch ex As Exception
                 valueNotPresent = True
                 Return valueIfMissing
             End Try
@@ -421,7 +427,7 @@ Public Class XmlSettingsFileAccessor
     ''' <return>The function returns the name of the "value" attribute as a Long.  If "value" is "true" returns -1.  If "value" is "false" returns 0.</return>
     Public Function GetParam(sectionName As String, keyName As String, valueIfMissing As Long, Optional ByRef valueNotPresent As Boolean = False) As Int64
         Dim strResult As String
-        Dim blnNotFound As Boolean = False
+        Dim blnNotFound = False
         Dim intValue As Int64
 
         strResult = Me.GetParam(sectionName, keyName, valueIfMissing.ToString, blnNotFound)
@@ -441,7 +447,7 @@ Public Class XmlSettingsFileAccessor
                     valueNotPresent = True
                     Return valueIfMissing
                 End If
-            Catch ex As System.Exception
+            Catch ex As Exception
                 valueNotPresent = True
                 Return valueIfMissing
             End Try
@@ -459,7 +465,7 @@ Public Class XmlSettingsFileAccessor
     ''' <return>The function returns the name of the "value" attribute as a Single.  If "value" is "true" returns -1.  If "value" is "false" returns 0.</return>
     Public Function GetParam(sectionName As String, keyName As String, valueIfMissing As Single, Optional ByRef valueNotPresent As Boolean = False) As Single
         Dim strResult As String
-        Dim blnNotFound As Boolean = False
+        Dim blnNotFound = False
         Dim sngValue As Single
 
         strResult = Me.GetParam(sectionName, keyName, valueIfMissing.ToString, blnNotFound)
@@ -479,7 +485,7 @@ Public Class XmlSettingsFileAccessor
                     valueNotPresent = True
                     Return valueIfMissing
                 End If
-            Catch ex As System.Exception
+            Catch ex As Exception
                 valueNotPresent = True
                 Return valueIfMissing
             End Try
@@ -497,7 +503,7 @@ Public Class XmlSettingsFileAccessor
     ''' <return>The function returns the name of the "value" attribute as a Double.  If "value" is "true" returns -1.  If "value" is "false" returns 0.</return>
     Public Function GetParam(sectionName As String, keyName As String, valueIfMissing As Double, Optional ByRef valueNotPresent As Boolean = False) As Double
         Dim strResult As String
-        Dim blnNotFound As Boolean = False
+        Dim blnNotFound = False
         Dim dblValue As Double
 
         strResult = Me.GetParam(sectionName, keyName, valueIfMissing.ToString, blnNotFound)
@@ -517,7 +523,7 @@ Public Class XmlSettingsFileAccessor
                     valueNotPresent = True
                     Return valueIfMissing
                 End If
-            Catch ex As System.Exception
+            Catch ex As Exception
                 valueNotPresent = True
                 Return valueIfMissing
             End Try
@@ -675,11 +681,9 @@ Public Class XmlSettingsFileAccessor
         End Enum
 
         Private m_XmlFilename As String
-        Private m_XmlDoc As System.Xml.XmlDocument
+        Private m_XmlDoc As XmlDocument
 
-        Private unattachedComments As ArrayList = New ArrayList
-
-        Private sections As System.Collections.Specialized.StringCollection = New System.Collections.Specialized.StringCollection
+        Private sections As StringCollection = New StringCollection
         Private m_CaseSensitive As Boolean = False
         Private m_SaveFilename As String
         Private m_initialized As Boolean = False
@@ -709,7 +713,7 @@ Public Class XmlSettingsFileAccessor
         ''' </summary>
         Private Sub InitXMLFileReader(strXmlFilename As String, IsCaseSensitive As Boolean)
             m_CaseSensitive = IsCaseSensitive
-            m_XmlDoc = New System.Xml.XmlDocument
+            m_XmlDoc = New XmlDocument
 
             If String.IsNullOrEmpty(strXmlFilename) Then
                 Return
@@ -788,7 +792,7 @@ Public Class XmlSettingsFileAccessor
         ''' <summary>
         ''' Returns the root element of the XML document
         ''' </summary>
-        Private Function GetRoot() As System.Xml.XmlElement
+        Private Function GetRoot() As XmlElement
             Return m_XmlDoc.DocumentElement
         End Function
 
@@ -796,7 +800,7 @@ Public Class XmlSettingsFileAccessor
         ''' The function gets the last section.
         ''' </summary>
         ''' <return>The function returns the last section as System.Xml.XmlElement.</return>
-        Private Function GetLastSection() As System.Xml.XmlElement
+        Private Function GetLastSection() As XmlElement
             If sections.Count = 0 Then
                 Return GetRoot()
             Else
@@ -809,10 +813,10 @@ Public Class XmlSettingsFileAccessor
         ''' </summary>
         ''' <param name="sectionName">The name of a section.</param>
         ''' <return>The function returns a section as System.Xml.XmlElement.</return>
-        Private Function GetSection(sectionName As String) As System.Xml.XmlElement
+        Private Function GetSection(sectionName As String) As XmlElement
             If (Not (sectionName = Nothing)) AndAlso (sectionName <> "") Then
                 sectionName = SetNameCase(sectionName)
-                Return CType(m_XmlDoc.SelectSingleNode("//section[@name='" & sectionName & "']"), System.Xml.XmlElement)
+                Return CType(m_XmlDoc.SelectSingleNode("//section[@name='" & sectionName & "']"), XmlElement)
             End If
             Return Nothing
         End Function
@@ -823,13 +827,13 @@ Public Class XmlSettingsFileAccessor
         ''' <param name="sectionName">The name of the section.</param>
         ''' <param name="keyName">The name of the key.</param>
         ''' <return>The function returns a XML element.</return>
-        Private Function GetItem(sectionName As String, keyName As String) As System.Xml.XmlElement
-            Dim section As System.Xml.XmlElement
+        Private Function GetItem(sectionName As String, keyName As String) As XmlElement
+            Dim section As XmlElement
             If (Not keyName Is Nothing) AndAlso (keyName <> "") Then
                 keyName = SetNameCase(keyName)
                 section = GetSection(sectionName)
                 If (Not section Is Nothing) Then
-                    Return CType(section.SelectSingleNode("item[@key='" + keyName + "']"), System.Xml.XmlElement)
+                    Return CType(section.SelectSingleNode("item[@key='" + keyName + "']"), XmlElement)
                 End If
             End If
             Return Nothing
@@ -849,7 +853,7 @@ Public Class XmlSettingsFileAccessor
         ''' <param name="newSection">The new name for the ini section.</param>
         ''' <return>The function returns a boolean that shows if the change was done.</return>
         Public Function SetXMLSection(oldSection As String, newSection As String) As Boolean
-            Dim section As System.Xml.XmlElement
+            Dim section As XmlElement
             If Not Initialized Then
                 Throw New XMLFileReaderNotInitializedException
             End If
@@ -879,8 +883,8 @@ Public Class XmlSettingsFileAccessor
         ''' <param name="newValue">The new value for the "value".</param>
         ''' <return>The function returns a boolean that shows if the change was done.</return>
         Public Function SetXMLValue(sectionName As String, keyName As String, newValue As String) As Boolean
-            Dim item As System.Xml.XmlElement
-            Dim section As System.Xml.XmlElement
+            Dim item As XmlElement
+            Dim section As XmlElement
             If Not Initialized Then Throw New XMLFileReaderNotInitializedException
             section = GetSection(sectionName)
             If section Is Nothing Then
@@ -930,7 +934,7 @@ Public Class XmlSettingsFileAccessor
         ''' <param name="sectionName">The name of the section.</param>
         ''' <return>The function returns a boolean that shows if the delete was completed.</return>
         Private Function DeleteSection(sectionName As String) As Boolean
-            Dim section As System.Xml.XmlElement = GetSection(sectionName)
+            Dim section As XmlElement = GetSection(sectionName)
             If Not section Is Nothing Then
                 section.ParentNode.RemoveChild(section)
                 UpdateSections()
@@ -946,7 +950,7 @@ Public Class XmlSettingsFileAccessor
         ''' <param name="keyName">The name of the key.</param>
         ''' <return>The function returns a boolean that shows if the delete was completed.</return>
         Private Function DeleteItem(sectionName As String, keyName As String) As Boolean
-            Dim item As System.Xml.XmlElement = GetItem(sectionName, keyName)
+            Dim item As XmlElement = GetItem(sectionName, keyName)
             If Not item Is Nothing Then
                 item.ParentNode.RemoveChild(item)
                 Return True
@@ -970,7 +974,7 @@ Public Class XmlSettingsFileAccessor
         ''' <return>The function returns a boolean that shows if the change was done.</return>
         Public Function SetXmlKey(sectionName As String, keyName As String, newValue As String) As Boolean
             If Not Initialized Then Throw New XMLFileReaderNotInitializedException
-            Dim item As System.Xml.XmlElement = GetItem(sectionName, keyName)
+            Dim item As XmlElement = GetItem(sectionName, keyName)
             If Not item Is Nothing Then
                 item.SetAttribute("key", SetNameCase(newValue))
                 Return True
@@ -993,7 +997,7 @@ Public Class XmlSettingsFileAccessor
         '''<return>The function returns the name of the "value" attribute.</return>
         Public Function GetXMLValue(sectionName As String, keyName As String) As String
             If Not Initialized Then Throw New XMLFileReaderNotInitializedException
-            Dim N As System.Xml.XmlNode = GetItem(sectionName, keyName)
+            Dim N As XmlNode = GetItem(sectionName, keyName)
             If Not N Is Nothing Then
                 Return (N.Attributes.GetNamedItem("value").Value)
             End If
@@ -1003,7 +1007,7 @@ Public Class XmlSettingsFileAccessor
         ''' <summary>
         ''' Legacy function name; calls GetXmlSectionComments
         ''' </summary>
-        Public Function GetIniComments(sectionName As String) As System.Collections.Specialized.StringCollection
+        Public Function GetIniComments(sectionName As String) As StringCollection
             Return GetXmlSectionComments(sectionName)
         End Function
 
@@ -1012,12 +1016,12 @@ Public Class XmlSettingsFileAccessor
         ''' </summary>
         ''' <param name="sectionName">The name of the section.</param>
         '''<return>The function returns a string collection with comments</return>
-        Public Function GetXmlSectionComments(sectionName As String) As System.Collections.Specialized.StringCollection
+        Public Function GetXmlSectionComments(sectionName As String) As StringCollection
             If Not Initialized Then Throw New XMLFileReaderNotInitializedException
-            Dim sc As System.Collections.Specialized.StringCollection = New System.Collections.Specialized.StringCollection
-            Dim target As System.Xml.XmlNode
-            Dim nodes As System.Xml.XmlNodeList
-            Dim N As System.Xml.XmlNode
+            Dim sc = New StringCollection
+            Dim target As XmlNode
+            Dim nodes As XmlNodeList
+            Dim N As XmlNode
             If sectionName Is Nothing Then
                 target = m_XmlDoc.DocumentElement
             Else
@@ -1037,7 +1041,7 @@ Public Class XmlSettingsFileAccessor
         ''' <summary>
         ''' Legacy function name; calls SetXMLComments
         ''' </summary>
-        Public Function SetIniComments(sectionName As String, comments As System.Collections.Specialized.StringCollection) As Boolean
+        Public Function SetIniComments(sectionName As String, comments As StringCollection) As Boolean
             Return SetXMLComments(sectionName, comments)
         End Function
 
@@ -1047,13 +1051,13 @@ Public Class XmlSettingsFileAccessor
         ''' <param name="sectionName">The name of the section.</param>
         ''' <param name="comments">A string collection.</param>
         '''<return>The function returns a Boolean that shows if the change was done.</return>
-        Public Function SetXMLComments(sectionName As String, comments As System.Collections.Specialized.StringCollection) As Boolean
+        Public Function SetXMLComments(sectionName As String, comments As StringCollection) As Boolean
             If Not Initialized Then Throw New XMLFileReaderNotInitializedException
-            Dim target As System.Xml.XmlNode
-            Dim nodes As System.Xml.XmlNodeList
-            Dim N As System.Xml.XmlNode
+            Dim target As XmlNode
+            Dim nodes As XmlNodeList
+            Dim N As XmlNode
             Dim s As String
-            Dim NLastComment As System.Xml.XmlElement
+            Dim NLastComment As XmlElement
             If sectionName Is Nothing Then
                 target = m_XmlDoc.DocumentElement
             Else
@@ -1067,7 +1071,7 @@ Public Class XmlSettingsFileAccessor
                 For Each s In comments
                     N = m_XmlDoc.CreateElement("comment")
                     N.InnerText = s
-                    NLastComment = CType(target.SelectSingleNode("comment[last()]"), System.Xml.XmlElement)
+                    NLastComment = CType(target.SelectSingleNode("comment[last()]"), XmlElement)
                     If NLastComment Is Nothing Then
                         target.PrependChild(N)
                     Else
@@ -1083,8 +1087,8 @@ Public Class XmlSettingsFileAccessor
         ''' The subroutine updades the sections.
         ''' </summary>
         Private Sub UpdateSections()
-            sections = New System.Collections.Specialized.StringCollection
-            Dim N As System.Xml.XmlElement
+            sections = New StringCollection
+            Dim N As XmlElement
             For Each N In m_XmlDoc.SelectNodes("sections/section")
                 sections.Add(N.GetAttribute("name"))
             Next
@@ -1093,10 +1097,10 @@ Public Class XmlSettingsFileAccessor
         ''' The subroutine gets the sections.
         ''' </summary>
         ''' <return>The subroutine returns a strin collection of sections.</return>
-        Public ReadOnly Property AllSections() As System.Collections.Specialized.StringCollection
+        Public ReadOnly Property AllSections() As StringCollection
             Get
                 If Not Initialized Then
-                    Return New Collections.Specialized.StringCollection()
+                    Return New StringCollection()
                 Else
                     Return sections
                 End If
@@ -1109,11 +1113,11 @@ Public Class XmlSettingsFileAccessor
         ''' <param name="sectionName">The name of the section.</param>
         ''' <param name="itemType">Item type.</param>
         ''' <return>The function returns a string colection of items in a section.</return>
-        Private Function GetItemsInSection(sectionName As String, itemType As XMLItemTypeEnum) As System.Collections.Specialized.StringCollection
-            Dim nodes As System.Xml.XmlNodeList
-            Dim items As System.Collections.Specialized.StringCollection = New System.Collections.Specialized.StringCollection
-            Dim section As System.Xml.XmlNode = GetSection(sectionName)
-            Dim N As System.Xml.XmlNode
+        Private Function GetItemsInSection(sectionName As String, itemType As XMLItemTypeEnum) As StringCollection
+            Dim nodes As XmlNodeList
+            Dim items = New StringCollection
+            Dim section As XmlNode = GetSection(sectionName)
+            Dim N As XmlNode
             If section Is Nothing Then
                 Return Nothing
             Else
@@ -1126,7 +1130,7 @@ Public Class XmlSettingsFileAccessor
                             Case XMLItemTypeEnum.GetValues
                                 items.Add(N.Attributes.GetNamedItem("value").Value)
                             Case XMLItemTypeEnum.GetKeysAndValues
-                                items.Add(N.Attributes.GetNamedItem("key").Value & "=" & _
+                                items.Add(N.Attributes.GetNamedItem("key").Value & "=" &
                                 N.Attributes.GetNamedItem("value").Value)
                         End Select
                     Next
@@ -1138,7 +1142,7 @@ Public Class XmlSettingsFileAccessor
         ''' <summary>The funtions gets a collection of keys in a section.</summary>
         ''' <param name="sectionName">The name of the section.</param>
         ''' <return>The function returns a string colection of all the keys in a section.</return>
-        Public Function AllKeysInSection(sectionName As String) As System.Collections.Specialized.StringCollection
+        Public Function AllKeysInSection(sectionName As String) As StringCollection
             If Not Initialized Then Throw New XMLFileReaderNotInitializedException
             Return GetItemsInSection(sectionName, XMLItemTypeEnum.GetKeys)
         End Function
@@ -1146,7 +1150,7 @@ Public Class XmlSettingsFileAccessor
         ''' <summary>The funtions gets a collection of values in a section.</summary>
         ''' <param name="sectionName">The name of the section.</param>
         ''' <return>The function returns a string colection of all the values in a section.</return>
-        Public Function AllValuesInSection(sectionName As String) As System.Collections.Specialized.StringCollection
+        Public Function AllValuesInSection(sectionName As String) As StringCollection
             If Not Initialized Then Throw New XMLFileReaderNotInitializedException
             Return GetItemsInSection(sectionName, XMLItemTypeEnum.GetValues)
         End Function
@@ -1154,7 +1158,7 @@ Public Class XmlSettingsFileAccessor
         ''' <summary>The funtions gets a collection of items in a section.</summary>
         ''' <param name="sectionName">The name of the section.</param>
         ''' <return>The function returns a string colection of all the items in a section.</return>
-        Public Function AllItemsInSection(sectionName As String) As System.Collections.Specialized.StringCollection
+        Public Function AllItemsInSection(sectionName As String) As StringCollection
             If Not Initialized Then Throw New XMLFileReaderNotInitializedException
             Return (GetItemsInSection(sectionName, XMLItemTypeEnum.GetKeysAndValues))
         End Function
@@ -1165,7 +1169,7 @@ Public Class XmlSettingsFileAccessor
         ''' <param name="attributeName">The name of the attribute.</param>
         ''' <return>The function returns a string.</return>
         Public Function GetCustomIniAttribute(sectionName As String, keyName As String, attributeName As String) As String
-            Dim N As System.Xml.XmlElement
+            Dim N As XmlElement
             If Not Initialized Then Throw New XMLFileReaderNotInitializedException
             If (Not attributeName Is Nothing) AndAlso (attributeName <> "") Then
                 N = GetItem(sectionName, keyName)
@@ -1184,7 +1188,7 @@ Public Class XmlSettingsFileAccessor
         ''' <param name="attributeValue">The value of the attribute.</param>
         ''' <return>The function returns a Boolean.</return>
         Public Function SetCustomIniAttribute(sectionName As String, keyName As String, attributeName As String, attributeValue As String) As Boolean
-            Dim N As System.Xml.XmlElement
+            Dim N As XmlElement
             If Not Initialized Then Throw New XMLFileReaderNotInitializedException
             If attributeName <> "" Then
                 N = GetItem(sectionName, keyName)
@@ -1200,9 +1204,9 @@ Public Class XmlSettingsFileAccessor
                             Return True
                         End If
 
-                    Catch e As System.Exception
+                    Catch e As Exception
                         If NotifyOnException Then
-                            Throw New System.Exception("Failed to create item.")
+                            Throw New Exception("Failed to create item.")
                         End If
                     End Try
                 End If
@@ -1215,8 +1219,8 @@ Public Class XmlSettingsFileAccessor
         ''' <param name="sectionName">The name of the section to be created.</param>
         ''' <return>The function returns a Boolean.</return>
         Private Function CreateSection(sectionName As String) As Boolean
-            Dim N As System.Xml.XmlElement
-            Dim Natt As System.Xml.XmlAttribute
+            Dim N As XmlElement
+            Dim Natt As XmlAttribute
             If (Not sectionName Is Nothing) AndAlso (sectionName <> "") Then
                 sectionName = SetNameCase(sectionName)
                 Try
@@ -1227,9 +1231,9 @@ Public Class XmlSettingsFileAccessor
                     m_XmlDoc.DocumentElement.AppendChild(N)
                     sections.Add(Natt.Value)
                     Return True
-                Catch e As System.Exception
+                Catch e As Exception
                     If NotifyOnException Then
-                        Throw New System.Exception("Failed to create item.")
+                        Throw New Exception("Failed to create item.")
                     End If
                     Return False
                 End Try
@@ -1243,8 +1247,8 @@ Public Class XmlSettingsFileAccessor
         ''' <param name="newValue">The new value to be created.</param>
         ''' <return>The function returns a Boolean.</return>
         Private Function CreateItem(sectionName As String, keyName As String, newValue As String) As Boolean
-            Dim item As System.Xml.XmlElement
-            Dim section As System.Xml.XmlElement
+            Dim item As XmlElement
+            Dim section As XmlElement
             Try
                 section = GetSection(sectionName)
                 If Not section Is Nothing Then
@@ -1255,9 +1259,9 @@ Public Class XmlSettingsFileAccessor
                     Return True
                 End If
                 Return False
-            Catch e As System.Exception
+            Catch e As Exception
                 If NotifyOnException Then
-                    Throw New System.Exception("Failed to create item.")
+                    Throw New Exception("Failed to create item.")
                 End If
                 Return False
             End Try
@@ -1275,10 +1279,10 @@ Public Class XmlSettingsFileAccessor
             m_XmlDoc.LoadXml("<?xml version=""1.0"" encoding=""UTF-8""?><sections></sections>")
 
             Try
-                Dim fi As System.IO.FileInfo
+                Dim fi As FileInfo
                 Dim s As String
 
-                fi = New System.IO.FileInfo(strFilePath)
+                fi = New FileInfo(strFilePath)
                 If (fi.Exists) Then
                     ' Read strFilePath line-by-line to see if it has any .Ini style settings
                     ' For example:
@@ -1292,7 +1296,7 @@ Public Class XmlSettingsFileAccessor
                     '     <item key="Setting1" value="ValueA" />
                     '   </section>
 
-                    Using srInFile As System.IO.StreamReader = New System.IO.StreamReader(New System.IO.FileStream(fi.FullName, IO.FileMode.Open, IO.FileAccess.Read, IO.FileShare.ReadWrite))
+                    Using srInFile = New StreamReader(New FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 
                         Do While srInFile.Peek() > -1
                             s = srInFile.ReadLine()
@@ -1315,9 +1319,9 @@ Public Class XmlSettingsFileAccessor
 
                 Return True
 
-            Catch e As System.Exception
+            Catch e As Exception
                 If NotifyOnException Then
-                    Throw New System.Exception("Failed to read XML file.")
+                    Throw New Exception("Failed to read XML file.")
                 End If
             End Try
 
@@ -1333,17 +1337,17 @@ Public Class XmlSettingsFileAccessor
         ''' <param name="doc">The name of the System.Xml.XmlDocument.</param>
         ''' <returns>True if success, false if not a recognized line format</returns>
         ''' <remarks>Returns True for blank lines</remarks>
-        Private Function ParseLineManual(strLine As String, ByRef doc As System.Xml.XmlDocument) As Boolean
-            Const SECTION_NAME_TAG As String = "<section name="
-            Const KEY_TAG As String = "key="
-            Const VALUE_TAG As String = "value="
+        Private Function ParseLineManual(strLine As String, ByRef doc As XmlDocument) As Boolean
+            Const SECTION_NAME_TAG = "<section name="
+            Const KEY_TAG = "key="
+            Const VALUE_TAG = "value="
 
             Dim strKey As String = String.Empty
             Dim strValue As String = String.Empty
             Dim blnAddSetting As Boolean
 
-            Dim N As System.Xml.XmlElement
-            Dim Natt As System.Xml.XmlAttribute
+            Dim N As XmlElement
+            Dim Natt As XmlAttribute
             Dim parts() As String
 
             strLine = strLine.TrimStart()
@@ -1383,7 +1387,7 @@ Public Class XmlSettingsFileAccessor
 
                         Else
                             ' split the string on the "=" sign, if present
-                            If (strLine.IndexOf("=") > 0) Then
+                            If (strLine.IndexOf("="c) > 0) Then
                                 parts = strLine.Split("="c)
                                 strKey = parts(0).Trim()
                                 strValue = parts(1).Trim()
@@ -1441,16 +1445,17 @@ Public Class XmlSettingsFileAccessor
 
         End Function
 
-        Private Function ParseLineManualCheckTag(strLine As String, _
-                                                 strTagTofind As String, _
-                                                 ByRef strTagValue As String) As Boolean
+        Private Function ParseLineManualCheckTag(
+          strLine As String,
+          strTagTofind As String,
+          ByRef strTagValue As String) As Boolean
 
             Dim intMatchIndex As Integer
             Dim intNextMatchIndex As Integer
 
             strTagValue = String.Empty
 
-            intMatchIndex = strLine.ToLower().IndexOf(strTagTofind)
+            intMatchIndex = strLine.ToLower().IndexOf(strTagTofind, StringComparison.Ordinal)
 
             If intMatchIndex >= 0 Then
                 strTagValue = strLine.Substring(intMatchIndex + strTagTofind.Length)
@@ -1481,12 +1486,12 @@ Public Class XmlSettingsFileAccessor
                 End If
             End Get
             Set(Value As String)
-                Dim fi As System.IO.FileInfo
+                Dim fi As FileInfo
                 If Not Initialized Then Throw New XMLFileReaderNotInitializedException
-                fi = New System.IO.FileInfo(Value)
+                fi = New FileInfo(Value)
                 If Not fi.Directory.Exists Then
                     If NotifyOnException Then
-                        Throw New System.Exception("Invalid path for output file.")
+                        Throw New Exception("Invalid path for output file.")
                     End If
                 Else
                     m_SaveFilename = Value
@@ -1497,10 +1502,10 @@ Public Class XmlSettingsFileAccessor
         Public Sub Save()
             If Not Initialized Then Throw New XMLFileReaderNotInitializedException
             If Not OutputFilename Is Nothing AndAlso Not m_XmlDoc Is Nothing Then
-                Dim fi As System.IO.FileInfo = New System.IO.FileInfo(OutputFilename)
+                Dim fi = New FileInfo(OutputFilename)
                 If Not fi.Directory.Exists Then
                     If NotifyOnException Then
-                        Throw New System.Exception("Invalid path.")
+                        Throw New Exception("Invalid path.")
                     End If
                     Return
                 End If
@@ -1515,16 +1520,16 @@ Public Class XmlSettingsFileAccessor
                 End If
             Else
                 If NotifyOnException Then
-                    Throw New System.Exception("Not Output File name specified.")
+                    Throw New Exception("Not Output File name specified.")
                 End If
             End If
         End Sub
 
         ''' <summary>It gets the System.Xml.XmlDocument.</summary>
-        Public ReadOnly Property XmlDoc() As System.Xml.XmlDocument
+        Public ReadOnly Property XmlDoc() As XmlDocument
             Get
                 If Not Initialized Then
-                    Return New System.Xml.XmlDocument
+                    Return New XmlDocument
                 Else
                     Return m_XmlDoc
                 End If
@@ -1539,11 +1544,11 @@ Public Class XmlSettingsFileAccessor
                     Return String.Empty
                 End If
 
-                Dim sb As System.Text.StringBuilder = New System.Text.StringBuilder
-                Using sw As System.IO.StringWriter = New System.IO.StringWriter(sb)
-                    Using xw As System.Xml.XmlTextWriter = New System.Xml.XmlTextWriter(sw)
+                Dim sb = New StringBuilder
+                Using sw = New StringWriter(sb)
+                    Using xw = New XmlTextWriter(sw)
                         xw.Indentation = 3
-                        xw.Formatting = System.Xml.Formatting.Indented
+                        xw.Formatting = Formatting.Indented
                         m_XmlDoc.WriteContentTo(xw)
                     End Using
                 End Using
@@ -1555,7 +1560,7 @@ Public Class XmlSettingsFileAccessor
     End Class
 
     Public Class XMLFileReaderNotInitializedException
-        Inherits System.ApplicationException
+        Inherits ApplicationException
         Public Overrides ReadOnly Property Message() As String
             Get
                 Return "The XMLFileReader instance has not been properly initialized."

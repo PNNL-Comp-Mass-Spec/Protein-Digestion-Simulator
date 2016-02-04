@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.5877; February 3, 2016
+	- Updated ValidateFastaFile.dll that can access more memory on 64-bit systems
+
 Version 2.2.5758; October 7, 2015
 	- Now automatically skips the header row when converting a .txt file of proteins to a .fasta file
 
