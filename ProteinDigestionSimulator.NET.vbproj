@@ -74,6 +74,9 @@
     <DefineConstants>IncludePNNLNETRoutines = True</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FlexibleFileSortUtility">
+      <HintPath>Lib\FlexibleFileSortUtility.dll</HintPath>
+    </Reference>
     <Reference Include="NETPrediction">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Lib\NETPrediction.dll</HintPath>

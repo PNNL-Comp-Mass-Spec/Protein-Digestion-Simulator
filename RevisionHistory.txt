@@ -1,5 +1,9 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.5886; February 12, 2016
+	- ValidateFastaFile.dll now supports being provided an existing ProteinHash file (though the GUI does not offer this as an option at this time)
+		- FlexibleFileSortUtility.dll must now be included with the program because ValidateFastaFile.dll uses it
+
 Version 2.2.5877; February 3, 2016
 	- Updated ValidateFastaFile.dll that can access more memory on 64-bit systems
 

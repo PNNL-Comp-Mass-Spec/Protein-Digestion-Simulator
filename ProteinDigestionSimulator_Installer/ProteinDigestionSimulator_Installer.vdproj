@@ -21,6 +21,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_28DE7A6736D455AC3F6D8EB73CA7BEDE"
+        "OwnerKey" = "8:_F7EF3F6774D649E8AD4A885CD90CAD40"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_28DE7A6736D455AC3F6D8EB73CA7BEDE"
+        "OwnerKey" = "8:_EADC578CF84C489339B7C3AA8E0C94BE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_39217A189D624CE1A9C8BE1ED1D06972"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -76,13 +88,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_CA3FB65D56AEBFB097F071075CFEE84B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_27CF9C1EF7EC870D672468A1662DAF72"
+        "OwnerKey" = "8:_EADC578CF84C489339B7C3AA8E0C94BE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -94,7 +100,19 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_EADC578CF84C489339B7C3AA8E0C94BE"
+        "OwnerKey" = "8:_27CF9C1EF7EC870D672468A1662DAF72"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_CA3FB65D56AEBFB097F071075CFEE84B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_28DE7A6736D455AC3F6D8EB73CA7BEDE"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -210,8 +228,44 @@
             "AssemblyAsmDisplayName" = "8:ProteinFileReader, Version=1.2.5371.24645, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_27CF9C1EF7EC870D672468A1662DAF72"
+                    {
+                    "Name" = "8:ProteinFileReader.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:ProteinFileReader.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_14D1D5D1D6F847CAA581AD55A163FF2B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_28DE7A6736D455AC3F6D8EB73CA7BEDE"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:FlexibleFileSortUtility, Version=1.0.5610.27179, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_28DE7A6736D455AC3F6D8EB73CA7BEDE"
+                    {
+                    "Name" = "8:FlexibleFileSortUtility.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:FlexibleFileSortUtility.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_14D1D5D1D6F847CAA581AD55A163FF2B"
@@ -316,6 +370,11 @@
             "AssemblyAsmDisplayName" = "8:NETPrediction, Version=1.3.4834.34882, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_CA3FB65D56AEBFB097F071075CFEE84B"
+                    {
+                    "Name" = "8:NETPrediction.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:NETPrediction.dll"
             "TargetName" = "8:"
@@ -339,9 +398,14 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:ValidateFastaFile, Version=2.1.5611.32012, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:ValidateFastaFile, Version=2.1.5886.24444, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_EADC578CF84C489339B7C3AA8E0C94BE"
+                    {
+                    "Name" = "8:ValidateFastaFile.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:ValidateFastaFile.dll"
             "TargetName" = "8:"
@@ -368,6 +432,11 @@
             "AssemblyAsmDisplayName" = "8:SharedVBNetRoutines, Version=1.0.4818.24389, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_EB0E1C66C4180652F0FF42F1928EBA5D"
+                    {
+                    "Name" = "8:SharedVBNetRoutines.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:SharedVBNetRoutines.dll"
             "TargetName" = "8:"
@@ -454,15 +523,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ProteinDigestionSimulator"
-        "ProductCode" = "8:{DA74849F-E512-4F50-B043-20DCC1CC8722}"
-        "PackageCode" = "8:{2D2D294B-842C-44E3-A9EE-300790CA7A55}"
+        "ProductCode" = "8:{97C5FE17-6AA1-4463-9B5F-5FED7615A1A9}"
+        "PackageCode" = "8:{C86BFE4A-93AC-400F-B9B5-6CC223B0AB0E}"
         "UpgradeCode" = "8:{0612F968-E285-4419-AEC6-739DC8FF1BB3}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.2.18"
+        "ProductVersion" = "8:2.2.19"
         "Manufacturer" = "8:PNNL"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
