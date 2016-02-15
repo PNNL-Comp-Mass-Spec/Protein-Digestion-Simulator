@@ -33,7 +33,7 @@ Option Strict On
 
 Module modMain
 
-    Public Const PROGRAM_DATE As String = "February 12, 2016"
+    Public Const PROGRAM_DATE As String = "February 15, 2016"
 
 	Private mInputFilePath As String
 	Private mAssumeFastaFile As Boolean
@@ -162,56 +162,56 @@ Module modMain
 				If SetOptionsUsingCommandLineParameters(objParseCommandLine) Then blnProceed = True
 			End If
 
-			If (objParseCommandLine.ParameterCount + objParseCommandLine.NonSwitchParameterCount) = 0 AndAlso _
-			   Not objParseCommandLine.NeedToShowHelp Then
-				ShowGUI()
-			ElseIf Not blnProceed OrElse objParseCommandLine.NeedToShowHelp OrElse mInputFilePath.Length = 0 Then
-				ShowProgramHelp()
-				intReturnCode = -1
-			Else
+            If (objParseCommandLine.ParameterCount + objParseCommandLine.NonSwitchParameterCount) = 0 AndAlso
+               Not objParseCommandLine.NeedToShowHelp Then
+                ShowGUI()
+            ElseIf Not blnProceed OrElse objParseCommandLine.NeedToShowHelp OrElse mInputFilePath.Length = 0 Then
+                ShowProgramHelp()
+                intReturnCode = -1
+            Else
 
-				mParseProteinFile = New clsParseProteinFile
-				mParseProteinFile.ShowMessages = Not mQuietMode
-				mParseProteinFile.ShowDebugPrompts = mShowDebugPrompts
+                mParseProteinFile = New clsParseProteinFile
+                mParseProteinFile.ShowMessages = Not mQuietMode
+                mParseProteinFile.ShowDebugPrompts = mShowDebugPrompts
 
-				' Note: the following settings will be overridden if mParameterFilePath points to a valid parameter file that has these settings defined
-				With mParseProteinFile
-					.AssumeFastaFile = mAssumeFastaFile
-					.CreateProteinOutputFile = True
-					.CreateDigestedProteinOutputFile = mCreateDigestedProteinOutputFile
-					.ComputeProteinMass = mComputeProteinMass
+                ' Note: the following settings will be overridden if mParameterFilePath points to a valid parameter file that has these settings defined
+                With mParseProteinFile
+                    .AssumeFastaFile = mAssumeFastaFile
+                    .CreateProteinOutputFile = True
+                    .CreateDigestedProteinOutputFile = mCreateDigestedProteinOutputFile
+                    .ComputeProteinMass = mComputeProteinMass
 
-					.InputFileDelimiter = mInputFileDelimiter
-					.DelimitedFileFormatCode = ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
+                    .InputFileDelimiter = mInputFileDelimiter
+                    .DelimitedFileFormatCode = ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
 
-					With .DigestionOptions
-						.RemoveDuplicateSequences = False
-					End With
+                    With .DigestionOptions
+                        .RemoveDuplicateSequences = False
+                    End With
 
-					.LogMessagesToFile = mLogMessagesToFile
-					.LogFilePath = mLogFilePath
-					.LogFolderPath = mLogFolderPath
-				End With
+                    .LogMessagesToFile = mLogMessagesToFile
+                    .LogFilePath = mLogFilePath
+                    .LogFolderPath = mLogFolderPath
+                End With
 
-				If mRecurseFolders Then
-					If mParseProteinFile.ProcessFilesAndRecurseFolders(mInputFilePath, mOutputFolderPath, mOutputFolderAlternatePath, mRecreateFolderHierarchyInAlternatePath, mParameterFilePath, mRecurseFoldersMaxLevels) Then
-						intReturnCode = 0
-					Else
-						intReturnCode = mParseProteinFile.ErrorCode
-					End If
-				Else
-					If mParseProteinFile.ProcessFilesWildcard(mInputFilePath, mOutputFolderPath, mParameterFilePath) Then
-						intReturnCode = 0
-					Else
-						intReturnCode = mParseProteinFile.ErrorCode
-						If intReturnCode <> 0 AndAlso Not mQuietMode Then
-							System.Windows.Forms.MessageBox.Show("Error while processing: " & mParseProteinFile.GetErrorMessage(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-						End If
-					End If
-				End If
+                If mRecurseFolders Then
+                    If mParseProteinFile.ProcessFilesAndRecurseFolders(mInputFilePath, mOutputFolderPath, mOutputFolderAlternatePath, mRecreateFolderHierarchyInAlternatePath, mParameterFilePath, mRecurseFoldersMaxLevels) Then
+                        intReturnCode = 0
+                    Else
+                        intReturnCode = mParseProteinFile.ErrorCode
+                    End If
+                Else
+                    If mParseProteinFile.ProcessFilesWildcard(mInputFilePath, mOutputFolderPath, mParameterFilePath) Then
+                        intReturnCode = 0
+                    Else
+                        intReturnCode = mParseProteinFile.ErrorCode
+                        If intReturnCode <> 0 AndAlso Not mQuietMode Then
+                            System.Windows.Forms.MessageBox.Show("Error while processing: " & mParseProteinFile.GetErrorMessage(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                        End If
+                    End If
+                End If
 
-				DisplayProgressPercent(mLastProgressReportValue, True)
-			End If
+                DisplayProgressPercent(mLastProgressReportValue, True)
+            End If
 
 		Catch ex As Exception
 			ShowErrorMessage("Error occurred in modMain->Main: " & System.Environment.NewLine & ex.Message)

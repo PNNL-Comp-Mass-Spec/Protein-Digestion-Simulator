@@ -398,13 +398,14 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Private Function ExportPeakMatchingResults(ByRef objThresholds As clsPeakMatchingClass.clsSearchThresholds, _
-                                               intThresholdIndex As Integer, _
-                                               ByRef intComparisonFeatureCount As Integer, _
-                                               ByRef objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, _
-                                               strOutputFolderPath As String, _
-                                               strOutputFilenameBase As String, _
-                                               srPMResultsOutFile As System.IO.StreamWriter) As Boolean
+    Private Function ExportPeakMatchingResults(
+      objThresholds As clsPeakMatchingClass.clsSearchThresholds,
+      intThresholdIndex As Integer,
+      intComparisonFeatureCount As Integer,
+      objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass,
+      strOutputFolderPath As String,
+      strOutputFilenameBase As String,
+      srPMResultsOutFile As System.IO.StreamWriter) As Boolean
 
         Dim strWorkingFilenameBase As String
         Dim strOutputFilePath As String
@@ -466,14 +467,14 @@ Public Class clsProteinDigestionSimulator
                     End If
 
 
-                    strLineOut = strLinePrefix & _
-                                intCurrentFeatureID.ToString & mOutputFileDelimiter & _
-                                intCachedMatchCount.ToString & mOutputFileDelimiter & _
-                                udtMatchResultInfo.MultiAMTHitCount.ToString & mOutputFileDelimiter & _
-                                udtMatchResultInfo.MatchingID.ToString & mOutputFileDelimiter & _
-                                Math.Round(udtMatchResultInfo.MassErr, 6).ToString & mOutputFileDelimiter & _
-                                Math.Round(udtMatchResultInfo.NETErr, 4).ToString & mOutputFileDelimiter & _
-                                Math.Round(udtMatchResultInfo.SLiCScore, 4).ToString & mOutputFileDelimiter & _
+                    strLineOut = strLinePrefix &
+                                intCurrentFeatureID.ToString & mOutputFileDelimiter &
+                                intCachedMatchCount.ToString & mOutputFileDelimiter &
+                                udtMatchResultInfo.MultiAMTHitCount.ToString & mOutputFileDelimiter &
+                                udtMatchResultInfo.MatchingID.ToString & mOutputFileDelimiter &
+                                Math.Round(udtMatchResultInfo.MassErr, 6).ToString & mOutputFileDelimiter &
+                                Math.Round(udtMatchResultInfo.NETErr, 4).ToString & mOutputFileDelimiter &
+                                Math.Round(udtMatchResultInfo.SLiCScore, 4).ToString & mOutputFileDelimiter &
                                 Math.Round(udtMatchResultInfo.DelSLiC, 4).ToString
                     srPMResultsOutFile.WriteLine(strLineOut)
 
@@ -518,14 +519,14 @@ Public Class clsProteinDigestionSimulator
             strLineOut = "Threshold_Index" & mOutputFileDelimiter
         End If
 
-        strLineOut &= "Unique_Sequence_ID" & _
-                    mOutputFileDelimiter & "Match_Count" & _
-                    mOutputFileDelimiter & "Multi_AMT_Hit_Count" & _
-                    mOutputFileDelimiter & "Matching_ID_Index" & _
+        strLineOut &= "Unique_Sequence_ID" &
+                    mOutputFileDelimiter & "Match_Count" &
+                    mOutputFileDelimiter & "Multi_AMT_Hit_Count" &
+                    mOutputFileDelimiter & "Matching_ID_Index" &
                     mOutputFileDelimiter & "Mass_Err"
         strLineOut &= mOutputFileDelimiter & "NET_Err"
 
-        strLineOut &= mOutputFileDelimiter & "SLiC_Score" & _
+        strLineOut &= mOutputFileDelimiter & "SLiC_Score" &
                     mOutputFileDelimiter & "Del_SLiC"
         srOutFile.WriteLine(strLineOut)
 
@@ -549,8 +550,8 @@ Public Class clsProteinDigestionSimulator
                         Else
                             strLineOut = (intThresholdIndex + 1).ToString & mOutputFileDelimiter
                         End If
-                        strLineOut &= Math.Round(.MassBinStart, 2).ToString & _
-                                    mOutputFileDelimiter & Math.Round(.PercentUnique, 3).ToString & _
+                        strLineOut &= Math.Round(.MassBinStart, 2).ToString &
+                                    mOutputFileDelimiter & Math.Round(.PercentUnique, 3).ToString &
                                     mOutputFileDelimiter & Math.Round(.NonUniqueResultIDCount + .UniqueResultIDCount, 3).ToString
 
                         For intIndex = 1 To Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave)
@@ -574,7 +575,9 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Private Function ExportProteinStats(intThresholdIndex As Integer, ByRef SearchThresholds As clsPeakMatchingClass.clsSearchThresholds, strOutputFilePath As String, srOutFile As System.IO.StreamWriter) As Boolean
+    Private Function ExportProteinStats(
+      intThresholdIndex As Integer,
+      srOutFile As System.IO.StreamWriter) As Boolean
 
         Dim strLineOut As String
 
@@ -598,9 +601,9 @@ Public Class clsProteinDigestionSimulator
                 End If
 
                 If mProteinInfo.GetProteinInfoByRowIndex(intProteinIndex, intProteinID, strProteinName) Then
-                    strLineOut &= strProteinName & _
-                                mOutputFileDelimiter & intProteinID.ToString & _
-                                mOutputFileDelimiter & mProteinInfo.GetPeptideCountForProteinByID(intProteinID).ToString & _
+                    strLineOut &= strProteinName &
+                                mOutputFileDelimiter & intProteinID.ToString &
+                                mOutputFileDelimiter & mProteinInfo.GetPeptideCountForProteinByID(intProteinID).ToString &
                                 mOutputFileDelimiter & GetPeptidesUniquelyIdentifiedCountByProteinID(intProteinID).ToString
 
                     srOutFile.WriteLine(strLineOut)
@@ -648,7 +651,13 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Private Function FeatureContainsUniqueMatch(ByRef udtFeatureInfo As clsPeakMatchingClass.udtFeatureInfoType, objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, ByRef intMatchCount As Integer, blnUseSLiCScoreForUniqueness As Boolean, sngMinimumSLiCScore As Single) As Boolean
+    Private Function FeatureContainsUniqueMatch(
+      udtFeatureInfo As clsPeakMatchingClass.udtFeatureInfoType,
+      objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass,
+      ByRef intMatchCount As Integer,
+      blnUseSLiCScoreForUniqueness As Boolean,
+      sngMinimumSLiCScore As Single) As Boolean
+
         Dim blnUniqueMatch As Boolean
         Dim udtMatchResults() As clsPeakMatchingClass.PMFeatureMatchResultsClass.udtPeakMatchingResultType = Nothing
 
@@ -688,14 +697,17 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Private Sub ExportThresholds(srOutFile As System.IO.StreamWriter, intThresholdIndex As Integer, ByRef SearchThresholds As clsPeakMatchingClass.clsSearchThresholds)
+    Private Sub ExportThresholds(
+      srOutFile As System.IO.StreamWriter,
+      intThresholdIndex As Integer,
+      objSearchThresholds As clsPeakMatchingClass.clsSearchThresholds)
 
         Dim strDelimiter As String
         Dim strLineOut As String
 
         strDelimiter = "; "
 
-        With SearchThresholds
+        With objSearchThresholds
             ' Write the thresholds
             strLineOut = "Threshold Index: " & (intThresholdIndex + 1).ToString
             strLineOut &= strDelimiter & "Mass Tolerance: +- "
@@ -945,7 +957,7 @@ Public Class clsProteinDigestionSimulator
 
         Dim strErrorMessage As String
 
-        If MyBase.ErrorCode = clsProcessFilesBaseClass.eProcessFilesErrorCodes.LocalizedError Or _
+        If MyBase.ErrorCode = clsProcessFilesBaseClass.eProcessFilesErrorCodes.LocalizedError Or
            MyBase.ErrorCode = clsProcessFilesBaseClass.eProcessFilesErrorCodes.NoError Then
             Select Case mLocalErrorCode
                 Case eProteinDigestionSimulatorErrorCodes.NoError
@@ -985,7 +997,7 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Private Function GetNextUniqueSequenceID(strSequence As String, ByRef htMasterSequences As Hashtable, ByRef intNextUniqueIDForMasterSeqs As Integer) As Integer
+    Private Function GetNextUniqueSequenceID(strSequence As String, htMasterSequences As Hashtable, ByRef intNextUniqueIDForMasterSeqs As Integer) As Integer
         Dim intUniqueSeqID As Integer
 
         Try
@@ -1003,7 +1015,7 @@ Public Class clsProteinDigestionSimulator
         Return intUniqueSeqID
     End Function
 
-    Public Sub GetPeptideUniquenessMassRangeForBinning(ByRef MassMinimum As Single, ByRef MassMaximum As Single)
+    Public Sub GetPeptideUniquenessMassRangeForBinning(<Out()> ByRef MassMinimum As Single, <Out()> ByRef MassMaximum As Single)
         With mPeptideUniquenessBinningSettings
             MassMinimum = .MassMinimum
             MassMaximum = .MassMaximum
@@ -1095,7 +1107,7 @@ Public Class clsProteinDigestionSimulator
     Private Sub InitializePMResultsFile(
       strOutputFolderPath As String,
       strOutputFilenameBase As String,
-      ByRef objThresholds() As clsPeakMatchingClass.clsSearchThresholds,
+      objThresholds() As clsPeakMatchingClass.clsSearchThresholds,
       intComparisonFeaturesCount As Integer,
       <Out()> ByRef srOutFile As System.IO.StreamWriter)
 
@@ -1367,12 +1379,12 @@ Public Class clsProteinDigestionSimulator
             End If
 
             Select Case eDelimitedFileFormatCode
-                Case ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID, _
+                Case ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID,
                      ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence
                     ' Reading peptides from a delimited file; blnDigestSequences is typically False, but could be true
                     blnDelimitedFileHasMassAndNET = False
-                Case ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET, _
-                     ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore, _
+                Case ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET,
+                     ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore,
                      ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence_Mass_NET
                     ' Reading peptides from a delimited file; blnDigestSequences is typically False, but could be true
                     blnDelimitedFileHasMassAndNET = True
@@ -1391,7 +1403,7 @@ Public Class clsProteinDigestionSimulator
                 ' Load the data directly using this class instead
 
                 ' Load each peptide using ProteinFileReader.DelimitedFileReader
-                blnSuccess = LoadPeptidesFromDelimitedFile(strProteinInputFilePath, blnDelimitedFileHasMassAndNET)
+                blnSuccess = LoadPeptidesFromDelimitedFile(strProteinInputFilePath)
                 ' ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
             End If
 
@@ -1407,8 +1419,7 @@ Public Class clsProteinDigestionSimulator
         Return blnSuccess
     End Function
 
-    Private Function LoadPeptidesFromDelimitedFile(strProteinInputFilePath As String, _
-                                                   blnDelimitedFileHasMassAndNET As Boolean) As Boolean
+    Private Function LoadPeptidesFromDelimitedFile(strProteinInputFilePath As String) As Boolean
 
         ' Assumes the peptides in the input file are already digested and that they already have unique ID values generated
         ' They could optionally have Mass and NET values defined
@@ -1417,6 +1428,7 @@ Public Class clsProteinDigestionSimulator
 
         Dim objNewPeptide As clsInSilicoDigest.PeptideInfoClass
 
+        Dim blnDelimitedFileHasMassAndNET As Boolean
         Dim blnSuccess As Boolean
         Dim blnInputPeptideFound As Boolean
 
@@ -1453,8 +1465,8 @@ Public Class clsProteinDigestionSimulator
             objNewPeptide = New clsInSilicoDigest.PeptideInfoClass
 
             Select Case objDelimitedFileReader.DelimitedFileFormatCode
-                Case ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET, _
-                     ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore, _
+                Case ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET,
+                     ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore,
                      ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence_Mass_NET
                     ' Do not use the computed mass and NET
                     blnDelimitedFileHasMassAndNET = True
@@ -1478,11 +1490,13 @@ Public Class clsProteinDigestionSimulator
                     With objNewPeptide
                         .SequenceOneLetter = objDelimitedFileReader.ProteinSequence
 
-                        If Not blnDelimitedFileHasMassAndNET OrElse objDelimitedFileReader.PeptideMass = 0 And objDelimitedFileReader.PeptideNET = 0 Then
+                        If Not blnDelimitedFileHasMassAndNET OrElse
+                          (Math.Abs(objDelimitedFileReader.PeptideMass - 0) < Single.Epsilon And
+                           Math.Abs(objDelimitedFileReader.PeptideNET - 0) < Single.Epsilon) Then
                             AddOrUpdatePeptide(objDelimitedFileReader.EntryUniqueID, .Mass, .NET, 0, 0, objDelimitedFileReader.ProteinName, clsProteinInfo.eCleavageStateConstants.Unknown, String.Empty)
                         Else
-                            AddOrUpdatePeptide(objDelimitedFileReader.EntryUniqueID, objDelimitedFileReader.PeptideMass, objDelimitedFileReader.PeptideNET, _
-                                               objDelimitedFileReader.PeptideNETStDev, objDelimitedFileReader.PeptideDiscriminantScore, _
+                            AddOrUpdatePeptide(objDelimitedFileReader.EntryUniqueID, objDelimitedFileReader.PeptideMass, objDelimitedFileReader.PeptideNET,
+                                               objDelimitedFileReader.PeptideNETStDev, objDelimitedFileReader.PeptideDiscriminantScore,
                                                objDelimitedFileReader.ProteinName, clsProteinInfo.eCleavageStateConstants.Unknown, String.Empty)
 
                             ' ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
@@ -1647,7 +1661,11 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Private Sub InitializeBinningRanges(ByRef objThresholds As clsPeakMatchingClass.clsSearchThresholds, ByRef objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass, ByRef objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, ByRef udtPeptideStatsBinned As udtBinnedPeptideCountStatsType)
+    Private Sub InitializeBinningRanges(
+      objThresholds As clsPeakMatchingClass.clsSearchThresholds,
+      objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass,
+      objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass,
+      udtPeptideStatsBinned As udtBinnedPeptideCountStatsType)
 
         Dim sngFeatureMass As Single
 
@@ -1838,13 +1856,14 @@ Public Class clsProteinDigestionSimulator
         End With
     End Function
 
-    Private Function SummarizeResultsByPeptide(ByRef objThresholds As clsPeakMatchingClass.clsSearchThresholds, _
-                                               intThresholdIndex As Integer, _
-                                               ByRef objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass, _
-                                               ByRef objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, _
-                                               strOutputFolderPath As String, _
-                                               strOutputFilenameBase As String, _
-                                               srPeptideUniquenessOutFile As System.IO.StreamWriter) As Boolean
+    Private Function SummarizeResultsByPeptide(
+      objThresholds As clsPeakMatchingClass.clsSearchThresholds,
+      intThresholdIndex As Integer,
+      objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass,
+      objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass,
+      strOutputFolderPath As String,
+      strOutputFilenameBase As String,
+      srPeptideUniquenessOutFile As System.IO.StreamWriter) As Boolean
 
         Dim strWorkingFilenameBase As String
         Dim strOutputFilePath As String
@@ -1990,8 +2009,8 @@ Public Class clsProteinDigestionSimulator
             strLineOut = "Threshold_Index" & mOutputFileDelimiter
         End If
 
-        strLineOut &= "Bin_Start_Mass" & _
-                    mOutputFileDelimiter & "Percent_Unique" & _
+        strLineOut &= "Bin_Start_Mass" &
+                    mOutputFileDelimiter & "Percent_Unique" &
                     mOutputFileDelimiter & "Peptide_Count_Total"
 
         For intIndex = 1 To Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave) - 1
@@ -2005,12 +2024,13 @@ Public Class clsProteinDigestionSimulator
 
     End Sub
 
-    Private Function SummarizeResultsByProtein(ByRef objThresholds As clsPeakMatchingClass.clsSearchThresholds, _
-                                               intThresholdIndex As Integer, _
-                                               objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass, _
-                                               objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass, _
-                                               strOutputFolderPath As String, strOutputFilenameBase As String, _
-                                               srProteinStatsOutFile As System.IO.StreamWriter) As Boolean
+    Private Function SummarizeResultsByProtein(
+      objThresholds As clsPeakMatchingClass.clsSearchThresholds,
+      intThresholdIndex As Integer,
+      objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass,
+      objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass,
+      strOutputFolderPath As String, strOutputFilenameBase As String,
+      srProteinStatsOutFile As System.IO.StreamWriter) As Boolean
 
         Dim strWorkingFilenameBase As String
         Dim strOutputFilePath As String = String.Empty
@@ -2084,7 +2104,7 @@ Public Class clsProteinDigestionSimulator
                 SummarizeResultsByProteinWriteHeaders(srProteinStatsOutFile, mCreateSeparateOutputFileForEachThreshold)
             End If
 
-            blnSuccess = ExportProteinStats(intThresholdIndex, objThresholds, strOutputFilePath, srProteinStatsOutFile)
+            blnSuccess = ExportProteinStats(intThresholdIndex, srProteinStatsOutFile)
 
             If mCreateSeparateOutputFileForEachThreshold Then
                 srProteinStatsOutFile.Close()
@@ -2114,9 +2134,9 @@ Public Class clsProteinDigestionSimulator
             strLineOut = "Threshold_Index" & mOutputFileDelimiter
         End If
 
-        strLineOut &= "Protein_Name" & _
-                    mOutputFileDelimiter & "Protein_ID" & _
-                    mOutputFileDelimiter & "Peptide_Count_Total" & _
+        strLineOut &= "Protein_Name" &
+                    mOutputFileDelimiter & "Protein_ID" &
+                    mOutputFileDelimiter & "Peptide_Count_Total" &
                     mOutputFileDelimiter & "Peptide_Count_Uniquely_Identifiable"
         srOutFile.WriteLine(strLineOut)
         srOutFile.Flush()

@@ -1,5 +1,7 @@
 ﻿Option Strict On
 
+Imports System.IO
+
 Public Class frmFastaValidation
 
     Public Sub New(strFastaFilePath As String)
@@ -172,7 +174,7 @@ Public Class frmFastaValidation
 
             If Len(txtCustomValidationRulesFilePath.Text.Length) > 0 Then
                 Try
-                    .InitialDirectory = IO.Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString
+                    .InitialDirectory = Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString
                 Catch
                     .InitialDirectory = GetApplicationDataFolderPath()
                 End Try
@@ -401,7 +403,7 @@ Public Class frmFastaValidation
         Dim strAppDataFolderPath As String = String.Empty
 
         Try
-            strAppDataFolderPath = IO.Path.Combine( _
+            strAppDataFolderPath = Path.Combine(
                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _
                "PAST Toolkit\ProteinDigestionSimulator")
 
@@ -1038,10 +1040,30 @@ Public Class frmFastaValidation
         End If
     End Sub
 
+    ''' <summary>
+    ''' This timer is used to cause StartValidation to be called after the form becomes visible
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    ''' <remarks></remarks>
     Private Sub mValidationTriggerTimer_Tick(sender As Object, e As EventArgs) Handles mValidationTriggerTimer.Tick
-        ' This timer is used to cause StartValidation to be called after the form becomes visible
         mValidationTriggerTimer.Enabled = False
-        StartValidation()
+
+        Try
+            ' Check whether the fasta file is over 250 MB in size
+            ' If it is, auto-disable the check for duplicate proteins (to avoid using too much memory)
+            Dim fiFastaFile = New FileInfo(mFastaFilePath)
+            If fiFastaFile.Exists Then
+                If fiFastaFile.Length > 250 * 1024 * 1024 Then
+                    chkCheckForDuplicateProteinInfo.Checked = False
+                End If
+                StartValidation()
+            End If
+
+        Catch ex As Exception
+            Windows.Forms.MessageBox.Show("Error examining the fasta file size: " & ex.Message)
+        End Try
+
     End Sub
 
 #End Region

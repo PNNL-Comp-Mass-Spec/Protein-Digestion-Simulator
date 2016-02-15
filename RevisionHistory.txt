@@ -1,5 +1,9 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.5889; February 15, 2016
+	- Auto-disable looking for duplicate proteins when validating fasta files over 250 MB in size
+	- Remove unnecessary ByRef keywords in functions
+
 Version 2.2.5886; February 12, 2016
 	- ValidateFastaFile.dll now supports being provided an existing ProteinHash file (though the GUI does not offer this as an option at this time)
 		- FlexibleFileSortUtility.dll must now be included with the program because ValidateFastaFile.dll uses it
