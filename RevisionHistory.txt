@@ -1,5 +1,9 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.5926; March 23, 2016
+	- New ValidateFastaFile.dll with additional protein residue warning rules
+		- Also fixes a FASTA file validation bug determining the spanner key length for protein names
+
 Version 2.2.5889; February 15, 2016
 	- Auto-disable looking for duplicate proteins when validating fasta files over 250 MB in size
 	- Remove unnecessary ByRef keywords in functions

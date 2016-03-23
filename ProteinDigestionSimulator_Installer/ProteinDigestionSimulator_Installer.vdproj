@@ -398,7 +398,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:ValidateFastaFile, Version=2.1.5886.24444, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:ValidateFastaFile, Version=2.1.5926.22961, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_EADC578CF84C489339B7C3AA8E0C94BE"
@@ -523,15 +523,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ProteinDigestionSimulator"
-        "ProductCode" = "8:{97C5FE17-6AA1-4463-9B5F-5FED7615A1A9}"
-        "PackageCode" = "8:{C86BFE4A-93AC-400F-B9B5-6CC223B0AB0E}"
+        "ProductCode" = "8:{E1290AED-BC6C-4810-8CAB-E330DB7E2ED6}"
+        "PackageCode" = "8:{05F64213-F4E8-4562-A990-3D7D1910DF50}"
         "UpgradeCode" = "8:{0612F968-E285-4419-AEC6-739DC8FF1BB3}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.2.19"
+        "ProductVersion" = "8:2.2.21"
         "Manufacturer" = "8:PNNL"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
