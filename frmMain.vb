@@ -679,6 +679,8 @@ Public Class frmMain
                     chkComputeProteinMass.Checked = .GetParam(ProcessingOptions, "ComputeProteinMass", chkComputeProteinMass.Checked)
                     cboElementMassMode.SelectedIndex = .GetParam(ProcessingOptions, "ElementMassMode", cboElementMassMode.SelectedIndex)
 
+                    ' In the GUI, chkComputepI controls both computing pI and SCX
+                    ' Running from the command line, you can toggle those options separately using "ComputepI" and "ComputeSCX"
                     chkComputepI.Checked = .GetParam(ProcessingOptions, "ComputepI", chkComputepI.Checked)
                     chkIncludeXResidues.Checked = .GetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
 

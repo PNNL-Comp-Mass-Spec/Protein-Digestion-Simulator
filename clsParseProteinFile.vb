@@ -11,7 +11,6 @@ Option Strict On
 '
 ' Started October 2, 2004
 
-Imports System.Collections.Specialized
 Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.InteropServices
@@ -827,9 +826,13 @@ Public Class clsParseProteinFile
                         .AddnlRefAccessionSepChar = objSettingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "AddnlRefAccessionSepChar", .AddnlRefAccessionSepChar.ToString).Chars(0)
                     End With
 
+                    Me.ExcludeProteinSequence = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ExcludeProteinSequence", Me.ExcludeProteinSequence)
                     Me.ComputeProteinMass = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeProteinMass", Me.ComputeProteinMass)
                     Me.IncludeXResiduesInMass = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "IncludeXResidues", Me.IncludeXResiduesInMass)
                     Me.ElementMassMode = CType(objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ElementMassMode", CInt(Me.ElementMassMode)), PeptideSequenceClass.ElementModeConstants)
+
+                    Me.ComputepI = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputepI", Me.ComputepI)
+                    Me.ComputeSCXNET = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeSCX", Me.ComputeSCXNET)
 
                     Me.CreateDigestedProteinOutputFile = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "DigestProteins", Me.CreateDigestedProteinOutputFile)
                     Me.ProteinScramblingMode = CType(objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinReversalIndex", CInt(Me.ProteinScramblingMode)), ProteinScramblingModeConstants)
@@ -927,7 +930,7 @@ Public Class clsParseProteinFile
         Dim objRandomNumberGenerator As Random = Nothing
 
         Dim eScramblingMode As ProteinScramblingModeConstants
-        Dim udtResidueCache As udtScrambingResidueCacheType = New udtScrambingResidueCacheType
+        Dim udtResidueCache = New udtScrambingResidueCacheType()
 
         Dim dtStartTime As Date
 

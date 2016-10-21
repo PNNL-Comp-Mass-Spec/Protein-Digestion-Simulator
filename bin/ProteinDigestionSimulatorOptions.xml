@@ -27,6 +27,7 @@
     <item key="ComputeProteinMass" value="True" />
     <item key="ElementMassMode" value="1" />
     <item key="ComputepI" value="True" />
+    <item key="ComputeSCX" value="True" />
     <item key="IncludeXResidues" value="True" />
     <item key="DigestProteins" value="False" />
     <item key="ProteinReversalIndex" value="0" />
