@@ -1,5 +1,10 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.6138; October 21, 2016
+	- Add support for ComputeSCX in the XML parameter file
+	- Fix parsing of ExcludeProteinSequence and ComputepI when running the program via the command line and those options are set in the parameter file
+	- Show the syntax at the console if the command line has /? /Q
+
 Version 2.2.5926; March 23, 2016
 	- New ValidateFastaFile.dll with additional protein residue warning rules
 		- Also fixes a FASTA file validation bug determining the spanner key length for protein names

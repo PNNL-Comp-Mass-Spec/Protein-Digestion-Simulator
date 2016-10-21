@@ -166,6 +166,7 @@ Module modMain
                Not objParseCommandLine.NeedToShowHelp Then
                 ShowGUI()
             ElseIf Not blnProceed OrElse objParseCommandLine.NeedToShowHelp OrElse mInputFilePath.Length = 0 Then
+                If objParseCommandLine.IsParameterPresent("Q") Then mQuietMode = True
                 ShowProgramHelp()
                 intReturnCode = -1
             Else
@@ -205,7 +206,7 @@ Module modMain
                     Else
                         intReturnCode = mParseProteinFile.ErrorCode
                         If intReturnCode <> 0 AndAlso Not mQuietMode Then
-                            System.Windows.Forms.MessageBox.Show("Error while processing: " & mParseProteinFile.GetErrorMessage(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                            ShowErrorMessage("Error while processing: " & mParseProteinFile.GetErrorMessage())
                         End If
                     End If
                 End If
@@ -241,7 +242,7 @@ Module modMain
         ' Returns True if no problems; otherwise, returns false
 
         Dim strValue As String = String.Empty
-        Dim lstValidParameters As Generic.List(Of String) = New Generic.List(Of String) From {"I", "F", "D", "M", "AD", "O", "P", "S", "A", "R", "Q", "DEBUG"}
+        Dim lstValidParameters = New List(Of String) From {"I", "F", "D", "M", "AD", "O", "P", "S", "A", "R", "Q", "DEBUG"}
         Dim intValue As Integer
 
         Try
@@ -297,7 +298,7 @@ Module modMain
             End If
 
         Catch ex As Exception
-            ShowErrorMessage("Error parsing the command line parameters: " & System.Environment.NewLine & ex.Message)
+            ShowErrorMessage("Error parsing the command line parameters: " & Environment.NewLine & ex.Message)
         End Try
 
         Return False
@@ -305,7 +306,7 @@ Module modMain
     End Function
 
     Private Sub ShowErrorMessage(strMessage As String)
-        Dim strSeparator As String = "------------------------------------------------------------------------------"
+        Dim strSeparator = "------------------------------------------------------------------------------"
 
         Console.WriteLine()
         Console.WriteLine(strSeparator)
@@ -317,7 +318,7 @@ Module modMain
     End Sub
 
     Private Sub ShowErrorMessage(strTitle As String, items As List(Of String))
-        Dim strSeparator As String = "------------------------------------------------------------------------------"
+        Dim strSeparator = "------------------------------------------------------------------------------"
         Dim strMessage As String
 
         Console.WriteLine()
@@ -338,14 +339,12 @@ Module modMain
     Public Sub ShowGUI()
         Dim objFormMain As frmMain
 
-        System.Windows.Forms.Application.EnableVisualStyles()
-        System.Windows.Forms.Application.DoEvents()
+        Windows.Forms.Application.EnableVisualStyles()
+        Windows.Forms.Application.DoEvents()
 
         objFormMain = New frmMain
 
         objFormMain.ShowDialog()
-
-        objFormMain = Nothing
 
     End Sub
 
@@ -362,7 +361,7 @@ Module modMain
             strSyntax &= "and can add the predicted normalized elution time (NET) values for the peptides.Additionally, it can calculate the "
             strSyntax &= "number of uniquely identifiable peptides, using only mass, or both mass and NET, with appropriate tolerances." & ControlChars.NewLine & ControlChars.NewLine
 
-            strSyntax &= "Program syntax:" & ControlChars.NewLine & System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location)
+            strSyntax &= "Program syntax:" & ControlChars.NewLine & IO.Path.GetFileName(Reflection.Assembly.GetExecutingAssembly().Location)
             strSyntax &= " /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimeter] [/O:OutputFolderPath] [/P:ParameterFilePath] [/S:[MaxLevel]] [/A:AlternateOutputFolderPath] [/R] [/Q]" & ControlChars.NewLine & ControlChars.NewLine
 
             strSyntax &= "The input file path can contain the wildcard character * and should point to a fasta file or tab-delimited text file." & ControlChars.NewLine
@@ -386,8 +385,11 @@ Module modMain
             strSyntax &= frmDisclaimer.GetKangasPetritisDisclaimerText() & ControlChars.NewLine & ControlChars.NewLine
 
 
-            If Not mQuietMode Then
-                System.Windows.Forms.MessageBox.Show(strSyntax, "Syntax", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            If mQuietMode Then
+                Console.WriteLine(strSyntax)
+                System.Threading.Thread.Sleep(1500)
+            Else
+                MessageBox.Show(strSyntax, "Syntax", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
 
         Catch ex As Exception

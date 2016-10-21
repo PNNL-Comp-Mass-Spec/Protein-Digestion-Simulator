@@ -185,7 +185,7 @@ Public Class clsParseCommandLine
     ''' <param name="chSwitchStartChar"></param>
     ''' <param name="chSwitchParameterChar"></param>
     ''' <returns>Returns True if any command line parameters were found; otherwise false</returns>
-    ''' <remarks>If /? or /help is found, then returns False and sets mShowHelp to True</remarks>
+    ''' <remarks>If /? or /help is found, returns False and sets mShowHelp to True</remarks>
     Public Function ParseCommandLine(chSwitchStartChar As Char, chSwitchParameterChar As Char) As Boolean
         ' Returns True if any command line parameters were found
         ' Otherwise, returns false
@@ -257,7 +257,6 @@ Public Class clsParseCommandLine
                 Return False
             ElseIf strCmdLine.IndexOf(chSwitchStartChar & "?", StringComparison.Ordinal) > 0 OrElse strCmdLine.ToLower().IndexOf(chSwitchStartChar & "help", StringComparison.Ordinal) > 0 Then
                 mShowHelp = True
-                Return False
             End If
 
             ' Parse the command line
@@ -328,6 +327,10 @@ Public Class clsParseCommandLine
             Console.WriteLine("Switch Count = " & mSwitches.Count)
             Console.WriteLine("NonSwitch Count = " & mNonSwitchParameters.Count)
             Console.WriteLine()
+        End If
+
+        If mShowHelp Then
+            Return False
         End If
 
         If mSwitches.Count + mNonSwitchParameters.Count > 0 Then

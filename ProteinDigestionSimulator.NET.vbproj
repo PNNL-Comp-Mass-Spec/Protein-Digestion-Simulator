@@ -7,12 +7,12 @@
     </ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{50E90535-A587-4B20-B519-922B055580E1}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <StartupObject>ProteinDigestionSimulator.modMain</StartupObject>
     <RootNamespace>ProteinDigestionSimulator</RootNamespace>
     <AssemblyName>ProteinDigestionSimulator</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <MyType>WindowsForms</MyType>
+    <MyType>Console</MyType>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
