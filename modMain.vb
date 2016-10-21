@@ -33,134 +33,134 @@ Option Strict On
 
 Module modMain
 
-    Public Const PROGRAM_DATE As String = "March 23, 2016"
+    Public Const PROGRAM_DATE As String = "October 21, 2016"
 
-	Private mInputFilePath As String
-	Private mAssumeFastaFile As Boolean
-	Private mCreateDigestedProteinOutputFile As Boolean
-	Private mComputeProteinMass As Boolean
+    Private mInputFilePath As String
+    Private mAssumeFastaFile As Boolean
+    Private mCreateDigestedProteinOutputFile As Boolean
+    Private mComputeProteinMass As Boolean
 
-	Private mInputFileDelimiter As Char
+    Private mInputFileDelimiter As Char
 
-	Private mOutputFolderPath As String				' Optional
-	Private mParameterFilePath As String			' Optional
-	Private mOutputFolderAlternatePath As String	' Optional
+    Private mOutputFolderPath As String             ' Optional
+    Private mParameterFilePath As String            ' Optional
+    Private mOutputFolderAlternatePath As String    ' Optional
 
-	Private mRecreateFolderHierarchyInAlternatePath As Boolean	' Optional
+    Private mRecreateFolderHierarchyInAlternatePath As Boolean  ' Optional
 
-	Private mRecurseFolders As Boolean
-	Private mRecurseFoldersMaxLevels As Integer
+    Private mRecurseFolders As Boolean
+    Private mRecurseFoldersMaxLevels As Integer
 
-	Private mLogMessagesToFile As Boolean
-	Private mLogFilePath As String = String.Empty
-	Private mLogFolderPath As String = String.Empty
+    Private mLogMessagesToFile As Boolean
+    Private mLogFilePath As String = String.Empty
+    Private mLogFolderPath As String = String.Empty
 
-	Private mQuietMode As Boolean
-	Private mShowDebugPrompts As Boolean
+    Private mQuietMode As Boolean
+    Private mShowDebugPrompts As Boolean
 
-	Private WithEvents mParseProteinFile As clsParseProteinFile
-	Private mLastProgressReportTime As System.DateTime
-	Private mLastProgressReportValue As Integer
+    Private WithEvents mParseProteinFile As clsParseProteinFile
+    Private mLastProgressReportTime As DateTime
+    Private mLastProgressReportValue As Integer
 
-	'Private Sub TestPeptideCode()
+    'Private Sub TestPeptideCode()
 
-	'    Dim objPeptide1 As New PeptideSequenceClass
-	'    Dim objPeptide2 As New PeptideSequenceClass
+    '    Dim objPeptide1 As New PeptideSequenceClass
+    '    Dim objPeptide2 As New PeptideSequenceClass
 
-	'    Dim intReturnResidueStart, intReturnResidueEnd As Integer
+    '    Dim intReturnResidueStart, intReturnResidueEnd As Integer
 
-	'    With objPeptide1
+    '    With objPeptide1
 
-	'        .ElementMode = PeptideSequenceClass.ElementModeConstants.AverageMass
-	'        .SetSequence("GlyLeuPheArgGlyArgAspLysPheLeuPheArgGlyLeuPheArg", PeptideSequenceClass.NTerminusGroupConstants.Hydrogen, PeptideSequenceClass.CTerminusGroupConstants.Hydroxyl, True)
-	'        Console.WriteLine("Peptide1 mass is " & .Mass)
+    '        .ElementMode = PeptideSequenceClass.ElementModeConstants.AverageMass
+    '        .SetSequence("GlyLeuPheArgGlyArgAspLysPheLeuPheArgGlyLeuPheArg", PeptideSequenceClass.NTerminusGroupConstants.Hydrogen, PeptideSequenceClass.CTerminusGroupConstants.Hydroxyl, True)
+    '        Console.WriteLine("Peptide1 mass is " & .Mass)
 
-	'        .SetSequenceOneLetterCharactersOnly("DSFKJDKFVDLS")
-	'        Console.WriteLine("Peptide1 mass is " & .Mass)
-	'    End With
+    '        .SetSequenceOneLetterCharactersOnly("DSFKJDKFVDLS")
+    '        Console.WriteLine("Peptide1 mass is " & .Mass)
+    '    End With
 
-	'End Sub
+    'End Sub
 
-	'Private Sub TestProgress()
-	'    Dim objProgressForm As New ProgressFormNET.frmProgress
+    'Private Sub TestProgress()
+    '    Dim objProgressForm As New ProgressFormNET.frmProgress
 
-	'    Dim dtStartTime As DateTime
-	'    Dim dtLastUpdate As DateTime
-	'    Dim intIndex As Integer
+    '    Dim dtStartTime As DateTime
+    '    Dim dtLastUpdate As DateTime
+    '    Dim intIndex As Integer
 
-	'    objProgressForm.InitializeProgressForm("Testing form for 60 seconds", 0, 60, True)
-	'    objProgressForm.Visible = True
-	'    Windows.Forms.Application.DoEvents()
+    '    objProgressForm.InitializeProgressForm("Testing form for 60 seconds", 0, 60, True)
+    '    objProgressForm.Visible = True
+    '    Windows.Forms.Application.DoEvents()
 
-	'    dtStartTime = System.DateTime.UtcNow
-	'    dtLastUpdate = dtStartTime.AddSeconds(-10)
+    '    dtStartTime = System.DateTime.UtcNow
+    '    dtLastUpdate = dtStartTime.AddSeconds(-10)
 
-	'    Do While System.DateTime.UtcNow.Subtract(dtStartTime).TotalSeconds <= 60
+    '    Do While System.DateTime.UtcNow.Subtract(dtStartTime).TotalSeconds <= 60
 
-	'        If System.DateTime.UtcNow.Subtract(dtLastUpdate).TotalSeconds >= 0.5 Then
-	'            dtLastUpdate = System.DateTime.UtcNow
-	'            objProgressForm.UpdateProgressBar(Now.Subtract(dtStartTime).TotalSeconds)
-	'            Windows.Forms.Application.DoEvents()
-	'            If objProgressForm.KeyPressAbortProcess Then Exit Do
-	'        End If
-	'        System.Threading.Thread.Sleep(50)
-	'    Loop
+    '        If System.DateTime.UtcNow.Subtract(dtLastUpdate).TotalSeconds >= 0.5 Then
+    '            dtLastUpdate = System.DateTime.UtcNow
+    '            objProgressForm.UpdateProgressBar(Now.Subtract(dtStartTime).TotalSeconds)
+    '            Windows.Forms.Application.DoEvents()
+    '            If objProgressForm.KeyPressAbortProcess Then Exit Do
+    '        End If
+    '        System.Threading.Thread.Sleep(50)
+    '    Loop
 
-	'End Sub
+    'End Sub
 
-	'Private Sub TestCollections()
+    'Private Sub TestCollections()
 
-	'    Dim intData() As Integer
+    '    Dim intData() As Integer
 
-	'    Dim htList As Hashtable
-	'    Dim intIndex As Integer
-	'    Dim objRandom As New Random
+    '    Dim htList As Hashtable
+    '    Dim intIndex As Integer
+    '    Dim objRandom As New Random
 
-	'    ReDim intData(10000000)
-	'    For intIndex = 0 To intData.Length - 1
-	'        intData(intIndex) = objRandom.Next(0, 1000000)
-	'    Next intIndex
+    '    ReDim intData(10000000)
+    '    For intIndex = 0 To intData.Length - 1
+    '        intData(intIndex) = objRandom.Next(0, 1000000)
+    '    Next intIndex
 
-	'    htList = New Hashtable
-	'    For intIndex = 0 To intData.Length - 1
-	'        If Not htList.ContainsKey(intData(intIndex)) Then
-	'            htList.Add(intData(intIndex), "testing1234567890")
-	'        End If
-	'    Next intIndex
+    '    htList = New Hashtable
+    '    For intIndex = 0 To intData.Length - 1
+    '        If Not htList.ContainsKey(intData(intIndex)) Then
+    '            htList.Add(intData(intIndex), "testing1234567890")
+    '        End If
+    '    Next intIndex
 
-	'End Sub
+    'End Sub
 
-	Public Function Main() As Integer
-		' Returns 0 if no error, error code if an error
+    Public Function Main() As Integer
+        ' Returns 0 if no error, error code if an error
 
-		Dim intReturnCode As Integer
-		Dim objParseCommandLine As New clsParseCommandLine
-		Dim blnProceed As Boolean
+        Dim intReturnCode As Integer
+        Dim objParseCommandLine As New clsParseCommandLine
+        Dim blnProceed As Boolean
 
-		intReturnCode = 0
-		mInputFilePath = String.Empty
-		mAssumeFastaFile = False
-		mCreateDigestedProteinOutputFile = False
-		mComputeProteinMass = False
+        intReturnCode = 0
+        mInputFilePath = String.Empty
+        mAssumeFastaFile = False
+        mCreateDigestedProteinOutputFile = False
+        mComputeProteinMass = False
 
-		mInputFileDelimiter = ControlChars.Tab
+        mInputFileDelimiter = ControlChars.Tab
 
-		mOutputFolderPath = String.Empty
-		mParameterFilePath = String.Empty
+        mOutputFolderPath = String.Empty
+        mParameterFilePath = String.Empty
 
-		mRecurseFolders = False
-		mRecurseFoldersMaxLevels = 0
+        mRecurseFolders = False
+        mRecurseFoldersMaxLevels = 0
 
-		mQuietMode = False
-		mLogMessagesToFile = False
-		mLogFilePath = String.Empty
-		mLogFolderPath = String.Empty
+        mQuietMode = False
+        mLogMessagesToFile = False
+        mLogFilePath = String.Empty
+        mLogFolderPath = String.Empty
 
-		Try
-			blnProceed = False
-			If objParseCommandLine.ParseCommandLine Then
-				If SetOptionsUsingCommandLineParameters(objParseCommandLine) Then blnProceed = True
-			End If
+        Try
+            blnProceed = False
+            If objParseCommandLine.ParseCommandLine Then
+                If SetOptionsUsingCommandLineParameters(objParseCommandLine) Then blnProceed = True
+            End If
 
             If (objParseCommandLine.ParameterCount + objParseCommandLine.NonSwitchParameterCount) = 0 AndAlso
                Not objParseCommandLine.NeedToShowHelp Then
@@ -213,14 +213,14 @@ Module modMain
                 DisplayProgressPercent(mLastProgressReportValue, True)
             End If
 
-		Catch ex As Exception
-			ShowErrorMessage("Error occurred in modMain->Main: " & System.Environment.NewLine & ex.Message)
-			intReturnCode = -1
-		End Try
+        Catch ex As Exception
+            ShowErrorMessage("Error occurred in modMain->Main: " & Environment.NewLine & ex.Message)
+            intReturnCode = -1
+        End Try
 
-		Return intReturnCode
+        Return intReturnCode
 
-	End Function
+    End Function
 
     Private Sub DisplayProgressPercent(intPercentComplete As Integer, blnAddCarriageReturn As Boolean)
         If blnAddCarriageReturn Then
@@ -398,7 +398,7 @@ Module modMain
 
     Private Sub WriteToErrorStream(strErrorMessage As String)
         Try
-            Using swErrorStream As System.IO.StreamWriter = New System.IO.StreamWriter(Console.OpenStandardError())
+            Using swErrorStream = New IO.StreamWriter(Console.OpenStandardError())
                 swErrorStream.WriteLine(strErrorMessage)
             End Using
         Catch ex As Exception
@@ -407,8 +407,8 @@ Module modMain
     End Sub
 
     Private Sub mParseProteinFile_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mParseProteinFile.ProgressChanged
-        Const PERCENT_REPORT_INTERVAL As Integer = 25
-        Const PROGRESS_DOT_INTERVAL_MSEC As Integer = 250
+        Const PERCENT_REPORT_INTERVAL = 25
+        Const PROGRESS_DOT_INTERVAL_MSEC = 250
 
         If percentComplete >= mLastProgressReportValue Then
             If mLastProgressReportValue > 0 Then
@@ -425,8 +425,8 @@ Module modMain
         End If
     End Sub
 
-	Private Sub mProcessingClass_ProgressReset() Handles mParseProteinFile.ProgressReset
-		mLastProgressReportTime = DateTime.UtcNow
-		mLastProgressReportValue = 0
-	End Sub
+    Private Sub mProcessingClass_ProgressReset() Handles mParseProteinFile.ProgressReset
+        mLastProgressReportTime = DateTime.UtcNow
+        mLastProgressReportValue = 0
+    End Sub
 End Module

@@ -27,107 +27,107 @@ Imports System.Runtime.InteropServices
 ' this computer software.
 
 Public Class clsProteinDigestionSimulator
-	Inherits clsProcessFilesBaseClass
+    Inherits clsProcessFilesBaseClass
 
-	Public Sub New()
-		MyBase.mFileDate = "November 20, 2013"
-		InitializeLocalVariables()
-	End Sub
+    Public Sub New()
+        MyBase.mFileDate = "November 20, 2013"
+        InitializeLocalVariables()
+    End Sub
 
 #Region "Constants and Enums"
 
-	Public Const XML_SECTION_PEAK_MATCHING_OPTIONS As String = "PeakMatchingOptions"
+    Public Const XML_SECTION_PEAK_MATCHING_OPTIONS As String = "PeakMatchingOptions"
 
-	Private Const PROTEIN_ID_COLUMN As String = "ProteinID"
-	Private Const PEPTIDE_ID_MATCH_COLUMN As String = "PeptideIDMatch"
+    Private Const PROTEIN_ID_COLUMN As String = "ProteinID"
+    Private Const PEPTIDE_ID_MATCH_COLUMN As String = "PeptideIDMatch"
 
-	Private Const ID_COUNT_DISTRIBUTION_MAX As Integer = 10
+    Private Const ID_COUNT_DISTRIBUTION_MAX As Integer = 10
 
-	' Error codes specialized for this class
-	Public Enum eProteinDigestionSimulatorErrorCodes
-		NoError = 0
-		ProteinDigestionSimulatorSectionNotFound = 1
-		ErrorReadingInputFile = 2
-		ProteinsNotFoundInInputFile = 4
-		ErrorIdentifyingSequences = 8
-		ErrorWritingOutputFile = 16
-		UserAbortedSearch = 32
-		UnspecifiedError = -1
-	End Enum
+    ' Error codes specialized for this class
+    Public Enum eProteinDigestionSimulatorErrorCodes
+        NoError = 0
+        ProteinDigestionSimulatorSectionNotFound = 1
+        ErrorReadingInputFile = 2
+        ProteinsNotFoundInInputFile = 4
+        ErrorIdentifyingSequences = 8
+        ErrorWritingOutputFile = 16
+        UserAbortedSearch = 32
+        UnspecifiedError = -1
+    End Enum
 
 #End Region
 
 #Region "Structures"
 
-	Private Structure udtSingleBinStatsType
-		Public MassBinStart As Double				' Mass is >= this value
-		Public MassBinEnd As Double					' Mass is < this value
-		Public UniqueResultIDCount As Integer
-		Public NonUniqueResultIDCount As Integer
-		Public ResultIDCountDistribution() As Integer
-		Public PercentUnique As Single				' UniqueResultIDs().length / (UniqueResultIDs().length + NonUniqueResultIDs().length)
-	End Structure
+    Private Structure udtSingleBinStatsType
+        Public MassBinStart As Double               ' Mass is >= this value
+        Public MassBinEnd As Double                 ' Mass is < this value
+        Public UniqueResultIDCount As Integer
+        Public NonUniqueResultIDCount As Integer
+        Public ResultIDCountDistribution() As Integer
+        Public PercentUnique As Single              ' UniqueResultIDs().length / (UniqueResultIDs().length + NonUniqueResultIDs().length)
+    End Structure
 
-	Private Structure udtMassBinningOptionsType
-		Public AutoDetermineMassRange As Boolean
-		Public MassBinSizeDa As Single
-		Public MassMinimum As Single	' This is ignored if AutoDetermineMassRange = True
-		Public MassMaximum As Single	' This is ignored if AutoDetermineMassRange = True
-		Public MinimumSLiCScore As Single
-	End Structure
+    Private Structure udtMassBinningOptionsType
+        Public AutoDetermineMassRange As Boolean
+        Public MassBinSizeDa As Single
+        Public MassMinimum As Single    ' This is ignored if AutoDetermineMassRange = True
+        Public MassMaximum As Single    ' This is ignored if AutoDetermineMassRange = True
+        Public MinimumSLiCScore As Single
+    End Structure
 
-	Private Structure udtBinnedPeptideCountStatsType
-		Public Settings As udtMassBinningOptionsType
-		Public BinCount As Integer
-		Public Bins() As udtSingleBinStatsType
-	End Structure
+    Private Structure udtBinnedPeptideCountStatsType
+        Public Settings As udtMassBinningOptionsType
+        Public BinCount As Integer
+        Public Bins() As udtSingleBinStatsType
+    End Structure
 
 #End Region
 
 #Region "Classwide Variables"
 
-	Public WithEvents mProteinFileParser As clsParseProteinFile		' This class is exposed as public so that we can directly access some of its properties without having to create wrapper properties in this class
+    Public WithEvents mProteinFileParser As clsParseProteinFile     ' This class is exposed as public so that we can directly access some of its properties without having to create wrapper properties in this class
 
-	Private mDigestSequences As Boolean					' Ignored for fasta files; they are always digested
-	Private mCysPeptidesOnly As Boolean
+    Private mDigestSequences As Boolean                 ' Ignored for fasta files; they are always digested
+    Private mCysPeptidesOnly As Boolean
 
-	Private mOutputFileDelimiter As Char
-	Private mCreateSeparateOutputFileForEachThreshold As Boolean
+    Private mOutputFileDelimiter As Char
+    Private mCreateSeparateOutputFileForEachThreshold As Boolean
 
-	Private mSavePeakMatchingResults As Boolean
-	Private mMaxPeakMatchingResultsPerFeatureToSave As Integer
+    Private mSavePeakMatchingResults As Boolean
+    Private mMaxPeakMatchingResultsPerFeatureToSave As Integer
 
-	Private mPeptideUniquenessBinningSettings As udtMassBinningOptionsType
-	Private mUseSLiCScoreForUniqueness As Boolean
-	Private mUseEllipseSearchRegion As Boolean		   ' Only valid if mUseSLiCScoreForUniqueness = False; if both mUseSLiCScoreForUniqueness= False and mUseEllipseSearchRegion = False, then uses a rectangle to determine uniqueness
+    Private mPeptideUniquenessBinningSettings As udtMassBinningOptionsType
+    Private mUseSLiCScoreForUniqueness As Boolean
+    Private mUseEllipseSearchRegion As Boolean         ' Only valid if mUseSLiCScoreForUniqueness = False; if both mUseSLiCScoreForUniqueness= False and mUseEllipseSearchRegion = False, then uses a rectangle to determine uniqueness
 
-	Private mLocalErrorCode As eProteinDigestionSimulatorErrorCodes
-	Private mLastErrorMessage As String
+    Private mLocalErrorCode As eProteinDigestionSimulatorErrorCodes
+    Private mLastErrorMessage As String
 
-	Private WithEvents mPeakMatchingClass As clsPeakMatchingClass
-	Private WithEvents mComparisonPeptideInfo As clsPeakMatchingClass.PMComparisonFeatureInfoClass			   ' Comparison peptides to match against
-	Private WithEvents mProteinInfo As clsProteinInfo
-	Private WithEvents mPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass
+    Private WithEvents mPeakMatchingClass As clsPeakMatchingClass
+    Private WithEvents mComparisonPeptideInfo As clsPeakMatchingClass.PMComparisonFeatureInfoClass             ' Comparison peptides to match against
+    Private WithEvents mProteinInfo As clsProteinInfo
+    Private WithEvents mPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass
 
-	Private mProteinToIdentifiedPeptideMappingTable As System.Data.DataTable						' Holds the lists of peptides that were uniquely identified for each protein
+    Private mProteinToIdentifiedPeptideMappingTable As System.Data.DataTable                        ' Holds the lists of peptides that were uniquely identified for each protein
 
-	Private mThresholdLevels() As clsPeakMatchingClass.clsSearchThresholds		 ' Thresholds to use for searching
+    Private mThresholdLevels() As clsPeakMatchingClass.clsSearchThresholds       ' Thresholds to use for searching
 
-	''Private mUseSqlServerDBToCacheData As Boolean
-	''Private mUseSqlServerForMatchResults As Boolean
-	''Private mSqlServerConnectionString As String
-	''Private mUseBulkInsert As Boolean
-	''Private mSqlServerUseExistingData As Boolean
+    ''Private mUseSqlServerDBToCacheData As Boolean
+    ''Private mUseSqlServerForMatchResults As Boolean
+    ''Private mSqlServerConnectionString As String
+    ''Private mUseBulkInsert As Boolean
+    ''Private mSqlServerUseExistingData As Boolean
 
-	''Private mTableNameFeaturesToIdentify As String
-	''Private mTableNameComparisonPeptides As String
-	''Private mTableNameProteinInfo As String
-	''Private mTableNameProteinToPeptideMap As String
+    ''Private mTableNameFeaturesToIdentify As String
+    ''Private mTableNameComparisonPeptides As String
+    ''Private mTableNameProteinInfo As String
+    ''Private mTableNameProteinToPeptideMap As String
 
-	Private mSubtaskProgressStepDescription As String = String.Empty
-	Private mSubtaskProgressPercentComplete As Single = 0
+    Private mSubtaskProgressStepDescription As String = String.Empty
+    Private mSubtaskProgressPercentComplete As Single = 0
 
-	' PercentComplete ranges from 0 to 100, but can contain decimal percentage values
+    ' PercentComplete ranges from 0 to 100, but can contain decimal percentage values
     Public Event SubtaskProgressChanged(taskDescription As String, percentComplete As Single)
 
 #End Region

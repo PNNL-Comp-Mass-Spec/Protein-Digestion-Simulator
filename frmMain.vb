@@ -7,98 +7,98 @@ Imports System.IO
 
 Public Class frmMain
 
-	Public Sub New()
-		MyBase.New()
+    Public Sub New()
+        MyBase.New()
 
-		' This call is required by the Windows Form Designer.
-		InitializeComponent()
+        ' This call is required by the Windows Form Designer.
+        InitializeComponent()
 
-		' Add any initialization after the InitializeComponent() call.
-		InitializeControls()
-	End Sub
+        ' Add any initialization after the InitializeComponent() call.
+        InitializeControls()
+    End Sub
 
 #Region "Constants and Enums"
 
-	Private Const XML_SETTINGS_FILE_NAME As String = "ProteinDigestionSimulatorOptions.xml"
+    Private Const XML_SETTINGS_FILE_NAME As String = "ProteinDigestionSimulatorOptions.xml"
 
-	Private Const OUTPUT_FILE_SUFFIX As String = "_output.txt"								' Note that this const starts with an underscore
-	Private Const PEAK_MATCHING_STATS_FILE_SUFFIX As String = "_PeakMatching.txt"	   ' Note that this const starts with an underscore
+    Private Const OUTPUT_FILE_SUFFIX As String = "_output.txt"                              ' Note that this const starts with an underscore
+    Private Const PEAK_MATCHING_STATS_FILE_SUFFIX As String = "_PeakMatching.txt"      ' Note that this const starts with an underscore
 
-	Private Const PM_THRESHOLDS_DATATABLE As String = "PeakMatchingThresholds"
+    Private Const PM_THRESHOLDS_DATATABLE As String = "PeakMatchingThresholds"
 
-	Private Const COL_NAME_MASS_TOLERANCE As String = "MassTolerance"
-	Private Const COL_NAME_NET_TOLERANCE As String = "NETTolerance"
-	Private Const COL_NAME_SLIC_MASS_STDEV As String = "SLiCMassStDev"
-	Private Const COL_NAME_SLIC_NET_STDEV As String = "SLiCNETStDev"
-	Private Const COL_NAME_PM_THRESHOLD_ROW_ID As String = "PMThresholdRowID"
+    Private Const COL_NAME_MASS_TOLERANCE As String = "MassTolerance"
+    Private Const COL_NAME_NET_TOLERANCE As String = "NETTolerance"
+    Private Const COL_NAME_SLIC_MASS_STDEV As String = "SLiCMassStDev"
+    Private Const COL_NAME_SLIC_NET_STDEV As String = "SLiCNETStDev"
+    Private Const COL_NAME_PM_THRESHOLD_ROW_ID As String = "PMThresholdRowID"
 
-	Private Const DEFAULT_SLIC_MASS_STDEV As Double = 3
-	Private Const DEFAULT_SLIC_NET_STDEV As Double = 0.025
+    Private Const DEFAULT_SLIC_MASS_STDEV As Double = 3
+    Private Const DEFAULT_SLIC_NET_STDEV As Double = 0.025
 
-	Private Const PROGRESS_TAB_INDEX As Integer = 4
+    Private Const PROGRESS_TAB_INDEX As Integer = 4
 
-	Private Enum InputFileFormatConstants
-		AutoDetermine = 0
-		FastaFile = 1
-		DelimitedText = 2
-	End Enum
+    Private Enum InputFileFormatConstants
+        AutoDetermine = 0
+        FastaFile = 1
+        DelimitedText = 2
+    End Enum
 
-	Private Const PREDEFINED_PM_THRESHOLDS_COUNT As Integer = 5
-	Private Enum PredefinedPMThresholdsConstants
-		OneMassOneNET = 0
-		OneMassThreeNET = 1
-		OneNETThreeMass = 2
-		ThreeMassThreeNET = 3
-		FiveMassThreeNET = 4
-	End Enum
+    Private Const PREDEFINED_PM_THRESHOLDS_COUNT As Integer = 5
+    Private Enum PredefinedPMThresholdsConstants
+        OneMassOneNET = 0
+        OneMassThreeNET = 1
+        OneNETThreeMass = 2
+        ThreeMassThreeNET = 3
+        FiveMassThreeNET = 4
+    End Enum
 #End Region
 
 #Region "Structures"
 
-	Private Structure udtPeakMatchingThresholdsType
-		Public MassTolerance As Double
-		Public NETTolerance As Double
-	End Structure
+    Private Structure udtPeakMatchingThresholdsType
+        Public MassTolerance As Double
+        Public NETTolerance As Double
+    End Structure
 
-	Private Structure udtPredefinedPMThresholdsType
-		Public MassTolType As clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants
-		Public Thresholds() As udtPeakMatchingThresholdsType
-	End Structure
+    Private Structure udtPredefinedPMThresholdsType
+        Public MassTolType As clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants
+        Public Thresholds() As udtPeakMatchingThresholdsType
+    End Structure
 
 #End Region
 
 #Region "Classwide Variables"
 
-	' The following is used to lookup the default symbols for Fasta files, and should thus be treated as ReadOnly
-	Private mDefaultFastaFileOptions As clsParseProteinFile.FastaFileOptionsClass
+    ' The following is used to lookup the default symbols for Fasta files, and should thus be treated as ReadOnly
+    Private mDefaultFastaFileOptions As clsParseProteinFile.FastaFileOptionsClass
 
-	Private mPeakMatchingThresholdsDataset As System.Data.DataSet
-	Private mPredefinedPMThresholds() As udtPredefinedPMThresholdsType
+    Private mPeakMatchingThresholdsDataset As System.Data.DataSet
+    Private mPredefinedPMThresholds() As udtPredefinedPMThresholdsType
 
-	Private mWorking As Boolean
-	Private mCustomValidationRulesFilePath As String
+    Private mWorking As Boolean
+    Private mCustomValidationRulesFilePath As String
 
-	Private objpICalculator As clspICalculation
+    Private objpICalculator As clspICalculation
 
-	Private objSCXNETCalculator As NETPrediction.SCXElutionTimePredictionKangas
+    Private objSCXNETCalculator As NETPrediction.SCXElutionTimePredictionKangas
 
-	Private mTabPageIndexSaved As Integer = 0
+    Private mTabPageIndexSaved As Integer = 0
 
-	Private mFastaValidationOptions As frmFastaValidation.udtFastaValidationOptionsType
+    Private mFastaValidationOptions As frmFastaValidation.udtFastaValidationOptionsType
 
-	Private WithEvents mParseProteinFile As clsParseProteinFile
+    Private WithEvents mParseProteinFile As clsParseProteinFile
 
-	Private WithEvents mProteinDigestionSimulator As clsProteinDigestionSimulator
+    Private WithEvents mProteinDigestionSimulator As clsProteinDigestionSimulator
 
-	Private WithEvents mFastaValidation As frmFastaValidation
+    Private WithEvents mFastaValidation As frmFastaValidation
 
 #End Region
 
 #Region "Properties"
-	Private Property SubtaskProgressIsVisible() As Boolean
-		Get
-			Return lblSubtaskProgressDescription.Visible
-		End Get
+    Private Property SubtaskProgressIsVisible() As Boolean
+        Get
+            Return lblSubtaskProgressDescription.Visible
+        End Get
         Set(value As Boolean)
             lblSubtaskProgress.Visible = value
             lblSubtaskProgressDescription.Visible = value
