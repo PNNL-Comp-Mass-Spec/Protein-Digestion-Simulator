@@ -19,7 +19,7 @@ Set SourceAndSupportingDLLsFile=%ProgramName%_SourceAndSupportingDLLs.zip
 
 Set ZippedInstallerFile=%ProgramName%_Installer.zip
 
-Set InstallerFolder=%ProgramName%_Installer\Release
+Set InstallerFolder=%ProgramName%_Installer\Output
 Set DistributionFolderFinal=%DistributionFolderBase%\%ProgramName%
 
 echo.
@@ -27,7 +27,7 @@ echo 1) Making sure the distribution folder exists
 If Not Exist %DistributionFolderBase% (MkDir %DistributionFolderBase%)
 If Not Exist %DistributionFolderFinal% (MkDir %DistributionFolderFinal%)
 
-CD SourceAndSupportingDLLs
+cd SourceAndSupportingDLLs
 
 echo.
 echo 2) Updating Supporting DLL Zip Files
@@ -56,7 +56,7 @@ Copy %SourceAndSupportingDLLsFile% %DistributionFolderFinal%
 echo.
 echo 6) Creating Zipped Installer file
 If Exist %ZippedInstallerFile% (Del %ZippedInstallerFile%)
-"c:\program files\winrar\winRar.exe" a -ep %ZippedInstallerFile% ..\%InstallerFolder%\*.msi
+"c:\program files\winrar\winRar.exe" a -ep %ZippedInstallerFile% ..\%InstallerFolder%\*.exe
 "c:\program files\winrar\winRar.exe" a -ep %ZippedInstallerFile% ..\ReadMe.txt
 "c:\program files\winrar\winRar.exe" a -ep %ZippedInstallerFile% ..\RevisionHistory.txt
 
