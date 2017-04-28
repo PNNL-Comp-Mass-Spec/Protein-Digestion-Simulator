@@ -1,6 +1,6 @@
 Option Strict On
 
-' This class can be used to parse the text following the program name when a 
+' This class can be used to parse the text following the program name when a
 '  program is started from the command line
 '
 ' -------------------------------------------------------------------------------
@@ -10,25 +10,26 @@ Option Strict On
 ' E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com
 ' Website: http://panomics.pnnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
-' 
+'
 ' Licensed under the Apache License, Version 2.0; you may not use this file except
-' in compliance with the License.  You may obtain a copy of the License at 
+' in compliance with the License.  You may obtain a copy of the License at
 ' http://www.apache.org/licenses/LICENSE-2.0
 '
-' Notice: This computer software was prepared by Battelle Memorial Institute, 
-' hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the 
-' Department of Energy (DOE).  All rights in the computer software are reserved 
-' by DOE on behalf of the United States Government and the Contractor as 
-' provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY 
-' WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS 
-' SOFTWARE.  This notice including this sentence must appear on any copies of 
+' Notice: This computer software was prepared by Battelle Memorial Institute,
+' hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
+' Department of Energy (DOE).  All rights in the computer software are reserved
+' by DOE on behalf of the United States Government and the Contractor as
+' provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY
+' WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
+' SOFTWARE.  This notice including this sentence must appear on any copies of
 ' this computer software.
 
 '
-' Last modified October 29, 2015
+' Last modified March 27, 2017
 
 Imports System.Collections.Generic
 Imports System.Runtime.InteropServices
+Imports Microsoft.VisualBasic
 
 Public Class clsParseCommandLine
 
@@ -41,7 +42,6 @@ Public Class clsParseCommandLine
     Private ReadOnly mNonSwitchParameters As New List(Of String)
 
     Private mShowHelp As Boolean = False
-    Private mDebugMode As Boolean = False
 
     Public ReadOnly Property NeedToShowHelp() As Boolean
         Get
@@ -49,26 +49,25 @@ Public Class clsParseCommandLine
         End Get
     End Property
 
+    ' ReSharper disable once UnusedMember.Global
     Public ReadOnly Property ParameterCount() As Integer
         Get
             Return mSwitches.Count
         End Get
     End Property
 
+    ' ReSharper disable once UnusedMember.Global
     Public ReadOnly Property NonSwitchParameterCount() As Integer
         Get
             Return mNonSwitchParameters.Count
         End Get
     End Property
 
-    Public Property DebugMode() As Boolean
-        Get
-            Return mDebugMode
-        End Get
-        Set(value As Boolean)
-            mDebugMode = value
-        End Set
-    End Property
+    Public ReadOnly Property DebugMode() As Boolean
+
+    Public Sub New(Optional blnDebugMode As Boolean = False)
+        DebugMode = blnDebugMode
+    End Sub
 
     ''' <summary>
     ''' Compares the parameter names in objParameterList with the parameters at the command line
@@ -76,17 +75,18 @@ Public Class clsParseCommandLine
     ''' <param name="objParameterList">Parameter list</param>
     ''' <returns>True if any of the parameters are not present in strParameterList()</returns>
     Public Function InvalidParametersPresent(objParameterList As List(Of String)) As Boolean
-        Const blnCaseSensitive As Boolean = False
+        Const blnCaseSensitive = False
         Return InvalidParametersPresent(objParameterList, blnCaseSensitive)
     End Function
 
+    ' ReSharper disable once UnusedMember.Global
     ''' <summary>
     ''' Compares the parameter names in strParameterList with the parameters at the command line
     ''' </summary>
     ''' <param name="strParameterList">Parameter list</param>
     ''' <returns>True if any of the parameters are not present in strParameterList()</returns>
     Public Function InvalidParametersPresent(strParameterList() As String) As Boolean
-        Const blnCaseSensitive As Boolean = False
+        Const blnCaseSensitive = False
         Return InvalidParametersPresent(strParameterList, blnCaseSensitive)
     End Function
 
@@ -97,7 +97,7 @@ Public Class clsParseCommandLine
     ''' <param name="blnCaseSensitive">True to perform case-sensitive matching of the parameter name</param>
     ''' <returns>True if any of the parameters are not present in strParameterList()</returns>
     Public Function InvalidParametersPresent(strParameterList() As String, blnCaseSensitive As Boolean) As Boolean
-        If InvalidParameters(strParameterList.ToList()).Count > 0 Then
+        If InvalidParameters(strParameterList.ToList(), blnCaseSensitive).Count > 0 Then
             Return True
         Else
             Return False
@@ -115,7 +115,7 @@ Public Class clsParseCommandLine
     End Function
 
     Public Function InvalidParameters(lstValidParameters As List(Of String)) As List(Of String)
-        Const blnCaseSensitive As Boolean = False
+        Const blnCaseSensitive = False
         Return InvalidParameters(lstValidParameters, blnCaseSensitive)
     End Function
 
@@ -124,7 +124,7 @@ Public Class clsParseCommandLine
 
         Try
 
-            ' Find items in mSwitches whose keys are not in lstValidParameters)		
+            ' Find items in mSwitches whose keys are not in lstValidParameters)
             For Each item As KeyValuePair(Of String, String) In mSwitches
 
                 Dim itemKey As String = item.Key
@@ -170,6 +170,7 @@ Public Class clsParseCommandLine
         Return ParseCommandLine(DEFAULT_SWITCH_CHAR, DEFAULT_SWITCH_PARAM_CHAR)
     End Function
 
+    ' ReSharper disable once UnusedMember.Global
     ''' <summary>
     ''' Parse the parameters and switches at the command line; uses : for the switch parameter character
     ''' </summary>
@@ -185,14 +186,14 @@ Public Class clsParseCommandLine
     ''' <param name="chSwitchStartChar"></param>
     ''' <param name="chSwitchParameterChar"></param>
     ''' <returns>Returns True if any command line parameters were found; otherwise false</returns>
-    ''' <remarks>If /? or /help is found, returns False and sets mShowHelp to True</remarks>
+    ''' <remarks>If /? or /help is found, then returns False and sets mShowHelp to True</remarks>
     Public Function ParseCommandLine(chSwitchStartChar As Char, chSwitchParameterChar As Char) As Boolean
         ' Returns True if any command line parameters were found
         ' Otherwise, returns false
         '
         ' If /? or /help is found, then returns False and sets mShowHelp to True
 
-        Dim strCmdLine As String = String.Empty
+        Dim strCmdLine As String
 
         mSwitches.Clear()
         mNonSwitchParameters.Clear()
@@ -241,7 +242,7 @@ Public Class clsParseCommandLine
                 Return False
             End Try
 
-            If mDebugMode Then
+            If DebugMode Then
                 Console.WriteLine()
                 Console.WriteLine("Debugging command line parsing")
                 Console.WriteLine()
@@ -249,7 +250,7 @@ Public Class clsParseCommandLine
 
             Dim strParameters = SplitCommandLineParams(strCmdLine)
 
-            If mDebugMode Then
+            If DebugMode Then
                 Console.WriteLine()
             End If
 
@@ -257,6 +258,7 @@ Public Class clsParseCommandLine
                 Return False
             ElseIf strCmdLine.IndexOf(chSwitchStartChar & "?", StringComparison.Ordinal) > 0 OrElse strCmdLine.ToLower().IndexOf(chSwitchStartChar & "help", StringComparison.Ordinal) > 0 Then
                 mShowHelp = True
+                Return False
             End If
 
             ' Parse the command line
@@ -296,7 +298,7 @@ Public Class clsParseCommandLine
                         ' Remove the switch character from strKey
                         strKey = strKey.Substring(1).Trim
 
-                        If mDebugMode Then
+                        If DebugMode Then
                             Console.WriteLine("SwitchParam: " & strKey & "=" & strValue)
                         End If
 
@@ -308,7 +310,7 @@ Public Class clsParseCommandLine
                         ' Remove any starting and ending quotation marks
                         strKey = strKey.Trim(""""c)
 
-                        If mDebugMode Then
+                        If DebugMode Then
                             Console.WriteLine("NonSwitchParam " & mNonSwitchParameters.Count & ": " & strKey)
                         End If
 
@@ -322,15 +324,11 @@ Public Class clsParseCommandLine
             Throw New Exception("Error in ParseCommandLine", ex)
         End Try
 
-        If mDebugMode Then
+        If DebugMode Then
             Console.WriteLine()
             Console.WriteLine("Switch Count = " & mSwitches.Count)
             Console.WriteLine("NonSwitch Count = " & mNonSwitchParameters.Count)
             Console.WriteLine()
-        End If
-
-        If mShowHelp Then
-            Return False
         End If
 
         If mSwitches.Count + mNonSwitchParameters.Count > 0 Then
@@ -361,7 +359,7 @@ Public Class clsParseCommandLine
         Do
             Console.Write("."c)
 
-            System.Threading.Thread.Sleep(intMillisecondsBetweenDots)
+            Threading.Thread.Sleep(intMillisecondsBetweenDots)
 
             intIteration += 1
         Loop While intIteration < intTotalIterations
@@ -370,6 +368,7 @@ Public Class clsParseCommandLine
 
     End Sub
 
+    ' ReSharper disable once UnusedMember.Global
     ''' <summary>
     ''' Returns the value of the non-switch parameter at the given index
     ''' </summary>
@@ -390,6 +389,7 @@ Public Class clsParseCommandLine
 
     End Function
 
+    ' ReSharper disable once UnusedMember.Global
     ''' <summary>
     ''' Returns the parameter at the given index
     ''' </summary>
@@ -428,6 +428,7 @@ Public Class clsParseCommandLine
 
     End Function
 
+    ' ReSharper disable once UnusedMember.Global
     ''' <summary>
     ''' Look for parameter on the command line and returns its value in strValue
     ''' </summary>
@@ -514,7 +515,7 @@ Public Class clsParseCommandLine
                             End If
 
                             If Not String.IsNullOrEmpty(strParameter) Then
-                                If mDebugMode Then
+                                If DebugMode Then
                                     Console.WriteLine("Param " & strParameters.Count & ": " & strParameter)
                                 End If
                                 strParameters.Add(strParameter)

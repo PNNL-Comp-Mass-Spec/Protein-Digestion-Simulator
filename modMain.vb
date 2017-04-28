@@ -17,23 +17,23 @@ Option Strict On
 ' E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com
 ' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/ or http://panomics.pnnl.gov/
 ' -------------------------------------------------------------------------------
-' 
+'
 ' Licensed under the Apache License, Version 2.0; you may not use this file except
-' in compliance with the License.  You may obtain a copy of the License at 
+' in compliance with the License.  You may obtain a copy of the License at
 ' http://www.apache.org/licenses/LICENSE-2.0
 '
-' Notice: This computer software was prepared by Battelle Memorial Institute, 
-' hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the 
-' Department of Energy (DOE).  All rights in the computer software are reserved 
-' by DOE on behalf of the United States Government and the Contractor as 
-' provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY 
-' WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS 
-' SOFTWARE.  This notice including this sentence must appear on any copies of 
+' Notice: This computer software was prepared by Battelle Memorial Institute,
+' hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
+' Department of Energy (DOE).  All rights in the computer software are reserved
+' by DOE on behalf of the United States Government and the Contractor as
+' provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY
+' WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
+' SOFTWARE.  This notice including this sentence must appear on any copies of
 ' this computer software.
 
 Module modMain
 
-    Public Const PROGRAM_DATE As String = "October 21, 2016"
+    Public Const PROGRAM_DATE As String = "April 28, 2017"
 
     Private mInputFilePath As String
     Private mAssumeFastaFile As Boolean
@@ -58,7 +58,7 @@ Module modMain
     Private mQuietMode As Boolean
     Private mShowDebugPrompts As Boolean
 
-    Private WithEvents mParseProteinFile As clsParseProteinFile
+    Private mParseProteinFile As clsParseProteinFile
     Private mLastProgressReportTime As DateTime
     Private mLastProgressReportValue As Integer
 
@@ -171,9 +171,13 @@ Module modMain
                 intReturnCode = -1
             Else
 
-                mParseProteinFile = New clsParseProteinFile
-                mParseProteinFile.ShowMessages = Not mQuietMode
-                mParseProteinFile.ShowDebugPrompts = mShowDebugPrompts
+                mParseProteinFile = New clsParseProteinFile() With {
+                    .ShowMessages = Not mQuietMode,
+                    .ShowDebugPrompts = mShowDebugPrompts
+                }
+
+                AddHandler mParseProteinFile.ProgressChanged, AddressOf ProcessingClass_ProgressChanged
+                AddHandler mParseProteinFile.ProgressReset, AddressOf ProcessingClass_ProgressReset
 
                 ' Note: the following settings will be overridden if mParameterFilePath points to a valid parameter file that has these settings defined
                 With mParseProteinFile
@@ -408,7 +412,7 @@ Module modMain
         End Try
     End Sub
 
-    Private Sub mParseProteinFile_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mParseProteinFile.ProgressChanged
+    Private Sub ProcessingClass_ProgressChanged(taskDescription As String, percentComplete As Single)
         Const PERCENT_REPORT_INTERVAL = 25
         Const PROGRESS_DOT_INTERVAL_MSEC = 250
 
@@ -427,7 +431,7 @@ Module modMain
         End If
     End Sub
 
-    Private Sub mProcessingClass_ProgressReset() Handles mParseProteinFile.ProgressReset
+    Private Sub ProcessingClass_ProgressReset()
         mLastProgressReportTime = DateTime.UtcNow
         mLastProgressReportValue = 0
     End Sub

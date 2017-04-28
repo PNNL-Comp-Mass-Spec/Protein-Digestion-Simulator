@@ -921,8 +921,9 @@ Public Class frmMain
     End Sub
 
     Private Sub InitializeControls()
-        mDefaultFastaFileOptions = New clsParseProteinFile.FastaFileOptionsClass
-        mDefaultFastaFileOptions.ReadonlyClass = True
+        mDefaultFastaFileOptions = New clsParseProteinFile.FastaFileOptionsClass() With {
+            .ReadonlyClass = True
+        }
 
         DefineDefaultPMThresholds()
 
@@ -956,7 +957,7 @@ Public Class frmMain
         SharedVBNetRoutines.ADONetRoutines.AppendColumnIntegerToTable(dtPMThresholds, COL_NAME_PM_THRESHOLD_ROW_ID, 0, True, True)
 
         With dtPMThresholds
-            Dim PrimaryKeyColumn As System.Data.DataColumn() = New System.Data.DataColumn() {.Columns(COL_NAME_PM_THRESHOLD_ROW_ID)}
+            Dim PrimaryKeyColumn As System.Data.DataColumn() = New System.Data.DataColumn() { .Columns(COL_NAME_PM_THRESHOLD_ROW_ID)}
             .PrimaryKey = PrimaryKeyColumn
         End With
 
@@ -983,7 +984,7 @@ Public Class frmMain
     Private Sub UpdateDataGridTableStyle()
         Dim tsPMThresholdsTableStyle As System.Windows.Forms.DataGridTableStyle
 
-        ' Define the PM Thresholds table style 
+        ' Define the PM Thresholds table style
         tsPMThresholdsTableStyle = New System.Windows.Forms.DataGridTableStyle
 
         ' Setting the MappingName of the table style to PM_THRESHOLDS_DATATABLE will cause this style to be used with that table
@@ -1755,7 +1756,7 @@ Public Class frmMain
         ' Keep track of the last splash screen display date using the registry
         ' The data is stored in key HKEY_CURRENT_USER\Software\VB and VBA Program Settings\PNNL_ProteinDigestionSimulator\Options
         '
-        ' If the current user cannot update the registry due to permissions errors, then we will not show 
+        ' If the current user cannot update the registry due to permissions errors, then we will not show
         ' the splash screen (so that they don't end up seeing the splash every time the program runs)
 
         Const APP_NAME_IN_REGISTRY As String = "PNNL_ProteinDigestionSimulator"
