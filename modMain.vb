@@ -324,13 +324,8 @@ Module modMain
 
             strSyntax &= frmDisclaimer.GetKangasPetritisDisclaimerText() & ControlChars.NewLine & ControlChars.NewLine
 
-
-            If mQuietMode Then
-                Console.WriteLine(strSyntax)
-                System.Threading.Thread.Sleep(1500)
-            Else
-                MessageBox.Show(strSyntax, "Syntax", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            End If
+            Console.WriteLine(strSyntax)
+            Threading.Thread.Sleep(2000)
 
         Catch ex As Exception
             ShowErrorMessage("Error displaying the program syntax: " & ex.Message)
