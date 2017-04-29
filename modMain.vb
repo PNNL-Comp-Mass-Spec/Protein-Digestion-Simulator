@@ -65,11 +65,10 @@ Module modMain
     Public Function Main() As Integer
         ' Returns 0 if no error, error code if an error
 
-        Dim intReturnCode As Integer
+        Dim returnCode As Integer
         Dim objParseCommandLine As New clsParseCommandLine
         Dim blnProceed As Boolean
 
-        intReturnCode = 0
         mInputFilePath = String.Empty
         mAssumeFastaFile = False
         mCreateDigestedProteinOutputFile = False
@@ -97,65 +96,70 @@ Module modMain
             If (objParseCommandLine.ParameterCount + objParseCommandLine.NonSwitchParameterCount) = 0 AndAlso
                Not objParseCommandLine.NeedToShowHelp Then
                 ShowGUI()
-            ElseIf Not blnProceed OrElse objParseCommandLine.NeedToShowHelp OrElse mInputFilePath.Length = 0 Then
-                If objParseCommandLine.IsParameterPresent("Q") Then mQuietMode = True
-                ShowProgramHelp()
-                intReturnCode = -1
-            Else
+                Return 0
+            End If
 
-                mParseProteinFile = New clsParseProteinFile() With {
+            If Not blnProceed OrElse objParseCommandLine.NeedToShowHelp OrElse mInputFilePath.Length = 0 Then
+                ShowProgramHelp()
+                Return -1
+            End If
+
+            mParseProteinFile = New clsParseProteinFile() With {
                     .ShowMessages = Not mQuietMode,
                     .ShowDebugPrompts = mShowDebugPrompts
                 }
 
-                AddHandler mParseProteinFile.ProgressChanged, AddressOf ProcessingClass_ProgressChanged
-                AddHandler mParseProteinFile.ProgressReset, AddressOf ProcessingClass_ProgressReset
+            AddHandler mParseProteinFile.ProgressChanged, AddressOf ProcessingClass_ProgressChanged
+            AddHandler mParseProteinFile.ProgressReset, AddressOf ProcessingClass_ProgressReset
 
-                ' Note: the following settings will be overridden if mParameterFilePath points to a valid parameter file that has these settings defined
-                With mParseProteinFile
-                    .AssumeFastaFile = mAssumeFastaFile
-                    .CreateProteinOutputFile = True
-                    .CreateDigestedProteinOutputFile = mCreateDigestedProteinOutputFile
-                    .ComputeProteinMass = mComputeProteinMass
+            ' Note: the following settings will be overridden if mParameterFilePath points to a valid parameter file that has these settings defined
+            With mParseProteinFile
+                .AssumeFastaFile = mAssumeFastaFile
+                .CreateProteinOutputFile = True
+                .CreateDigestedProteinOutputFile = mCreateDigestedProteinOutputFile
+                .ComputeProteinMass = mComputeProteinMass
 
-                    .InputFileDelimiter = mInputFileDelimiter
-                    .DelimitedFileFormatCode = ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
+                .InputFileDelimiter = mInputFileDelimiter
+                .DelimitedFileFormatCode = ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
 
-                    With .DigestionOptions
-                        .RemoveDuplicateSequences = False
-                    End With
-
-                    .LogMessagesToFile = mLogMessagesToFile
-                    .LogFilePath = mLogFilePath
-                    .LogFolderPath = mLogFolderPath
+                With .DigestionOptions
+                    .RemoveDuplicateSequences = False
                 End With
 
-                If mRecurseFolders Then
-                    If mParseProteinFile.ProcessFilesAndRecurseFolders(mInputFilePath, mOutputFolderPath, mOutputFolderAlternatePath, mRecreateFolderHierarchyInAlternatePath, mParameterFilePath, mRecurseFoldersMaxLevels) Then
-                        intReturnCode = 0
-                    Else
-                        intReturnCode = mParseProteinFile.ErrorCode
-                    End If
+                .LogMessagesToFile = mLogMessagesToFile
+                .LogFilePath = mLogFilePath
+                .LogFolderPath = mLogFolderPath
+            End With
+
+            If mRecurseFolders Then
+                If mParseProteinFile.ProcessFilesAndRecurseFolders(mInputFilePath, mOutputFolderPath, mOutputFolderAlternatePath, mRecreateFolderHierarchyInAlternatePath, mParameterFilePath, mRecurseFoldersMaxLevels) Then
+                    returnCode = 0
                 Else
-                    If mParseProteinFile.ProcessFilesWildcard(mInputFilePath, mOutputFolderPath, mParameterFilePath) Then
-                        intReturnCode = 0
-                    Else
-                        intReturnCode = mParseProteinFile.ErrorCode
-                        If intReturnCode <> 0 AndAlso Not mQuietMode Then
-                            ShowErrorMessage("Error while processing: " & mParseProteinFile.GetErrorMessage())
-                        End If
+                    returnCode = mParseProteinFile.ErrorCode
+                End If
+            Else
+                If mParseProteinFile.ProcessFilesWildcard(mInputFilePath, mOutputFolderPath, mParameterFilePath) Then
+                    returnCode = 0
+                Else
+                    returnCode = mParseProteinFile.ErrorCode
+                    If returnCode <> 0 AndAlso Not mQuietMode Then
+                        ShowErrorMessage("Error while processing: " & mParseProteinFile.GetErrorMessage())
                     End If
                 End If
-
-                DisplayProgressPercent(mLastProgressReportValue, True)
             End If
+
+            DisplayProgressPercent(mLastProgressReportValue, True)
+
 
         Catch ex As Exception
             ShowErrorMessage("Error occurred in modMain->Main: " & Environment.NewLine & ex.Message)
-            intReturnCode = -1
+            returnCode = -1
         End Try
 
-        Return intReturnCode
+
+        Threading.Thread.Sleep(1500)
+
+        Return returnCode
 
     End Function
 
