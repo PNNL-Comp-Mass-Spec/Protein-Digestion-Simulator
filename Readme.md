@@ -6,6 +6,8 @@ including converting to/from tab delimited text.  It also supports FASTA file va
 
 ### Continuous Integration
 
+The latest version of the application is available on the [AppVeyor CI server](https://ci.appveyor.com/project/PNNLCompMassSpec/protein-digestion-simulator/build/artifacts)
+
 [![Build status](https://ci.appveyor.com/api/projects/status/j6kerul55ql8cd54?svg=true)](https://ci.appveyor.com/project/PNNLCompMassSpec/protein-digestion-simulator)
 
 ## Features
