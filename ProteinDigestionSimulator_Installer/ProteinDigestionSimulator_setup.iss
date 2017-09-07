@@ -21,9 +21,10 @@ Source: ..\bin\ValidateFastaFile.dll                  ; DestDir: {app}
 Source: ..\bin\QC_Standards_2004-01-21.fasta          ; DestDir: {app}
 Source: ..\bin\ProteinDigestionSimulatorOptions.xml   ; DestDir: {app}
 
-Source: ..\Readme.txt                     ; DestDir: {app}
-Source: ..\RevisionHistory.txt            ; DestDir: {app}
-Source: Images\delete_16x.ico             ; DestDir: {app}
+Source: ..\README.md                                  ; DestDir: {app}
+Source: ..\RevisionHistory.txt                        ; DestDir: {app}
+Source: ..\PNNL_NETPrediction_License.pdf             ; DestDir: {app}
+Source: Images\delete_16x.ico                         ; DestDir: {app}
 
 [Dirs]
 Name: {commonappdata}\ProteinDigestionSimulator; Flags: uninsalwaysuninstall
