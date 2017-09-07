@@ -71,25 +71,29 @@ Use /S to process all valid files in the input folder and subfolders. Include a 
 
 The optional /Q switch will suppress all error messages.
 
--------------------------------------------------------------------------------
+## Contacts
+
 Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) \
-Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
+E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com\
+Website: http://panomics.pnnl.gov/ or http://omics.pnl.gov or http://www.sysbio.org/resources/staff/
 
-E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com \
-Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
--------------------------------------------------------------------------------
+## License
 
-Licensed under the Apache License, Version 2.0; you may not use this file except 
-in compliance with the License.  You may obtain a copy of the License at 
-http://www.apache.org/licenses/LICENSE-2.0
+The Protein Digestion Simulator is licensed under the Apache License, Version 2.0; 
+you may not use this file except in compliance with the License.  You may obtain 
+a copy of the License at https://opensource.org/licenses/Apache-2.0
+
+The NET Prediction DLL is licensed under the Reciprocal Public License v1.5; 
+for details see file PNNL_NETPrediction_License.pdf\
+You may obtain a copy of the License at https://opensource.org/licenses/rpl1.5.txt
 
 All publications that result from the use of this software should include 
 the following acknowledgment statement:
- Portions of this research were supported by the W.R. Wiley Environmental 
- Molecular Science Laboratory, a national scientific user facility sponsored 
- by the U.S. Department of Energy's Office of Biological and Environmental 
- Research and located at PNNL.  PNNL is operated by Battelle Memorial Institute 
- for the U.S. Department of Energy under contract DE-AC05-76RL0 1830.
+> Portions of this research were supported by the W.R. Wiley Environmental 
+> Molecular Science Laboratory, a national scientific user facility sponsored 
+> by the U.S. Department of Energy's Office of Biological and Environmental 
+> Research and located at PNNL.  PNNL is operated by Battelle Memorial Institute 
+> for the U.S. Department of Energy under contract DE-AC05-76RL0 1830.
 
 Notice: This computer software was prepared by Battelle Memorial Institute, 
 hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the 
