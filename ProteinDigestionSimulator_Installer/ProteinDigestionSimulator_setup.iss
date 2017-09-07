@@ -10,6 +10,7 @@ AppName=Protein Digestion Simulator
 WelcomeLabel2=This will install [name/ver] on your computer.
 ; Example with multiple lines:
 ; WelcomeLabel2=Welcome message%n%nAdditional sentence
+
 [Files]
 Source: ..\bin\ProteinDigestionSimulator.exe          ; DestDir: {app}
 Source: ..\bin\ProteinDigestionSimulator.pdb          ; DestDir: {app}
@@ -20,6 +21,8 @@ Source: ..\bin\SharedVBNetRoutines.dll                ; DestDir: {app}
 Source: ..\bin\ValidateFastaFile.dll                  ; DestDir: {app}
 Source: ..\bin\QC_Standards_2004-01-21.fasta          ; DestDir: {app}
 Source: ..\bin\ProteinDigestionSimulatorOptions.xml   ; DestDir: {app}
+Source: ..\bin\Elute1052.wts                          ; DestDir: {app}
+Source: ..\bin\SCX1052.wts                            ; DestDir: {app}
 
 Source: ..\README.md                                  ; DestDir: {app}
 Source: ..\RevisionHistory.txt                        ; DestDir: {app}
