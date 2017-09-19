@@ -35,6 +35,11 @@ Module modMain
 
     Public Const PROGRAM_DATE As String = "September 6, 2017"
 
+    Private Declare Auto Function ShowWindow Lib "user32.dll" (hWnd As IntPtr, nCmdShow As Integer) As Boolean
+    Private Declare Auto Function GetConsoleWindow Lib "kernel32.dll" () As IntPtr
+    Private Const SW_HIDE As Integer = 0
+    ' Private Const SW_SHOW As Integer = 5
+
     Private mInputFilePath As String
     Private mAssumeFastaFile As Boolean
     Private mCreateDigestedProteinOutputFile As Boolean
@@ -277,12 +282,16 @@ Module modMain
     End Sub
 
     Public Sub ShowGUI()
-        Dim objFormMain As frmMain
 
-        Windows.Forms.Application.EnableVisualStyles()
-        Windows.Forms.Application.DoEvents()
+        ' Hide the console
+        Dim hWndConsole As IntPtr
+        hWndConsole = GetConsoleWindow()
+        ShowWindow(hWndConsole, SW_HIDE)
 
-        objFormMain = New frmMain
+        Application.EnableVisualStyles()
+        Application.DoEvents()
+
+        Dim objFormMain = New frmMain()
 
         objFormMain.ShowDialog()
 
