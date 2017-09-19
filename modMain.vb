@@ -1,5 +1,10 @@
 Option Strict On
 
+Imports System.IO
+Imports System.Reflection
+Imports System.Threading
+Imports ProteinFileReader
+
 ' This program can be used to read a fasta file or tab delimited file
 ' containing protein or peptide sequences, then output the data to a tab-delimited file
 ' It can optionally digest the input sequences using trypsin or partial trpysin rules,
@@ -33,7 +38,7 @@ Option Strict On
 
 Module modMain
 
-    Public Const PROGRAM_DATE As String = "September 6, 2017"
+    Public Const PROGRAM_DATE As String = "September 19, 2017"
 
     Private Declare Auto Function ShowWindow Lib "user32.dll" (hWnd As IntPtr, nCmdShow As Integer) As Boolean
     Private Declare Auto Function GetConsoleWindow Lib "kernel32.dll" () As IntPtr
@@ -125,7 +130,7 @@ Module modMain
                 .ComputeProteinMass = mComputeProteinMass
 
                 .InputFileDelimiter = mInputFileDelimiter
-                .DelimitedFileFormatCode = ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
+                .DelimitedFileFormatCode = DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
 
                 With .DigestionOptions
                     .RemoveDuplicateSequences = False
@@ -162,7 +167,7 @@ Module modMain
         End Try
 
 
-        Threading.Thread.Sleep(1500)
+        Thread.Sleep(1500)
 
         Return returnCode
 
@@ -310,7 +315,7 @@ Module modMain
             strSyntax &= "and can add the predicted normalized elution time (NET) values for the peptides.Additionally, it can calculate the "
             strSyntax &= "number of uniquely identifiable peptides, using only mass, or both mass and NET, with appropriate tolerances." & ControlChars.NewLine & ControlChars.NewLine
 
-            strSyntax &= "Program syntax:" & ControlChars.NewLine & IO.Path.GetFileName(Reflection.Assembly.GetExecutingAssembly().Location)
+            strSyntax &= "Program syntax:" & ControlChars.NewLine & Path.GetFileName(Assembly.GetExecutingAssembly().Location)
             strSyntax &= " /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimeter] [/O:OutputFolderPath] [/P:ParameterFilePath] [/S:[MaxLevel]] [/A:AlternateOutputFolderPath] [/R] [/Q]" & ControlChars.NewLine & ControlChars.NewLine
 
             strSyntax &= "The input file path can contain the wildcard character * and should point to a fasta file or tab-delimited text file." & ControlChars.NewLine
@@ -334,7 +339,7 @@ Module modMain
             strSyntax &= frmDisclaimer.GetKangasPetritisDisclaimerText() & ControlChars.NewLine & ControlChars.NewLine
 
             Console.WriteLine(strSyntax)
-            Threading.Thread.Sleep(2000)
+            Thread.Sleep(2000)
 
         Catch ex As Exception
             ShowErrorMessage("Error displaying the program syntax: " & ex.Message)
@@ -344,7 +349,7 @@ Module modMain
 
     Private Sub WriteToErrorStream(strErrorMessage As String)
         Try
-            Using swErrorStream = New IO.StreamWriter(Console.OpenStandardError())
+            Using swErrorStream = New StreamWriter(Console.OpenStandardError())
                 swErrorStream.WriteLine(strErrorMessage)
             End Using
         Catch ex As Exception

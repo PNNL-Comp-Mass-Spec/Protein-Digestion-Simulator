@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.6471; September 19, 2017
+	- Hide the console window when the GUI is shown
+
 Version 2.2.6458; September 6, 2017
 	- Updated NETPrediction.dll
 		- Faster startup since weights are tracking via files Elute1052.wts and SCX1052.wts

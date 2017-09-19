@@ -148,7 +148,7 @@ Public MustInherit Class clsProcessFilesOrFoldersBase
         mLogFolderPath = String.Empty
         mLogFilePath = String.Empty
 
-        mLogDataCache = New Dictionary(Of String, DateTime)        
+        mLogDataCache = New Dictionary(Of String, DateTime)
     End Sub
 
 
