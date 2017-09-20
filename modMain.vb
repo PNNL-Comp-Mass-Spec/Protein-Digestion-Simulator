@@ -3,6 +3,7 @@ Option Strict On
 Imports System.IO
 Imports System.Reflection
 Imports System.Threading
+Imports PRISM
 Imports ProteinFileReader
 
 ' This program can be used to read a fasta file or tab delimited file
@@ -162,7 +163,7 @@ Module modMain
 
 
         Catch ex As Exception
-            ShowErrorMessage("Error occurred in modMain->Main: " & Environment.NewLine & ex.Message)
+            ShowErrorMessage("Error occurred in modMain->Main: " & ex.Message, ex)
             returnCode = -1
         End Try
 
@@ -248,21 +249,15 @@ Module modMain
             End If
 
         Catch ex As Exception
-            ShowErrorMessage("Error parsing the command line parameters: " & Environment.NewLine & ex.Message)
+            ShowErrorMessage("Error parsing the command line parameters: " & ex.Message, ex)
         End Try
 
         Return False
 
     End Function
 
-    Private Sub ShowErrorMessage(strMessage As String)
-        Dim strSeparator = "------------------------------------------------------------------------------"
-
-        Console.WriteLine()
-        Console.WriteLine(strSeparator)
-        Console.WriteLine(strMessage)
-        Console.WriteLine(strSeparator)
-        Console.WriteLine()
+    Private Sub ShowErrorMessage(strMessage As String, Optional ex As Exception = Nothing)
+        ConsoleMsgUtils.ShowError(strMessage, ex)
 
         WriteToErrorStream(strMessage)
     End Sub
@@ -342,7 +337,7 @@ Module modMain
             Thread.Sleep(2000)
 
         Catch ex As Exception
-            ShowErrorMessage("Error displaying the program syntax: " & ex.Message)
+            ShowErrorMessage("Error displaying the program syntax: " & ex.Message, ex)
         End Try
 
     End Sub

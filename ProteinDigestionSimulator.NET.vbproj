@@ -125,7 +125,6 @@
     <Compile Include="clsInSilicoDigest.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsParseCommandLine.vb" />
     <Compile Include="clsParseProteinFile.vb">
       <SubType>Code</SubType>
     </Compile>
@@ -148,7 +147,6 @@
     <Compile Include="clsSearchRange.vb">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsXmlSettingsFileAccessor.vb" />
     <Compile Include="frmDisclaimer.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -180,6 +178,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="PRISM-Library">
+      <Version>2.4.32</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -16,6 +16,7 @@ Source: ..\bin\ProteinDigestionSimulator.exe          ; DestDir: {app}
 Source: ..\bin\ProteinDigestionSimulator.pdb          ; DestDir: {app}
 Source: ..\bin\FlexibleFileSortUtility.dll            ; DestDir: {app}
 Source: ..\bin\NETPrediction.dll                      ; DestDir: {app}
+Source: ..\bin\PRISM.dll                              ; DestDir: {app}
 Source: ..\bin\ProteinFileReader.dll                  ; DestDir: {app}
 Source: ..\bin\SharedVBNetRoutines.dll                ; DestDir: {app}
 Source: ..\bin\ValidateFastaFile.dll                  ; DestDir: {app}

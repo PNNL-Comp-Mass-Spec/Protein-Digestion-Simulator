@@ -16,6 +16,7 @@ Imports System.Reflection
 Imports System.Runtime.InteropServices
 Imports System.Threading
 Imports NETPrediction
+Imports PRISM
 Imports ProteinFileReader
 Imports ValidateFastaFile
 
@@ -756,7 +757,7 @@ Public Class clsParseProteinFile
 
     Public Function LoadParameterFileSettings(strParameterFilePath As String) As Boolean
 
-        Dim objSettingsFile As New XmlSettingsFileAccessor
+        Dim objSettingsFile As New XmlSettingsFileAccessor()
 
         Dim intDelimeterIndex As Integer
         Dim strCustomDelimiter As String

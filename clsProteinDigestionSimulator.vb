@@ -1,6 +1,10 @@
 Option Strict On
 
+Imports System.IO
+Imports System.Reflection
 Imports System.Runtime.InteropServices
+Imports ProteinFileReader
+Imports SharedVBNetRoutines
 ' This class will read two fasta files and look for overlap in protein sequence between the proteins of
 '  the first fasta file and the second fasta file
 '
