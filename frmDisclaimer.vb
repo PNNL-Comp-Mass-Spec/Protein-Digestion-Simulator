@@ -29,7 +29,7 @@ Public Class frmDisclaimer
     Private components As System.ComponentModel.IContainer
 
     'NOTE: The following procedure is required by the Windows Form Designer
-    'It can be modified using the Windows Form Designer.  
+    'It can be modified using the Windows Form Designer.
     'Do not modify it using the code editor.
     Friend WithEvents txtNotice As System.Windows.Forms.TextBox
     Friend WithEvents cmdOK As System.Windows.Forms.Button
@@ -79,7 +79,7 @@ Public Class frmDisclaimer
 #Region "Form-wide Variables"
     Const FORM_CLOSE_DELAY_SECONDS As Integer = 10
 
-    Protected WithEvents mCloseDelayTimer As System.Timers.Timer
+    Protected WithEvents mCloseDelayTimer As Timers.Timer
     Protected mTimerStartTime As DateTime
 
 #End Region
@@ -105,33 +105,33 @@ Public Class frmDisclaimer
         cmdOK.Text = FORM_CLOSE_DELAY_SECONDS.ToString
         cmdOK.Enabled = False
 
-        mTimerStartTime = System.DateTime.UtcNow
+        mTimerStartTime = DateTime.UtcNow
 
-        mCloseDelayTimer = New System.Timers.Timer(250)
+        mCloseDelayTimer = New Timers.Timer(250)
         mCloseDelayTimer.SynchronizingObject = Me
 
         mCloseDelayTimer.Start()
 
     End Sub
 
-    Private Sub mCloseDelayTimer_Elapsed(sender As Object, e As System.Timers.ElapsedEventArgs) Handles mCloseDelayTimer.Elapsed
+    Private Sub mCloseDelayTimer_Elapsed(sender As Object, e As Timers.ElapsedEventArgs) Handles mCloseDelayTimer.Elapsed
         Dim intSecondsRemaining As Integer
 
-        intSecondsRemaining = CInt(Math.Round(FORM_CLOSE_DELAY_SECONDS - System.DateTime.UtcNow.Subtract(mTimerStartTime).TotalSeconds, 0))
+        intSecondsRemaining = CInt(Math.Round(FORM_CLOSE_DELAY_SECONDS - DateTime.UtcNow.Subtract(mTimerStartTime).TotalSeconds, 0))
         If intSecondsRemaining < 0 Then intSecondsRemaining = 0
 
         If intSecondsRemaining > 0 Then
             cmdOK.Text = intSecondsRemaining.ToString
-            Windows.Forms.Application.DoEvents()
+            Application.DoEvents()
         Else
             cmdOK.Text = "&OK"
             cmdOK.Enabled = True
             mCloseDelayTimer.Enabled = False
-            Windows.Forms.Application.DoEvents()
+            Application.DoEvents()
         End If
     End Sub
 
-    Private Sub cmdOK_Click(sender As System.Object, e As System.EventArgs) Handles cmdOK.Click
+    Private Sub cmdOK_Click(sender As Object, e As EventArgs) Handles cmdOK.Click
         Me.Close()
     End Sub
 End Class

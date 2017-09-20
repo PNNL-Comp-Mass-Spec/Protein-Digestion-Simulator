@@ -3,7 +3,12 @@
 ' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in October 2004
 ' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
 
+Imports System.ComponentModel
 Imports System.IO
+Imports NETPrediction
+Imports PRISM
+Imports ProteinFileReader
+Imports SharedVBNetRoutines
 
 Public Class frmMain
 
@@ -72,7 +77,7 @@ Public Class frmMain
     ' The following is used to lookup the default symbols for Fasta files, and should thus be treated as ReadOnly
     Private mDefaultFastaFileOptions As clsParseProteinFile.FastaFileOptionsClass
 
-    Private mPeakMatchingThresholdsDataset As System.Data.DataSet
+    Private mPeakMatchingThresholdsDataset As DataSet
     Private mPredefinedPMThresholds() As udtPredefinedPMThresholdsType
 
     Private mWorking As Boolean
@@ -80,7 +85,7 @@ Public Class frmMain
 
     Private objpICalculator As clspICalculation
 
-    Private objSCXNETCalculator As NETPrediction.SCXElutionTimePredictionKangas
+    Private objSCXNETCalculator As SCXElutionTimePredictionKangas
 
     Private mTabPageIndexSaved As Integer = 0
 
@@ -127,13 +132,13 @@ Public Class frmMain
     End Sub
 
     Private Sub AddPMThresholdRow(dblMassThreshold As Double, dblNETThreshold As Double, dblSLiCMassStDev As Double, dblSLiCNETStDev As Double, Optional ByRef blnExistingRowFound As Boolean = False)
-        Dim myDataRow As System.Data.DataRow
+        Dim myDataRow As DataRow
 
         With mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATATABLE)
 
             For Each myDataRow In .Rows
                 With myDataRow
-                    If CDbl(.Item(0)) = dblMassThreshold And CDbl(.Item(1)) = dblNETThreshold Then
+                    If Math.Abs(CDbl(.Item(0)) - dblMassThreshold) < 0.000001 AndAlso Math.Abs(CDbl(.Item(1)) - dblNETThreshold) < 0.000001 Then
                         blnExistingRowFound = True
                         Exit For
                     End If
@@ -207,7 +212,7 @@ Public Class frmMain
         Try
             AutoPopulatePMThresholds(mPredefinedPMThresholds(ePredefinedPMThreshold), blnConfirmReplaceExistingResults)
         Catch ex As Exception
-            Windows.Forms.MessageBox.Show("Error calling AutoPopulatePMThresholds in AutoPopulatePMThresholdsByID: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            MessageBox.Show("Error calling AutoPopulatePMThresholds in AutoPopulatePMThresholdsByID: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
         End Try
 
     End Sub
@@ -216,14 +221,14 @@ Public Class frmMain
         ' Returns true if the PM_THRESHOLDS_DATATABLE is empty or if it was cleared
         ' Returns false if the user is queried about clearing and they do not click Yes
 
-        Dim eResult As System.Windows.Forms.DialogResult
+        Dim eResult As DialogResult
         Dim blnSuccess As Boolean
 
         blnSuccess = False
         With mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATATABLE)
             If .Rows.Count > 0 Then
                 If blnConfirmReplaceExistingResults Then
-                    eResult = Windows.Forms.MessageBox.Show("Are you sure you want to clear the thresholds?", "Clear Thresholds", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+                    eResult = MessageBox.Show("Are you sure you want to clear the thresholds?", "Clear Thresholds", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
                 End If
 
                 If eResult = DialogResult.Yes OrElse Not blnConfirmReplaceExistingResults Then
@@ -245,7 +250,6 @@ Public Class frmMain
         Dim sngHydrophobicity As Single
         Dim sngSCXNET As Single
 
-        Dim intCharge As Integer
         Dim strMessage As String
 
         If txtSequenceForpI.TextLength = 0 Then Exit Sub
@@ -255,7 +259,7 @@ Public Class frmMain
         End If
 
         If objSCXNETCalculator Is Nothing Then
-            objSCXNETCalculator = New NETPrediction.SCXElutionTimePredictionKangas
+            objSCXNETCalculator = New SCXElutionTimePredictionKangas
         End If
 
         strSequence = txtSequenceForpI.Text
@@ -266,7 +270,7 @@ Public Class frmMain
 
         sngpI = objpICalculator.CalculateSequencepI(strSequence)
         sngHydrophobicity = objpICalculator.CalculateSequenceHydrophobicity(strSequence)
-        intCharge = objpICalculator.CalculateSequenceChargeState(strSequence, sngpI)
+        objpICalculator.CalculateSequenceChargeState(strSequence, sngpI)
 
         sngSCXNET = objSCXNETCalculator.GetElutionTime(strSequence)
 
@@ -281,11 +285,11 @@ Public Class frmMain
 
     Private Function ConfirmFilePaths() As Boolean
         If txtProteinInputFilePath.TextLength = 0 Then
-            Windows.Forms.MessageBox.Show("Please define an input file path", "Missing Value", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            MessageBox.Show("Please define an input file path", "Missing Value", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
             txtProteinInputFilePath.Focus()
             Return False
         ElseIf txtProteinOutputFilePath.TextLength = 0 Then
-            Windows.Forms.MessageBox.Show("Please define an output file path", "Missing Value", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            MessageBox.Show("Please define an output file path", "Missing Value", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
             txtProteinOutputFilePath.Focus()
             Return False
         Else
@@ -371,8 +375,8 @@ Public Class frmMain
 
         If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.DelimitedText Then
             blnEnableDelimitedFileOptions = True
-        ElseIf cboInputFileFormat.SelectedIndex = InputFileFormatConstants.FastaFile OrElse _
-           txtProteinInputFilePath.TextLength = 0 OrElse _
+        ElseIf cboInputFileFormat.SelectedIndex = InputFileFormatConstants.FastaFile OrElse
+           txtProteinInputFilePath.TextLength = 0 OrElse
            sourceIsFasta Then
             ' Fasta file (or blank)
             blnEnableDelimitedFileOptions = False
@@ -463,7 +467,7 @@ Public Class frmMain
 
         Dim intBinStartMass, intBinEndMass As Integer
 
-        Dim myDataRow As System.Data.DataRow
+        Dim myDataRow As DataRow
 
         Dim blnClearExisting As Boolean
         Dim blnAutoDefineSLiCScoreThresholds As Boolean
@@ -476,7 +480,7 @@ Public Class frmMain
             Try
 
                 If mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATATABLE).Rows.Count = 0 Then
-                    Windows.Forms.MessageBox.Show("Please define one or more peak matching thresholds before proceeding.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                    MessageBox.Show("Please define one or more peak matching thresholds before proceeding.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
                     Exit Try
                 End If
 
@@ -503,7 +507,7 @@ Public Class frmMain
                     strOutputFilePath = Path.Combine(strOutputFilePath, Path.GetFileNameWithoutExtension(txtProteinInputFilePath.Text) & PEAK_MATCHING_STATS_FILE_SUFFIX)
                 Else
                     ' Replace _output.txt" in strOutputFilePath with PEAK_MATCHING_STATS_FILE_SUFFIX
-                    intCharLoc = strOutputFilePath.ToLower.IndexOf(OUTPUT_FILE_SUFFIX.ToLower)
+                    intCharLoc = strOutputFilePath.IndexOf(OUTPUT_FILE_SUFFIX, StringComparison.OrdinalIgnoreCase)
                     If intCharLoc > 0 Then
                         strOutputFilePath = strOutputFilePath.Substring(0, intCharLoc) & PEAK_MATCHING_STATS_FILE_SUFFIX
                     Else
@@ -565,7 +569,7 @@ Public Class frmMain
                     .UseSLiCScoreForUniqueness = chkUseSLiCScoreForUniqueness.Checked
                     .UseEllipseSearchRegion = optUseEllipseSearchRegion.Checked             ' Only applicable if .UseSLiCScoreForUniqueness = True
 
-                    Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
+                    Cursor.Current = Cursors.WaitCursor
                     mWorking = True
                     cmdGenerateUniquenessStats.Enabled = False
 
@@ -574,18 +578,18 @@ Public Class frmMain
 
                     blnSuccess = .GenerateUniquenessStats(txtProteinInputFilePath.Text, Path.GetDirectoryName(strOutputFilePath), Path.GetFileNameWithoutExtension(strOutputFilePath))
 
-                    Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
+                    Cursor.Current = Cursors.Default
 
                     If blnSuccess Then
-                        Windows.Forms.MessageBox.Show("Uniqueness stats calculation complete ", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                        MessageBox.Show("Uniqueness stats calculation complete ", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
                         SwitchFromProgressTab()
                     Else
-                        Windows.Forms.MessageBox.Show("Unable to Generate Uniqueness Stats: " & .GetErrorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                        MessageBox.Show("Unable to Generate Uniqueness Stats: " & .GetErrorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
                     End If
                 End With
 
             Catch ex As Exception
-                Windows.Forms.MessageBox.Show("Error in frmMain->GenerateUniquenessStats: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                MessageBox.Show("Error in frmMain->GenerateUniquenessStats: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
             Finally
                 mWorking = False
                 cmdGenerateUniquenessStats.Enabled = True
@@ -596,7 +600,7 @@ Public Class frmMain
     End Sub
 
     Private Function GetMyDocsFolderPath() As String
-        Return System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal)
+        Return Environment.GetFolderPath(Environment.SpecialFolder.Personal)
     End Function
 
     Private Function GetSettingsFilePath() As String
@@ -619,9 +623,9 @@ Public Class frmMain
         Const UniquenessStatsOptions As String = clsParseProteinFile.XML_SECTION_UNIQUENESS_STATS_OPTIONS
         Const PMOptions As String = clsProteinDigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS
 
-        Const MAX_AUTO_WINDOW_HEIGHT As Integer = 775
+        Const MAX_AUTO_WINDOW_HEIGHT = 775
 
-        Dim objXmlFile As New XmlSettingsFileAccessor
+        Dim objXmlFile As New XmlSettingsFileAccessor()
 
         Dim blnAutoDefineSLiCScoreThresholds As Boolean
         Dim valueNotPresent As Boolean
@@ -634,7 +638,7 @@ Public Class frmMain
         Dim strThresholds() As String
         Dim strThresholdDetails() As String
 
-        Dim ColumnDelimiters() As Char = New Char() {ControlChars.Tab, ","c}
+        Dim ColumnDelimiters = New Char() {ControlChars.Tab, ","c}
 
         ResetToDefaults(False)
 
@@ -762,9 +766,9 @@ Public Class frmMain
                                 strThresholdDetails = strThresholds(intIndex).Split(ColumnDelimiters)
 
                                 If strThresholdDetails.Length > 2 AndAlso Not blnAutoDefineSLiCScoreThresholds Then
-                                    If IsNumeric(strThresholdDetails(0)) And IsNumeric(strThresholdDetails(1)) And _
+                                    If IsNumeric(strThresholdDetails(0)) And IsNumeric(strThresholdDetails(1)) And
                                      IsNumeric(strThresholdDetails(2)) And IsNumeric(strThresholdDetails(3)) Then
-                                        AddPMThresholdRow(CDbl(strThresholdDetails(0)), CDbl(strThresholdDetails(1)), _
+                                        AddPMThresholdRow(CDbl(strThresholdDetails(0)), CDbl(strThresholdDetails(1)),
                                              CDbl(strThresholdDetails(2)), CDbl(strThresholdDetails(3)))
                                     End If
                                 ElseIf strThresholdDetails.Length >= 2 Then
@@ -777,12 +781,12 @@ Public Class frmMain
                     End If
 
                 Catch ex As Exception
-                    System.Windows.Forms.MessageBox.Show("Invalid parameter in settings file: " & Path.GetFileName(GetSettingsFilePath()), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                    MessageBox.Show("Invalid parameter in settings file: " & Path.GetFileName(GetSettingsFilePath()), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
                 End Try
             End With
 
         Catch ex As Exception
-            System.Windows.Forms.MessageBox.Show("Error loading settings from file: " & GetSettingsFilePath(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            MessageBox.Show("Error loading settings from file: " & GetSettingsFilePath(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
         End Try
 
     End Sub
@@ -797,7 +801,7 @@ Public Class frmMain
         Const PMOptions As String = clsProteinDigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS
 
         Dim objXmlFile As New XmlSettingsFileAccessor
-        Dim myDataRow As System.Data.DataRow
+        Dim myDataRow As DataRow
         Dim blnAutoDefineSLiCScoreThresholds As Boolean
         Dim strThresholdData As String
 
@@ -908,13 +912,13 @@ Public Class frmMain
                         .SetParam(PMOptions, "ThresholdData", strThresholdData)
                     End If
                 Catch ex As Exception
-                    System.Windows.Forms.MessageBox.Show("Error storing parameter in settings file: " & Path.GetFileName(GetSettingsFilePath()), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                    MessageBox.Show("Error storing parameter in settings file: " & Path.GetFileName(GetSettingsFilePath()), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
                 End Try
 
                 .SaveSettings()
             End With
         Catch ex As Exception
-            System.Windows.Forms.MessageBox.Show("Error saving settings to file: " & GetSettingsFilePath(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            MessageBox.Show("Error saving settings to file: " & GetSettingsFilePath(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
         End Try
 
 
@@ -947,22 +951,22 @@ Public Class frmMain
 
 
         ' Make the Peak Matching Thresholds datatable
-        Dim dtPMThresholds As System.Data.DataTable = New System.Data.DataTable(PM_THRESHOLDS_DATATABLE)
+        Dim dtPMThresholds = New DataTable(PM_THRESHOLDS_DATATABLE)
 
         ' Add the columns to the datatable
-        SharedVBNetRoutines.ADONetRoutines.AppendColumnDoubleToTable(dtPMThresholds, COL_NAME_MASS_TOLERANCE)
-        SharedVBNetRoutines.ADONetRoutines.AppendColumnDoubleToTable(dtPMThresholds, COL_NAME_NET_TOLERANCE)
-        SharedVBNetRoutines.ADONetRoutines.AppendColumnDoubleToTable(dtPMThresholds, COL_NAME_SLIC_MASS_STDEV, DEFAULT_SLIC_MASS_STDEV)
-        SharedVBNetRoutines.ADONetRoutines.AppendColumnDoubleToTable(dtPMThresholds, COL_NAME_SLIC_NET_STDEV, DEFAULT_SLIC_NET_STDEV)
-        SharedVBNetRoutines.ADONetRoutines.AppendColumnIntegerToTable(dtPMThresholds, COL_NAME_PM_THRESHOLD_ROW_ID, 0, True, True)
+        ADONetRoutines.AppendColumnDoubleToTable(dtPMThresholds, COL_NAME_MASS_TOLERANCE)
+        ADONetRoutines.AppendColumnDoubleToTable(dtPMThresholds, COL_NAME_NET_TOLERANCE)
+        ADONetRoutines.AppendColumnDoubleToTable(dtPMThresholds, COL_NAME_SLIC_MASS_STDEV, DEFAULT_SLIC_MASS_STDEV)
+        ADONetRoutines.AppendColumnDoubleToTable(dtPMThresholds, COL_NAME_SLIC_NET_STDEV, DEFAULT_SLIC_NET_STDEV)
+        ADONetRoutines.AppendColumnIntegerToTable(dtPMThresholds, COL_NAME_PM_THRESHOLD_ROW_ID, 0, True, True)
 
         With dtPMThresholds
-            Dim PrimaryKeyColumn As System.Data.DataColumn() = New System.Data.DataColumn() { .Columns(COL_NAME_PM_THRESHOLD_ROW_ID)}
+            Dim PrimaryKeyColumn = New DataColumn() { .Columns(COL_NAME_PM_THRESHOLD_ROW_ID)}
             .PrimaryKey = PrimaryKeyColumn
         End With
 
         ' Instantiate the dataset
-        mPeakMatchingThresholdsDataset = New System.Data.DataSet(PM_THRESHOLDS_DATATABLE)
+        mPeakMatchingThresholdsDataset = New DataSet(PM_THRESHOLDS_DATATABLE)
 
         ' Add the new System.Data.DataTable to the DataSet.
         mPeakMatchingThresholdsDataset.Tables.Add(dtPMThresholds)
@@ -982,10 +986,10 @@ Public Class frmMain
     End Sub
 
     Private Sub UpdateDataGridTableStyle()
-        Dim tsPMThresholdsTableStyle As System.Windows.Forms.DataGridTableStyle
+        Dim tsPMThresholdsTableStyle As DataGridTableStyle
 
         ' Define the PM Thresholds table style
-        tsPMThresholdsTableStyle = New System.Windows.Forms.DataGridTableStyle
+        tsPMThresholdsTableStyle = New DataGridTableStyle
 
         ' Setting the MappingName of the table style to PM_THRESHOLDS_DATATABLE will cause this style to be used with that table
         With tsPMThresholdsTableStyle
@@ -996,15 +1000,15 @@ Public Class frmMain
             .ReadOnly = False
         End With
 
-        SharedVBNetRoutines.ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_MASS_TOLERANCE, "Mass Tolerance", 90)
-        SharedVBNetRoutines.ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_NET_TOLERANCE, "NET Tolerance", 90)
+        ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_MASS_TOLERANCE, "Mass Tolerance", 90)
+        ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_NET_TOLERANCE, "NET Tolerance", 90)
 
         If chkAutoDefineSLiCScoreTolerances.Checked Then
             dgPeakMatchingThresholds.Width = 250
         Else
             dgPeakMatchingThresholds.Width = 425
-            SharedVBNetRoutines.ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_SLIC_MASS_STDEV, "SLiC Mass StDev", 90)
-            SharedVBNetRoutines.ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_SLIC_NET_STDEV, "SLiC NET StDev", 90)
+            ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_SLIC_MASS_STDEV, "SLiC Mass StDev", 90)
+            ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_SLIC_NET_STDEV, "SLiC NET StDev", 90)
         End If
 
         cmdPastePMThresholdsList.Left = dgPeakMatchingThresholds.Left + dgPeakMatchingThresholds.Width + 15
@@ -1036,7 +1040,7 @@ Public Class frmMain
                 .AssumeFastaFile = False
             End If
 
-            .DelimitedFileFormatCode = CType(cboInputFileColumnOrdering.SelectedIndex, ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode)
+            .DelimitedFileFormatCode = CType(cboInputFileColumnOrdering.SelectedIndex, DelimitedFileReader.eDelimitedFileFormatCode)
 
             .InputFileDelimiter = LookupColumnDelimiter(cboInputFileColumnDelimiter, txtInputFileColumnDelimiter, ControlChars.Tab)
             .OutputFileDelimiter = LookupColumnDelimiter(cboOutputFileFieldDelimeter, txtOutputFileFieldDelimeter, ControlChars.Tab)
@@ -1110,7 +1114,7 @@ Public Class frmMain
 
     End Function
 
-    Private Function LookupColumnDelimiter(DelimiterCombobox As ComboBox, DelimiterTextbox As TextBox, strDefaultDelimiter As Char) As Char
+    Private Function LookupColumnDelimiter(DelimiterCombobox As ListControl, DelimiterTextbox As Control, strDefaultDelimiter As Char) As Char
         Try
             Return clsParseProteinFile.LookupColumnDelimiterChar(DelimiterCombobox.SelectedIndex, DelimiterTextbox.Text, strDefaultDelimiter)
         Catch ex As Exception
@@ -1123,7 +1127,7 @@ Public Class frmMain
         Dim intLength As Integer
 
         Try
-            intLength = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtMaxpISequenceLength, String.Empty, blnError, 10)
+            intLength = VBNetRoutines.ParseTextboxValueInt(txtMaxpISequenceLength, String.Empty, blnError, 10)
             If blnError Then
                 txtMaxpISequenceLength.Text = intLength.ToString
             End If
@@ -1136,7 +1140,7 @@ Public Class frmMain
     End Function
 
     Private Sub SetToolTips()
-        Dim objToolTipControl As New System.Windows.Forms.ToolTip
+        Dim objToolTipControl As New ToolTip
 
         With objToolTipControl
             .SetToolTip(cmdParseInputFile, "Parse proteins in input file to create output file(s).")
@@ -1183,14 +1187,14 @@ Public Class frmMain
                 With mParseProteinFile
                     .CreateProteinOutputFile = True
                     .ProteinScramblingMode = CType(cboProteinReversalOptions.SelectedIndex, clsParseProteinFile.ProteinScramblingModeConstants)
-                    .ProteinScramblingSamplingPercentage = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtProteinReversalSamplingPercentage, "", False, 100, False)
-                    .ProteinScramblingLoopCount = SharedVBNetRoutines.VBNetRoutines.ParseTextboxValueInt(txtProteinScramblingLoopCount, "", False, 1, False)
+                    .ProteinScramblingSamplingPercentage = VBNetRoutines.ParseTextboxValueInt(txtProteinReversalSamplingPercentage, "", False, 100, False)
+                    .ProteinScramblingLoopCount = VBNetRoutines.ParseTextboxValueInt(txtProteinScramblingLoopCount, "", False, 1, False)
                     .CreateDigestedProteinOutputFile = chkDigestProteins.Checked
                     .CreateFastaOutputFile = chkCreateFastaOutputFile.Checked
 
                     .ElementMassMode = CType(cboElementMassMode.SelectedIndex, PeptideSequenceClass.ElementModeConstants)
 
-                    Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
+                    Cursor.Current = Cursors.WaitCursor
                     mWorking = True
                     cmdParseInputFile.Enabled = False
 
@@ -1207,17 +1211,17 @@ Public Class frmMain
 
                     blnSuccess = .ParseProteinFile(txtProteinInputFilePath.Text, strOutputFolderPath, strOutputFileNameBaseOverride)
 
-                    Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
+                    Cursor.Current = Cursors.Default
 
                     If blnSuccess Then
                         SwitchFromProgressTab()
                     Else
-                        Windows.Forms.MessageBox.Show("Error parsing protein file: " & .GetErrorMessage(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                        MessageBox.Show("Error parsing protein file: " & .GetErrorMessage(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
                     End If
                 End With
 
             Catch ex As Exception
-                Windows.Forms.MessageBox.Show("Error in frmMain->ParseProteinInputFile: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                MessageBox.Show("Error in frmMain->ParseProteinInputFile: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
             Finally
                 mWorking = False
                 cmdParseInputFile.Enabled = True
@@ -1228,42 +1232,28 @@ Public Class frmMain
 
     End Sub
 
-    Private Function ParseTextboxValueInt(ThisTextBox As TextBox, strMessageIfError As String, ByRef blnError As Boolean, Optional ValueIfError As Integer = 0) As Integer
+    Private Function ParseTextboxValueInt(ThisTextBox As Control, strMessageIfError As String, ByRef blnError As Boolean, Optional ValueIfError As Integer = 0) As Integer
 
         blnError = False
 
         Try
             Return Integer.Parse(ThisTextBox.Text)
         Catch ex As Exception
-            System.Windows.Forms.MessageBox.Show(strMessageIfError, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            MessageBox.Show(strMessageIfError, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
             blnError = True
             Return ValueIfError
         End Try
 
     End Function
 
-    Private Function ParseTextboxValueSng(ThisTextBox As TextBox, strMessageIfError As String, ByRef blnError As Boolean, Optional ValueIfError As Single = 0) As Single
+    Private Function ParseTextboxValueSng(ThisTextBox As Control, strMessageIfError As String, ByRef blnError As Boolean, Optional ValueIfError As Single = 0) As Single
 
         blnError = False
 
         Try
             Return Single.Parse(ThisTextBox.Text)
         Catch ex As Exception
-            System.Windows.Forms.MessageBox.Show(strMessageIfError, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-            blnError = True
-            Return ValueIfError
-        End Try
-
-    End Function
-
-    Private Function ParseTextboxValueDbl(ThisTextBox As TextBox, strMessageIfError As String, ByRef blnError As Boolean, Optional ValueIfError As Double = 0) As Double
-
-        blnError = False
-
-        Try
-            Return Double.Parse(ThisTextBox.Text)
-        Catch ex As Exception
-            System.Windows.Forms.MessageBox.Show(strMessageIfError, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            MessageBox.Show(strMessageIfError, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
             blnError = True
             Return ValueIfError
         End Try
@@ -1271,7 +1261,7 @@ Public Class frmMain
     End Function
 
     Private Sub PastePMThresholdsValues(blnClearList As Boolean)
-        Dim objData As System.Windows.Forms.IDataObject
+        Dim objData As IDataObject
 
         Dim strData As String
         Dim strLines() As String
@@ -1289,15 +1279,15 @@ Public Class frmMain
 
         Dim intLineIndex As Integer
 
-        Dim LineDelimiters() As Char = New Char() {ControlChars.Cr, ControlChars.Lf}
-        Dim ColumnDelimiters() As Char = New Char() {ControlChars.Tab, ","c}
+        Dim LineDelimiters = New Char() {ControlChars.Cr, ControlChars.Lf}
+        Dim ColumnDelimiters = New Char() {ControlChars.Tab, ","c}
 
         ' Examine the clipboard contents
         objData = Clipboard.GetDataObject()
 
         If Not objData Is Nothing Then
-            If objData.GetDataPresent(System.Windows.Forms.DataFormats.StringFormat, True) Then
-                strData = CType(objData.GetData(System.Windows.Forms.DataFormats.StringFormat, True), String)
+            If objData.GetDataPresent(DataFormats.StringFormat, True) Then
+                strData = CType(objData.GetData(DataFormats.StringFormat, True), String)
 
                 ' Split strData on carriage return or line feed characters
                 ' Lines that end in CrLf will give two separate lines; one with with the text, and one blank; that's OK
@@ -1364,7 +1354,7 @@ Public Class frmMain
                             strMessage = intRowsAlreadyPresent.ToString & " rows of thresholds were"
                         End If
 
-                        Windows.Forms.MessageBox.Show(strMessage & " already present in the table; duplicate rows are not allowed.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                        MessageBox.Show(strMessage & " already present in the table; duplicate rows are not allowed.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
                     End If
 
                     If intRowsSkipped > 0 Then
@@ -1374,7 +1364,7 @@ Public Class frmMain
                             strMessage = intRowsSkipped.ToString & " rows were skipped because they"
                         End If
 
-                        Windows.Forms.MessageBox.Show(strMessage & " didn't contain two columns of numeric data.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                        MessageBox.Show(strMessage & " didn't contain two columns of numeric data.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
                     End If
 
                 End If
@@ -1385,11 +1375,7 @@ Public Class frmMain
 
     Private Sub PopulateComboBoxes()
 
-        Dim intIndex As Integer
-        Dim objInSilicoDigest As clsInSilicoDigest
-        Dim eRuleID As clsInSilicoDigest.CleavageRuleConstants
-
-        Const NET_UNITS As String = "NET"
+        Const NET_UNITS = "NET"
 
         Try
             With cboInputFileFormat
@@ -1436,16 +1422,16 @@ Public Class frmMain
             With cboInputFileColumnOrdering
                 With .Items
                     .Clear()
-                    .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.SequenceOnly, "Sequence Only")
-                    .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Sequence, "ProteinName and Sequence")
-                    .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence, "ProteinName, Descr, Seq")
-                    .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence, "UniqueID and Seq")
-                    .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID, "ProteinName, Seq, UniqueID")
-                    .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET, "ProteinName, Seq, UniqueID, Mass, NET")
-                    .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore, "ProteinName, Seq, UniqueID, Mass, NET, NETStDev, DiscriminantScore")
-                    .Insert(ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence_Mass_NET, "UniqueID, Seq, Mass, NET")
+                    .Insert(DelimitedFileReader.eDelimitedFileFormatCode.SequenceOnly, "Sequence Only")
+                    .Insert(DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Sequence, "ProteinName and Sequence")
+                    .Insert(DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence, "ProteinName, Descr, Seq")
+                    .Insert(DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence, "UniqueID and Seq")
+                    .Insert(DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID, "ProteinName, Seq, UniqueID")
+                    .Insert(DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET, "ProteinName, Seq, UniqueID, Mass, NET")
+                    .Insert(DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore, "ProteinName, Seq, UniqueID, Mass, NET, NETStDev, DiscriminantScore")
+                    .Insert(DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence_Mass_NET, "UniqueID, Seq, Mass, NET")
                 End With
-                .SelectedIndex = ProteinFileReader.DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
+                .SelectedIndex = DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
             End With
 
             With cboElementMassMode
@@ -1467,11 +1453,11 @@ Public Class frmMain
                 .SelectedIndex = clsParseProteinFile.ProteinScramblingModeConstants.None
             End With
 
-            objInSilicoDigest = New clsInSilicoDigest
+            Dim objInSilicoDigest = New clsInSilicoDigest()
             With cboCleavageRuleType
                 With .Items
                     For intIndex = 0 To objInSilicoDigest.CleaveageRuleCount - 1
-                        eRuleID = CType(intIndex, clsInSilicoDigest.CleavageRuleConstants)
+                        Dim eRuleID = CType(intIndex, clsInSilicoDigest.CleavageRuleConstants)
                         .Add(objInSilicoDigest.GetCleaveageRuleName(eRuleID) & " (" & objInSilicoDigest.GetCleaveageRuleResiduesDescription(eRuleID) & ")")
                     Next intIndex
                 End With
@@ -1479,7 +1465,6 @@ Public Class frmMain
                     .SelectedIndex = clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
                 End If
             End With
-            objInSilicoDigest = Nothing
 
             With cboMassTolType
                 With .Items
@@ -1516,7 +1501,7 @@ Public Class frmMain
             End With
 
         Catch ex As Exception
-            Windows.Forms.MessageBox.Show("Error initializing the combo boxes: " & ex.Message)
+            MessageBox.Show("Error initializing the combo boxes: " & ex.Message)
         End Try
 
     End Sub
@@ -1537,14 +1522,14 @@ Public Class frmMain
 
         lblErrorMessage.Text = String.Empty
 
-        System.Windows.Forms.Application.DoEvents()
+        Application.DoEvents()
     End Sub
 
     Private Sub ResetToDefaults(blnConfirm As Boolean)
-        Dim eResponse As System.Windows.Forms.DialogResult
+        Dim eResponse As DialogResult
 
         If blnConfirm Then
-            eResponse = System.Windows.Forms.MessageBox.Show("Are you sure you want to reset all settings to their default values?", "Reset to Defaults", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
+            eResponse = MessageBox.Show("Are you sure you want to reset all settings to their default values?", "Reset to Defaults", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
             If eResponse <> DialogResult.Yes Then Exit Sub
         End If
 
@@ -1631,7 +1616,7 @@ Public Class frmMain
 
     Private Sub SelectInputFile()
 
-        Dim objOpenFile As New System.Windows.Forms.OpenFileDialog
+        Dim objOpenFile As New OpenFileDialog
 
         Dim currentExtension = String.Empty
         If txtProteinInputFilePath.TextLength > 0 Then
@@ -1683,7 +1668,7 @@ Public Class frmMain
 
     Private Sub SelectOutputFile()
 
-        Dim objSaveFile As New System.Windows.Forms.SaveFileDialog
+        Dim objSaveFile As New SaveFileDialog
 
         With objSaveFile
             .AddExtension = True
@@ -1725,10 +1710,10 @@ Public Class frmMain
         strMessage &= "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004" & ControlChars.NewLine
         strMessage &= "Copyright 2005, Battelle Memorial Institute.  All Rights Reserved." & ControlChars.NewLine & ControlChars.NewLine
 
-        strMessage &= "This is version " & System.Windows.Forms.Application.ProductVersion & " (" & PROGRAM_DATE & ")" & ControlChars.NewLine & ControlChars.NewLine
+        strMessage &= "This is version " & Application.ProductVersion & " (" & PROGRAM_DATE & ")" & ControlChars.NewLine & ControlChars.NewLine
 
-        strMessage &= "E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com" & ControlChars.NewLine
-        strMessage &= "Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/" & ControlChars.NewLine & ControlChars.NewLine
+        strMessage &= "E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com" & ControlChars.NewLine
+        strMessage &= "Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/ or http://panomics.pnnl.gov/" & ControlChars.NewLine & ControlChars.NewLine
 
         strMessage &= frmDisclaimer.GetKangasPetritisDisclaimerText() & ControlChars.NewLine & ControlChars.NewLine
 
@@ -1741,13 +1726,13 @@ Public Class frmMain
         strMessage &= "SOFTWARE.  This notice including this sentence must appear on any copies of "
         strMessage &= "this computer software." & ControlChars.NewLine
 
-        Windows.Forms.MessageBox.Show(strMessage, "About", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        MessageBox.Show(strMessage, "About", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
     End Sub
 
     Private Sub ShowElutionTimeInfo()
-        Dim objNETPrediction As New NETPrediction.ElutionTimePredictionKangas
-        Windows.Forms.MessageBox.Show(objNETPrediction.ProgramDescription, "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Dim objNETPrediction As New ElutionTimePredictionKangas
+        MessageBox.Show(objNETPrediction.ProgramDescription, "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 
     Private Sub ShowSplashScreen()
@@ -1759,16 +1744,16 @@ Public Class frmMain
         ' If the current user cannot update the registry due to permissions errors, then we will not show
         ' the splash screen (so that they don't end up seeing the splash every time the program runs)
 
-        Const APP_NAME_IN_REGISTRY As String = "PNNL_ProteinDigestionSimulator"
-        Const REG_SECTION_OPTIONS As String = "Options"
-        Const REG_KEY_SPLASHDATE As String = "SplashDate"
-        Const DEFAULT_DATE As DateTime = #1/1/2000#
+        Const APP_NAME_IN_REGISTRY = "PNNL_ProteinDigestionSimulator"
+        Const REG_SECTION_OPTIONS = "Options"
+        Const REG_KEY_SPLASHDATE = "SplashDate"
+        Const DEFAULT_DATE = #1/1/2000#
 
-        Const SPLASH_INTERVAL_DAYS As Integer = 182
+        Const SPLASH_INTERVAL_DAYS = 182
 
         Dim strLastSplashDate As String
-        Dim dtLastSplashDate As System.DateTime = DEFAULT_DATE
-        Dim dtCurrentDateTime As System.DateTime = System.DateTime.Now()
+        Dim dtLastSplashDate As DateTime = DEFAULT_DATE
+        Dim dtCurrentDateTime As DateTime = DateTime.Now()
 
         Try
             strLastSplashDate = GetSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASHDATE, "")
@@ -1782,7 +1767,7 @@ Public Class frmMain
         If strLastSplashDate.Length > 0 Then
             Try
                 ' Convert the text to a date
-                dtLastSplashDate = System.DateTime.Parse(strLastSplashDate)
+                dtLastSplashDate = DateTime.Parse(strLastSplashDate)
             Catch ex As Exception
                 ' Conversion failed
                 strLastSplashDate = String.Empty
@@ -1807,9 +1792,8 @@ Public Class frmMain
                 SaveSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASHDATE, dtLastSplashDate.ToShortDateString)
 
                 ' Now make sure the setting actually saved
-                strLastSplashDate = String.Empty
                 strLastSplashDate = GetSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASHDATE, "")
-                dtLastSplashDate = System.DateTime.Parse(strLastSplashDate)
+                dtLastSplashDate = DateTime.Parse(strLastSplashDate)
 
                 If dtLastSplashDate.ToShortDateString <> dtCurrentDateTime.ToShortDateString Then
                     ' Error saving/retrieving date; don't continue
@@ -1824,7 +1808,6 @@ Public Class frmMain
             Dim objSplashForm As New frmDisclaimer
             objSplashForm.ShowDialog()
 
-            objSplashForm = Nothing
         End If
 
     End Sub
@@ -1834,7 +1817,7 @@ Public Class frmMain
         mTabPageIndexSaved = tbsOptions.SelectedIndex
 
         tbsOptions.SelectedIndex = PROGRESS_TAB_INDEX
-        Windows.Forms.Application.DoEvents()
+        Application.DoEvents()
 
     End Sub
 
@@ -1843,7 +1826,7 @@ Public Class frmMain
 
         If tbsOptions.SelectedIndex = PROGRESS_TAB_INDEX Then
             tbsOptions.SelectedIndex = mTabPageIndexSaved
-            Windows.Forms.Application.DoEvents()
+            Application.DoEvents()
         End If
     End Sub
 
@@ -1862,7 +1845,7 @@ Public Class frmMain
             If strFastaFilePath Is Nothing OrElse strFastaFilePath.Length = 0 Then Exit Try
 
             If Not File.Exists(strFastaFilePath) Then
-                Windows.Forms.MessageBox.Show("File not found: " & ControlChars.NewLine & strFastaFilePath, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                MessageBox.Show("File not found: " & ControlChars.NewLine & strFastaFilePath, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
             Else
                 If mFastaValidation Is Nothing Then
                     mFastaValidation = New frmFastaValidation(strFastaFilePath)
@@ -1879,7 +1862,7 @@ Public Class frmMain
                         End If
                     End If
                 Catch ex As Exception
-                    Windows.Forms.MessageBox.Show("Error trying to validate or set the custom validation rules file path: " & ControlChars.NewLine & mCustomValidationRulesFilePath & ControlChars.NewLine & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                    MessageBox.Show("Error trying to validate or set the custom validation rules file path: " & ControlChars.NewLine & mCustomValidationRulesFilePath & ControlChars.NewLine & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
                 End Try
 
                 If mFastaValidationOptions.Initialized Then
@@ -1893,7 +1876,7 @@ Public Class frmMain
             End If
 
         Catch ex As Exception
-            Windows.Forms.MessageBox.Show("Error occurred in frmFastaValidation: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            MessageBox.Show("Error occurred in frmFastaValidation: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
         Finally
             If Not mFastaValidation Is Nothing Then
                 mCustomValidationRulesFilePath = mFastaValidation.CustomRulesFilePath
@@ -1907,7 +1890,7 @@ Public Class frmMain
         ' Returns False if the user cancels processing
         ' Assumes that strInputFilePath exists, and thus does not have a Try-Catch block
 
-        Const SAMPLING_LINE_COUNT As Integer = 10000
+        Const SAMPLING_LINE_COUNT = 10000
 
         Dim blnIsFastaFile As Boolean
 
@@ -1919,11 +1902,11 @@ Public Class frmMain
         Dim intTotalLineCount As Integer
         Dim lngBytesRead As Long
 
-        Dim blnProceed As Boolean = False
-        Dim blnSuggestEnableSqlServer As Boolean = False
-        Dim blnSuggestDisableSqlServer As Boolean = False
+        Dim blnProceed As Boolean
+        Dim blnSuggestEnableSqlServer = False
+        Dim blnSuggestDisableSqlServer = False
 
-        Dim eResponse As System.Windows.Forms.DialogResult
+        Dim eResponse As DialogResult
 
         blnIsFastaFile = clsParseProteinFile.IsFastaFile(strInputFilePath) Or objProteinFileParser.AssumeFastaFile
 
@@ -1932,7 +1915,7 @@ Public Class frmMain
         intFileSizeKB = CType(fiFileInfo.Length / 1024.0, Integer)
 
         If blnIsFastaFile Then
-            If objProteinFileParser.DigestionOptions.CleavageRuleID = clsInSilicoDigest.CleavageRuleConstants.KROneEnd Or _
+            If objProteinFileParser.DigestionOptions.CleavageRuleID = clsInSilicoDigest.CleavageRuleConstants.KROneEnd Or
                objProteinFileParser.DigestionOptions.CleavageRuleID = clsInSilicoDigest.CleavageRuleConstants.NoRule Then
                 blnSuggestEnableSqlServer = True
             ElseIf intFileSizeKB > 500 Then
@@ -1944,7 +1927,7 @@ Public Class frmMain
             ' Assume a delimited text file
             ' Estimate the total line count by reading the first SAMPLING_LINE_COUNT lines
             Try
-                Using srStreamReader As StreamReader = New StreamReader(strInputFilePath)
+                Using srStreamReader = New StreamReader(strInputFilePath)
 
                     lngBytesRead = 0
                     intLineCount = 0
@@ -1984,7 +1967,7 @@ Public Class frmMain
         End If
 
         If blnSuggestEnableSqlServer And Not chkUseSqlServerDBToCacheData.Checked Then
-            eResponse = Windows.Forms.MessageBox.Show("Warning, memory usage could be quite large.  Enable Sql Server caching using Server " & txtSqlServerName.Text & "?  If no, then will continue using memory caching.", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
+            eResponse = MessageBox.Show("Warning, memory usage could be quite large.  Enable Sql Server caching using Server " & txtSqlServerName.Text & "?  If no, then will continue using memory caching.", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
             If eResponse = DialogResult.Yes Then chkUseSqlServerDBToCacheData.Checked = True
             If eResponse = DialogResult.Cancel Then
                 blnProceed = False
@@ -1992,7 +1975,7 @@ Public Class frmMain
                 blnProceed = True
             End If
         ElseIf blnSuggestDisableSqlServer And chkUseSqlServerDBToCacheData.Checked Then
-            eResponse = Windows.Forms.MessageBox.Show("Memory usage is expected to be minimal.  Continue caching data using Server " & txtSqlServerName.Text & "?  If no, then will switch to using memory caching.", "Note", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+            eResponse = MessageBox.Show("Memory usage is expected to be minimal.  Continue caching data using Server " & txtSqlServerName.Text & "?  If no, then will switch to using memory caching.", "Note", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
             If eResponse = DialogResult.No Then chkUseSqlServerDBToCacheData.Checked = False
             If eResponse = DialogResult.Cancel Then
                 blnProceed = False
@@ -2016,241 +1999,241 @@ Public Class frmMain
 
 #Region "Control Handlers"
 
-    Private Sub cboElementMassMode_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles cboElementMassMode.SelectedIndexChanged
+    Private Sub cboElementMassMode_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboElementMassMode.SelectedIndexChanged
         UpdatePeptideUniquenessMassMode()
     End Sub
 
-    Private Sub cboHydrophobicityMode_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles cboHydrophobicityMode.SelectedIndexChanged
+    Private Sub cboHydrophobicityMode_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboHydrophobicityMode.SelectedIndexChanged
         ComputeSequencepI()
     End Sub
-    Private Sub cboInputFileColumnDelimiter_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles cboInputFileColumnDelimiter.SelectedIndexChanged
+    Private Sub cboInputFileColumnDelimiter_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboInputFileColumnDelimiter.SelectedIndexChanged
         EnableDisableControls()
     End Sub
 
-    Private Sub cboInputFileFormat_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles cboInputFileFormat.SelectedIndexChanged
+    Private Sub cboInputFileFormat_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboInputFileFormat.SelectedIndexChanged
         EnableDisableControls()
     End Sub
 
-    Private Sub cboProteinReversalOptions_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles cboProteinReversalOptions.SelectedIndexChanged
+    Private Sub cboProteinReversalOptions_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboProteinReversalOptions.SelectedIndexChanged
         EnableDisableControls()
     End Sub
 
-    Private Sub chkAllowSqlServerCaching_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkAllowSqlServerCaching.CheckedChanged
+    Private Sub chkAllowSqlServerCaching_CheckedChanged(sender As Object, e As EventArgs) Handles chkAllowSqlServerCaching.CheckedChanged
         EnableDisableControls()
     End Sub
 
-    Private Sub chkAutoDefineSLiCScoreTolerances_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkAutoDefineSLiCScoreTolerances.CheckedChanged
+    Private Sub chkAutoDefineSLiCScoreTolerances_CheckedChanged(sender As Object, e As EventArgs) Handles chkAutoDefineSLiCScoreTolerances.CheckedChanged
         UpdateDataGridTableStyle()
     End Sub
 
-    Private Sub chkComputepI_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkComputepI.CheckedChanged
+    Private Sub chkComputepI_CheckedChanged(sender As Object, e As EventArgs) Handles chkComputepI.CheckedChanged
         EnableDisableControls()
     End Sub
 
-    Private Sub chkComputeSequenceHashValues_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkComputeSequenceHashValues.CheckedChanged
+    Private Sub chkComputeSequenceHashValues_CheckedChanged(sender As Object, e As EventArgs) Handles chkComputeSequenceHashValues.CheckedChanged
         EnableDisableControls()
     End Sub
 
-    Private Sub chkDigestProteins_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkDigestProteins.CheckedChanged
+    Private Sub chkDigestProteins_CheckedChanged(sender As Object, e As EventArgs) Handles chkDigestProteins.CheckedChanged
         EnableDisableControls()
         AutoDefineOutputFile()
     End Sub
 
-    Private Sub chkUseSLiCScoreForUniqueness_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkUseSLiCScoreForUniqueness.CheckedChanged
+    Private Sub chkUseSLiCScoreForUniqueness_CheckedChanged(sender As Object, e As EventArgs) Handles chkUseSLiCScoreForUniqueness.CheckedChanged
         EnableDisableControls()
     End Sub
 
-    Private Sub chkUseSqlServerDBToCacheData_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkUseSqlServerDBToCacheData.CheckedChanged
+    Private Sub chkUseSqlServerDBToCacheData_CheckedChanged(sender As Object, e As EventArgs) Handles chkUseSqlServerDBToCacheData.CheckedChanged
         EnableDisableControls()
     End Sub
 
-    Private Sub chkSqlServerUseIntegratedSecurity_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkSqlServerUseIntegratedSecurity.CheckedChanged
+    Private Sub chkSqlServerUseIntegratedSecurity_CheckedChanged(sender As Object, e As EventArgs) Handles chkSqlServerUseIntegratedSecurity.CheckedChanged
         EnableDisableControls()
     End Sub
 
-    Private Sub cboOutputFileFieldDelimeter_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles cboOutputFileFieldDelimeter.SelectedIndexChanged
+    Private Sub cboOutputFileFieldDelimeter_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboOutputFileFieldDelimeter.SelectedIndexChanged
         EnableDisableControls()
     End Sub
 
-    Private Sub cboRefEndChar_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles cboRefEndChar.SelectedIndexChanged
+    Private Sub cboRefEndChar_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboRefEndChar.SelectedIndexChanged
         EnableDisableControls()
     End Sub
 
-    Private Sub chkAutoComputeRangeForBinning_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkAutoComputeRangeForBinning.CheckedChanged
+    Private Sub chkAutoComputeRangeForBinning_CheckedChanged(sender As Object, e As EventArgs) Handles chkAutoComputeRangeForBinning.CheckedChanged
         EnableDisableControls()
     End Sub
 
-    Private Sub cmdAbortProcessing_Click(sender As System.Object, e As System.EventArgs) Handles cmdAbortProcessing.Click
+    Private Sub cmdAbortProcessing_Click(sender As Object, e As EventArgs) Handles cmdAbortProcessing.Click
         AbortProcessingNow()
     End Sub
 
-    Private Sub cmdClearPMThresholdsList_Click(sender As System.Object, e As System.EventArgs) Handles cmdClearPMThresholdsList.Click
+    Private Sub cmdClearPMThresholdsList_Click(sender As Object, e As EventArgs) Handles cmdClearPMThresholdsList.Click
         ClearPMThresholdsList(True)
     End Sub
 
-    Private Sub chkCreateFastaOutputFile_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkCreateFastaOutputFile.CheckedChanged
+    Private Sub chkCreateFastaOutputFile_CheckedChanged(sender As Object, e As EventArgs) Handles chkCreateFastaOutputFile.CheckedChanged
         AutoDefineOutputFile()
     End Sub
 
-    Private Sub chkLookForAddnlRefInDescription_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkLookForAddnlRefInDescription.CheckedChanged
+    Private Sub chkLookForAddnlRefInDescription_CheckedChanged(sender As Object, e As EventArgs) Handles chkLookForAddnlRefInDescription.CheckedChanged
         EnableDisableControls()
     End Sub
 
-    Private Sub chkMaxpIModeEnabled_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkMaxpIModeEnabled.CheckedChanged
+    Private Sub chkMaxpIModeEnabled_CheckedChanged(sender As Object, e As EventArgs) Handles chkMaxpIModeEnabled.CheckedChanged
         EnableDisableControls()
         ComputeSequencepI()
     End Sub
 
-    Private Sub cmdGenerateUniquenessStats_Click(sender As System.Object, e As System.EventArgs) Handles cmdGenerateUniquenessStats.Click
+    Private Sub cmdGenerateUniquenessStats_Click(sender As Object, e As EventArgs) Handles cmdGenerateUniquenessStats.Click
         GenerateUniquenessStats()
     End Sub
 
-    Private Sub cmdParseInputFile_Click(sender As System.Object, e As System.EventArgs) Handles cmdParseInputFile.Click
+    Private Sub cmdParseInputFile_Click(sender As Object, e As EventArgs) Handles cmdParseInputFile.Click
         ParseProteinInputFile()
     End Sub
 
-    Private Sub cmdPastePMThresholdsList_Click(sender As System.Object, e As System.EventArgs) Handles cmdPastePMThresholdsList.Click
+    Private Sub cmdPastePMThresholdsList_Click(sender As Object, e As EventArgs) Handles cmdPastePMThresholdsList.Click
         PastePMThresholdsValues(False)
     End Sub
 
-    Private Sub cmdPMThresholdsAutoPopulate_Click(sender As System.Object, e As System.EventArgs) Handles cmdPMThresholdsAutoPopulate.Click
+    Private Sub cmdPMThresholdsAutoPopulate_Click(sender As Object, e As EventArgs) Handles cmdPMThresholdsAutoPopulate.Click
         AutoPopulatePMThresholdsByID(CType(cboPMPredefinedThresholds.SelectedIndex, PredefinedPMThresholdsConstants), True)
     End Sub
 
-    Private Sub cmdSelectFile_Click(sender As System.Object, e As System.EventArgs) Handles cmdSelectFile.Click
+    Private Sub cmdSelectFile_Click(sender As Object, e As EventArgs) Handles cmdSelectFile.Click
         SelectInputFile()
     End Sub
 
-    Private Sub cmdSelectOutputFile_Click(sender As System.Object, e As System.EventArgs) Handles cmdSelectOutputFile.Click
+    Private Sub cmdSelectOutputFile_Click(sender As Object, e As EventArgs) Handles cmdSelectOutputFile.Click
         SelectOutputFile()
     End Sub
 
-    Private Sub cmdValidateFastaFile_Click(sender As System.Object, e As System.EventArgs) Handles cmdValidateFastaFile.Click
+    Private Sub cmdValidateFastaFile_Click(sender As Object, e As EventArgs) Handles cmdValidateFastaFile.Click
         ValidateFastaFile(txtProteinInputFilePath.Text)
     End Sub
 
-    Private Sub frmMain_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
+    Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ' Note that InitializeControls() is called in Sub New()
     End Sub
 
-    Private Sub frmMain_Closing(sender As Object, e As System.ComponentModel.CancelEventArgs) Handles MyBase.Closing
+    Private Sub frmMain_Closing(sender As Object, e As CancelEventArgs) Handles MyBase.Closing
         IniFileSaveOptions(True)
     End Sub
 
-    Private Sub txtDigestProteinsMinimumMass_KeyPress(sender As Object, e As System.Windows.Forms.KeyPressEventArgs) Handles txtDigestProteinsMinimumMass.KeyPress
-        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtDigestProteinsMinimumMass, e, True)
+    Private Sub txtDigestProteinsMinimumMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMinimumMass.KeyPress
+        VBNetRoutines.TextBoxKeyPressHandler(txtDigestProteinsMinimumMass, e, True)
     End Sub
 
-    Private Sub txtDigestProteinsMaximumMissedCleavages_KeyPress(sender As Object, e As System.Windows.Forms.KeyPressEventArgs) Handles txtDigestProteinsMaximumMissedCleavages.KeyPress
-        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtDigestProteinsMaximumMissedCleavages, e, True)
+    Private Sub txtDigestProteinsMaximumMissedCleavages_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMaximumMissedCleavages.KeyPress
+        VBNetRoutines.TextBoxKeyPressHandler(txtDigestProteinsMaximumMissedCleavages, e, True)
     End Sub
 
-    Private Sub txtDigestProteinsMinimumResidueCount_KeyPress(sender As Object, e As System.Windows.Forms.KeyPressEventArgs) Handles txtDigestProteinsMinimumResidueCount.KeyPress
-        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtDigestProteinsMinimumResidueCount, e, True)
+    Private Sub txtDigestProteinsMinimumResidueCount_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMinimumResidueCount.KeyPress
+        VBNetRoutines.TextBoxKeyPressHandler(txtDigestProteinsMinimumResidueCount, e, True)
     End Sub
 
-    Private Sub txtDigestProteinsMaximumMass_KeyPress(sender As Object, e As System.Windows.Forms.KeyPressEventArgs) Handles txtDigestProteinsMaximumMass.KeyPress
-        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtDigestProteinsMaximumMass, e, True)
+    Private Sub txtDigestProteinsMaximumMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMaximumMass.KeyPress
+        VBNetRoutines.TextBoxKeyPressHandler(txtDigestProteinsMaximumMass, e, True)
     End Sub
 
-    Private Sub txtMaxPeakMatchingResultsPerFeatureToSave_KeyPress(sender As Object, e As System.Windows.Forms.KeyPressEventArgs) Handles txtMaxPeakMatchingResultsPerFeatureToSave.KeyPress
-        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtMaxPeakMatchingResultsPerFeatureToSave, e, True)
+    Private Sub txtMaxPeakMatchingResultsPerFeatureToSave_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtMaxPeakMatchingResultsPerFeatureToSave.KeyPress
+        VBNetRoutines.TextBoxKeyPressHandler(txtMaxPeakMatchingResultsPerFeatureToSave, e, True)
     End Sub
 
-    Private Sub txtMaxPeakMatchingResultsPerFeatureToSave_Validating(sender As Object, e As System.ComponentModel.CancelEventArgs) Handles txtMaxPeakMatchingResultsPerFeatureToSave.Validating
+    Private Sub txtMaxPeakMatchingResultsPerFeatureToSave_Validating(sender As Object, e As CancelEventArgs) Handles txtMaxPeakMatchingResultsPerFeatureToSave.Validating
         If txtMaxPeakMatchingResultsPerFeatureToSave.Text.Trim = "0" Then txtMaxPeakMatchingResultsPerFeatureToSave.Text = "1"
-        SharedVBNetRoutines.VBNetRoutines.ValidateTextboxInt(txtMaxPeakMatchingResultsPerFeatureToSave, 1, 100, 3)
+        VBNetRoutines.ValidateTextboxInt(txtMaxPeakMatchingResultsPerFeatureToSave, 1, 100, 3)
     End Sub
 
-    Private Sub txtMaxpISequenceLength_KeyDown(sender As Object, e As System.Windows.Forms.KeyEventArgs) Handles txtMaxpISequenceLength.KeyDown
+    Private Sub txtMaxpISequenceLength_KeyDown(sender As Object, e As KeyEventArgs) Handles txtMaxpISequenceLength.KeyDown
         If e.KeyCode = Keys.Enter AndAlso chkMaxpIModeEnabled.Checked Then ComputeSequencepI()
     End Sub
 
-    Private Sub txtMaxpISequenceLength_KeyPress(sender As Object, e As System.Windows.Forms.KeyPressEventArgs) Handles txtMaxpISequenceLength.KeyPress
-        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtMaxpISequenceLength, e, True, False)
+    Private Sub txtMaxpISequenceLength_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtMaxpISequenceLength.KeyPress
+        VBNetRoutines.TextBoxKeyPressHandler(txtMaxpISequenceLength, e, True, False)
     End Sub
 
-    Private Sub txtMaxpISequenceLength_Validating(sender As Object, e As System.ComponentModel.CancelEventArgs) Handles txtMaxpISequenceLength.Validating
-        SharedVBNetRoutines.VBNetRoutines.ValidateTextboxInt(txtMaxpISequenceLength, 1, 10000, 10)
+    Private Sub txtMaxpISequenceLength_Validating(sender As Object, e As CancelEventArgs) Handles txtMaxpISequenceLength.Validating
+        VBNetRoutines.ValidateTextboxInt(txtMaxpISequenceLength, 1, 10000, 10)
     End Sub
 
-    Private Sub txtMaxpISequenceLength_Validated(sender As Object, e As System.EventArgs) Handles txtMaxpISequenceLength.Validated
+    Private Sub txtMaxpISequenceLength_Validated(sender As Object, e As EventArgs) Handles txtMaxpISequenceLength.Validated
         ComputeSequencepI()
     End Sub
 
-    Private Sub txtMinimumSLiCScore_KeyPress(sender As Object, e As System.Windows.Forms.KeyPressEventArgs) Handles txtMinimumSLiCScore.KeyPress
-        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtMinimumSLiCScore, e, True, True)
+    Private Sub txtMinimumSLiCScore_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtMinimumSLiCScore.KeyPress
+        VBNetRoutines.TextBoxKeyPressHandler(txtMinimumSLiCScore, e, True, True)
     End Sub
 
-    Private Sub txtMinimumSLiCScore_Validating(sender As Object, e As System.ComponentModel.CancelEventArgs) Handles txtMinimumSLiCScore.Validating
-        SharedVBNetRoutines.VBNetRoutines.ValidateTextboxSng(txtMinimumSLiCScore, 0, 1, 0.95)
+    Private Sub txtMinimumSLiCScore_Validating(sender As Object, e As CancelEventArgs) Handles txtMinimumSLiCScore.Validating
+        VBNetRoutines.ValidateTextboxSng(txtMinimumSLiCScore, 0, 1, 0.95)
     End Sub
 
-    Private Sub txtProteinInputFilePath_TextChanged(sender As System.Object, e As System.EventArgs) Handles txtProteinInputFilePath.TextChanged
+    Private Sub txtProteinInputFilePath_TextChanged(sender As Object, e As EventArgs) Handles txtProteinInputFilePath.TextChanged
         EnableDisableControls()
         AutoDefineOutputFile()
     End Sub
 
-    Private Sub txtProteinReversalSamplingPercentage_KeyPress(sender As Object, e As System.Windows.Forms.KeyPressEventArgs) Handles txtProteinReversalSamplingPercentage.KeyPress
-        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtProteinReversalSamplingPercentage, e, True)
+    Private Sub txtProteinReversalSamplingPercentage_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtProteinReversalSamplingPercentage.KeyPress
+        VBNetRoutines.TextBoxKeyPressHandler(txtProteinReversalSamplingPercentage, e, True)
     End Sub
 
-    Private Sub txtProteinScramblingLoopCount_KeyPress(sender As Object, e As System.Windows.Forms.KeyPressEventArgs) Handles txtProteinScramblingLoopCount.KeyPress
-        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtProteinScramblingLoopCount, e, True)
+    Private Sub txtProteinScramblingLoopCount_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtProteinScramblingLoopCount.KeyPress
+        VBNetRoutines.TextBoxKeyPressHandler(txtProteinScramblingLoopCount, e, True)
     End Sub
 
-    Private Sub txtSequenceForpI_TextChanged(sender As System.Object, e As System.EventArgs) Handles txtSequenceForpI.TextChanged
+    Private Sub txtSequenceForpI_TextChanged(sender As Object, e As EventArgs) Handles txtSequenceForpI.TextChanged
         ComputeSequencepI()
     End Sub
 
-    Private Sub txtUniquenessBinWidth_KeyPress(sender As Object, e As System.Windows.Forms.KeyPressEventArgs) Handles txtUniquenessBinWidth.KeyPress
-        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtUniquenessBinWidth, e, True)
+    Private Sub txtUniquenessBinWidth_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtUniquenessBinWidth.KeyPress
+        VBNetRoutines.TextBoxKeyPressHandler(txtUniquenessBinWidth, e, True)
     End Sub
 
-    Private Sub txtUniquenessBinStartMass_KeyPress(sender As Object, e As System.Windows.Forms.KeyPressEventArgs) Handles txtUniquenessBinStartMass.KeyPress
-        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtUniquenessBinStartMass, e, True)
+    Private Sub txtUniquenessBinStartMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtUniquenessBinStartMass.KeyPress
+        VBNetRoutines.TextBoxKeyPressHandler(txtUniquenessBinStartMass, e, True)
     End Sub
 
-    Private Sub txtUniquenessBinEndMass_KeyPress(sender As Object, e As System.Windows.Forms.KeyPressEventArgs) Handles txtUniquenessBinEndMass.KeyPress
-        SharedVBNetRoutines.VBNetRoutines.TextBoxKeyPressHandler(txtUniquenessBinEndMass, e, True)
+    Private Sub txtUniquenessBinEndMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtUniquenessBinEndMass.KeyPress
+        VBNetRoutines.TextBoxKeyPressHandler(txtUniquenessBinEndMass, e, True)
     End Sub
 
 #End Region
 
 #Region "Menu Handlers"
-    Private Sub mnuFileSelectInputFile_Click(sender As System.Object, e As System.EventArgs) Handles mnuFileSelectInputFile.Click
+    Private Sub mnuFileSelectInputFile_Click(sender As Object, e As EventArgs) Handles mnuFileSelectInputFile.Click
         SelectInputFile()
     End Sub
 
-    Private Sub mnuFileSelectOutputFile_Click(sender As System.Object, e As System.EventArgs) Handles mnuFileSelectOutputFile.Click
+    Private Sub mnuFileSelectOutputFile_Click(sender As Object, e As EventArgs) Handles mnuFileSelectOutputFile.Click
         SelectOutputFile()
     End Sub
 
-    Private Sub mnuFileSaveDefaultOptions_Click(sender As System.Object, e As System.EventArgs) Handles mnuFileSaveDefaultOptions.Click
+    Private Sub mnuFileSaveDefaultOptions_Click(sender As Object, e As EventArgs) Handles mnuFileSaveDefaultOptions.Click
         IniFileSaveOptions()
     End Sub
 
-    Private Sub mnuFileExit_Click(sender As System.Object, e As System.EventArgs) Handles mnuFileExit.Click
+    Private Sub mnuFileExit_Click(sender As Object, e As EventArgs) Handles mnuFileExit.Click
         Me.Close()
     End Sub
 
-    Private Sub mnuEditMakeUniquenessStats_Click(sender As System.Object, e As System.EventArgs) Handles mnuEditMakeUniquenessStats.Click
+    Private Sub mnuEditMakeUniquenessStats_Click(sender As Object, e As EventArgs) Handles mnuEditMakeUniquenessStats.Click
         GenerateUniquenessStats()
     End Sub
 
-    Private Sub mnuEditParseFile_Click(sender As System.Object, e As System.EventArgs) Handles mnuEditParseFile.Click
+    Private Sub mnuEditParseFile_Click(sender As Object, e As EventArgs) Handles mnuEditParseFile.Click
         ParseProteinInputFile()
     End Sub
 
-    Private Sub mnuEditResetOptions_Click(sender As System.Object, e As System.EventArgs) Handles mnuEditResetOptions.Click
+    Private Sub mnuEditResetOptions_Click(sender As Object, e As EventArgs) Handles mnuEditResetOptions.Click
         ResetToDefaults(True)
     End Sub
 
-    Private Sub mnuHelpAbout_Click(sender As System.Object, e As System.EventArgs) Handles mnuHelpAbout.Click
+    Private Sub mnuHelpAbout_Click(sender As Object, e As EventArgs) Handles mnuHelpAbout.Click
         ShowAboutBox()
     End Sub
 
-    Private Sub mnuHelpAboutElutionTime_Click(sender As System.Object, e As System.EventArgs) Handles mnuHelpAboutElutionTime.Click
+    Private Sub mnuHelpAboutElutionTime_Click(sender As Object, e As EventArgs) Handles mnuHelpAboutElutionTime.Click
         ShowElutionTimeInfo()
     End Sub
 
@@ -2264,14 +2247,14 @@ Public Class frmMain
 
     Private Sub mParseProteinFile_ErrorEvent(strMessage As String) Handles mParseProteinFile.ErrorEvent
         lblErrorMessage.Text = "Error in mParseProteinFile: " & strMessage
-        System.Windows.Forms.Application.DoEvents()
+        Application.DoEvents()
     End Sub
 
     Private Sub mParseProteinFile_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mParseProteinFile.ProgressChanged
         lblProgressDescription.Text = taskDescription
         lblProgress.Text = FormatPercentComplete(percentComplete)
         pbarProgress.Value = CInt(percentComplete)
-        System.Windows.Forms.Application.DoEvents()
+        Application.DoEvents()
     End Sub
 
     Private Sub mParseProteinFile_ProgressComplete() Handles mParseProteinFile.ProgressComplete
@@ -2283,7 +2266,7 @@ Public Class frmMain
         lblSubtaskProgressDescription.Text = ""
         Me.SubtaskProgressIsVisible = False
 
-        System.Windows.Forms.Application.DoEvents()
+        Application.DoEvents()
     End Sub
 
     Private Sub mParseProteinFile_ProgressReset() Handles mParseProteinFile.ProgressReset
@@ -2294,19 +2277,19 @@ Public Class frmMain
         lblSubtaskProgressDescription.Text = taskDescription
         lblSubtaskProgress.Text = FormatPercentComplete(percentComplete)
         SubtaskProgressIsVisible = True
-        System.Windows.Forms.Application.DoEvents()
+        Application.DoEvents()
     End Sub
 
     Private Sub mProteinDigestionSimulator_ErrorEvent(strMessage As String) Handles mProteinDigestionSimulator.ErrorEvent
         lblErrorMessage.Text = "Error in mProteinDigestionSimulator: " & strMessage
-        System.Windows.Forms.Application.DoEvents()
+        Application.DoEvents()
     End Sub
 
     Private Sub mProteinDigestionSimulator_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mProteinDigestionSimulator.ProgressChanged
         lblProgressDescription.Text = taskDescription
         lblProgress.Text = FormatPercentComplete(percentComplete)
         pbarProgress.Value = CInt(percentComplete)
-        System.Windows.Forms.Application.DoEvents()
+        Application.DoEvents()
     End Sub
 
     Private Sub mProteinDigestionSimulator_ProgressComplete() Handles mProteinDigestionSimulator.ProgressComplete
@@ -2318,7 +2301,7 @@ Public Class frmMain
         lblSubtaskProgressDescription.Text = ""
         Me.SubtaskProgressIsVisible = False
 
-        System.Windows.Forms.Application.DoEvents()
+        Application.DoEvents()
     End Sub
 
     Private Sub mProteinDigestionSimulator_ProgressReset() Handles mProteinDigestionSimulator.ProgressReset
@@ -2329,7 +2312,7 @@ Public Class frmMain
         lblSubtaskProgressDescription.Text = taskDescription
         lblSubtaskProgress.Text = FormatPercentComplete(percentComplete)
         SubtaskProgressIsVisible = True
-        System.Windows.Forms.Application.DoEvents()
+        Application.DoEvents()
     End Sub
 
 #End Region

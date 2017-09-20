@@ -2,7 +2,7 @@ Option Strict On
 
 ' This class will read a protein fasta file or delimited protein info file and parse it
 ' to create a delimited protein list output file, and optionally an in-silico digested output file
-' 
+'
 ' It can also create a fasta file containing reversed or scrambled sequences, and these can
 ' be based on all of the proteins in the input file, or a sampling of the proteins in the input file
 '
@@ -46,7 +46,7 @@ Public Class clsParseProteinFile
 
     Private Const MAX_ABBREVIATED_FILENAME_LENGTH As Integer = 15
 
-    ' The value of 7995 is chosen because the maximum varchar() value in Sql Server is varchar(8000) 
+    ' The value of 7995 is chosen because the maximum varchar() value in Sql Server is varchar(8000)
     ' and we want to prevent truncation errors when importing protein names and descriptions into Sql Server
     Private Const MAX_PROTEIN_DESCRIPTION_LENGTH As Integer = clsValidateFastaFile.MAX_PROTEIN_DESCRIPTION_LENGTH
 
@@ -518,7 +518,7 @@ Public Class clsParseProteinFile
 
         Dim strErrorMessage As String
 
-        If MyBase.ErrorCode = eProcessFilesErrorCodes.LocalizedError Or _
+        If MyBase.ErrorCode = eProcessFilesErrorCodes.LocalizedError Or
            MyBase.ErrorCode = eProcessFilesErrorCodes.NoError Then
             Select Case mLocalErrorCode
                 Case eParseProteinFileErrorCodes.NoError
@@ -1336,7 +1336,7 @@ Public Class clsParseProteinFile
     End Sub
 
     Private Sub ParseProteinFileWriteDigested(
-      swDigestOutputFile As StreamWriter,
+      swDigestOutputFile As TextWriter,
       blnGenerateUniqueSequenceID As Boolean)
 
         Dim udtPeptides() As clsInSilicoDigest.PeptideInfoClass = Nothing
@@ -1393,7 +1393,7 @@ Public Class clsParseProteinFile
 
     End Sub
 
-    Private Sub ParseProteinFileWriteFasta(swProteinOutputFile As StreamWriter)
+    Private Sub ParseProteinFileWriteFasta(swProteinOutputFile As TextWriter)
         ' Write the entry to the output fasta file
 
         With mProteins(mProteinCount)
@@ -1417,7 +1417,7 @@ Public Class clsParseProteinFile
     End Sub
 
     Private Sub ParseProteinFileWriteTextDelimited(
-      swProteinOutputFile As StreamWriter,
+      swProteinOutputFile As TextWriter,
       blnLookForAddnlRefInDescription As Boolean,
       ByRef udtAddnlRefsToOutput() As udtAddnlRefType)
 
@@ -1651,7 +1651,7 @@ Public Class clsParseProteinFile
 
     Private Sub PreScanProteinFileForAddnlRefsInDescription(
       strProteinInputFilePath As String,
-      lstAddnlRefMasterNames As SortedSet(Of String))
+      lstAddnlRefMasterNames As ISet(Of String))
 
         Dim objFastaFileReader As FastaFileReader = Nothing
         Dim udtProtein As udtProteinInfoType
@@ -1717,8 +1717,6 @@ Public Class clsParseProteinFile
 
             objFastaFileReader.CloseFile()
 
-            blnSuccess = True
-
         Catch ex As Exception
             SetLocalErrorCode(eParseProteinFileErrorCodes.ErrorReadingInputFile)
         End Try
@@ -1747,7 +1745,7 @@ Public Class clsParseProteinFile
 
     End Function
 
-    Private Sub WriteFastaAppendToCache(srScrambledOutStream As StreamWriter, ByRef udtResidueCache As udtScrambingResidueCacheType, strProteinNamePrefix As String, blnFlushResiduesToWrite As Boolean)
+    Private Sub WriteFastaAppendToCache(srScrambledOutStream As TextWriter, ByRef udtResidueCache As udtScrambingResidueCacheType, strProteinNamePrefix As String, blnFlushResiduesToWrite As Boolean)
 
         Dim intResidueCount As Integer
         Dim intResiduesToAppend As Integer
@@ -1786,7 +1784,7 @@ Public Class clsParseProteinFile
 
     End Sub
 
-    Private Sub WriteFastaEmptyCache(srScrambledOutStream As StreamWriter, ByRef udtResidueCache As udtScrambingResidueCacheType, strProteinNamePrefix As String, intSamplingPercentage As Integer)
+    Private Sub WriteFastaEmptyCache(srScrambledOutStream As TextWriter, ByRef udtResidueCache As udtScrambingResidueCacheType, strProteinNamePrefix As String, intSamplingPercentage As Integer)
         Dim strProteinName As String
         Dim strHeaderLine As String
 
@@ -1819,7 +1817,7 @@ Public Class clsParseProteinFile
 
     End Sub
 
-    Private Sub WriteFastaProteinAndResidues(srScrambledOutStream As StreamWriter, strHeaderline As String, strSequence As String)
+    Private Sub WriteFastaProteinAndResidues(srScrambledOutStream As TextWriter, strHeaderline As String, strSequence As String)
         srScrambledOutStream.WriteLine(strHeaderline)
         Do While strSequence.Length > 0
             If strSequence.Length >= 60 Then
@@ -1832,7 +1830,7 @@ Public Class clsParseProteinFile
         Loop
     End Sub
 
-    Private Sub WriteScrambledFasta(srScrambledOutStream As StreamWriter, ByRef objRandomNumberGenerator As Random, udtProtein As udtProteinInfoType, eScramblingMode As ProteinScramblingModeConstants, ByRef udtResidueCache As udtScrambingResidueCacheType)
+    Private Sub WriteScrambledFasta(srScrambledOutStream As TextWriter, ByRef objRandomNumberGenerator As Random, udtProtein As udtProteinInfoType, eScramblingMode As ProteinScramblingModeConstants, ByRef udtResidueCache As udtScrambingResidueCacheType)
 
         Dim strSequence As String
         Dim strScrambledSequence As String
@@ -2034,7 +2032,7 @@ Public Class clsParseProteinFile
         Implements IComparer(Of udtAddnlRefType)
 
         Public Function Compare(x As udtAddnlRefType, y As udtAddnlRefType) As Integer Implements IComparer(Of udtAddnlRefType).Compare
-            
+
             If x.RefName > y.RefName Then
                 Return 1
             ElseIf x.RefName < y.RefName Then
