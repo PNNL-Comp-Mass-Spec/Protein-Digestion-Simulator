@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.6622; February 17, 2018
+	- Updated FlexibleFileSortUtility.dll and ValidateFastaFile.dll
+
 Version 2.2.6471; September 19, 2017
 	- Hide the console window when the GUI is shown
 	- Updated ValidateFastaFile.dll
