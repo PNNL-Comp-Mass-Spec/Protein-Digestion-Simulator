@@ -691,6 +691,7 @@ Public Class frmMain
                     chkComputeSequenceHashValues.Checked = .GetParam(ProcessingOptions, "ComputeSequenceHashValues", chkComputeSequenceHashValues.Checked)
                     chkComputeSequenceHashIgnoreILDiff.Checked = .GetParam(ProcessingOptions, "ComputeSequenceHashIgnoreILDiff", chkComputeSequenceHashIgnoreILDiff.Checked)
                     chkTruncateProteinDescription.Checked = .GetParam(ProcessingOptions, "TruncateProteinDescription", chkTruncateProteinDescription.Checked)
+                    chkExcludeProteinDescription.Checked = .GetParam(ProcessingOptions, "ExcludeProteinDescription", chkExcludeProteinDescription.Checked)
 
                     chkDigestProteins.Checked = .GetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked)
                     cboProteinReversalOptions.SelectedIndex = .GetParam(ProcessingOptions, "ProteinReversalIndex", cboProteinReversalOptions.SelectedIndex)
@@ -849,6 +850,7 @@ Public Class frmMain
                         .SetParam(ProcessingOptions, "ComputeSequenceHashValues", chkComputeSequenceHashValues.Checked)
                         .SetParam(ProcessingOptions, "ComputeSequenceHashIgnoreILDiff", chkComputeSequenceHashIgnoreILDiff.Checked)
                         .SetParam(ProcessingOptions, "TruncateProteinDescription", chkTruncateProteinDescription.Checked)
+                        .SetParam(ProcessingOptions, "ExcludeProteinDescription", chkExcludeProteinDescription.Checked)
 
                         .SetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked)
                         .SetParam(ProcessingOptions, "ProteinReversalIndex", cboProteinReversalOptions.SelectedIndex)
@@ -1068,6 +1070,7 @@ Public Class frmMain
             .ComputeSequenceHashValues = chkComputeSequenceHashValues.Checked
             .ComputeSequenceHashIgnoreILDiff = chkComputeSequenceHashIgnoreILDiff.Checked
             .TruncateProteinDescription = chkTruncateProteinDescription.Checked
+            .ExcludeProteinDescription = chkExcludeProteinDescription.Checked
 
             .HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, clspICalculation.eHydrophobicityTypeConstants)
             .ReportMaximumpI = chkMaxpIModeEnabled.Checked
@@ -1562,6 +1565,7 @@ Public Class frmMain
         chkComputeSequenceHashValues.Checked = True
         chkComputeSequenceHashIgnoreILDiff.Checked = True
         chkTruncateProteinDescription.Checked = True
+        chkExcludeProteinDescription.Checked = False
 
         cboHydrophobicityMode.SelectedIndex = clspICalculation.eHydrophobicityTypeConstants.HW
         chkMaxpIModeEnabled.Checked = False

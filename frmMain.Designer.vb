@@ -100,6 +100,7 @@ Partial Class frmMain
         Me.txtAddnlRefSepChar = New System.Windows.Forms.TextBox()
         Me.chkCreateFastaOutputFile = New System.Windows.Forms.CheckBox()
         Me.fraCalculationOptions = New System.Windows.Forms.GroupBox()
+        Me.chkExcludeProteinDescription = New System.Windows.Forms.CheckBox()
         Me.chkComputeSequenceHashIgnoreILDiff = New System.Windows.Forms.CheckBox()
         Me.chkTruncateProteinDescription = New System.Windows.Forms.CheckBox()
         Me.chkComputeSequenceHashValues = New System.Windows.Forms.CheckBox()
@@ -196,11 +197,11 @@ Partial Class frmMain
         'txtProteinInputFilePath
         '
         Me.txtProteinInputFilePath.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-                  Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtProteinInputFilePath.Location = New System.Drawing.Point(139, 32)
         Me.txtProteinInputFilePath.Margin = New System.Windows.Forms.Padding(4)
         Me.txtProteinInputFilePath.Name = "txtProteinInputFilePath"
-        Me.txtProteinInputFilePath.Size = New System.Drawing.Size(750, 22)
+        Me.txtProteinInputFilePath.Size = New System.Drawing.Size(813, 22)
         Me.txtProteinInputFilePath.TabIndex = 1
         '
         'optUseRectangleSearchRegion
@@ -328,7 +329,7 @@ Partial Class frmMain
         Me.TabPageUniquenessStats.Location = New System.Drawing.Point(4, 25)
         Me.TabPageUniquenessStats.Margin = New System.Windows.Forms.Padding(4)
         Me.TabPageUniquenessStats.Name = "TabPageUniquenessStats"
-        Me.TabPageUniquenessStats.Size = New System.Drawing.Size(903, 407)
+        Me.TabPageUniquenessStats.Size = New System.Drawing.Size(931, 407)
         Me.TabPageUniquenessStats.TabIndex = 1
         Me.TabPageUniquenessStats.Text = "Peptide Uniqueness Options"
         Me.TabPageUniquenessStats.UseVisualStyleBackColor = True
@@ -572,8 +573,8 @@ Partial Class frmMain
         Me.lblUniquenessStatsNote.Name = "lblUniquenessStatsNote"
         Me.lblUniquenessStatsNote.Size = New System.Drawing.Size(267, 59)
         Me.lblUniquenessStatsNote.TabIndex = 1
-        Me.lblUniquenessStatsNote.Text = "Note that Digestion Options and Mass Calculation Options also apply for uniquenes" & _
-          "s stats generation."
+        Me.lblUniquenessStatsNote.Text = "Note that Digestion Options and Mass Calculation Options also apply for uniquenes" &
+    "s stats generation."
         '
         'cmdGenerateUniquenessStats
         '
@@ -788,7 +789,7 @@ Partial Class frmMain
         Me.TabPageFileFormatOptions.Location = New System.Drawing.Point(4, 25)
         Me.TabPageFileFormatOptions.Margin = New System.Windows.Forms.Padding(4)
         Me.TabPageFileFormatOptions.Name = "TabPageFileFormatOptions"
-        Me.TabPageFileFormatOptions.Size = New System.Drawing.Size(903, 407)
+        Me.TabPageFileFormatOptions.Size = New System.Drawing.Size(931, 407)
         Me.TabPageFileFormatOptions.TabIndex = 2
         Me.TabPageFileFormatOptions.Text = "File Format Options"
         Me.TabPageFileFormatOptions.UseVisualStyleBackColor = True
@@ -867,7 +868,7 @@ Partial Class frmMain
         Me.tbsOptions.Margin = New System.Windows.Forms.Padding(4)
         Me.tbsOptions.Name = "tbsOptions"
         Me.tbsOptions.SelectedIndex = 0
-        Me.tbsOptions.Size = New System.Drawing.Size(911, 436)
+        Me.tbsOptions.Size = New System.Drawing.Size(939, 436)
         Me.tbsOptions.TabIndex = 5
         '
         'TabPageParseAndDigest
@@ -879,7 +880,7 @@ Partial Class frmMain
         Me.TabPageParseAndDigest.Location = New System.Drawing.Point(4, 25)
         Me.TabPageParseAndDigest.Margin = New System.Windows.Forms.Padding(4)
         Me.TabPageParseAndDigest.Name = "TabPageParseAndDigest"
-        Me.TabPageParseAndDigest.Size = New System.Drawing.Size(903, 407)
+        Me.TabPageParseAndDigest.Size = New System.Drawing.Size(931, 407)
         Me.TabPageParseAndDigest.TabIndex = 0
         Me.TabPageParseAndDigest.Text = "Parse and Digest File Options"
         Me.TabPageParseAndDigest.UseVisualStyleBackColor = True
@@ -1006,6 +1007,7 @@ Partial Class frmMain
         '
         'fraCalculationOptions
         '
+        Me.fraCalculationOptions.Controls.Add(Me.chkExcludeProteinDescription)
         Me.fraCalculationOptions.Controls.Add(Me.chkComputeSequenceHashIgnoreILDiff)
         Me.fraCalculationOptions.Controls.Add(Me.chkTruncateProteinDescription)
         Me.fraCalculationOptions.Controls.Add(Me.chkComputeSequenceHashValues)
@@ -1019,16 +1021,25 @@ Partial Class frmMain
         Me.fraCalculationOptions.Margin = New System.Windows.Forms.Padding(4)
         Me.fraCalculationOptions.Name = "fraCalculationOptions"
         Me.fraCalculationOptions.Padding = New System.Windows.Forms.Padding(4)
-        Me.fraCalculationOptions.Size = New System.Drawing.Size(384, 185)
+        Me.fraCalculationOptions.Size = New System.Drawing.Size(410, 185)
         Me.fraCalculationOptions.TabIndex = 1
         Me.fraCalculationOptions.TabStop = False
         Me.fraCalculationOptions.Text = "Calculation Options"
+        '
+        'chkExcludeProteinDescription
+        '
+        Me.chkExcludeProteinDescription.Location = New System.Drawing.Point(247, 158)
+        Me.chkExcludeProteinDescription.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkExcludeProteinDescription.Name = "chkExcludeProteinDescription"
+        Me.chkExcludeProteinDescription.Size = New System.Drawing.Size(160, 23)
+        Me.chkExcludeProteinDescription.TabIndex = 9
+        Me.chkExcludeProteinDescription.Text = "Exclude Description"
         '
         'chkComputeSequenceHashIgnoreILDiff
         '
         Me.chkComputeSequenceHashIgnoreILDiff.Checked = True
         Me.chkComputeSequenceHashIgnoreILDiff.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkComputeSequenceHashIgnoreILDiff.Location = New System.Drawing.Point(237, 132)
+        Me.chkComputeSequenceHashIgnoreILDiff.Location = New System.Drawing.Point(247, 132)
         Me.chkComputeSequenceHashIgnoreILDiff.Margin = New System.Windows.Forms.Padding(4)
         Me.chkComputeSequenceHashIgnoreILDiff.Name = "chkComputeSequenceHashIgnoreILDiff"
         Me.chkComputeSequenceHashIgnoreILDiff.Size = New System.Drawing.Size(139, 23)
@@ -1039,21 +1050,21 @@ Partial Class frmMain
         '
         Me.chkTruncateProteinDescription.Checked = True
         Me.chkTruncateProteinDescription.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkTruncateProteinDescription.Location = New System.Drawing.Point(20, 157)
+        Me.chkTruncateProteinDescription.Location = New System.Drawing.Point(21, 158)
         Me.chkTruncateProteinDescription.Margin = New System.Windows.Forms.Padding(4)
         Me.chkTruncateProteinDescription.Name = "chkTruncateProteinDescription"
-        Me.chkTruncateProteinDescription.Size = New System.Drawing.Size(288, 20)
+        Me.chkTruncateProteinDescription.Size = New System.Drawing.Size(219, 23)
         Me.chkTruncateProteinDescription.TabIndex = 7
-        Me.chkTruncateProteinDescription.Text = "Truncate description (if over 7995 chars)"
+        Me.chkTruncateProteinDescription.Text = "Truncate long description"
         '
         'chkComputeSequenceHashValues
         '
         Me.chkComputeSequenceHashValues.Checked = True
         Me.chkComputeSequenceHashValues.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkComputeSequenceHashValues.Location = New System.Drawing.Point(21, 133)
+        Me.chkComputeSequenceHashValues.Location = New System.Drawing.Point(21, 132)
         Me.chkComputeSequenceHashValues.Margin = New System.Windows.Forms.Padding(4)
         Me.chkComputeSequenceHashValues.Name = "chkComputeSequenceHashValues"
-        Me.chkComputeSequenceHashValues.Size = New System.Drawing.Size(218, 20)
+        Me.chkComputeSequenceHashValues.Size = New System.Drawing.Size(218, 23)
         Me.chkComputeSequenceHashValues.TabIndex = 6
         Me.chkComputeSequenceHashValues.Text = "Compute sequence hashes"
         '
@@ -1134,7 +1145,7 @@ Partial Class frmMain
         Me.fraDigestionOptions.Margin = New System.Windows.Forms.Padding(4)
         Me.fraDigestionOptions.Name = "fraDigestionOptions"
         Me.fraDigestionOptions.Padding = New System.Windows.Forms.Padding(4)
-        Me.fraDigestionOptions.Size = New System.Drawing.Size(874, 158)
+        Me.fraDigestionOptions.Size = New System.Drawing.Size(900, 158)
         Me.fraDigestionOptions.TabIndex = 2
         Me.fraDigestionOptions.TabStop = False
         Me.fraDigestionOptions.Text = "Digestion Options"
@@ -1307,7 +1318,7 @@ Partial Class frmMain
         Me.TabPagePeakMatchingThresholds.Location = New System.Drawing.Point(4, 25)
         Me.TabPagePeakMatchingThresholds.Margin = New System.Windows.Forms.Padding(4)
         Me.TabPagePeakMatchingThresholds.Name = "TabPagePeakMatchingThresholds"
-        Me.TabPagePeakMatchingThresholds.Size = New System.Drawing.Size(903, 407)
+        Me.TabPagePeakMatchingThresholds.Size = New System.Drawing.Size(931, 407)
         Me.TabPagePeakMatchingThresholds.TabIndex = 3
         Me.TabPagePeakMatchingThresholds.Text = "Peak Matching Thresholds"
         Me.TabPagePeakMatchingThresholds.UseVisualStyleBackColor = True
@@ -1400,7 +1411,7 @@ Partial Class frmMain
         Me.TabPageProgress.Location = New System.Drawing.Point(4, 25)
         Me.TabPageProgress.Margin = New System.Windows.Forms.Padding(4)
         Me.TabPageProgress.Name = "TabPageProgress"
-        Me.TabPageProgress.Size = New System.Drawing.Size(903, 407)
+        Me.TabPageProgress.Size = New System.Drawing.Size(931, 407)
         Me.TabPageProgress.TabIndex = 4
         Me.TabPageProgress.Text = "Progress"
         Me.TabPageProgress.UseVisualStyleBackColor = True
@@ -1416,7 +1427,7 @@ Partial Class frmMain
         'lblErrorMessage
         '
         Me.lblErrorMessage.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-                  Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.lblErrorMessage.Location = New System.Drawing.Point(183, 138)
         Me.lblErrorMessage.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblErrorMessage.Name = "lblErrorMessage"
@@ -1447,7 +1458,7 @@ Partial Class frmMain
         'lblSubtaskProgressDescription
         '
         Me.lblSubtaskProgressDescription.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-                  Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.lblSubtaskProgressDescription.Location = New System.Drawing.Point(187, 75)
         Me.lblSubtaskProgressDescription.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblSubtaskProgressDescription.Name = "lblSubtaskProgressDescription"
@@ -1459,7 +1470,7 @@ Partial Class frmMain
         'lblProgressDescription
         '
         Me.lblProgressDescription.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-                  Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.lblProgressDescription.Location = New System.Drawing.Point(187, 15)
         Me.lblProgressDescription.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblProgressDescription.Name = "lblProgressDescription"
@@ -1511,7 +1522,7 @@ Partial Class frmMain
         'fraInputFilePath
         '
         Me.fraInputFilePath.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-                  Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.fraInputFilePath.Controls.Add(Me.cmdValidateFastaFile)
         Me.fraInputFilePath.Controls.Add(Me.cboInputFileFormat)
         Me.fraInputFilePath.Controls.Add(Me.lblInputFileFormat)
@@ -1521,7 +1532,7 @@ Partial Class frmMain
         Me.fraInputFilePath.Margin = New System.Windows.Forms.Padding(4)
         Me.fraInputFilePath.Name = "fraInputFilePath"
         Me.fraInputFilePath.Padding = New System.Windows.Forms.Padding(4)
-        Me.fraInputFilePath.Size = New System.Drawing.Size(911, 108)
+        Me.fraInputFilePath.Size = New System.Drawing.Size(974, 108)
         Me.fraInputFilePath.TabIndex = 3
         Me.fraInputFilePath.TabStop = False
         Me.fraInputFilePath.Text = "Protein Input File Path (Fasta or Tab-delimited)"
@@ -1529,7 +1540,7 @@ Partial Class frmMain
         'cmdValidateFastaFile
         '
         Me.cmdValidateFastaFile.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.cmdValidateFastaFile.Location = New System.Drawing.Point(730, 69)
+        Me.cmdValidateFastaFile.Location = New System.Drawing.Point(793, 69)
         Me.cmdValidateFastaFile.Margin = New System.Windows.Forms.Padding(4)
         Me.cmdValidateFastaFile.Name = "cmdValidateFastaFile"
         Me.cmdValidateFastaFile.Size = New System.Drawing.Size(160, 30)
@@ -1595,11 +1606,11 @@ Partial Class frmMain
         'txtProteinOutputFilePath
         '
         Me.txtProteinOutputFilePath.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-                  Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.txtProteinOutputFilePath.Location = New System.Drawing.Point(139, 76)
         Me.txtProteinOutputFilePath.Margin = New System.Windows.Forms.Padding(4)
         Me.txtProteinOutputFilePath.Name = "txtProteinOutputFilePath"
-        Me.txtProteinOutputFilePath.Size = New System.Drawing.Size(750, 22)
+        Me.txtProteinOutputFilePath.Size = New System.Drawing.Size(813, 22)
         Me.txtProteinOutputFilePath.TabIndex = 6
         '
         'chkIncludePrefixAndSuffixResidues
@@ -1683,7 +1694,7 @@ Partial Class frmMain
         'fraOutputTextOptions
         '
         Me.fraOutputTextOptions.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-                  Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.fraOutputTextOptions.Controls.Add(Me.chkEnableLogging)
         Me.fraOutputTextOptions.Controls.Add(Me.cmdSelectOutputFile)
         Me.fraOutputTextOptions.Controls.Add(Me.txtProteinOutputFilePath)
@@ -1695,7 +1706,7 @@ Partial Class frmMain
         Me.fraOutputTextOptions.Margin = New System.Windows.Forms.Padding(4)
         Me.fraOutputTextOptions.Name = "fraOutputTextOptions"
         Me.fraOutputTextOptions.Padding = New System.Windows.Forms.Padding(4)
-        Me.fraOutputTextOptions.Size = New System.Drawing.Size(911, 118)
+        Me.fraOutputTextOptions.Size = New System.Drawing.Size(974, 118)
         Me.fraOutputTextOptions.TabIndex = 4
         Me.fraOutputTextOptions.TabStop = False
         Me.fraOutputTextOptions.Text = "Output Options"
@@ -1704,7 +1715,7 @@ Partial Class frmMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(943, 710)
+        Me.ClientSize = New System.Drawing.Size(1006, 710)
         Me.Controls.Add(Me.tbsOptions)
         Me.Controls.Add(Me.fraInputFilePath)
         Me.Controls.Add(Me.fraOutputTextOptions)
@@ -1889,8 +1900,9 @@ Partial Class frmMain
     Friend WithEvents lblOutputFileFieldDelimiter As System.Windows.Forms.Label
     Friend WithEvents cboOutputFileFieldDelimeter As System.Windows.Forms.ComboBox
     Friend WithEvents txtOutputFileFieldDelimeter As System.Windows.Forms.TextBox
-    Friend WithEvents fraOutputTextOptions As System.Windows.Forms.GroupBox
-    Friend WithEvents chkTruncateProteinDescription As System.Windows.Forms.CheckBox
-    Friend WithEvents chkComputeSequenceHashValues As System.Windows.Forms.CheckBox
-    Friend WithEvents chkComputeSequenceHashIgnoreILDiff As System.Windows.Forms.CheckBox
+	Friend WithEvents fraOutputTextOptions As System.Windows.Forms.GroupBox
+	Friend WithEvents chkTruncateProteinDescription As System.Windows.Forms.CheckBox
+	Friend WithEvents chkComputeSequenceHashValues As System.Windows.Forms.CheckBox
+	Friend WithEvents chkComputeSequenceHashIgnoreILDiff As System.Windows.Forms.CheckBox
+    Friend WithEvents chkExcludeProteinDescription As CheckBox
 End Class

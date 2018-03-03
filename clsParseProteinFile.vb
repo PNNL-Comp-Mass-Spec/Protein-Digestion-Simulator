@@ -202,7 +202,17 @@ Public Class clsParseProteinFile
     ''' <remarks>Only valid if CreateProteinOutputFile is True</remarks>
     Public Property CreateDigestedProteinOutputFile As Boolean
 
-    Public Property ExcludeProteinSequence() As Boolean
+    ''' <summary>
+    ''' When true, do not include protein description in the output file
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property ExcludeProteinDescription As Boolean
+
+    ''' <summary>
+    ''' When true, do not include protein sequence in the output file
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property ExcludeProteinSequence As Boolean
 
     ''' <summary>
     ''' When true, assign UniqueID values to the digested peptides (requires more memory)
@@ -1402,8 +1412,12 @@ Public Class clsParseProteinFile
                 Return
             End If
 
-            Dim strLineOut = FastaFileOptions.ProteinLineStartChar & .Name & FastaFileOptions.ProteinLineAccessionEndChar & .Description
-            swProteinOutputFile.WriteLine(strLineOut)
+            outLine.Clear()
+            outLine.Append(FastaFileOptions.ProteinLineStartChar & .Name)
+            If Not ExcludeProteinDescription Then
+                outLine.Append(FastaFileOptions.ProteinLineAccessionEndChar & .Description)
+            End If
+            swProteinOutputFile.WriteLine(outLine.ToString())
 
             If Not ExcludeProteinSequence Then
                 Dim intIndex = 0
@@ -1418,13 +1432,13 @@ Public Class clsParseProteinFile
 
     Private Sub ParseProteinFileWriteTextDelimited(
       swProteinOutputFile As TextWriter,
+      outLine As StringBuilder,
       blnLookForAddnlRefInDescription As Boolean,
       ByRef udtAddnlRefsToOutput() As udtAddnlRefType)
 
-
         ' Write the entry to the protein output file, and possibly digest it
 
-        Dim strLineout As String
+        outLine.Clear()
 
         With mProteins(mProteinCount)
 
@@ -1444,41 +1458,47 @@ Public Class clsParseProteinFile
                     Next intCompareIndex
                 Next intIndex
 
-                strLineout = .Name & mOutputFileDelimiter
+                outLine.Append(.Name & mOutputFileDelimiter)
                 For intIndex = 0 To udtAddnlRefsToOutput.Length - 1
                     With udtAddnlRefsToOutput(intIndex)
-                        strLineout &= .RefAccession & mOutputFileDelimiter
+                        outLine.Append(.RefAccession & mOutputFileDelimiter)
                     End With
                 Next intIndex
 
-                strLineout &= .Description
+                If Not ExcludeProteinDescription Then
+                    outLine.Append(.Description)
+                End If
 
             Else
-                strLineout = .Name & mOutputFileDelimiter & .Description
+                outLine.Append(.Name & mOutputFileDelimiter)
+                If Not ExcludeProteinDescription Then
+                    outLine.Append(.Description)
+                End If
+
             End If
 
             If ComputeSequenceHashValues Then
-                strLineout &= mOutputFileDelimiter & .SequenceHash
+                outLine.Append(mOutputFileDelimiter & .SequenceHash)
             End If
 
             If Not ExcludeProteinSequence Then
-                strLineout &= mOutputFileDelimiter & .Sequence
+                outLine.Append(mOutputFileDelimiter & .Sequence)
             End If
 
             If ComputeProteinMass Then
-                strLineout &= mOutputFileDelimiter & Math.Round(.Mass, 5).ToString
+                outLine.Append(mOutputFileDelimiter & Math.Round(.Mass, 5).ToString)
             End If
 
             If ComputepI Then
-                strLineout &= mOutputFileDelimiter & .pI.ToString("0.000") & mOutputFileDelimiter & .Hydrophobicity.ToString("0.0000")
+                outLine.Append(mOutputFileDelimiter & .pI.ToString("0.000") & mOutputFileDelimiter & .Hydrophobicity.ToString("0.0000"))
             End If
 
             If ComputeSCXNET Then
-                strLineout &= mOutputFileDelimiter & .ProteinSCXNET.ToString("0.0000")
+                outLine.Append(mOutputFileDelimiter & .ProteinSCXNET.ToString("0.0000"))
             End If
 
         End With
-        swProteinOutputFile.WriteLine(strLineout)
+        swProteinOutputFile.WriteLine(outLine.ToString())
 
     End Sub
 
@@ -1910,7 +1930,14 @@ Public Class clsParseProteinFile
 
     End Sub
 
-    ' Main processing function -- Calls ParseProteinFile
+    ''' <summary>
+    ''' Main processing function -- Calls ParseProteinFile
+    ''' </summary>
+    ''' <param name="strInputFilePath"></param>
+    ''' <param name="strOutputFolderPath"></param>
+    ''' <param name="strParameterFilePath"></param>
+    ''' <param name="blnResetErrorCode"></param>
+    ''' <returns></returns>
     Public Overloads Overrides Function ProcessFile(strInputFilePath As String, strOutputFolderPath As String, strParameterFilePath As String, blnResetErrorCode As Boolean) As Boolean
         ' Returns True if success, False if failure
 
