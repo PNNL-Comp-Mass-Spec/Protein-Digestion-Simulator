@@ -66,7 +66,6 @@ Module modMain
     Private mLogFilePath As String = String.Empty
     Private mLogFolderPath As String = String.Empty
 
-    Private mQuietMode As Boolean
     Private mShowDebugPrompts As Boolean
 
     Private mParseProteinFile As clsParseProteinFile
@@ -93,7 +92,6 @@ Module modMain
         mRecurseFolders = False
         mRecurseFoldersMaxLevels = 0
 
-        mQuietMode = False
         mLogMessagesToFile = False
         mLogFilePath = String.Empty
         mLogFolderPath = String.Empty
@@ -116,7 +114,6 @@ Module modMain
             End If
 
             mParseProteinFile = New clsParseProteinFile() With {
-                    .ShowMessages = Not mQuietMode,
                     .ShowDebugPrompts = mShowDebugPrompts
                 }
 
@@ -153,7 +150,7 @@ Module modMain
                     returnCode = 0
                 Else
                     returnCode = mParseProteinFile.ErrorCode
-                    If returnCode <> 0 AndAlso Not mQuietMode Then
+                    If returnCode <> 0 Then
                         ShowErrorMessage("Error while processing: " & mParseProteinFile.GetErrorMessage())
                     End If
                 End If
@@ -193,7 +190,7 @@ Module modMain
         ' Returns True if no problems; otherwise, returns false
 
         Dim strValue As String = String.Empty
-        Dim lstValidParameters = New List(Of String) From {"I", "F", "D", "M", "AD", "O", "P", "S", "A", "R", "Q", "DEBUG"}
+        Dim lstValidParameters = New List(Of String) From {"I", "F", "D", "M", "AD", "O", "P", "S", "A", "R", "DEBUG"}
         Dim intValue As Integer
 
         Try
@@ -241,7 +238,6 @@ Module modMain
                     '	End If
                     'End If
 
-                    If .RetrieveValueForParameter("Q", strValue) Then mQuietMode = True
                     If .RetrieveValueForParameter("DEBUG", strValue) Then mShowDebugPrompts = True
                 End With
 

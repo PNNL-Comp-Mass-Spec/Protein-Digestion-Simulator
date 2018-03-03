@@ -1283,7 +1283,6 @@ Public Class clsProteinDigestionSimulator
                     .IncludePrefixAndSuffixResidues = False
                 End With
 
-                .ShowMessages = MyBase.ShowMessages
             End With
         End If
 
@@ -1332,12 +1331,7 @@ Public Class clsProteinDigestionSimulator
             mProteinFileParser.LoadParameterFileSettings(strParameterFilePath)
 
         Catch ex As Exception
-            If MyBase.ShowMessages Then
-                MessageBox.Show("Error in LoadParameterFileSettings: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-            Else
-                Throw New Exception("Error in LoadParameterFileSettings", ex)
-            End If
-            Return False
+            Throw New Exception("Error in LoadParameterFileSettings", ex)
         End Try
 
         Return True
@@ -1574,8 +1568,6 @@ Public Class clsProteinDigestionSimulator
                 .ComputeProteinMass = False
                 .CreateProteinOutputFile = False
 
-                .ShowMessages = False
-
                 If mCysPeptidesOnly Then
                     .DigestionOptions.AminoAcidResidueFilterChars = New Char() {"C"c}
                 Else
@@ -1769,7 +1761,6 @@ Public Class clsProteinDigestionSimulator
         Dim ioFile As FileInfo
 
         Dim strInputFilePathFull As String
-        Dim strStatusMessage As String
 
         Dim blnSuccess As Boolean
 
@@ -1778,9 +1769,8 @@ Public Class clsProteinDigestionSimulator
         End If
 
         If Not LoadParameterFileSettings(strParameterFilePath) Then
-            strStatusMessage = "Parameter file load error: " & strParameterFilePath
-            If MyBase.ShowMessages Then MessageBox.Show(strStatusMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-            Console.WriteLine(strStatusMessage)
+            Dim strStatusMessage = "Parameter file load error: " & strParameterFilePath
+            ShowErrorMessage(strStatusMessage)
             If MyBase.ErrorCode = eProcessFilesErrorCodes.NoError Then
                 MyBase.SetBaseClassErrorCode(eProcessFilesErrorCodes.InvalidParameterFile)
             End If
@@ -1807,20 +1797,12 @@ Public Class clsProteinDigestionSimulator
                         blnSuccess = GenerateUniquenessStats(strInputFilePathFull, strOutputFolderPath, Path.GetFileNameWithoutExtension(strInputFilePath))
 
                     Catch ex As Exception
-                        If MyBase.ShowMessages Then
-                            MessageBox.Show("Error calling ParseProteinFile: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-                        Else
-                            Throw New Exception("Error calling ParseProteinFile", ex)
-                        End If
+                        Throw New Exception("Error calling ParseProteinFile", ex)
                     End Try
                 End If
             End If
         Catch ex As Exception
-            If MyBase.ShowMessages Then
-                MessageBox.Show("Error in ProcessFile: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-            Else
-                Throw New Exception("Error in ProcessFile", ex)
-            End If
+            Throw New Exception("Error in ProcessFile", ex)
         End Try
 
         Return blnSuccess

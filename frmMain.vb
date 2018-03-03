@@ -486,7 +486,6 @@ Public Class frmMain
 
                 mProteinDigestionSimulator = New clsProteinDigestionSimulator()
                 If chkEnableLogging.Checked Then
-                    mProteinDigestionSimulator.ShowMessages = False
                     mProteinDigestionSimulator.LogMessagesToFile = True
 
                     Dim appFolderPath = FileProcessor.ProcessFilesBase.GetAppDataFolderPath("ProteinDigestionSimulator")
@@ -1110,8 +1109,6 @@ Public Class frmMain
                     .AminoAcidResidueFilterChars = New Char() {}
                 End If
             End With
-
-            .ShowMessages = True
         End With
 
         Return True
@@ -1168,6 +1165,7 @@ Public Class frmMain
             .SetToolTip(lblPeptideUniquenessMassMode, "Current mass mode; to change go to the 'Parse and Digest File Options' tab")
 
             .SetToolTip(chkExcludeProteinSequence, "Enabling this setting will prevent protein sequences from being written to the output file; useful when processing extremely large files.")
+            .SetToolTip(chkTruncateProteinDescription, "Truncate description (if over 7995 chars)")
 
             .SetToolTip(chkEnableLogging, "Logs status and error messages to file ProteinDigestionSimulatorLog*.txt in the program directory.")
         End With
@@ -1218,6 +1216,7 @@ Public Class frmMain
                     Cursor.Current = Cursors.Default
 
                     If blnSuccess Then
+                        MessageBox.Show(mParseProteinFile.ProcessingSummary, "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
                         SwitchFromProgressTab()
                     Else
                         MessageBox.Show("Error parsing protein file: " & .GetErrorMessage(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)

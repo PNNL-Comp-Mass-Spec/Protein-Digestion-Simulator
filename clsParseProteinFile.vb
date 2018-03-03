@@ -626,6 +626,8 @@ Public Class clsParseProteinFile
         DigestionOptions = New clsInSilicoDigest.DigestionOptionsClass
         FastaFileOptions = New FastaFileOptionsClass
 
+        ProcessingSummary = String.Empty
+
         mProteinCount = 0
         ReDim mProteins(0)
 
@@ -679,7 +681,6 @@ Public Class clsParseProteinFile
             End Try
 
             If strErrorMessage.Length > 0 Then
-                If MyBase.ShowMessages Then MessageBox.Show(strErrorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
                 ShowErrorMessage(strErrorMessage)
                 mObjectVariablesLoaded = False
             Else
@@ -793,9 +794,7 @@ Public Class clsParseProteinFile
             ' Pass False to .LoadSettings() here to turn off case sensitive matching
             If objSettingsFile.LoadSettings(strParameterFilePath, False) Then
                 If Not objSettingsFile.SectionPresent(XML_SECTION_OPTIONS) Then
-                    If MyBase.ShowMessages Then
-                        MessageBox.Show("The node '<section name=""" & XML_SECTION_OPTIONS & """> was not found in the parameter file: " & strParameterFilePath, "Invalid File", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-                    End If
+                    ShowErrorMessage("The node '<section name=""" & XML_SECTION_OPTIONS & """> was not found in the parameter file: " & strParameterFilePath)
                     SetLocalErrorCode(eParseProteinFileErrorCodes.ProteinFileParsingOptionsSectionNotFound)
                     Return False
                 Else
@@ -870,11 +869,7 @@ Public Class clsParseProteinFile
             End If
 
         Catch ex As Exception
-            If MyBase.ShowMessages Then
-                MessageBox.Show("Error in LoadParameterFileSettings: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-            Else
-                Throw New Exception("Error in LoadParameterFileSettings", ex)
-            End If
+            ShowErrorMessage("Error in LoadParameterFileSettings: " & ex.Message)
             Return False
         End Try
 
@@ -944,6 +939,8 @@ Public Class clsParseProteinFile
         Dim udtResidueCache = New udtScrambingResidueCacheType()
 
         Dim dtStartTime As Date
+
+        ProcessingSummary = String.Empty
 
         Dim pathInfo As udtFilePathInfoType
         pathInfo.ProteinInputFilePath = strProteinInputFilePath
@@ -1248,26 +1245,27 @@ Public Class clsParseProteinFile
                 MessageBox.Show(Path.GetFileName(pathInfo.ProteinInputFilePath) & ControlChars.NewLine & "Elapsed time: " & Math.Round(DateTime.UtcNow.Subtract(dtStartTime).TotalSeconds, 2).ToString & " seconds", "Status", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
 
-            If MyBase.ShowMessages Then
-                Dim strMessage = "Done: Processed " & mInputFileProteinsProcessed.ToString("###,##0") & " proteins (" & mInputFileLinesRead.ToString("###,###,##0") & " lines)"
-                If mInputFileLineSkipCount > 0 Then
-                    strMessage &= ControlChars.NewLine & "Note that " & mInputFileLineSkipCount.ToString("###,##0") & " lines were skipped in the input file due to having an unexpected format. "
-                    If mParsedFileIsFastaFile Then
-                        strMessage &= "This is an unexpected error for fasta files."
-                    Else
-                        strMessage &= "Make sure that " & mDelimitedInputFileFormatCode.ToString & " is the appropriate format for this file (see the File Format Options tab)."
-                    End If
+            Dim strMessage = "Done: Processed " & mInputFileProteinsProcessed.ToString("###,##0") & " proteins (" & mInputFileLinesRead.ToString("###,###,##0") & " lines)"
+            If mInputFileLineSkipCount > 0 Then
+                strMessage &= ControlChars.NewLine & "Note that " & mInputFileLineSkipCount.ToString("###,##0") & " lines were skipped in the input file due to having an unexpected format. "
+                If mParsedFileIsFastaFile Then
+                    strMessage &= "This is an unexpected error for fasta files."
+                Else
+                    strMessage &= "Make sure that " & mDelimitedInputFileFormatCode.ToString & " is the appropriate format for this file (see the File Format Options tab)."
                 End If
-
-                If intLoopcount > 1 Then
-                    strMessage &= ControlChars.NewLine & "Created " & intLoopcount.ToString & " replicates of the scrambled output file"
-                End If
-                MessageBox.Show(strMessage, "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
+
+            If intLoopcount > 1 Then
+                strMessage &= ControlChars.NewLine & "Created " & intLoopcount.ToString & " replicates of the scrambled output file"
+            End If
+
+            ProcessingSummary = strMessage
+            OnStatusEvent(strMessage)
 
             blnSuccess = True
 
         Catch ex As Exception
+            ShowErrorMessage("Error in ParseProteinFile: " & ex.Message)
             If CreateProteinOutputFile Or CreateDigestedProteinOutputFile Then
                 SetLocalErrorCode(eParseProteinFileErrorCodes.ErrorWritingOutputFile)
                 blnSuccess = False
@@ -1953,7 +1951,6 @@ Public Class clsParseProteinFile
 
         If Not LoadParameterFileSettings(strParameterFilePath) Then
             strStatusMessage = "Parameter file load error: " & strParameterFilePath
-            If MyBase.ShowMessages Then MessageBox.Show(strStatusMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
             ShowErrorMessage(strStatusMessage)
             If MyBase.ErrorCode = eProcessFilesErrorCodes.NoError Then
                 MyBase.SetBaseClassErrorCode(eProcessFilesErrorCodes.InvalidParameterFile)
@@ -1981,20 +1978,12 @@ Public Class clsParseProteinFile
                         blnSuccess = ParseProteinFile(strInputFilePathFull, strOutputFolderPath)
 
                     Catch ex As Exception
-                        If MyBase.ShowMessages Then
-                            MessageBox.Show("Error calling ParseProteinFile: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-                        Else
-                            Throw New Exception("Error calling ParseProteinFile", ex)
-                        End If
+                        Throw New Exception("Error calling ParseProteinFile", ex)
                     End Try
                 End If
             End If
         Catch ex As Exception
-            If MyBase.ShowMessages Then
-                MessageBox.Show("Error in ProcessFile: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-            Else
-                Throw New Exception("Error in ProcessFile", ex)
-            End If
+            Throw New Exception("Error in ProcessFile", ex)
         End Try
 
         Return blnSuccess
@@ -2173,8 +2162,8 @@ Public Class clsParseProteinFile
 
     End Class
 
-    Private Sub mInSilicoDigest_ErrorEvent(strMessage As String) Handles mInSilicoDigest.ErrorEvent
-        ShowErrorMessage("Error in mInSilicoDigest: " & strMessage)
+    Private Sub mInSilicoDigest_ErrorEvent(message As String) Handles mInSilicoDigest.ErrorEvent
+        ShowErrorMessage("Error in mInSilicoDigest: " & message)
     End Sub
 
     Private Sub mInSilicoDigest_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mInSilicoDigest.ProgressChanged
@@ -2189,8 +2178,8 @@ Public Class clsParseProteinFile
         ' Don't do anything with this event
     End Sub
 
-    Private Sub objSCXNETCalculator_ErrorEvent(Message As String) Handles objSCXNETCalculator.ErrorEvent
-        ShowErrorMessage(Message)
+    Private Sub objSCXNETCalculator_ErrorEvent(message As String) Handles objSCXNETCalculator.ErrorEvent
+        ShowErrorMessage(message)
     End Sub
 
 End Class
