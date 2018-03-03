@@ -194,31 +194,28 @@ Public Class clspICalculation
     End Function
 
     Public Function CalculateSequenceHydrophobicity(seq As String) As Single
-        Dim intIndex As Integer
-        Dim Hydro As Double, MaxHydro As Double
 
         If seq Is Nothing OrElse seq.Length = 0 Then
             Return 0
         End If
 
         Try
-            If mReportMaximumpI AndAlso seq.Length > mSequenceWidthToExamineForMaximumpI Then
-                MaxHydro = 0
-                For intIndex = 1 To seq.Length - mSequenceWidthToExamineForMaximumpI
-                    Hydro = CalculateHydrophobicity(seq.Substring(intIndex - 1, mSequenceWidthToExamineForMaximumpI), mHydrophobicityType)
-                    If Hydro > MaxHydro Then MaxHydro = Hydro
+            If ReportMaximumpI AndAlso seq.Length > SequenceWidthToExamineForMaximumpI Then
+                Dim maxHydrophobicity As Double = 0
+                For intIndex = 1 To seq.Length - SequenceWidthToExamineForMaximumpI
+                    Dim segmentHydrophobicity = CalculateHydrophobicity(seq.Substring(intIndex - 1, SequenceWidthToExamineForMaximumpI), HydrophobicityType)
+                    If segmentHydrophobicity > maxHydrophobicity Then maxHydrophobicity = segmentHydrophobicity
                 Next
-                Hydro = MaxHydro
+                Return CSng(maxHydrophobicity)
 
             Else
-                Hydro = CalculateHydrophobicity(seq, mHydrophobicityType)
+                Dim hydrophobicity = CalculateHydrophobicity(seq, HydrophobicityType)
+                Return CSng(hydrophobicity)
             End If
         Catch ex As Exception
             ' Error occurred
-            Hydro = 0
+            Return 0
         End Try
-
-        Return CSng(Hydro)
 
     End Function
 
