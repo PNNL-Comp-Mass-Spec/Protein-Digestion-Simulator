@@ -489,7 +489,8 @@ Public Class frmMain
                     mProteinDigestionSimulator.ShowMessages = False
                     mProteinDigestionSimulator.LogMessagesToFile = True
 
-                    strLogFilePath = Path.Combine(clsProcessFilesBaseClass.GetAppDataFolderPath("ProteinDigestionSimulator"), "ProteinDigestionSimulatorLog.txt")
+                    Dim appFolderPath = FileProcessor.ProcessFilesBase.GetAppDataFolderPath("ProteinDigestionSimulator")
+                    strLogFilePath = Path.Combine(appFolderPath, "ProteinDigestionSimulatorLog.txt")
                     mProteinDigestionSimulator.LogFilePath = strLogFilePath
                 End If
 
@@ -606,9 +607,9 @@ Public Class frmMain
     Private Function GetSettingsFilePath() As String
 
         Dim strSettingsFilePathLocal As String
-        strSettingsFilePathLocal = clsProcessFilesBaseClass.GetSettingsFilePathLocal("ProteinDigestionSimulator", XML_SETTINGS_FILE_NAME)
+        strSettingsFilePathLocal = FileProcessor.ProcessFilesBase.GetSettingsFilePathLocal("ProteinDigestionSimulator", XML_SETTINGS_FILE_NAME)
 
-        clsProcessFilesBaseClass.CreateSettingsFileIfMissing(strSettingsFilePathLocal)
+        FileProcessor.ProcessFilesBase.CreateSettingsFileIfMissing(strSettingsFilePathLocal)
 
         Return strSettingsFilePathLocal
 
@@ -2249,12 +2250,12 @@ Public Class frmMain
         mFastaValidationOptions = mFastaValidation.GetOptions()
     End Sub
 
-    Private Sub mParseProteinFile_ErrorEvent(strMessage As String) Handles mParseProteinFile.ErrorEvent
+    Private Sub mParseProteinFile_ErrorEvent(strMessage As String, ex As Exception) Handles mParseProteinFile.ErrorEvent
         lblErrorMessage.Text = "Error in mParseProteinFile: " & strMessage
         Application.DoEvents()
     End Sub
 
-    Private Sub mParseProteinFile_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mParseProteinFile.ProgressChanged
+    Private Sub mParseProteinFile_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mParseProteinFile.ProgressUpdate
         lblProgressDescription.Text = taskDescription
         lblProgress.Text = FormatPercentComplete(percentComplete)
         pbarProgress.Value = CInt(percentComplete)
@@ -2284,12 +2285,12 @@ Public Class frmMain
         Application.DoEvents()
     End Sub
 
-    Private Sub mProteinDigestionSimulator_ErrorEvent(strMessage As String) Handles mProteinDigestionSimulator.ErrorEvent
+    Private Sub mProteinDigestionSimulator_ErrorEvent(strMessage As String, ex As Exception) Handles mProteinDigestionSimulator.ErrorEvent
         lblErrorMessage.Text = "Error in mProteinDigestionSimulator: " & strMessage
         Application.DoEvents()
     End Sub
 
-    Private Sub mProteinDigestionSimulator_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mProteinDigestionSimulator.ProgressChanged
+    Private Sub mProteinDigestionSimulator_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mProteinDigestionSimulator.ProgressUpdate
         lblProgressDescription.Text = taskDescription
         lblProgress.Text = FormatPercentComplete(percentComplete)
         pbarProgress.Value = CInt(percentComplete)

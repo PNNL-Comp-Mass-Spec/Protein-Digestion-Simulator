@@ -21,7 +21,7 @@ Imports ProteinFileReader
 Imports ValidateFastaFile
 
 Public Class clsParseProteinFile
-    Inherits clsProcessFilesBaseClass
+    Inherits PRISM.FileProcessor.ProcessFilesBase
 
     Public Sub New()
         MyBase.mFileDate = "September 15, 2014"
@@ -513,11 +513,11 @@ Public Class clsParseProteinFile
 
     End Function
 
-    Public Overrides Function GetDefaultExtensionsToParse() As String()
-        Dim strExtensionsToParse(1) As String
-
-        strExtensionsToParse(0) = ".fasta"
-        strExtensionsToParse(1) = ".txt"
+    Public Overrides Function GetDefaultExtensionsToParse() As IList(Of String)
+        Dim strExtensionsToParse = New List(Of String) From {
+                ".fasta",
+                ".txt"
+                }
 
         Return strExtensionsToParse
 

@@ -31,10 +31,10 @@ Imports SharedVBNetRoutines
 ' this computer software.
 
 Public Class clsProteinDigestionSimulator
-    Inherits clsProcessFilesBaseClass
+    Inherits PRISM.FileProcessor.ProcessFilesBase
 
     Public Sub New()
-        MyBase.mFileDate = "November 20, 2013"
+        MyBase.mFileDate = "March 2, 2018"
         InitializeLocalVariables()
     End Sub
 
@@ -945,11 +945,11 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Public Overrides Function GetDefaultExtensionsToParse() As String()
-        Dim strExtensionsToParse(1) As String
-
-        strExtensionsToParse(0) = ".fasta"
-        strExtensionsToParse(1) = ".txt"
+    Public Overrides Function GetDefaultExtensionsToParse() As IList(Of String)
+        Dim strExtensionsToParse = New List(Of String) From {
+            ".fasta",
+            ".txt"
+        }
 
         Return strExtensionsToParse
 
@@ -2248,7 +2248,7 @@ Public Class clsProteinDigestionSimulator
         UpdateSubtaskProgress(mPeakMatchingClass.ProgessPct)
     End Sub
 
-    Private Sub mProteinFileParser_ErrorEvent(strMessage As String) Handles mProteinFileParser.ErrorEvent
+    Private Sub mProteinFileParser_ErrorEvent(strMessage As String, ex As Exception) Handles mProteinFileParser.ErrorEvent
         ShowErrorMessage("Error in mProteinFileParser: " & strMessage)
     End Sub
 

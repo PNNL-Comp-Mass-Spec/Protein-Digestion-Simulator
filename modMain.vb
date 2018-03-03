@@ -120,7 +120,7 @@ Module modMain
                     .ShowDebugPrompts = mShowDebugPrompts
                 }
 
-            AddHandler mParseProteinFile.ProgressChanged, AddressOf ProcessingClass_ProgressChanged
+            AddHandler mParseProteinFile.ProgressUpdate, AddressOf ProcessingClass_ProgressChanged
             AddHandler mParseProteinFile.ProgressReset, AddressOf ProcessingClass_ProgressReset
 
             ' Note: the following settings will be overridden if mParameterFilePath points to a valid parameter file that has these settings defined
@@ -163,7 +163,7 @@ Module modMain
 
 
         Catch ex As Exception
-            ShowErrorMessage("Error occurred in modMain->Main: " & ex.Message, ex)
+            ShowErrorMessage("Error occurred in modMain->Main", ex)
             returnCode = -1
         End Try
 
@@ -186,7 +186,7 @@ Module modMain
     End Sub
 
     Private Function GetAppVersion() As String
-        Return clsProcessFilesBaseClass.GetAppVersion(PROGRAM_DATE)
+        Return PRISM.FileProcessor.ProcessFilesBase.GetAppVersion(PROGRAM_DATE)
     End Function
 
     Private Function SetOptionsUsingCommandLineParameters(objParseCommandLine As clsParseCommandLine) As Boolean
