@@ -15,16 +15,28 @@ Public Class clspICalculation
     End Sub
 
 #Region "Constants and Enums"
+    ''' <summary>
+    ''' Hydrophobicity values for each amino acid
+    ''' </summary>
+    ''' <remarks>
+    ''' Originally from ICR-2LS
+    ''' Values confirmed via various resources:
+    ''' Ref 1: http://resources.qiagenbioinformatics.com/manuals/clcgenomicsworkbench/650/Hydrophobicity_scales.html
+    ''' Ref 2: https://web.expasy.org/protscale/
+    ''' Ref 3: Manuscript by Mant and Hodges at https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2792893/
+    '''        Intrinsic Amino Acid Side-Chain Hydrophilicity/Hydrophobicity Coefficients Determined
+    '''        by Reversed-Phase High-Performance Liquid Chromatography of Model Peptides
+    ''' </remarks>
     Public Enum eHydrophobicityTypeConstants As Integer
-        HW = 0                  ' Hopp and Woods
-        KD = 1                  ' Kyte and Doolittle
-        Eisenberg = 2           ' Eisenberg
-        GES = 3                 ' Engleman et. al.
-        MeekPH7p4 = 4           ' Meek, pH 7.4
-        MeekPH2p1 = 5           ' Meek, pH 2.1
+        HW = 0                  ' Hopp and Woods, values available at references 1 and 2
+        KD = 1                  ' Kyte and Doolittle, values available t references 1 and 2
+        Eisenberg = 2           ' Eisenberg, values available t references 1 and 2
+        GES = 3                 ' Engleman et. al., values available at reference 1
+        MeekPH7p4 = 4           ' Meek, pH 7.4; column 14 in table 3 of reference 3
+        MeekPH2p1 = 5           ' Meek, pH 2.1; column 3  in table 3 of reference 3
     End Enum
 
-    ' Dissociation constants
+    ' Dissociation constants                ' Alternate values
     Private Const Ck As Double = 9.3        ' 8.3
     Private Const Dk As Double = 4.5        ' 3.91
     Private Const Ek As Double = 4.6        ' 4.25
@@ -36,20 +48,21 @@ Public Class clspICalculation
     Private Const COOHk As Double = 3.9     ' 3.56
 
     ' Alternate values for the dissociation constants
-    'Private Const Ck As Double = 8.3
-    'Private Const Dk As Double = 3.91
-    'Private Const Ek As Double = 4.25
-    'Private Const Hk As Double = 6.5
-    'Private Const Kk As Double = 10.79
-    'Private Const Rk As Double = 12.5
-    'Private Const Yk As Double = 10.95
-    'Private Const NH2k As Double = 8.56
-    'Private Const COOHk As Double = 3.56
+    ' Private Const Ck As Double = 8.3
+    ' Private Const Dk As Double = 3.91
+    ' Private Const Ek As Double = 4.25
+    ' Private Const Hk As Double = 6.5
+    ' Private Const Kk As Double = 10.79
+    ' Private Const Rk As Double = 12.5
+    ' Private Const Yk As Double = 10.95
+    ' Private Const NH2k As Double = 8.56
+    ' Private Const COOHk As Double = 3.56
 
 #End Region
 
 #Region "Structures"
     Private Structure AA
+        ' ReSharper disable once NotAccessedField.Local
         Public Aname As String              ' One letter abbreviation for the amino acid
         Public HW As Double
         Public KD As Double
@@ -326,6 +339,7 @@ Public Class clspICalculation
         AddAminoAcid("M"c, -1.3, 1.9, 0.26, -3.4, 4.8, 7.1)
         AddAminoAcid("N"c, 0.2, -3.5, -0.64, 4.8, 0.8, -1.6)
         AddAminoAcid("P"c, 0, -1.6, -0.07, 0.2, 6.1, 8)
+        AddAminoAcid("Q"c, 0.2, -3.5, -0.85, -4.1, -4.8, -2.5)
         AddAminoAcid("R"c, 3, -4.5, -1.8, 12.3, 0.8, -4.5)
         AddAminoAcid("S"c, 0.3, -0.8, -0.26, -0.6, 1.2, -3.7)
         AddAminoAcid("T"c, -0.4, -0.7, -0.18, -1.2, 2.7, 1.5)
