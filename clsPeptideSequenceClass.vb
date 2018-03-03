@@ -66,10 +66,10 @@ Public Class PeptideSequenceClass
 #Region "Shared Classwide Variables"
     ' Variables shared across all instances of this class
     Private Shared mSharedArraysInitialized As Boolean
-    Private Shared AminoAcidMasses As Hashtable     ' Hash of one letter symbols and corresponding mass for each
-    Private Shared AminoAcidSymbols As Hashtable    ' Hash of one letter symbols and corresponding three letter symbol for each
+    Private Shared AminoAcidMasses As Dictionary(Of Char, Double)       ' Hash of one letter symbols and corresponding mass for each
+    Private Shared AminoAcidSymbols As Dictionary(Of Char, String)      ' Hash of one letter symbols and corresponding three letter symbol for each
 
-    Private Shared ElementMasses As Hashtable       ' Hash of one letter element symbols and corresponding mass for each
+    Private Shared ElementMasses As Dictionary(Of Char, Double)         ' Hash of one letter element symbols and corresponding mass for each
 
     Private Shared mCurrentElementMode As ElementModeConstants
     Private Shared mHydrogenMass As Double           ' Mass of hydrogen
@@ -391,7 +391,7 @@ Public Class PeptideSequenceClass
         End If
 
         Try
-            Return CType(ElementMasses(chSymbol), Double) * intMultiplier
+            Return ElementMasses(chSymbol) * intMultiplier
         Catch ex As Exception
             ' Symbol not found, or has invalid mass
             Return 0
@@ -441,7 +441,7 @@ Public Class PeptideSequenceClass
         If bln1LetterTo3Letter Then
             strSymbol = strSymbolToFind.Substring(0, 1).ToUpper.Chars(0)
             If AminoAcidSymbols.ContainsKey(strSymbol) Then
-                Return CType(AminoAcidSymbols(strSymbol), String)
+                Return AminoAcidSymbols(strSymbol)
             Else
                 Return String.Empty
             End If
@@ -1288,7 +1288,7 @@ Public Class PeptideSequenceClass
 
             For intIndex = 0 To mResidues.Length - 1
                 Try
-                    dblRunningTotal += CType(AminoAcidMasses(mResidues.Chars(intIndex)), Double)
+                    dblRunningTotal += AminoAcidMasses(mResidues.Chars(intIndex))
                 Catch ex As Exception
                     ' Skip this residue
                     Console.WriteLine("Error parsing Residue symbols in UpdateSequenceMass; " & ex.Message)
@@ -1340,7 +1340,7 @@ Public Class PeptideSequenceClass
     Private Sub InitializeSharedData()
 
         If ElementMasses Is Nothing Then
-            ElementMasses = New Hashtable
+            ElementMasses = New Dictionary(Of Char, Double)
         Else
             ElementMasses.Clear()
         End If
@@ -1366,13 +1366,13 @@ Public Class PeptideSequenceClass
         End With
 
         If AminoAcidMasses Is Nothing Then
-            AminoAcidMasses = New Hashtable
+            AminoAcidMasses = New Dictionary(Of Char, Double)
         Else
             AminoAcidMasses.Clear()
         End If
 
         If AminoAcidSymbols Is Nothing Then
-            AminoAcidSymbols = New Hashtable
+            AminoAcidSymbols = New Dictionary(Of Char, String)
         Else
             AminoAcidSymbols.Clear()
         End If
