@@ -88,18 +88,18 @@ Public Class PeptideSequenceClass
 
 #Region "Processing Options Interface Functions"
 
-    Public Property ElementMode() As ElementModeConstants
+    Public Property ElementMode As ElementModeConstants
         Get
             Return mCurrentElementMode
         End Get
-        Set(Value As ElementModeConstants)
+        Set
             mCurrentElementMode = Value
             InitializeSharedData()
             UpdateSequenceMass()
         End Set
     End Property
 
-    Public ReadOnly Property Mass() As Double
+    Public ReadOnly Property Mass As Double
         Get
             If mTotalMassElementMode <> mCurrentElementMode Then UpdateSequenceMass()
             Return mTotalMass

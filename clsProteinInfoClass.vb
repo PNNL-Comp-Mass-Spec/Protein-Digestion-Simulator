@@ -171,7 +171,7 @@ Friend Class clsProteinInfo
         End If
     End Sub
 
-    Public ReadOnly Property Count() As Integer
+    Public ReadOnly Property Count As Integer
         Get
             Return mProteinCount
         End Get
@@ -272,11 +272,11 @@ Friend Class clsProteinInfo
 
     End Function
 
-    Public Property UseProteinNameHashTable() As Boolean
+    Public Property UseProteinNameHashTable As Boolean
         Get
             Return mUseProteinNameHashTable
         End Get
-        Set(Value As Boolean)
+        Set
             mUseProteinNameHashTable = Value
         End Set
     End Property
@@ -444,7 +444,7 @@ Friend Class clsProteinInfo
 
         End Function
 
-        Public ReadOnly Property Count() As Integer
+        Public ReadOnly Property Count As Integer
             Get
                 Return mMappingCount
             End Get

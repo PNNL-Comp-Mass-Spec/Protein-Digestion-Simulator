@@ -138,43 +138,43 @@ Public Class clsProteinDigestionSimulator
 
 #Region "Processing Options Interface Functions"
 
-    Public Property AutoDetermineMassRangeForBinning() As Boolean
+    Public Property AutoDetermineMassRangeForBinning As Boolean
         Get
             Return mPeptideUniquenessBinningSettings.AutoDetermineMassRange
         End Get
-        Set(Value As Boolean)
+        Set
             mPeptideUniquenessBinningSettings.AutoDetermineMassRange = Value
         End Set
     End Property
 
-    Public Property CreateSeparateOutputFileForEachThreshold() As Boolean
+    Public Property CreateSeparateOutputFileForEachThreshold As Boolean
         Get
             Return mCreateSeparateOutputFileForEachThreshold
         End Get
-        Set(Value As Boolean)
+        Set
             mCreateSeparateOutputFileForEachThreshold = Value
         End Set
     End Property
 
-    Public Property CysPeptidesOnly() As Boolean
+    Public Property CysPeptidesOnly As Boolean
         Get
             Return mCysPeptidesOnly
         End Get
-        Set(Value As Boolean)
+        Set
             mCysPeptidesOnly = Value
         End Set
     End Property
 
-    Public Property DigestSequences() As Boolean
+    Public Property DigestSequences As Boolean
         Get
             Return mDigestSequences
         End Get
-        Set(Value As Boolean)
+        Set
             mDigestSequences = Value
         End Set
     End Property
 
-    Public Property ElementMassMode() As PeptideSequenceClass.ElementModeConstants
+    Public Property ElementMassMode As PeptideSequenceClass.ElementModeConstants
         Get
             If mProteinFileParser Is Nothing Then
                 Return PeptideSequenceClass.ElementModeConstants.IsotopicMass
@@ -182,7 +182,7 @@ Public Class clsProteinDigestionSimulator
                 Return mProteinFileParser.ElementMassMode
             End If
         End Get
-        Set(Value As PeptideSequenceClass.ElementModeConstants)
+        Set
             If mProteinFileParser Is Nothing Then
                 InitializeProteinFileParser()
             End If
@@ -190,58 +190,58 @@ Public Class clsProteinDigestionSimulator
         End Set
     End Property
 
-    Public ReadOnly Property LocalErrorCode() As eProteinDigestionSimulatorErrorCodes
+    Public ReadOnly Property LocalErrorCode As eProteinDigestionSimulatorErrorCodes
         Get
             Return mLocalErrorCode
         End Get
     End Property
 
-    Public Property MaxPeakMatchingResultsPerFeatureToSave() As Integer
+    Public Property MaxPeakMatchingResultsPerFeatureToSave As Integer
         Get
             Return mMaxPeakMatchingResultsPerFeatureToSave
         End Get
-        Set(Value As Integer)
+        Set
             If Value < 1 Then Value = 1
             mMaxPeakMatchingResultsPerFeatureToSave = Value
         End Set
     End Property
 
-    Public Property MinimumSLiCScoreToBeConsideredUnique() As Single
+    Public Property MinimumSLiCScoreToBeConsideredUnique As Single
         Get
             Return mPeptideUniquenessBinningSettings.MinimumSLiCScore
         End Get
-        Set(Value As Single)
+        Set
             mPeptideUniquenessBinningSettings.MinimumSLiCScore = Value
         End Set
     End Property
 
-    Public Property PeptideUniquenessMassBinSizeForBinning() As Single
+    Public Property PeptideUniquenessMassBinSizeForBinning As Single
         Get
             Return mPeptideUniquenessBinningSettings.MassBinSizeDa
         End Get
-        Set(Value As Single)
+        Set
             If Value > 0 Then
                 mPeptideUniquenessBinningSettings.MassBinSizeDa = Value
             End If
         End Set
     End Property
 
-    Public Property OutputFileDelimiter() As Char
+    Public Property OutputFileDelimiter As Char
         Get
             Return mOutputFileDelimiter
         End Get
-        Set(Value As Char)
+        Set
             If Not Value = Nothing Then
                 mOutputFileDelimiter = Value
             End If
         End Set
     End Property
 
-    Public Property SavePeakMatchingResults() As Boolean
+    Public Property SavePeakMatchingResults As Boolean
         Get
             Return mSavePeakMatchingResults
         End Get
-        Set(Value As Boolean)
+        Set
             mSavePeakMatchingResults = Value
         End Set
     End Property
@@ -291,20 +291,20 @@ Public Class clsProteinDigestionSimulator
     ''    End Set
     ''End Property
 
-    Public Property UseEllipseSearchRegion() As Boolean
+    Public Property UseEllipseSearchRegion As Boolean
         Get
             Return mUseEllipseSearchRegion
         End Get
-        Set(Value As Boolean)
+        Set
             mUseEllipseSearchRegion = Value
         End Set
     End Property
 
-    Public Property UseSLiCScoreForUniqueness() As Boolean
+    Public Property UseSLiCScoreForUniqueness As Boolean
         Get
             Return mUseSLiCScoreForUniqueness
         End Get
-        Set(Value As Boolean)
+        Set
             mUseSLiCScoreForUniqueness = Value
         End Set
     End Property
@@ -1018,7 +1018,7 @@ Public Class clsProteinDigestionSimulator
         Return intUniqueSeqID
     End Function
 
-    Public Sub GetPeptideUniquenessMassRangeForBinning(<Out()> ByRef MassMinimum As Single, <Out()> ByRef MassMaximum As Single)
+    Public Sub GetPeptideUniquenessMassRangeForBinning(<Out> ByRef MassMinimum As Single, <Out> ByRef MassMaximum As Single)
         With mPeptideUniquenessBinningSettings
             MassMinimum = .MassMinimum
             MassMaximum = .MassMaximum
@@ -1063,8 +1063,8 @@ Public Class clsProteinDigestionSimulator
       strOutputFolderPath As String,
       strOutputFilenameBase As String,
       objThresholds As IList(Of clsPeakMatchingClass.clsSearchThresholds),
-      <Out()> ByRef srPeptideUniquenessOutFile As StreamWriter,
-      <Out()> ByRef srProteinStatsOutFile As StreamWriter)
+      <Out> ByRef srPeptideUniquenessOutFile As StreamWriter,
+      <Out> ByRef srProteinStatsOutFile As StreamWriter)
 
         ' Initialize the output file so that the peptide and protein summary results for all thresholds can be saved in the same file
 
@@ -1112,7 +1112,7 @@ Public Class clsProteinDigestionSimulator
       strOutputFilenameBase As String,
       objThresholds As IList(Of clsPeakMatchingClass.clsSearchThresholds),
       intComparisonFeaturesCount As Integer,
-      <Out()> ByRef srOutFile As StreamWriter)
+      <Out> ByRef srOutFile As StreamWriter)
 
         ' Initialize the output file so that the peak matching results for all thresholds can be saved in the same file
 

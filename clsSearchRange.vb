@@ -51,7 +51,7 @@ Public Class clsSearchRange
 #End Region
 
 #Region "Interface Functions"
-    Public ReadOnly Property DataCount() As Integer
+    Public ReadOnly Property DataCount As Integer
         Get
             Select Case mDataType
                 Case eDataTypeToUse.IntegerType, eDataTypeToUse.FillingIntegerType
@@ -87,11 +87,11 @@ Public Class clsSearchRange
         End Get
     End Property
 
-    Public Property UsePointerIndexArray() As Boolean
+    Public Property UsePointerIndexArray As Boolean
         Get
             Return mUsePointerIndexArray
         End Get
-        Set(Value As Boolean)
+        Set
             mUsePointerIndexArray = Value
         End Set
     End Property

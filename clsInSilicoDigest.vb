@@ -94,13 +94,13 @@ Public Class clsInSilicoDigest
 #End Region
 
 #Region "Processing Options Interface Functions"
-    Public ReadOnly Property CleaveageRuleCount() As Integer
+    Public ReadOnly Property CleaveageRuleCount As Integer
         Get
             Return mCleavageRules.RuleCount
         End Get
     End Property
 
-    Public Property ElementMassMode() As PeptideSequenceClass.ElementModeConstants
+    Public Property ElementMassMode As PeptideSequenceClass.ElementModeConstants
         Get
             If mPeptideSequence Is Nothing Then
                 Return PeptideSequenceClass.ElementModeConstants.IsotopicMass
@@ -108,7 +108,7 @@ Public Class clsInSilicoDigest
                 Return mPeptideSequence.ElementMode
             End If
         End Get
-        Set(Value As PeptideSequenceClass.ElementModeConstants)
+        Set
             If mPeptideSequence Is Nothing Then
                 mPeptideSequence = New PeptideSequenceClass
             End If
@@ -116,14 +116,14 @@ Public Class clsInSilicoDigest
         End Set
     End Property
 
-    Public Overridable ReadOnly Property ProgressStepDescription() As String
+    Public Overridable ReadOnly Property ProgressStepDescription As String
         Get
             Return mProgressStepDescription
         End Get
     End Property
 
     ' ProgressPercentComplete ranges from 0 to 100, but can contain decimal percentage values
-    Public ReadOnly Property ProgressPercentComplete() As Single
+    Public ReadOnly Property ProgressPercentComplete As Single
         Get
             Return CType(Math.Round(mProgressPercentComplete, 2), Single)
         End Get
@@ -150,12 +150,12 @@ Public Class clsInSilicoDigest
                 blnRuleMatch = True
                 intRuleMatchCount = 2
             Else
-                blnRuleMatch = mPeptideSequence.CheckSequenceAgainstCleavageRule( _
-                                                            strSequence, _
-                                                            mCleavageRules.Rules(eRuleID).CleavageResidues, _
-                                                            mCleavageRules.Rules(eRuleID).ExceptionResidues, _
-                                                            mCleavageRules.Rules(eRuleID).ReversedCleavageDirection, _
-                                                            mCleavageRules.Rules(eRuleID).AllowPartialCleavage, _
+                blnRuleMatch = mPeptideSequence.CheckSequenceAgainstCleavageRule(
+                                                            strSequence,
+                                                            mCleavageRules.Rules(eRuleID).CleavageResidues,
+                                                            mCleavageRules.Rules(eRuleID).ExceptionResidues,
+                                                            mCleavageRules.Rules(eRuleID).ReversedCleavageDirection,
+                                                            mCleavageRules.Rules(eRuleID).AllowPartialCleavage,
                                                             , , , intRuleMatchCount)
             End If
         Else
@@ -219,19 +219,19 @@ Public Class clsInSilicoDigest
 
     End Function
 
-    Public Function DigestSequence(strProteinSequence As String, _
-                                   ByRef objPeptideFragments() As PeptideInfoClass, _
-                                   objDigestionOptions As DigestionOptionsClass, _
+    Public Function DigestSequence(strProteinSequence As String,
+                                   ByRef objPeptideFragments() As PeptideInfoClass,
+                                   objDigestionOptions As DigestionOptionsClass,
                                    blnFilterByIsoelectricPoint As Boolean) As Integer
 
         Return DigestSequence(strProteinSequence, objPeptideFragments, objDigestionOptions, blnFilterByIsoelectricPoint, "")
 
     End Function
 
-    Public Function DigestSequence(strProteinSequence As String, _
-                                   ByRef objPeptideFragments() As PeptideInfoClass, _
-                                   objDigestionOptions As DigestionOptionsClass, _
-                                   blnFilterByIsoelectricPoint As Boolean, _
+    Public Function DigestSequence(strProteinSequence As String,
+                                   ByRef objPeptideFragments() As PeptideInfoClass,
+                                   objDigestionOptions As DigestionOptionsClass,
+                                   blnFilterByIsoelectricPoint As Boolean,
                                     strProteinName As String) As Integer
         ' Digests strProteinSequence using the sequence rule given by objDigestionOptions.CleavageRuleID
         ' If blnRemoveDuplicateSequences = True, then only returns the first occurrence of each unique sequence
@@ -763,7 +763,7 @@ Public Class clsInSilicoDigest
             With objPeptideFragments(intFragmentCountTotal)
                 .SequenceOneLetter = strPeptideSequence
 
-                If .Mass < objDigestionOptions.MinFragmentMass OrElse _
+                If .Mass < objDigestionOptions.MinFragmentMass OrElse
                    .Mass > objDigestionOptions.MaxFragmentMass Then
                     blnAddFragment = False
                 Else
@@ -772,8 +772,8 @@ Public Class clsInSilicoDigest
                         sngIsoelectricPoint = mpICalculator.CalculateSequencepI(strPeptideSequence)
                     End If
 
-                    If blnFilterByIsoelectricPoint AndAlso ( _
-                       sngIsoelectricPoint < objDigestionOptions.MinIsoelectricPoint OrElse _
+                    If blnFilterByIsoelectricPoint AndAlso (
+                       sngIsoelectricPoint < objDigestionOptions.MinIsoelectricPoint OrElse
                        sngIsoelectricPoint > objDigestionOptions.MaxIsoelectricPoint) Then
                         blnAddFragment = False
                     Else
@@ -801,7 +801,7 @@ Public Class clsInSilicoDigest
                         End If
 
 
-                        If objDigestionOptions.CleavageRuleID = CleavageRuleConstants.ConventionalTrypsin OrElse _
+                        If objDigestionOptions.CleavageRuleID = CleavageRuleConstants.ConventionalTrypsin OrElse
                            objDigestionOptions.CleavageRuleID = CleavageRuleConstants.TrypsinWithoutProlineException Then
                             .PeptideName = "t" & (intTrypticIndex + 1).ToString & "." & (intMissedCleavageCount + 1).ToString
                         Else
@@ -927,35 +927,35 @@ Public Class clsInSilicoDigest
 #End Region
 
 #Region "Processing Options Interface Functions"
-        Public Property AutoComputeNET() As Boolean
+        Public Property AutoComputeNET As Boolean
             Get
                 Return mAutoComputeNET
             End Get
-            Set(Value As Boolean)
+            Set
                 mAutoComputeNET = Value
             End Set
         End Property
 
-        Public Property PeptideName() As String
+        Public Property PeptideName As String
             Get
                 Return mPeptideName
             End Get
-            Set(Value As String)
+            Set
                 mPeptideName = Value
             End Set
         End Property
 
-        Public ReadOnly Property NET() As Single
+        Public ReadOnly Property NET As Single
             Get
                 Return mNET
             End Get
         End Property
 
-        Public Property PrefixResidue() As String
+        Public Property PrefixResidue As String
             Get
                 Return mPrefixResidue
             End Get
-            Set(Value As String)
+            Set
                 If Not Value Is Nothing AndAlso Value.Length > 0 Then
                     mPrefixResidue = Value.Chars(0)
                 Else
@@ -964,26 +964,26 @@ Public Class clsInSilicoDigest
             End Set
         End Property
 
-        Public Property SequenceOneLetter() As String
+        Public Property SequenceOneLetter As String
             Get
                 Return MyBase.GetSequence(False)
             End Get
-            Set(Value As String)
+            Set
                 MyClass.SetSequence(Value, PeptideSequenceClass.NTerminusGroupConstants.Hydrogen, PeptideSequenceClass.CTerminusGroupConstants.Hydroxyl, False)
             End Set
         End Property
 
-        Public ReadOnly Property SequenceWithPrefixAndSuffix() As String
+        Public ReadOnly Property SequenceWithPrefixAndSuffix As String
             Get
                 Return mPrefixResidue & "." & MyClass.SequenceOneLetter & "." & mSuffixResidue
             End Get
         End Property
 
-        Public Property SuffixResidue() As String
+        Public Property SuffixResidue As String
             Get
                 Return mSuffixResidue
             End Get
-            Set(Value As String)
+            Set
                 If Not Value Is Nothing AndAlso Value.Length > 0 Then
                     mSuffixResidue = Value.Chars(0)
                 Else
@@ -1056,97 +1056,97 @@ Public Class clsInSilicoDigest
 #Region "Processing Options Interface Functions"
 
 
-        Public Property AminoAcidResidueFilterChars() As Char()
+        Public Property AminoAcidResidueFilterChars As Char()
             Get
                 Return mAminoAcidResidueFilterChars
             End Get
-            Set(Value As Char())
+            Set
                 mAminoAcidResidueFilterChars = Value
             End Set
         End Property
 
-        Public Property MaxMissedCleavages() As Integer
+        Public Property MaxMissedCleavages As Integer
             Get
                 Return mMaxMissedCleavages
             End Get
-            Set(Value As Integer)
+            Set
                 If Value < 0 Then Value = 0
                 If Value > 500000 Then Value = 500000
                 mMaxMissedCleavages = Value
             End Set
         End Property
 
-        Public Property CleavageRuleID() As clsInSilicoDigest.CleavageRuleConstants
+        Public Property CleavageRuleID As clsInSilicoDigest.CleavageRuleConstants
             Get
                 Return mCleavageRuleID
             End Get
-            Set(Value As clsInSilicoDigest.CleavageRuleConstants)
+            Set
                 mCleavageRuleID = Value
             End Set
         End Property
 
-        Public Property MinFragmentResidueCount() As Integer
+        Public Property MinFragmentResidueCount As Integer
             Get
                 Return mMinFragmentResidueCount
             End Get
-            Set(Value As Integer)
+            Set
                 If Value < 1 Then Value = 1
                 mMinFragmentResidueCount = Value
             End Set
         End Property
 
-        Public Property MinFragmentMass() As Integer
+        Public Property MinFragmentMass As Integer
             Get
                 Return mMinFragmentMass
             End Get
-            Set(Value As Integer)
+            Set
                 If Value < 0 Then Value = 0
                 mMinFragmentMass = Value
             End Set
         End Property
 
-        Public Property MaxFragmentMass() As Integer
+        Public Property MaxFragmentMass As Integer
             Get
                 Return mMaxFragmentMass
             End Get
-            Set(Value As Integer)
+            Set
                 If Value < 0 Then Value = 0
                 mMaxFragmentMass = Value
             End Set
         End Property
 
-        Public Property MinIsoelectricPoint() As Single
+        Public Property MinIsoelectricPoint As Single
             Get
                 Return mMinIsoelectricPoint
             End Get
-            Set(Value As Single)
+            Set
                 mMinIsoelectricPoint = Value
             End Set
         End Property
 
-        Public Property MaxIsoelectricPoint() As Single
+        Public Property MaxIsoelectricPoint As Single
             Get
                 Return mMaxIsoelectricPoint
             End Get
-            Set(Value As Single)
+            Set
                 mMaxIsoelectricPoint = Value
             End Set
         End Property
 
-        Public Property RemoveDuplicateSequences() As Boolean
+        Public Property RemoveDuplicateSequences As Boolean
             Get
                 Return mRemoveDuplicateSequences
             End Get
-            Set(Value As Boolean)
+            Set
                 mRemoveDuplicateSequences = Value
             End Set
         End Property
 
-        Public Property IncludePrefixAndSuffixResidues() As Boolean
+        Public Property IncludePrefixAndSuffixResidues As Boolean
             Get
                 Return mIncludePrefixAndSuffixResidues
             End Get
-            Set(Value As Boolean)
+            Set
                 mIncludePrefixAndSuffixResidues = Value
             End Set
         End Property

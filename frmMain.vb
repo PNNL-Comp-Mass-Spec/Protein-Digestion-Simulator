@@ -100,13 +100,13 @@ Public Class frmMain
 #End Region
 
 #Region "Properties"
-    Private Property SubtaskProgressIsVisible() As Boolean
+    Private Property SubtaskProgressIsVisible As Boolean
         Get
             Return lblSubtaskProgressDescription.Visible
         End Get
-        Set(value As Boolean)
-            lblSubtaskProgress.Visible = value
-            lblSubtaskProgressDescription.Visible = value
+        Set
+            lblSubtaskProgress.Visible = Value
+            lblSubtaskProgressDescription.Visible = Value
         End Set
     End Property
 #End Region

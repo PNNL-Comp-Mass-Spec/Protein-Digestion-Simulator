@@ -164,19 +164,19 @@ Public Class clsParseProteinFile
 #End Region
 
 #Region "Auto-properties"
-    Public Property AssumeDelimitedFile() As Boolean
+    Public Property AssumeDelimitedFile As Boolean
 
-    Public Property AssumeFastaFile() As Boolean
+    Public Property AssumeFastaFile As Boolean
 
-    Public Property ComputepI() As Boolean
+    Public Property ComputepI As Boolean
 
-    Public Property ComputeProteinMass() As Boolean
+    Public Property ComputeProteinMass As Boolean
 
     Public Property ComputeSequenceHashValues As Boolean
 
     Public Property ComputeSequenceHashIgnoreILDiff As Boolean
 
-    Public Property ComputeSCXNET() As Boolean
+    Public Property ComputeSCXNET As Boolean
 
     ''' <summary>
     ''' True to create a fasta output file; false for a tab-delimited text file
@@ -184,7 +184,7 @@ Public Class clsParseProteinFile
     ''' <value></value>
     ''' <returns></returns>
     ''' <remarks>Only valid if mCreateDigestedProteinOutputFile is False</remarks>
-    Public Property CreateFastaOutputFile() As Boolean
+    Public Property CreateFastaOutputFile As Boolean
 
     ''' <summary>
     ''' When True, then writes the proteins to a file; When false, then caches the results in memory
@@ -192,7 +192,7 @@ Public Class clsParseProteinFile
     ''' <value></value>
     ''' <returns></returns>
     ''' <remarks>Use DigestProteinSequence to obtained digested peptides instead of proteins</remarks>
-    Public Property CreateProteinOutputFile() As Boolean
+    Public Property CreateProteinOutputFile As Boolean
 
     ''' <summary>
     ''' True to in-silico digest the proteins
@@ -200,7 +200,7 @@ Public Class clsParseProteinFile
     ''' <value></value>
     ''' <returns></returns>
     ''' <remarks>Only valid if CreateProteinOutputFile is True</remarks>
-    Public Property CreateDigestedProteinOutputFile() As Boolean
+    Public Property CreateDigestedProteinOutputFile As Boolean
 
     Public Property ExcludeProteinSequence() As Boolean
 
@@ -210,13 +210,13 @@ Public Class clsParseProteinFile
     ''' <value></value>
     ''' <returns></returns>
     ''' <remarks>Only valid if CreateDigestedProteinOutputFile is True</remarks>
-    Public Property GenerateUniqueIDValuesForPeptides() As Boolean
+    Public Property GenerateUniqueIDValuesForPeptides As Boolean
 
-    Public Property IncludeXResiduesInMass() As Boolean
+    Public Property IncludeXResiduesInMass As Boolean
 
-    Public Property ReportMaximumpI() As Boolean
+    Public Property ReportMaximumpI As Boolean
 
-    Public Property ShowDebugPrompts() As Boolean
+    Public Property ShowDebugPrompts As Boolean
 
     Public Property TruncateProteinDescription As Boolean
 
@@ -224,16 +224,16 @@ Public Class clsParseProteinFile
 
 #Region "Processing Options Interface Functions"
 
-    Public Property DelimitedFileFormatCode() As DelimitedFileReader.eDelimitedFileFormatCode
+    Public Property DelimitedFileFormatCode As DelimitedFileReader.eDelimitedFileFormatCode
         Get
             Return mDelimitedInputFileFormatCode
         End Get
-        Set(value As DelimitedFileReader.eDelimitedFileFormatCode)
-            mDelimitedInputFileFormatCode = value
+        Set
+            mDelimitedInputFileFormatCode = Value
         End Set
     End Property
 
-    Public Property ElementMassMode() As PeptideSequenceClass.ElementModeConstants
+    Public Property ElementMassMode As PeptideSequenceClass.ElementModeConstants
         Get
             If mInSilicoDigest Is Nothing Then
                 Return PeptideSequenceClass.ElementModeConstants.IsotopicMass
@@ -241,7 +241,7 @@ Public Class clsParseProteinFile
                 Return mInSilicoDigest.ElementMassMode
             End If
         End Get
-        Set(Value As PeptideSequenceClass.ElementModeConstants)
+        Set
             If mInSilicoDigest Is Nothing Then
                 InitializeObjectVariables()
             End If
@@ -249,99 +249,99 @@ Public Class clsParseProteinFile
         End Set
     End Property
 
-    Public Property HydrophobicityType() As clspICalculation.eHydrophobicityTypeConstants
+    Public Property HydrophobicityType As clspICalculation.eHydrophobicityTypeConstants
         Get
             Return mHydrophobicityType
         End Get
-        Set(Value As clspICalculation.eHydrophobicityTypeConstants)
+        Set
             mHydrophobicityType = Value
         End Set
     End Property
 
-    Public Property InputFileDelimiter() As Char
+    Public Property InputFileDelimiter As Char
         Get
             Return mInputFileDelimiter
         End Get
-        Set(Value As Char)
+        Set
             If Not Value = Nothing Then
                 mInputFileDelimiter = Value
             End If
         End Set
     End Property
 
-    Public ReadOnly Property InputFileProteinsProcessed() As Integer
+    Public ReadOnly Property InputFileProteinsProcessed As Integer
         Get
             Return mInputFileProteinsProcessed
         End Get
     End Property
 
-    Public ReadOnly Property InputFileLinesRead() As Integer
+    Public ReadOnly Property InputFileLinesRead As Integer
         Get
             Return mInputFileLinesRead
         End Get
     End Property
 
-    Public ReadOnly Property InputFileLineSkipCount() As Integer
+    Public ReadOnly Property InputFileLineSkipCount As Integer
         Get
             Return mInputFileLineSkipCount
         End Get
     End Property
 
-    Public ReadOnly Property LocalErrorCode() As eParseProteinFileErrorCodes
+    Public ReadOnly Property LocalErrorCode As eParseProteinFileErrorCodes
         Get
             Return mLocalErrorCode
         End Get
     End Property
 
-    Public Property OutputFileDelimiter() As Char
+    Public Property OutputFileDelimiter As Char
         Get
             Return mOutputFileDelimiter
         End Get
-        Set(Value As Char)
+        Set
             If Not Value = Nothing Then
                 mOutputFileDelimiter = Value
             End If
         End Set
     End Property
 
-    Public ReadOnly Property ParsedFileIsFastaFile() As Boolean
+    Public ReadOnly Property ParsedFileIsFastaFile As Boolean
         Get
             Return mParsedFileIsFastaFile
         End Get
     End Property
 
-    Public Property ProteinScramblingLoopCount() As Integer
+    Public Property ProteinScramblingLoopCount As Integer
         Get
             Return mProteinScramblingLoopCount
         End Get
-        Set(Value As Integer)
+        Set
             mProteinScramblingLoopCount = Value
         End Set
     End Property
 
-    Public Property ProteinScramblingMode() As ProteinScramblingModeConstants
+    Public Property ProteinScramblingMode As ProteinScramblingModeConstants
         Get
             Return mProteinScramblingMode
         End Get
-        Set(Value As ProteinScramblingModeConstants)
+        Set
             mProteinScramblingMode = Value
         End Set
     End Property
 
-    Public Property ProteinScramblingSamplingPercentage() As Integer
+    Public Property ProteinScramblingSamplingPercentage As Integer
         Get
             Return mProteinScramblingSamplingPercentage
         End Get
-        Set(Value As Integer)
+        Set
             mProteinScramblingSamplingPercentage = Value
         End Set
     End Property
 
-    Public Property SequenceWidthToExamineForMaximumpI() As Integer
+    Public Property SequenceWidthToExamineForMaximumpI As Integer
         Get
             Return mSequenceWidthToExamineForMaximumpI
         End Get
-        Set(Value As Integer)
+        Set
             If Value < 1 Then mSequenceWidthToExamineForMaximumpI = 1
             mSequenceWidthToExamineForMaximumpI = Value
         End Set
@@ -691,8 +691,8 @@ Public Class clsParseProteinFile
       pathInfo As udtFilePathInfoType,
       udtResidueCache As udtScrambingResidueCacheType,
       eScramblingMode As ProteinScramblingModeConstants,
-      <Out()> ByRef srScrambledOutStream As StreamWriter,
-      <Out()> ByRef objRandomNumberGenerator As Random) As Boolean
+      <Out> ByRef srScrambledOutStream As StreamWriter,
+      <Out> ByRef objRandomNumberGenerator As Random) As Boolean
 
 
         Dim blnSuccess As Boolean
@@ -1484,7 +1484,7 @@ Public Class clsParseProteinFile
 
     Private Function ParseProteinFileCreateOutputFile(
       ByRef pathInfo As udtFilePathInfoType,
-      <Out()> ByRef objProteinFileReader As ProteinFileReaderBaseClass) As Boolean
+      <Out> ByRef objProteinFileReader As ProteinFileReaderBaseClass) As Boolean
 
         Dim strOutputFileName As String
         Dim blnSuccess As Boolean
@@ -2077,66 +2077,66 @@ Public Class clsParseProteinFile
 #End Region
 
 #Region "Processing Options Interface Functions"
-        Public Property ReadonlyClass() As Boolean
+        Public Property ReadonlyClass As Boolean
             Get
                 Return mReadonlyClass
             End Get
-            Set(Value As Boolean)
+            Set
                 If Not mReadonlyClass Then
                     mReadonlyClass = Value
                 End If
             End Set
         End Property
 
-        Public Property ProteinLineStartChar() As Char
+        Public Property ProteinLineStartChar As Char
             Get
                 Return mProteinLineStartChar
             End Get
-            Set(Value As Char)
+            Set
                 If Not Value = Nothing AndAlso Not mReadonlyClass Then
                     mProteinLineStartChar = Value
                 End If
             End Set
         End Property
 
-        Public Property ProteinLineAccessionEndChar() As Char
+        Public Property ProteinLineAccessionEndChar As Char
             Get
                 Return mProteinLineAccessionEndChar
             End Get
-            Set(Value As Char)
+            Set
                 If Not Value = Nothing AndAlso Not mReadonlyClass Then
                     mProteinLineAccessionEndChar = Value
                 End If
             End Set
         End Property
 
-        Public Property LookForAddnlRefInDescription() As Boolean
+        Public Property LookForAddnlRefInDescription As Boolean
             Get
                 Return mLookForAddnlRefInDescription
             End Get
-            Set(Value As Boolean)
+            Set
                 If Not mReadonlyClass Then
                     mLookForAddnlRefInDescription = Value
                 End If
             End Set
         End Property
 
-        Public Property AddnlRefSepChar() As Char
+        Public Property AddnlRefSepChar As Char
             Get
                 Return mAddnlRefSepChar
             End Get
-            Set(Value As Char)
+            Set
                 If Not Value = Nothing AndAlso Not mReadonlyClass Then
                     mAddnlRefSepChar = Value
                 End If
             End Set
         End Property
 
-        Public Property AddnlRefAccessionSepChar() As Char
+        Public Property AddnlRefAccessionSepChar As Char
             Get
                 Return mAddnlRefAccessionSepChar
             End Get
-            Set(Value As Char)
+            Set
                 If Not Value = Nothing AndAlso Not mReadonlyClass Then
                     mAddnlRefAccessionSepChar = Value
                 End If

@@ -202,7 +202,7 @@ Public Class clsPeakMatchingClass
 
         End Function
 
-        Public ReadOnly Property Count() As Integer
+        Public ReadOnly Property Count As Integer
             Get
                 Return mFeatureCount
             End Get
@@ -309,17 +309,17 @@ Public Class clsPeakMatchingClass
 
         End Function
 
-        Public Property UseFeatureIDHashTable() As Boolean
+        Public Property UseFeatureIDHashTable As Boolean
             Get
                 Return mUseFeatureIDHashTable
             End Get
-            Set(Value As Boolean)
+            Set
                 mUseFeatureIDHashTable = Value
             End Set
         End Property
 
         Private Class FeatureInfoComparerClass
-            Implements IComparer(of udtFeatureInfoType)
+            Implements IComparer(Of udtFeatureInfoType)
 
             Public Function Compare(x As udtFeatureInfoType, y As udtFeatureInfoType) As Integer Implements IComparer(Of udtFeatureInfoType).Compare
 
@@ -372,7 +372,7 @@ Public Class clsPeakMatchingClass
 
                 ' Add the extended feature info
                 If mExtendedInfo.Length < mFeatures.Length Then
-                    ReDim Preserve mExtendedInfo(mfeatures.Length - 1)
+                    ReDim Preserve mExtendedInfo(mFeatures.Length - 1)
                 End If
 
                 With mExtendedInfo(mFeatureCount - 1)
@@ -570,7 +570,7 @@ Public Class clsPeakMatchingClass
 
         End Sub
 
-        Public ReadOnly Property Count() As Integer
+        Public ReadOnly Property Count As Integer
             Get
                 Return mPMResultsCount
             End Get
@@ -737,42 +737,42 @@ Public Class clsPeakMatchingClass
 
 #Region "Processing Options Interface Functions"
 
-    Public Property MaxPeakMatchingResultsPerFeatureToSave() As Integer
+    Public Property MaxPeakMatchingResultsPerFeatureToSave As Integer
         Get
             Return mMaxPeakMatchingResultsPerFeatureToSave
         End Get
-        Set(Value As Integer)
+        Set
             If Value < 0 Then Value = 0
             mMaxPeakMatchingResultsPerFeatureToSave = Value
         End Set
     End Property
 
-    Public ReadOnly Property ProgressDescription() As String
+    Public ReadOnly Property ProgressDescription As String
         Get
             Return mProgressDescription
         End Get
     End Property
 
-    Public ReadOnly Property ProgessPct() As Single
+    Public ReadOnly Property ProgessPct As Single
         Get
             Return mProgessPct
         End Get
     End Property
 
-    Public Property UseMaxSearchDistanceMultiplierAndSLiCScore() As Boolean
+    Public Property UseMaxSearchDistanceMultiplierAndSLiCScore As Boolean
         Get
             Return mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore
         End Get
-        Set(Value As Boolean)
+        Set
             mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore = Value
         End Set
     End Property
 
-    Public Property UseEllipseSearchRegion() As Boolean
+    Public Property UseEllipseSearchRegion As Boolean
         Get
             Return mSearchModeOptions.UseEllipseSearchRegion
         End Get
-        Set(Value As Boolean)
+        Set
             mSearchModeOptions.UseEllipseSearchRegion = Value
         End Set
     End Property
@@ -872,7 +872,7 @@ Public Class clsPeakMatchingClass
             With udtRawMatches(intIndex)
                 .StandardizedSquaredDistance = .MassErr ^ 2 / dblMassStDevAbs ^ 2 + .NETErr ^ 2 / dblNETStDevCombined ^ 2
 
-                .SLiCScoreNumerator = (1 / (dblMassStDevAbs * dblNETStDevCombined)) * Math.Exp(-.StandardizedSquaredDistance / 2)
+                .SLiCScoreNumerator = (1 / (dblMassStDevAbs * dblNETStDevCombined)) * Math.Exp(- .StandardizedSquaredDistance / 2)
 
                 dblNumeratorSum += .SLiCScoreNumerator
 
@@ -1287,16 +1287,16 @@ Public Class clsPeakMatchingClass
 
 #Region "Processing Options Interface Functions"
 
-        Public Property AutoDefineSLiCScoreThresholds() As Boolean
+        Public Property AutoDefineSLiCScoreThresholds As Boolean
             Get
                 Return mAutoDefineSLiCScoreThresholds
             End Get
-            Set(Value As Boolean)
+            Set
                 mAutoDefineSLiCScoreThresholds = Value
             End Set
         End Property
 
-        Public ReadOnly Property ComputedSearchTolerances() As udtSearchTolerancesType
+        Public ReadOnly Property ComputedSearchTolerances As udtSearchTolerancesType
             Get
                 Return mComputedSearchTolerances
             End Get
@@ -1309,20 +1309,20 @@ Public Class clsPeakMatchingClass
             End Get
         End Property
 
-        Public Property MassTolType() As MassToleranceConstants
+        Public Property MassTolType As MassToleranceConstants
             Get
                 Return mMassTolType
             End Get
-            Set(Value As MassToleranceConstants)
+            Set
                 mMassTolType = Value
             End Set
         End Property
 
-        Public Property MassTolerance() As Double
+        Public Property MassTolerance As Double
             Get
                 Return mMassTolerance
             End Get
-            Set(Value As Double)
+            Set
                 mMassTolerance = Value
                 If mAutoDefineSLiCScoreThresholds Then
                     InitializeSLiCScoreOptions(True)
@@ -1330,11 +1330,11 @@ Public Class clsPeakMatchingClass
             End Set
         End Property
 
-        Public Property NETTolerance() As Double
+        Public Property NETTolerance As Double
             Get
                 Return mNETTolerance
             End Get
-            Set(Value As Double)
+            Set
                 mNETTolerance = Value
                 If mAutoDefineSLiCScoreThresholds Then
                     InitializeSLiCScoreOptions(True)
@@ -1342,40 +1342,40 @@ Public Class clsPeakMatchingClass
             End Set
         End Property
 
-        Public Property SLiCScoreMassPPMStDev() As Double
+        Public Property SLiCScoreMassPPMStDev As Double
             Get
                 Return mSLiCScoreOptions.MassPPMStDev
             End Get
-            Set(Value As Double)
+            Set
                 If Value < 0 Then Value = 0
                 mSLiCScoreOptions.MassPPMStDev = Value
             End Set
         End Property
 
-        Public Property SLiCScoreNETStDev() As Double
+        Public Property SLiCScoreNETStDev As Double
             Get
                 Return mSLiCScoreOptions.NETStDev
             End Get
-            Set(Value As Double)
+            Set
                 If Value < 0 Then Value = 0
                 mSLiCScoreOptions.NETStDev = Value
             End Set
         End Property
 
-        Public Property SLiCScoreUseAMTNETStDev() As Boolean
+        Public Property SLiCScoreUseAMTNETStDev As Boolean
             Get
                 Return mSLiCScoreOptions.UseAMTNETStDev
             End Get
-            Set(Value As Boolean)
+            Set
                 mSLiCScoreOptions.UseAMTNETStDev = Value
             End Set
         End Property
 
-        Public Property SLiCScoreMaxSearchDistanceMultiplier() As Single
+        Public Property SLiCScoreMaxSearchDistanceMultiplier As Single
             Get
                 Return mSLiCScoreMaxSearchDistanceMultiplier
             End Get
-            Set(Value As Single)
+            Set
                 If Value < 1 Then Value = 1
                 mSLiCScoreMaxSearchDistanceMultiplier = Value
                 If mAutoDefineSLiCScoreThresholds Then

@@ -80,29 +80,29 @@ Public Class frmFastaValidation
 #End Region
 
 #Region "Processing Options Interface Functions"
-    Public Property CustomRulesFilePath() As String
+    Public Property CustomRulesFilePath As String
         Get
             Return txtCustomValidationRulesFilePath.Text
         End Get
-        Set(Value As String)
+        Set
             txtCustomValidationRulesFilePath.Text = Value
         End Set
     End Property
 
-    Public Property FastaFilePath() As String
+    Public Property FastaFilePath As String
         Get
             Return mFastaFilePath
         End Get
-        Set(value As String)
-            mFastaFilePath = value
+        Set
+            mFastaFilePath = Value
         End Set
     End Property
 
-    Public Property TextFontSize() As Single
+    Public Property TextFontSize As Single
         Get
             Return txtResults.Font.SizeInPoints
         End Get
-        Set(Value As Single)
+        Set
             If Value < 6 Then
                 Value = 6
             ElseIf Value > 72 Then
