@@ -142,7 +142,7 @@ Public Class PeptideSequenceClass
 
         ' First look if sequence is in the form A.BCDEFG.Z or -.BCDEFG.Z or A.BCDEFG.-
         ' If so, then need to strip out the preceding A and Z residues since they aren't really part of the sequence
-        If strSequence.Length > 1 And strSequence.IndexOf(".") >= 0 Then
+        If strSequence.Length > 1 And strSequence.IndexOf(".", StringComparison.Ordinal) >= 0 Then
             If strSequence.Chars(1) = "." AndAlso strSequence.Length > 2 Then
                 strPrefix = strSequence.Chars(0)
                 strSequence = strSequence.Substring(2)
@@ -217,13 +217,13 @@ Public Class PeptideSequenceClass
             Return True
         End If
 
-        intPeriodLoc1 = strSequence.IndexOf(strSeparationChar)
+        intPeriodLoc1 = strSequence.IndexOf(strSeparationChar, StringComparison.Ordinal)
         If intPeriodLoc1 < 0 Then
             ' No periods, can't check
             Console.WriteLine("CheckSequenceAgainstCleavageRule called with a sequence that doesn't contain prefix or suffix separation characters; unable to process: " & strSequence)
             Return True
         Else
-            intPeriodLoc2 = strSequence.IndexOf(strSeparationChar, intPeriodLoc1 + 1)
+            intPeriodLoc2 = strSequence.IndexOf(strSeparationChar, intPeriodLoc1 + 1, StringComparison.Ordinal)
         End If
 
         If blnIgnoreCase Then
@@ -617,14 +617,14 @@ Public Class PeptideSequenceClass
         Dim intPeptideResiduesLength As Integer
 
         If blnIgnoreCase Then
-            strProteinResidues = strProteinResidues.ToUpper
-            strPeptideResidues = strPeptideResidues.ToUpper
+            strProteinResidues = strProteinResidues.ToUpper()
+            strPeptideResidues = strPeptideResidues.ToUpper()
         End If
 
         If intProteinSearchStartLoc <= 1 Then
-            intStartLoc = strProteinResidues.IndexOf(strPeptideResidues) + 1
+            intStartLoc = strProteinResidues.IndexOf(strPeptideResidues, StringComparison.Ordinal) + 1
         Else
-            intStartLoc = strProteinResidues.Substring(intProteinSearchStartLoc + 1).IndexOf(strPeptideResidues) + 1
+            intStartLoc = strProteinResidues.Substring(intProteinSearchStartLoc + 1).IndexOf(strPeptideResidues, StringComparison.Ordinal) + 1
             If intStartLoc > 0 Then
                 intStartLoc = intStartLoc + intProteinSearchStartLoc - 1
             End If
@@ -661,7 +661,7 @@ Public Class PeptideSequenceClass
                     intTrypticResidueNumber = 0
                     strProteinResiduesBeforeStartLoc = strProteinResidues.Substring(0, intStartLoc - 1)
                     strResidueFollowingSearchResidues = strPeptideResidues.Chars(0)
-                    intTrypticResidueNumber = 0
+
                     intRuleResidueLoc = 0
                     Do
                         intRuleResidueLoc = GetTrypticNameFindNextCleavageLoc(strProteinResiduesBeforeStartLoc, strResidueFollowingSearchResidues, intRuleResidueLoc + 1, strRuleResidues, strExceptionResidues, blnReversedCleavageDirection, chTerminiiSymbol)
@@ -942,7 +942,6 @@ Public Class PeptideSequenceClass
         intProteinResiduesLength = strProteinResidues.Length
 
         intStartLoc = 1
-        intRuleResidueLoc = 0
         intCurrentTrypticPeptideNumber = 0
         Do
             intRuleResidueLoc = GetTrypticNameFindNextCleavageLoc(strProteinResidues, chTerminiiSymbol, intStartLoc, strRuleResidues, strExceptionResidues, blnReversedCleavageDirection, chTerminiiSymbol)
@@ -962,7 +961,6 @@ Public Class PeptideSequenceClass
             End If
         Loop While intCurrentTrypticPeptideNumber < intDesiredPeptideNumber
 
-        strMatchingFragment = String.Empty
         If intCurrentTrypticPeptideNumber > 0 And intPrevStartLoc > 0 Then
             If intPrevStartLoc > strProteinResidues.Length Then
                 ' User requested a peptide number that is too high
@@ -1097,7 +1095,6 @@ Public Class PeptideSequenceClass
         ' Returns 0 if success; 1 if error
         Dim intError As Integer
 
-        intError = 0
         Select Case eCTerminusGroup
             Case CTerminusGroupConstants.Hydroxyl : intError = SetCTerminus("OH", strFollowingResidue, blnUse3LetterCode)
             Case CTerminusGroupConstants.Amide : intError = SetCTerminus("NH2", strFollowingResidue, blnUse3LetterCode)
@@ -1150,7 +1147,6 @@ Public Class PeptideSequenceClass
         ' Returns 0 if success; 1 if error
         Dim intError As Integer
 
-        intError = 0
         Select Case eNTerminusGroup
             Case NTerminusGroupConstants.Hydrogen : intError = SetNTerminus("H", strPrecedingResidue, blnUse3LetterCode)
             Case NTerminusGroupConstants.HydrogenPlusProton : intError = SetNTerminus("HH", strPrecedingResidue, blnUse3LetterCode)
@@ -1307,8 +1303,8 @@ Public Class PeptideSequenceClass
     End Sub
 
     Private Sub UpdateStandardMasses()
-        Const DEFAULT_CHARGE_CARRIER_MASS_AVG As Double = 1.00739
-        Const DEFAULT_CHARGE_CARRIER_MASS_MONOISO As Double = 1.00727649
+        Const DEFAULT_CHARGE_CARRIER_MASS_AVG = 1.00739
+        Const DEFAULT_CHARGE_CARRIER_MASS_MONOISO = 1.00727649
 
         If mCurrentElementMode = ElementModeConstants.AverageMass Then
             mChargeCarrierMass = DEFAULT_CHARGE_CARRIER_MASS_AVG
