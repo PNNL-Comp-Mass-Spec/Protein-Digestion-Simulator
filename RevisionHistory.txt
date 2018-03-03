@@ -1,5 +1,9 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.6635; March 2, 2018
+	- Add option Exclude Description to exclude protein descriptions when converting FASTA files to text files
+	- Add hydrophobicity values for glutamine
+
 Version 2.2.6622; February 17, 2018
 	- Updated FlexibleFileSortUtility.dll and ValidateFastaFile.dll
 
