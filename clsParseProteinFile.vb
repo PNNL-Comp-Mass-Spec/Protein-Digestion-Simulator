@@ -14,6 +14,7 @@ Option Strict On
 Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.InteropServices
+Imports System.Text
 Imports System.Threading
 Imports NETPrediction
 Imports PRISM
@@ -24,7 +25,7 @@ Public Class clsParseProteinFile
     Inherits PRISM.FileProcessor.ProcessFilesBase
 
     Public Sub New()
-        MyBase.mFileDate = "September 15, 2014"
+        MyBase.mFileDate = "March 2, 2018"
         InitializeLocalVariables()
     End Sub
 
@@ -1046,6 +1047,7 @@ Public Class clsParseProteinFile
             End If
 
             Dim objHashGenerator As clsHashGenerator = Nothing
+            Dim outLine = New StringBuilder()
 
             For intLoopIndex = 1 To intLoopcount
 
@@ -1109,46 +1111,49 @@ Public Class clsParseProteinFile
                 ResetProgress("Parsing protein input file")
 
                 If CreateProteinOutputFile AndAlso Not CreateFastaOutputFile Then
+                    outLine.Clear()
+
                     ' Write the header line to the output file
-                    Dim strLineOut = "ProteinName" & mOutputFileDelimiter
+                    outLine.Append("ProteinName" & mOutputFileDelimiter)
 
                     If blnLookForAddnlRefInDescription Then
 
                         For intIndex = 0 To udtAddnlRefsToOutput.Length - 1
                             With udtAddnlRefsToOutput(intIndex)
-                                strLineOut &= .RefName & mOutputFileDelimiter
+                                outLine.Append(.RefName & mOutputFileDelimiter)
                             End With
                         Next intIndex
                     End If
 
-                    strLineOut &= "Description"
+                    ' Include Description in the header line, even if we are excluding the description for all proteins
+                    outLine.Append("Description")
 
                     If ComputeSequenceHashValues Then
-                        strLineOut &= mOutputFileDelimiter & "SequenceHash"
+                        outLine.Append(mOutputFileDelimiter & "SequenceHash")
                         objHashGenerator = New clsHashGenerator()
                     End If
 
                     If Not ExcludeProteinSequence Then
-                        strLineOut &= mOutputFileDelimiter & "Sequence"
+                        outLine.Append(mOutputFileDelimiter & "Sequence")
                     End If
 
                     If ComputeProteinMass Then
                         If ElementMassMode = PeptideSequenceClass.ElementModeConstants.AverageMass Then
-                            strLineOut &= mOutputFileDelimiter & "Average Mass"
+                            outLine.Append(mOutputFileDelimiter & "Average Mass")
                         Else
-                            strLineOut &= mOutputFileDelimiter & "Mass"
+                            outLine.Append(mOutputFileDelimiter & "Mass")
                         End If
                     End If
 
                     If ComputepI Then
-                        strLineOut &= mOutputFileDelimiter & "pI" & mOutputFileDelimiter & "Hydrophobicity"
+                        outLine.Append(mOutputFileDelimiter & "pI" & mOutputFileDelimiter & "Hydrophobicity")
                     End If
 
                     If ComputeSCXNET Then
-                        strLineOut &= mOutputFileDelimiter & "SCX_NET"
+                        outLine.Append(mOutputFileDelimiter & "SCX_NET")
                     End If
 
-                    swProteinOutputFile.WriteLine(strLineOut)
+                    swProteinOutputFile.WriteLine(outLine.ToString())
                 End If
 
                 ' Read each protein in the input file and process appropriately
@@ -1197,15 +1202,15 @@ Public Class clsParseProteinFile
                         If intLoopIndex = 1 Then
 
                             If CreateFastaOutputFile Then
-                                ParseProteinFileWriteFasta(swProteinOutputFile)
+                                ParseProteinFileWriteFasta(swProteinOutputFile, outLine)
                             Else
-                                ParseProteinFileWriteTextDelimited(swProteinOutputFile, blnLookForAddnlRefInDescription, udtAddnlRefsToOutput)
+                                ParseProteinFileWriteTextDelimited(swProteinOutputFile, outLine, blnLookForAddnlRefInDescription, udtAddnlRefsToOutput)
                             End If
 
                         End If
 
                         If intLoopIndex = 1 AndAlso Not swDigestOutputFile Is Nothing Then
-                            ParseProteinFileWriteDigested(swDigestOutputFile, blnGenerateUniqueSequenceID)
+                            ParseProteinFileWriteDigested(swDigestOutputFile, outLine, blnGenerateUniqueSequenceID)
                         End If
 
                         If eScramblingMode <> ProteinScramblingModeConstants.None Then
@@ -1365,6 +1370,7 @@ Public Class clsParseProteinFile
 
     Private Sub ParseProteinFileWriteDigested(
       swDigestOutputFile As TextWriter,
+      outLine As StringBuilder,
       blnGenerateUniqueSequenceID As Boolean)
 
         Dim udtPeptides() As clsInSilicoDigest.PeptideInfoClass = Nothing
@@ -1391,37 +1397,42 @@ Public Class clsParseProteinFile
                 End If
 
                 Dim strBaseSequence = .SequenceOneLetter
-                Dim strLineOut As String = String.Empty
+                outLine.Clear()
 
                 If Not ExcludeProteinSequence Then
+                    outLine.Append(mProteins(mProteinCount).Name & mOutputFileDelimiter)
                     If DigestionOptions.IncludePrefixAndSuffixResidues Then
-                        strLineOut = mProteins(mProteinCount).Name & mOutputFileDelimiter & .PrefixResidue & "." & strBaseSequence & "." & .SuffixResidue & mOutputFileDelimiter
+                        outLine.Append(.PrefixResidue & "." & strBaseSequence & "." & .SuffixResidue & mOutputFileDelimiter)
                     Else
-                        strLineOut = mProteins(mProteinCount).Name & mOutputFileDelimiter & strBaseSequence & mOutputFileDelimiter
+                        outLine.Append(strBaseSequence & mOutputFileDelimiter)
                     End If
                 End If
-                strLineOut &= intUniqueSeqID.ToString & mOutputFileDelimiter & .Mass & mOutputFileDelimiter & Math.Round(.NET, 4).ToString & mOutputFileDelimiter & .PeptideName
+                outLine.Append(intUniqueSeqID.ToString & mOutputFileDelimiter &
+                               .Mass & mOutputFileDelimiter &
+                               Math.Round(.NET, 4).ToString & mOutputFileDelimiter &
+                               .PeptideName)
 
                 If ComputepI Then
                     Dim sngpI = ComputeSequencepI(strBaseSequence)
                     Dim sngHydrophobicity = ComputeSequenceHydrophobicity(strBaseSequence)
 
-                    strLineOut &= mOutputFileDelimiter & sngpI.ToString("0.000") & mOutputFileDelimiter & sngHydrophobicity.ToString("0.0000")
+                    outLine.Append(mOutputFileDelimiter & sngpI.ToString("0.000") &
+                                   mOutputFileDelimiter & sngHydrophobicity.ToString("0.0000"))
                 End If
 
                 If ComputeSCXNET Then
                     Dim sngSCXNET = ComputeSequenceSCXNET(strBaseSequence)
 
-                    strLineOut &= mOutputFileDelimiter & sngSCXNET.ToString("0.0000")
+                    outLine.Append(mOutputFileDelimiter & sngSCXNET.ToString("0.0000"))
                 End If
 
-                swDigestOutputFile.WriteLine(strLineOut)
+                swDigestOutputFile.WriteLine(outLine.ToString())
             End With
         Next intIndex
 
     End Sub
 
-    Private Sub ParseProteinFileWriteFasta(swProteinOutputFile As TextWriter)
+    Private Sub ParseProteinFileWriteFasta(swProteinOutputFile As TextWriter, outLine As StringBuilder)
         ' Write the entry to the output fasta file
 
         With mProteins(mProteinCount)
