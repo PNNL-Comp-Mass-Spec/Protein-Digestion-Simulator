@@ -264,7 +264,10 @@ Public Class frmMain
 
         strSequence = txtSequenceForpI.Text
 
-        objpICalculator.HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, clspICalculation.eHydrophobicityTypeConstants)
+        If cboHydrophobicityMode.SelectedIndex >= 0 Then
+            objpICalculator.HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, clspICalculation.eHydrophobicityTypeConstants)
+        End If
+
         objpICalculator.ReportMaximumpI = chkMaxpIModeEnabled.Checked
         objpICalculator.SequenceWidthToExamineForMaximumpI = LookupMaxpISequenceLength()
 
@@ -524,7 +527,9 @@ Public Class frmMain
 
                 With mProteinDigestionSimulator
 
-                    eMassToleranceType = CType(cboMassTolType.SelectedIndex, clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants)
+                    If cboMassTolType.SelectedIndex >= 0 Then
+                        eMassToleranceType = CType(cboMassTolType.SelectedIndex, clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants)
+                    End If
                     blnAutoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked
 
                     blnClearExisting = True
@@ -540,7 +545,9 @@ Public Class frmMain
 
                     .DigestSequences = Not chkAssumeInputFileIsDigested.Checked
                     .CysPeptidesOnly = chkCysPeptidesOnly.Checked
-                    .ElementMassMode = CType(cboElementMassMode.SelectedIndex, PeptideSequenceClass.ElementModeConstants)
+                    If cboElementMassMode.SelectedIndex >= 0 Then
+                        .ElementMassMode = CType(cboElementMassMode.SelectedIndex, PeptideSequenceClass.ElementModeConstants)
+                    End If
 
                     .AutoDetermineMassRangeForBinning = chkAutoComputeRangeForBinning.Checked
 
@@ -1042,7 +1049,9 @@ Public Class frmMain
                 .AssumeFastaFile = False
             End If
 
-            .DelimitedFileFormatCode = CType(cboInputFileColumnOrdering.SelectedIndex, DelimitedFileReader.eDelimitedFileFormatCode)
+            If cboInputFileColumnOrdering.SelectedIndex >= 0 Then
+                .DelimitedFileFormatCode = CType(cboInputFileColumnOrdering.SelectedIndex, DelimitedFileReader.eDelimitedFileFormatCode)
+            End If
 
             .InputFileDelimiter = LookupColumnDelimiter(cboInputFileColumnDelimiter, txtInputFileColumnDelimiter, ControlChars.Tab)
             .OutputFileDelimiter = LookupColumnDelimiter(cboOutputFileFieldDelimeter, txtOutputFileFieldDelimeter, ControlChars.Tab)
@@ -1072,7 +1081,10 @@ Public Class frmMain
             .TruncateProteinDescription = chkTruncateProteinDescription.Checked
             .ExcludeProteinDescription = chkExcludeProteinDescription.Checked
 
-            .HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, clspICalculation.eHydrophobicityTypeConstants)
+            If cboHydrophobicityMode.SelectedIndex >= 0 Then
+                .HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, clspICalculation.eHydrophobicityTypeConstants)
+            End If
+
             .ReportMaximumpI = chkMaxpIModeEnabled.Checked
             .SequenceWidthToExamineForMaximumpI = LookupMaxpISequenceLength()
 
@@ -1081,7 +1093,10 @@ Public Class frmMain
             .GenerateUniqueIDValuesForPeptides = chkGenerateUniqueIDValues.Checked
 
             With .DigestionOptions
-                .CleavageRuleID = CType(cboCleavageRuleType.SelectedIndex, clsInSilicoDigest.CleavageRuleConstants)
+                If cboCleavageRuleType.SelectedIndex >= 0 Then
+                    .CleavageRuleID = CType(cboCleavageRuleType.SelectedIndex, clsInSilicoDigest.CleavageRuleConstants)
+                End If
+
                 .IncludePrefixAndSuffixResidues = chkIncludePrefixAndSuffixResidues.Checked
 
                 .MinFragmentMass = ParseTextboxValueInt(txtDigestProteinsMinimumMass, lblDigestProteinsMinimumMass.Text & " must be an integer value", blnError)
@@ -1188,13 +1203,19 @@ Public Class frmMain
 
                 With mParseProteinFile
                     .CreateProteinOutputFile = True
-                    .ProteinScramblingMode = CType(cboProteinReversalOptions.SelectedIndex, clsParseProteinFile.ProteinScramblingModeConstants)
+
+                    If cboProteinReversalOptions.SelectedIndex >= 0 Then
+                        .ProteinScramblingMode = CType(cboProteinReversalOptions.SelectedIndex, clsParseProteinFile.ProteinScramblingModeConstants)
+                    End If
+
                     .ProteinScramblingSamplingPercentage = VBNetRoutines.ParseTextboxValueInt(txtProteinReversalSamplingPercentage, "", False, 100, False)
                     .ProteinScramblingLoopCount = VBNetRoutines.ParseTextboxValueInt(txtProteinScramblingLoopCount, "", False, 1, False)
                     .CreateDigestedProteinOutputFile = chkDigestProteins.Checked
                     .CreateFastaOutputFile = chkCreateFastaOutputFile.Checked
 
-                    .ElementMassMode = CType(cboElementMassMode.SelectedIndex, PeptideSequenceClass.ElementModeConstants)
+                    If cboElementMassMode.SelectedIndex >= 0 Then
+                        .ElementMassMode = CType(cboElementMassMode.SelectedIndex, PeptideSequenceClass.ElementModeConstants)
+                    End If
 
                     Cursor.Current = Cursors.WaitCursor
                     mWorking = True
@@ -2101,7 +2122,9 @@ Public Class frmMain
     End Sub
 
     Private Sub cmdPMThresholdsAutoPopulate_Click(sender As Object, e As EventArgs) Handles cmdPMThresholdsAutoPopulate.Click
-        AutoPopulatePMThresholdsByID(CType(cboPMPredefinedThresholds.SelectedIndex, PredefinedPMThresholdsConstants), True)
+        If cboPMPredefinedThresholds.SelectedIndex >= 0 Then
+            AutoPopulatePMThresholdsByID(CType(cboPMPredefinedThresholds.SelectedIndex, PredefinedPMThresholdsConstants), True)
+        End If
     End Sub
 
     Private Sub cmdSelectFile_Click(sender As Object, e As EventArgs) Handles cmdSelectFile.Click
