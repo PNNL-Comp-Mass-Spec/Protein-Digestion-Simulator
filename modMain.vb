@@ -295,41 +295,47 @@ Module modMain
 
     Private Sub ShowProgramHelp()
 
-        Dim strSyntax As String
-
         Try
 
-            strSyntax = String.Empty
+            Console.WriteLine(WrapParagraph(
+              "This program can be used to read a fasta file or tab delimited file containing protein or peptide sequences, then output " &
+              "the data to a tab-delimited file.  It can optionally digest the input sequences using trypsin or partial trpysin rules, " &
+              "and can add the predicted normalized elution time (NET) values for the peptides.Additionally, it can calculate the " &
+              "number of uniquely identifiable peptides, using only mass, or both mass and NET, with appropriate tolerances."))
+            Console.WriteLine()
+            Console.WriteLine("Program syntax:")
+            Console.WriteLine(WrapParagraph(
+                Path.GetFileName(Assembly.GetExecutingAssembly().Location) &
+                " /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimeter] " &
+                "[/O:OutputFolderPath] [/P:ParameterFilePath] [/S:[MaxLevel]] " &
+                "[/A:AlternateOutputFolderPath] [/R] [/Q]"))
+            Console.WriteLine()
+            Console.WriteLine(WrapParagraph("The input file path can contain the wildcard character * and should point to a fasta file or tab-delimited text file."))
+            Console.WriteLine()
+            Console.WriteLine(WrapParagraph("Use /F to indicate that the input file is a fasta file.  If /F is not used, then the format will be assumed to be fasta only if the file contains .fasta in the name"))
+            Console.WriteLine()
+            Console.WriteLine(WrapParagraph("Use /D to indicate that an in-silico digestion of the proteins should be performed.  Digestion options must be specified in the Parameter file."))
+            Console.WriteLine()
+            Console.WriteLine(WrapParagraph("Use /M to indicate that protein mass should be computed."))
+            Console.WriteLine()
+            Console.WriteLine(WrapParagraph("Use /AD to specify a delimiter other than the Tab character (not applicable for fasta files)."))
+            Console.WriteLine()
+            Console.WriteLine(WrapParagraph("The output folder path is optional.  If omitted, the output files will be created in the same folder as the input file."))
+            Console.WriteLine()
+            Console.WriteLine(WrapParagraph("The parameter file path is optional.  If included, it should point to a valid XML parameter file."))
+            Console.WriteLine()
+            Console.WriteLine(WrapParagraph("Use /S to process all valid files in the input folder and subfolders. Include a number after /S (like /S:2) to limit the level of subfolders to examine."))
+            Console.WriteLine(WrapParagraph("When using /S, you can redirect the output of the results using /A."))
+            Console.WriteLine(WrapParagraph("When using /S, you can use /R to re-create the input folder hierarchy in the alternate output folder (if defined)."))
+            Console.WriteLine()
+            Console.WriteLine("Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004")
+            Console.WriteLine("Version: " & GetAppVersion())
+            Console.WriteLine()
+            Console.WriteLine("E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com")
+            Console.WriteLine("Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/")
+            Console.WriteLine()
+            Console.WriteLine(frmDisclaimer.GetKangasPetritisDisclaimerText())
 
-            strSyntax &= "This program can be used to read a fasta file or tab delimited file containing protein or peptide sequences, then output "
-            strSyntax &= "the data to a tab-delimited file.  It can optionally digest the input sequences using trypsin or partial trpysin rules, "
-            strSyntax &= "and can add the predicted normalized elution time (NET) values for the peptides.Additionally, it can calculate the "
-            strSyntax &= "number of uniquely identifiable peptides, using only mass, or both mass and NET, with appropriate tolerances." & ControlChars.NewLine & ControlChars.NewLine
-
-            strSyntax &= "Program syntax:" & ControlChars.NewLine & Path.GetFileName(Assembly.GetExecutingAssembly().Location)
-            strSyntax &= " /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimeter] [/O:OutputFolderPath] [/P:ParameterFilePath] [/S:[MaxLevel]] [/A:AlternateOutputFolderPath] [/R] [/Q]" & ControlChars.NewLine & ControlChars.NewLine
-
-            strSyntax &= "The input file path can contain the wildcard character * and should point to a fasta file or tab-delimited text file." & ControlChars.NewLine
-            strSyntax &= "Use /F to indicate that the input file is a fasta file.  If /F is not used, then the format will be assumed to be fasta only if the file contains .fasta in the name" & ControlChars.NewLine
-            strSyntax &= "Use /D to indicate that an in-silico digestion of the proteins should be performed.  Digestion options must be specified in the Parameter file." & ControlChars.NewLine
-            strSyntax &= "Use /M to indicate that protein mass should be computed." & ControlChars.NewLine
-            strSyntax &= "Use /AD to specify a delimiter other than the Tab character (not applicable for fasta files)." & ControlChars.NewLine
-            strSyntax &= "The output folder path is optional.  If omitted, the output files will be created in the same folder as the input file." & ControlChars.NewLine
-            strSyntax &= "The parameter file path is optional.  If included, it should point to a valid XML parameter file." & ControlChars.NewLine
-            strSyntax &= "Use /S to process all valid files in the input folder and subfolders. Include a number after /S (like /S:2) to limit the level of subfolders to examine." & ControlChars.NewLine
-            strSyntax &= "When using /S, you can redirect the output of the results using /A." & ControlChars.NewLine
-            strSyntax &= "When using /S, you can use /R to re-create the input folder hierarchy in the alternate output folder (if defined)." & ControlChars.NewLine
-            strSyntax &= "The optional /Q switch will suppress all error messages." & ControlChars.NewLine & ControlChars.NewLine
-
-            strSyntax &= "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004" & ControlChars.NewLine
-            strSyntax &= "Version: " & GetAppVersion() & ControlChars.NewLine & ControlChars.NewLine
-
-            strSyntax &= "E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com" & ControlChars.NewLine
-            strSyntax &= "Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/" & ControlChars.NewLine & ControlChars.NewLine
-
-            strSyntax &= frmDisclaimer.GetKangasPetritisDisclaimerText() & ControlChars.NewLine & ControlChars.NewLine
-
-            Console.WriteLine(strSyntax)
             Thread.Sleep(2000)
 
         Catch ex As Exception
@@ -337,6 +343,10 @@ Module modMain
         End Try
 
     End Sub
+
+    Private Function WrapParagraph(message As String, Optional wrapWidth As Integer = 80) As String
+        Return CommandLineParser(Of clsParseCommandLine).WrapParagraph(message, wrapWidth)
+    End Function
 
     Private Sub WriteToErrorStream(strErrorMessage As String)
         Try
