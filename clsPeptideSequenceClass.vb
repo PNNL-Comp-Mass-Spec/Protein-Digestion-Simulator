@@ -56,7 +56,9 @@ Public Class PeptideSequenceClass
         Public Formula As String
         Public Mass As Double
         Public MassElementMode As ElementModeConstants
+        ' ReSharper disable once NotAccessedField.Local
         Public PrecedingResidue As String      ' If the peptide sequence is part of a protein, the user can record the final residue of the previous peptide sequence here
+        ' ReSharper disable once NotAccessedField.Local
         Public FollowingResidue As String      ' If the peptide sequence is part of a protein, the user can record the first residue of the next peptide sequence here
     End Structure
 #End Region
@@ -77,7 +79,10 @@ Public Class PeptideSequenceClass
 #Region "Classwide Variables"
     Private mResidues As String
 
+    ' ReSharper disable once UnassignedField.Local
     Private mNTerminus As udtTerminusType       ' Formula on the N-Terminus
+
+    ' ReSharper disable once UnassignedField.Local
     Private mCTerminus As udtTerminusType       ' Formula on the C-Terminus
 
     Private mTotalMass As Double

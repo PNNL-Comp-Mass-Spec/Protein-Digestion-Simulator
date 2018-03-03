@@ -222,8 +222,22 @@ Public Class clsParseProteinFile
     ''' <remarks>Only valid if CreateDigestedProteinOutputFile is True</remarks>
     Public Property GenerateUniqueIDValuesForPeptides As Boolean
 
+    ''' <summary>
+    ''' When true, include X residues when computing protein mass (using the mass of Ile/Leu)
+    ''' </summary>
+    ''' <returns></returns>
     Public Property IncludeXResiduesInMass As Boolean
 
+    ''' <summary>
+    ''' Summary of the result of processing
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property ProcessingSummary As String
+
+    ''' <summary>
+    ''' When true, report the maximum pI
+    ''' </summary>
+    ''' <returns></returns>
     Public Property ReportMaximumpI As Boolean
 
     Public Property ShowDebugPrompts As Boolean
@@ -909,11 +923,17 @@ Public Class clsParseProteinFile
         Return ParseProteinFile(strProteinInputFilePath, strOutputFolderPath, String.Empty)
     End Function
 
+    ''' <summary>
+    ''' Process the protein FASTA file or tab-delimited text file
+    ''' </summary>
+    ''' <param name="strProteinInputFilePath"></param>
+    ''' <param name="strOutputFolderPath"></param>
+    ''' <param name="strOutputFileNameBaseOverride">Name for the protein output filename (auto-defined if empty)</param>
+    ''' <returns></returns>
     Public Function ParseProteinFile(
       strProteinInputFilePath As String,
       strOutputFolderPath As String,
       strOutputFileNameBaseOverride As String) As Boolean
-        ' If strOutputFileNameBaseOverride is defined, then uses that name for the protein output filename rather than auto-defining the name
 
         Dim objProteinFileReader As ProteinFileReaderBaseClass = Nothing
 

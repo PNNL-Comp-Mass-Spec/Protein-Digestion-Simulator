@@ -362,9 +362,31 @@ Public Class clsProteinDigestionSimulator
         End With
     End Sub
 
-    Private Function AddOrUpdatePeptide(intUniqueSeqID As Integer, dblPeptideMass As Double, sngPeptideNET As Single, sngPeptideNETStDev As Single, sngPeptideDiscriminantScore As Single, strProteinName As String, eCleavageStateInProtein As clsProteinInfo.eCleavageStateConstants, strPeptideName As String) As Integer
-        ' Assures that the peptide is present in mComparisonPeptideInfo and that the protein and protein/peptide mapping is present in mProteinInfo
-        ' Assumes that intUniqueSeqID is truly unique for the given peptide
+    ''' <summary>
+    ''' Add/update a peptide
+    ''' </summary>
+    ''' <param name="intUniqueSeqID"></param>
+    ''' <param name="dblPeptideMass"></param>
+    ''' <param name="sngPeptideNET"></param>
+    ''' <param name="sngPeptideNETStDev"></param>
+    ''' <param name="sngPeptideDiscriminantScore"></param>
+    ''' <param name="strProteinName"></param>
+    ''' <param name="eCleavageStateInProtein"></param>
+    ''' <param name="strPeptideName"></param>
+    ''' <returns></returns>
+    ''' <remarks>
+    ''' Assures that the peptide is present in mComparisonPeptideInfo and that the protein and protein/peptide mapping is present in mProteinInfo
+    ''' Assumes that intUniqueSeqID is truly unique for the given peptide
+    ''' </remarks>
+    Private Function AddOrUpdatePeptide(
+      intUniqueSeqID As Integer,
+      dblPeptideMass As Double,
+      sngPeptideNET As Single,
+      sngPeptideNETStDev As Single,
+      sngPeptideDiscriminantScore As Single,
+      strProteinName As String,
+      eCleavageStateInProtein As clsProteinInfo.eCleavageStateConstants,
+      strPeptideName As String) As Integer
 
         Dim intProteinID As Integer
 
@@ -387,9 +409,12 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
+    ''' <summary>
+    ''' Add/update a protein
+    ''' </summary>
+    ''' <param name="strProteinName"></param>
+    ''' <returns>The index of the protein in mProteinInfo, or -1 if not found and unable to add it</returns>
     Private Function AddOrUpdateProtein(strProteinName As String) As Integer
-        ' Returns the index of the protein in mProteinInfo
-        ' Returns -1 if not found and unable to add it
 
         Dim intProteinID As Integer
 
