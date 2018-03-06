@@ -84,16 +84,22 @@ Public Class frmDisclaimer
 
 #End Region
 
-    Public Shared Function GetKangasPetritisDisclaimerText() As String
+    Public Shared Function GetKangasPetritisDisclaimerText(Optional addNewlines As Boolean = True) As String
 
-        Return "NOTICE/DISCLAIMER" & _
-                ControlChars.NewLine & ControlChars.NewLine & _
-                "The methods embodied in this software to derive the Kangas/Petritis retention time " & _
-                "prediction values are covered by U.S. patent 7,136,759 and pending patent 2005-0267688A1.  " & _
-                "The software is made available solely for non-commercial research purposes on an " & _
-                """as is"" basis by Battelle Memorial Institute.  If rights to deploy and distribute  " & _
-                "the code for commercial purposes are of interest, please contact Bruce Harrer " & _
-                "at bruce.harrer@pnl.gov"
+        Dim newlineText As String
+        If addNewlines Then
+            newlineText = ControlChars.NewLine & ControlChars.NewLine
+        Else
+            newlineText = ": "
+        End If
+
+        Return "NOTICE/DISCLAIMER" &
+               newlineText &
+               "The methods embodied in this software to derive the Kangas/Petritis retention time " &
+               "prediction values are covered by U.S. patent 7,136,759 and pending patent 2005-0267688A1.  " &
+               "The software is made available solely for non-commercial research purposes on an " &
+               """as is"" basis by Battelle Memorial Institute.  If rights to deploy and distribute  " &
+               "the code for commercial purposes are of interest, please contact proteomics@pnnl.gov"
 
     End Function
 
