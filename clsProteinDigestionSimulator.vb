@@ -3,8 +3,10 @@ Option Strict On
 Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.InteropServices
+Imports PRISM
 Imports ProteinFileReader
 Imports SharedVBNetRoutines
+
 ' This class will read two fasta files and look for overlap in protein sequence between the proteins of
 '  the first fasta file and the second fasta file
 '
@@ -31,10 +33,10 @@ Imports SharedVBNetRoutines
 ' this computer software.
 
 Public Class clsProteinDigestionSimulator
-    Inherits PRISM.FileProcessor.ProcessFilesBase
+    Inherits FileProcessor.ProcessFilesBase
 
     Public Sub New()
-        MyBase.mFileDate = "March 2, 2018"
+        MyBase.mFileDate = "March 5, 2018"
         InitializeLocalVariables()
     End Sub
 

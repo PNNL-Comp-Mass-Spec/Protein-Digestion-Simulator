@@ -1,9 +1,9 @@
 Option Strict On
 
 Imports System.IO
-Imports System.Reflection
 Imports System.Threading
 Imports PRISM
+Imports PRISM.FileProcessor
 Imports ProteinFileReader
 
 ' This program can be used to read a fasta file or tab delimited file
@@ -39,7 +39,7 @@ Imports ProteinFileReader
 
 Module modMain
 
-    Public Const PROGRAM_DATE As String = "March 2, 2018"
+    Public Const PROGRAM_DATE As String = "March 5, 2018"
 
     Private Declare Auto Function ShowWindow Lib "user32.dll" (hWnd As IntPtr, nCmdShow As Integer) As Boolean
     Private Declare Auto Function GetConsoleWindow Lib "kernel32.dll" () As IntPtr
@@ -183,7 +183,7 @@ Module modMain
     End Sub
 
     Private Function GetAppVersion() As String
-        Return PRISM.FileProcessor.ProcessFilesBase.GetAppVersion(PROGRAM_DATE)
+        Return ProcessFilesBase.GetAppVersion(PROGRAM_DATE)
     End Function
 
     Private Function SetOptionsUsingCommandLineParameters(objParseCommandLine As clsParseCommandLine) As Boolean

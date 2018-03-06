@@ -22,7 +22,7 @@ Imports ProteinFileReader
 Imports ValidateFastaFile
 
 Public Class clsParseProteinFile
-    Inherits PRISM.FileProcessor.ProcessFilesBase
+    Inherits FileProcessor.ProcessFilesBase
 
     Public Sub New()
         MyBase.mFileDate = "March 2, 2018"
