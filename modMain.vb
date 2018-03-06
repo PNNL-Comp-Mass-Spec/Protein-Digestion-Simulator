@@ -196,7 +196,7 @@ Module modMain
         Try
             ' Make sure no invalid parameters are present
             If objParseCommandLine.InvalidParametersPresent(lstValidParameters) Then
-                ShowErrorMessage("Invalid commmand line parameters",
+                ConsoleMsgUtils.ShowErrors("Invalid commmand line parameters",
                     (From item In objParseCommandLine.InvalidParameters(lstValidParameters) Select "/" + item).ToList())
                 Return False
             Else
@@ -252,29 +252,10 @@ Module modMain
 
     End Function
 
-    Private Sub ShowErrorMessage(strMessage As String, Optional ex As Exception = Nothing)
-        ConsoleMsgUtils.ShowError(strMessage, ex)
+    Private Sub ShowErrorMessage(message As String, Optional ex As Exception = Nothing)
+        ConsoleMsgUtils.ShowError(message, ex)
 
-        WriteToErrorStream(strMessage)
-    End Sub
-
-    Private Sub ShowErrorMessage(strTitle As String, items As List(Of String))
-        Dim strSeparator = "------------------------------------------------------------------------------"
-        Dim strMessage As String
-
-        Console.WriteLine()
-        Console.WriteLine(strSeparator)
-        Console.WriteLine(strTitle)
-        strMessage = strTitle & ":"
-
-        For Each item As String In items
-            Console.WriteLine("   " + item)
-            strMessage &= " " & item
-        Next
-        Console.WriteLine(strSeparator)
-        Console.WriteLine()
-
-        WriteToErrorStream(strMessage)
+        WriteToErrorStream(message)
     End Sub
 
     Public Sub ShowGUI()
