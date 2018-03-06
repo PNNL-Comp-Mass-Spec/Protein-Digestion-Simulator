@@ -245,43 +245,43 @@ Public Class frmMain
 
     Private Sub ComputeSequencepI()
 
-        Dim strSequence As String
-        Dim sngpI As Single
-        Dim sngHydrophobicity As Single
-        Dim sngSCXNET As Single
-
-        Dim strMessage As String
-
         If txtSequenceForpI.TextLength = 0 Then Exit Sub
 
-        If objpICalculator Is Nothing Then
-            objpICalculator = New clspICalculation
+        Dim strSequence = txtSequenceForpI.Text
+        Dim sngpI As Single
+        Dim sngHydrophobicity As Single
+        Dim sngLCNET As Single
+        Dim sngSCXNET As Single
+
+        If Not objpICalculator Is Nothing Then
+            If cboHydrophobicityMode.SelectedIndex >= 0 Then
+                objpICalculator.HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, clspICalculation.eHydrophobicityTypeConstants)
+            End If
+
+            objpICalculator.ReportMaximumpI = chkMaxpIModeEnabled.Checked
+            objpICalculator.SequenceWidthToExamineForMaximumpI = LookupMaxpISequenceLength()
+
+
+            sngpI = objpICalculator.CalculateSequencepI(strSequence)
+            sngHydrophobicity = objpICalculator.CalculateSequenceHydrophobicity(strSequence)
+            ' Could compute charge state: objpICalculator.CalculateSequenceChargeState(strSequence, sngpI)
         End If
 
-        If objSCXNETCalculator Is Nothing Then
-            objSCXNETCalculator = New SCXElutionTimePredictionKangas
+        If Not objNETCalculator Is Nothing Then
+            ' Compute the LC-based normalized elution time
+            sngLCNET = objNETCalculator.GetElutionTime(strSequence)
         End If
 
-        strSequence = txtSequenceForpI.Text
-
-        If cboHydrophobicityMode.SelectedIndex >= 0 Then
-            objpICalculator.HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, clspICalculation.eHydrophobicityTypeConstants)
+        If Not objSCXNETCalculator Is Nothing Then
+            ' Compute the SCX-based normalized elution time
+            sngSCXNET = objSCXNETCalculator.GetElutionTime(strSequence)
         End If
 
-        objpICalculator.ReportMaximumpI = chkMaxpIModeEnabled.Checked
-        objpICalculator.SequenceWidthToExamineForMaximumpI = LookupMaxpISequenceLength()
-
-        sngpI = objpICalculator.CalculateSequencepI(strSequence)
-        sngHydrophobicity = objpICalculator.CalculateSequenceHydrophobicity(strSequence)
-        objpICalculator.CalculateSequenceChargeState(strSequence, sngpI)
-
-        sngSCXNET = objSCXNETCalculator.GetElutionTime(strSequence)
-
-        strMessage = "pI = " & sngpI.ToString & ControlChars.NewLine
-        strMessage &= "Hydrophobicity = " & sngHydrophobicity.ToString
-        'strMessage &= "Predicted charge state = " & ControlChars.NewLine & intCharge.ToString & " at pH = " & sngpI.ToString
-        strMessage &= ControlChars.NewLine & "Predicted SCX NET = " & sngSCXNET.ToString("0.000")
-
+        Dim strMessage = "pI = " & sngpI.ToString & ControlChars.NewLine &
+                         "Hydrophobicity = " & sngHydrophobicity.ToString & ControlChars.NewLine &
+                         "Predicted LC NET = " & sngLCNET.ToString("0.000") & ControlChars.NewLine &
+                         "Predicted SCX NET = " & sngSCXNET.ToString("0.000")
+        ' "Predicted charge state = " & ControlChars.NewLine & intCharge.ToString & " at pH = " & sngpI.ToString
 
         txtpIStats.Text = strMessage
     End Sub
@@ -453,8 +453,8 @@ Public Class frmMain
 
         txtMaxpISequenceLength.Enabled = chkMaxpIModeEnabled.Checked
 
-        txtDigestProteinsMinimumpI.Enabled = blnEnableDigestionOptions And chkComputepI.Checked
-        txtDigestProteinsMaximumpI.Enabled = blnEnableDigestionOptions And chkComputepI.Checked
+        txtDigestProteinsMinimumpI.Enabled = blnEnableDigestionOptions And chkComputepIandNET.Checked
+        txtDigestProteinsMaximumpI.Enabled = blnEnableDigestionOptions And chkComputepIandNET.Checked
 
     End Sub
 
@@ -692,7 +692,7 @@ Public Class frmMain
 
                     ' In the GUI, chkComputepI controls both computing pI and SCX
                     ' Running from the command line, you can toggle those options separately using "ComputepI" and "ComputeSCX"
-                    chkComputepI.Checked = .GetParam(ProcessingOptions, "ComputepI", chkComputepI.Checked)
+                    chkComputepIandNET.Checked = .GetParam(ProcessingOptions, "ComputepI", chkComputepIandNET.Checked)
                     chkIncludeXResidues.Checked = .GetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
 
                     chkComputeSequenceHashValues.Checked = .GetParam(ProcessingOptions, "ComputeSequenceHashValues", chkComputeSequenceHashValues.Checked)
@@ -851,7 +851,7 @@ Public Class frmMain
 
                         .SetParam(ProcessingOptions, "ExcludeProteinSequence", chkExcludeProteinSequence.Checked)
                         .SetParam(ProcessingOptions, "ComputeProteinMass", chkComputeProteinMass.Checked)
-                        .SetParam(ProcessingOptions, "ComputepI", chkComputepI.Checked)
+                        .SetParam(ProcessingOptions, "ComputepI", chkComputepIandNET.Checked)
                         .SetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
 
                         .SetParam(ProcessingOptions, "ComputeSequenceHashValues", chkComputeSequenceHashValues.Checked)
@@ -1073,8 +1073,9 @@ Public Class frmMain
 
             .ExcludeProteinSequence = chkExcludeProteinSequence.Checked
             .ComputeProteinMass = chkComputeProteinMass.Checked
-            .ComputepI = chkComputepI.Checked
-            .ComputeSCXNET = chkComputepI.Checked
+            .ComputepI = chkComputepIandNET.Checked
+            .ComputeNET = chkComputepIandNET.Checked
+            .ComputeSCXNET = chkComputepIandNET.Checked
 
             .ComputeSequenceHashValues = chkComputeSequenceHashValues.Checked
             .ComputeSequenceHashIgnoreILDiff = chkComputeSequenceHashIgnoreILDiff.Checked
@@ -1580,7 +1581,7 @@ Public Class frmMain
         chkComputeProteinMass.Checked = False
         cboElementMassMode.SelectedIndex = PeptideSequenceClass.ElementModeConstants.IsotopicMass
 
-        chkComputepI.Checked = False
+        chkComputepIandNET.Checked = False
         chkIncludeXResidues.Checked = False
 
         chkComputeSequenceHashValues.Checked = True
@@ -2051,7 +2052,7 @@ Public Class frmMain
         UpdateDataGridTableStyle()
     End Sub
 
-    Private Sub chkComputepI_CheckedChanged(sender As Object, e As EventArgs) Handles chkComputepI.CheckedChanged
+    Private Sub chkComputepI_CheckedChanged(sender As Object, e As EventArgs) Handles chkComputepIandNET.CheckedChanged
         EnableDisableControls()
     End Sub
 
@@ -2111,6 +2112,10 @@ Public Class frmMain
 
     Private Sub cmdGenerateUniquenessStats_Click(sender As Object, e As EventArgs) Handles cmdGenerateUniquenessStats.Click
         GenerateUniquenessStats()
+    End Sub
+
+    Private Sub cmdNETInfo_Click(sender As Object, e As EventArgs) Handles cmdNETInfo.Click
+        ShowElutionTimeInfo()
     End Sub
 
     Private Sub cmdParseInputFile_Click(sender As Object, e As EventArgs) Handles cmdParseInputFile.Click

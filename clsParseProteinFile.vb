@@ -96,6 +96,7 @@ Public Class clsParseProteinFile
         Public Mass As Double
         Public pI As Single
         Public Hydrophobicity As Single
+        Public ProteinNET As Single
         Public ProteinSCXNET As Single
     End Structure
 
@@ -143,6 +144,7 @@ Public Class clsParseProteinFile
     Private WithEvents mInSilicoDigest As clsInSilicoDigest
     Private objpICalculator As clspICalculation
 
+    Private WithEvents objNETCalculator As ElutionTimePredictionKangas
     Private WithEvents objSCXNETCalculator As SCXElutionTimePredictionKangas
 
     Private mProteinCount As Integer
@@ -168,6 +170,8 @@ Public Class clsParseProteinFile
     Public Property AssumeDelimitedFile As Boolean
 
     Public Property AssumeFastaFile As Boolean
+
+    Public Property ComputeNET As Boolean
 
     Public Property ComputepI As Boolean
 
@@ -410,10 +414,22 @@ Public Class clsParseProteinFile
 
     End Function
 
+    Private Function ComputeSequenceNET(strSequence As String) As Single
+
+        ' Be sure to call InitializeObjectVariables before calling this function for the first time
+        ' Otherwise, objNETCalculator will be nothing
+        If objNETCalculator Is Nothing Then
+            Return 0
+        Else
+            Return objNETCalculator.GetElutionTime(strSequence)
+        End If
+
+    End Function
+
     Private Function ComputeSequenceSCXNET(strSequence As String) As Single
 
         ' Be sure to call InitializeObjectVariables before calling this function for the first time
-        ' Otherwise, objpICalculator will be nothing
+        ' Otherwise, objSCXNETCalculator will be nothing
         If objSCXNETCalculator Is Nothing Then
             Return 0
         Else
@@ -622,6 +638,7 @@ Public Class clsParseProteinFile
         ExcludeProteinSequence = False
         ComputeProteinMass = True
         ComputepI = True
+        ComputeNET = True
         ComputeSCXNET = True
 
         ComputeSequenceHashValues = False
@@ -688,7 +705,15 @@ Public Class clsParseProteinFile
             End Try
 
             Try
-                objSCXNETCalculator = New SCXElutionTimePredictionKangas
+                objNETCalculator = New ElutionTimePredictionKangas()
+            Catch ex As Exception
+                strErrorMessage = "Error initializing LC NET Calculation class"
+                ShowErrorMessage(strErrorMessage)
+                Me.SetLocalErrorCode(eParseProteinFileErrorCodes.ErrorInitializingObjectVariables)
+            End Try
+
+            Try
+                objSCXNETCalculator = New SCXElutionTimePredictionKangas()
             Catch ex As Exception
                 strErrorMessage = "Error initializing SCX NET Calculation class"
                 ShowErrorMessage(strErrorMessage)
@@ -857,6 +882,7 @@ Public Class clsParseProteinFile
                     Me.ElementMassMode = CType(objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ElementMassMode", CInt(Me.ElementMassMode)), PeptideSequenceClass.ElementModeConstants)
 
                     Me.ComputepI = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputepI", Me.ComputepI)
+                    Me.ComputeNET = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeNET", Me.ComputeNET)
                     Me.ComputeSCXNET = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeSCX", Me.ComputeSCXNET)
 
                     Me.CreateDigestedProteinOutputFile = objSettingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "DigestProteins", Me.CreateDigestedProteinOutputFile)
@@ -1149,6 +1175,10 @@ Public Class clsParseProteinFile
                         outLine.Append(mOutputFileDelimiter & "pI" & mOutputFileDelimiter & "Hydrophobicity")
                     End If
 
+                    If ComputeNET Then
+                        outLine.Append(mOutputFileDelimiter & "LC_NET")
+                    End If
+
                     If ComputeSCXNET Then
                         outLine.Append(mOutputFileDelimiter & "SCX_NET")
                     End If
@@ -1360,8 +1390,12 @@ Public Class clsParseProteinFile
                 .Hydrophobicity = 0
             End If
 
+            If ComputeNET Then
+                .ProteinNET = ComputeSequenceNET(.Sequence)
+            End If
+
             If ComputeSCXNET Then
-                .ProteinSCXNET = objSCXNETCalculator.GetElutionTime(.Sequence)
+                .ProteinSCXNET = ComputeSequenceSCXNET(.Sequence)
             End If
 
         End With
@@ -1418,6 +1452,12 @@ Public Class clsParseProteinFile
 
                     outLine.Append(mOutputFileDelimiter & sngpI.ToString("0.000") &
                                    mOutputFileDelimiter & sngHydrophobicity.ToString("0.0000"))
+                End If
+
+                If ComputeNET Then
+                    Dim sngLCNET = ComputeSequenceSCXNET(strBaseSequence)
+
+                    outLine.Append(mOutputFileDelimiter & sngLCNET.ToString("0.0000"))
                 End If
 
                 If ComputeSCXNET Then
@@ -1520,6 +1560,10 @@ Public Class clsParseProteinFile
 
             If ComputepI Then
                 outLine.Append(mOutputFileDelimiter & .pI.ToString("0.000") & mOutputFileDelimiter & .Hydrophobicity.ToString("0.0000"))
+            End If
+
+            If ComputeNET Then
+                outLine.Append(mOutputFileDelimiter & .ProteinNET.ToString("0.0000"))
             End If
 
             If ComputeSCXNET Then
@@ -1682,6 +1726,10 @@ Public Class clsParseProteinFile
 
             If ComputepI Then
                 strLineOut &= mOutputFileDelimiter & "pI" & mOutputFileDelimiter & "Hydrophobicity"
+            End If
+
+            If ComputeNET Then
+                strLineOut &= mOutputFileDelimiter & "LC_NET"
             End If
 
             If ComputeSCXNET Then
@@ -2207,6 +2255,10 @@ Public Class clsParseProteinFile
 
     Private Sub mInSilicoDigest_ProgressReset() Handles mInSilicoDigest.ProgressReset
         ' Don't do anything with this event
+    End Sub
+
+    Private Sub objNETCalculator_ErrorEvent(message As String) Handles objNETCalculator.ErrorEvent
+        ShowErrorMessage(message)
     End Sub
 
     Private Sub objSCXNETCalculator_ErrorEvent(message As String) Handles objSCXNETCalculator.ErrorEvent

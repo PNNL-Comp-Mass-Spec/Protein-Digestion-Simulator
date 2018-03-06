@@ -18,7 +18,7 @@ Partial Class frmMain
     Private components As System.ComponentModel.IContainer
 
     'NOTE: The following procedure is required by the Windows Form Designer
-    'It can be modified using the Windows Form Designer.  
+    'It can be modified using the Windows Form Designer.
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
@@ -100,6 +100,7 @@ Partial Class frmMain
         Me.txtAddnlRefSepChar = New System.Windows.Forms.TextBox()
         Me.chkCreateFastaOutputFile = New System.Windows.Forms.CheckBox()
         Me.fraCalculationOptions = New System.Windows.Forms.GroupBox()
+        Me.cmdNETInfo = New System.Windows.Forms.Button()
         Me.chkExcludeProteinDescription = New System.Windows.Forms.CheckBox()
         Me.chkComputeSequenceHashIgnoreILDiff = New System.Windows.Forms.CheckBox()
         Me.chkTruncateProteinDescription = New System.Windows.Forms.CheckBox()
@@ -107,7 +108,7 @@ Partial Class frmMain
         Me.lblMassMode = New System.Windows.Forms.Label()
         Me.cboElementMassMode = New System.Windows.Forms.ComboBox()
         Me.chkExcludeProteinSequence = New System.Windows.Forms.CheckBox()
-        Me.chkComputepI = New System.Windows.Forms.CheckBox()
+        Me.chkComputepIandNET = New System.Windows.Forms.CheckBox()
         Me.chkIncludeXResidues = New System.Windows.Forms.CheckBox()
         Me.chkComputeProteinMass = New System.Windows.Forms.CheckBox()
         Me.fraDigestionOptions = New System.Windows.Forms.GroupBox()
@@ -664,7 +665,7 @@ Partial Class frmMain
         Me.frapIAndHydrophobicity.Margin = New System.Windows.Forms.Padding(4)
         Me.frapIAndHydrophobicity.Name = "frapIAndHydrophobicity"
         Me.frapIAndHydrophobicity.Padding = New System.Windows.Forms.Padding(4)
-        Me.frapIAndHydrophobicity.Size = New System.Drawing.Size(821, 138)
+        Me.frapIAndHydrophobicity.Size = New System.Drawing.Size(821, 167)
         Me.frapIAndHydrophobicity.TabIndex = 2
         Me.frapIAndHydrophobicity.TabStop = False
         Me.frapIAndHydrophobicity.Text = "pI And Hydrophobicity"
@@ -690,13 +691,15 @@ Partial Class frmMain
         '
         'txtpIStats
         '
+        Me.txtpIStats.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.txtpIStats.Location = New System.Drawing.Point(448, 59)
         Me.txtpIStats.Margin = New System.Windows.Forms.Padding(4)
         Me.txtpIStats.MaxLength = 1
         Me.txtpIStats.Multiline = True
         Me.txtpIStats.Name = "txtpIStats"
         Me.txtpIStats.ReadOnly = True
-        Me.txtpIStats.Size = New System.Drawing.Size(361, 68)
+        Me.txtpIStats.Size = New System.Drawing.Size(361, 97)
         Me.txtpIStats.TabIndex = 7
         '
         'txtSequenceForpI
@@ -1007,6 +1010,7 @@ Partial Class frmMain
         '
         'fraCalculationOptions
         '
+        Me.fraCalculationOptions.Controls.Add(Me.cmdNETInfo)
         Me.fraCalculationOptions.Controls.Add(Me.chkExcludeProteinDescription)
         Me.fraCalculationOptions.Controls.Add(Me.chkComputeSequenceHashIgnoreILDiff)
         Me.fraCalculationOptions.Controls.Add(Me.chkTruncateProteinDescription)
@@ -1014,7 +1018,7 @@ Partial Class frmMain
         Me.fraCalculationOptions.Controls.Add(Me.lblMassMode)
         Me.fraCalculationOptions.Controls.Add(Me.cboElementMassMode)
         Me.fraCalculationOptions.Controls.Add(Me.chkExcludeProteinSequence)
-        Me.fraCalculationOptions.Controls.Add(Me.chkComputepI)
+        Me.fraCalculationOptions.Controls.Add(Me.chkComputepIandNET)
         Me.fraCalculationOptions.Controls.Add(Me.chkIncludeXResidues)
         Me.fraCalculationOptions.Controls.Add(Me.chkComputeProteinMass)
         Me.fraCalculationOptions.Location = New System.Drawing.Point(501, 49)
@@ -1025,6 +1029,15 @@ Partial Class frmMain
         Me.fraCalculationOptions.TabIndex = 1
         Me.fraCalculationOptions.TabStop = False
         Me.fraCalculationOptions.Text = "Calculation Options"
+        '
+        'cmdNETInfo
+        '
+        Me.cmdNETInfo.Location = New System.Drawing.Point(357, 107)
+        Me.cmdNETInfo.Margin = New System.Windows.Forms.Padding(1)
+        Me.cmdNETInfo.Name = "cmdNETInfo"
+        Me.cmdNETInfo.Size = New System.Drawing.Size(46, 24)
+        Me.cmdNETInfo.TabIndex = 4
+        Me.cmdNETInfo.Text = "Info"
         '
         'chkExcludeProteinDescription
         '
@@ -1096,14 +1109,14 @@ Partial Class frmMain
         Me.chkExcludeProteinSequence.TabIndex = 0
         Me.chkExcludeProteinSequence.Text = "Exclude Protein Sequence"
         '
-        'chkComputepI
+        'chkComputepIandNET
         '
-        Me.chkComputepI.Location = New System.Drawing.Point(21, 109)
-        Me.chkComputepI.Margin = New System.Windows.Forms.Padding(4)
-        Me.chkComputepI.Name = "chkComputepI"
-        Me.chkComputepI.Size = New System.Drawing.Size(288, 22)
-        Me.chkComputepI.TabIndex = 3
-        Me.chkComputepI.Text = "Compute pI and SCX NET"
+        Me.chkComputepIandNET.Location = New System.Drawing.Point(21, 109)
+        Me.chkComputepIandNET.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkComputepIandNET.Name = "chkComputepIandNET"
+        Me.chkComputepIandNET.Size = New System.Drawing.Size(336, 22)
+        Me.chkComputepIandNET.TabIndex = 3
+        Me.chkComputepIandNET.Text = "Compute pI and Normalized Elution Time (NET)"
         '
         'chkIncludeXResidues
         '
@@ -1834,7 +1847,7 @@ Partial Class frmMain
     Friend WithEvents lblMassMode As System.Windows.Forms.Label
     Friend WithEvents cboElementMassMode As System.Windows.Forms.ComboBox
     Friend WithEvents chkExcludeProteinSequence As System.Windows.Forms.CheckBox
-    Friend WithEvents chkComputepI As System.Windows.Forms.CheckBox
+    Friend WithEvents chkComputepIandNET As System.Windows.Forms.CheckBox
     Friend WithEvents chkIncludeXResidues As System.Windows.Forms.CheckBox
     Friend WithEvents chkComputeProteinMass As System.Windows.Forms.CheckBox
     Friend WithEvents fraDigestionOptions As System.Windows.Forms.GroupBox
@@ -1900,9 +1913,10 @@ Partial Class frmMain
     Friend WithEvents lblOutputFileFieldDelimiter As System.Windows.Forms.Label
     Friend WithEvents cboOutputFileFieldDelimeter As System.Windows.Forms.ComboBox
     Friend WithEvents txtOutputFileFieldDelimeter As System.Windows.Forms.TextBox
-	Friend WithEvents fraOutputTextOptions As System.Windows.Forms.GroupBox
-	Friend WithEvents chkTruncateProteinDescription As System.Windows.Forms.CheckBox
-	Friend WithEvents chkComputeSequenceHashValues As System.Windows.Forms.CheckBox
-	Friend WithEvents chkComputeSequenceHashIgnoreILDiff As System.Windows.Forms.CheckBox
+    Friend WithEvents fraOutputTextOptions As System.Windows.Forms.GroupBox
+    Friend WithEvents chkTruncateProteinDescription As System.Windows.Forms.CheckBox
+    Friend WithEvents chkComputeSequenceHashValues As System.Windows.Forms.CheckBox
+    Friend WithEvents chkComputeSequenceHashIgnoreILDiff As System.Windows.Forms.CheckBox
     Friend WithEvents chkExcludeProteinDescription As CheckBox
+    Friend WithEvents cmdNETInfo As Button
 End Class
