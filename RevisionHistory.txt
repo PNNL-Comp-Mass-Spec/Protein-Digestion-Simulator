@@ -1,5 +1,9 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.6638; March 5, 2018
+	- Updated NETPrediction.dll
+	- Include predicted LC NET values
+
 Version 2.2.6635; March 2, 2018
 	- Add option Exclude Description to exclude protein descriptions when converting FASTA files to text files
 	- Add hydrophobicity values for glutamine
@@ -180,7 +184,7 @@ Version 2.1.2481; October 17, 2006
 		- When writing out the accession numbers, no longer includes the accession name in each data line, since the header line contains that information
 	- Fixed a parsing bug that caused proteins with descriptions like the following to throw an error when splitting on | and : to find addnl Refs in protein descriptions
 		- Tax_Id=9606 PREDICTED: hypothetical
-	- Updated to new version of NETPrediction.dll (v 1.0.2481)
+	- Updated to new version of NETPrediction.dll (v1.0.2481)
 
 Version 2.1.2419; August 16, 2006
 	- Added the ability to create multiple scrambled fasta files for a given input file using the Protein Scrambling Loop Count option
