@@ -260,19 +260,27 @@ Module modMain
 
     Public Sub ShowGUI()
 
-        ' Hide the console
         Dim hWndConsole As IntPtr
-        hWndConsole = GetConsoleWindow()
-        ShowWindow(hWndConsole, SW_HIDE)
 
-        Application.EnableVisualStyles()
-        Application.DoEvents()
+        Try
+            ' Hide the console
+            hWndConsole = GetConsoleWindow()
+            ShowWindow(hWndConsole, SW_HIDE)
 
-        Dim objFormMain = New frmMain()
+            Application.EnableVisualStyles()
+            Application.DoEvents()
 
-        objFormMain.ShowDialog()
+            Dim objFormMain = New frmMain()
+            objFormMain.ShowDialog()
 
-        ShowWindow(hWndConsole, SW_SHOW)
+        Catch ex As Exception
+            ShowErrorMessage("Exception with the GUI", ex)
+        End Try
+
+        If hWndConsole <> IntPtr.Zero Then
+            ShowWindow(hWndConsole, SW_SHOW)
+        End If
+
     End Sub
 
     Private Sub ShowProgramHelp()
