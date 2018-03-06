@@ -287,7 +287,7 @@ Module modMain
             Console.WriteLine()
             Console.WriteLine("Program syntax:")
             Console.WriteLine(WrapParagraph(
-                Path.GetFileName(Assembly.GetExecutingAssembly().Location) &
+                Path.GetFileName(ProcessFilesOrFoldersBase.GetAppPath()) &
                 " /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimeter] " &
                 "[/O:OutputFolderPath] [/P:ParameterFilePath] [/S:[MaxLevel]] " &
                 "[/A:AlternateOutputFolderPath] [/R] [/Q]"))
@@ -313,15 +313,15 @@ Module modMain
             Console.WriteLine("Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004")
             Console.WriteLine("Version: " & GetAppVersion())
             Console.WriteLine()
-            Console.WriteLine("E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com")
-            Console.WriteLine("Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/")
+            Console.WriteLine("E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov")
+            Console.WriteLine("Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/")
             Console.WriteLine()
-            Console.WriteLine(frmDisclaimer.GetKangasPetritisDisclaimerText())
+            Console.WriteLine(WrapParagraph(frmDisclaimer.GetKangasPetritisDisclaimerText(False)))
 
             Thread.Sleep(2000)
 
         Catch ex As Exception
-            ShowErrorMessage("Error displaying the program syntax: " & ex.Message, ex)
+            ShowErrorMessage("Error displaying the program syntax", ex)
         End Try
 
     End Sub
