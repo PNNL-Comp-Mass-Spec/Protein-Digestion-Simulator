@@ -19,6 +19,15 @@ Public Class frmMain
         InitializeComponent()
 
         ' Add any initialization after the InitializeComponent() call.
+
+        mDefaultFastaFileOptions = New clsParseProteinFile.FastaFileOptionsClass() With {
+            .ReadonlyClass = True
+            }
+
+        objpICalculator = New clspICalculation()
+        objNETCalculator = New ElutionTimePredictionKangas()
+        objSCXNETCalculator = New SCXElutionTimePredictionKangas()
+
         InitializeControls()
     End Sub
 
@@ -75,7 +84,7 @@ Public Class frmMain
 #Region "Classwide Variables"
 
     ' The following is used to lookup the default symbols for Fasta files, and should thus be treated as ReadOnly
-    Private mDefaultFastaFileOptions As clsParseProteinFile.FastaFileOptionsClass
+    Private ReadOnly mDefaultFastaFileOptions As clsParseProteinFile.FastaFileOptionsClass
 
     Private mPeakMatchingThresholdsDataset As DataSet
     Private mPredefinedPMThresholds() As udtPredefinedPMThresholdsType
@@ -83,9 +92,11 @@ Public Class frmMain
     Private mWorking As Boolean
     Private mCustomValidationRulesFilePath As String
 
-    Private objpICalculator As clspICalculation
+    Private ReadOnly objpICalculator As clspICalculation
 
-    Private objSCXNETCalculator As SCXElutionTimePredictionKangas
+    Private ReadOnly objNETCalculator As ElutionTimePredictionKangas
+
+    Private ReadOnly objSCXNETCalculator As SCXElutionTimePredictionKangas
 
     Private mTabPageIndexSaved As Integer = 0
 
@@ -934,10 +945,6 @@ Public Class frmMain
     End Sub
 
     Private Sub InitializeControls()
-        mDefaultFastaFileOptions = New clsParseProteinFile.FastaFileOptionsClass() With {
-            .ReadonlyClass = True
-        }
-
         DefineDefaultPMThresholds()
 
         Me.Text = "Protein Digestion Simulator"
@@ -1757,8 +1764,7 @@ Public Class frmMain
     End Sub
 
     Private Sub ShowElutionTimeInfo()
-        Dim objNETPrediction As New ElutionTimePredictionKangas
-        MessageBox.Show(objNETPrediction.ProgramDescription, "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        MessageBox.Show(objNETCalculator.ProgramDescription, "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 
     Private Sub ShowSplashScreen()
