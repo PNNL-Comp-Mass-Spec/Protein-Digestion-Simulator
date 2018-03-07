@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.6640; March 7, 2018
+	- Trim double quotes from a pasted input file path
+
 Version 2.2.6638; March 5, 2018
 	- Updated NETPrediction.dll
 	- Include predicted LC NET values

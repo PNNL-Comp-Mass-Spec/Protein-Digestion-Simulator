@@ -171,35 +171,37 @@ Public Class frmMain
     Private Sub AutoDefineOutputFile()
         Try
             If txtProteinInputFilePath.Text.Length > 0 Then
-                txtProteinOutputFilePath.Text = AutoDefineOutputFileWork(txtProteinInputFilePath.Text)
+                txtProteinOutputFilePath.Text = AutoDefineOutputFileWork(GetProteinInputFilePath())
             End If
         Catch ex As Exception
             ' Leave the textbox unchanged
         End Try
     End Sub
 
-    Private Function AutoDefineOutputFileWork(strInputFilePath As String) As String
-        Dim strInputFileName As String
-        Dim strOutputFileName As String
+    Private Function AutoDefineOutputFileWork(inputFilePath As String) As String
 
-        strInputFileName = Path.GetFileName(txtProteinInputFilePath.Text)
+        Dim inputFileName = Path.GetFileName(inputFilePath)
+        Dim outputFileName As String
 
         If chkCreateFastaOutputFile.Enabled AndAlso chkCreateFastaOutputFile.Checked Then
-            If Path.GetExtension(strInputFileName).ToLower = ".fasta" Then
-                strOutputFileName = Path.GetFileNameWithoutExtension(strInputFileName) & "_new.fasta"
+            If Path.GetExtension(inputFileName).ToLower = ".fasta" Then
+                outputFileName = Path.GetFileNameWithoutExtension(inputFileName) & "_new.fasta"
             Else
-                strOutputFileName = Path.ChangeExtension(strInputFileName, ".fasta")
+                outputFileName = Path.ChangeExtension(inputFileName, ".fasta")
             End If
         Else
-            If Path.GetExtension(strInputFileName).ToLower = ".txt" Then
-                strOutputFileName = Path.GetFileNameWithoutExtension(strInputFileName) & "_output.txt"
+            If Path.GetExtension(inputFileName).ToLower = ".txt" Then
+                outputFileName = Path.GetFileNameWithoutExtension(inputFileName) & "_output.txt"
             Else
-                strOutputFileName = Path.ChangeExtension(strInputFileName, ".txt")
+                outputFileName = Path.ChangeExtension(inputFileName, ".txt")
             End If
         End If
 
+        If Not String.Equals(inputFilePath, txtProteinInputFilePath.Text) Then
+            txtProteinInputFilePath.Text = inputFilePath
+        End If
 
-        Return Path.Combine(Path.GetDirectoryName(strInputFilePath), strOutputFileName)
+        Return Path.Combine(Path.GetDirectoryName(inputFilePath), outputFileName)
 
     End Function
 
@@ -385,7 +387,8 @@ Public Class frmMain
         Dim blnEnableDigestionOptions As Boolean
         Dim blnAllowSqlServerCaching As Boolean
 
-        Dim sourceIsFasta = Path.GetFileName(txtProteinInputFilePath.Text).ToLower().Contains(".fasta")
+        Dim inputFilePath = GetProteinInputFilePath()
+        Dim sourceIsFasta = Path.GetFileName(inputFilePath).ToLower().EndsWith(".fasta")
 
         If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.DelimitedText Then
             blnEnableDelimitedFileOptions = True
@@ -518,7 +521,7 @@ Public Class frmMain
 
                 If Directory.Exists(strOutputFilePath) Then
                     ' strOutputFilePath points to a folder and not a file
-                    strOutputFilePath = Path.Combine(strOutputFilePath, Path.GetFileNameWithoutExtension(txtProteinInputFilePath.Text) & PEAK_MATCHING_STATS_FILE_SUFFIX)
+                    strOutputFilePath = Path.Combine(strOutputFilePath, Path.GetFileNameWithoutExtension(GetProteinInputFilePath()) & PEAK_MATCHING_STATS_FILE_SUFFIX)
                 Else
                     ' Replace _output.txt" in strOutputFilePath with PEAK_MATCHING_STATS_FILE_SUFFIX
                     intCharLoc = strOutputFilePath.IndexOf(OUTPUT_FILE_SUFFIX, StringComparison.OrdinalIgnoreCase)
@@ -531,7 +534,7 @@ Public Class frmMain
 
                 ' Check input file size and possibly warn user to enable/disable Sql Server DB Usage
                 If chkAllowSqlServerCaching.Checked Then
-                    If Not ValidateSqlServerCachingOptionsForInputFile(txtProteinInputFilePath.Text, chkAssumeInputFileIsDigested.Checked, mProteinDigestionSimulator.mProteinFileParser) Then
+                    If Not ValidateSqlServerCachingOptionsForInputFile(GetProteinInputFilePath(), chkAssumeInputFileIsDigested.Checked, mProteinDigestionSimulator.mProteinFileParser) Then
                         Exit Try
                     End If
                 End If
@@ -594,7 +597,7 @@ Public Class frmMain
                     ResetProgress(True)
                     SwitchToProgressTab()
 
-                    blnSuccess = .GenerateUniquenessStats(txtProteinInputFilePath.Text, Path.GetDirectoryName(strOutputFilePath), Path.GetFileNameWithoutExtension(strOutputFilePath))
+                    blnSuccess = .GenerateUniquenessStats(GetProteinInputFilePath(), Path.GetDirectoryName(strOutputFilePath), Path.GetFileNameWithoutExtension(strOutputFilePath))
 
                     Cursor.Current = Cursors.Default
 
@@ -619,6 +622,10 @@ Public Class frmMain
 
     Private Function GetMyDocsFolderPath() As String
         Return Environment.GetFolderPath(Environment.SpecialFolder.Personal)
+    End Function
+
+    Private Function GetProteinInputFilePath() As String
+        Return txtProteinInputFilePath.Text.Trim({""""c, " "c})
     End Function
 
     Private Function GetSettingsFilePath() As String
@@ -666,7 +673,7 @@ Public Class frmMain
                 .LoadSettings(GetSettingsFilePath(), False)
 
                 Try
-                    txtProteinInputFilePath.Text = .GetParam(OptionsSection, "InputFilePath", txtProteinInputFilePath.Text)
+                    txtProteinInputFilePath.Text = .GetParam(OptionsSection, "InputFilePath", GetProteinInputFilePath())
 
                     cboInputFileFormat.SelectedIndex = .GetParam(OptionsSection, "InputFileFormatIndex", cboInputFileFormat.SelectedIndex)
                     cboInputFileColumnDelimiter.SelectedIndex = .GetParam(OptionsSection, "InputFileColumnDelimiterIndex", cboInputFileColumnDelimiter.SelectedIndex)
@@ -831,7 +838,7 @@ Public Class frmMain
 
                 Try
                     If Not blnSaveWindowDimensionsOnly Then
-                        .SetParam(OptionsSection, "InputFilePath", txtProteinInputFilePath.Text)
+                        .SetParam(OptionsSection, "InputFilePath", GetProteinInputFilePath())
                         .SetParam(OptionsSection, "InputFileFormatIndex", cboInputFileFormat.SelectedIndex)
                         .SetParam(OptionsSection, "InputFileColumnDelimiterIndex", cboInputFileColumnDelimiter.SelectedIndex)
                         .SetParam(OptionsSection, "InputFileColumnDelimiter", txtInputFileColumnDelimiter.Text)
@@ -1240,7 +1247,7 @@ Public Class frmMain
                         strOutputFileNameBaseOverride = Path.GetFileNameWithoutExtension(txtProteinOutputFilePath.Text)
                     End If
 
-                    blnSuccess = .ParseProteinFile(txtProteinInputFilePath.Text, strOutputFolderPath, strOutputFileNameBaseOverride)
+                    blnSuccess = .ParseProteinFile(GetProteinInputFilePath(), strOutputFolderPath, strOutputFileNameBaseOverride)
 
                     Cursor.Current = Cursors.Default
 
@@ -1654,7 +1661,7 @@ Public Class frmMain
         Dim currentExtension = String.Empty
         If txtProteinInputFilePath.TextLength > 0 Then
             Try
-                currentExtension = Path.GetExtension(txtProteinInputFilePath.Text)
+                currentExtension = Path.GetExtension(GetProteinInputFilePath())
             Catch ex As Exception
                 ' Ignore errors here
             End Try
@@ -1679,9 +1686,9 @@ Public Class frmMain
                 .FilterIndex = 1
             End If
 
-            If Len(txtProteinInputFilePath.Text.Length) > 0 Then
+            If Len(GetProteinInputFilePath().Length) > 0 Then
                 Try
-                    .InitialDirectory = Directory.GetParent(txtProteinInputFilePath.Text).ToString
+                    .InitialDirectory = Directory.GetParent(GetProteinInputFilePath()).FullName
                 Catch
                     .InitialDirectory = GetMyDocsFolderPath()
                 End Try
@@ -2147,7 +2154,7 @@ Public Class frmMain
     End Sub
 
     Private Sub cmdValidateFastaFile_Click(sender As Object, e As EventArgs) Handles cmdValidateFastaFile.Click
-        ValidateFastaFile(txtProteinInputFilePath.Text)
+        ValidateFastaFile(GetProteinInputFilePath())
     End Sub
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
