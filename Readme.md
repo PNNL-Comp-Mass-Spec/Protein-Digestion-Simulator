@@ -29,9 +29,17 @@ of uniquely identifiable peptides within the input file (digested or undigested)
 using only mass, or both mass and NET, with appropriate tolerances.  Note that the 
 NET values are based on a model trained using data from Dr. Richard D. Smith's
 laboratory at Pacific Northwest National Lab (Richland, WA) and are thus specific
-to the reversed phase (C18) capillary chromatography system being used (see 
-Petritis, Kangas, Ferfuson, Anderson, Pasa-Tolic, Lipton, Auberry, Strittmatter, 
-Shen, Zhao, and Smith. 2003. Analytical Chemistry, 75 (5), 1039-1048).
+to the reversed phase (C18) capillary chromatography system being used.
+
+For more information on the Kangas/Petritis retention time prediction
+algorithm, please see:
+
+> K. Petritis, L.J. Kangas, B. Yan, M.E. Monroe, E.F. Strittmatter, W.J. Qian, 
+> J.N. Adkins, R.J. Moore, Y. Xu, M.S. Lipton, D.G. Camp, R.D. Smith. 
+> "Improved peptide elution time prediction for reversed-phase liquid 
+> chromatography-MS by incorporating peptide sequence information",
+> Analytical Chemistry, 78, (14), 5026-5039 (2006). \
+> [PMID: 16841926](https://www.ncbi.nlm.nih.gov/pubmed/16841926)
 
 ## Installation
 
