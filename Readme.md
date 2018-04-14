@@ -45,11 +45,11 @@ algorithm, please see:
 
 * Download Protein-Digestion-Simulator.zip from [AppVeyor](https://ci.appveyor.com/project/PNNLCompMassSpec/protein-digestion-simulator/build/artifacts)
 * Extract the files
-* Run ProteinDigestionSimulator.exe
+* Run ProteinDigestionSimulator.exe to start the GUI
 
 ## Console Switches
 
-The Protein Digestion Simluator can be run in batch mode from the Windows command line.  Syntax:
+The Protein Digestion Simulator is typically used as a GUI application, but it also can be run in batch mode from the Windows command line.  Syntax:
 
 ```
 ProteinDigestionSimulator.exe 
