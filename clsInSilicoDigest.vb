@@ -22,8 +22,8 @@ Public Class clsInSilicoDigest
 
 #Region "Constants and Enums"
 
-    ' Note: Good list of enzymes is at http://ca.expasy.org/tools/peptidecutter/peptidecutter_enzymes.html
-    '                              and http://expasy.org/tools/peptide-mass-doc.html#table1
+    ' Note: Good list of enzymes is at https://web.expasy.org/peptide_cutter/peptidecutter_enzymes.html
+    '                              and https://web.expasy.org/peptide_mass/peptide-mass-doc.html
     Private Const CleavageRuleCount As Integer = 21
     Public Enum CleavageRuleConstants
         NoRule = 0
@@ -520,7 +520,7 @@ Public Class clsInSilicoDigest
 
     Private Sub InitializeCleavageRules()
 
-        ' Useful site for cleavage rule info is http://expasy.org/tools/peptide-mass-doc.html#table1
+        ' Useful site for cleavage rule info is https://web.expasy.org/peptide_mass/peptide-mass-doc.html
 
         With mCleavageRules
             .RuleCount = CleavageRuleCount

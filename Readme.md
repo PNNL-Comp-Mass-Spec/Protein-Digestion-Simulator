@@ -83,7 +83,7 @@ The optional /Q switch will suppress all error messages.
 
 Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) \
 E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov\
-Website: http://panomics.pnnl.gov/ or http://omics.pnl.gov or http://www.sysbio.org/resources/staff/
+Website: https://panomics.pnnl.gov/ or https://omics.pnl.gov
 
 ## License
 
