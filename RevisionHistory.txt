@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.6794; August 8, 2018
+	- Add additional checks when loading the settings file 
+
 Version 2.2.6640; March 7, 2018
 	- Trim double quotes from a pasted input file path
 
