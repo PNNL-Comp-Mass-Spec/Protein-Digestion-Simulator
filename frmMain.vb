@@ -235,7 +235,7 @@ Public Class frmMain
         Try
             AutoPopulatePMThresholds(mPredefinedPMThresholds(ePredefinedPMThreshold), blnConfirmReplaceExistingResults)
         Catch ex As Exception
-            MessageBox.Show("Error calling AutoPopulatePMThresholds in AutoPopulatePMThresholdsByID: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            ShowErrorMessage("Error calling AutoPopulatePMThresholds in AutoPopulatePMThresholdsByID: " & ex.Message, "Error")
         End Try
 
     End Sub
@@ -311,11 +311,11 @@ Public Class frmMain
 
     Private Function ConfirmFilePaths() As Boolean
         If txtProteinInputFilePath.TextLength = 0 Then
-            MessageBox.Show("Please define an input file path", "Missing Value", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            ShowErrorMessage("Please define an input file path", "Missing Value")
             txtProteinInputFilePath.Focus()
             Return False
         ElseIf txtProteinOutputFilePath.TextLength = 0 Then
-            MessageBox.Show("Please define an output file path", "Missing Value", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            ShowErrorMessage("Please define an output file path", "Missing Value")
             txtProteinOutputFilePath.Focus()
             Return False
         Else
@@ -507,7 +507,7 @@ Public Class frmMain
             Try
 
                 If mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATATABLE).Rows.Count = 0 Then
-                    MessageBox.Show("Please define one or more peak matching thresholds before proceeding.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                    ShowErrorMessage("Please define one or more peak matching thresholds before proceeding.", "Error")
                     Exit Try
                 End If
 
@@ -615,12 +615,12 @@ Public Class frmMain
                         MessageBox.Show("Uniqueness stats calculation complete ", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
                         SwitchFromProgressTab()
                     Else
-                        MessageBox.Show("Unable to Generate Uniqueness Stats: " & .GetErrorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                        ShowErrorMessage("Unable to Generate Uniqueness Stats: " & .GetErrorMessage, "Error")
                     End If
                 End With
 
             Catch ex As Exception
-                MessageBox.Show("Error in frmMain->GenerateUniquenessStats: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                ShowErrorMessage("Error in frmMain->GenerateUniquenessStats: " & ex.Message, "Error")
             Finally
                 mWorking = False
                 cmdGenerateUniquenessStats.Enabled = True
@@ -816,13 +816,12 @@ Public Class frmMain
                         End If
                     End If
 
-                Catch ex As Exception
-                    MessageBox.Show("Invalid parameter in settings file: " & Path.GetFileName(GetSettingsFilePath()), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-                End Try
-            End With
+            Catch ex As Exception
+                ShowErrorMessage("Invalid parameter in settings file: " & Path.GetFileName(GetSettingsFilePath()), "Error")
+            End Try
 
         Catch ex As Exception
-            MessageBox.Show("Error loading settings from file: " & GetSettingsFilePath(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            ShowErrorMessage("Error loading settings from file: " & GetSettingsFilePath(), "Error")
         End Try
 
     End Sub
@@ -955,7 +954,7 @@ Public Class frmMain
                 .SaveSettings()
             End With
         Catch ex As Exception
-            MessageBox.Show("Error saving settings to file: " & GetSettingsFilePath(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            ShowErrorMessage("Error saving settings to file: " & GetSettingsFilePath(), "Error")
         End Try
 
 
@@ -1265,12 +1264,12 @@ Public Class frmMain
                         MessageBox.Show(mParseProteinFile.ProcessingSummary, "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
                         SwitchFromProgressTab()
                     Else
-                        MessageBox.Show("Error parsing protein file: " & .GetErrorMessage(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                        ShowErrorMessage("Error parsing protein file: " & .GetErrorMessage(), "Error")
                     End If
                 End With
 
             Catch ex As Exception
-                MessageBox.Show("Error in frmMain->ParseProteinInputFile: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                ShowErrorMessage("Error in frmMain->ParseProteinInputFile: " & ex.Message, "Error")
             Finally
                 mWorking = False
                 cmdParseInputFile.Enabled = True
@@ -1288,7 +1287,7 @@ Public Class frmMain
         Try
             Return Integer.Parse(ThisTextBox.Text)
         Catch ex As Exception
-            MessageBox.Show(strMessageIfError, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            ShowErrorMessage(strMessageIfError, "Error")
             blnError = True
             Return ValueIfError
         End Try
@@ -1302,7 +1301,7 @@ Public Class frmMain
         Try
             Return Single.Parse(ThisTextBox.Text)
         Catch ex As Exception
-            MessageBox.Show(strMessageIfError, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            ShowErrorMessage(strMessageIfError, "Error")
             blnError = True
             Return ValueIfError
         End Try
@@ -1403,7 +1402,7 @@ Public Class frmMain
                             strMessage = intRowsAlreadyPresent.ToString & " rows of thresholds were"
                         End If
 
-                        MessageBox.Show(strMessage & " already present in the table; duplicate rows are not allowed.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                        ShowErrorMessage(strMessage & " already present in the table; duplicate rows are not allowed.", "Warning")
                     End If
 
                     If intRowsSkipped > 0 Then
@@ -1413,7 +1412,7 @@ Public Class frmMain
                             strMessage = intRowsSkipped.ToString & " rows were skipped because they"
                         End If
 
-                        MessageBox.Show(strMessage & " didn't contain two columns of numeric data.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                        ShowErrorMessage(strMessage & " didn't contain two columns of numeric data.", "Warning")
                     End If
 
                 End If
@@ -1550,7 +1549,7 @@ Public Class frmMain
             End With
 
         Catch ex As Exception
-            MessageBox.Show("Error initializing the combo boxes: " & ex.Message)
+            ShowErrorMessage("Error initializing the combo boxes: " & ex.Message)
         End Try
 
     End Sub
@@ -1788,6 +1787,14 @@ Public Class frmMain
         MessageBox.Show(objNETCalculator.ProgramDescription, "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 
+    Private Sub ShowErrorMessage(strMessage As String)
+        ShowErrorMessage(strMessage, "Error")
+    End Sub
+
+    Private Sub ShowErrorMessage(strMessage As String, strCaption As String)
+        ShowErrorMessage(strMessage, strCaption)
+    End Sub
+
     Private Sub ShowSplashScreen()
 
         ' See if the user has been shown the splash screen sometime in the last 6 months (SPLASH_INTERVAL_DAYS)
@@ -1898,7 +1905,7 @@ Public Class frmMain
             If strFastaFilePath Is Nothing OrElse strFastaFilePath.Length = 0 Then Exit Try
 
             If Not File.Exists(strFastaFilePath) Then
-                MessageBox.Show("File not found: " & ControlChars.NewLine & strFastaFilePath, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                ShowErrorMessage("File not found: " & strFastaFilePath, "Error")
             Else
                 If mFastaValidation Is Nothing Then
                     mFastaValidation = New frmFastaValidation(strFastaFilePath)
@@ -1915,7 +1922,7 @@ Public Class frmMain
                         End If
                     End If
                 Catch ex As Exception
-                    MessageBox.Show("Error trying to validate or set the custom validation rules file path: " & ControlChars.NewLine & mCustomValidationRulesFilePath & ControlChars.NewLine & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                    ShowErrorMessage("Error trying to validate or set the custom validation rules file path: " & mCustomValidationRulesFilePath & "; " & ex.Message, "Error")
                 End Try
 
                 If mFastaValidationOptions.Initialized Then
@@ -1929,7 +1936,7 @@ Public Class frmMain
             End If
 
         Catch ex As Exception
-            MessageBox.Show("Error occurred in frmFastaValidation: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            ShowErrorMessage("Error occurred in frmFastaValidation: " & ex.Message, "Error")
         Finally
             If Not mFastaValidation Is Nothing Then
                 mCustomValidationRulesFilePath = mFastaValidation.CustomRulesFilePath
