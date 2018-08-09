@@ -25,6 +25,8 @@ Source: ..\bin\ProteinDigestionSimulatorOptions.xml   ; DestDir: {app}
 Source: ..\bin\Elute1052.wts                          ; DestDir: {app}
 Source: ..\bin\SCX1052.wts                            ; DestDir: {app}
 
+Source: ..\License.txt                                ; DestDir: {app}
+Source: ..\Disclaimer.txt                             ; DestDir: {app}
 Source: ..\README.md                                  ; DestDir: {app}
 Source: ..\RevisionHistory.txt                        ; DestDir: {app}
 Source: ..\PNNL_NETPrediction_License.pdf             ; DestDir: {app}
