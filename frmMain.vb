@@ -639,14 +639,7 @@ Public Class frmMain
     End Function
 
     Private Function GetSettingsFilePath() As String
-
-        Dim strSettingsFilePathLocal As String
-        strSettingsFilePathLocal = FileProcessor.ProcessFilesBase.GetSettingsFilePathLocal("ProteinDigestionSimulator", XML_SETTINGS_FILE_NAME)
-
-        FileProcessor.ProcessFilesBase.CreateSettingsFileIfMissing(strSettingsFilePathLocal)
-
-        Return strSettingsFilePathLocal
-
+        Return FileProcessor.ProcessFilesBase.GetSettingsFilePathLocal("ProteinDigestionSimulator", XML_SETTINGS_FILE_NAME)
     End Function
 
     Private Sub IniFileLoadOptions()
@@ -684,6 +677,9 @@ Public Class frmMain
 
                 Try
                     txtProteinInputFilePath.Text = .GetParam(OptionsSection, "InputFilePath", GetProteinInputFilePath())
+            Dim strSettingsFilePath = GetSettingsFilePath()
+            objXmlFile.LoadSettings(strSettingsFilePath, False)
+            PRISM.FileProcessor.ProcessFilesBase.CreateSettingsFileIfMissing(strSettingsFilePath)
 
                     cboInputFileFormat.SelectedIndex = .GetParam(OptionsSection, "InputFileFormatIndex", cboInputFileFormat.SelectedIndex)
                     cboInputFileColumnDelimiter.SelectedIndex = .GetParam(OptionsSection, "InputFileColumnDelimiterIndex", cboInputFileColumnDelimiter.SelectedIndex)
@@ -1660,6 +1656,9 @@ Public Class frmMain
         Me.Height = 780
 
         mCustomValidationRulesFilePath = String.Empty
+
+        Dim strSettingsFilePath = GetSettingsFilePath()
+        PRISM.FileProcessor.ProcessFilesBase.CreateSettingsFileIfMissing(strSettingsFilePath)
 
     End Sub
 
