@@ -2,11 +2,6 @@ Option Strict On
 
 Public Class clsPeakMatchingClass
 
-    ' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in October 2004
-    ' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
-    '
-    ' Last modified July 27, 2010
-
     Public Sub New()
         InitializeLocalVariables()
     End Sub
@@ -1173,7 +1168,7 @@ Public Class clsPeakMatchingClass
     End Sub
 
     Private Function TestPointInEllipse(dblPointX As Double, dblPointY As Double, dblXTol As Double, dblYTol As Double) As Boolean
-        ' The equation for the points along the edge of an ellipse is x^2/a^2 + y^2/b^2 = 1 where a and b are 
+        ' The equation for the points along the edge of an ellipse is x^2/a^2 + y^2/b^2 = 1 where a and b are
         ' the half-widths of the ellipse and x and y are the coordinates of each point on the ellipse's perimeter
         '
         ' This function takes x, y, a, and b as inputs and computes the result of this equation

@@ -1,18 +1,25 @@
 Option Strict On
 
-' This class can be used to search a list of values for a given value, plus or minus a given tolerance
-' The input list need not be sorted, since mPointerIndices() will be populated when the data is loaded,
-' afterwhich the data array will be sorted
+' -------------------------------------------------------------------------------
+' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2003
 '
-' To prevent this behavior, and save memory by not populating mPointerIndices, set mUsePointerIndexArray = False
+' E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
+' Website: https://omics.pnl.gov/ or https://www.pnnl.gov/sysbio/ or https://panomics.pnnl.gov/
+' -------------------------------------------------------------------------------
 '
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
+' Licensed under the 2-Clause BSD License; you may not use this file except
+' in compliance with the License.  You may obtain a copy of the License at
+' https://opensource.org/licenses/BSD-2-Clause
+'
+' Copyright 2018 Battelle Memorial Institute
 
-' Started November 16, 2003
-'
-' Last modified January 19, 2005
-
+''' <summary>
+''' This class can be used to search a list of values for a given value, plus or minus a given tolerance
+''' The input list need not be sorted, since mPointerIndices() will be populated when the data is loaded,
+''' afterwhich the data array will be sorted
+'''
+''' To prevent this behavior, and save memory by not populating mPointerIndices, set mUsePointerIndexArray = False
+''' </summary>
 Public Class clsSearchRange
 
     Public Sub New()

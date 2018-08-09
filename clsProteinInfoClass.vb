@@ -1,10 +1,5 @@
 Option Strict On
 
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in November 2004
-' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
-'
-' Last modified April 16, 2005
-
 Friend Class clsProteinInfo
     Public Enum eCleavageStateConstants
         None = 0

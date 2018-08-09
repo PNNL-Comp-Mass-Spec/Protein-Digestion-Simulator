@@ -1,15 +1,17 @@
 Option Strict On
 
-' This class will read a protein fasta file or delimited protein info file and parse it
-' to create a delimited protein list output file, and optionally an in-silico digested output file
+' -------------------------------------------------------------------------------
+' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004
 '
-' It can also create a fasta file containing reversed or scrambled sequences, and these can
-' be based on all of the proteins in the input file, or a sampling of the proteins in the input file
+' E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
+' Website: https://omics.pnl.gov/ or https://www.pnnl.gov/sysbio/ or https://panomics.pnnl.gov/
+' -------------------------------------------------------------------------------
 '
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
+' Licensed under the 2-Clause BSD License; you may not use this file except
+' in compliance with the License.  You may obtain a copy of the License at
+' https://opensource.org/licenses/BSD-2-Clause
 '
-' Started October 2, 2004
+' Copyright 2018 Battelle Memorial Institute
 
 Imports System.IO
 Imports System.Reflection
@@ -21,6 +23,13 @@ Imports PRISM
 Imports ProteinFileReader
 Imports ValidateFastaFile
 
+''' <summary>
+''' This class will read a protein fasta file or delimited protein info file and parse it
+''' to create a delimited protein list output file, and optionally an in-silico digested output file
+'''
+''' It can also create a fasta file containing reversed or scrambled sequences, and these can
+''' be based on all of the proteins in the input file, or a sampling of the proteins in the input file
+''' </summary>
 Public Class clsParseProteinFile
     Inherits FileProcessor.ProcessFilesBase
 

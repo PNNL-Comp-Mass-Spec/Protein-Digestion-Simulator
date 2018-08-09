@@ -1,12 +1,23 @@
 Option Strict On
 
-' This class will compute the pI and hydrophobicity for a peptide or protein sequence
-' Code originally written by Gordon Anderson for the application ICR-2LS
-' Ported to VB.NET by Matthew Monroe in August 2005
+' -------------------------------------------------------------------------------
+' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2005
 '
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
+' E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
+' Website: https://omics.pnl.gov/ or https://www.pnnl.gov/sysbio/ or https://panomics.pnnl.gov/
+' -------------------------------------------------------------------------------
+'
+' Licensed under the 2-Clause BSD License; you may not use this file except
+' in compliance with the License.  You may obtain a copy of the License at
+' https://opensource.org/licenses/BSD-2-Clause
+'
+' Copyright 2018 Battelle Memorial Institute
 
+''' <summary>
+''' This class will compute the pI and hydrophobicity for a peptide or protein sequence
+''' Code originally written by Gordon Anderson for the application ICR-2LS
+''' Ported to VB.NET by Matthew Monroe in August 2005
+''' </summary>
 Public Class clspICalculation
 
     Public Sub New()

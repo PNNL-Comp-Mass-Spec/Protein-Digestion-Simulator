@@ -705,24 +705,25 @@ Public Class frmFastaValidation
         strMessage = String.Empty
 
         strMessage &= "Fasta File Validation module written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2005" & ControlChars.NewLine
-        strMessage &= "Copyright 2005, Battelle Memorial Institute.  All Rights Reserved." & ControlChars.NewLine & ControlChars.NewLine
+        strMessage &= "Copyright 2018 Battelle Memorial Institute" & ControlChars.NewLine & ControlChars.NewLine
 
         strMessage &= "This is version " & Application.ProductVersion & " (" & PROGRAM_DATE & ")" & ControlChars.NewLine & ControlChars.NewLine
 
         strMessage &= "E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov" & ControlChars.NewLine
         strMessage &= "Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/" & ControlChars.NewLine & ControlChars.NewLine
 
-        strMessage &= "Licensed under the Apache License, Version 2.0; you may not use this file except in compliance with the License.  "
-        strMessage &= "You may obtain a copy of the License at https://www.apache.org/licenses/LICENSE-2.0" & ControlChars.NewLine & ControlChars.NewLine
+        strMessage &= "Licensed under the 2-Clause BSD License; https://opensource.org/licenses/BSD-2-Clause" & ControlChars.NewLine & ControlChars.NewLine
 
-        strMessage &= "Notice: This computer software was prepared by Battelle Memorial Institute, "
-        strMessage &= "hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the "
-        strMessage &= "Department of Energy (DOE).  All rights in the computer software are reserved "
-        strMessage &= "by DOE on behalf of the United States Government and the Contractor as "
-        strMessage &= "provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY "
-        strMessage &= "WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS "
-        strMessage &= "SOFTWARE.  This notice including this sentence must appear on any copies of "
-        strMessage &= "this computer software." & ControlChars.NewLine
+        strMessage &= "This software is provided by the copyright holders and contributors ""as is"" and "
+        strMessage &= "any express or implied warranties, including, but not limited to, the implied "
+        strMessage &= "warranties of merchantability and fitness for a particular purpose are "
+        strMessage &= "disclaimed. In no event shall the copyright holder or contributors be liable "
+        strMessage &= "for any direct, indirect, incidental, special, exemplary, or consequential "
+        strMessage &= "damages (including, but not limited to, procurement of substitute goods or "
+        strMessage &= "services; loss of use, data, or profits; or business interruption) however "
+        strMessage &= "caused and on any theory of liability, whether in contract, strict liability, "
+        strMessage &= "or tort (including negligence or otherwise) arising in any way out of the use "
+        strMessage &= "of this software, even if advised of the possibility of such damage."
 
         MessageBox.Show(strMessage, "About", MessageBoxButtons.OK, MessageBoxIcon.Information)
 

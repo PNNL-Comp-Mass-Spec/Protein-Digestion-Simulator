@@ -1,45 +1,37 @@
 Option Strict On
 
+' -------------------------------------------------------------------------------
+' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004
+'
+' E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
+' Website: https://omics.pnl.gov/ or https://www.pnnl.gov/sysbio/ or https://panomics.pnnl.gov/
+' -------------------------------------------------------------------------------
+'
+' Licensed under the 2-Clause BSD License; you may not use this file except
+' in compliance with the License.  You may obtain a copy of the License at
+' https://opensource.org/licenses/BSD-2-Clause
+'
+' Copyright 2018 Battelle Memorial Institute
+
 Imports System.IO
 Imports System.Threading
 Imports PRISM
 Imports PRISM.FileProcessor
 Imports ProteinFileReader
 
-' This program can be used to read a fasta file or tab delimited file
-' containing protein or peptide sequences, then output the data to a tab-delimited file
-' It can optionally digest the input sequences using trypsin or partial trpysin rules,
-'  and can add the predicted normalized elution time (NET) values for the peptides
-' Additionally, it can calculate the number of uniquely identifiable peptides, using
-'  only mass, or both mass and NET, with appropriate tolerances
-'
-' Example command line: /I:Yeast_2003-01-06.fasta /debug /d /p:ProteindigestionSettings.xml
-
-' -------------------------------------------------------------------------------
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-' Program started October 11, 2004
-' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
-
-' E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
-' Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/
-' -------------------------------------------------------------------------------
-'
-' Licensed under the Apache License, Version 2.0; you may not use this file except
-' in compliance with the License.  You may obtain a copy of the License at
-' https://www.apache.org/licenses/LICENSE-2.0
-'
-' Notice: This computer software was prepared by Battelle Memorial Institute,
-' hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
-' Department of Energy (DOE).  All rights in the computer software are reserved
-' by DOE on behalf of the United States Government and the Contractor as
-' provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY
-' WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
-' SOFTWARE.  This notice including this sentence must appear on any copies of
-' this computer software.
-
+''' <summary>
+''' This program can be used to read a fasta file or tab delimited file
+''' containing protein or peptide sequences, then output the data to a tab-delimited file
+''' It can optionally digest the input sequences using trypsin or partial trpysin rules,
+'''  and can add the predicted normalized elution time (NET) values for the peptides
+''' Additionally, it can calculate the number of uniquely identifiable peptides, using
+'''  only mass, or both mass and NET, with appropriate tolerances
+'''
+''' Example command line: /I:Yeast_2003-01-06.fasta /debug /d /p:ProteindigestionSettings.xml
+''' </summary>
 Module modMain
 
-    Public Const PROGRAM_DATE As String = "April 13, 2018"
+    Public Const PROGRAM_DATE As String = "August 8, 2018"
 
     Private Declare Auto Function ShowWindow Lib "user32.dll" (hWnd As IntPtr, nCmdShow As Integer) As Boolean
     Private Declare Auto Function GetConsoleWindow Lib "kernel32.dll" () As IntPtr

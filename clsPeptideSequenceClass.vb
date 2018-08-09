@@ -1,14 +1,9 @@
 Option Strict On
-'
-' This class can be used to calculate the mass of an amino acid sequence (peptide or protein)
-' The protein must be in one letter abbreviation format
-'
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in October 2004
-' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
-'
-' Last Modified April 13, 2007
-'
 
+''' <summary>
+''' This class can be used to calculate the mass of an amino acid sequence (peptide or protein)
+''' The protein must be in one letter abbreviation format
+''' </summary>
 Public Class PeptideSequenceClass
 
     Public Sub New()
@@ -231,7 +226,7 @@ Public Class PeptideSequenceClass
         End If
 
         ' Find the prefix residue and starting residue
-        ' 
+        '
         If intPeriodLoc1 >= 1 Then
             chPrefix = strSequence.Chars(intPeriodLoc1 - 1)
             chSequenceStart = strSequence.Chars(intPeriodLoc1 + 1)

@@ -1,15 +1,9 @@
 Option Strict On
-'
-' This class can be used to perform an in-silico digest of an amino acid sequence
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in November 2003
-' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
 
-' Ported by VB.NET by Matthew Monroe in October 2004
-'
-' Utilizes the PeptideInfoClass class
-'
-' Last Modified December 6, 2010
-'
+''' <summary>
+''' This class can be used to perform an in-silico digest of an amino acid sequence
+''' Utilizes the PeptideInfoClass class
+''' </summary>
 Public Class clsInSilicoDigest
 
     Public Sub New()
@@ -899,7 +893,7 @@ Public Class clsInSilicoDigest
             mPrefixResidue = PROTEIN_TERMINUS_SYMBOL
             mSuffixResidue = PROTEIN_TERMINUS_SYMBOL
 
-            ' Re-enable mAutoComputeNET 
+            ' Re-enable mAutoComputeNET
             mAutoComputeNET = True
         End Sub
 

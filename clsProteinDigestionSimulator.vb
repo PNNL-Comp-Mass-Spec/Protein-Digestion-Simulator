@@ -1,5 +1,18 @@
 Option Strict On
 
+' -------------------------------------------------------------------------------
+' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004
+'
+' E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
+' Website: https://omics.pnl.gov/ or https://www.pnnl.gov/sysbio/ or https://panomics.pnnl.gov/
+' -------------------------------------------------------------------------------
+'
+' Licensed under the 2-Clause BSD License; you may not use this file except
+' in compliance with the License.  You may obtain a copy of the License at
+' https://opensource.org/licenses/BSD-2-Clause
+'
+' Copyright 2018 Battelle Memorial Institute
+
 Imports System.IO
 Imports System.Reflection
 Imports System.Runtime.InteropServices
@@ -7,36 +20,15 @@ Imports PRISM
 Imports ProteinFileReader
 Imports SharedVBNetRoutines
 
-' This class will read two fasta files and look for overlap in protein sequence between the proteins of
-'  the first fasta file and the second fasta file
-'
-' -------------------------------------------------------------------------------
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-' Program started October 11, 2004
-' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
-
-' E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
-' Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/
-' -------------------------------------------------------------------------------
-'
-' Licensed under the Apache License, Version 2.0; you may not use this file except
-' in compliance with the License.  You may obtain a copy of the License at
-' https://www.apache.org/licenses/LICENSE-2.0
-'
-' Notice: This computer software was prepared by Battelle Memorial Institute,
-' hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
-' Department of Energy (DOE).  All rights in the computer software are reserved
-' by DOE on behalf of the United States Government and the Contractor as
-' provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY
-' WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
-' SOFTWARE.  This notice including this sentence must appear on any copies of
-' this computer software.
-
+''' <summary>
+''' This class will read two fasta files and look for overlap in protein sequence between the proteins of
+''' the first fasta file and the second fasta file
+''' </summary>
 Public Class clsProteinDigestionSimulator
     Inherits FileProcessor.ProcessFilesBase
 
     Public Sub New()
-        MyBase.mFileDate = "March 5, 2018"
+        MyBase.mFileDate = "August 8, 2018"
         InitializeLocalVariables()
     End Sub
 

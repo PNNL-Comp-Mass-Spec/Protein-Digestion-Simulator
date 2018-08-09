@@ -87,9 +87,11 @@ Website: https://panomics.pnnl.gov/ or https://omics.pnl.gov
 
 ## License
 
-The Protein Digestion Simulator is licensed under the Apache License, Version 2.0; 
+The Protein Digestion Simulator is licensed under the 2-Clause BSD License; 
 you may not use this file except in compliance with the License.  You may obtain 
-a copy of the License at https://opensource.org/licenses/Apache-2.0
+a copy of the License at https://opensource.org/licenses/BSD-2-Clause
+
+Copyright 2018 Battelle Memorial Institute
 
 The NET Prediction DLL is licensed under the Reciprocal Public License v1.5; 
 for details see file PNNL_NETPrediction_License.pdf\
@@ -102,12 +104,3 @@ the following acknowledgment statement:
 > by the U.S. Department of Energy's Office of Biological and Environmental 
 > Research and located at PNNL.  PNNL is operated by Battelle Memorial Institute 
 > for the U.S. Department of Energy under contract DE-AC05-76RL0 1830.
-
-Notice: This computer software was prepared by Battelle Memorial Institute, 
-hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the 
-Department of Energy (DOE).  All rights in the computer software are reserved 
-by DOE on behalf of the United States Government and the Contractor as 
-provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY 
-WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS 
-SOFTWARE.  This notice including this sentence must appear on any copies of 
-this computer software.
