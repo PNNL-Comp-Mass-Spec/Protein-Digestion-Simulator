@@ -31,7 +31,7 @@ Imports ProteinFileReader
 ''' </summary>
 Module modMain
 
-    Public Const PROGRAM_DATE As String = "August 8, 2018"
+    Public Const PROGRAM_DATE As String = "September 20, 2018"
 
     Private Declare Auto Function ShowWindow Lib "user32.dll" (hWnd As IntPtr, nCmdShow As Integer) As Boolean
     Private Declare Auto Function GetConsoleWindow Lib "kernel32.dll" () As IntPtr
@@ -188,7 +188,7 @@ Module modMain
         Try
             ' Make sure no invalid parameters are present
             If objParseCommandLine.InvalidParametersPresent(lstValidParameters) Then
-                ConsoleMsgUtils.ShowErrors("Invalid commmand line parameters",
+                ConsoleMsgUtils.ShowErrors("Invalid command line parameters",
                     (From item In objParseCommandLine.InvalidParameters(lstValidParameters) Select "/" + item).ToList())
                 Return False
             Else
