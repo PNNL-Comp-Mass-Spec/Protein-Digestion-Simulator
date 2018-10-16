@@ -22,16 +22,16 @@ Imports ProteinFileReader
 ''' <summary>
 ''' This program can be used to read a fasta file or tab delimited file
 ''' containing protein or peptide sequences, then output the data to a tab-delimited file
-''' It can optionally digest the input sequences using trypsin or partial trpysin rules,
+''' It can optionally digest the input sequences using trypsin or partial trypsin rules,
 '''  and can add the predicted normalized elution time (NET) values for the peptides
 ''' Additionally, it can calculate the number of uniquely identifiable peptides, using
 '''  only mass, or both mass and NET, with appropriate tolerances
 '''
-''' Example command line: /I:Yeast_2003-01-06.fasta /debug /d /p:ProteindigestionSettings.xml
+''' Example command line: /I:Yeast_2003-01-06.fasta /debug /d /p:ProteinDigestionSettings.xml
 ''' </summary>
 Module modMain
 
-    Public Const PROGRAM_DATE As String = "September 20, 2018"
+    Public Const PROGRAM_DATE As String = "October 15, 2018"
 
     Private Declare Auto Function ShowWindow Lib "user32.dll" (hWnd As IntPtr, nCmdShow As Integer) As Boolean
     Private Declare Auto Function GetConsoleWindow Lib "kernel32.dll" () As IntPtr
