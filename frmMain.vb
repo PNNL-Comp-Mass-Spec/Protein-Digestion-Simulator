@@ -515,7 +515,7 @@ Public Class frmMain
                 If chkEnableLogging.Checked Then
                     mProteinDigestionSimulator.LogMessagesToFile = True
 
-                    Dim appFolderPath = FileProcessor.ProcessFilesBase.GetAppDataFolderPath("ProteinDigestionSimulator")
+                    Dim appFolderPath = FileProcessor.ProcessFilesBase.GetAppDataDirectoryPath("ProteinDigestionSimulator")
                     strLogFilePath = Path.Combine(appFolderPath, "ProteinDigestionSimulatorLog.txt")
                     mProteinDigestionSimulator.LogFilePath = strLogFilePath
                 End If

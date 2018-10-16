@@ -117,7 +117,7 @@ Public Class clsParseProteinFile
         Public DigestedProteinOutputFilePath As String
     End Structure
 
-    Private Structure udtScrambingResidueCacheType
+    Private Structure udtScramblingResidueCacheType
         Public Cache As String                          ' Cache of residues parsed; when this reaches 4000 characters, then a portion of this text is appended to ResiduesToWrite
         Public CacheLength As Integer
         Public SamplingPercentage As Integer
@@ -151,10 +151,10 @@ Public Class clsParseProteinFile
     Public FastaFileOptions As FastaFileOptionsClass
     Private mObjectVariablesLoaded As Boolean
     Private WithEvents mInSilicoDigest As clsInSilicoDigest
-    Private objpICalculator As clspICalculation
+    Private mpICalculator As clspICalculation
 
-    Private WithEvents objNETCalculator As ElutionTimePredictionKangas
-    Private WithEvents objSCXNETCalculator As SCXElutionTimePredictionKangas
+    Private WithEvents mNETCalculator As ElutionTimePredictionKangas
+    Private WithEvents mSCXNETCalculator As SCXElutionTimePredictionKangas
 
     Private mProteinCount As Integer
     Private mProteins() As udtProteinInfoType
@@ -390,11 +390,11 @@ Public Class clsParseProteinFile
     Private Function ComputeSequenceHydrophobicity(strSequence As String) As Single
 
         ' Be sure to call InitializeObjectVariables before calling this function for the first time
-        ' Otherwise, objpICalculator will be nothing
-        If objpICalculator Is Nothing Then
+        ' Otherwise, mpICalculator will be nothing
+        If mpICalculator Is Nothing Then
             Return 0
         Else
-            Return objpICalculator.CalculateSequenceHydrophobicity(strSequence)
+            Return mpICalculator.CalculateSequenceHydrophobicity(strSequence)
         End If
 
     End Function
@@ -402,11 +402,11 @@ Public Class clsParseProteinFile
     Private Function ComputeSequencepI(strSequence As String) As Single
 
         ' Be sure to call InitializeObjectVariables before calling this function for the first time
-        ' Otherwise, objpICalculator will be nothing
-        If objpICalculator Is Nothing Then
+        ' Otherwise, mpICalculator will be nothing
+        If mpICalculator Is Nothing Then
             Return 0
         Else
-            Return objpICalculator.CalculateSequencepI(strSequence)
+            Return mpICalculator.CalculateSequencepI(strSequence)
         End If
 
     End Function
@@ -426,11 +426,11 @@ Public Class clsParseProteinFile
     Private Function ComputeSequenceNET(strSequence As String) As Single
 
         ' Be sure to call InitializeObjectVariables before calling this function for the first time
-        ' Otherwise, objNETCalculator will be nothing
-        If objNETCalculator Is Nothing Then
+        ' Otherwise, mNETCalculator will be nothing
+        If mNETCalculator Is Nothing Then
             Return 0
         Else
-            Return objNETCalculator.GetElutionTime(strSequence)
+            Return mNETCalculator.GetElutionTime(strSequence)
         End If
 
     End Function
@@ -438,11 +438,11 @@ Public Class clsParseProteinFile
     Private Function ComputeSequenceSCXNET(strSequence As String) As Single
 
         ' Be sure to call InitializeObjectVariables before calling this function for the first time
-        ' Otherwise, objSCXNETCalculator will be nothing
-        If objSCXNETCalculator Is Nothing Then
+        ' Otherwise, mSCXNETCalculator will be nothing
+        If mSCXNETCalculator Is Nothing Then
             Return 0
         Else
-            Return objSCXNETCalculator.GetElutionTime(strSequence)
+            Return mSCXNETCalculator.GetElutionTime(strSequence)
         End If
 
     End Function
@@ -568,8 +568,8 @@ Public Class clsParseProteinFile
 
         Dim strErrorMessage As String
 
-        If MyBase.ErrorCode = eProcessFilesErrorCodes.LocalizedError Or
-           MyBase.ErrorCode = eProcessFilesErrorCodes.NoError Then
+        If MyBase.ErrorCode = ProcessFilesErrorCodes.LocalizedError Or
+           MyBase.ErrorCode = ProcessFilesErrorCodes.NoError Then
             Select Case mLocalErrorCode
                 Case eParseProteinFileErrorCodes.NoError
                     strErrorMessage = ""
@@ -589,7 +589,7 @@ Public Class clsParseProteinFile
                     strErrorMessage = "Error writing to one of the output files"
 
                 Case eParseProteinFileErrorCodes.ErrorInitializingObjectVariables
-                    strErrorMessage = "Error initializing In Silico Digestor class"
+                    strErrorMessage = "Error initializing In Silico Digester class"
 
                 Case eParseProteinFileErrorCodes.DigestProteinSequenceError
                     strErrorMessage = "Error in DigestProteinSequence function"
@@ -706,7 +706,7 @@ Public Class clsParseProteinFile
             End Try
 
             Try
-                objpICalculator = New clspICalculation
+                mpICalculator = New clspICalculation
             Catch ex As Exception
                 strErrorMessage = "Error initializing pI Calculation class"
                 ShowErrorMessage(strErrorMessage)
@@ -714,7 +714,7 @@ Public Class clsParseProteinFile
             End Try
 
             Try
-                objNETCalculator = New ElutionTimePredictionKangas()
+                mNETCalculator = New ElutionTimePredictionKangas()
             Catch ex As Exception
                 strErrorMessage = "Error initializing LC NET Calculation class"
                 ShowErrorMessage(strErrorMessage)
@@ -722,7 +722,7 @@ Public Class clsParseProteinFile
             End Try
 
             Try
-                objSCXNETCalculator = New SCXElutionTimePredictionKangas()
+                mSCXNETCalculator = New SCXElutionTimePredictionKangas()
             Catch ex As Exception
                 strErrorMessage = "Error initializing SCX NET Calculation class"
                 ShowErrorMessage(strErrorMessage)
@@ -738,8 +738,8 @@ Public Class clsParseProteinFile
         End If
 
         If Not mInSilicoDigest Is Nothing Then
-            If Not objpICalculator Is Nothing Then
-                mInSilicoDigest.InitializepICalculator(objpICalculator)
+            If Not mpICalculator Is Nothing Then
+                mInSilicoDigest.InitializepICalculator(mpICalculator)
             End If
         End If
 
@@ -749,7 +749,7 @@ Public Class clsParseProteinFile
 
     Private Function InitializeScrambledOutput(
       pathInfo As udtFilePathInfoType,
-      udtResidueCache As udtScrambingResidueCacheType,
+      udtResidueCache As udtScramblingResidueCacheType,
       eScramblingMode As ProteinScramblingModeConstants,
       <Out> ByRef srScrambledOutStream As StreamWriter,
       <Out> ByRef objRandomNumberGenerator As Random) As Boolean
@@ -835,7 +835,7 @@ Public Class clsParseProteinFile
                 ' See if strParameterFilePath points to a file in the same directory as the application
                 strParameterFilePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Path.GetFileName(strParameterFilePath))
                 If Not File.Exists(strParameterFilePath) Then
-                    MyBase.SetBaseClassErrorCode(eProcessFilesErrorCodes.ParameterFileNotFound)
+                    MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.ParameterFileNotFound)
                     Return False
                 End If
             End If
@@ -992,7 +992,7 @@ Public Class clsParseProteinFile
         Dim objRandomNumberGenerator As Random = Nothing
 
         Dim eScramblingMode As ProteinScramblingModeConstants
-        Dim udtResidueCache = New udtScrambingResidueCacheType()
+        Dim udtResidueCache = New udtScramblingResidueCacheType()
 
         Dim dtStartTime As Date
 
@@ -1008,7 +1008,7 @@ Public Class clsParseProteinFile
         Try
 
             If String.IsNullOrWhiteSpace(pathInfo.ProteinInputFilePath) Then
-                SetBaseClassErrorCode(eProcessFilesErrorCodes.InvalidInputFilePath)
+                SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidInputFilePath)
                 Return False
             End If
 
@@ -1029,10 +1029,10 @@ Public Class clsParseProteinFile
         If Not blnSuccess Then Return False
 
         Try
-            ' Set the options for objpICalculator
+            ' Set the options for mpICalculator
             ' Note that this will also update the pICalculator object in objInSilicoDigest
-            If Not objpICalculator Is Nothing Then
-                With objpICalculator
+            If Not mpICalculator Is Nothing Then
+                With mpICalculator
                     .HydrophobicityType = mHydrophobicityType
                     .ReportMaximumpI = ReportMaximumpI
                     .SequenceWidthToExamineForMaximumpI = mSequenceWidthToExamineForMaximumpI
@@ -1648,7 +1648,7 @@ Public Class clsParseProteinFile
 
         ' Verify that the input file exists
         If Not File.Exists(pathInfo.ProteinInputFilePath) Then
-            MyBase.SetBaseClassErrorCode(eProcessFilesErrorCodes.InvalidInputFilePath)
+            MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidInputFilePath)
             blnSuccess = False
             Return blnSuccess
         End If
@@ -1851,7 +1851,7 @@ Public Class clsParseProteinFile
 
     End Function
 
-    Private Sub WriteFastaAppendToCache(srScrambledOutStream As TextWriter, ByRef udtResidueCache As udtScrambingResidueCacheType, strProteinNamePrefix As String, blnFlushResiduesToWrite As Boolean)
+    Private Sub WriteFastaAppendToCache(srScrambledOutStream As TextWriter, ByRef udtResidueCache As udtScramblingResidueCacheType, strProteinNamePrefix As String, blnFlushResiduesToWrite As Boolean)
 
         Dim intResidueCount As Integer
         Dim intResiduesToAppend As Integer
@@ -1890,7 +1890,7 @@ Public Class clsParseProteinFile
 
     End Sub
 
-    Private Sub WriteFastaEmptyCache(srScrambledOutStream As TextWriter, ByRef udtResidueCache As udtScrambingResidueCacheType, strProteinNamePrefix As String, intSamplingPercentage As Integer)
+    Private Sub WriteFastaEmptyCache(srScrambledOutStream As TextWriter, ByRef udtResidueCache As udtScramblingResidueCacheType, strProteinNamePrefix As String, intSamplingPercentage As Integer)
         Dim strProteinName As String
         Dim strHeaderLine As String
 
@@ -1923,8 +1923,8 @@ Public Class clsParseProteinFile
 
     End Sub
 
-    Private Sub WriteFastaProteinAndResidues(srScrambledOutStream As TextWriter, strHeaderline As String, strSequence As String)
-        srScrambledOutStream.WriteLine(strHeaderline)
+    Private Sub WriteFastaProteinAndResidues(srScrambledOutStream As TextWriter, strHeaderLine As String, strSequence As String)
+        srScrambledOutStream.WriteLine(strHeaderLine)
         Do While strSequence.Length > 0
             If strSequence.Length >= 60 Then
                 srScrambledOutStream.WriteLine(strSequence.Substring(0, 60))
@@ -1936,7 +1936,7 @@ Public Class clsParseProteinFile
         Loop
     End Sub
 
-    Private Sub WriteScrambledFasta(srScrambledOutStream As TextWriter, ByRef objRandomNumberGenerator As Random, udtProtein As udtProteinInfoType, eScramblingMode As ProteinScramblingModeConstants, ByRef udtResidueCache As udtScrambingResidueCacheType)
+    Private Sub WriteScrambledFasta(srScrambledOutStream As TextWriter, ByRef objRandomNumberGenerator As Random, udtProtein As udtProteinInfoType, eScramblingMode As ProteinScramblingModeConstants, ByRef udtResidueCache As udtScramblingResidueCacheType)
 
         Dim strSequence As String
         Dim strScrambledSequence As String
@@ -2040,8 +2040,8 @@ Public Class clsParseProteinFile
         If Not LoadParameterFileSettings(strParameterFilePath) Then
             strStatusMessage = "Parameter file load error: " & strParameterFilePath
             ShowErrorMessage(strStatusMessage)
-            If MyBase.ErrorCode = eProcessFilesErrorCodes.NoError Then
-                MyBase.SetBaseClassErrorCode(eProcessFilesErrorCodes.InvalidParameterFile)
+            If MyBase.ErrorCode = ProcessFilesErrorCodes.NoError Then
+                MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidParameterFile)
             End If
             Return False
         End If
@@ -2049,14 +2049,14 @@ Public Class clsParseProteinFile
         Try
             If strInputFilePath Is Nothing OrElse strInputFilePath.Length = 0 Then
                 ShowErrorMessage("Input file name is empty")
-                MyBase.SetBaseClassErrorCode(eProcessFilesErrorCodes.InvalidInputFilePath)
+                MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidInputFilePath)
             Else
 
                 Console.WriteLine()
                 ShowMessage("Parsing " & Path.GetFileName(strInputFilePath))
 
                 If Not CleanupFilePaths(strInputFilePath, strOutputFolderPath) Then
-                    MyBase.SetBaseClassErrorCode(eProcessFilesErrorCodes.FilePathError)
+                    MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.FilePathError)
                 Else
                     Try
                         ' Obtain the full path to the input file
@@ -2090,11 +2090,11 @@ Public Class clsParseProteinFile
             mLocalErrorCode = eNewErrorCode
 
             If eNewErrorCode = eParseProteinFileErrorCodes.NoError Then
-                If MyBase.ErrorCode = eProcessFilesErrorCodes.LocalizedError Then
-                    MyBase.SetBaseClassErrorCode(eProcessFilesErrorCodes.NoError)
+                If MyBase.ErrorCode = ProcessFilesErrorCodes.LocalizedError Then
+                    MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.NoError)
                 End If
             Else
-                MyBase.SetBaseClassErrorCode(eProcessFilesErrorCodes.LocalizedError)
+                MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.LocalizedError)
             End If
         End If
 
@@ -2250,27 +2250,27 @@ Public Class clsParseProteinFile
 
     End Class
 
-    Private Sub mInSilicoDigest_ErrorEvent(message As String) Handles mInSilicoDigest.ErrorEvent
+    Private Sub InSilicoDigest_ErrorEvent(message As String) Handles mInSilicoDigest.ErrorEvent
         ShowErrorMessage("Error in mInSilicoDigest: " & message)
     End Sub
 
-    Private Sub mInSilicoDigest_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mInSilicoDigest.ProgressChanged
+    Private Sub InSilicoDigest_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mInSilicoDigest.ProgressChanged
         UpdateSubtaskProgress(taskDescription, percentComplete)
     End Sub
 
-    Private Sub mInSilicoDigest_ProgressComplete() Handles mInSilicoDigest.ProgressComplete
+    Private Sub InSilicoDigest_ProgressComplete() Handles mInSilicoDigest.ProgressComplete
         UpdateSubtaskProgress(100)
     End Sub
 
-    Private Sub mInSilicoDigest_ProgressReset() Handles mInSilicoDigest.ProgressReset
+    Private Sub InSilicoDigest_ProgressReset() Handles mInSilicoDigest.ProgressReset
         ' Don't do anything with this event
     End Sub
 
-    Private Sub objNETCalculator_ErrorEvent(message As String) Handles objNETCalculator.ErrorEvent
+    Private Sub NETCalculator_ErrorEvent(message As String) Handles mNETCalculator.ErrorEvent
         ShowErrorMessage(message)
     End Sub
 
-    Private Sub objSCXNETCalculator_ErrorEvent(message As String) Handles objSCXNETCalculator.ErrorEvent
+    Private Sub SCXNETCalculator_ErrorEvent(message As String) Handles mSCXNETCalculator.ErrorEvent
         ShowErrorMessage(message)
     End Sub
 

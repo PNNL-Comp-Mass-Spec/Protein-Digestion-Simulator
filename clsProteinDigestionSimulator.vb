@@ -790,13 +790,13 @@ Public Class clsProteinDigestionSimulator
             intProgressStep = 0
             intProgressStepCount = 1 + mThresholdLevels.Length * 3
 
-            MyBase.LogMessage("Caching data in memory", eMessageTypeConstants.Normal)
-            MyBase.LogMessage("Caching peak matching results in memory", eMessageTypeConstants.Normal)
+            MyBase.LogMessage("Caching data in memory", MessageTypeConstants.Normal)
+            MyBase.LogMessage("Caching peak matching results in memory", MessageTypeConstants.Normal)
 
             '----------------------------------------------------
             ' Load the proteins and digest them, or simply load the peptides
             '----------------------------------------------------
-            MyBase.LogMessage("Load proteins or peptides from " & Path.GetFileName(strProteinInputFilePath), eMessageTypeConstants.Normal)
+            MyBase.LogMessage("Load proteins or peptides from " & Path.GetFileName(strProteinInputFilePath), MessageTypeConstants.Normal)
             blnSuccess = LoadProteinsOrPeptides(strProteinInputFilePath)
 
             ' ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
@@ -857,7 +857,7 @@ Public Class clsProteinDigestionSimulator
                     ' Initialize objRangeSearch
                     '----------------------------------------------------
 
-                    MyBase.LogMessage("Uniqueness Stats processing starting, Threshold Count = " & mThresholdLevels.Length.ToString, eMessageTypeConstants.Normal)
+                    MyBase.LogMessage("Uniqueness Stats processing starting, Threshold Count = " & mThresholdLevels.Length.ToString, MessageTypeConstants.Normal)
 
                     If Not clsPeakMatchingClass.FillRangeSearchObject(objRangeSearch, mComparisonPeptideInfo) Then
                         blnSuccess = False
@@ -894,7 +894,7 @@ Public Class clsProteinDigestionSimulator
                             UpdateSubtaskProgress("Finding matching peptides for given search thresholds", 0)
 
                             ' Perform the actual peak matching
-                            MyBase.LogMessage("Threshold " & (intThresholdIndex + 1).ToString & ", IdentifySequences", eMessageTypeConstants.Normal)
+                            MyBase.LogMessage("Threshold " & (intThresholdIndex + 1).ToString & ", IdentifySequences", MessageTypeConstants.Normal)
                             blnSuccess = mPeakMatchingClass.IdentifySequences(mThresholdLevels(intThresholdIndex), objFeaturesToIdentify, mComparisonPeptideInfo, mPeptideMatchResults, objRangeSearch)
                             If Not blnSuccess Then Exit For
 
@@ -908,7 +908,7 @@ Public Class clsProteinDigestionSimulator
                             UpdateProgress(CSng(intProgressStep / intProgressStepCount * 100))
 
                             ' Summarize the results by peptide
-                            MyBase.LogMessage("Threshold " & (intThresholdIndex + 1).ToString & ", SummarizeResultsByPeptide", eMessageTypeConstants.Normal)
+                            MyBase.LogMessage("Threshold " & (intThresholdIndex + 1).ToString & ", SummarizeResultsByPeptide", MessageTypeConstants.Normal)
                             blnSuccess = SummarizeResultsByPeptide(mThresholdLevels(intThresholdIndex), intThresholdIndex, objFeaturesToIdentify, mPeptideMatchResults, strOutputFolderPath, strOutputFilenameBase, srPeptideUniquenessOutFile)
                             If Not blnSuccess Then Exit For
 
@@ -916,7 +916,7 @@ Public Class clsProteinDigestionSimulator
                             UpdateProgress(CSng(intProgressStep / intProgressStepCount * 100))
 
                             ' Summarize the results by protein
-                            MyBase.LogMessage("Threshold " & (intThresholdIndex + 1).ToString & ", SummarizeResultsByProtein", eMessageTypeConstants.Normal)
+                            MyBase.LogMessage("Threshold " & (intThresholdIndex + 1).ToString & ", SummarizeResultsByProtein", MessageTypeConstants.Normal)
                             blnSuccess = SummarizeResultsByProtein(mThresholdLevels(intThresholdIndex), intThresholdIndex, objFeaturesToIdentify, mPeptideMatchResults, strOutputFolderPath, strOutputFilenameBase, srProteinStatsOutFile)
                             If Not blnSuccess Then Exit For
 
@@ -957,7 +957,7 @@ Public Class clsProteinDigestionSimulator
         End If
 
         If Not blnSearchAborted And blnSuccess Then
-            MyBase.LogMessage("Uniqueness Stats processing complete", eMessageTypeConstants.Normal)
+            MyBase.LogMessage("Uniqueness Stats processing complete", MessageTypeConstants.Normal)
         End If
 
         Return blnSuccess
@@ -979,8 +979,8 @@ Public Class clsProteinDigestionSimulator
 
         Dim strErrorMessage As String
 
-        If MyBase.ErrorCode = eProcessFilesErrorCodes.LocalizedError Or
-           MyBase.ErrorCode = eProcessFilesErrorCodes.NoError Then
+        If MyBase.ErrorCode = ProcessFilesErrorCodes.LocalizedError Or
+           MyBase.ErrorCode = ProcessFilesErrorCodes.NoError Then
             Select Case mLocalErrorCode
                 Case eProteinDigestionSimulatorErrorCodes.NoError
                     strErrorMessage = ""
@@ -1342,7 +1342,7 @@ Public Class clsProteinDigestionSimulator
                 ' See if strParameterFilePath points to a file in the same directory as the application
                 strParameterFilePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Path.GetFileName(strParameterFilePath))
                 If Not File.Exists(strParameterFilePath) Then
-                    MyBase.SetBaseClassErrorCode(eProcessFilesErrorCodes.ParameterFileNotFound)
+                    MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.ParameterFileNotFound)
                     Return False
                 End If
             End If
@@ -1385,11 +1385,11 @@ Public Class clsProteinDigestionSimulator
             ' Note that ProteinFileParser is exposed as public so that options can be set directly in it
 
             If clsParseProteinFile.IsFastaFile(strProteinInputFilePath) Or mProteinFileParser.AssumeFastaFile Then
-                MyBase.LogMessage("Input file format = Fasta", eMessageTypeConstants.Normal)
+                MyBase.LogMessage("Input file format = Fasta", MessageTypeConstants.Normal)
                 blnDigestSequences = True
             Else
                 eDelimitedFileFormatCode = mProteinFileParser.DelimitedFileFormatCode
-                MyBase.LogMessage("Input file format = " & eDelimitedFileFormatCode.ToString, eMessageTypeConstants.Normal)
+                MyBase.LogMessage("Input file format = " & eDelimitedFileFormatCode.ToString, MessageTypeConstants.Normal)
                 blnDigestSequences = mDigestSequences
             End If
 
@@ -1406,7 +1406,7 @@ Public Class clsProteinDigestionSimulator
                     blnDigestSequences = True
             End Select
 
-            MyBase.LogMessage("Digest sequences = " & blnDigestSequences.ToString, eMessageTypeConstants.Normal)
+            MyBase.LogMessage("Digest sequences = " & blnDigestSequences.ToString, MessageTypeConstants.Normal)
 
             If blnDigestSequences Then
                 blnSuccess = LoadProteinsOrPeptidesWork(strProteinInputFilePath)
@@ -1420,7 +1420,7 @@ Public Class clsProteinDigestionSimulator
             End If
 
             If blnSuccess Then
-                MyBase.LogMessage("Loaded " & mComparisonPeptideInfo.Count & " peptides corresponding to " & mProteinInfo.Count & " proteins", eMessageTypeConstants.Normal)
+                MyBase.LogMessage("Loaded " & mComparisonPeptideInfo.Count & " peptides corresponding to " & mProteinInfo.Count & " proteins", MessageTypeConstants.Normal)
             End If
 
         Catch ex As Exception
@@ -1457,7 +1457,7 @@ Public Class clsProteinDigestionSimulator
 
             ' Verify that the input file exists
             If Not File.Exists(strProteinInputFilePath) Then
-                MyBase.SetBaseClassErrorCode(eProcessFilesErrorCodes.InvalidInputFilePath)
+                MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidInputFilePath)
                 blnSuccess = False
                 Exit Try
             End If
@@ -1524,7 +1524,7 @@ Public Class clsProteinDigestionSimulator
 
             If intInputFileLineSkipCount > 0 Then
                 strSkipMessage = "Note that " & intInputFileLineSkipCount.ToString & " out of " & intInputFileLinesRead.ToString & " lines were skipped in the input file because they did not match the column order defined on the File Format Options Tab (" & mProteinFileParser.DelimitedFileFormatCode.ToString & ")"
-                MyBase.LogMessage(strSkipMessage, eMessageTypeConstants.Warning)
+                MyBase.LogMessage(strSkipMessage, MessageTypeConstants.Warning)
                 mLastErrorMessage = String.Copy(strSkipMessage)
             End If
 
@@ -1599,7 +1599,7 @@ Public Class clsProteinDigestionSimulator
 
             If mProteinFileParser.InputFileLineSkipCount > 0 And Not blnIsFastaFile Then
                 strSkipMessage = "Note that " & mProteinFileParser.InputFileLineSkipCount.ToString & " out of " & mProteinFileParser.InputFileLinesRead.ToString & " lines were skipped in the input file because they did not match the column order defined on the File Format Options Tab (" & mProteinFileParser.DelimitedFileFormatCode.ToString & ")"
-                MyBase.LogMessage(strSkipMessage, eMessageTypeConstants.Warning)
+                MyBase.LogMessage(strSkipMessage, MessageTypeConstants.Warning)
                 mLastErrorMessage = String.Copy(strSkipMessage)
             End If
 
@@ -1790,8 +1790,8 @@ Public Class clsProteinDigestionSimulator
         If Not LoadParameterFileSettings(strParameterFilePath) Then
             Dim strStatusMessage = "Parameter file load error: " & strParameterFilePath
             ShowErrorMessage(strStatusMessage)
-            If MyBase.ErrorCode = eProcessFilesErrorCodes.NoError Then
-                MyBase.SetBaseClassErrorCode(eProcessFilesErrorCodes.InvalidParameterFile)
+            If MyBase.ErrorCode = ProcessFilesErrorCodes.NoError Then
+                MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidParameterFile)
             End If
             Return False
         End If
@@ -1799,14 +1799,14 @@ Public Class clsProteinDigestionSimulator
         Try
             If strInputFilePath Is Nothing OrElse strInputFilePath.Length = 0 Then
                 Console.WriteLine("Input file name is empty")
-                MyBase.SetBaseClassErrorCode(eProcessFilesErrorCodes.InvalidInputFilePath)
+                MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidInputFilePath)
             Else
 
                 Console.WriteLine()
                 Console.WriteLine("Parsing " & Path.GetFileName(strInputFilePath))
 
                 If Not CleanupFilePaths(strInputFilePath, strOutputFolderPath) Then
-                    MyBase.SetBaseClassErrorCode(eProcessFilesErrorCodes.FilePathError)
+                    MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.FilePathError)
                 Else
                     Try
                         ' Obtain the full path to the input file
@@ -1904,7 +1904,7 @@ Public Class clsProteinDigestionSimulator
 
             ' ToDo: When using Sql Server, switch this to use a SP that performs the same function as this For Loop, sotring the results in a table in the DB, but using Bulk Update queries
 
-            MyBase.LogMessage("SummarizeResultsByPeptide starting, total feature count = " & intFeaturesToIdentifyCount.ToString, eMessageTypeConstants.Normal)
+            MyBase.LogMessage("SummarizeResultsByPeptide starting, total feature count = " & intFeaturesToIdentifyCount.ToString, MessageTypeConstants.Normal)
 
             intPeptideSkipCount = 0
             For intPeptideIndex = 0 To intFeaturesToIdentifyCount - 1
@@ -1939,7 +1939,7 @@ Public Class clsProteinDigestionSimulator
                 End If
 
                 If intPeptideIndex Mod 100000 = 0 AndAlso intPeptideIndex > 0 Then
-                    MyBase.LogMessage("SummarizeResultsByPeptide, intPeptideIndex = " & intPeptideIndex.ToString, eMessageTypeConstants.Normal)
+                    MyBase.LogMessage("SummarizeResultsByPeptide, intPeptideIndex = " & intPeptideIndex.ToString, MessageTypeConstants.Normal)
                 End If
             Next intPeptideIndex
 
@@ -1958,7 +1958,7 @@ Public Class clsProteinDigestionSimulator
 
 
             If intPeptideSkipCount > 0 Then
-                MyBase.LogMessage("Skipped " & intPeptideSkipCount.ToString & " peptides since their masses were outside the defined bin range", eMessageTypeConstants.Warning)
+                MyBase.LogMessage("Skipped " & intPeptideSkipCount.ToString & " peptides since their masses were outside the defined bin range", MessageTypeConstants.Warning)
             End If
 
             ' Write out the peptide results for this threshold level
@@ -1980,7 +1980,7 @@ Public Class clsProteinDigestionSimulator
                 srPeptideUniquenessOutFile.Close()
             End If
 
-            MyBase.LogMessage("SummarizeResultsByPeptide complete", eMessageTypeConstants.Normal)
+            MyBase.LogMessage("SummarizeResultsByPeptide complete", MessageTypeConstants.Normal)
 
             UpdateProgress(100)
 
@@ -2056,7 +2056,7 @@ Public Class clsProteinDigestionSimulator
             ' Initialize mProteinToIdentifiedPeptideMappingTable
             mProteinToIdentifiedPeptideMappingTable.Clear()
 
-            MyBase.LogMessage("SummarizeResultsByProtein starting, total feature count = " & intFeaturesToIdentifyCount.ToString, eMessageTypeConstants.Normal)
+            MyBase.LogMessage("SummarizeResultsByProtein starting, total feature count = " & intFeaturesToIdentifyCount.ToString, MessageTypeConstants.Normal)
 
             For intPeptideIndex = 0 To intFeaturesToIdentifyCount - 1
                 If objFeaturesToIdentify.GetFeatureInfoByRowIndex(intPeptideIndex, udtFeatureInfo) Then
@@ -2081,7 +2081,7 @@ Public Class clsProteinDigestionSimulator
                 End If
 
                 If intPeptideIndex Mod 100000 = 0 AndAlso intPeptideIndex > 0 Then
-                    MyBase.LogMessage("SummarizeResultsByProtein, intPeptideIndex = " & intPeptideIndex.ToString, eMessageTypeConstants.Normal)
+                    MyBase.LogMessage("SummarizeResultsByProtein, intPeptideIndex = " & intPeptideIndex.ToString, MessageTypeConstants.Normal)
                 End If
 
             Next intPeptideIndex
@@ -2107,7 +2107,7 @@ Public Class clsProteinDigestionSimulator
 
             UpdateProgress(100)
 
-            MyBase.LogMessage("SummarizeResultsByProtein complete", eMessageTypeConstants.Normal)
+            MyBase.LogMessage("SummarizeResultsByProtein complete", MessageTypeConstants.Normal)
 
         Catch ex As Exception
             blnSuccess = False
@@ -2144,7 +2144,7 @@ Public Class clsProteinDigestionSimulator
     Private Sub SetLocalErrorCode(eNewErrorCode As eProteinDigestionSimulatorErrorCodes, ex As Exception)
         SetLocalErrorCode(eNewErrorCode, False)
 
-        MyBase.LogMessage(eNewErrorCode.ToString & ": " & ex.Message, eMessageTypeConstants.ErrorMsg)
+        MyBase.LogMessage(eNewErrorCode.ToString & ": " & ex.Message, MessageTypeConstants.ErrorMsg)
         mLastErrorMessage = ex.Message
     End Sub
 
@@ -2202,7 +2202,7 @@ Public Class clsProteinDigestionSimulator
 
         intSortCount += 1
         If DateTime.UtcNow.Subtract(dtLastPostTime).TotalSeconds >= 10 Then
-            MyBase.LogMessage("Sorting protein list (SortCount = " & intSortCount & ")", eMessageTypeConstants.Normal)
+            MyBase.LogMessage("Sorting protein list (SortCount = " & intSortCount & ")", MessageTypeConstants.Normal)
             dtLastPostTime = DateTime.UtcNow
         End If
     End Sub
@@ -2213,7 +2213,7 @@ Public Class clsProteinDigestionSimulator
 
         intSortCount += 1
         If DateTime.UtcNow.Subtract(dtLastPostTime).TotalSeconds >= 10 Then
-            MyBase.LogMessage("Sorting protein to peptide mapping info (SortCount = " & intSortCount & ")", eMessageTypeConstants.Normal)
+            MyBase.LogMessage("Sorting protein to peptide mapping info (SortCount = " & intSortCount & ")", MessageTypeConstants.Normal)
             dtLastPostTime = DateTime.UtcNow
         End If
     End Sub
@@ -2224,23 +2224,23 @@ Public Class clsProteinDigestionSimulator
 
         intSortCount += 1
         If DateTime.UtcNow.Subtract(dtLastPostTime).TotalSeconds >= 10 Then
-            MyBase.LogMessage("Sorting peptide match results list (SortCount = " & intSortCount & ")", eMessageTypeConstants.Normal)
+            MyBase.LogMessage("Sorting peptide match results list (SortCount = " & intSortCount & ")", MessageTypeConstants.Normal)
             dtLastPostTime = DateTime.UtcNow
         End If
     End Sub
 
-    Private Sub mPeakMatchingClass_LogEvent(Message As String, EventType As clsPeakMatchingClass.eMessageTypeConstants) Handles mPeakMatchingClass.LogEvent
+    Private Sub mPeakMatchingClass_LogEvent(Message As String, EventType As clsPeakMatchingClass.MessageTypeConstants) Handles mPeakMatchingClass.LogEvent
         Select Case EventType
-            Case clsPeakMatchingClass.eMessageTypeConstants.Normal
-                MyBase.LogMessage(Message, eMessageTypeConstants.Normal)
+            Case clsPeakMatchingClass.MessageTypeConstants.Normal
+                MyBase.LogMessage(Message, MessageTypeConstants.Normal)
 
-            Case clsPeakMatchingClass.eMessageTypeConstants.Warning
-                MyBase.LogMessage(Message, eMessageTypeConstants.Warning)
+            Case clsPeakMatchingClass.MessageTypeConstants.Warning
+                MyBase.LogMessage(Message, MessageTypeConstants.Warning)
 
-            Case clsPeakMatchingClass.eMessageTypeConstants.ErrorMsg
-                MyBase.LogMessage(Message, eMessageTypeConstants.ErrorMsg)
+            Case clsPeakMatchingClass.MessageTypeConstants.ErrorMsg
+                MyBase.LogMessage(Message, MessageTypeConstants.ErrorMsg)
 
-            Case clsPeakMatchingClass.eMessageTypeConstants.Health
+            Case clsPeakMatchingClass.MessageTypeConstants.Health
                 ' Don't log this type of message
         End Select
     End Sub

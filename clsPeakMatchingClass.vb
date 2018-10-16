@@ -12,7 +12,7 @@ Public Class clsPeakMatchingClass
     Private Const STDEV_SCALING_FACTOR As Integer = 2
     Private Const ONE_PART_PER_MILLION As Double = 1000000.0#
 
-    Public Enum eMessageTypeConstants
+    Public Enum MessageTypeConstants
         Normal = 0
         ErrorMsg = 1
         Warning = 2
@@ -726,7 +726,7 @@ Public Class clsPeakMatchingClass
     Private mAbortProcessing As Boolean
 
     Public Event ProgressContinues()
-    Public Event LogEvent(Message As String, EventType As eMessageTypeConstants)
+    Public Event LogEvent(Message As String, EventType As MessageTypeConstants)
 
 #End Region
 
@@ -840,7 +840,7 @@ Public Class clsPeakMatchingClass
         If dblMassStDevAbs <= 0 Then
             strMessage = "Assertion failed in ComputeSLiCScores; dblMassStDevAbs is <= 0, which isn't allowed; will assume 0.003"
             Console.WriteLine(strMessage)
-            PostLogEntry(strMessage, eMessageTypeConstants.ErrorMsg)
+            PostLogEntry(strMessage, MessageTypeConstants.ErrorMsg)
             dblMassStDevAbs = 0.003
         End If
 
@@ -860,7 +860,7 @@ Public Class clsPeakMatchingClass
             If dblNETStDevCombined <= 0 Then
                 strMessage = "Assertion failed in ComputeSLiCScores; dblNETStDevCombined is <= 0, which isn't allowed; will assume 0.025"
                 Console.WriteLine(strMessage)
-                PostLogEntry(strMessage, eMessageTypeConstants.ErrorMsg)
+                PostLogEntry(strMessage, MessageTypeConstants.ErrorMsg)
                 dblNETStDevCombined = 0.025
             End If
 
@@ -1048,7 +1048,7 @@ Public Class clsPeakMatchingClass
             UpdateProgress("Finding matching peptides for given search thresholds", 0)
             mAbortProcessing = False
 
-            PostLogEntry("IdentifySequences starting, total feature count = " & intFeatureCount.ToString, eMessageTypeConstants.Normal)
+            PostLogEntry("IdentifySequences starting, total feature count = " & intFeatureCount.ToString, MessageTypeConstants.Normal)
 
             For intFeatureIndex = 0 To intFeatureCount - 1
                 ' Use objRangeSearch to search for matches to each peptide in udtComparisonFeatures
@@ -1123,7 +1123,7 @@ Public Class clsPeakMatchingClass
                 Else
                     strMessage = "Programming error in IdentifySequences: Feature not found in objFeaturesToIdentify using feature index: " & intFeatureIndex.ToString
                     Console.WriteLine(strMessage)
-                    PostLogEntry(strMessage, eMessageTypeConstants.ErrorMsg)
+                    PostLogEntry(strMessage, MessageTypeConstants.ErrorMsg)
                 End If
 
                 If intFeatureIndex Mod 100 = 0 Then
@@ -1132,12 +1132,12 @@ Public Class clsPeakMatchingClass
                 End If
 
                 If intFeatureIndex Mod 10000 = 0 AndAlso intFeatureIndex > 0 Then
-                    PostLogEntry("IdentifySequences, intFeatureIndex = " & intFeatureIndex.ToString, eMessageTypeConstants.Health)
+                    PostLogEntry("IdentifySequences, intFeatureIndex = " & intFeatureIndex.ToString, MessageTypeConstants.Health)
                 End If
             Next intFeatureIndex
 
             UpdateProgress("IdentifySequences complete", 100)
-            PostLogEntry("IdentifySequences complete", eMessageTypeConstants.Normal)
+            PostLogEntry("IdentifySequences complete", MessageTypeConstants.Normal)
 
             blnSuccess = Not mAbortProcessing
 
@@ -1163,7 +1163,7 @@ Public Class clsPeakMatchingClass
         ''mTableNameFeatureMatchResults = PMFeatureMatchResultsClass.DEFAULT_FEATURE_MATCH_RESULTS_TABLE_NAME
     End Sub
 
-    Private Sub PostLogEntry(strMessage As String, EntryType As eMessageTypeConstants)
+    Private Sub PostLogEntry(strMessage As String, EntryType As MessageTypeConstants)
         RaiseEvent LogEvent(strMessage, EntryType)
     End Sub
 

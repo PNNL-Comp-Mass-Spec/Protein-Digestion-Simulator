@@ -45,18 +45,18 @@ Module modMain
 
     Private mInputFileDelimiter As Char
 
-    Private mOutputFolderPath As String             ' Optional
-    Private mParameterFilePath As String            ' Optional
-    Private mOutputFolderAlternatePath As String    ' Optional
+    Private mOutputDirectoryPath As String              ' Optional
+    Private mParameterFilePath As String                ' Optional
+    Private mOutputDirectoryAlternatePath As String     ' Optional
 
-    Private mRecreateFolderHierarchyInAlternatePath As Boolean  ' Optional
+    Private mRecreateDirectoryHierarchyInAlternatePath As Boolean  ' Optional
 
-    Private mRecurseFolders As Boolean
-    Private mRecurseFoldersMaxLevels As Integer
+    Private mRecurseDirectories As Boolean
+    Private mMaxLevelsToRecurse As Integer
 
     Private mLogMessagesToFile As Boolean
     Private mLogFilePath As String = String.Empty
-    Private mLogFolderPath As String = String.Empty
+    Private mLogDirectoryPath As String = String.Empty
 
     Private mShowDebugPrompts As Boolean
 
@@ -78,15 +78,15 @@ Module modMain
 
         mInputFileDelimiter = ControlChars.Tab
 
-        mOutputFolderPath = String.Empty
+        mOutputDirectoryPath = String.Empty
         mParameterFilePath = String.Empty
 
-        mRecurseFolders = False
-        mRecurseFoldersMaxLevels = 0
+        mRecurseDirectories = False
+        mMaxLevelsToRecurse = 0
 
         mLogMessagesToFile = False
         mLogFilePath = String.Empty
-        mLogFolderPath = String.Empty
+        mLogDirectoryPath = String.Empty
 
         Try
             blnProceed = False
@@ -128,17 +128,19 @@ Module modMain
 
                 .LogMessagesToFile = mLogMessagesToFile
                 .LogFilePath = mLogFilePath
-                .LogFolderPath = mLogFolderPath
+                .LogDirectoryPath = mLogDirectoryPath
             End With
 
-            If mRecurseFolders Then
-                If mParseProteinFile.ProcessFilesAndRecurseFolders(mInputFilePath, mOutputFolderPath, mOutputFolderAlternatePath, mRecreateFolderHierarchyInAlternatePath, mParameterFilePath, mRecurseFoldersMaxLevels) Then
+            If mRecurseDirectories Then
+                If mParseProteinFile.ProcessFilesAndRecurseDirectories(mInputFilePath, mOutputDirectoryPath,
+                                                                       mOutputDirectoryAlternatePath, mRecreateDirectoryHierarchyInAlternatePath,
+                                                                       mParameterFilePath, mMaxLevelsToRecurse) Then
                     returnCode = 0
                 Else
                     returnCode = mParseProteinFile.ErrorCode
                 End If
             Else
-                If mParseProteinFile.ProcessFilesWildcard(mInputFilePath, mOutputFolderPath, mParameterFilePath) Then
+                If mParseProteinFile.ProcessFilesWildcard(mInputFilePath, mOutputDirectoryPath, mParameterFilePath) Then
                     returnCode = 0
                 Else
                     returnCode = mParseProteinFile.ErrorCode
@@ -204,17 +206,17 @@ Module modMain
                     If .RetrieveValueForParameter("D", strValue) Then mCreateDigestedProteinOutputFile = True
                     If .RetrieveValueForParameter("M", strValue) Then mComputeProteinMass = True
                     If .RetrieveValueForParameter("AD", strValue) Then mInputFileDelimiter = strValue.Chars(0)
-                    If .RetrieveValueForParameter("O", strValue) Then mOutputFolderPath = strValue
+                    If .RetrieveValueForParameter("O", strValue) Then mOutputDirectoryPath = strValue
                     If .RetrieveValueForParameter("P", strValue) Then mParameterFilePath = strValue
 
                     If .RetrieveValueForParameter("S", strValue) Then
-                        mRecurseFolders = True
+                        mRecurseDirectories = True
                         If Integer.TryParse(strValue, intValue) Then
-                            mRecurseFoldersMaxLevels = intValue
+                            mMaxLevelsToRecurse = intValue
                         End If
                     End If
-                    If .RetrieveValueForParameter("A", strValue) Then mOutputFolderAlternatePath = strValue
-                    If .RetrieveValueForParameter("R", strValue) Then mRecreateFolderHierarchyInAlternatePath = True
+                    If .RetrieveValueForParameter("A", strValue) Then mOutputDirectoryAlternatePath = strValue
+                    If .RetrieveValueForParameter("R", strValue) Then mRecreateDirectoryHierarchyInAlternatePath = True
 
                     'If .RetrieveValueForParameter("L", strValue) Then
                     '	mLogMessagesToFile = True
@@ -223,10 +225,10 @@ Module modMain
                     '	End If
                     'End If
 
-                    'If .RetrieveValueForParameter("LogFolder", strValue) Then
+                    'If .RetrieveValueForParameter("LogDir", strValue) Then
                     '	mLogMessagesToFile = True
                     '	If Not String.IsNullOrEmpty(strValue) Then
-                    '		mLogFolderPath = strValue
+                    '		mLogDirectoryPath = strValue
                     '	End If
                     'End If
 
@@ -281,16 +283,16 @@ Module modMain
 
             Console.WriteLine(WrapParagraph(
               "This program can be used to read a fasta file or tab delimited file containing protein or peptide sequences, then output " &
-              "the data to a tab-delimited file.  It can optionally digest the input sequences using trypsin or partial trpysin rules, " &
+              "the data to a tab-delimited file.  It can optionally digest the input sequences using trypsin or partial trypsin rules, " &
               "and can add the predicted normalized elution time (NET) values for the peptides.Additionally, it can calculate the " &
               "number of uniquely identifiable peptides, using only mass, or both mass and NET, with appropriate tolerances."))
             Console.WriteLine()
             Console.WriteLine("Program syntax:")
             Console.WriteLine(WrapParagraph(
-                Path.GetFileName(ProcessFilesOrFoldersBase.GetAppPath()) &
-                " /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimeter] " &
-                "[/O:OutputFolderPath] [/P:ParameterFilePath] [/S:[MaxLevel]] " &
-                "[/A:AlternateOutputFolderPath] [/R] [/Q]"))
+                Path.GetFileName(ProcessFilesOrDirectoriesBase.GetAppPath()) &
+                " /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimiter] " &
+                "[/O:OutputDirectoryPath] [/P:ParameterFilePath] [/S:[MaxLevel]] " &
+                "[/A:AlternateOutputDirectoryPath] [/R] [/Q]"))
             Console.WriteLine()
             Console.WriteLine(WrapParagraph("The input file path can contain the wildcard character * and should point to a fasta file or tab-delimited text file."))
             Console.WriteLine()
@@ -302,13 +304,15 @@ Module modMain
             Console.WriteLine()
             Console.WriteLine(WrapParagraph("Use /AD to specify a delimiter other than the Tab character (not applicable for fasta files)."))
             Console.WriteLine()
-            Console.WriteLine(WrapParagraph("The output folder path is optional.  If omitted, the output files will be created in the same folder as the input file."))
+            Console.WriteLine(WrapParagraph("The output directory path is optional.  If omitted, the output files will be created in the same directory as the input file."))
             Console.WriteLine()
             Console.WriteLine(WrapParagraph("The parameter file path is optional.  If included, it should point to a valid XML parameter file."))
             Console.WriteLine()
-            Console.WriteLine(WrapParagraph("Use /S to process all valid files in the input folder and subfolders. Include a number after /S (like /S:2) to limit the level of subfolders to examine."))
+            Console.WriteLine(WrapParagraph("Use /S to process all valid files in the input directory and subdirectories. Include a number after /S (like /S:2) to limit the level of subdirectories to examine."))
+            Console.WriteLine()
             Console.WriteLine(WrapParagraph("When using /S, you can redirect the output of the results using /A."))
-            Console.WriteLine(WrapParagraph("When using /S, you can use /R to re-create the input folder hierarchy in the alternate output folder (if defined)."))
+            Console.WriteLine()
+            Console.WriteLine(WrapParagraph("When using /S, you can use /R to re-create the input directory hierarchy in the alternate output directory (if defined)."))
             Console.WriteLine()
             Console.WriteLine("Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004")
             Console.WriteLine("Version: " & GetAppVersion())
