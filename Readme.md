@@ -54,8 +54,8 @@ The Protein Digestion Simulator is typically used as a GUI application, but it a
 ```
 ProteinDigestionSimulator.exe 
   /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimeter] 
-  [/O:OutputFolderPath] [/P:ParameterFilePath] [/S:[MaxLevel]] 
-  [/A:AlternateOutputFolderPath] [/R] [/Q]
+  [/O:OutputDirectoryPath] [/P:ParameterFilePath] [/S:[MaxLevel]] 
+  [/A:AlternateOutputDirectoryPath] [/R] [/Q]
 ```
 
 The input file path can contain the wildcard character * and should point to a fasta file or tab-delimited text file.
@@ -69,13 +69,13 @@ Use /M to indicate that protein mass should be computed.
 
 Use /AD to specify a delimiter other than the Tab character (not applicable for fasta files).
 
-The output folder path is optional.  If omitted, the output files will be created in the same folder as the input file.
+The output directory path is optional.  If omitted, the output files will be created in the same director as the input file.
 
 The parameter file path is optional.  If included, it should point to a valid XML parameter file.
 
-Use /S to process all valid files in the input folder and subfolders. Include a number after /S (like /S:2) to limit the level of subfolders to examine.
+Use /S to process all valid files in the input director and subdirectories. Include a number after /S (like /S:2) to limit the level of subdirectories to examine.
 * When using /S, you can redirect the output of the results using /A.
-* When using /S, you can use /R to re-create the input folder hierarchy in the alternate output folder (if defined).
+* When using /S, you can use /R to re-create the input director hierarchy in the alternate output director (if defined).
 
 The optional /Q switch will suppress all error messages.
 

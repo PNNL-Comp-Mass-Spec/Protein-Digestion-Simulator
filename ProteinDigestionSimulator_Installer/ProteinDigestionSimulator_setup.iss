@@ -27,7 +27,7 @@ Source: ..\bin\SCX1052.wts                            ; DestDir: {app}
 
 Source: ..\License.txt                                ; DestDir: {app}
 Source: ..\Disclaimer.txt                             ; DestDir: {app}
-Source: ..\README.md                                  ; DestDir: {app}
+Source: ..\Readme.md                                  ; DestDir: {app}
 Source: ..\RevisionHistory.txt                        ; DestDir: {app}
 Source: ..\PNNL_NETPrediction_License.pdf             ; DestDir: {app}
 Source: Images\delete_16x.ico                         ; DestDir: {app}
