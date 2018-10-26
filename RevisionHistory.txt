@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.2.6862; October 15, 2018
+	- New PRISM.dll with updated class names
+
 Version 2.2.6794; August 8, 2018
 	- Add additional checks when loading the settings file 
 
