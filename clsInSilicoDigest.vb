@@ -18,7 +18,7 @@ Public Class clsInSilicoDigest
 
     ' Note: Good list of enzymes is at https://web.expasy.org/peptide_cutter/peptidecutter_enzymes.html
     '                              and https://web.expasy.org/peptide_mass/peptide-mass-doc.html
-    Private Const CleavageRuleCount As Integer = 21
+
     Public Enum CleavageRuleConstants
         NoRule = 0
         ConventionalTrypsin = 1
@@ -60,10 +60,6 @@ Public Class clsInSilicoDigest
         Public RuleIDInParallax As Integer             ' Unused in this software
     End Structure
 
-    Private Structure udtCleavageRuleList
-        Public RuleCount As Integer
-        Public Rules() As udtCleavageRulesType         ' 0-based array
-    End Structure
 
 #End Region
 
@@ -213,28 +209,30 @@ Public Class clsInSilicoDigest
 
     End Function
 
-    Public Function DigestSequence(strProteinSequence As String,
-                                   ByRef objPeptideFragments() As PeptideInfoClass,
-                                   objDigestionOptions As DigestionOptionsClass,
-                                   blnFilterByIsoelectricPoint As Boolean) As Integer
+    Public Function DigestSequence(proteinSequence As String,
+                                   <Out> ByRef peptideFragments As List(Of PeptideInfoClass),
+                                   digestionOptions As DigestionOptionsClass,
+                                   filterByIsoelectricPoint As Boolean) As Integer
 
-        Return DigestSequence(strProteinSequence, objPeptideFragments, objDigestionOptions, blnFilterByIsoelectricPoint, "")
+        Return DigestSequence(proteinSequence, peptideFragments, digestionOptions, filterByIsoelectricPoint, "")
 
     End Function
 
-    Public Function DigestSequence(strProteinSequence As String,
-                                   ByRef objPeptideFragments() As PeptideInfoClass,
-                                   objDigestionOptions As DigestionOptionsClass,
-                                   blnFilterByIsoelectricPoint As Boolean,
-                                    strProteinName As String) As Integer
-        ' Digests strProteinSequence using the sequence rule given by objDigestionOptions.CleavageRuleID
-        ' If blnRemoveDuplicateSequences = True, then only returns the first occurrence of each unique sequence
-        '
-        ' Returns the number of fragments
-        ' Returns the fragment info in objPeptideFragments()
-
-        Const MAX_FRAGMENT_COUNT_PRE_RESERVE As Integer = 100000
-        Dim htFragmentsUniqueList As New System.Collections.Specialized.StringDictionary
+    ''' <summary>
+    ''' Digests proteinSequence using the sequence rule given by digestionOptions.CleavageRuleID
+    ''' If removeDuplicateSequences = True, only returns the first occurrence of each unique sequence
+    ''' </summary>
+    ''' <param name="proteinSequence"></param>
+    ''' <param name="peptideFragments"></param>
+    ''' <param name="digestionOptions"></param>
+    ''' <param name="filterByIsoelectricPoint"></param>
+    ''' <param name="proteinName"></param>
+    ''' <returns>The number of peptides in peptideFragments</returns>
+    Public Function DigestSequence(proteinSequence As String,
+                                   <Out> ByRef peptideFragments As List(Of PeptideInfoClass),
+                                   digestionOptions As DigestionOptionsClass,
+                                   filterByIsoelectricPoint As Boolean,
+                                   proteinName As String) As Integer
 
         Dim intTrypticFragmentCount As Integer, intFragmentCountTotal As Integer
         Dim intTrypticIndex As Integer
@@ -259,16 +257,12 @@ Public Class clsInSilicoDigest
 
         Dim blnPeptideAdded As Boolean
 
-        Try
+        peptideFragments = New List(Of PeptideInfoClass)()
 
-            intProteinSequenceLength = strProteinSequence.Length
+        If String.IsNullOrWhiteSpace(proteinSequence) Then
+            Return 0
+        End If
 
-            If intProteinSequenceLength = 0 Then
-                ReDim objPeptideFragments(0)
-                objPeptideFragments(0) = New PeptideInfoClass
-                DigestSequence = 0
-                Exit Function
-            End If
 
             strRuleResidues = GetCleaveageRuleResiduesSymbols(objDigestionOptions.CleavageRuleID)
             strExceptionSuffixResidues = GetCleavageExceptionSuffixResidues(objDigestionOptions.CleavageRuleID)
@@ -294,9 +288,6 @@ Public Class clsInSilicoDigest
                 End If
             Next intIndex
 
-            ReDim objPeptideFragments(intFragmentCountTotal - 1)
-            objPeptideFragments(0) = New PeptideInfoClass
-            objPeptideFragments(0).AutoComputeNET = False
 
             ReDim strTrypticFragCache(9)
             ReDim intTrypticFragEndLocs(9)
@@ -360,8 +351,8 @@ Public Class clsInSilicoDigest
 
                             strPeptideSequence = strPeptideSequenceBase & strTrypticFragCache(intTrypticIndex + intIndex).Substring(0, intResidueLength)
 
-                            If strPeptideSequence.Length >= objDigestionOptions.MinFragmentResidueCount Then
-                                PossiblyAddPeptide(strPeptideSequence, intTrypticIndex, intIndex, intResidueStartLoc, intResidueEndLoc, strProteinSequence, intProteinSequenceLength, htFragmentsUniqueList, objPeptideFragments, intFragmentCountTotal, objDigestionOptions, blnFilterByIsoelectricPoint)
+                            If peptideSequence.Length >= digestionOptions.MinFragmentResidueCount Then
+                                PossiblyAddPeptide(peptideSequence, trypticIndex, index, residueStartLoc, residueEndLoc, proteinSequence, proteinSequenceLength, fragmentsUniqueList, peptideFragments, digestionOptions, filterByIsoelectricPoint)
                             End If
                         Next intResidueLength
                     Else
@@ -370,7 +361,7 @@ Public Class clsInSilicoDigest
 
                         strPeptideSequence = strPeptideSequence & strTrypticFragCache(intTrypticIndex + intIndex)
                         If strPeptideSequence.Length >= objDigestionOptions.MinFragmentResidueCount Then
-                            PossiblyAddPeptide(strPeptideSequence, intTrypticIndex, intIndex, intResidueStartLoc, intResidueEndLoc, strProteinSequence, intProteinSequenceLength, htFragmentsUniqueList, objPeptideFragments, intFragmentCountTotal, objDigestionOptions, blnFilterByIsoelectricPoint)
+                            PossiblyAddPeptide(peptideSequence, trypticIndex, index, residueStartLoc, residueEndLoc, proteinSequence, proteinSequenceLength, fragmentsUniqueList, peptideFragments, digestionOptions, filterByIsoelectricPoint)
                         End If
                     End If
 
@@ -412,7 +403,7 @@ Public Class clsInSilicoDigest
                             strPeptideSequence = strTrypticFragCache(intTrypticIndex - intIndex).Substring(strTrypticFragCache(intTrypticIndex - intIndex).Length - intResidueLength, intResidueLength) & strPeptideSequenceBase
 
                             If strPeptideSequence.Length >= objDigestionOptions.MinFragmentResidueCount Then
-                                blnPeptideAdded = PossiblyAddPeptide(strPeptideSequence, intTrypticIndex, intIndex, intResidueStartLoc, intResidueEndLoc, strProteinSequence, intProteinSequenceLength, htFragmentsUniqueList, objPeptideFragments, intFragmentCountTotal, objDigestionOptions, blnFilterByIsoelectricPoint)
+                                PossiblyAddPeptide(peptideSequence, trypticIndex, index, residueStartLoc, residueEndLoc, proteinSequence, proteinSequenceLength, fragmentsUniqueList, peptideFragments, digestionOptions, filterByIsoelectricPoint)
                             End If
 
                         Next intResidueLength
@@ -426,15 +417,11 @@ Public Class clsInSilicoDigest
 
             End If
 
+            Return peptideFragments.Count
 
-            If intFragmentCountTotal < objPeptideFragments.Length And intFragmentCountTotal > 0 Then
-                ReDim Preserve objPeptideFragments(intFragmentCountTotal - 1)
-            End If
-
-            Return intFragmentCountTotal
         Catch ex As Exception
             ReportError("DigestSequence", ex)
-            Return intFragmentCountTotal
+            Return peptideFragments.Count
         End Try
 
     End Function
@@ -723,8 +710,18 @@ Public Class clsInSilicoDigest
         End With
     End Sub
 
-    Private Function PossiblyAddPeptide(strPeptideSequence As String, intTrypticIndex As Integer, intMissedCleavageCount As Integer, intResidueStartLoc As Integer, intResidueEndLoc As Integer, ByRef strProteinSequence As String, intProteinSequenceLength As Integer, ByRef htFragmentsUniqueList As System.Collections.Specialized.StringDictionary, ByRef objPeptideFragments() As PeptideInfoClass, ByRef intFragmentCountTotal As Integer, objDigestionOptions As DigestionOptionsClass, blnFilterByIsoelectricPoint As Boolean) As Boolean
-        ' Note: strProteinSequence is passed ByRef for speed purposes since passing a reference of a large string is easier than passing it ByVal
+    Private Sub PossiblyAddPeptide(
+        peptideSequence As String,
+        trypticIndex As Integer,
+        missedCleavageCount As Integer,
+        residueStartLoc As Integer,
+        residueEndLoc As Integer,
+        ByRef proteinSequence As String,
+        proteinSequenceLength As Integer,
+        fragmentsUniqueList As Specialized.StringDictionary,
+        peptideFragments As ICollection(Of PeptideInfoClass),
+        digestionOptions As DigestionOptionsClass,
+        filterByIsoelectricPoint As Boolean)
         '       It is not modified by this function
 
         Dim blnAddFragment As Boolean
@@ -747,74 +744,63 @@ Public Class clsInSilicoDigest
             End If
         End If
 
-        If blnAddFragment Then
+        If Not addFragment Then Return
 
-            If objPeptideFragments(intFragmentCountTotal) Is Nothing Then
-                objPeptideFragments(intFragmentCountTotal) = New PeptideInfoClass
-                objPeptideFragments(intFragmentCountTotal).AutoComputeNET = False
-            End If
+        Dim peptideFragment = New PeptideInfoClass With {.AutoComputeNET = False}
 
-            With objPeptideFragments(intFragmentCountTotal)
-                .SequenceOneLetter = strPeptideSequence
+        peptideFragment.SequenceOneLetter = peptideSequence
 
-                If .Mass < objDigestionOptions.MinFragmentMass OrElse
-                   .Mass > objDigestionOptions.MaxFragmentMass Then
-                    blnAddFragment = False
-                Else
-                    ' Possibly compute the isoelectric point for the peptide
-                    If blnFilterByIsoelectricPoint Then
-                        sngIsoelectricPoint = mpICalculator.CalculateSequencepI(strPeptideSequence)
-                    End If
-
-                    If blnFilterByIsoelectricPoint AndAlso (
-                       sngIsoelectricPoint < objDigestionOptions.MinIsoelectricPoint OrElse
-                       sngIsoelectricPoint > objDigestionOptions.MaxIsoelectricPoint) Then
-                        blnAddFragment = False
-                    Else
-                        ' We can now compute the NET value for the peptide
-                        .UpdateNET()
-
-                        If objDigestionOptions.IncludePrefixAndSuffixResidues Then
-                            If intResidueStartLoc <= 1 Then
-                                strPrefix = PeptideInfoClass.PROTEIN_TERMINUS_SYMBOL
-                            Else
-                                strPrefix = strProteinSequence.Substring(intResidueStartLoc - 2, 1)
-                            End If
-
-                            If intResidueEndLoc >= intProteinSequenceLength Then
-                                strSuffix = PeptideInfoClass.PROTEIN_TERMINUS_SYMBOL
-                            Else
-                                strSuffix = strProteinSequence.Substring(intResidueEndLoc, 1)
-                            End If
-
-                            .PrefixResidue = strPrefix
-                            .SuffixResidue = strSuffix
-                        Else
-                            .PrefixResidue = PeptideInfoClass.PROTEIN_TERMINUS_SYMBOL
-                            .SuffixResidue = PeptideInfoClass.PROTEIN_TERMINUS_SYMBOL
-                        End If
-
-
-                        If objDigestionOptions.CleavageRuleID = CleavageRuleConstants.ConventionalTrypsin OrElse
-                           objDigestionOptions.CleavageRuleID = CleavageRuleConstants.TrypsinWithoutProlineException Then
-                            .PeptideName = "t" & (intTrypticIndex + 1).ToString & "." & (intMissedCleavageCount + 1).ToString
-                        Else
-                            .PeptideName = (intResidueStartLoc).ToString & "." & (intResidueEndLoc).ToString
-                        End If
-                    End If
-                End If
-            End With
-
-            If blnAddFragment Then
-                intFragmentCountTotal += 1
-                If intFragmentCountTotal >= objPeptideFragments.Length Then
-                    ReDim Preserve objPeptideFragments(objPeptideFragments.Length * 2 - 1)
-                End If
-            End If
+        If peptideFragment.Mass < digestionOptions.MinFragmentMass OrElse
+           peptideFragment.Mass > digestionOptions.MaxFragmentMass Then
+            Return
         End If
 
-        Return blnAddFragment
-    End Function
+        ' Possibly compute the isoelectric point for the peptide
+        If filterByIsoelectricPoint Then
+            isoelectricPoint = mpICalculator.CalculateSequencepI(peptideSequence)
+        End If
+
+        If filterByIsoelectricPoint AndAlso (
+                   isoelectricPoint < digestionOptions.MinIsoelectricPoint OrElse
+                   isoelectricPoint > digestionOptions.MaxIsoelectricPoint) Then
+            Return
+        End If
+
+        ' We can now compute the NET value for the peptide
+        peptideFragment.UpdateNET()
+
+        If digestionOptions.IncludePrefixAndSuffixResidues Then
+            If residueStartLoc <= 1 Then
+                prefix = PeptideInfoClass.PROTEIN_TERMINUS_SYMBOL
+            Else
+                prefix = proteinSequence.Substring(residueStartLoc - 2, 1)
+            End If
+
+            If residueEndLoc >= proteinSequenceLength Then
+                suffix = PeptideInfoClass.PROTEIN_TERMINUS_SYMBOL
+            Else
+                suffix = proteinSequence.Substring(residueEndLoc, 1)
+            End If
+
+            peptideFragment.PrefixResidue = prefix
+            peptideFragment.SuffixResidue = suffix
+        Else
+            peptideFragment.PrefixResidue = PeptideInfoClass.PROTEIN_TERMINUS_SYMBOL
+            peptideFragment.SuffixResidue = PeptideInfoClass.PROTEIN_TERMINUS_SYMBOL
+        End If
+
+
+        If digestionOptions.CleavageRuleID = CleavageRuleConstants.ConventionalTrypsin OrElse
+               digestionOptions.CleavageRuleID = CleavageRuleConstants.TrypsinWithoutProlineException Then
+            peptideFragment.PeptideName = "t" & (trypticIndex + 1).ToString() & "." & (missedCleavageCount + 1).ToString()
+        Else
+            peptideFragment.PeptideName = residueStartLoc.ToString() & "." & residueEndLoc.ToString()
+        End If
+
+        If addFragment Then
+            peptideFragments.Add(peptideFragment)
+        End If
+    End Sub
 
     Private Sub ReportError(strFunctionName As String, ex As Exception)
         Try
