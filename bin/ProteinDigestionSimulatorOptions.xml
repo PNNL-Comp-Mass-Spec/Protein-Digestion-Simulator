@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <sections>
   <section name="ProteinDigestionSimulatorOptions">
     <item key="InputFilePath" value="QC_Standards_2004-01-21.fasta" />
