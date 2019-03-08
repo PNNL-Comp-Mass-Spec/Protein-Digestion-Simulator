@@ -1,5 +1,10 @@
 Protein Digestion Simulator Change Log
 
+Version 2.3.7007; March 8, 2019
+	- Fix typo in parameter names; now OutputFileFieldDelimiterIndex and OutputFileFieldDelimiter
+	- New version of PRISM.dll (from NuGet)
+	- Rename variables to use camelCase
+
 Version 2.2.6862; October 15, 2018
 	- New PRISM.dll with updated class names
 
