@@ -20,6 +20,7 @@ Imports System.Text
 Imports System.Threading
 Imports NETPrediction
 Imports PRISM
+Imports PRISM.FileProcessor
 Imports ProteinFileReader
 Imports ValidateFastaFile
 
@@ -31,10 +32,10 @@ Imports ValidateFastaFile
 ''' be based on all of the proteins in the input file, or a sampling of the proteins in the input file
 ''' </summary>
 Public Class clsParseProteinFile
-    Inherits FileProcessor.ProcessFilesBase
+    Inherits ProcessFilesBase
 
     Public Sub New()
-        MyBase.mFileDate = "March 2, 2018"
+        mFileDate = "March 8, 2019"
         InitializeLocalVariables()
     End Sub
 
