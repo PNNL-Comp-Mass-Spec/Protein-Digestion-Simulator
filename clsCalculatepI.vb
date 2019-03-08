@@ -74,7 +74,7 @@ Public Class clspICalculation
 #Region "Structures"
     Private Structure AA
         ' ReSharper disable once NotAccessedField.Local
-        Public Aname As String              ' One letter abbreviation for the amino acid
+        Public Symbol As String              ' One letter abbreviation for the amino acid
         Public HW As Double
         Public KD As Double
         Public Eisenberg As Double
@@ -178,42 +178,43 @@ Public Class clspICalculation
         Return n * (10 ^ (-pH) / (10 ^ (-pH) + 10 ^ (-k)))
     End Function
 
+    ' ReSharper disable once UnusedMember.Global
     Public Function CalculateSequenceChargeState(seq As String, pH As Double) As Integer
         Dim li As Integer
-        Dim intCS As Integer
+        Dim chargeState As Integer
 
         If seq Is Nothing OrElse seq.Length = 0 Then
             Return 0
         End If
 
         Try
-            intCS = 0
+            chargeState = 0
             For li = 1 To seq.Length
                 Select Case Char.ToUpper(seq.Chars(li - 1))
                     Case "C"c
-                        If Ck > pH Then intCS += 1
+                        If Ck > pH Then chargeState += 1
                     Case "D"c
-                        If Dk > pH Then intCS += 1
+                        If Dk > pH Then chargeState += 1
                     Case "E"c
-                        If Ek > pH Then intCS += 1
+                        If Ek > pH Then chargeState += 1
                     Case "H"c
-                        If Hk > pH Then intCS += 1
+                        If Hk > pH Then chargeState += 1
                     Case "K"c
-                        If Kk > pH Then intCS += 1 + 1
+                        If Kk > pH Then chargeState += 1 + 1
                     Case "R"c
-                        If Rk > pH Then intCS += 1
+                        If Rk > pH Then chargeState += 1
                     Case "Y"c
-                        If Yk > pH Then intCS += 1
+                        If Yk > pH Then chargeState += 1
                 End Select
             Next li
 
-            If intCS = 0 Then intCS = 1
+            If chargeState = 0 Then chargeState = 1
         Catch ex As Exception
             ' Error occurred
-            intCS = 1
+            chargeState = 1
         End Try
 
-        Return intCS
+        Return chargeState
 
     End Function
 
@@ -226,8 +227,8 @@ Public Class clspICalculation
         Try
             If ReportMaximumpI AndAlso seq.Length > SequenceWidthToExamineForMaximumpI Then
                 Dim maxHydrophobicity As Double = 0
-                For intIndex = 1 To seq.Length - SequenceWidthToExamineForMaximumpI
-                    Dim segmentHydrophobicity = CalculateHydrophobicity(seq.Substring(intIndex - 1, SequenceWidthToExamineForMaximumpI), HydrophobicityType)
+                For index = 1 To seq.Length - SequenceWidthToExamineForMaximumpI
+                    Dim segmentHydrophobicity = CalculateHydrophobicity(seq.Substring(index - 1, SequenceWidthToExamineForMaximumpI), HydrophobicityType)
                     If segmentHydrophobicity > maxHydrophobicity Then maxHydrophobicity = segmentHydrophobicity
                 Next
                 Return CSng(maxHydrophobicity)
@@ -305,21 +306,21 @@ Public Class clspICalculation
 
     End Function
 
-    Private Sub AddAminoAcid(str1LetterSymbol As Char, dblHW As Double, dblKD As Double, dblEisenberg As Double, dblGES As Double, dblMeekPH7p4 As Double, dblMeekPH2p1 As Double)
+    Private Sub AddAminoAcid(oneLetterSymbol As Char, hw As Double, kd As Double, eisenberg As Double, ges As Double, meekPH7p4 As Double, meekPH2p1 As Double)
 
         Dim aaInfo = New AA()
 
         With aaInfo
-            .Aname = str1LetterSymbol
-            .HW = dblHW
-            .KD = dblKD
-            .Eisenberg = dblEisenberg
-            .GES = dblGES
-            .MeekPH7p4 = dblMeekPH7p4
-            .MeekPH2p1 = dblMeekPH2p1
+            .Symbol = oneLetterSymbol
+            .HW = hw
+            .KD = kd
+            .Eisenberg = eisenberg
+            .GES = ges
+            .MeekPH7p4 = meekPH7p4
+            .MeekPH2p1 = meekPH2p1
         End With
 
-        mAminoAcids.Add(str1LetterSymbol, aaInfo)
+        mAminoAcids.Add(oneLetterSymbol, aaInfo)
 
     End Sub
 

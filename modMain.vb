@@ -68,8 +68,8 @@ Module modMain
         ' Returns 0 if no error, error code if an error
 
         Dim returnCode As Integer
-        Dim objParseCommandLine As New clsParseCommandLine
-        Dim blnProceed As Boolean
+        Dim commandLineParser As New clsParseCommandLine
+        Dim proceed As Boolean
 
         mInputFilePath = String.Empty
         mAssumeFastaFile = False
@@ -89,18 +89,18 @@ Module modMain
         mLogDirectoryPath = String.Empty
 
         Try
-            blnProceed = False
-            If objParseCommandLine.ParseCommandLine Then
-                If SetOptionsUsingCommandLineParameters(objParseCommandLine) Then blnProceed = True
+            proceed = False
+            If commandLineParser.ParseCommandLine Then
+                If SetOptionsUsingCommandLineParameters(commandLineParser) Then proceed = True
             End If
 
-            If (objParseCommandLine.ParameterCount + objParseCommandLine.NonSwitchParameterCount) = 0 AndAlso
-               Not objParseCommandLine.NeedToShowHelp Then
+            If (commandLineParser.ParameterCount + commandLineParser.NonSwitchParameterCount) = 0 AndAlso
+               Not commandLineParser.NeedToShowHelp Then
                 ShowGUI()
                 Return 0
             End If
 
-            If Not blnProceed OrElse objParseCommandLine.NeedToShowHelp OrElse mInputFilePath.Length = 0 Then
+            If Not proceed OrElse commandLineParser.NeedToShowHelp OrElse mInputFilePath.Length = 0 Then
                 ShowProgramHelp()
                 Return -1
             End If
@@ -165,13 +165,13 @@ Module modMain
 
     End Function
 
-    Private Sub DisplayProgressPercent(intPercentComplete As Integer, blnAddCarriageReturn As Boolean)
-        If blnAddCarriageReturn Then
+    Private Sub DisplayProgressPercent(percentComplete As Integer, addCarriageReturn As Boolean)
+        If addCarriageReturn Then
             Console.WriteLine()
         End If
-        If intPercentComplete > 100 Then intPercentComplete = 100
-        Console.Write("Processing: " & intPercentComplete.ToString() & "% ")
-        If blnAddCarriageReturn Then
+        If percentComplete > 100 Then percentComplete = 100
+        Console.Write("Processing: " & percentComplete.ToString() & "% ")
+        If addCarriageReturn Then
             Console.WriteLine()
         End If
     End Sub
@@ -180,59 +180,59 @@ Module modMain
         Return ProcessFilesBase.GetAppVersion(PROGRAM_DATE)
     End Function
 
-    Private Function SetOptionsUsingCommandLineParameters(objParseCommandLine As clsParseCommandLine) As Boolean
+    Private Function SetOptionsUsingCommandLineParameters(commandLineParser As clsParseCommandLine) As Boolean
         ' Returns True if no problems; otherwise, returns false
 
-        Dim strValue As String = String.Empty
-        Dim lstValidParameters = New List(Of String) From {"I", "F", "D", "M", "AD", "O", "P", "S", "A", "R", "DEBUG"}
-        Dim intValue As Integer
+        Dim value As String = String.Empty
+        Dim validParameters = New List(Of String) From {"I", "F", "D", "M", "AD", "O", "P", "S", "A", "R", "DEBUG"}
+        Dim valueInt As Integer
 
         Try
             ' Make sure no invalid parameters are present
-            If objParseCommandLine.InvalidParametersPresent(lstValidParameters) Then
+            If commandLineParser.InvalidParametersPresent(validParameters) Then
                 ConsoleMsgUtils.ShowErrors("Invalid command line parameters",
-                    (From item In objParseCommandLine.InvalidParameters(lstValidParameters) Select "/" + item).ToList())
+                    (From item In commandLineParser.InvalidParameters(validParameters) Select "/" + item).ToList())
                 Return False
             Else
-                With objParseCommandLine
-                    ' Query objParseCommandLine to see if various parameters are present
-                    If .RetrieveValueForParameter("I", strValue) Then
-                        mInputFilePath = strValue
+                With commandLineParser
+                    ' Query commandLineParser to see if various parameters are present
+                    If .RetrieveValueForParameter("I", value) Then
+                        mInputFilePath = value
                     ElseIf .NonSwitchParameterCount > 0 Then
                         mInputFilePath = .RetrieveNonSwitchParameter(0)
                     End If
 
-                    If .RetrieveValueForParameter("F", strValue) Then mAssumeFastaFile = True
-                    If .RetrieveValueForParameter("D", strValue) Then mCreateDigestedProteinOutputFile = True
-                    If .RetrieveValueForParameter("M", strValue) Then mComputeProteinMass = True
-                    If .RetrieveValueForParameter("AD", strValue) Then mInputFileDelimiter = strValue.Chars(0)
-                    If .RetrieveValueForParameter("O", strValue) Then mOutputDirectoryPath = strValue
-                    If .RetrieveValueForParameter("P", strValue) Then mParameterFilePath = strValue
+                    If .RetrieveValueForParameter("F", value) Then mAssumeFastaFile = True
+                    If .RetrieveValueForParameter("D", value) Then mCreateDigestedProteinOutputFile = True
+                    If .RetrieveValueForParameter("M", value) Then mComputeProteinMass = True
+                    If .RetrieveValueForParameter("AD", value) Then mInputFileDelimiter = value.Chars(0)
+                    If .RetrieveValueForParameter("O", value) Then mOutputDirectoryPath = value
+                    If .RetrieveValueForParameter("P", value) Then mParameterFilePath = value
 
-                    If .RetrieveValueForParameter("S", strValue) Then
+                    If .RetrieveValueForParameter("S", value) Then
                         mRecurseDirectories = True
-                        If Integer.TryParse(strValue, intValue) Then
-                            mMaxLevelsToRecurse = intValue
+                        If Integer.TryParse(value, valueInt) Then
+                            mMaxLevelsToRecurse = valueInt
                         End If
                     End If
-                    If .RetrieveValueForParameter("A", strValue) Then mOutputDirectoryAlternatePath = strValue
-                    If .RetrieveValueForParameter("R", strValue) Then mRecreateDirectoryHierarchyInAlternatePath = True
+                    If .RetrieveValueForParameter("A", value) Then mOutputDirectoryAlternatePath = value
+                    If .RetrieveValueForParameter("R", value) Then mRecreateDirectoryHierarchyInAlternatePath = True
 
-                    'If .RetrieveValueForParameter("L", strValue) Then
+                    'If .RetrieveValueForParameter("L", value) Then
                     '	mLogMessagesToFile = True
-                    '	If Not String.IsNullOrEmpty(strValue) Then
-                    '		mLogFilePath = strValue
+                    '	If Not String.IsNullOrEmpty(value) Then
+                    '		mLogFilePath = value
                     '	End If
                     'End If
 
-                    'If .RetrieveValueForParameter("LogDir", strValue) Then
+                    'If .RetrieveValueForParameter("LogDir", value) Then
                     '	mLogMessagesToFile = True
-                    '	If Not String.IsNullOrEmpty(strValue) Then
-                    '		mLogDirectoryPath = strValue
+                    '	If Not String.IsNullOrEmpty(value) Then
+                    '		mLogDirectoryPath = value
                     '	End If
                     'End If
 
-                    If .RetrieveValueForParameter("DEBUG", strValue) Then mShowDebugPrompts = True
+                    If .RetrieveValueForParameter("DEBUG", value) Then mShowDebugPrompts = True
                 End With
 
                 Return True
@@ -264,8 +264,8 @@ Module modMain
             Application.EnableVisualStyles()
             Application.DoEvents()
 
-            Dim objFormMain = New frmMain()
-            objFormMain.ShowDialog()
+            Dim formMain = New frmMain()
+            formMain.ShowDialog()
 
         Catch ex As Exception
             ShowErrorMessage("Exception with the GUI", ex)
@@ -334,10 +334,10 @@ Module modMain
         Return CommandLineParser(Of clsParseCommandLine).WrapParagraph(message, wrapWidth)
     End Function
 
-    Private Sub WriteToErrorStream(strErrorMessage As String)
+    Private Sub WriteToErrorStream(errorMessage As String)
         Try
-            Using swErrorStream = New StreamWriter(Console.OpenStandardError())
-                swErrorStream.WriteLine(strErrorMessage)
+            Using errorStream = New StreamWriter(Console.OpenStandardError())
+                errorStream.WriteLine(errorMessage)
             End Using
         Catch ex As Exception
             ' Ignore errors here

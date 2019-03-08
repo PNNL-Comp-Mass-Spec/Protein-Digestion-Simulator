@@ -34,9 +34,9 @@ Public Class frmMain
             .ReadonlyClass = True
             }
 
-        objpICalculator = New clspICalculation()
-        objNETCalculator = New ElutionTimePredictionKangas()
-        objSCXNETCalculator = New SCXElutionTimePredictionKangas()
+        pICalculator = New clspICalculation()
+        NETCalculator = New ElutionTimePredictionKangas()
+        SCXNETCalculator = New SCXElutionTimePredictionKangas()
 
         InitializeControls()
     End Sub
@@ -48,7 +48,7 @@ Public Class frmMain
     Private Const OUTPUT_FILE_SUFFIX As String = "_output.txt"                              ' Note that this const starts with an underscore
     Private Const PEAK_MATCHING_STATS_FILE_SUFFIX As String = "_PeakMatching.txt"      ' Note that this const starts with an underscore
 
-    Private Const PM_THRESHOLDS_DATATABLE As String = "PeakMatchingThresholds"
+    Private Const PM_THRESHOLDS_DATA_TABLE As String = "PeakMatchingThresholds"
 
     Private Const COL_NAME_MASS_TOLERANCE As String = "MassTolerance"
     Private Const COL_NAME_NET_TOLERANCE As String = "NETTolerance"
@@ -102,11 +102,11 @@ Public Class frmMain
     Private mWorking As Boolean
     Private mCustomValidationRulesFilePath As String
 
-    Private ReadOnly objpICalculator As clspICalculation
+    Private ReadOnly pICalculator As clspICalculation
 
-    Private ReadOnly objNETCalculator As ElutionTimePredictionKangas
+    Private ReadOnly NETCalculator As ElutionTimePredictionKangas
 
-    Private ReadOnly objSCXNETCalculator As SCXElutionTimePredictionKangas
+    Private ReadOnly SCXNETCalculator As SCXElutionTimePredictionKangas
 
     Private mTabPageIndexSaved As Integer = 0
 
@@ -148,30 +148,30 @@ Public Class frmMain
         End Try
     End Sub
 
-    Private Sub AddPMThresholdRow(dblMassThreshold As Double, dblNETThreshold As Double, Optional ByRef blnExistingRowFound As Boolean = False)
-        AddPMThresholdRow(dblMassThreshold, dblNETThreshold, DEFAULT_SLIC_MASS_STDEV, DEFAULT_SLIC_NET_STDEV, blnExistingRowFound)
+    Private Sub AddPMThresholdRow(massThreshold As Double, netThreshold As Double, Optional ByRef existingRowFound As Boolean = False)
+        AddPMThresholdRow(massThreshold, netThreshold, DEFAULT_SLIC_MASS_STDEV, DEFAULT_SLIC_NET_STDEV, existingRowFound)
     End Sub
 
-    Private Sub AddPMThresholdRow(dblMassThreshold As Double, dblNETThreshold As Double, dblSLiCMassStDev As Double, dblSLiCNETStDev As Double, Optional ByRef blnExistingRowFound As Boolean = False)
+    Private Sub AddPMThresholdRow(massThreshold As Double, netThreshold As Double, slicMassStDev As Double, slicNETStDev As Double, Optional ByRef existingRowFound As Boolean = False)
         Dim myDataRow As DataRow
 
-        With mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATATABLE)
+        With mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE)
 
             For Each myDataRow In .Rows
                 With myDataRow
-                    If Math.Abs(CDbl(.Item(0)) - dblMassThreshold) < 0.000001 AndAlso Math.Abs(CDbl(.Item(1)) - dblNETThreshold) < 0.000001 Then
-                        blnExistingRowFound = True
+                    If Math.Abs(CDbl(.Item(0)) - massThreshold) < 0.000001 AndAlso Math.Abs(CDbl(.Item(1)) - netThreshold) < 0.000001 Then
+                        existingRowFound = True
                         Exit For
                     End If
                 End With
             Next myDataRow
 
-            If Not blnExistingRowFound Then
+            If Not existingRowFound Then
                 myDataRow = .NewRow
-                myDataRow(0) = dblMassThreshold
-                myDataRow(1) = dblNETThreshold
-                myDataRow(2) = dblSLiCMassStDev
-                myDataRow(3) = dblSLiCNETStDev
+                myDataRow(0) = massThreshold
+                myDataRow(1) = netThreshold
+                myDataRow(2) = slicMassStDev
+                myDataRow(3) = slicNETStDev
                 .Rows.Add(myDataRow)
             End If
         End With
@@ -184,7 +184,7 @@ Public Class frmMain
                 txtProteinOutputFilePath.Text = AutoDefineOutputFileWork(GetProteinInputFilePath())
             End If
         Catch ex As Exception
-            ' Leave the textbox unchanged
+            ' Leave the TextBox unchanged
         End Try
     End Sub
 
@@ -215,98 +215,98 @@ Public Class frmMain
 
     End Function
 
-    Private Sub AutoPopulatePMThresholds(udtPredefinedThresholds As udtPredefinedPMThresholdsType, blnConfirmReplaceExistingResults As Boolean)
+    Private Sub AutoPopulatePMThresholds(udtPredefinedThresholds As udtPredefinedPMThresholdsType, confirmReplaceExistingResults As Boolean)
 
-        Dim intIndex As Integer
+        Dim index As Integer
 
-        If ClearPMThresholdsList(blnConfirmReplaceExistingResults) Then
+        If ClearPMThresholdsList(confirmReplaceExistingResults) Then
             cboMassTolType.SelectedIndex = udtPredefinedThresholds.MassTolType
 
-            For intIndex = 0 To udtPredefinedThresholds.Thresholds.Length - 1
-                AddPMThresholdRow(udtPredefinedThresholds.Thresholds(intIndex).MassTolerance, udtPredefinedThresholds.Thresholds(intIndex).NETTolerance)
-            Next intIndex
+            For index = 0 To udtPredefinedThresholds.Thresholds.Length - 1
+                AddPMThresholdRow(udtPredefinedThresholds.Thresholds(index).MassTolerance, udtPredefinedThresholds.Thresholds(index).NETTolerance)
+            Next index
 
         End If
 
     End Sub
 
-    Private Sub AutoPopulatePMThresholdsByID(ePredefinedPMThreshold As PredefinedPMThresholdsConstants, blnConfirmReplaceExistingResults As Boolean)
+    Private Sub AutoPopulatePMThresholdsByID(ePredefinedPMThreshold As PredefinedPMThresholdsConstants, confirmReplaceExistingResults As Boolean)
 
         Try
-            AutoPopulatePMThresholds(mPredefinedPMThresholds(ePredefinedPMThreshold), blnConfirmReplaceExistingResults)
+            AutoPopulatePMThresholds(mPredefinedPMThresholds(ePredefinedPMThreshold), confirmReplaceExistingResults)
         Catch ex As Exception
             ShowErrorMessage("Error calling AutoPopulatePMThresholds in AutoPopulatePMThresholdsByID: " & ex.Message, "Error")
         End Try
 
     End Sub
 
-    Private Function ClearPMThresholdsList(blnConfirmReplaceExistingResults As Boolean) As Boolean
-        ' Returns true if the PM_THRESHOLDS_DATATABLE is empty or if it was cleared
+    Private Function ClearPMThresholdsList(confirmReplaceExistingResults As Boolean) As Boolean
+        ' Returns true if the PM_THRESHOLDS_DATA_TABLE is empty or if it was cleared
         ' Returns false if the user is queried about clearing and they do not click Yes
 
         Dim eResult As DialogResult
-        Dim blnSuccess As Boolean
+        Dim success As Boolean
 
-        blnSuccess = False
-        With mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATATABLE)
+        success = False
+        With mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE)
             If .Rows.Count > 0 Then
-                If blnConfirmReplaceExistingResults Then
+                If confirmReplaceExistingResults Then
                     eResult = MessageBox.Show("Are you sure you want to clear the thresholds?", "Clear Thresholds", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
                 End If
 
-                If eResult = DialogResult.Yes OrElse Not blnConfirmReplaceExistingResults Then
+                If eResult = DialogResult.Yes OrElse Not confirmReplaceExistingResults Then
                     .Rows.Clear()
-                    blnSuccess = True
+                    success = True
                 End If
             Else
-                blnSuccess = True
+                success = True
             End If
         End With
 
-        Return blnSuccess
+        Return success
     End Function
 
     Private Sub ComputeSequencepI()
 
         If txtSequenceForpI.TextLength = 0 Then Exit Sub
 
-        Dim strSequence = txtSequenceForpI.Text
-        Dim sngpI As Single
-        Dim sngHydrophobicity As Single
-        Dim sngLCNET As Single
-        Dim sngSCXNET As Single
+        Dim sequence = txtSequenceForpI.Text
+        Dim pI As Single
+        Dim hydrophobicity As Single
+        Dim lcNET As Single
+        Dim scxNET As Single
 
-        If Not objpICalculator Is Nothing Then
+        If Not pICalculator Is Nothing Then
             If cboHydrophobicityMode.SelectedIndex >= 0 Then
-                objpICalculator.HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, clspICalculation.eHydrophobicityTypeConstants)
+                pICalculator.HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, clspICalculation.eHydrophobicityTypeConstants)
             End If
 
-            objpICalculator.ReportMaximumpI = chkMaxpIModeEnabled.Checked
-            objpICalculator.SequenceWidthToExamineForMaximumpI = LookupMaxpISequenceLength()
+            pICalculator.ReportMaximumpI = chkMaxpIModeEnabled.Checked
+            pICalculator.SequenceWidthToExamineForMaximumpI = LookupMaxpISequenceLength()
 
 
-            sngpI = objpICalculator.CalculateSequencepI(strSequence)
-            sngHydrophobicity = objpICalculator.CalculateSequenceHydrophobicity(strSequence)
-            ' Could compute charge state: objpICalculator.CalculateSequenceChargeState(strSequence, sngpI)
+            pI = pICalculator.CalculateSequencepI(sequence)
+            hydrophobicity = pICalculator.CalculateSequenceHydrophobicity(sequence)
+            ' Could compute charge state: pICalculator.CalculateSequenceChargeState(sequence, pI)
         End If
 
-        If Not objNETCalculator Is Nothing Then
+        If Not NETCalculator Is Nothing Then
             ' Compute the LC-based normalized elution time
-            sngLCNET = objNETCalculator.GetElutionTime(strSequence)
+            lcNET = NETCalculator.GetElutionTime(sequence)
         End If
 
-        If Not objSCXNETCalculator Is Nothing Then
+        If Not SCXNETCalculator Is Nothing Then
             ' Compute the SCX-based normalized elution time
-            sngSCXNET = objSCXNETCalculator.GetElutionTime(strSequence)
+            scxNET = SCXNETCalculator.GetElutionTime(sequence)
         End If
 
-        Dim strMessage = "pI = " & sngpI.ToString & ControlChars.NewLine &
-                         "Hydrophobicity = " & sngHydrophobicity.ToString & ControlChars.NewLine &
-                         "Predicted LC NET = " & sngLCNET.ToString("0.000") & ControlChars.NewLine &
-                         "Predicted SCX NET = " & sngSCXNET.ToString("0.000")
-        ' "Predicted charge state = " & ControlChars.NewLine & intCharge.ToString & " at pH = " & sngpI.ToString
+        Dim message = "pI = " & pI.ToString() & ControlChars.NewLine &
+                      "Hydrophobicity = " & hydrophobicity.ToString() & ControlChars.NewLine &
+                      "Predicted LC NET = " & lcNET.ToString("0.000") & ControlChars.NewLine &
+                      "Predicted SCX NET = " & scxNET.ToString("0.000")
+        ' "Predicted charge state = " & ControlChars.NewLine & charge.ToString() & " at pH = " & pI.ToString()
 
-        txtpIStats.Text = strMessage
+        txtpIStats.Text = message
     End Sub
 
     Private Function ConfirmFilePaths() As Boolean
@@ -325,100 +325,100 @@ Public Class frmMain
 
     Private Sub DefineDefaultPMThresholds()
 
-        Dim intIndex As Integer
-        Dim intMassIndex, intNETIndex As Integer
+        Dim index As Integer
+        Dim massIndex, netIndex As Integer
 
-        Dim dblNETValues() As Double
-        Dim dblMassvalues() As Double
+        Dim netValues() As Double
+        Dim massValues() As Double
 
         ReDim mPredefinedPMThresholds(PREDEFINED_PM_THRESHOLDS_COUNT - 1)
 
         ' All of the predefined thresholds have mass tolerances in units of PPM
-        For intIndex = 0 To PREDEFINED_PM_THRESHOLDS_COUNT - 1
-            With mPredefinedPMThresholds(intIndex)
+        For index = 0 To PREDEFINED_PM_THRESHOLDS_COUNT - 1
+            With mPredefinedPMThresholds(index)
                 .MassTolType = clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.PPM
                 ReDim .Thresholds(-1)
             End With
-        Next intIndex
+        Next index
 
-        ReDim dblNETValues(2)
-        dblNETValues(0) = 0.01
-        dblNETValues(1) = 0.05
-        dblNETValues(2) = 100
+        ReDim netValues(2)
+        netValues(0) = 0.01
+        netValues(1) = 0.05
+        netValues(2) = 100
 
-        ReDim dblMassvalues(4)
-        dblMassvalues(0) = 0.5
-        dblMassvalues(1) = 1
-        dblMassvalues(2) = 5
-        dblMassvalues(3) = 10
-        dblMassvalues(4) = 50
+        ReDim massValues(4)
+        massValues(0) = 0.5
+        massValues(1) = 1
+        massValues(2) = 5
+        massValues(3) = 10
+        massValues(4) = 50
 
         ' OneMassOneNET
         DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(0), 5, 0.05)
 
         ' OneMassThreeNET
-        For intNETIndex = 0 To dblNETValues.Length - 1
-            DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(1), 5, dblNETValues(intNETIndex))
-        Next intNETIndex
+        For netIndex = 0 To netValues.Length - 1
+            DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(1), 5, netValues(netIndex))
+        Next netIndex
 
         ' ThreeMassOneNET
-        For intMassIndex = 0 To 2
-            DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(2), dblMassvalues(intMassIndex), 0.05)
-        Next intMassIndex
+        For massIndex = 0 To 2
+            DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(2), massvalues(massIndex), 0.05)
+        Next massIndex
 
         ' ThreeMassThreeNET
-        For intNETIndex = 0 To dblNETValues.Length - 1
-            For intMassIndex = 0 To 2
-                DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(3), dblMassvalues(intMassIndex), dblNETValues(intNETIndex))
-            Next intMassIndex
-        Next intNETIndex
+        For netIndex = 0 To netValues.Length - 1
+            For massIndex = 0 To 2
+                DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(3), massvalues(massIndex), netValues(netIndex))
+            Next massIndex
+        Next netIndex
 
         ' FiveMassThreeNET
-        For intNETIndex = 0 To dblNETValues.Length - 1
-            For intMassIndex = 0 To dblMassvalues.Length - 1
-                DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(4), dblMassvalues(intMassIndex), dblNETValues(intNETIndex))
-            Next intMassIndex
-        Next intNETIndex
+        For netIndex = 0 To netValues.Length - 1
+            For massIndex = 0 To massvalues.Length - 1
+                DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(4), massvalues(massIndex), netValues(netIndex))
+            Next massIndex
+        Next netIndex
 
     End Sub
 
-    Private Sub DefineDefaultPMThresholdAppendItem(ByRef udtPMThreshold As udtPredefinedPMThresholdsType, dblMassTolerance As Double, dblNETTolerance As Double)
+    Private Sub DefineDefaultPMThresholdAppendItem(ByRef udtPMThreshold As udtPredefinedPMThresholdsType, massTolerance As Double, netTolerance As Double)
         With udtPMThreshold
             ReDim Preserve .Thresholds(.Thresholds.Length)
             With .Thresholds(.Thresholds.Length - 1)
-                .MassTolerance = dblMassTolerance
-                .NETTolerance = dblNETTolerance
+                .MassTolerance = massTolerance
+                .NETTolerance = netTolerance
             End With
         End With
     End Sub
 
     Private Sub EnableDisableControls()
-        Dim blnEnableDelimitedFileOptions As Boolean
-        Dim blnEnableDigestionOptions As Boolean
-        Dim blnAllowSqlServerCaching As Boolean
+        Dim enableDelimitedFileOptions As Boolean
+        Dim enableDigestionOptions As Boolean
+        Dim allowSqlServerCaching As Boolean
 
         Dim inputFilePath = GetProteinInputFilePath()
         Dim sourceIsFasta = Path.GetFileName(inputFilePath).ToLower().EndsWith(".fasta")
 
         If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.DelimitedText Then
-            blnEnableDelimitedFileOptions = True
+            enableDelimitedFileOptions = True
         ElseIf cboInputFileFormat.SelectedIndex = InputFileFormatConstants.FastaFile OrElse
            txtProteinInputFilePath.TextLength = 0 OrElse
            sourceIsFasta Then
             ' Fasta file (or blank)
-            blnEnableDelimitedFileOptions = False
+            enableDelimitedFileOptions = False
         Else
-            blnEnableDelimitedFileOptions = True
+            enableDelimitedFileOptions = True
         End If
 
-        cboInputFileColumnDelimiter.Enabled = blnEnableDelimitedFileOptions
-        lblInputFileColumnDelimiter.Enabled = blnEnableDelimitedFileOptions
-        chkAssumeInputFileIsDigested.Enabled = blnEnableDelimitedFileOptions
+        cboInputFileColumnDelimiter.Enabled = enableDelimitedFileOptions
+        lblInputFileColumnDelimiter.Enabled = enableDelimitedFileOptions
+        chkAssumeInputFileIsDigested.Enabled = enableDelimitedFileOptions
 
-        txtInputFileColumnDelimiter.Enabled = (cboInputFileColumnDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Other) And blnEnableDelimitedFileOptions
+        txtInputFileColumnDelimiter.Enabled = (cboInputFileColumnDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Other) And enableDelimitedFileOptions
 
-        blnEnableDigestionOptions = chkDigestProteins.Checked
-        If blnEnableDigestionOptions Then
+        enableDigestionOptions = chkDigestProteins.Checked
+        If enableDigestionOptions Then
             cmdParseInputFile.Text = "&Parse and Digest"
         Else
             cmdParseInputFile.Text = "&Parse File"
@@ -430,33 +430,33 @@ Public Class frmMain
             cmdValidateFastaFile.Enabled = False
         End If
 
-        chkCreateFastaOutputFile.Enabled = Not blnEnableDigestionOptions
+        chkCreateFastaOutputFile.Enabled = Not enableDigestionOptions
 
         chkComputeSequenceHashIgnoreILDiff.Enabled = chkComputeSequenceHashValues.Checked
 
-        fraDigestionOptions.Enabled = blnEnableDigestionOptions
-        chkIncludePrefixAndSuffixResidues.Enabled = blnEnableDigestionOptions
+        fraDigestionOptions.Enabled = enableDigestionOptions
+        chkIncludePrefixAndSuffixResidues.Enabled = enableDigestionOptions
 
         txtOutputFileFieldDelimiter.Enabled = (cboOutputFileFieldDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Other)
         txtRefEndChar.Enabled = (cboRefEndChar.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Other)
 
-        blnEnableDelimitedFileOptions = chkLookForAddnlRefInDescription.Checked
-        txtAddnlRefSepChar.Enabled = blnEnableDelimitedFileOptions
-        txtAddnlRefAccessionSepChar.Enabled = blnEnableDelimitedFileOptions
+        enableDelimitedFileOptions = chkLookForAddnlRefInDescription.Checked
+        txtAddnlRefSepChar.Enabled = enableDelimitedFileOptions
+        txtAddnlRefAccessionSepChar.Enabled = enableDelimitedFileOptions
 
         txtUniquenessBinStartMass.Enabled = Not chkAutoComputeRangeForBinning.Checked
         txtUniquenessBinEndMass.Enabled = txtUniquenessBinStartMass.Enabled
 
-        blnAllowSqlServerCaching = chkAllowSqlServerCaching.Checked
-        chkUseSqlServerDBToCacheData.Enabled = blnAllowSqlServerCaching
+        allowSqlServerCaching = chkAllowSqlServerCaching.Checked
+        chkUseSqlServerDBToCacheData.Enabled = allowSqlServerCaching
 
-        txtSqlServerDatabase.Enabled = chkUseSqlServerDBToCacheData.Checked And blnAllowSqlServerCaching
+        txtSqlServerDatabase.Enabled = chkUseSqlServerDBToCacheData.Checked And allowSqlServerCaching
         txtSqlServerName.Enabled = txtSqlServerDatabase.Enabled
         chkSqlServerUseIntegratedSecurity.Enabled = txtSqlServerDatabase.Enabled
 
-        chkSqlServerUseExistingData.Enabled = chkSqlServerUseIntegratedSecurity.Checked And blnAllowSqlServerCaching
+        chkSqlServerUseExistingData.Enabled = chkSqlServerUseIntegratedSecurity.Checked And allowSqlServerCaching
 
-        txtSqlServerUsername.Enabled = chkUseSqlServerDBToCacheData.Checked And Not chkSqlServerUseIntegratedSecurity.Checked And blnAllowSqlServerCaching
+        txtSqlServerUsername.Enabled = chkUseSqlServerDBToCacheData.Checked And Not chkSqlServerUseIntegratedSecurity.Checked And allowSqlServerCaching
         txtSqlServerPassword.Enabled = txtSqlServerUsername.Enabled
 
         If cboProteinReversalOptions.SelectedIndex <= 0 Then
@@ -477,36 +477,21 @@ Public Class frmMain
 
         txtMaxpISequenceLength.Enabled = chkMaxpIModeEnabled.Checked
 
-        txtDigestProteinsMinimumpI.Enabled = blnEnableDigestionOptions And chkComputepIandNET.Checked
-        txtDigestProteinsMaximumpI.Enabled = blnEnableDigestionOptions And chkComputepIandNET.Checked
+        txtDigestProteinsMinimumpI.Enabled = enableDigestionOptions And chkComputepIandNET.Checked
+        txtDigestProteinsMaximumpI.Enabled = enableDigestionOptions And chkComputepIandNET.Checked
 
     End Sub
 
-    Private Function FormatPercentComplete(sngPercentComplete As Single) As String
-        Return sngPercentComplete.ToString("0.0") & "% complete"
+    Private Function FormatPercentComplete(percentComplete As Single) As String
+        Return percentComplete.ToString("0.0") & "% complete"
     End Function
 
     Private Sub GenerateUniquenessStats()
 
-        Dim strLogFilePath As String
-        Dim strOutputFilePath As String
-        Dim intCharLoc As Integer
-
-        Dim intBinStartMass, intBinEndMass As Integer
-
-        Dim myDataRow As DataRow
-
-        Dim blnClearExisting As Boolean
-        Dim blnAutoDefineSLiCScoreThresholds As Boolean
-        Dim eMassToleranceType As clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants
-
-        Dim blnSuccess As Boolean
-        Dim blnError As Boolean
-
         If Not mWorking AndAlso ConfirmFilePaths() Then
             Try
 
-                If mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATATABLE).Rows.Count = 0 Then
+                If mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE).Rows.Count = 0 Then
                     ShowErrorMessage("Please define one or more peak matching thresholds before proceeding.", "Error")
                     Exit Try
                 End If
@@ -516,29 +501,29 @@ Public Class frmMain
                     mProteinDigestionSimulator.LogMessagesToFile = True
 
                     Dim appFolderPath = FileProcessor.ProcessFilesBase.GetAppDataDirectoryPath("ProteinDigestionSimulator")
-                    strLogFilePath = Path.Combine(appFolderPath, "ProteinDigestionSimulatorLog.txt")
-                    mProteinDigestionSimulator.LogFilePath = strLogFilePath
+                    Dim logFilePath = Path.Combine(appFolderPath, "ProteinDigestionSimulatorLog.txt")
+                    mProteinDigestionSimulator.LogFilePath = logFilePath
                 End If
 
-                blnSuccess = InitializeProteinFileParserGeneralOptions(mProteinDigestionSimulator.mProteinFileParser)
-                If Not blnSuccess Then Exit Try
+                Dim success = InitializeProteinFileParserGeneralOptions(mProteinDigestionSimulator.mProteinFileParser)
+                If Not success Then Exit Try
 
-                strOutputFilePath = txtProteinOutputFilePath.Text
+                Dim outputFilePath = txtProteinOutputFilePath.Text
 
-                If Not Path.IsPathRooted(strOutputFilePath) Then
-                    strOutputFilePath = Path.Combine(GetMyDocsFolderPath(), strOutputFilePath)
+                If Not Path.IsPathRooted(outputFilePath) Then
+                    outputFilePath = Path.Combine(GetMyDocsFolderPath(), outputFilePath)
                 End If
 
-                If Directory.Exists(strOutputFilePath) Then
-                    ' strOutputFilePath points to a folder and not a file
-                    strOutputFilePath = Path.Combine(strOutputFilePath, Path.GetFileNameWithoutExtension(GetProteinInputFilePath()) & PEAK_MATCHING_STATS_FILE_SUFFIX)
+                If Directory.Exists(outputFilePath) Then
+                    ' outputFilePath points to a folder and not a file
+                    outputFilePath = Path.Combine(outputFilePath, Path.GetFileNameWithoutExtension(GetProteinInputFilePath()) & PEAK_MATCHING_STATS_FILE_SUFFIX)
                 Else
-                    ' Replace _output.txt" in strOutputFilePath with PEAK_MATCHING_STATS_FILE_SUFFIX
-                    intCharLoc = strOutputFilePath.IndexOf(OUTPUT_FILE_SUFFIX, StringComparison.OrdinalIgnoreCase)
-                    If intCharLoc > 0 Then
-                        strOutputFilePath = strOutputFilePath.Substring(0, intCharLoc) & PEAK_MATCHING_STATS_FILE_SUFFIX
+                    ' Replace _output.txt" in outputFilePath with PEAK_MATCHING_STATS_FILE_SUFFIX
+                    Dim charIndex = outputFilePath.IndexOf(OUTPUT_FILE_SUFFIX, StringComparison.OrdinalIgnoreCase)
+                    If charIndex > 0 Then
+                        outputFilePath = outputFilePath.Substring(0, charIndex) & PEAK_MATCHING_STATS_FILE_SUFFIX
                     Else
-                        strOutputFilePath = Path.Combine(Path.GetDirectoryName(strOutputFilePath), Path.GetFileNameWithoutExtension(strOutputFilePath) & PEAK_MATCHING_STATS_FILE_SUFFIX)
+                        outputFilePath = Path.Combine(Path.GetDirectoryName(outputFilePath), Path.GetFileNameWithoutExtension(outputFilePath) & PEAK_MATCHING_STATS_FILE_SUFFIX)
                     End If
                 End If
 
@@ -551,20 +536,21 @@ Public Class frmMain
 
                 With mProteinDigestionSimulator
 
+                    Dim eMassToleranceType As clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants
                     If cboMassTolType.SelectedIndex >= 0 Then
                         eMassToleranceType = CType(cboMassTolType.SelectedIndex, clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants)
                     End If
-                    blnAutoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked
+                    Dim autoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked
 
-                    blnClearExisting = True
-                    For Each myDataRow In mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATATABLE).Rows
-                        If blnAutoDefineSLiCScoreThresholds Then
-                            .AddSearchThresholdLevel(eMassToleranceType, CDbl(myDataRow.Item(0)), CDbl(myDataRow.Item(1)), blnClearExisting)
+                    Dim clearExisting = True
+                    For Each myDataRow As DataRow In mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE).Rows
+                        If autoDefineSLiCScoreThresholds Then
+                            .AddSearchThresholdLevel(eMassToleranceType, CDbl(myDataRow.Item(0)), CDbl(myDataRow.Item(1)), clearExisting)
                         Else
-                            .AddSearchThresholdLevel(eMassToleranceType, CDbl(myDataRow.Item(0)), CDbl(myDataRow.Item(1)), False, CDbl(myDataRow.Item(2)), CDbl(myDataRow.Item(3)), True, blnClearExisting)
+                            .AddSearchThresholdLevel(eMassToleranceType, CDbl(myDataRow.Item(0)), CDbl(myDataRow.Item(1)), False, CDbl(myDataRow.Item(2)), CDbl(myDataRow.Item(3)), True, clearExisting)
                         End If
 
-                        blnClearExisting = False
+                        clearExisting = False
                     Next myDataRow
 
                     .DigestSequences = Not chkAssumeInputFileIsDigested.Checked
@@ -575,26 +561,27 @@ Public Class frmMain
 
                     .AutoDetermineMassRangeForBinning = chkAutoComputeRangeForBinning.Checked
 
-                    .PeptideUniquenessMassBinSizeForBinning = ParseTextboxValueInt(txtUniquenessBinWidth, lblUniquenessBinWidth.Text & " must be an integer value", blnError)
-                    If blnError Then Exit Try
+                    Dim invalidValue As Boolean
+                    .PeptideUniquenessMassBinSizeForBinning = ParseTextBoxValueInt(txtUniquenessBinWidth, lblUniquenessBinWidth.Text & " must be an integer value", invalidValue)
+                    If invalidValue Then Exit Try
 
                     If Not .AutoDetermineMassRangeForBinning Then
-                        intBinStartMass = ParseTextboxValueInt(txtUniquenessBinStartMass, "Uniqueness binning start mass must be an integer value", blnError)
-                        If blnError Then Exit Try
+                        Dim binStartMass = ParseTextBoxValueInt(txtUniquenessBinStartMass, "Uniqueness binning start mass must be an integer value", invalidValue)
+                        If invalidValue Then Exit Try
 
-                        intBinEndMass = ParseTextboxValueInt(txtUniquenessBinEndMass, "Uniqueness binning end mass must be an integer value", blnError)
-                        If blnError Then Exit Try
+                        Dim binEndMass = ParseTextBoxValueInt(txtUniquenessBinEndMass, "Uniqueness binning end mass must be an integer value", invalidValue)
+                        If invalidValue Then Exit Try
 
-                        If Not .SetPeptideUniquenessMassRangeForBinning(intBinStartMass, intBinEndMass) Then
+                        If Not .SetPeptideUniquenessMassRangeForBinning(binStartMass, binEndMass) Then
                             .AutoDetermineMassRangeForBinning = True
                         End If
                     End If
 
-                    .MinimumSLiCScoreToBeConsideredUnique = ParseTextboxValueSng(txtMinimumSLiCScore, lblMinimumSLiCScore.Text & " must be a value", blnError)
-                    If blnError Then Exit Try
+                    .MinimumSLiCScoreToBeConsideredUnique = ParseTextBoxValueSng(txtMinimumSLiCScore, lblMinimumSLiCScore.Text & " must be a value", invalidValue)
+                    If invalidValue Then Exit Try
 
-                    .MaxPeakMatchingResultsPerFeatureToSave = ParseTextboxValueInt(txtMaxPeakMatchingResultsPerFeatureToSave, lblMaxPeakMatchingResultsPerFeatureToSave.Text & " must be an integer value", blnError)
-                    If blnError Then Exit Try
+                    .MaxPeakMatchingResultsPerFeatureToSave = ParseTextBoxValueInt(txtMaxPeakMatchingResultsPerFeatureToSave, lblMaxPeakMatchingResultsPerFeatureToSave.Text & " must be an integer value", invalidValue)
+                    If invalidValue Then Exit Try
 
                     .SavePeakMatchingResults = chkExportPeakMatchingResults.Checked
                     .UseSLiCScoreForUniqueness = chkUseSLiCScoreForUniqueness.Checked
@@ -607,11 +594,11 @@ Public Class frmMain
                     ResetProgress(True)
                     SwitchToProgressTab()
 
-                    blnSuccess = .GenerateUniquenessStats(GetProteinInputFilePath(), Path.GetDirectoryName(strOutputFilePath), Path.GetFileNameWithoutExtension(strOutputFilePath))
+                    success = .GenerateUniquenessStats(GetProteinInputFilePath(), Path.GetDirectoryName(outputFilePath), Path.GetFileNameWithoutExtension(outputFilePath))
 
                     Cursor.Current = Cursors.Default
 
-                    If blnSuccess Then
+                    If success Then
                         MessageBox.Show("Uniqueness stats calculation complete ", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
                         SwitchFromProgressTab()
                     Else
@@ -653,166 +640,166 @@ Public Class frmMain
 
         Const MAX_AUTO_WINDOW_HEIGHT = 775
 
-        Dim objXmlFile As New XmlSettingsFileAccessor()
+        Dim xmlSettings As New XmlSettingsFileAccessor()
 
-        Dim blnAutoDefineSLiCScoreThresholds As Boolean
+        Dim autoDefineSLiCScoreThresholds As Boolean
         Dim valueNotPresent As Boolean
-        Dim blnRadioButtonChecked As Boolean
+        Dim radioButtonChecked As Boolean
 
-        Dim intIndex As Integer
-        Dim intWindowHeight As Integer
+        Dim index As Integer
+        Dim windowHeight As Integer
 
-        Dim strThresholdData As String
-        Dim strThresholds() As String
-        Dim strThresholdDetails() As String
+        Dim thresholdData As String
+        Dim thresholds() As String
+        Dim thresholdDetails() As String
 
-        Dim ColumnDelimiters = New Char() {ControlChars.Tab, ","c}
+        Dim columnDelimiters = New Char() {ControlChars.Tab, ","c}
 
         ResetToDefaults(False)
 
         Try
 
             ' Pass False to .LoadSettings() here to turn off case sensitive matching
-            Dim strSettingsFilePath = GetSettingsFilePath()
-            objXmlFile.LoadSettings(strSettingsFilePath, False)
-            PRISM.FileProcessor.ProcessFilesBase.CreateSettingsFileIfMissing(strSettingsFilePath)
+            Dim settingsFilePath = GetSettingsFilePath()
+            xmlSettings.LoadSettings(settingsFilePath, False)
+            PRISM.FileProcessor.ProcessFilesBase.CreateSettingsFileIfMissing(settingsFilePath)
 
-            If Not File.Exists(strSettingsFilePath) Then
-                ShowErrorMessage("Parameter file not Found: " & strSettingsFilePath)
+            If Not File.Exists(settingsFilePath) Then
+                ShowErrorMessage("Parameter file not Found: " & settingsFilePath)
                 Exit Sub
             End If
 
             Try
-                txtProteinInputFilePath.Text = objXmlFile.GetParam(OptionsSection, "InputFilePath", GetProteinInputFilePath())
+                txtProteinInputFilePath.Text = xmlSettings.GetParam(OptionsSection, "InputFilePath", GetProteinInputFilePath())
 
-                cboInputFileFormat.SelectedIndex = objXmlFile.GetParam(OptionsSection, "InputFileFormatIndex", cboInputFileFormat.SelectedIndex)
-                cboInputFileColumnDelimiter.SelectedIndex = objXmlFile.GetParam(OptionsSection, "InputFileColumnDelimiterIndex", cboInputFileColumnDelimiter.SelectedIndex)
-                txtInputFileColumnDelimiter.Text = objXmlFile.GetParam(OptionsSection, "InputFileColumnDelimiter", txtInputFileColumnDelimiter.Text)
+                cboInputFileFormat.SelectedIndex = xmlSettings.GetParam(OptionsSection, "InputFileFormatIndex", cboInputFileFormat.SelectedIndex)
+                cboInputFileColumnDelimiter.SelectedIndex = xmlSettings.GetParam(OptionsSection, "InputFileColumnDelimiterIndex", cboInputFileColumnDelimiter.SelectedIndex)
+                txtInputFileColumnDelimiter.Text = xmlSettings.GetParam(OptionsSection, "InputFileColumnDelimiter", txtInputFileColumnDelimiter.Text)
 
-                cboInputFileColumnOrdering.SelectedIndex = objXmlFile.GetParam(OptionsSection, "InputFileColumnOrdering", cboInputFileColumnOrdering.SelectedIndex)
+                cboInputFileColumnOrdering.SelectedIndex = xmlSettings.GetParam(OptionsSection, "InputFileColumnOrdering", cboInputFileColumnOrdering.SelectedIndex)
 
                 cboOutputFileFieldDelimiter.SelectedIndex = xmlSettings.GetParam(OptionsSection, "OutputFileFieldDelimiterIndex", cboOutputFileFieldDelimiter.SelectedIndex)
                 txtOutputFileFieldDelimiter.Text = xmlSettings.GetParam(OptionsSection, "OutputFileFieldDelimiter", txtOutputFileFieldDelimiter.Text)
 
-                chkIncludePrefixAndSuffixResidues.Checked = objXmlFile.GetParam(OptionsSection, "IncludePrefixAndSuffixResidues", chkIncludePrefixAndSuffixResidues.Checked)
-                chkEnableLogging.Checked = objXmlFile.GetParam(OptionsSection, "EnableLogging", chkEnableLogging.Checked)
+                chkIncludePrefixAndSuffixResidues.Checked = xmlSettings.GetParam(OptionsSection, "IncludePrefixAndSuffixResidues", chkIncludePrefixAndSuffixResidues.Checked)
+                chkEnableLogging.Checked = xmlSettings.GetParam(OptionsSection, "EnableLogging", chkEnableLogging.Checked)
 
-                mCustomValidationRulesFilePath = objXmlFile.GetParam(OptionsSection, "CustomValidationRulesFilePath", String.Empty)
+                mCustomValidationRulesFilePath = xmlSettings.GetParam(OptionsSection, "CustomValidationRulesFilePath", String.Empty)
 
-                Me.Width = objXmlFile.GetParam(OptionsSection, "WindowWidth", Me.Width)
-                intWindowHeight = objXmlFile.GetParam(OptionsSection, "WindowHeight", Me.Height)
-                If intWindowHeight > MAX_AUTO_WINDOW_HEIGHT Then
-                    intWindowHeight = MAX_AUTO_WINDOW_HEIGHT
+                Me.Width = xmlSettings.GetParam(OptionsSection, "WindowWidth", Me.Width)
+                windowHeight = xmlSettings.GetParam(OptionsSection, "WindowHeight", Me.Height)
+                If windowHeight > MAX_AUTO_WINDOW_HEIGHT Then
+                    windowHeight = MAX_AUTO_WINDOW_HEIGHT
                 End If
-                Me.Height = intWindowHeight
+                Me.Height = windowHeight
 
-                txtRefStartChar.Text = objXmlFile.GetParam(FASTAOptions, "RefStartChar", txtRefStartChar.Text)
-                cboRefEndChar.SelectedIndex = objXmlFile.GetParam(FASTAOptions, "RefEndCharIndex", cboRefEndChar.SelectedIndex)
-                txtRefEndChar.Text = objXmlFile.GetParam(FASTAOptions, "RefEndChar", txtRefEndChar.Text)
+                txtRefStartChar.Text = xmlSettings.GetParam(FASTAOptions, "RefStartChar", txtRefStartChar.Text)
+                cboRefEndChar.SelectedIndex = xmlSettings.GetParam(FASTAOptions, "RefEndCharIndex", cboRefEndChar.SelectedIndex)
+                txtRefEndChar.Text = xmlSettings.GetParam(FASTAOptions, "RefEndChar", txtRefEndChar.Text)
 
-                chkLookForAddnlRefInDescription.Checked = objXmlFile.GetParam(FASTAOptions, "LookForAddnlRefInDescription", chkLookForAddnlRefInDescription.Checked)
-                txtAddnlRefSepChar.Text = objXmlFile.GetParam(FASTAOptions, "AddnlRefSepChar", txtAddnlRefSepChar.Text)
-                txtAddnlRefAccessionSepChar.Text = objXmlFile.GetParam(FASTAOptions, "AddnlRefAccessionSepChar", txtAddnlRefAccessionSepChar.Text)
+                chkLookForAddnlRefInDescription.Checked = xmlSettings.GetParam(FASTAOptions, "LookForAddnlRefInDescription", chkLookForAddnlRefInDescription.Checked)
+                txtAddnlRefSepChar.Text = xmlSettings.GetParam(FASTAOptions, "AddnlRefSepChar", txtAddnlRefSepChar.Text)
+                txtAddnlRefAccessionSepChar.Text = xmlSettings.GetParam(FASTAOptions, "AddnlRefAccessionSepChar", txtAddnlRefAccessionSepChar.Text)
 
-                chkExcludeProteinSequence.Checked = objXmlFile.GetParam(ProcessingOptions, "ExcludeProteinSequence", chkExcludeProteinSequence.Checked)
-                chkComputeProteinMass.Checked = objXmlFile.GetParam(ProcessingOptions, "ComputeProteinMass", chkComputeProteinMass.Checked)
-                cboElementMassMode.SelectedIndex = objXmlFile.GetParam(ProcessingOptions, "ElementMassMode", cboElementMassMode.SelectedIndex)
+                chkExcludeProteinSequence.Checked = xmlSettings.GetParam(ProcessingOptions, "ExcludeProteinSequence", chkExcludeProteinSequence.Checked)
+                chkComputeProteinMass.Checked = xmlSettings.GetParam(ProcessingOptions, "ComputeProteinMass", chkComputeProteinMass.Checked)
+                cboElementMassMode.SelectedIndex = xmlSettings.GetParam(ProcessingOptions, "ElementMassMode", cboElementMassMode.SelectedIndex)
 
                 ' In the GUI, chkComputepI controls both computing pI and SCX
                 ' Running from the command line, you can toggle those options separately using "ComputepI" and "ComputeSCX"
-                chkComputepIandNET.Checked = objXmlFile.GetParam(ProcessingOptions, "ComputepI", chkComputepIandNET.Checked)
-                chkIncludeXResidues.Checked = objXmlFile.GetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
+                chkComputepIandNET.Checked = xmlSettings.GetParam(ProcessingOptions, "ComputepI", chkComputepIandNET.Checked)
+                chkIncludeXResidues.Checked = xmlSettings.GetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
 
-                chkComputeSequenceHashValues.Checked = objXmlFile.GetParam(ProcessingOptions, "ComputeSequenceHashValues", chkComputeSequenceHashValues.Checked)
-                chkComputeSequenceHashIgnoreILDiff.Checked = objXmlFile.GetParam(ProcessingOptions, "ComputeSequenceHashIgnoreILDiff", chkComputeSequenceHashIgnoreILDiff.Checked)
-                chkTruncateProteinDescription.Checked = objXmlFile.GetParam(ProcessingOptions, "TruncateProteinDescription", chkTruncateProteinDescription.Checked)
-                chkExcludeProteinDescription.Checked = objXmlFile.GetParam(ProcessingOptions, "ExcludeProteinDescription", chkExcludeProteinDescription.Checked)
+                chkComputeSequenceHashValues.Checked = xmlSettings.GetParam(ProcessingOptions, "ComputeSequenceHashValues", chkComputeSequenceHashValues.Checked)
+                chkComputeSequenceHashIgnoreILDiff.Checked = xmlSettings.GetParam(ProcessingOptions, "ComputeSequenceHashIgnoreILDiff", chkComputeSequenceHashIgnoreILDiff.Checked)
+                chkTruncateProteinDescription.Checked = xmlSettings.GetParam(ProcessingOptions, "TruncateProteinDescription", chkTruncateProteinDescription.Checked)
+                chkExcludeProteinDescription.Checked = xmlSettings.GetParam(ProcessingOptions, "ExcludeProteinDescription", chkExcludeProteinDescription.Checked)
 
-                chkDigestProteins.Checked = objXmlFile.GetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked)
-                cboProteinReversalOptions.SelectedIndex = objXmlFile.GetParam(ProcessingOptions, "ProteinReversalIndex", cboProteinReversalOptions.SelectedIndex)
-                txtProteinScramblingLoopCount.Text = objXmlFile.GetParam(ProcessingOptions, "ProteinScramblingLoopCount", txtProteinScramblingLoopCount.Text)
+                chkDigestProteins.Checked = xmlSettings.GetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked)
+                cboProteinReversalOptions.SelectedIndex = xmlSettings.GetParam(ProcessingOptions, "ProteinReversalIndex", cboProteinReversalOptions.SelectedIndex)
+                txtProteinScramblingLoopCount.Text = xmlSettings.GetParam(ProcessingOptions, "ProteinScramblingLoopCount", txtProteinScramblingLoopCount.Text)
 
                 Try
-                    cboHydrophobicityMode.SelectedIndex = objXmlFile.GetParam(ProcessingOptions, "HydrophobicityMode", cboHydrophobicityMode.SelectedIndex)
+                    cboHydrophobicityMode.SelectedIndex = xmlSettings.GetParam(ProcessingOptions, "HydrophobicityMode", cboHydrophobicityMode.SelectedIndex)
                 Catch ex As Exception
                     ' Ignore errors setting the selected index
                 End Try
-                chkMaxpIModeEnabled.Checked = objXmlFile.GetParam(ProcessingOptions, "MaxpIModeEnabled", chkMaxpIModeEnabled.Checked)
-                txtMaxpISequenceLength.Text = objXmlFile.GetParam(ProcessingOptions, "MaxpISequenceLength", LookupMaxpISequenceLength).ToString
+                chkMaxpIModeEnabled.Checked = xmlSettings.GetParam(ProcessingOptions, "MaxpIModeEnabled", chkMaxpIModeEnabled.Checked)
+                txtMaxpISequenceLength.Text = xmlSettings.GetParam(ProcessingOptions, "MaxpISequenceLength", LookupMaxpISequenceLength).ToString()
 
-                cboCleavageRuleType.SelectedIndex = objXmlFile.GetParam(DigestionOptions, "CleavageRuleTypeIndex", cboCleavageRuleType.SelectedIndex)
-                chkIncludeDuplicateSequences.Checked = objXmlFile.GetParam(DigestionOptions, "IncludeDuplicateSequences", chkIncludeDuplicateSequences.Checked)
-                chkCysPeptidesOnly.Checked = objXmlFile.GetParam(DigestionOptions, "CysPeptidesOnly", chkCysPeptidesOnly.Checked)
+                cboCleavageRuleType.SelectedIndex = xmlSettings.GetParam(DigestionOptions, "CleavageRuleTypeIndex", cboCleavageRuleType.SelectedIndex)
+                chkIncludeDuplicateSequences.Checked = xmlSettings.GetParam(DigestionOptions, "IncludeDuplicateSequences", chkIncludeDuplicateSequences.Checked)
+                chkCysPeptidesOnly.Checked = xmlSettings.GetParam(DigestionOptions, "CysPeptidesOnly", chkCysPeptidesOnly.Checked)
 
-                txtDigestProteinsMinimumMass.Text = objXmlFile.GetParam(DigestionOptions, "DigestProteinsMinimumMass", txtDigestProteinsMinimumMass.Text)
-                txtDigestProteinsMaximumMass.Text = objXmlFile.GetParam(DigestionOptions, "DigestProteinsMaximumMass", txtDigestProteinsMaximumMass.Text)
-                txtDigestProteinsMinimumResidueCount.Text = objXmlFile.GetParam(DigestionOptions, "DigestProteinsMinimumResidueCount", txtDigestProteinsMinimumResidueCount.Text)
-                txtDigestProteinsMaximumMissedCleavages.Text = objXmlFile.GetParam(DigestionOptions, "DigestProteinsMaximumMissedCleavages", txtDigestProteinsMaximumMissedCleavages.Text)
+                txtDigestProteinsMinimumMass.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMinimumMass", txtDigestProteinsMinimumMass.Text)
+                txtDigestProteinsMaximumMass.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMaximumMass", txtDigestProteinsMaximumMass.Text)
+                txtDigestProteinsMinimumResidueCount.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMinimumResidueCount", txtDigestProteinsMinimumResidueCount.Text)
+                txtDigestProteinsMaximumMissedCleavages.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMaximumMissedCleavages", txtDigestProteinsMaximumMissedCleavages.Text)
 
-                txtDigestProteinsMinimumpI.Text = objXmlFile.GetParam(DigestionOptions, "DigestProteinsMinimumpI", txtDigestProteinsMinimumpI.Text)
-                txtDigestProteinsMaximumpI.Text = objXmlFile.GetParam(DigestionOptions, "DigestProteinsMaximumpI", txtDigestProteinsMaximumpI.Text)
+                txtDigestProteinsMinimumpI.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMinimumpI", txtDigestProteinsMinimumpI.Text)
+                txtDigestProteinsMaximumpI.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMaximumpI", txtDigestProteinsMaximumpI.Text)
 
                 ' Load Uniqueness Options
-                chkAssumeInputFileIsDigested.Checked = objXmlFile.GetParam(UniquenessStatsOptions, "AssumeInputFileIsDigested", chkAssumeInputFileIsDigested.Checked)
+                chkAssumeInputFileIsDigested.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "AssumeInputFileIsDigested", chkAssumeInputFileIsDigested.Checked)
 
-                txtUniquenessBinWidth.Text = objXmlFile.GetParam(UniquenessStatsOptions, "UniquenessBinWidth", txtUniquenessBinWidth.Text)
-                chkAutoComputeRangeForBinning.Checked = objXmlFile.GetParam(UniquenessStatsOptions, "AutoComputeRangeForBinning", chkAutoComputeRangeForBinning.Checked)
-                txtUniquenessBinStartMass.Text = objXmlFile.GetParam(UniquenessStatsOptions, "UniquenessBinStartMass", txtUniquenessBinStartMass.Text)
-                txtUniquenessBinEndMass.Text = objXmlFile.GetParam(UniquenessStatsOptions, "UniquenessBinEndMass", txtUniquenessBinEndMass.Text)
+                txtUniquenessBinWidth.Text = xmlSettings.GetParam(UniquenessStatsOptions, "UniquenessBinWidth", txtUniquenessBinWidth.Text)
+                chkAutoComputeRangeForBinning.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "AutoComputeRangeForBinning", chkAutoComputeRangeForBinning.Checked)
+                txtUniquenessBinStartMass.Text = xmlSettings.GetParam(UniquenessStatsOptions, "UniquenessBinStartMass", txtUniquenessBinStartMass.Text)
+                txtUniquenessBinEndMass.Text = xmlSettings.GetParam(UniquenessStatsOptions, "UniquenessBinEndMass", txtUniquenessBinEndMass.Text)
 
-                txtMaxPeakMatchingResultsPerFeatureToSave.Text = objXmlFile.GetParam(UniquenessStatsOptions, "MaxPeakMatchingResultsPerFeatureToSave", txtMaxPeakMatchingResultsPerFeatureToSave.Text)
-                chkUseSLiCScoreForUniqueness.Checked = objXmlFile.GetParam(UniquenessStatsOptions, "UseSLiCScoreForUniqueness", chkUseSLiCScoreForUniqueness.Checked)
-                txtMinimumSLiCScore.Text = objXmlFile.GetParam(UniquenessStatsOptions, "MinimumSLiCScore", txtMinimumSLiCScore.Text)
-                blnRadioButtonChecked = objXmlFile.GetParam(UniquenessStatsOptions, "UseEllipseSearchRegion", True)
-                If blnRadioButtonChecked Then
-                    optUseEllipseSearchRegion.Checked = blnRadioButtonChecked
+                txtMaxPeakMatchingResultsPerFeatureToSave.Text = xmlSettings.GetParam(UniquenessStatsOptions, "MaxPeakMatchingResultsPerFeatureToSave", txtMaxPeakMatchingResultsPerFeatureToSave.Text)
+                chkUseSLiCScoreForUniqueness.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "UseSLiCScoreForUniqueness", chkUseSLiCScoreForUniqueness.Checked)
+                txtMinimumSLiCScore.Text = xmlSettings.GetParam(UniquenessStatsOptions, "MinimumSLiCScore", txtMinimumSLiCScore.Text)
+                radioButtonChecked = xmlSettings.GetParam(UniquenessStatsOptions, "UseEllipseSearchRegion", True)
+                If radioButtonChecked Then
+                    optUseEllipseSearchRegion.Checked = radioButtonChecked
                 Else
-                    optUseRectangleSearchRegion.Checked = blnRadioButtonChecked
+                    optUseRectangleSearchRegion.Checked = radioButtonChecked
                 End If
 
-                ''chkAllowSqlServerCaching.Checked = objXmlFile.GetParam(UniquenessStatsOptions, "AllowSqlServerCaching", chkAllowSqlServerCaching.Checked)
-                ''chkUseSqlServerDBToCacheData.Checked = objXmlFile.GetParam(UniquenessStatsOptions, "UseSqlServerDBToCacheData", chkUseSqlServerDBToCacheData.Checked)
-                ''txtSqlServerName.Text = objXmlFile.GetParam(UniquenessStatsOptions, "SqlServerName", txtSqlServerName.Text)
-                ''txtSqlServerDatabase.Text = objXmlFile.GetParam(UniquenessStatsOptions, "SqlServerDatabase", txtSqlServerDatabase.Text)
-                ''chkSqlServerUseIntegratedSecurity.Checked = objXmlFile.GetParam(UniquenessStatsOptions, "SqlServerUseIntegratedSecurity", chkSqlServerUseIntegratedSecurity.Checked)
+                ''chkAllowSqlServerCaching.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "AllowSqlServerCaching", chkAllowSqlServerCaching.Checked)
+                ''chkUseSqlServerDBToCacheData.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "UseSqlServerDBToCacheData", chkUseSqlServerDBToCacheData.Checked)
+                ''txtSqlServerName.Text = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerName", txtSqlServerName.Text)
+                ''txtSqlServerDatabase.Text = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerDatabase", txtSqlServerDatabase.Text)
+                ''chkSqlServerUseIntegratedSecurity.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerUseIntegratedSecurity", chkSqlServerUseIntegratedSecurity.Checked)
 
-                ''chkSqlServerUseExistingData.Checked = objXmlFile.GetParam(UniquenessStatsOptions, "SqlServerUseExistingData", chkSqlServerUseExistingData.Checked)
+                ''chkSqlServerUseExistingData.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerUseExistingData", chkSqlServerUseExistingData.Checked)
 
-                ''txtSqlServerUsername.Text = objXmlFile.GetParam(UniquenessStatsOptions, "SqlServerUsername", txtSqlServerUsername.Text)
-                ''txtSqlServerPassword.Text = objXmlFile.GetParam(UniquenessStatsOptions, "SqlServerPassword", txtSqlServerPassword.Text)
+                ''txtSqlServerUsername.Text = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerUsername", txtSqlServerUsername.Text)
+                ''txtSqlServerPassword.Text = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerPassword", txtSqlServerPassword.Text)
 
                 ' Load the peak matching thresholds
-                cboMassTolType.SelectedIndex = objXmlFile.GetParam(PMOptions, "MassToleranceType", cboMassTolType.SelectedIndex)
-                chkAutoDefineSLiCScoreTolerances.Checked = objXmlFile.GetParam(PMOptions, "AutoDefineSLiCScoreThresholds", chkAutoDefineSLiCScoreTolerances.Checked)
-                blnAutoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked
+                cboMassTolType.SelectedIndex = xmlSettings.GetParam(PMOptions, "MassToleranceType", cboMassTolType.SelectedIndex)
+                chkAutoDefineSLiCScoreTolerances.Checked = xmlSettings.GetParam(PMOptions, "AutoDefineSLiCScoreThresholds", chkAutoDefineSLiCScoreTolerances.Checked)
+                autoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked
 
                 ' See if any peak matching data is present
                 ' If it is, clear the table and load it; if not, leave the table unchanged
 
                 valueNotPresent = False
-                strThresholdData = objXmlFile.GetParam(PMOptions, "ThresholdData", String.Empty, valueNotPresent)
+                thresholdData = xmlSettings.GetParam(PMOptions, "ThresholdData", String.Empty, valueNotPresent)
 
-                If Not valueNotPresent AndAlso Not strThresholdData Is Nothing AndAlso strThresholdData.Length > 0 Then
-                    strThresholds = strThresholdData.Split(";"c)
+                If Not valueNotPresent AndAlso Not thresholdData Is Nothing AndAlso thresholdData.Length > 0 Then
+                    thresholds = thresholdData.Split(";"c)
 
-                    If strThresholds.Length > 0 Then
+                    If thresholds.Length > 0 Then
                         ClearPMThresholdsList(False)
 
-                        For intIndex = 0 To strThresholds.Length - 1
-                            strThresholdDetails = strThresholds(intIndex).Split(ColumnDelimiters)
+                        For index = 0 To thresholds.Length - 1
+                            thresholdDetails = thresholds(index).Split(columnDelimiters)
 
-                            If strThresholdDetails.Length > 2 AndAlso Not blnAutoDefineSLiCScoreThresholds Then
-                                If IsNumeric(strThresholdDetails(0)) And IsNumeric(strThresholdDetails(1)) And
-                                 IsNumeric(strThresholdDetails(2)) And IsNumeric(strThresholdDetails(3)) Then
-                                    AddPMThresholdRow(CDbl(strThresholdDetails(0)), CDbl(strThresholdDetails(1)),
-                                         CDbl(strThresholdDetails(2)), CDbl(strThresholdDetails(3)))
+                            If thresholdDetails.Length > 2 AndAlso Not autoDefineSLiCScoreThresholds Then
+                                If IsNumeric(thresholdDetails(0)) And IsNumeric(thresholdDetails(1)) And
+                                 IsNumeric(thresholdDetails(2)) And IsNumeric(thresholdDetails(3)) Then
+                                    AddPMThresholdRow(CDbl(thresholdDetails(0)), CDbl(thresholdDetails(1)),
+                                         CDbl(thresholdDetails(2)), CDbl(thresholdDetails(3)))
                                 End If
-                            ElseIf strThresholdDetails.Length >= 2 Then
-                                If IsNumeric(strThresholdDetails(0)) And IsNumeric(strThresholdDetails(1)) Then
-                                    AddPMThresholdRow(CDbl(strThresholdDetails(0)), CDbl(strThresholdDetails(1)))
+                            ElseIf thresholdDetails.Length >= 2 Then
+                                If IsNumeric(thresholdDetails(0)) And IsNumeric(thresholdDetails(1)) Then
+                                    AddPMThresholdRow(CDbl(thresholdDetails(0)), CDbl(thresholdDetails(1)))
                                 End If
                             End If
-                        Next intIndex
+                        Next index
                     End If
                 End If
 
@@ -826,7 +813,7 @@ Public Class frmMain
 
     End Sub
 
-    Private Sub IniFileSaveOptions(Optional blnSaveWindowDimensionsOnly As Boolean = False)
+    Private Sub IniFileSaveOptions(Optional saveWindowDimensionsOnly As Boolean = False)
 
         Const OptionsSection As String = clsParseProteinFile.XML_SECTION_OPTIONS
         Const FASTAOptions As String = clsParseProteinFile.XML_SECTION_FASTA_OPTIONS
@@ -835,13 +822,13 @@ Public Class frmMain
         Const UniquenessStatsOptions As String = clsParseProteinFile.XML_SECTION_UNIQUENESS_STATS_OPTIONS
         Const PMOptions As String = clsProteinDigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS
 
-        Dim objXmlFile As New XmlSettingsFileAccessor()
+        Dim xmlSettings As New XmlSettingsFileAccessor()
 
 
         Try
-            Dim fiSettingsFile = New FileInfo(GetSettingsFilePath())
-            If Not fiSettingsFile.Exists Then
-                blnSaveWindowDimensionsOnly = False
+            Dim settingsFile = New FileInfo(GetSettingsFilePath())
+            If Not settingsFile.Exists Then
+                saveWindowDimensionsOnly = False
             End If
         Catch
             'Ignore errors here
@@ -850,115 +837,115 @@ Public Class frmMain
         Try
 
             ' Pass True to .LoadSettings() to turn on case sensitive matching
-            objXmlFile.LoadSettings(GetSettingsFilePath(), True)
+            xmlSettings.LoadSettings(GetSettingsFilePath(), True)
 
             Try
-                If Not blnSaveWindowDimensionsOnly Then
-                    objXmlFile.SetParam(OptionsSection, "InputFilePath", GetProteinInputFilePath())
-                    objXmlFile.SetParam(OptionsSection, "InputFileFormatIndex", cboInputFileFormat.SelectedIndex)
-                    objXmlFile.SetParam(OptionsSection, "InputFileColumnDelimiterIndex", cboInputFileColumnDelimiter.SelectedIndex)
-                    objXmlFile.SetParam(OptionsSection, "InputFileColumnDelimiter", txtInputFileColumnDelimiter.Text)
+                If Not saveWindowDimensionsOnly Then
+                    xmlSettings.SetParam(OptionsSection, "InputFilePath", GetProteinInputFilePath())
+                    xmlSettings.SetParam(OptionsSection, "InputFileFormatIndex", cboInputFileFormat.SelectedIndex)
+                    xmlSettings.SetParam(OptionsSection, "InputFileColumnDelimiterIndex", cboInputFileColumnDelimiter.SelectedIndex)
+                    xmlSettings.SetParam(OptionsSection, "InputFileColumnDelimiter", txtInputFileColumnDelimiter.Text)
 
-                    objXmlFile.SetParam(OptionsSection, "InputFileColumnOrdering", cboInputFileColumnOrdering.SelectedIndex)
+                    xmlSettings.SetParam(OptionsSection, "InputFileColumnOrdering", cboInputFileColumnOrdering.SelectedIndex)
 
 
                     xmlSettings.SetParam(OptionsSection, "OutputFileFieldDelimiterIndex", cboOutputFileFieldDelimiter.SelectedIndex)
                     xmlSettings.SetParam(OptionsSection, "OutputFileFieldDelimiter", txtOutputFileFieldDelimiter.Text)
 
-                    objXmlFile.SetParam(OptionsSection, "IncludePrefixAndSuffixResidues", chkIncludePrefixAndSuffixResidues.Checked)
-                    objXmlFile.SetParam(OptionsSection, "EnableLogging", chkEnableLogging.Checked)
+                    xmlSettings.SetParam(OptionsSection, "IncludePrefixAndSuffixResidues", chkIncludePrefixAndSuffixResidues.Checked)
+                    xmlSettings.SetParam(OptionsSection, "EnableLogging", chkEnableLogging.Checked)
 
-                    objXmlFile.SetParam(OptionsSection, "CustomValidationRulesFilePath", mCustomValidationRulesFilePath)
+                    xmlSettings.SetParam(OptionsSection, "CustomValidationRulesFilePath", mCustomValidationRulesFilePath)
                 End If
 
-                objXmlFile.SetParam(OptionsSection, "WindowWidth", Me.Width)
-                objXmlFile.SetParam(OptionsSection, "WindowHeight", Me.Height)
+                xmlSettings.SetParam(OptionsSection, "WindowWidth", Me.Width)
+                xmlSettings.SetParam(OptionsSection, "WindowHeight", Me.Height)
 
-                If Not blnSaveWindowDimensionsOnly Then
-                    objXmlFile.SetParam(FASTAOptions, "RefStartChar", txtRefStartChar.Text)
-                    objXmlFile.SetParam(FASTAOptions, "RefEndCharIndex", cboRefEndChar.SelectedIndex)
-                    objXmlFile.SetParam(FASTAOptions, "RefEndChar", txtRefEndChar.Text)
+                If Not saveWindowDimensionsOnly Then
+                    xmlSettings.SetParam(FASTAOptions, "RefStartChar", txtRefStartChar.Text)
+                    xmlSettings.SetParam(FASTAOptions, "RefEndCharIndex", cboRefEndChar.SelectedIndex)
+                    xmlSettings.SetParam(FASTAOptions, "RefEndChar", txtRefEndChar.Text)
 
-                    objXmlFile.SetParam(FASTAOptions, "LookForAddnlRefInDescription", chkLookForAddnlRefInDescription.Checked)
-                    objXmlFile.SetParam(FASTAOptions, "AddnlRefSepChar", txtAddnlRefSepChar.Text)
-                    objXmlFile.SetParam(FASTAOptions, "AddnlRefAccessionSepChar", txtAddnlRefAccessionSepChar.Text)
+                    xmlSettings.SetParam(FASTAOptions, "LookForAddnlRefInDescription", chkLookForAddnlRefInDescription.Checked)
+                    xmlSettings.SetParam(FASTAOptions, "AddnlRefSepChar", txtAddnlRefSepChar.Text)
+                    xmlSettings.SetParam(FASTAOptions, "AddnlRefAccessionSepChar", txtAddnlRefAccessionSepChar.Text)
 
-                    objXmlFile.SetParam(ProcessingOptions, "ExcludeProteinSequence", chkExcludeProteinSequence.Checked)
-                    objXmlFile.SetParam(ProcessingOptions, "ComputeProteinMass", chkComputeProteinMass.Checked)
-                    objXmlFile.SetParam(ProcessingOptions, "ComputepI", chkComputepIandNET.Checked)
-                    objXmlFile.SetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
+                    xmlSettings.SetParam(ProcessingOptions, "ExcludeProteinSequence", chkExcludeProteinSequence.Checked)
+                    xmlSettings.SetParam(ProcessingOptions, "ComputeProteinMass", chkComputeProteinMass.Checked)
+                    xmlSettings.SetParam(ProcessingOptions, "ComputepI", chkComputepIandNET.Checked)
+                    xmlSettings.SetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
 
-                    objXmlFile.SetParam(ProcessingOptions, "ComputeSequenceHashValues", chkComputeSequenceHashValues.Checked)
-                    objXmlFile.SetParam(ProcessingOptions, "ComputeSequenceHashIgnoreILDiff", chkComputeSequenceHashIgnoreILDiff.Checked)
-                    objXmlFile.SetParam(ProcessingOptions, "TruncateProteinDescription", chkTruncateProteinDescription.Checked)
-                    objXmlFile.SetParam(ProcessingOptions, "ExcludeProteinDescription", chkExcludeProteinDescription.Checked)
+                    xmlSettings.SetParam(ProcessingOptions, "ComputeSequenceHashValues", chkComputeSequenceHashValues.Checked)
+                    xmlSettings.SetParam(ProcessingOptions, "ComputeSequenceHashIgnoreILDiff", chkComputeSequenceHashIgnoreILDiff.Checked)
+                    xmlSettings.SetParam(ProcessingOptions, "TruncateProteinDescription", chkTruncateProteinDescription.Checked)
+                    xmlSettings.SetParam(ProcessingOptions, "ExcludeProteinDescription", chkExcludeProteinDescription.Checked)
 
-                    objXmlFile.SetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked)
-                    objXmlFile.SetParam(ProcessingOptions, "ProteinReversalIndex", cboProteinReversalOptions.SelectedIndex)
-                    objXmlFile.SetParam(ProcessingOptions, "ProteinScramblingLoopCount", txtProteinScramblingLoopCount.Text)
-                    objXmlFile.SetParam(ProcessingOptions, "ElementMassMode", cboElementMassMode.SelectedIndex)
+                    xmlSettings.SetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked)
+                    xmlSettings.SetParam(ProcessingOptions, "ProteinReversalIndex", cboProteinReversalOptions.SelectedIndex)
+                    xmlSettings.SetParam(ProcessingOptions, "ProteinScramblingLoopCount", txtProteinScramblingLoopCount.Text)
+                    xmlSettings.SetParam(ProcessingOptions, "ElementMassMode", cboElementMassMode.SelectedIndex)
 
-                    objXmlFile.SetParam(ProcessingOptions, "HydrophobicityMode", cboHydrophobicityMode.SelectedIndex)
-                    objXmlFile.SetParam(ProcessingOptions, "MaxpIModeEnabled", chkMaxpIModeEnabled.Checked)
-                    objXmlFile.SetParam(ProcessingOptions, "MaxpISequenceLength", LookupMaxpISequenceLength())
+                    xmlSettings.SetParam(ProcessingOptions, "HydrophobicityMode", cboHydrophobicityMode.SelectedIndex)
+                    xmlSettings.SetParam(ProcessingOptions, "MaxpIModeEnabled", chkMaxpIModeEnabled.Checked)
+                    xmlSettings.SetParam(ProcessingOptions, "MaxpISequenceLength", LookupMaxpISequenceLength())
 
-                    objXmlFile.SetParam(DigestionOptions, "CleavageRuleTypeIndex", cboCleavageRuleType.SelectedIndex)
-                    objXmlFile.SetParam(DigestionOptions, "IncludeDuplicateSequences", chkIncludeDuplicateSequences.Checked)
-                    objXmlFile.SetParam(DigestionOptions, "CysPeptidesOnly", chkCysPeptidesOnly.Checked)
+                    xmlSettings.SetParam(DigestionOptions, "CleavageRuleTypeIndex", cboCleavageRuleType.SelectedIndex)
+                    xmlSettings.SetParam(DigestionOptions, "IncludeDuplicateSequences", chkIncludeDuplicateSequences.Checked)
+                    xmlSettings.SetParam(DigestionOptions, "CysPeptidesOnly", chkCysPeptidesOnly.Checked)
 
-                    objXmlFile.SetParam(DigestionOptions, "DigestProteinsMinimumMass", txtDigestProteinsMinimumMass.Text)
-                    objXmlFile.SetParam(DigestionOptions, "DigestProteinsMaximumMass", txtDigestProteinsMaximumMass.Text)
-                    objXmlFile.SetParam(DigestionOptions, "DigestProteinsMinimumResidueCount", txtDigestProteinsMinimumResidueCount.Text)
-                    objXmlFile.SetParam(DigestionOptions, "DigestProteinsMaximumMissedCleavages", txtDigestProteinsMaximumMissedCleavages.Text)
+                    xmlSettings.SetParam(DigestionOptions, "DigestProteinsMinimumMass", txtDigestProteinsMinimumMass.Text)
+                    xmlSettings.SetParam(DigestionOptions, "DigestProteinsMaximumMass", txtDigestProteinsMaximumMass.Text)
+                    xmlSettings.SetParam(DigestionOptions, "DigestProteinsMinimumResidueCount", txtDigestProteinsMinimumResidueCount.Text)
+                    xmlSettings.SetParam(DigestionOptions, "DigestProteinsMaximumMissedCleavages", txtDigestProteinsMaximumMissedCleavages.Text)
 
-                    objXmlFile.SetParam(DigestionOptions, "DigestProteinsMinimumpI", txtDigestProteinsMinimumpI.Text)
-                    objXmlFile.SetParam(DigestionOptions, "DigestProteinsMaximumpI", txtDigestProteinsMaximumpI.Text)
+                    xmlSettings.SetParam(DigestionOptions, "DigestProteinsMinimumpI", txtDigestProteinsMinimumpI.Text)
+                    xmlSettings.SetParam(DigestionOptions, "DigestProteinsMaximumpI", txtDigestProteinsMaximumpI.Text)
 
                     ' Load Uniqueness Options
-                    objXmlFile.SetParam(UniquenessStatsOptions, "AssumeInputFileIsDigested", chkAssumeInputFileIsDigested.Checked)
+                    xmlSettings.SetParam(UniquenessStatsOptions, "AssumeInputFileIsDigested", chkAssumeInputFileIsDigested.Checked)
 
-                    objXmlFile.SetParam(UniquenessStatsOptions, "UniquenessBinWidth", txtUniquenessBinWidth.Text)
-                    objXmlFile.SetParam(UniquenessStatsOptions, "AutoComputeRangeForBinning", chkAutoComputeRangeForBinning.Checked)
-                    objXmlFile.SetParam(UniquenessStatsOptions, "UniquenessBinStartMass", txtUniquenessBinStartMass.Text)
-                    objXmlFile.SetParam(UniquenessStatsOptions, "UniquenessBinEndMass", txtUniquenessBinEndMass.Text)
+                    xmlSettings.SetParam(UniquenessStatsOptions, "UniquenessBinWidth", txtUniquenessBinWidth.Text)
+                    xmlSettings.SetParam(UniquenessStatsOptions, "AutoComputeRangeForBinning", chkAutoComputeRangeForBinning.Checked)
+                    xmlSettings.SetParam(UniquenessStatsOptions, "UniquenessBinStartMass", txtUniquenessBinStartMass.Text)
+                    xmlSettings.SetParam(UniquenessStatsOptions, "UniquenessBinEndMass", txtUniquenessBinEndMass.Text)
 
-                    objXmlFile.SetParam(UniquenessStatsOptions, "MaxPeakMatchingResultsPerFeatureToSave", txtMaxPeakMatchingResultsPerFeatureToSave.Text)
-                    objXmlFile.SetParam(UniquenessStatsOptions, "UseSLiCScoreForUniqueness", chkUseSLiCScoreForUniqueness.Checked)
-                    objXmlFile.SetParam(UniquenessStatsOptions, "MinimumSLiCScore", txtMinimumSLiCScore.Text)
-                    objXmlFile.SetParam(UniquenessStatsOptions, "UseEllipseSearchRegion", optUseEllipseSearchRegion.Checked)
+                    xmlSettings.SetParam(UniquenessStatsOptions, "MaxPeakMatchingResultsPerFeatureToSave", txtMaxPeakMatchingResultsPerFeatureToSave.Text)
+                    xmlSettings.SetParam(UniquenessStatsOptions, "UseSLiCScoreForUniqueness", chkUseSLiCScoreForUniqueness.Checked)
+                    xmlSettings.SetParam(UniquenessStatsOptions, "MinimumSLiCScore", txtMinimumSLiCScore.Text)
+                    xmlSettings.SetParam(UniquenessStatsOptions, "UseEllipseSearchRegion", optUseEllipseSearchRegion.Checked)
 
-                    ''objXmlFile.SetParam(UniquenessStatsOptions, "AllowSqlServerCaching", chkAllowSqlServerCaching.Checked)
-                    ''objXmlFile.SetParam(UniquenessStatsOptions, "UseSqlServerDBToCacheData", chkUseSqlServerDBToCacheData.Checked)
-                    ''objXmlFile.SetParam(UniquenessStatsOptions, "SqlServerName", txtSqlServerName.Text)
-                    ''objXmlFile.SetParam(UniquenessStatsOptions, "SqlServerDatabase", txtSqlServerDatabase.Text)
-                    ''objXmlFile.SetParam(UniquenessStatsOptions, "SqlServerUseIntegratedSecurity", chkSqlServerUseIntegratedSecurity.Checked)
-                    ''objXmlFile.SetParam(UniquenessStatsOptions, "SqlServerUseExistingData", chkSqlServerUseExistingData.Checked)
-                    ''objXmlFile.SetParam(UniquenessStatsOptions, "SqlServerUsername", txtSqlServerUsername.Text)
-                    ''objXmlFile.SetParam(UniquenessStatsOptions, "SqlServerPassword", txtSqlServerPassword.Text)
+                    ''xmlSettings.SetParam(UniquenessStatsOptions, "AllowSqlServerCaching", chkAllowSqlServerCaching.Checked)
+                    ''xmlSettings.SetParam(UniquenessStatsOptions, "UseSqlServerDBToCacheData", chkUseSqlServerDBToCacheData.Checked)
+                    ''xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerName", txtSqlServerName.Text)
+                    ''xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerDatabase", txtSqlServerDatabase.Text)
+                    ''xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerUseIntegratedSecurity", chkSqlServerUseIntegratedSecurity.Checked)
+                    ''xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerUseExistingData", chkSqlServerUseExistingData.Checked)
+                    ''xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerUsername", txtSqlServerUsername.Text)
+                    ''xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerPassword", txtSqlServerPassword.Text)
 
 
                     ' Save the peak matching thresholds
-                    objXmlFile.SetParam(PMOptions, "MassToleranceType", cboMassTolType.SelectedIndex.ToString)
+                    xmlSettings.SetParam(PMOptions, "MassToleranceType", cboMassTolType.SelectedIndex.ToString())
 
-                    Dim blnAutoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked
-                    objXmlFile.SetParam(PMOptions, "AutoDefineSLiCScoreThresholds", blnAutoDefineSLiCScoreThresholds.ToString)
+                    Dim autoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked
+                    xmlSettings.SetParam(PMOptions, "AutoDefineSLiCScoreThresholds", autoDefineSLiCScoreThresholds.ToString())
 
-                    Dim strThresholdData = String.Empty
-                    For Each myDataRow As DataRow In mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATATABLE).Rows
-                        If strThresholdData.Length > 0 Then strThresholdData &= "; "
-                        If blnAutoDefineSLiCScoreThresholds Then
-                            strThresholdData &= CStr(myDataRow.Item(0)) & "," & CStr(myDataRow.Item(1))
+                    Dim thresholdData = String.Empty
+                    For Each myDataRow As DataRow In mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE).Rows
+                        If thresholdData.Length > 0 Then thresholdData &= "; "
+                        If autoDefineSLiCScoreThresholds Then
+                            thresholdData &= CStr(myDataRow.Item(0)) & "," & CStr(myDataRow.Item(1))
                         Else
-                            strThresholdData &= CStr(myDataRow.Item(0)) & "," & CStr(myDataRow.Item(1)) & "," & CStr(myDataRow.Item(2)) & "," & CStr(myDataRow.Item(3))
+                            thresholdData &= CStr(myDataRow.Item(0)) & "," & CStr(myDataRow.Item(1)) & "," & CStr(myDataRow.Item(2)) & "," & CStr(myDataRow.Item(3))
                         End If
                     Next myDataRow
-                    objXmlFile.SetParam(PMOptions, "ThresholdData", strThresholdData)
+                    xmlSettings.SetParam(PMOptions, "ThresholdData", thresholdData)
                 End If
             Catch ex As Exception
                 ShowErrorMessage("Error storing parameter in settings file: " & Path.GetFileName(GetSettingsFilePath()), "Error")
             End Try
 
-            objXmlFile.SaveSettings()
+            xmlSettings.SaveSettings()
 
         Catch ex As Exception
             ShowErrorMessage("Error saving settings to file: " & GetSettingsFilePath(), "Error")
@@ -971,7 +958,12 @@ Public Class frmMain
         DefineDefaultPMThresholds()
 
         Me.Text = "Protein Digestion Simulator"
-        lblUniquenessCalculationsNote.Text = "The Protein Digestion Simulator uses an elution time prediction algorithm developed by Lars Kangas and Kostas Petritis. See Help->About Elution Time Prediction for more info.  Note that you can provide custom time values for peptides by separately generating a tab or comma delimited text file with information corresponding to one of the options in the 'Column Order' list on the 'File Format' option tab, then checking 'Assume Input file is Already Digested' on this tab."
+        lblUniquenessCalculationsNote.Text = "The Protein Digestion Simulator uses an elution time prediction algorithm " &
+                                             "developed by Lars Kangas and Kostas Petritis. See Help->About Elution Time Prediction for more info. " &
+                                             "Note that you can provide custom time values for peptides by separately " &
+                                             "generating a tab or comma delimited text file with information corresponding " &
+                                             "to one of the options in the 'Column Order' list on the 'File Format' option tab, " &
+                                             "then checking 'Assume Input file is Already Digested' on this tab."
 
         PopulateComboBoxes()
         InitializePeakMatchingDataGrid()
@@ -989,31 +981,31 @@ Public Class frmMain
     Private Sub InitializePeakMatchingDataGrid()
 
 
-        ' Make the Peak Matching Thresholds datatable
-        Dim dtPMThresholds = New DataTable(PM_THRESHOLDS_DATATABLE)
+        ' Make the Peak Matching Thresholds DATA_TABLE
+        Dim pmThresholds = New DataTable(PM_THRESHOLDS_DATA_TABLE)
 
-        ' Add the columns to the datatable
-        ADONetRoutines.AppendColumnDoubleToTable(dtPMThresholds, COL_NAME_MASS_TOLERANCE)
-        ADONetRoutines.AppendColumnDoubleToTable(dtPMThresholds, COL_NAME_NET_TOLERANCE)
-        ADONetRoutines.AppendColumnDoubleToTable(dtPMThresholds, COL_NAME_SLIC_MASS_STDEV, DEFAULT_SLIC_MASS_STDEV)
-        ADONetRoutines.AppendColumnDoubleToTable(dtPMThresholds, COL_NAME_SLIC_NET_STDEV, DEFAULT_SLIC_NET_STDEV)
-        ADONetRoutines.AppendColumnIntegerToTable(dtPMThresholds, COL_NAME_PM_THRESHOLD_ROW_ID, 0, True, True)
+        ' Add the columns to the data table
+        ADONetRoutines.AppendColumnDoubleToTable(pmThresholds, COL_NAME_MASS_TOLERANCE)
+        ADONetRoutines.AppendColumnDoubleToTable(pmThresholds, COL_NAME_NET_TOLERANCE)
+        ADONetRoutines.AppendColumnDoubleToTable(pmThresholds, COL_NAME_SLIC_MASS_STDEV, DEFAULT_SLIC_MASS_STDEV)
+        ADONetRoutines.AppendColumnDoubleToTable(pmThresholds, COL_NAME_SLIC_NET_STDEV, DEFAULT_SLIC_NET_STDEV)
+        ADONetRoutines.AppendColumnIntegerToTable(pmThresholds, COL_NAME_PM_THRESHOLD_ROW_ID, 0, True, True)
 
-        With dtPMThresholds
+        With pmThresholds
             Dim PrimaryKeyColumn = New DataColumn() { .Columns(COL_NAME_PM_THRESHOLD_ROW_ID)}
             .PrimaryKey = PrimaryKeyColumn
         End With
 
         ' Instantiate the dataset
-        mPeakMatchingThresholdsDataset = New DataSet(PM_THRESHOLDS_DATATABLE)
+        mPeakMatchingThresholdsDataset = New DataSet(PM_THRESHOLDS_DATA_TABLE)
 
         ' Add the new System.Data.DataTable to the DataSet.
-        mPeakMatchingThresholdsDataset.Tables.Add(dtPMThresholds)
+        mPeakMatchingThresholdsDataset.Tables.Add(pmThresholds)
 
         ' Bind the DataSet to the DataGrid
         With dgPeakMatchingThresholds
             .DataSource = mPeakMatchingThresholdsDataset
-            .DataMember = PM_THRESHOLDS_DATATABLE
+            .DataMember = PM_THRESHOLDS_DATA_TABLE
         End With
 
         ' Update the grid's table style
@@ -1030,9 +1022,9 @@ Public Class frmMain
         ' Define the PM Thresholds table style
         tsPMThresholdsTableStyle = New DataGridTableStyle
 
-        ' Setting the MappingName of the table style to PM_THRESHOLDS_DATATABLE will cause this style to be used with that table
+        ' Setting the MappingName of the table style to PM_THRESHOLDS_DATA_TABLE will cause this style to be used with that table
         With tsPMThresholdsTableStyle
-            .MappingName = PM_THRESHOLDS_DATATABLE
+            .MappingName = PM_THRESHOLDS_DATA_TABLE
             .AllowSorting = True
             .ColumnHeadersVisible = True
             .RowHeadersVisible = True
@@ -1065,12 +1057,12 @@ Public Class frmMain
 
     End Sub
 
-    Private Function InitializeProteinFileParserGeneralOptions(ByRef objParseProteinFile As clsParseProteinFile) As Boolean
+    Private Function InitializeProteinFileParserGeneralOptions(ByRef parseProteinFile As clsParseProteinFile) As Boolean
         ' Returns true if all values were valid
 
-        Dim blnError As Boolean
+        Dim invalidValue As Boolean
 
-        With objParseProteinFile
+        With parseProteinFile
             If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.FastaFile Then
                 .AssumeFastaFile = True
             ElseIf cboInputFileFormat.SelectedIndex = InputFileFormatConstants.DelimitedText Then
@@ -1087,14 +1079,14 @@ Public Class frmMain
             .OutputFileDelimiter = LookupColumnDelimiter(cboOutputFileFieldDelimiter, txtOutputFileFieldDelimiter, ControlChars.Tab)
 
             With .FastaFileOptions
-                ValidateTextbox(txtRefStartChar, mDefaultFastaFileOptions.ProteinLineStartChar)
+                ValidateTextBox(txtRefStartChar, mDefaultFastaFileOptions.ProteinLineStartChar)
                 .ProteinLineStartChar = txtRefStartChar.Text.Chars(0)
                 .ProteinLineAccessionEndChar = LookupColumnDelimiter(cboRefEndChar, txtRefEndChar, mDefaultFastaFileOptions.ProteinLineAccessionEndChar)
 
                 .LookForAddnlRefInDescription = chkLookForAddnlRefInDescription.Checked
 
-                ValidateTextbox(txtAddnlRefSepChar, mDefaultFastaFileOptions.AddnlRefSepChar)
-                ValidateTextbox(txtAddnlRefAccessionSepChar, mDefaultFastaFileOptions.AddnlRefAccessionSepChar)
+                ValidateTextBox(txtAddnlRefSepChar, mDefaultFastaFileOptions.AddnlRefSepChar)
+                ValidateTextBox(txtAddnlRefAccessionSepChar, mDefaultFastaFileOptions.AddnlRefAccessionSepChar)
 
                 .AddnlRefSepChar = txtAddnlRefSepChar.Text.Chars(0)
                 .AddnlRefAccessionSepChar = txtAddnlRefAccessionSepChar.Text.Chars(0)
@@ -1130,23 +1122,23 @@ Public Class frmMain
 
                 .IncludePrefixAndSuffixResidues = chkIncludePrefixAndSuffixResidues.Checked
 
-                .MinFragmentMass = ParseTextboxValueInt(txtDigestProteinsMinimumMass, lblDigestProteinsMinimumMass.Text & " must be an integer value", blnError)
-                If blnError Then Return False
+                .MinFragmentMass = ParseTextBoxValueInt(txtDigestProteinsMinimumMass, lblDigestProteinsMinimumMass.Text & " must be an integer value", invalidValue)
+                If invalidValue Then Return False
 
-                .MaxFragmentMass = ParseTextboxValueInt(txtDigestProteinsMaximumMass, lblDigestProteinsMaximumMass.Text & " must be an integer value", blnError)
-                If blnError Then Return False
+                .MaxFragmentMass = ParseTextBoxValueInt(txtDigestProteinsMaximumMass, lblDigestProteinsMaximumMass.Text & " must be an integer value", invalidValue)
+                If invalidValue Then Return False
 
-                .MaxMissedCleavages = ParseTextboxValueInt(txtDigestProteinsMaximumMissedCleavages, lblDigestProteinsMaximumMissedCleavages.Text & " must be an integer value", blnError)
-                If blnError Then Return False
+                .MaxMissedCleavages = ParseTextBoxValueInt(txtDigestProteinsMaximumMissedCleavages, lblDigestProteinsMaximumMissedCleavages.Text & " must be an integer value", invalidValue)
+                If invalidValue Then Return False
 
-                .MinFragmentResidueCount = ParseTextboxValueInt(txtDigestProteinsMinimumResidueCount, lblDigestProteinsMinimumResidueCount.Text & " must be an integer value", blnError)
-                If blnError Then Return False
+                .MinFragmentResidueCount = ParseTextBoxValueInt(txtDigestProteinsMinimumResidueCount, lblDigestProteinsMinimumResidueCount.Text & " must be an integer value", invalidValue)
+                If invalidValue Then Return False
 
-                .MinIsoelectricPoint = ParseTextboxValueSng(txtDigestProteinsMinimumpI, lblDigestProteinsMinimumpI.Text & " must be a decimal value", blnError)
-                If blnError Then Return False
+                .MinIsoelectricPoint = ParseTextBoxValueSng(txtDigestProteinsMinimumpI, lblDigestProteinsMinimumpI.Text & " must be a decimal value", invalidValue)
+                If invalidValue Then Return False
 
-                .MaxIsoelectricPoint = ParseTextboxValueSng(txtDigestProteinsMaximumpI, lblDigestProteinsMaximumpI.Text & " must be a decimal value", blnError)
-                If blnError Then Return False
+                .MaxIsoelectricPoint = ParseTextBoxValueSng(txtDigestProteinsMaximumpI, lblDigestProteinsMaximumpI.Text & " must be a decimal value", invalidValue)
+                If invalidValue Then Return False
 
                 .RemoveDuplicateSequences = Not chkIncludeDuplicateSequences.Checked
                 If chkCysPeptidesOnly.Checked Then
@@ -1161,35 +1153,35 @@ Public Class frmMain
 
     End Function
 
-    Private Function LookupColumnDelimiter(DelimiterCombobox As ListControl, DelimiterTextbox As Control, strDefaultDelimiter As Char) As Char
+    Private Function LookupColumnDelimiter(delimiterCombobox As ListControl, delimiterTextBox As Control, defaultDelimiter As Char) As Char
         Try
-            Return clsParseProteinFile.LookupColumnDelimiterChar(DelimiterCombobox.SelectedIndex, DelimiterTextbox.Text, strDefaultDelimiter)
+            Return clsParseProteinFile.LookupColumnDelimiterChar(delimiterCombobox.SelectedIndex, delimiterTextBox.Text, defaultDelimiter)
         Catch ex As Exception
             Return ControlChars.Tab
         End Try
     End Function
 
     Private Function LookupMaxpISequenceLength() As Integer
-        Dim blnError As Boolean
-        Dim intLength As Integer
+        Dim invalidValue As Boolean
+        Dim length As Integer
 
         Try
-            intLength = VBNetRoutines.ParseTextboxValueInt(txtMaxpISequenceLength, String.Empty, blnError, 10)
-            If blnError Then
-                txtMaxpISequenceLength.Text = intLength.ToString
+            length = VBNetRoutines.ParseTextboxValueInt(txtMaxpISequenceLength, String.Empty, invalidValue, 10)
+            If invalidValue Then
+                txtMaxpISequenceLength.Text = length.ToString()
             End If
         Catch ex As Exception
-            intLength = 10
+            length = 10
         End Try
 
-        If intLength < 1 Then intLength = 1
-        Return intLength
+        If length < 1 Then length = 1
+        Return length
     End Function
 
     Private Sub SetToolTips()
-        Dim objToolTipControl As New ToolTip
+        Dim toolTipControl As New ToolTip
 
-        With objToolTipControl
+        With toolTipControl
             .SetToolTip(cmdParseInputFile, "Parse proteins in input file to create output file(s).")
             .SetToolTip(cboInputFileColumnDelimiter, "Character separating columns in a delimited text input file.")
             .SetToolTip(txtInputFileColumnDelimiter, "Custom character separating columns in a delimited text input file.")
@@ -1203,7 +1195,7 @@ Public Class frmMain
 
             .SetToolTip(chkGenerateUniqueIDValues, "Set this to false to use less memory when digesting huge protein input files.")
             .SetToolTip(txtProteinReversalSamplingPercentage, "Set this to a value less than 100 to only include a portion of the residues from the input file in the output file.")
-            .SetToolTip(txtProteinScramblingLoopCount, "Set this to a value greater than 1 to create multiple scrambled versions of the intput file.")
+            .SetToolTip(txtProteinScramblingLoopCount, "Set this to a value greater than 1 to create multiple scrambled versions of the input file.")
 
             .SetToolTip(optUseEllipseSearchRegion, "This setting only takes effect if 'Use SLiC Score when gauging uniqueness' is false.")
             .SetToolTip(optUseRectangleSearchRegion, "This setting only takes effect if 'Use SLiC Score when gauging uniqueness' is false.")
@@ -1216,12 +1208,12 @@ Public Class frmMain
             .SetToolTip(chkEnableLogging, "Logs status and error messages to file ProteinDigestionSimulatorLog*.txt in the program directory.")
         End With
 
-        objToolTipControl = Nothing
+        toolTipControl = Nothing
 
     End Sub
 
     Private Sub ParseProteinInputFile()
-        Dim blnSuccess As Boolean
+        Dim success As Boolean
 
         If Not mWorking AndAlso ConfirmFilePaths() Then
             Try
@@ -1229,8 +1221,8 @@ Public Class frmMain
                     mParseProteinFile = New clsParseProteinFile
                 End If
 
-                blnSuccess = InitializeProteinFileParserGeneralOptions(mParseProteinFile)
-                If Not blnSuccess Then Exit Try
+                success = InitializeProteinFileParserGeneralOptions(mParseProteinFile)
+                If Not success Then Exit Try
 
                 With mParseProteinFile
                     .CreateProteinOutputFile = True
@@ -1255,19 +1247,19 @@ Public Class frmMain
                     ResetProgress(True)
                     SwitchToProgressTab()
 
-                    Dim strOutputFolderPath As String = String.Empty
-                    Dim strOutputFileNameBaseOverride As String = String.Empty
+                    Dim outputFolderPath As String = String.Empty
+                    Dim outputFileNameBaseOverride As String = String.Empty
 
                     If txtProteinOutputFilePath.TextLength > 0 Then
-                        strOutputFolderPath = Path.GetDirectoryName(txtProteinOutputFilePath.Text)
-                        strOutputFileNameBaseOverride = Path.GetFileNameWithoutExtension(txtProteinOutputFilePath.Text)
+                        outputFolderPath = Path.GetDirectoryName(txtProteinOutputFilePath.Text)
+                        outputFileNameBaseOverride = Path.GetFileNameWithoutExtension(txtProteinOutputFilePath.Text)
                     End If
 
-                    blnSuccess = .ParseProteinFile(GetProteinInputFilePath(), strOutputFolderPath, strOutputFileNameBaseOverride)
+                    success = .ParseProteinFile(GetProteinInputFilePath(), outputFolderPath, outputFileNameBaseOverride)
 
                     Cursor.Current = Cursors.Default
 
-                    If blnSuccess Then
+                    If success Then
                         MessageBox.Show(mParseProteinFile.ProcessingSummary, "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
                         SwitchFromProgressTab()
                     Else
@@ -1287,139 +1279,128 @@ Public Class frmMain
 
     End Sub
 
-    Private Function ParseTextboxValueInt(ThisTextBox As Control, strMessageIfError As String, ByRef blnError As Boolean, Optional ValueIfError As Integer = 0) As Integer
+    Private Function ParseTextBoxValueInt(thisTextBox As Control, messageIfError As String, ByRef invalidValue As Boolean, Optional valueIfError As Integer = 0) As Integer
 
-        blnError = False
+        invalidValue = False
 
         Try
-            Return Integer.Parse(ThisTextBox.Text)
+            Return Integer.Parse(thisTextBox.Text)
         Catch ex As Exception
-            ShowErrorMessage(strMessageIfError, "Error")
-            blnError = True
-            Return ValueIfError
+            ShowErrorMessage(messageIfError, "Error")
+            invalidValue = True
+            Return valueIfError
         End Try
 
     End Function
 
-    Private Function ParseTextboxValueSng(ThisTextBox As Control, strMessageIfError As String, ByRef blnError As Boolean, Optional ValueIfError As Single = 0) As Single
+    Private Function ParseTextBoxValueSng(thisTextBox As Control, messageIfError As String, ByRef invalidValue As Boolean, Optional valueIfError As Single = 0) As Single
 
-        blnError = False
+        invalidValue = False
 
         Try
-            Return Single.Parse(ThisTextBox.Text)
+            Return Single.Parse(thisTextBox.Text)
         Catch ex As Exception
-            ShowErrorMessage(strMessageIfError, "Error")
-            blnError = True
-            Return ValueIfError
+            ShowErrorMessage(messageIfError, "Error")
+            invalidValue = True
+            Return valueIfError
         End Try
 
     End Function
 
-    Private Sub PastePMThresholdsValues(blnClearList As Boolean)
-        Dim objData As IDataObject
+    Private Sub PastePMThresholdsValues(clearList As Boolean)
 
-        Dim strData As String
-        Dim strLines() As String
-        Dim strColumns() As String
-
-        Dim dblMassThreshold As Double, dblNETThreshold As Double
-        Dim dblSLiCMassStDev As Double, dblSLiCNETStDev As Double
-
-        Dim strMessage As String
-
-        Dim blnUseSLiC As Boolean
-        Dim blnExistingRowFound As Boolean
-        Dim intRowsAlreadyPresent As Integer
-        Dim intRowsSkipped As Integer
-
-        Dim intLineIndex As Integer
-
-        Dim LineDelimiters = New Char() {ControlChars.Cr, ControlChars.Lf}
-        Dim ColumnDelimiters = New Char() {ControlChars.Tab, ","c}
+        Dim lineDelimiters = New Char() {ControlChars.Cr, ControlChars.Lf}
+        Dim columnDelimiters = New Char() {ControlChars.Tab, ","c}
 
         ' Examine the clipboard contents
-        objData = Clipboard.GetDataObject()
+        Dim clipboardObject = Clipboard.GetDataObject()
 
-        If Not objData Is Nothing Then
-            If objData.GetDataPresent(DataFormats.StringFormat, True) Then
-                strData = CType(objData.GetData(DataFormats.StringFormat, True), String)
+        If Not clipboardObject Is Nothing Then
+            If clipboardObject.GetDataPresent(DataFormats.StringFormat, True) Then
+                Dim clipboardData = CType(clipboardObject.GetData(DataFormats.StringFormat, True), String)
 
-                ' Split strData on carriage return or line feed characters
+                ' Split clipboardData on carriage return or line feed characters
                 ' Lines that end in CrLf will give two separate lines; one with with the text, and one blank; that's OK
-                strLines = strData.Split(LineDelimiters, 1000)
+                Dim dataLines = clipboardData.Split(lineDelimiters, 1000)
 
-                If strLines.Length > 0 Then
-                    If blnClearList Then
+                If dataLines.Length > 0 Then
+                    If clearList Then
                         If Not ClearPMThresholdsList(True) Then Return
                     End If
 
-                    intRowsAlreadyPresent = 0
-                    intRowsSkipped = 0
+                    Dim rowsAlreadyPresent = 0
+                    Dim rowsSkipped = 0
 
-                    For intLineIndex = 0 To strLines.Length - 1
-                        If Not strLines(intLineIndex) Is Nothing AndAlso strLines(intLineIndex).Length > 0 Then
-                            strColumns = strLines(intLineIndex).Split(ColumnDelimiters, 5)
-                            If strColumns.Length >= 2 Then
+                    For lineIndex = 0 To dataLines.Length - 1
+                        If Not dataLines(lineIndex) Is Nothing AndAlso dataLines(lineIndex).Length > 0 Then
+                            Dim dataColumns = dataLines(lineIndex).Split(columnDelimiters, 5)
+                            If dataColumns.Length >= 2 Then
                                 Try
-                                    dblMassThreshold = Double.Parse(strColumns(0))
-                                    dblNETThreshold = Double.Parse(strColumns(1))
+                                    Dim massThreshold = Double.Parse(dataColumns(0))
+                                    Dim netThreshold = Double.Parse(dataColumns(1))
 
-                                    If dblMassThreshold >= 0 And dblNETThreshold >= 0 Then
-                                        If Not chkAutoDefineSLiCScoreTolerances.Checked AndAlso strColumns.Length >= 4 Then
-                                            blnUseSLiC = True
+                                    If massThreshold >= 0 And netThreshold >= 0 Then
+                                        Dim useSLiC As Boolean
+                                        If Not chkAutoDefineSLiCScoreTolerances.Checked AndAlso dataColumns.Length >= 4 Then
+                                            useSLiC = True
                                         Else
-                                            blnUseSLiC = False
+                                            useSLiC = False
                                         End If
 
-                                        If blnUseSLiC Then
+                                        Dim slicMassStDev As Double
+                                        Dim slicNETStDev As Double
+
+                                        If useSLiC Then
                                             Try
-                                                dblSLiCMassStDev = Double.Parse(strColumns(2))
-                                                dblSLiCNETStDev = Double.Parse(strColumns(3))
+                                                slicMassStDev = Double.Parse(dataColumns(2))
+                                                slicNETStDev = Double.Parse(dataColumns(3))
                                             Catch ex As Exception
-                                                blnUseSLiC = False
+                                                useSLiC = False
                                             End Try
                                         End If
 
-                                        blnExistingRowFound = False
-                                        If blnUseSLiC Then
-                                            AddPMThresholdRow(dblMassThreshold, dblNETThreshold, dblSLiCMassStDev, dblSLiCNETStDev, blnExistingRowFound)
+                                        Dim existingRowFound = False
+                                        If useSLiC Then
+                                            AddPMThresholdRow(massThreshold, netThreshold, slicMassStDev, slicNETStDev, existingRowFound)
                                         Else
-                                            AddPMThresholdRow(dblMassThreshold, dblNETThreshold, blnExistingRowFound)
+                                            AddPMThresholdRow(massThreshold, netThreshold, existingRowFound)
                                         End If
 
-                                        If blnExistingRowFound Then
-                                            intRowsAlreadyPresent += 1
+                                        If existingRowFound Then
+                                            rowsAlreadyPresent += 1
                                         End If
                                     End If
 
                                 Catch ex As Exception
                                     ' Skip this row
-                                    intRowsSkipped += 1
+                                    rowsSkipped += 1
                                 End Try
                             Else
-                                intRowsSkipped += 1
+                                rowsSkipped += 1
                             End If
                         End If
-                    Next intLineIndex
+                    Next lineIndex
 
-                    If intRowsAlreadyPresent > 0 Then
-                        If intRowsAlreadyPresent = 1 Then
-                            strMessage = "1 row of thresholds was"
+                    If rowsAlreadyPresent > 0 Then
+                        Dim errorMessage As String
+                        If rowsAlreadyPresent = 1 Then
+                            errorMessage = "1 row of thresholds was"
                         Else
-                            strMessage = intRowsAlreadyPresent.ToString & " rows of thresholds were"
+                            errorMessage = rowsAlreadyPresent.ToString() & " rows of thresholds were"
                         End If
 
-                        ShowErrorMessage(strMessage & " already present in the table; duplicate rows are not allowed.", "Warning")
+                        ShowErrorMessage(errorMessage & " already present in the table; duplicate rows are not allowed.", "Warning")
                     End If
 
-                    If intRowsSkipped > 0 Then
-                        If intRowsSkipped = 1 Then
-                            strMessage = "1 row was skipped because it"
+                    If rowsSkipped > 0 Then
+                        Dim errorMessage As String
+                        If rowsSkipped = 1 Then
+                            errorMessage = "1 row was skipped because it"
                         Else
-                            strMessage = intRowsSkipped.ToString & " rows were skipped because they"
+                            errorMessage = rowsSkipped.ToString() & " rows were skipped because they"
                         End If
 
-                        ShowErrorMessage(strMessage & " didn't contain two columns of numeric data.", "Warning")
+                        ShowErrorMessage(errorMessage & " didn't contain two columns of numeric data.", "Warning")
                     End If
 
                 End If
@@ -1457,8 +1438,8 @@ Public Class frmMain
             With cboOutputFileFieldDelimiter
                 With .Items
                     .Clear()
-                    For intIndex = 0 To cboInputFileColumnDelimiter.Items.Count - 1
-                        .Insert(intIndex, cboInputFileColumnDelimiter.Items(intIndex))
+                    For index = 0 To cboInputFileColumnDelimiter.Items.Count - 1
+                        .Insert(index, cboInputFileColumnDelimiter.Items(index))
                     Next
                 End With
                 .SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Space
@@ -1467,8 +1448,8 @@ Public Class frmMain
             With cboRefEndChar
                 With .Items()
                     .Clear()
-                    For intIndex = 0 To cboInputFileColumnDelimiter.Items.Count - 1
-                        .Insert(intIndex, cboInputFileColumnDelimiter.Items(intIndex))
+                    For index = 0 To cboInputFileColumnDelimiter.Items.Count - 1
+                        .Insert(index, cboInputFileColumnDelimiter.Items(index))
                     Next
                 End With
                 .SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Space
@@ -1508,13 +1489,13 @@ Public Class frmMain
                 .SelectedIndex = clsParseProteinFile.ProteinScramblingModeConstants.None
             End With
 
-            Dim objInSilicoDigest = New clsInSilicoDigest()
+            Dim inSilicoDigest = New clsInSilicoDigest()
             With cboCleavageRuleType
                 With .Items
-                    For intIndex = 0 To objInSilicoDigest.CleaveageRuleCount - 1
-                        Dim eRuleID = CType(intIndex, clsInSilicoDigest.CleavageRuleConstants)
-                        .Add(objInSilicoDigest.GetCleaveageRuleName(eRuleID) & " (" & objInSilicoDigest.GetCleaveageRuleResiduesDescription(eRuleID) & ")")
-                    Next intIndex
+                    For index = 0 To inSilicoDigest.CleavageRuleCount - 1
+                        Dim eRuleID = CType(index, clsInSilicoDigest.CleavageRuleConstants)
+                        .Add(inSilicoDigest.GetCleavageRuleName(eRuleID) & " (" & inSilicoDigest.GetCleavageRuleResiduesDescription(eRuleID) & ")")
+                    Next index
                 End With
                 If .Items.Count > clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin Then
                     .SelectedIndex = clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
@@ -1561,7 +1542,7 @@ Public Class frmMain
 
     End Sub
 
-    Private Sub ResetProgress(blnHideSubtaskProgress As Boolean)
+    Private Sub ResetProgress(hideSubtaskProgress As Boolean)
         lblProgressDescription.Text = String.Empty
         lblProgress.Text = FormatPercentComplete(0)
         pbarProgress.Value = 0
@@ -1570,20 +1551,19 @@ Public Class frmMain
         lblSubtaskProgressDescription.Text = String.Empty
         lblSubtaskProgress.Text = FormatPercentComplete(0)
 
-        If blnHideSubtaskProgress Then
-            Me.SubtaskProgressIsVisible = False
+        If hideSubtaskProgress Then
+            SubtaskProgressIsVisible = False
         End If
-
 
         lblErrorMessage.Text = String.Empty
 
         Application.DoEvents()
     End Sub
 
-    Private Sub ResetToDefaults(blnConfirm As Boolean)
+    Private Sub ResetToDefaults(confirm As Boolean)
         Dim eResponse As DialogResult
 
-        If blnConfirm Then
+        If confirm Then
             eResponse = MessageBox.Show("Are you sure you want to reset all settings to their default values?", "Reset to Defaults", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
             If eResponse <> DialogResult.Yes Then Exit Sub
         End If
@@ -1668,14 +1648,14 @@ Public Class frmMain
 
         mCustomValidationRulesFilePath = String.Empty
 
-        Dim strSettingsFilePath = GetSettingsFilePath()
-        PRISM.FileProcessor.ProcessFilesBase.CreateSettingsFileIfMissing(strSettingsFilePath)
+        Dim settingsFilePath = GetSettingsFilePath()
+        PRISM.FileProcessor.ProcessFilesBase.CreateSettingsFileIfMissing(settingsFilePath)
 
     End Sub
 
     Private Sub SelectInputFile()
 
-        Dim objOpenFile As New OpenFileDialog
+        Dim openFile As New OpenFileDialog
 
         Dim currentExtension = String.Empty
         If txtProteinInputFilePath.TextLength > 0 Then
@@ -1686,7 +1666,7 @@ Public Class frmMain
             End Try
         End If
 
-        With objOpenFile
+        With openFile
             .AddExtension = True
             .CheckFileExists = False
             .CheckPathExists = True
@@ -1727,9 +1707,9 @@ Public Class frmMain
 
     Private Sub SelectOutputFile()
 
-        Dim objSaveFile As New SaveFileDialog
+        Dim saveFile As New SaveFileDialog
 
-        With objSaveFile
+        With saveFile
             .AddExtension = True
             .CheckFileExists = False
             .CheckPathExists = True
@@ -1743,7 +1723,7 @@ Public Class frmMain
             .FilterIndex = 1
             If Len(txtProteinOutputFilePath.Text.Length) > 0 Then
                 Try
-                    .InitialDirectory = Directory.GetParent(txtProteinOutputFilePath.Text).ToString
+                    .InitialDirectory = Directory.GetParent(txtProteinOutputFilePath.Text).ToString()
                 Catch
                     .InitialDirectory = GetMyDocsFolderPath()
                 End Try
@@ -1762,47 +1742,55 @@ Public Class frmMain
     End Sub
 
     Private Sub ShowAboutBox()
-        Dim strMessage As String
+        Dim message As String
 
-        strMessage = String.Empty
+        message = String.Empty
 
-        strMessage &= "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004" & ControlChars.NewLine
-        strMessage &= "Copyright 2018 Battelle Memorial Institute" & ControlChars.NewLine & ControlChars.NewLine
+        message &= "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004" & ControlChars.NewLine
+        message &= "Copyright 2018 Battelle Memorial Institute" & ControlChars.NewLine & ControlChars.NewLine
 
-        strMessage &= "This is version " & Application.ProductVersion & " (" & PROGRAM_DATE & ")" & ControlChars.NewLine & ControlChars.NewLine
+        message &= "This is version " & Application.ProductVersion & " (" & PROGRAM_DATE & ")" & ControlChars.NewLine & ControlChars.NewLine
 
-        strMessage &= "E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov" & ControlChars.NewLine
-        strMessage &= "Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/" & ControlChars.NewLine & ControlChars.NewLine
+        message &= "E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov" & ControlChars.NewLine
+        message &= "Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/" & ControlChars.NewLine & ControlChars.NewLine
 
-        strMessage &= frmDisclaimer.GetKangasPetritisDisclaimerText() & ControlChars.NewLine & ControlChars.NewLine
+        message &= frmDisclaimer.GetKangasPetritisDisclaimerText() & ControlChars.NewLine & ControlChars.NewLine
 
-        strMessage &= "Licensed under the 2-Clause BSD License; https://opensource.org/licenses/BSD-2-Clause" & ControlChars.NewLine & ControlChars.NewLine
+        message &= "Licensed under the 2-Clause BSD License; https://opensource.org/licenses/BSD-2-Clause" & ControlChars.NewLine & ControlChars.NewLine
 
-        strMessage &= "This software is provided by the copyright holders and contributors ""as is"" and "
-        strMessage &= "any express or implied warranties, including, but not limited to, the implied "
-        strMessage &= "warranties of merchantability and fitness for a particular purpose are "
-        strMessage &= "disclaimed. In no event shall the copyright holder or contributors be liable "
-        strMessage &= "for any direct, indirect, incidental, special, exemplary, or consequential "
-        strMessage &= "damages (including, but not limited to, procurement of substitute goods or "
-        strMessage &= "services; loss of use, data, or profits; or business interruption) however "
-        strMessage &= "caused and on any theory of liability, whether in contract, strict liability, "
-        strMessage &= "or tort (including negligence or otherwise) arising in any way out of the use "
-        strMessage &= "of this software, even if advised of the possibility of such damage."
+        message &= "This software is provided by the copyright holders and contributors ""as is"" and "
+        message &= "any express or implied warranties, including, but not limited to, the implied "
+        message &= "warranties of merchantability and fitness for a particular purpose are "
+        message &= "disclaimed. In no event shall the copyright holder or contributors be liable "
+        message &= "for any direct, indirect, incidental, special, exemplary, or consequential "
+        message &= "damages (including, but not limited to, procurement of substitute goods or "
+        message &= "services; loss of use, data, or profits; or business interruption) however "
+        message &= "caused and on any theory of liability, whether in contract, strict liability, "
+        message &= "or tort (including negligence or otherwise) arising in any way out of the use "
+        message &= "of this software, even if advised of the possibility of such damage."
 
-        MessageBox.Show(strMessage, "About", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        MessageBox.Show(message, "About", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
     End Sub
 
     Private Sub ShowElutionTimeInfo()
-        MessageBox.Show(objNETCalculator.ProgramDescription, "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        MessageBox.Show(NETCalculator.ProgramDescription, "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 
-    Private Sub ShowErrorMessage(strMessage As String)
-        ShowErrorMessage(strMessage, "Error")
+    Private Sub ShowErrorMessage(message As String)
+        ShowErrorMessage(message, "Error")
     End Sub
 
-    Private Sub ShowErrorMessage(strMessage As String, strCaption As String)
-        ShowErrorMessage(strMessage, strCaption)
+    Private Sub ShowErrorMessage(message As String, caption As String)
+        Dim messageIcon As MessageBoxIcon
+
+        If caption.ToLower().Contains("error") Then
+            messageIcon = MessageBoxIcon.Exclamation
+        Else
+            messageIcon = MessageBoxIcon.Information
+        End If
+
+        MessageBox.Show(message, caption, MessageBoxButtons.OK, messageIcon)
     End Sub
 
     Private Sub ShowSplashScreen()
@@ -1816,56 +1804,54 @@ Public Class frmMain
 
         Const APP_NAME_IN_REGISTRY = "PNNL_ProteinDigestionSimulator"
         Const REG_SECTION_OPTIONS = "Options"
-        Const REG_KEY_SPLASHDATE = "SplashDate"
+        Const REG_KEY_SPLASH_DATE = "SplashDate"
         Const DEFAULT_DATE = #1/1/2000#
 
         Const SPLASH_INTERVAL_DAYS = 182
 
-        Dim strLastSplashDate As String
-        Dim dtLastSplashDate As DateTime = DEFAULT_DATE
-        Dim dtCurrentDateTime As DateTime = DateTime.Now()
+        Dim lastSplashDateText As String
+        Dim lastSplashDate = DEFAULT_DATE
+        Dim currentDateTime = DateTime.Now()
 
         Try
-            strLastSplashDate = GetSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASHDATE, "")
+            lastSplashDateText = GetSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASH_DATE, "")
         Catch ex As Exception
             ' Error looking up the last splash date; don't continue
             Exit Sub
         End Try
 
-        If strLastSplashDate Is Nothing Then strLastSplashDate = String.Empty
-
-        If strLastSplashDate.Length > 0 Then
+        If Not String.IsNullOrWhiteSpace(lastSplashDateText) Then
             Try
                 ' Convert the text to a date
-                dtLastSplashDate = DateTime.Parse(strLastSplashDate)
+                lastSplashDate = DateTime.Parse(lastSplashDateText)
             Catch ex As Exception
                 ' Conversion failed
-                strLastSplashDate = String.Empty
-                dtLastSplashDate = DEFAULT_DATE
+                lastSplashDateText = String.Empty
+                lastSplashDate = DEFAULT_DATE
             End Try
         End If
 
-        If strLastSplashDate = String.Empty Then
+        If String.IsNullOrWhiteSpace(lastSplashDateText) Then
             ' Entry isn't present (or it is present, but isn't the correct format)
             ' Try to add it
             Try
-                SaveSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASHDATE, dtLastSplashDate.ToShortDateString)
+                SaveSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASH_DATE, lastSplashDate.ToShortDateString())
             Catch ex As Exception
                 ' Error adding the splash date; don't continue
                 Exit Sub
             End Try
         End If
 
-        If dtCurrentDateTime.Subtract(dtLastSplashDate).TotalDays >= SPLASH_INTERVAL_DAYS Then
+        If currentDateTime.Subtract(lastSplashDate).TotalDays >= SPLASH_INTERVAL_DAYS Then
             Try
-                dtLastSplashDate = dtCurrentDateTime
-                SaveSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASHDATE, dtLastSplashDate.ToShortDateString)
+                lastSplashDate = currentDateTime
+                SaveSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASH_DATE, lastSplashDate.ToShortDateString())
 
                 ' Now make sure the setting actually saved
-                strLastSplashDate = GetSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASHDATE, "")
-                dtLastSplashDate = DateTime.Parse(strLastSplashDate)
+                lastSplashDateText = GetSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASH_DATE, "")
+                lastSplashDate = DateTime.Parse(lastSplashDateText)
 
-                If dtLastSplashDate.ToShortDateString <> dtCurrentDateTime.ToShortDateString Then
+                If lastSplashDate.ToShortDateString() <> currentDateTime.ToShortDateString() Then
                     ' Error saving/retrieving date; don't continue
                     Exit Sub
                 End If
@@ -1875,8 +1861,8 @@ Public Class frmMain
                 Exit Sub
             End Try
 
-            Dim objSplashForm As New frmDisclaimer
-            objSplashForm.ShowDialog()
+            Dim splashForm As New frmDisclaimer
+            splashForm.ShowDialog()
 
         End If
 
@@ -1908,19 +1894,19 @@ Public Class frmMain
         End If
     End Sub
 
-    Private Sub ValidateFastaFile(strFastaFilePath As String)
+    Private Sub ValidateFastaFile(fastaFilePath As String)
 
         Try
             ' Make sure an existing file has been chosen
-            If strFastaFilePath Is Nothing OrElse strFastaFilePath.Length = 0 Then Exit Try
+            If fastaFilePath Is Nothing OrElse fastaFilePath.Length = 0 Then Exit Try
 
-            If Not File.Exists(strFastaFilePath) Then
-                ShowErrorMessage("File not found: " & strFastaFilePath, "Error")
+            If Not File.Exists(fastaFilePath) Then
+                ShowErrorMessage("File not found: " & fastaFilePath, "Error")
             Else
                 If mFastaValidation Is Nothing Then
-                    mFastaValidation = New frmFastaValidation(strFastaFilePath)
+                    mFastaValidation = New frmFastaValidation(fastaFilePath)
                 Else
-                    mFastaValidation.SetNewFastaFile(strFastaFilePath)
+                    mFastaValidation.SetNewFastaFile(fastaFilePath)
                 End If
 
                 Try
@@ -1955,114 +1941,104 @@ Public Class frmMain
 
     End Sub
 
-    Private Function ValidateSqlServerCachingOptionsForInputFile(strInputFilePath As String, blnAssumeDigested As Boolean, ByRef objProteinFileParser As clsParseProteinFile) As Boolean
+    Private Function ValidateSqlServerCachingOptionsForInputFile(inputFilePath As String, assumeDigested As Boolean, ByRef proteinFileParser As clsParseProteinFile) As Boolean
         ' Returns True if the user OK's or updates the current Sql Server caching options
         ' Returns False if the user cancels processing
-        ' Assumes that strInputFilePath exists, and thus does not have a Try-Catch block
+        ' Assumes that inputFilePath exists, and thus does not have a Try-Catch block
 
         Const SAMPLING_LINE_COUNT = 10000
 
-        Dim blnIsFastaFile As Boolean
+        Dim totalLineCount As Integer
 
-        Dim fiFileInfo As FileInfo
-        Dim intFileSizeKB As Integer
+        Dim suggestEnableSqlServer = False
+        Dim suggestDisableSqlServer = False
 
-        Dim strLineIn As String
-        Dim intLineCount As Integer
-        Dim intTotalLineCount As Integer
-        Dim lngBytesRead As Long
-
-        Dim blnProceed As Boolean
-        Dim blnSuggestEnableSqlServer = False
-        Dim blnSuggestDisableSqlServer = False
-
-        Dim eResponse As DialogResult
-
-        blnIsFastaFile = clsParseProteinFile.IsFastaFile(strInputFilePath) Or objProteinFileParser.AssumeFastaFile
+        Dim isFastaFile = clsParseProteinFile.IsFastaFile(inputFilePath) Or proteinFileParser.AssumeFastaFile
 
         ' Lookup the file size
-        fiFileInfo = New FileInfo(strInputFilePath)
-        intFileSizeKB = CType(fiFileInfo.Length / 1024.0, Integer)
+        Dim inputFile = New FileInfo(inputFilePath)
+        Dim fileSizeKB = CType(inputFile.Length / 1024.0, Integer)
 
-        If blnIsFastaFile Then
-            If objProteinFileParser.DigestionOptions.CleavageRuleID = clsInSilicoDigest.CleavageRuleConstants.KROneEnd Or
-               objProteinFileParser.DigestionOptions.CleavageRuleID = clsInSilicoDigest.CleavageRuleConstants.NoRule Then
-                blnSuggestEnableSqlServer = True
-            ElseIf intFileSizeKB > 500 Then
-                blnSuggestEnableSqlServer = True
-            ElseIf intFileSizeKB <= 500 Then
-                blnSuggestDisableSqlServer = True
+        If isFastaFile Then
+            If proteinFileParser.DigestionOptions.CleavageRuleID = clsInSilicoDigest.CleavageRuleConstants.KROneEnd Or
+               proteinFileParser.DigestionOptions.CleavageRuleID = clsInSilicoDigest.CleavageRuleConstants.NoRule Then
+                suggestEnableSqlServer = True
+            ElseIf fileSizeKB > 500 Then
+                suggestEnableSqlServer = True
+            ElseIf fileSizeKB <= 500 Then
+                suggestDisableSqlServer = True
             End If
         Else
             ' Assume a delimited text file
             ' Estimate the total line count by reading the first SAMPLING_LINE_COUNT lines
             Try
-                Using srStreamReader = New StreamReader(strInputFilePath)
+                Using reader = New StreamReader(inputFilePath)
 
-                    lngBytesRead = 0
-                    intLineCount = 0
-                    Do While srStreamReader.Peek() >= 0 AndAlso intLineCount < SAMPLING_LINE_COUNT
-                        strLineIn = srStreamReader.ReadLine
-                        intLineCount += 1
-                        lngBytesRead += strLineIn.Length + 2
+                    Dim bytesRead = 0
+                    Dim lineCount = 0
+                    Do While Not reader.EndOfStream AndAlso lineCount < SAMPLING_LINE_COUNT
+                        Dim dataLine = reader.ReadLine()
+                        lineCount += 1
+                        bytesRead += dataLine.Length + 2
                     Loop
 
-                    If intLineCount < SAMPLING_LINE_COUNT OrElse lngBytesRead = 0 Then
-                        intTotalLineCount = intLineCount
+                    If lineCount < SAMPLING_LINE_COUNT OrElse bytesRead = 0 Then
+                        totalLineCount = lineCount
                     Else
-                        intTotalLineCount = CInt(intLineCount * intFileSizeKB / (lngBytesRead / 1024))
+                        totalLineCount = CInt(lineCount * fileSizeKB / (bytesRead / 1024))
                     End If
                 End Using
 
             Catch ex As Exception
                 ' Error reading input file
-                blnSuggestEnableSqlServer = False
-                blnSuggestDisableSqlServer = False
+                suggestEnableSqlServer = False
+                suggestDisableSqlServer = False
             End Try
 
-            If blnAssumeDigested Then
-                If intTotalLineCount > 50000 Then
-                    blnSuggestEnableSqlServer = True
-                ElseIf intTotalLineCount <= 50000 Then
-                    blnSuggestDisableSqlServer = True
+            If assumeDigested Then
+                If totalLineCount > 50000 Then
+                    suggestEnableSqlServer = True
+                ElseIf totalLineCount <= 50000 Then
+                    suggestDisableSqlServer = True
                 End If
             Else
-                If intTotalLineCount > 1000 Then
-                    blnSuggestEnableSqlServer = True
-                ElseIf intTotalLineCount <= 1000 Then
-                    blnSuggestDisableSqlServer = True
+                If totalLineCount > 1000 Then
+                    suggestEnableSqlServer = True
+                ElseIf totalLineCount <= 1000 Then
+                    suggestDisableSqlServer = True
                 End If
 
             End If
         End If
 
-        If blnSuggestEnableSqlServer And Not chkUseSqlServerDBToCacheData.Checked Then
-            eResponse = MessageBox.Show("Warning, memory usage could be quite large.  Enable Sql Server caching using Server " & txtSqlServerName.Text & "?  If no, then will continue using memory caching.", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
+        Dim proceed As Boolean
+        If suggestEnableSqlServer And Not chkUseSqlServerDBToCacheData.Checked Then
+            Dim eResponse = MessageBox.Show("Warning, memory usage could be quite large.  Enable Sql Server caching using Server " & txtSqlServerName.Text & "?  If no, then will continue using memory caching.", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
             If eResponse = DialogResult.Yes Then chkUseSqlServerDBToCacheData.Checked = True
             If eResponse = DialogResult.Cancel Then
-                blnProceed = False
+                proceed = False
             Else
-                blnProceed = True
+                proceed = True
             End If
-        ElseIf blnSuggestDisableSqlServer And chkUseSqlServerDBToCacheData.Checked Then
-            eResponse = MessageBox.Show("Memory usage is expected to be minimal.  Continue caching data using Server " & txtSqlServerName.Text & "?  If no, then will switch to using memory caching.", "Note", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+        ElseIf suggestDisableSqlServer And chkUseSqlServerDBToCacheData.Checked Then
+            Dim eResponse = MessageBox.Show("Memory usage is expected to be minimal.  Continue caching data using Server " & txtSqlServerName.Text & "?  If no, then will switch to using memory caching.", "Note", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
             If eResponse = DialogResult.No Then chkUseSqlServerDBToCacheData.Checked = False
             If eResponse = DialogResult.Cancel Then
-                blnProceed = False
+                proceed = False
             Else
-                blnProceed = True
+                proceed = True
             End If
         Else
-            blnProceed = True
+            proceed = True
         End If
 
-        Return blnProceed
+        Return proceed
 
     End Function
 
-    Private Sub ValidateTextbox(ByRef ThisTextBox As TextBox, strDefaultText As String)
-        If ThisTextBox.TextLength = 0 Then
-            ThisTextBox.Text = strDefaultText
+    Private Sub ValidateTextBox(ByRef thisTextBox As TextBox, defaultText As String)
+        If thisTextBox.TextLength = 0 Then
+            thisTextBox.Text = defaultText
         End If
     End Sub
 #End Region
@@ -2321,8 +2297,8 @@ Public Class frmMain
         mFastaValidationOptions = mFastaValidation.GetOptions()
     End Sub
 
-    Private Sub mParseProteinFile_ErrorEvent(strMessage As String, ex As Exception) Handles mParseProteinFile.ErrorEvent
-        lblErrorMessage.Text = "Error in mParseProteinFile: " & strMessage
+    Private Sub mParseProteinFile_ErrorEvent(message As String, ex As Exception) Handles mParseProteinFile.ErrorEvent
+        lblErrorMessage.Text = "Error in mParseProteinFile: " & message
         Application.DoEvents()
     End Sub
 
@@ -2340,7 +2316,7 @@ Public Class frmMain
 
         lblSubtaskProgress.Text = ""
         lblSubtaskProgressDescription.Text = ""
-        Me.SubtaskProgressIsVisible = False
+        SubtaskProgressIsVisible = False
 
         Application.DoEvents()
     End Sub
@@ -2356,8 +2332,8 @@ Public Class frmMain
         Application.DoEvents()
     End Sub
 
-    Private Sub mProteinDigestionSimulator_ErrorEvent(strMessage As String, ex As Exception) Handles mProteinDigestionSimulator.ErrorEvent
-        lblErrorMessage.Text = "Error in mProteinDigestionSimulator: " & strMessage
+    Private Sub mProteinDigestionSimulator_ErrorEvent(message As String, ex As Exception) Handles mProteinDigestionSimulator.ErrorEvent
+        lblErrorMessage.Text = "Error in mProteinDigestionSimulator: " & message
         Application.DoEvents()
     End Sub
 
@@ -2375,7 +2351,7 @@ Public Class frmMain
 
         lblSubtaskProgress.Text = ""
         lblSubtaskProgressDescription.Text = ""
-        Me.SubtaskProgressIsVisible = False
+        SubtaskProgressIsVisible = False
 
         Application.DoEvents()
     End Sub

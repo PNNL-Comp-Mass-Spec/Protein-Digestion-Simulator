@@ -323,35 +323,35 @@ Public Class clsProteinDigestionSimulator
 
 #End Region
 
-    Public Sub AddSearchThresholdLevel(eMassToleranceType As clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants, dblMassTolerance As Double, dblNETTolerance As Double, blnClearExistingThresholds As Boolean)
-        AddSearchThresholdLevel(eMassToleranceType, dblMassTolerance, dblNETTolerance, True, 0, 0, True, blnClearExistingThresholds)
+    Public Sub AddSearchThresholdLevel(eMassToleranceType As clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants, massTolerance As Double, netTolerance As Double, clearExistingThresholds As Boolean)
+        AddSearchThresholdLevel(eMassToleranceType, massTolerance, netTolerance, True, 0, 0, True, clearExistingThresholds)
     End Sub
 
-    Public Sub AddSearchThresholdLevel(eMassToleranceType As clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants, dblMassTolerance As Double, dblNETTolerance As Double, blnAutoDefineSLiCScoreThresholds As Boolean, SLiCScoreMassPPMStDev As Double, SLiCScoreNETStDev As Double, SLiCScoreUseAMTNETStDev As Boolean, blnClearExistingThresholds As Boolean)
-        AddSearchThresholdLevel(eMassToleranceType, dblMassTolerance, dblNETTolerance, True, 0, 0, True, blnClearExistingThresholds, clsPeakMatchingClass.DEFAULT_SLIC_MAX_SEARCH_DISTANCE_MULTIPLIER)
+    Public Sub AddSearchThresholdLevel(eMassToleranceType As clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants, massTolerance As Double, netTolerance As Double, autoDefineSLiCScoreThresholds As Boolean, slicScoreMassPPMStDev As Double, slicScoreNETStDev As Double, slicScoreUseAMTNETStDev As Boolean, clearExistingThresholds As Boolean)
+        AddSearchThresholdLevel(eMassToleranceType, massTolerance, netTolerance, True, 0, 0, True, clearExistingThresholds, clsPeakMatchingClass.DEFAULT_SLIC_MAX_SEARCH_DISTANCE_MULTIPLIER)
     End Sub
 
-    Public Sub AddSearchThresholdLevel(eMassToleranceType As clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants, dblMassTolerance As Double, dblNETTolerance As Double, blnAutoDefineSLiCScoreThresholds As Boolean, SLiCScoreMassPPMStDev As Double, SLiCScoreNETStDev As Double, SLiCScoreUseAMTNETStDev As Boolean, blnClearExistingThresholds As Boolean, sngSLiCScoreMaxSearchDistanceMultiplier As Single)
+    Public Sub AddSearchThresholdLevel(eMassToleranceType As clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants, massTolerance As Double, netTolerance As Double, autoDefineSLiCScoreThresholds As Boolean, slicScoreMassPPMStDev As Double, slicScoreNETStDev As Double, slicScoreUseAMTNETStDev As Boolean, clearExistingThresholds As Boolean, slicScoreMaxSearchDistanceMultiplier As Single)
 
-        If blnClearExistingThresholds Then
+        If clearExistingThresholds Then
             InitializeThresholdLevels(mThresholdLevels, 1, False)
         Else
             InitializeThresholdLevels(mThresholdLevels, mThresholdLevels.Length + 1, True)
         End If
 
         With mThresholdLevels(mThresholdLevels.Length - 1)
-            .AutoDefineSLiCScoreThresholds = blnAutoDefineSLiCScoreThresholds
+            .AutoDefineSLiCScoreThresholds = autoDefineSLiCScoreThresholds
 
-            .SLiCScoreMaxSearchDistanceMultiplier = sngSLiCScoreMaxSearchDistanceMultiplier
+            .SLiCScoreMaxSearchDistanceMultiplier = slicScoreMaxSearchDistanceMultiplier
             .MassTolType = eMassToleranceType
-            .MassTolerance = dblMassTolerance
-            .NETTolerance = dblNETTolerance
+            .MassTolerance = massTolerance
+            .NETTolerance = netTolerance
 
-            .SLiCScoreUseAMTNETStDev = SLiCScoreUseAMTNETStDev
+            .SLiCScoreUseAMTNETStDev = slicScoreUseAMTNETStDev
 
-            If Not blnAutoDefineSLiCScoreThresholds Then
-                .SLiCScoreMassPPMStDev = SLiCScoreMassPPMStDev
-                .SLiCScoreNETStDev = SLiCScoreNETStDev
+            If Not autoDefineSLiCScoreThresholds Then
+                .SLiCScoreMassPPMStDev = slicScoreMassPPMStDev
+                .SLiCScoreNETStDev = slicScoreNETStDev
             End If
         End With
     End Sub
@@ -359,436 +359,425 @@ Public Class clsProteinDigestionSimulator
     ''' <summary>
     ''' Add/update a peptide
     ''' </summary>
-    ''' <param name="intUniqueSeqID"></param>
-    ''' <param name="dblPeptideMass"></param>
-    ''' <param name="sngPeptideNET"></param>
-    ''' <param name="sngPeptideNETStDev"></param>
-    ''' <param name="sngPeptideDiscriminantScore"></param>
-    ''' <param name="strProteinName"></param>
+    ''' <param name="uniqueSeqID"></param>
+    ''' <param name="peptideMass"></param>
+    ''' <param name="peptideNET"></param>
+    ''' <param name="peptideNETStDev"></param>
+    ''' <param name="peptideDiscriminantScore"></param>
+    ''' <param name="proteinName"></param>
     ''' <param name="eCleavageStateInProtein"></param>
-    ''' <param name="strPeptideName"></param>
-    ''' <returns></returns>
+    ''' <param name="peptideName"></param>
     ''' <remarks>
     ''' Assures that the peptide is present in mComparisonPeptideInfo and that the protein and protein/peptide mapping is present in mProteinInfo
-    ''' Assumes that intUniqueSeqID is truly unique for the given peptide
+    ''' Assumes that uniqueSeqID is truly unique for the given peptide
     ''' </remarks>
-    Private Function AddOrUpdatePeptide(
-      intUniqueSeqID As Integer,
-      dblPeptideMass As Double,
-      sngPeptideNET As Single,
-      sngPeptideNETStDev As Single,
-      sngPeptideDiscriminantScore As Single,
-      strProteinName As String,
+    Private Sub AddOrUpdatePeptide(
+      uniqueSeqID As Integer,
+      peptideMass As Double,
+      peptideNET As Single,
+      peptideNETStDev As Single,
+      peptideDiscriminantScore As Single,
+      proteinName As String,
       eCleavageStateInProtein As clsProteinInfo.eCleavageStateConstants,
-      strPeptideName As String) As Integer
+      peptideName As String)
 
-        Dim intProteinID As Integer
+        Dim proteinID As Integer
 
-        mComparisonPeptideInfo.Add(intUniqueSeqID, strPeptideName, dblPeptideMass, sngPeptideNET, sngPeptideNETStDev, sngPeptideDiscriminantScore)
+        mComparisonPeptideInfo.Add(uniqueSeqID, peptideName, peptideMass, peptideNET, peptideNETStDev, peptideDiscriminantScore)
 
-        ' Determine the ProteinID for strProteinName
-        If Not strProteinName Is Nothing AndAlso strProteinName.Length > 0 Then
+        ' Determine the ProteinID for proteinName
+        If Not proteinName Is Nothing AndAlso proteinName.Length > 0 Then
             ' Lookup the index for the given protein
-            intProteinID = AddOrUpdateProtein(strProteinName)
+            proteinID = AddOrUpdateProtein(proteinName)
         Else
-            intProteinID = -1
+            proteinID = -1
         End If
 
-        If intProteinID >= 0 Then
+        If proteinID >= 0 Then
             ' Add the protein to the peptide to protein mapping table, if necessary
-            mProteinInfo.AddProteinToPeptideMapping(intProteinID, intUniqueSeqID, eCleavageStateInProtein)
+            mProteinInfo.AddProteinToPeptideMapping(proteinID, uniqueSeqID, eCleavageStateInProtein)
         End If
 
-        Return intUniqueSeqID
-
-    End Function
+    End Sub
 
     ''' <summary>
     ''' Add/update a protein
     ''' </summary>
-    ''' <param name="strProteinName"></param>
+    ''' <param name="proteinName"></param>
     ''' <returns>The index of the protein in mProteinInfo, or -1 if not found and unable to add it</returns>
-    Private Function AddOrUpdateProtein(strProteinName As String) As Integer
+    Private Function AddOrUpdateProtein(proteinName As String) As Integer
 
-        Dim intProteinID As Integer
+        Dim proteinID As Integer
 
-        ' Note: intProteinID is auto-assigned
-        If Not mProteinInfo.Add(strProteinName, intProteinID) Then
-            intProteinID = -1
+        ' Note: proteinID is auto-assigned
+        If Not mProteinInfo.Add(proteinName, proteinID) Then
+            proteinID = -1
         End If
 
-        Return intProteinID
+        Return proteinID
 
     End Function
 
     Private Function ExportPeakMatchingResults(
-      objThresholds As clsPeakMatchingClass.clsSearchThresholds,
-      intThresholdIndex As Integer,
-      intComparisonFeatureCount As Integer,
-      objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass,
-      strOutputFolderPath As String,
-      strOutputFilenameBase As String,
-      srPMResultsOutFile As StreamWriter) As Boolean
+      thresholds As clsPeakMatchingClass.clsSearchThresholds,
+      thresholdIndex As Integer,
+      comparisonFeatureCount As Integer,
+      peptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass,
+      outputFolderPath As String,
+      outputFilenameBase As String,
+      pmResultsWriter As StreamWriter) As Boolean
 
-        Dim strWorkingFilenameBase As String
-        Dim strOutputFilePath As String
+        Dim workingFilenameBase As String
+        Dim outputFilePath As String
 
-        Dim strLinePrefix As String
-        Dim strLineOut As String
+        Dim linePrefix As String
+        Dim lineOut As String
 
-        Dim intMatchIndex As Integer
+        Dim matchIndex As Integer
 
-        Dim intCachedMatchCount As Integer
-        Dim intCachedMatchCountFeatureID As Integer
+        Dim cachedMatchCount As Integer
+        Dim cachedMatchCountFeatureID As Integer
 
-        Dim intCurrentFeatureID As Integer
+        Dim currentFeatureID As Integer
         Dim udtMatchResultInfo As clsPeakMatchingClass.PMFeatureMatchResultsClass.udtPeakMatchingResultType
 
-        Dim dtLastFlushTime As DateTime
-        Dim blnSuccess As Boolean
+        Dim lastFlushTime As DateTime
+        Dim success As Boolean
 
         Try
 
             ResetProgress("Exporting peak matching results")
 
-            If mCreateSeparateOutputFileForEachThreshold Then
+            If CreateSeparateOutputFileForEachThreshold Then
                 ' Create one file for each search threshold level
-                strWorkingFilenameBase = strOutputFilenameBase & "_PMResults" & (intThresholdIndex + 1).ToString & ".txt"
-                strOutputFilePath = Path.Combine(strOutputFolderPath, strWorkingFilenameBase)
+                workingFilenameBase = outputFilenameBase & "_PMResults" & (thresholdIndex + 1).ToString() & ".txt"
+                outputFilePath = Path.Combine(outputFolderPath, workingFilenameBase)
 
-                srPMResultsOutFile = New StreamWriter(strOutputFilePath)
+                pmResultsWriter = New StreamWriter(outputFilePath)
 
                 ' Write the threshold values to the output file
-                srPMResultsOutFile.WriteLine("Comparison feature count: " & intComparisonFeatureCount.ToString)
-                ExportThresholds(srPMResultsOutFile, intThresholdIndex, objThresholds)
+                pmResultsWriter.WriteLine("Comparison feature count: " & comparisonFeatureCount.ToString())
+                ExportThresholds(pmResultsWriter, thresholdIndex, thresholds)
 
-                srPMResultsOutFile.WriteLine()
+                pmResultsWriter.WriteLine()
 
-                ExportPeakMatchingResultsWriteHeaders(srPMResultsOutFile, mCreateSeparateOutputFileForEachThreshold)
+                ExportPeakMatchingResultsWriteHeaders(pmResultsWriter, CreateSeparateOutputFileForEachThreshold)
             End If
 
 
-            intCachedMatchCount = 0
-            intCachedMatchCountFeatureID = -1
+            cachedMatchCount = 0
+            cachedMatchCountFeatureID = -1
 
-            dtLastFlushTime = DateTime.UtcNow
+            lastFlushTime = DateTime.UtcNow
 
             ' ToDo: Grab chunks of data from the server if caching into SqlServer (change this to a while loop)
-            For intMatchIndex = 0 To objPeptideMatchResults.Count - 1
+            For matchIndex = 0 To peptideMatchResults.Count - 1
 
-                If mCreateSeparateOutputFileForEachThreshold Then
-                    strLinePrefix = String.Empty
+                If CreateSeparateOutputFileForEachThreshold Then
+                    linePrefix = String.Empty
                 Else
-                    strLinePrefix = (intThresholdIndex + 1).ToString & mOutputFileDelimiter
+                    linePrefix = (thresholdIndex + 1).ToString() & mOutputFileDelimiter
                 End If
 
-                If objPeptideMatchResults.GetMatchInfoByRowIndex(intMatchIndex, intCurrentFeatureID, udtMatchResultInfo) Then
+                If peptideMatchResults.GetMatchInfoByRowIndex(matchIndex, currentFeatureID, udtMatchResultInfo) Then
 
-                    If intCurrentFeatureID <> intCachedMatchCountFeatureID Then
-                        intCachedMatchCount = objPeptideMatchResults.MatchCountForFeatureID(intCurrentFeatureID)
-                        intCachedMatchCountFeatureID = intCurrentFeatureID
+                    If currentFeatureID <> cachedMatchCountFeatureID Then
+                        cachedMatchCount = peptideMatchResults.MatchCountForFeatureID(currentFeatureID)
+                        cachedMatchCountFeatureID = currentFeatureID
                     End If
 
 
-                    strLineOut = strLinePrefix &
-                                intCurrentFeatureID.ToString & mOutputFileDelimiter &
-                                intCachedMatchCount.ToString & mOutputFileDelimiter &
-                                udtMatchResultInfo.MultiAMTHitCount.ToString & mOutputFileDelimiter &
-                                udtMatchResultInfo.MatchingID.ToString & mOutputFileDelimiter &
-                                Math.Round(udtMatchResultInfo.MassErr, 6).ToString & mOutputFileDelimiter &
-                                Math.Round(udtMatchResultInfo.NETErr, 4).ToString & mOutputFileDelimiter &
-                                Math.Round(udtMatchResultInfo.SLiCScore, 4).ToString & mOutputFileDelimiter &
-                                Math.Round(udtMatchResultInfo.DelSLiC, 4).ToString
-                    srPMResultsOutFile.WriteLine(strLineOut)
+                    lineOut = linePrefix &
+                                currentFeatureID.ToString() & mOutputFileDelimiter &
+                                cachedMatchCount.ToString() & mOutputFileDelimiter &
+                                udtMatchResultInfo.MultiAMTHitCount.ToString() & mOutputFileDelimiter &
+                                udtMatchResultInfo.MatchingID.ToString() & mOutputFileDelimiter &
+                                Math.Round(udtMatchResultInfo.MassErr, 6).ToString() & mOutputFileDelimiter &
+                                Math.Round(udtMatchResultInfo.NETErr, 4).ToString() & mOutputFileDelimiter &
+                                Math.Round(udtMatchResultInfo.SLiCScore, 4).ToString() & mOutputFileDelimiter &
+                                Math.Round(udtMatchResultInfo.DelSLiC, 4).ToString()
+                    pmResultsWriter.WriteLine(lineOut)
 
                 End If
 
-                If intMatchIndex Mod 100 = 0 Then
-                    UpdateProgress(CSng(intMatchIndex / objPeptideMatchResults.Count * 100))
+                If matchIndex Mod 100 = 0 Then
+                    UpdateProgress(CSng(matchIndex / peptideMatchResults.Count * 100))
 
-                    If DateTime.UtcNow.Subtract(dtLastFlushTime).TotalSeconds > 30 Then
-                        srPMResultsOutFile.Flush()
+                    If DateTime.UtcNow.Subtract(lastFlushTime).TotalSeconds > 30 Then
+                        pmResultsWriter.Flush()
                     End If
 
                 End If
 
-            Next intMatchIndex
+            Next matchIndex
 
-            If mCreateSeparateOutputFileForEachThreshold Then
-                srPMResultsOutFile.Close()
+            If CreateSeparateOutputFileForEachThreshold Then
+                pmResultsWriter.Close()
             End If
 
             UpdateProgress(100)
 
-            blnSuccess = True
+            success = True
 
         Catch ex As Exception
-            blnSuccess = False
+            success = False
         End Try
 
-        Return blnSuccess
+        Return success
 
     End Function
 
-    Private Sub ExportPeakMatchingResultsWriteHeaders(srOutFile As TextWriter, blnCreateSeparateOutputFileForEachThreshold As Boolean)
+    Private Sub ExportPeakMatchingResultsWriteHeaders(pmResultsWriter As TextWriter, createSeparateOutputFiles As Boolean)
 
-        Dim strLineOut As String
+        Dim lineOut As String
 
         ' Write the column headers
-        If blnCreateSeparateOutputFileForEachThreshold Then
-            strLineOut = String.Empty
+        If createSeparateOutputFiles Then
+            lineOut = String.Empty
         Else
-            strLineOut = "Threshold_Index" & mOutputFileDelimiter
+            lineOut = "Threshold_Index" & mOutputFileDelimiter
         End If
 
-        strLineOut &= "Unique_Sequence_ID" &
+        lineOut &= "Unique_Sequence_ID" &
                     mOutputFileDelimiter & "Match_Count" &
                     mOutputFileDelimiter & "Multi_AMT_Hit_Count" &
                     mOutputFileDelimiter & "Matching_ID_Index" &
                     mOutputFileDelimiter & "Mass_Err"
-        strLineOut &= mOutputFileDelimiter & "NET_Err"
+        lineOut &= mOutputFileDelimiter & "NET_Err"
 
-        strLineOut &= mOutputFileDelimiter & "SLiC_Score" &
+        lineOut &= mOutputFileDelimiter & "SLiC_Score" &
                     mOutputFileDelimiter & "Del_SLiC"
-        srOutFile.WriteLine(strLineOut)
+        pmResultsWriter.WriteLine(lineOut)
 
     End Sub
 
-    Private Function ExportPeptideUniquenessResults(intThresholdIndex As Integer, ByRef udtBinResults As udtBinnedPeptideCountStatsType, srOutFile As TextWriter) As Boolean
+    Private Function ExportPeptideUniquenessResults(thresholdIndex As Integer, ByRef udtBinResults As udtBinnedPeptideCountStatsType, peptideUniquenessWriter As TextWriter) As Boolean
 
-        Dim strLineOut As String
-        Dim intBinIndex As Integer
-        Dim intIndex As Integer
+        Dim lineOut As String
+        Dim binIndex As Integer
+        Dim index As Integer
 
-        Dim blnSuccess As Boolean
+        Dim success As Boolean
 
         Try
 
             With udtBinResults
-                For intBinIndex = 0 To .BinCount - 1
-                    With .Bins(intBinIndex)
-                        If mCreateSeparateOutputFileForEachThreshold Then
-                            strLineOut = String.Empty
+                For binIndex = 0 To .BinCount - 1
+                    With .Bins(binIndex)
+                        If CreateSeparateOutputFileForEachThreshold Then
+                            lineOut = String.Empty
                         Else
-                            strLineOut = (intThresholdIndex + 1).ToString & mOutputFileDelimiter
+                            lineOut = (thresholdIndex + 1).ToString() & mOutputFileDelimiter
                         End If
-                        strLineOut &= Math.Round(.MassBinStart, 2).ToString &
-                                    mOutputFileDelimiter & Math.Round(.PercentUnique, 3).ToString &
-                                    mOutputFileDelimiter & Math.Round(.NonUniqueResultIDCount + .UniqueResultIDCount, 3).ToString
+                        lineOut &= Math.Round(.MassBinStart, 2).ToString() &
+                                    mOutputFileDelimiter & Math.Round(.PercentUnique, 3).ToString() &
+                                    mOutputFileDelimiter & Math.Round(.NonUniqueResultIDCount + .UniqueResultIDCount, 3).ToString()
 
-                        For intIndex = 1 To Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave)
-                            strLineOut &= mOutputFileDelimiter & .ResultIDCountDistribution(intIndex).ToString
-                        Next intIndex
+                        For index = 1 To Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave)
+                            lineOut &= mOutputFileDelimiter & .ResultIDCountDistribution(index).ToString()
+                        Next index
                     End With
 
-                    srOutFile.WriteLine(strLineOut)
+                    peptideUniquenessWriter.WriteLine(lineOut)
 
-                Next intBinIndex
+                Next binIndex
             End With
 
-            srOutFile.Flush()
-            blnSuccess = True
+            peptideUniquenessWriter.Flush()
+            success = True
 
         Catch ex As Exception
-            blnSuccess = False
+            success = False
         End Try
 
-        Return blnSuccess
+        Return success
 
     End Function
 
     Private Function ExportProteinStats(
-      intThresholdIndex As Integer,
-      srOutFile As TextWriter) As Boolean
-
-        Dim strLineOut As String
-
-        Dim intProteinIndex As Integer
-
-        Dim intProteinID As Integer
-        Dim strProteinName As String = String.Empty
-
-        Dim dtLastFlushTime As DateTime
-        Dim blnSuccess As Boolean
+      thresholdIndex As Integer,
+      proteinStatsWriter As TextWriter) As Boolean
 
         Try
 
-            dtLastFlushTime = DateTime.UtcNow
-            For intProteinIndex = 0 To mProteinInfo.Count - 1
+            Dim lastFlushTime = DateTime.UtcNow
+            For proteinIndex = 0 To mProteinInfo.Count - 1
 
-                If mCreateSeparateOutputFileForEachThreshold Then
-                    strLineOut = String.Empty
+                Dim lineOut As String
+                If CreateSeparateOutputFileForEachThreshold Then
+                    lineOut = String.Empty
                 Else
-                    strLineOut = (intThresholdIndex + 1).ToString & mOutputFileDelimiter
+                    lineOut = (thresholdIndex + 1).ToString() & mOutputFileDelimiter
                 End If
 
-                If mProteinInfo.GetProteinInfoByRowIndex(intProteinIndex, intProteinID, strProteinName) Then
-                    strLineOut &= strProteinName &
-                                mOutputFileDelimiter & intProteinID.ToString &
-                                mOutputFileDelimiter & mProteinInfo.GetPeptideCountForProteinByID(intProteinID).ToString &
-                                mOutputFileDelimiter & GetPeptidesUniquelyIdentifiedCountByProteinID(intProteinID).ToString
+                Dim proteinID As Integer
+                Dim proteinName As String = String.Empty
 
-                    srOutFile.WriteLine(strLineOut)
+                If mProteinInfo.GetProteinInfoByRowIndex(proteinIndex, proteinID, proteinName) Then
+                    lineOut &= proteinName &
+                                mOutputFileDelimiter & proteinID.ToString() &
+                                mOutputFileDelimiter & mProteinInfo.GetPeptideCountForProteinByID(proteinID).ToString() &
+                                mOutputFileDelimiter & GetPeptidesUniquelyIdentifiedCountByProteinID(proteinID).ToString()
+
+                    proteinStatsWriter.WriteLine(lineOut)
 
                 End If
 
-                If intProteinIndex Mod 100 = 0 AndAlso DateTime.UtcNow.Subtract(dtLastFlushTime).TotalSeconds > 30 Then
-                    srOutFile.Flush()
+                If proteinIndex Mod 100 = 0 AndAlso DateTime.UtcNow.Subtract(lastFlushTime).TotalSeconds > 30 Then
+                    proteinStatsWriter.Flush()
                 End If
-            Next intProteinIndex
+            Next proteinIndex
 
-            srOutFile.Flush()
-            blnSuccess = True
+            proteinStatsWriter.Flush()
+            Return True
 
         Catch ex As Exception
-            blnSuccess = False
+            Return False
         End Try
-
-        Return blnSuccess
 
     End Function
 
-    Private Function ExtractServerFromConnectionString(strConnectionString As String) As String
+    Private Function ExtractServerFromConnectionString(connectionString As String) As String
         Const DATA_SOURCE_TEXT = "data source"
 
-        Dim intCharLoc, intCharLoc2 As Integer
-        Dim strServerName As String = String.Empty
+        Dim charLoc, charLoc2 As Integer
+        Dim serverName As String = String.Empty
 
         Try
-            intCharLoc = strConnectionString.IndexOf(DATA_SOURCE_TEXT, StringComparison.OrdinalIgnoreCase)
-            If intCharLoc >= 0 Then
-                intCharLoc += DATA_SOURCE_TEXT.Length
-                intCharLoc2 = strConnectionString.ToLower.IndexOf(";"c, intCharLoc + 1)
+            charLoc = connectionString.IndexOf(DATA_SOURCE_TEXT, StringComparison.OrdinalIgnoreCase)
+            If charLoc >= 0 Then
+                charLoc += DATA_SOURCE_TEXT.Length
+                charLoc2 = connectionString.ToLower.IndexOf(";"c, charLoc + 1)
 
-                If intCharLoc2 <= intCharLoc Then
-                    intCharLoc2 = strConnectionString.Length - 1
+                If charLoc2 <= charLoc Then
+                    charLoc2 = connectionString.Length - 1
                 End If
 
-                strServerName = strConnectionString.Substring(intCharLoc + 1, intCharLoc2 - intCharLoc - 1)
+                serverName = connectionString.Substring(charLoc + 1, charLoc2 - charLoc - 1)
             End If
         Catch ex As Exception
         End Try
 
-        Return strServerName
+        Return serverName
 
     End Function
 
     Private Function FeatureContainsUniqueMatch(
       udtFeatureInfo As clsPeakMatchingClass.udtFeatureInfoType,
-      objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass,
-      ByRef intMatchCount As Integer,
-      blnUseSLiCScoreForUniqueness As Boolean,
-      sngMinimumSLiCScore As Single) As Boolean
+      peptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass,
+      ByRef matchCount As Integer,
+      usingSLiCScoreForUniqueness As Boolean,
+      minimumSLiCScore As Single) As Boolean
 
-        Dim blnUniqueMatch As Boolean
+        Dim uniqueMatch As Boolean
         Dim udtMatchResults() As clsPeakMatchingClass.PMFeatureMatchResultsClass.udtPeakMatchingResultType = Nothing
 
-        Dim intMatchIndex As Integer
+        Dim matchIndex As Integer
 
-        blnUniqueMatch = False
+        uniqueMatch = False
 
-        If objPeptideMatchResults.GetMatchInfoByFeatureID(udtFeatureInfo.FeatureID, udtMatchResults, intMatchCount) Then
-            If intMatchCount > 0 Then
+        If peptideMatchResults.GetMatchInfoByFeatureID(udtFeatureInfo.FeatureID, udtMatchResults, matchCount) Then
+            If matchCount > 0 Then
                 ' The current feature has 1 or more matches
 
-                If blnUseSLiCScoreForUniqueness Then
+                If usingSLiCScoreForUniqueness Then
                     ' See if any of the matches have a SLiC Score >= the minimum SLiC Score
-                    blnUniqueMatch = False
-                    For intMatchIndex = 0 To intMatchCount - 1
-                        If Math.Round(udtMatchResults(intMatchIndex).SLiCScore, 4) >= Math.Round(sngMinimumSLiCScore, 4) Then
-                            blnUniqueMatch = True
+                    uniqueMatch = False
+                    For matchIndex = 0 To matchCount - 1
+                        If Math.Round(udtMatchResults(matchIndex).SLiCScore, 4) >= Math.Round(minimumSLiCScore, 4) Then
+                            uniqueMatch = True
                             Exit For
                         End If
-                    Next intMatchIndex
+                    Next matchIndex
                 Else
                     ' Not using SLiC score; when we performed the peak matching, we used an ellipse or rectangle to find matching features
                     ' This feature is unique if it only has one match
-                    If intMatchCount = 1 Then
-                        blnUniqueMatch = True
+                    If matchCount = 1 Then
+                        uniqueMatch = True
                     Else
-                        blnUniqueMatch = False
+                        uniqueMatch = False
                     End If
                 End If
 
             End If
         Else
-            intMatchCount = 0
+            matchCount = 0
         End If
 
-        Return blnUniqueMatch
+        Return uniqueMatch
 
     End Function
 
     Private Sub ExportThresholds(
-      srOutFile As TextWriter,
-      intThresholdIndex As Integer,
-      objSearchThresholds As clsPeakMatchingClass.clsSearchThresholds)
+      writer As TextWriter,
+      thresholdIndex As Integer,
+      searchThresholds As clsPeakMatchingClass.clsSearchThresholds)
 
-        Dim strDelimiter As String
-        Dim strLineOut As String
+        Dim delimiter As String
+        Dim lineOut As String
 
-        strDelimiter = "; "
+        delimiter = "; "
 
-        With objSearchThresholds
+        With searchThresholds
             ' Write the thresholds
-            strLineOut = "Threshold Index: " & (intThresholdIndex + 1).ToString
-            strLineOut &= strDelimiter & "Mass Tolerance: +- "
+            lineOut = "Threshold Index: " & (thresholdIndex + 1).ToString()
+            lineOut &= delimiter & "Mass Tolerance: +- "
             Select Case .MassTolType
                 Case clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.Absolute
-                    strLineOut &= Math.Round(.MassTolerance, 5).ToString & " Da"
+                    lineOut &= Math.Round(.MassTolerance, 5).ToString() & " Da"
                 Case clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.PPM
-                    strLineOut &= Math.Round(.MassTolerance, 2).ToString & " ppm"
+                    lineOut &= Math.Round(.MassTolerance, 2).ToString() & " ppm"
                 Case Else
-                    strLineOut &= "Unknown mass tolerance mode"
+                    lineOut &= "Unknown mass tolerance mode"
             End Select
 
-            strLineOut &= strDelimiter & "NET Tolerance: +- " & Math.Round(.NETTolerance, 4).ToString
+            lineOut &= delimiter & "NET Tolerance: +- " & Math.Round(.NETTolerance, 4).ToString()
 
-            If mUseSLiCScoreForUniqueness Then
-                strLineOut &= strDelimiter & "Minimum SLiC Score: " & Math.Round(mPeptideUniquenessBinningSettings.MinimumSLiCScore, 3).ToString & "; Max search distance multiplier: " & Math.Round(.SLiCScoreMaxSearchDistanceMultiplier, 1).ToString
+            If UseSLiCScoreForUniqueness Then
+                lineOut &= delimiter & "Minimum SLiC Score: " & Math.Round(mPeptideUniquenessBinningSettings.MinimumSLiCScore, 3).ToString() & "; Max search distance multiplier: " & Math.Round(.SLiCScoreMaxSearchDistanceMultiplier, 1).ToString()
             Else
-                If mUseEllipseSearchRegion Then
-                    strLineOut &= strDelimiter & "Minimum SLiC Score: N/A; using ellipse to find matching features"
+                If UseEllipseSearchRegion Then
+                    lineOut &= delimiter & "Minimum SLiC Score: N/A; using ellipse to find matching features"
                 Else
-                    strLineOut &= strDelimiter & "Minimum SLiC Score: N/A; using rectangle to find matching features"
+                    lineOut &= delimiter & "Minimum SLiC Score: N/A; using rectangle to find matching features"
                 End If
             End If
 
-            srOutFile.WriteLine(strLineOut)
+            writer.WriteLine(lineOut)
         End With
 
     End Sub
 
-    Public Function GenerateUniquenessStats(strProteinInputFilePath As String, strOutputFolderPath As String, strOutputFilenameBase As String) As Boolean
+    Public Function GenerateUniquenessStats(proteinInputFilePath As String, outputFolderPath As String, outputFilenameBase As String) As Boolean
 
-        Dim intProgressStepCount As Integer
-        Dim intProgressStep As Integer
+        Dim progressStepCount As Integer
+        Dim progressStep As Integer
 
-        Dim intThresholdIndex As Integer
+        Dim thresholdIndex As Integer
 
-        Dim objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass
+        Dim featuresToIdentify As clsPeakMatchingClass.PMFeatureInfoClass
 
-        Dim blnSuccess As Boolean
-        Dim blnSearchAborted = False
+        Dim success As Boolean
+        Dim searchAborted = False
 
-        Dim objRangeSearch As clsSearchRange = Nothing
+        Dim rangeSearch As clsSearchRange = Nothing
 
-        Dim srPMResultsOutFile As StreamWriter = Nothing
-        Dim srPeptideUniquenessOutFile As StreamWriter = Nothing
-        Dim srProteinStatsOutFile As StreamWriter = Nothing
+        Dim pmResultsWriter As StreamWriter = Nothing
+        Dim peptideUniquenessWriter As StreamWriter = Nothing
+        Dim proteinStatsWriter As StreamWriter = Nothing
 
         Try
 
-            If Path.HasExtension(strOutputFilenameBase) Then
+            If Path.HasExtension(outputFilenameBase) Then
                 ' Remove the extension
-                strOutputFilenameBase = Path.ChangeExtension(strOutputFilenameBase, Nothing)
+                outputFilenameBase = Path.ChangeExtension(outputFilenameBase, Nothing)
             End If
 
             '----------------------------------------------------
             ' Initialize the progress bar
             '----------------------------------------------------
-            intProgressStep = 0
-            intProgressStepCount = 1 + mThresholdLevels.Length * 3
+            progressStep = 0
+            progressStepCount = 1 + mThresholdLevels.Length * 3
 
             MyBase.LogMessage("Caching data in memory", MessageTypeConstants.Normal)
             MyBase.LogMessage("Caching peak matching results in memory", MessageTypeConstants.Normal)
@@ -796,24 +785,24 @@ Public Class clsProteinDigestionSimulator
             '----------------------------------------------------
             ' Load the proteins and digest them, or simply load the peptides
             '----------------------------------------------------
-            MyBase.LogMessage("Load proteins or peptides from " & Path.GetFileName(strProteinInputFilePath), MessageTypeConstants.Normal)
-            blnSuccess = LoadProteinsOrPeptides(strProteinInputFilePath)
+            MyBase.LogMessage("Load proteins or peptides from " & Path.GetFileName(proteinInputFilePath), MessageTypeConstants.Normal)
+            success = LoadProteinsOrPeptides(proteinInputFilePath)
 
             ' ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
 
-            intProgressStep = 1
-            Me.UpdateProgress(CSng(intProgressStep / intProgressStepCount * 100))
+            progressStep = 1
+            Me.UpdateProgress(CSng(progressStep / progressStepCount * 100))
 
         Catch ex As Exception
             SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ErrorReadingInputFile, ex)
-            blnSuccess = False
+            success = False
         End Try
 
-        If blnSuccess AndAlso mComparisonPeptideInfo.Count = 0 Then
+        If success AndAlso mComparisonPeptideInfo.Count = 0 Then
             SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ProteinsNotFoundInInputFile, True)
-            blnSuccess = False
-        ElseIf Not blnSuccess OrElse Me.AbortProcessing Then
-            blnSuccess = False
+            success = False
+        ElseIf Not success OrElse Me.AbortProcessing Then
+            success = False
         Else
             Try
                 '----------------------------------------------------
@@ -825,12 +814,12 @@ Public Class clsProteinDigestionSimulator
 
                 UpdateProgress("Initializing structures")
 
-                ' Initialize objFeaturesToIdentify by linking to mComparisonPeptideInfo
-                objFeaturesToIdentify = mComparisonPeptideInfo
+                ' Initialize featuresToIdentify by linking to mComparisonPeptideInfo
+                featuresToIdentify = mComparisonPeptideInfo
 
                 Try
                     '----------------------------------------------------
-                    ' Compare objFeaturesToIdentify to mComparisonPeptideInfo for each threshold level
+                    ' Compare featuresToIdentify to mComparisonPeptideInfo for each threshold level
                     '----------------------------------------------------
 
                     '----------------------------------------------------
@@ -841,26 +830,26 @@ Public Class clsProteinDigestionSimulator
                         InitializeThresholdLevels(mThresholdLevels, 1, False)
                     End If
 
-                    For intThresholdIndex = 0 To mThresholdLevels.Length - 1
-                        If mThresholdLevels(intThresholdIndex) Is Nothing Then
-                            If intThresholdIndex = 0 Then
+                    For thresholdIndex = 0 To mThresholdLevels.Length - 1
+                        If mThresholdLevels(thresholdIndex) Is Nothing Then
+                            If thresholdIndex = 0 Then
                                 ' Need at least one set of thresholds
-                                mThresholdLevels(intThresholdIndex) = New clsPeakMatchingClass.clsSearchThresholds
+                                mThresholdLevels(thresholdIndex) = New clsPeakMatchingClass.clsSearchThresholds
                             Else
-                                ReDim Preserve mThresholdLevels(intThresholdIndex - 1)
+                                ReDim Preserve mThresholdLevels(thresholdIndex - 1)
                                 Exit For
                             End If
                         End If
                     Next
 
                     '----------------------------------------------------
-                    ' Initialize objRangeSearch
+                    ' Initialize rangeSearch
                     '----------------------------------------------------
 
-                    MyBase.LogMessage("Uniqueness Stats processing starting, Threshold Count = " & mThresholdLevels.Length.ToString, MessageTypeConstants.Normal)
+                    MyBase.LogMessage("Uniqueness Stats processing starting, Threshold Count = " & mThresholdLevels.Length.ToString(), MessageTypeConstants.Normal)
 
-                    If Not clsPeakMatchingClass.FillRangeSearchObject(objRangeSearch, mComparisonPeptideInfo) Then
-                        blnSuccess = False
+                    If Not clsPeakMatchingClass.FillRangeSearchObject(rangeSearch, mComparisonPeptideInfo) Then
+                        success = False
                     Else
 
                         '----------------------------------------------------
@@ -870,8 +859,8 @@ Public Class clsProteinDigestionSimulator
                         mPeakMatchingClass = New clsPeakMatchingClass()
                         With mPeakMatchingClass
                             .MaxPeakMatchingResultsPerFeatureToSave = mMaxPeakMatchingResultsPerFeatureToSave
-                            .UseMaxSearchDistanceMultiplierAndSLiCScore = mUseSLiCScoreForUniqueness
-                            .UseEllipseSearchRegion = mUseEllipseSearchRegion
+                            .UseMaxSearchDistanceMultiplierAndSLiCScore = UseSLiCScoreForUniqueness
+                            .UseEllipseSearchRegion = UseEllipseSearchRegion
                         End With
 
                         '----------------------------------------------------
@@ -879,75 +868,75 @@ Public Class clsProteinDigestionSimulator
                         ' in a single file for each type of result
                         '----------------------------------------------------
 
-                        If Not mCreateSeparateOutputFileForEachThreshold Then
-                            InitializePeptideAndProteinResultsFiles(strOutputFolderPath, strOutputFilenameBase, mThresholdLevels, srPeptideUniquenessOutFile, srProteinStatsOutFile)
+                        If Not CreateSeparateOutputFileForEachThreshold Then
+                            InitializePeptideAndProteinResultsFiles(outputFolderPath, outputFilenameBase, mThresholdLevels, peptideUniquenessWriter, proteinStatsWriter)
 
-                            If mSavePeakMatchingResults Then
-                                InitializePMResultsFile(strOutputFolderPath, strOutputFilenameBase, mThresholdLevels, mComparisonPeptideInfo.Count, srPMResultsOutFile)
+                            If SavePeakMatchingResults Then
+                                InitializePMResultsFile(outputFolderPath, outputFilenameBase, mThresholdLevels, mComparisonPeptideInfo.Count, pmResultsWriter)
                             End If
                         End If
 
-                        For intThresholdIndex = 0 To mThresholdLevels.Length - 1
+                        For thresholdIndex = 0 To mThresholdLevels.Length - 1
 
-                            UpdateProgress("Generating uniqueness stats, threshold " & (intThresholdIndex + 1).ToString & " / " & mThresholdLevels.Length.ToString)
+                            UpdateProgress("Generating uniqueness stats, threshold " & (thresholdIndex + 1).ToString() & " / " & mThresholdLevels.Length.ToString())
 
                             UpdateSubtaskProgress("Finding matching peptides for given search thresholds", 0)
 
                             ' Perform the actual peak matching
-                            MyBase.LogMessage("Threshold " & (intThresholdIndex + 1).ToString & ", IdentifySequences", MessageTypeConstants.Normal)
-                            blnSuccess = mPeakMatchingClass.IdentifySequences(mThresholdLevels(intThresholdIndex), objFeaturesToIdentify, mComparisonPeptideInfo, mPeptideMatchResults, objRangeSearch)
-                            If Not blnSuccess Then Exit For
+                            MyBase.LogMessage("Threshold " & (thresholdIndex + 1).ToString() & ", IdentifySequences", MessageTypeConstants.Normal)
+                            success = mPeakMatchingClass.IdentifySequences(mThresholdLevels(thresholdIndex), featuresToIdentify, mComparisonPeptideInfo, mPeptideMatchResults, rangeSearch)
+                            If Not success Then Exit For
 
-                            If mSavePeakMatchingResults Then
+                            If SavePeakMatchingResults Then
                                 ' Write out the raw peak matching results
-                                blnSuccess = ExportPeakMatchingResults(mThresholdLevels(intThresholdIndex), intThresholdIndex, mComparisonPeptideInfo.Count, mPeptideMatchResults, strOutputFolderPath, strOutputFilenameBase, srPMResultsOutFile)
-                                If Not blnSuccess Then Exit For
+                                success = ExportPeakMatchingResults(mThresholdLevels(thresholdIndex), thresholdIndex, mComparisonPeptideInfo.Count, mPeptideMatchResults, outputFolderPath, outputFilenameBase, pmResultsWriter)
+                                If Not success Then Exit For
                             End If
 
-                            intProgressStep += 1
-                            UpdateProgress(CSng(intProgressStep / intProgressStepCount * 100))
+                            progressStep += 1
+                            UpdateProgress(CSng(progressStep / progressStepCount * 100))
 
                             ' Summarize the results by peptide
-                            MyBase.LogMessage("Threshold " & (intThresholdIndex + 1).ToString & ", SummarizeResultsByPeptide", MessageTypeConstants.Normal)
-                            blnSuccess = SummarizeResultsByPeptide(mThresholdLevels(intThresholdIndex), intThresholdIndex, objFeaturesToIdentify, mPeptideMatchResults, strOutputFolderPath, strOutputFilenameBase, srPeptideUniquenessOutFile)
-                            If Not blnSuccess Then Exit For
+                            MyBase.LogMessage("Threshold " & (thresholdIndex + 1).ToString() & ", SummarizeResultsByPeptide", MessageTypeConstants.Normal)
+                            success = SummarizeResultsByPeptide(mThresholdLevels(thresholdIndex), thresholdIndex, featuresToIdentify, mPeptideMatchResults, outputFolderPath, outputFilenameBase, peptideUniquenessWriter)
+                            If Not success Then Exit For
 
-                            intProgressStep += 1
-                            UpdateProgress(CSng(intProgressStep / intProgressStepCount * 100))
+                            progressStep += 1
+                            UpdateProgress(CSng(progressStep / progressStepCount * 100))
 
                             ' Summarize the results by protein
-                            MyBase.LogMessage("Threshold " & (intThresholdIndex + 1).ToString & ", SummarizeResultsByProtein", MessageTypeConstants.Normal)
-                            blnSuccess = SummarizeResultsByProtein(mThresholdLevels(intThresholdIndex), intThresholdIndex, objFeaturesToIdentify, mPeptideMatchResults, strOutputFolderPath, strOutputFilenameBase, srProteinStatsOutFile)
-                            If Not blnSuccess Then Exit For
+                            MyBase.LogMessage("Threshold " & (thresholdIndex + 1).ToString() & ", SummarizeResultsByProtein", MessageTypeConstants.Normal)
+                            success = SummarizeResultsByProtein(mThresholdLevels(thresholdIndex), thresholdIndex, featuresToIdentify, mPeptideMatchResults, outputFolderPath, outputFilenameBase, proteinStatsWriter)
+                            If Not success Then Exit For
 
-                            intProgressStep += 1
-                            UpdateProgress(CSng(intProgressStep / intProgressStepCount * 100))
+                            progressStep += 1
+                            UpdateProgress(CSng(progressStep / progressStepCount * 100))
 
-                            If Not blnSuccess OrElse Me.AbortProcessing Then
-                                blnSuccess = False
+                            If Not success OrElse Me.AbortProcessing Then
+                                success = False
                                 Exit For
                             End If
 
-                            blnSuccess = True
-                        Next intThresholdIndex
+                            success = True
+                        Next thresholdIndex
 
                     End If
 
                 Catch ex As Exception
                     SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ErrorIdentifyingSequences, ex)
-                    blnSuccess = False
+                    success = False
                 End Try
 
                 UpdateProgress(100)
 
             Catch ex As Exception
                 SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ErrorIdentifyingSequences, ex)
-                blnSuccess = False
+                success = False
             Finally
                 Try
-                    If Not srPMResultsOutFile Is Nothing Then srPMResultsOutFile.Close()
-                    If Not srPeptideUniquenessOutFile Is Nothing Then srPeptideUniquenessOutFile.Close()
-                    If Not srProteinStatsOutFile Is Nothing Then srProteinStatsOutFile.Close()
+                    If Not pmResultsWriter Is Nothing Then pmResultsWriter.Close()
+                    If Not peptideUniquenessWriter Is Nothing Then peptideUniquenessWriter.Close()
+                    If Not proteinStatsWriter Is Nothing Then proteinStatsWriter.Close()
                     mPeakMatchingClass = Nothing
                 Catch ex As Exception
                     ' Ignore any errors closing files
@@ -956,214 +945,214 @@ Public Class clsProteinDigestionSimulator
 
         End If
 
-        If Not blnSearchAborted And blnSuccess Then
+        If Not searchAborted And success Then
             MyBase.LogMessage("Uniqueness Stats processing complete", MessageTypeConstants.Normal)
         End If
 
-        Return blnSuccess
+        Return success
 
     End Function
 
     Public Overrides Function GetDefaultExtensionsToParse() As IList(Of String)
-        Dim strExtensionsToParse = New List(Of String) From {
+        Dim extensionsToParse = New List(Of String) From {
             ".fasta",
             ".txt"
         }
 
-        Return strExtensionsToParse
+        Return extensionsToParse
 
     End Function
 
     Public Overrides Function GetErrorMessage() As String
         ' Returns "" if no error
 
-        Dim strErrorMessage As String
+        Dim errorMessage As String
 
         If MyBase.ErrorCode = ProcessFilesErrorCodes.LocalizedError Or
            MyBase.ErrorCode = ProcessFilesErrorCodes.NoError Then
             Select Case mLocalErrorCode
                 Case eProteinDigestionSimulatorErrorCodes.NoError
-                    strErrorMessage = ""
+                    errorMessage = ""
 
                 Case eProteinDigestionSimulatorErrorCodes.ProteinDigestionSimulatorSectionNotFound
-                    strErrorMessage = "The section " & clsParseProteinFile.XML_SECTION_OPTIONS & " was not found in the parameter file"
+                    errorMessage = "The section " & clsParseProteinFile.XML_SECTION_OPTIONS & " was not found in the parameter file"
 
                 Case eProteinDigestionSimulatorErrorCodes.ErrorReadingInputFile
-                    strErrorMessage = "Error reading input file"
+                    errorMessage = "Error reading input file"
                 Case eProteinDigestionSimulatorErrorCodes.ProteinsNotFoundInInputFile
-                    strErrorMessage = "No proteins were found in the input file (make sure the Column Order is correct on the File Format Options tab)"
+                    errorMessage = "No proteins were found in the input file (make sure the Column Order is correct on the File Format Options tab)"
 
                 Case eProteinDigestionSimulatorErrorCodes.ErrorIdentifyingSequences
-                    strErrorMessage = "Error identifying sequences"
+                    errorMessage = "Error identifying sequences"
 
                 Case eProteinDigestionSimulatorErrorCodes.ErrorWritingOutputFile
-                    strErrorMessage = "Error writing to one of the output files"
+                    errorMessage = "Error writing to one of the output files"
                 Case eProteinDigestionSimulatorErrorCodes.UserAbortedSearch
-                    strErrorMessage = "User aborted search"
+                    errorMessage = "User aborted search"
 
                 Case eProteinDigestionSimulatorErrorCodes.UnspecifiedError
-                    strErrorMessage = "Unspecified localized error"
+                    errorMessage = "Unspecified localized error"
                 Case Else
                     ' This shouldn't happen
-                    strErrorMessage = "Unknown error state"
+                    errorMessage = "Unknown error state"
             End Select
         Else
-            strErrorMessage = MyBase.GetBaseClassErrorMessage()
+            errorMessage = MyBase.GetBaseClassErrorMessage()
         End If
 
         If Not mLastErrorMessage Is Nothing AndAlso mLastErrorMessage.Length > 0 Then
-            strErrorMessage &= ControlChars.NewLine & mLastErrorMessage
+            errorMessage &= ControlChars.NewLine & mLastErrorMessage
         End If
 
-        Return strErrorMessage
+        Return errorMessage
 
     End Function
 
-    Private Function GetNextUniqueSequenceID(strSequence As String, htMasterSequences As Hashtable, ByRef intNextUniqueIDForMasterSeqs As Integer) As Integer
-        Dim intUniqueSeqID As Integer
+    Private Function GetNextUniqueSequenceID(sequence As String, masterSequences As Hashtable, ByRef nextUniqueIDForMasterSeqs As Integer) As Integer
+        Dim uniqueSeqID As Integer
 
         Try
-            If htMasterSequences.ContainsKey(strSequence) Then
-                intUniqueSeqID = CInt(htMasterSequences(strSequence))
+            If masterSequences.ContainsKey(sequence) Then
+                uniqueSeqID = CInt(masterSequences(sequence))
             Else
-                htMasterSequences.Add(strSequence, intNextUniqueIDForMasterSeqs)
-                intUniqueSeqID = intNextUniqueIDForMasterSeqs
+                masterSequences.Add(sequence, nextUniqueIDForMasterSeqs)
+                uniqueSeqID = nextUniqueIDForMasterSeqs
             End If
-            intNextUniqueIDForMasterSeqs += 1
+            nextUniqueIDForMasterSeqs += 1
         Catch ex As Exception
-            intUniqueSeqID = 0
+            uniqueSeqID = 0
         End Try
 
-        Return intUniqueSeqID
+        Return uniqueSeqID
     End Function
 
-    Public Sub GetPeptideUniquenessMassRangeForBinning(<Out> ByRef MassMinimum As Single, <Out> ByRef MassMaximum As Single)
+    Public Sub GetPeptideUniquenessMassRangeForBinning(<Out> ByRef massMinimum As Single, <Out> ByRef massMaximum As Single)
         With mPeptideUniquenessBinningSettings
-            MassMinimum = .MassMinimum
-            MassMaximum = .MassMaximum
+            massMinimum = .MassMinimum
+            massMaximum = .MassMaximum
         End With
     End Sub
 
-    Private Function GetPeptidesUniquelyIdentifiedCountByProteinID(intProteinID As Integer) As Integer
-        Dim objDataRows() As DataRow
+    Private Function GetPeptidesUniquelyIdentifiedCountByProteinID(proteinID As Integer) As Integer
+        Dim dataRows() As DataRow
 
-        objDataRows = mProteinToIdentifiedPeptideMappingTable.Select(PROTEIN_ID_COLUMN & " = " & intProteinID.ToString)
-        If Not objDataRows Is Nothing Then
-            Return objDataRows.Length
+        dataRows = mProteinToIdentifiedPeptideMappingTable.Select(PROTEIN_ID_COLUMN & " = " & proteinID.ToString())
+        If Not dataRows Is Nothing Then
+            Return dataRows.Length
         Else
             Return 0
         End If
 
     End Function
 
-    Private Sub InitializeBinnedStats(ByRef udtStatsBinned As udtBinnedPeptideCountStatsType, intBinCount As Integer)
+    Private Sub InitializeBinnedStats(ByRef udtStatsBinned As udtBinnedPeptideCountStatsType, binCount As Integer)
 
-        Dim intBinIndex As Integer
+        Dim binIndex As Integer
 
         With udtStatsBinned
-            .BinCount = intBinCount
+            .BinCount = binCount
             ReDim .Bins(.BinCount - 1)
 
-            For intBinIndex = 0 To .BinCount - 1
-                .Bins(intBinIndex).MassBinStart = .Settings.MassMinimum + .Settings.MassBinSizeDa * intBinIndex
-                .Bins(intBinIndex).MassBinEnd = .Settings.MassMinimum + .Settings.MassBinSizeDa * (intBinIndex + 1)
-                With .Bins(intBinIndex)
+            For binIndex = 0 To .BinCount - 1
+                .Bins(binIndex).MassBinStart = .Settings.MassMinimum + .Settings.MassBinSizeDa * binIndex
+                .Bins(binIndex).MassBinEnd = .Settings.MassMinimum + .Settings.MassBinSizeDa * (binIndex + 1)
+                With .Bins(binIndex)
                     .PercentUnique = 0
                     .UniqueResultIDCount = 0
                     .NonUniqueResultIDCount = 0
                     ReDim .ResultIDCountDistribution(Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave))
                 End With
-            Next intBinIndex
+            Next binIndex
         End With
 
     End Sub
 
     Private Sub InitializePeptideAndProteinResultsFiles(
-      strOutputFolderPath As String,
-      strOutputFilenameBase As String,
-      objThresholds As IList(Of clsPeakMatchingClass.clsSearchThresholds),
-      <Out> ByRef srPeptideUniquenessOutFile As StreamWriter,
-      <Out> ByRef srProteinStatsOutFile As StreamWriter)
+      outputFolderPath As String,
+      outputFilenameBase As String,
+      thresholds As IList(Of clsPeakMatchingClass.clsSearchThresholds),
+      <Out> ByRef peptideUniquenessWriter As StreamWriter,
+      <Out> ByRef proteinStatsWriter As StreamWriter)
 
         ' Initialize the output file so that the peptide and protein summary results for all thresholds can be saved in the same file
 
-        Dim strWorkingFilenameBase As String
-        Dim strOutputFilePath As String
-        Dim intThresholdIndex As Integer
+        Dim workingFilenameBase As String
+        Dim outputFilePath As String
+        Dim thresholdIndex As Integer
 
         '----------------------------------------------------
         ' Create the peptide uniqueness stats files
         '----------------------------------------------------
 
-        strWorkingFilenameBase = strOutputFilenameBase & "_PeptideStatsBinned.txt"
-        strOutputFilePath = Path.Combine(strOutputFolderPath, strWorkingFilenameBase)
+        workingFilenameBase = outputFilenameBase & "_PeptideStatsBinned.txt"
+        outputFilePath = Path.Combine(outputFolderPath, workingFilenameBase)
 
-        srPeptideUniquenessOutFile = New StreamWriter(strOutputFilePath)
+        peptideUniquenessWriter = New StreamWriter(outputFilePath)
 
         '----------------------------------------------------
         ' Create the protein stats file
         '----------------------------------------------------
 
-        strWorkingFilenameBase = strOutputFilenameBase & "_ProteinStats.txt"
-        strOutputFilePath = Path.Combine(strOutputFolderPath, strWorkingFilenameBase)
+        workingFilenameBase = outputFilenameBase & "_ProteinStats.txt"
+        outputFilePath = Path.Combine(outputFolderPath, workingFilenameBase)
 
-        srProteinStatsOutFile = New StreamWriter(strOutputFilePath)
+        proteinStatsWriter = New StreamWriter(outputFilePath)
 
         '----------------------------------------------------
         ' Write the thresholds
         '----------------------------------------------------
 
-        For intThresholdIndex = 0 To objThresholds.Count - 1
-            ExportThresholds(srPeptideUniquenessOutFile, intThresholdIndex, objThresholds(intThresholdIndex))
-            ExportThresholds(srProteinStatsOutFile, intThresholdIndex, objThresholds(intThresholdIndex))
-        Next intThresholdIndex
+        For thresholdIndex = 0 To thresholds.Count - 1
+            ExportThresholds(peptideUniquenessWriter, thresholdIndex, thresholds(thresholdIndex))
+            ExportThresholds(proteinStatsWriter, thresholdIndex, thresholds(thresholdIndex))
+        Next thresholdIndex
 
-        srPeptideUniquenessOutFile.WriteLine()
-        SummarizeResultsByPeptideWriteHeaders(srPeptideUniquenessOutFile, mCreateSeparateOutputFileForEachThreshold)
+        peptideUniquenessWriter.WriteLine()
+        SummarizeResultsByPeptideWriteHeaders(peptideUniquenessWriter, CreateSeparateOutputFileForEachThreshold)
 
-        srProteinStatsOutFile.WriteLine()
-        SummarizeResultsByProteinWriteHeaders(srProteinStatsOutFile, mCreateSeparateOutputFileForEachThreshold)
+        proteinStatsWriter.WriteLine()
+        SummarizeResultsByProteinWriteHeaders(proteinStatsWriter, CreateSeparateOutputFileForEachThreshold)
 
     End Sub
 
     Private Sub InitializePMResultsFile(
-      strOutputFolderPath As String,
-      strOutputFilenameBase As String,
-      objThresholds As IList(Of clsPeakMatchingClass.clsSearchThresholds),
-      intComparisonFeaturesCount As Integer,
-      <Out> ByRef srOutFile As StreamWriter)
+      outputFolderPath As String,
+      outputFilenameBase As String,
+      thresholds As IList(Of clsPeakMatchingClass.clsSearchThresholds),
+      comparisonFeaturesCount As Integer,
+      <Out> ByRef pmResultsWriter As StreamWriter)
 
         ' Initialize the output file so that the peak matching results for all thresholds can be saved in the same file
 
-        Dim strWorkingFilenameBase As String
-        Dim strOutputFilePath As String
-        Dim intThresholdIndex As Integer
+        Dim workingFilenameBase As String
+        Dim outputFilePath As String
+        Dim thresholdIndex As Integer
 
         ' Combine all of the data together in one output file
-        strWorkingFilenameBase = strOutputFilenameBase & "_PMResults.txt"
-        strOutputFilePath = Path.Combine(strOutputFolderPath, strWorkingFilenameBase)
+        workingFilenameBase = outputFilenameBase & "_PMResults.txt"
+        outputFilePath = Path.Combine(outputFolderPath, workingFilenameBase)
 
-        srOutFile = New StreamWriter(strOutputFilePath)
+        pmResultsWriter = New StreamWriter(outputFilePath)
 
-        srOutFile.WriteLine("Comparison feature count: " & intComparisonFeaturesCount.ToString)
+        pmResultsWriter.WriteLine("Comparison feature count: " & comparisonFeaturesCount.ToString())
 
-        For intThresholdIndex = 0 To objThresholds.Count - 1
-            ExportThresholds(srOutFile, intThresholdIndex, objThresholds(intThresholdIndex))
-        Next intThresholdIndex
+        For thresholdIndex = 0 To thresholds.Count - 1
+            ExportThresholds(pmResultsWriter, thresholdIndex, thresholds(thresholdIndex))
+        Next thresholdIndex
 
-        srOutFile.WriteLine()
+        pmResultsWriter.WriteLine()
 
-        ExportPeakMatchingResultsWriteHeaders(srOutFile, mCreateSeparateOutputFileForEachThreshold)
+        ExportPeakMatchingResultsWriteHeaders(pmResultsWriter, CreateSeparateOutputFileForEachThreshold)
 
     End Sub
 
     Private Sub InitializeLocalVariables()
 
-        mDigestSequences = False
-        mCysPeptidesOnly = False
+        DigestSequences = False
+        CysPeptidesOnly = False
         mOutputFileDelimiter = ControlChars.Tab
 
-        mSavePeakMatchingResults = False
+        SavePeakMatchingResults = False
         mMaxPeakMatchingResultsPerFeatureToSave = 3
 
         With mPeptideUniquenessBinningSettings
@@ -1174,10 +1163,10 @@ Public Class clsProteinDigestionSimulator
             .MinimumSLiCScore = 0.99
         End With
 
-        mUseSLiCScoreForUniqueness = True
-        mUseEllipseSearchRegion = True
+        UseSLiCScoreForUniqueness = True
+        UseEllipseSearchRegion = True
 
-        mCreateSeparateOutputFileForEachThreshold = False
+        CreateSeparateOutputFileForEachThreshold = False
 
         mLocalErrorCode = eProteinDigestionSimulatorErrorCodes.NoError
         mLastErrorMessage = String.Empty
@@ -1224,62 +1213,62 @@ Public Class clsProteinDigestionSimulator
     End Sub
 
     '' The following was created to test the speed and performance when dealing with large dataset tables
-    ''Private Sub FillWithLotsOfData(ByRef dsDataset as System.Data.DataSet)
+    ''Private Sub FillWithLotsOfData(ByRef targetDataset as System.Data.DataSet)
     ''    Const MAX_FEATURE_COUNT As Integer = 300000
 
-    ''    Dim objRnd As New Random
-    ''    Dim intNewFeatureID As Integer
-    ''    Dim intIndex As Integer
-    ''    Dim intIndexEnd As Integer
+    ''    Dim rnd As New Random
+    ''    Dim newFeatureID As Integer
+    ''    Dim index As Integer
+    ''    Dim indexEnd As Integer
 
     ''    Dim drNewRow as System.Data.DataRow
-    ''    Dim objProgressForm As New ProgressFormNET.frmProgress
-    ''    Dim dtStartTime As DateTime
+    ''    Dim progressForm As New ProgressFormNET.frmProgress
+    ''    Dim startTime As DateTime
 
-    ''    intIndexEnd = CInt(MAX_FEATURE_COUNT * 1.5)
-    ''    objProgressForm.InitializeProgressForm("Populating dataset table", 0, intIndexEnd, True)
-    ''    objProgressForm.Visible = True
+    ''    indexEnd = CInt(MAX_FEATURE_COUNT * 1.5)
+    ''    progressForm.InitializeProgressForm("Populating dataset table", 0, indexEnd, True)
+    ''    progressForm.Visible = True
     ''    Application.DoEvents()
 
-    ''    dtStartTime = System.DateTime.UtcNow
+    ''    startTime = System.DateTime.UtcNow
 
     ''    With dsDataset.Tables(PEPTIDE_INFO_TABLE_NAME)
 
-    ''        For intIndex = 0 To intIndexEnd
-    ''            intNewFeatureID = objRnd.Next(0, MAX_FEATURE_COUNT)
+    ''        For index = 0 To indexEnd
+    ''            newFeatureID = rnd.Next(0, MAX_FEATURE_COUNT)
 
     ''            ' Look for existing entry in table
-    ''            If Not .Rows.Contains(intNewFeatureID) Then
+    ''            If Not .Rows.Contains(newFeatureID) Then
     ''                drNewRow = .NewRow
-    ''                drNewRow(COMPARISON_FEATURE_ID_COLUMN) = intNewFeatureID
-    ''                drNewRow(FEATURE_NAME_COLUMN) = "Feature" & intNewFeatureID.ToString
-    ''                drNewRow(MASS_COLUMN) = intNewFeatureID / CSng(MAX_FEATURE_COUNT) * 1000
-    ''                drNewRow(NET_COLUMN) = objRnd.Next(0, 1000) / 1000.0
-    ''                drNewRow(NET_STDEV_COLUMN) = objRnd.Next(0, 1000) / 10000.0
-    ''                drNewRow(DISCRIMINANT_SCORE_COLUMN) = objRnd.Next(0, 1000) / 1000.0
+    ''                drNewRow(COMPARISON_FEATURE_ID_COLUMN) = newFeatureID
+    ''                drNewRow(FEATURE_NAME_COLUMN) = "Feature" & newFeatureID.ToString()
+    ''                drNewRow(MASS_COLUMN) = newFeatureID / CSng(MAX_FEATURE_COUNT) * 1000
+    ''                drNewRow(NET_COLUMN) = rnd.Next(0, 1000) / 1000.0
+    ''                drNewRow(NET_STDEV_COLUMN) = rnd.Next(0, 1000) / 10000.0
+    ''                drNewRow(DISCRIMINANT_SCORE_COLUMN) = rnd.Next(0, 1000) / 1000.0
     ''                .Rows.Add(drNewRow)
     ''            End If
 
-    ''            If intIndex Mod 100 = 0 Then
-    ''                objProgressForm.UpdateProgressBar(intIndex)
+    ''            If index Mod 100 = 0 Then
+    ''                progressForm.UpdateProgressBar(index)
     ''                Application.DoEvents()
 
-    ''                If objProgressForm.KeyPressAbortProcess Then Exit For
+    ''                If progressForm.KeyPressAbortProcess Then Exit For
     ''            End If
-    ''        Next intIndex
+    ''        Next index
     ''    End With
 
-    ''    MessageBox.Show("Elapsed time: " & Math.Round(System.DateTime.UtcNow.Subtract(dtStartTime).TotalSeconds, 2).ToString & " seconds", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
+    ''    MessageBox.Show("Elapsed time: " & Math.Round(System.DateTime.UtcNow.Subtract(startTime).TotalSeconds, 2).ToString() & " seconds", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
     ''End Sub
 
-    Public Sub InitializeProteinFileParser(Optional blnResetToDefaults As Boolean = False)
+    Public Sub InitializeProteinFileParser(Optional resetToDefaults As Boolean = False)
 
         If mProteinFileParser Is Nothing Then
             mProteinFileParser = New clsParseProteinFile
-            blnResetToDefaults = True
+            resetToDefaults = True
         End If
 
-        If blnResetToDefaults Then
+        If resetToDefaults Then
             With mProteinFileParser
                 .ComputeProteinMass = True
                 .ElementMassMode = PeptideSequenceClass.ElementModeConstants.IsotopicMass
@@ -1307,47 +1296,47 @@ Public Class clsProteinDigestionSimulator
 
     End Sub
 
-    Private Sub InitializeThresholdLevels(ByRef objThresholds() As clsPeakMatchingClass.clsSearchThresholds, intLevels As Integer, blnPreserve As Boolean)
-        Dim intIndex As Integer
+    Private Sub InitializeThresholdLevels(ByRef thresholds() As clsPeakMatchingClass.clsSearchThresholds, levels As Integer, preserveData As Boolean)
+        Dim index As Integer
 
-        If intLevels < 1 Then intLevels = 1
+        If levels < 1 Then levels = 1
 
-        If blnPreserve AndAlso objThresholds.Length > 0 Then
-            ReDim Preserve objThresholds(intLevels - 1)
+        If preserveData AndAlso thresholds.Length > 0 Then
+            ReDim Preserve thresholds(levels - 1)
         Else
-            ReDim objThresholds(intLevels - 1)
+            ReDim thresholds(levels - 1)
         End If
 
-        For intIndex = 0 To intLevels - 1
-            If objThresholds(intIndex) Is Nothing Then
-                objThresholds(intIndex) = New clsPeakMatchingClass.clsSearchThresholds
-            ElseIf blnPreserve And intIndex = intLevels - 1 Then
+        For index = 0 To levels - 1
+            If thresholds(index) Is Nothing Then
+                thresholds(index) = New clsPeakMatchingClass.clsSearchThresholds
+            ElseIf preserveData And index = levels - 1 Then
                 ' Initialize this level to defaults
-                objThresholds(intIndex).ResetToDefaults()
+                thresholds(index).ResetToDefaults()
             End If
         Next
 
     End Sub
 
-    Private Function LoadParameterFileSettings(strParameterFilePath As String) As Boolean
+    Private Function LoadParameterFileSettings(parameterFilePath As String) As Boolean
 
         Try
 
-            If strParameterFilePath Is Nothing OrElse strParameterFilePath.Length = 0 Then
+            If parameterFilePath Is Nothing OrElse parameterFilePath.Length = 0 Then
                 ' No parameter file specified; nothing to load
                 Return True
             End If
 
-            If Not File.Exists(strParameterFilePath) Then
-                ' See if strParameterFilePath points to a file in the same directory as the application
-                strParameterFilePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Path.GetFileName(strParameterFilePath))
-                If Not File.Exists(strParameterFilePath) Then
+            If Not File.Exists(parameterFilePath) Then
+                ' See if parameterFilePath points to a file in the same directory as the application
+                parameterFilePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Path.GetFileName(parameterFilePath))
+                If Not File.Exists(parameterFilePath) Then
                     MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.ParameterFileNotFound)
                     Return False
                 End If
             End If
 
-            mProteinFileParser.LoadParameterFileSettings(strParameterFilePath)
+            mProteinFileParser.LoadParameterFileSettings(parameterFilePath)
 
         Catch ex As Exception
             Throw New Exception("Error in LoadParameterFileSettings", ex)
@@ -1357,12 +1346,12 @@ Public Class clsProteinDigestionSimulator
 
     End Function
 
-    Private Function LoadProteinsOrPeptides(strProteinInputFilePath As String) As Boolean
+    Private Function LoadProteinsOrPeptides(proteinInputFilePath As String) As Boolean
 
         Dim eDelimitedFileFormatCode As DelimitedFileReader.eDelimitedFileFormatCode
 
-        Dim blnSuccess As Boolean
-        Dim blnDigestSequences As Boolean
+        Dim success As Boolean
+        Dim digestionEnabled As Boolean
 
         Try
             If Not mComparisonPeptideInfo Is Nothing Then
@@ -1384,88 +1373,88 @@ Public Class clsProteinDigestionSimulator
 
             ' Note that ProteinFileParser is exposed as public so that options can be set directly in it
 
-            If clsParseProteinFile.IsFastaFile(strProteinInputFilePath) Or mProteinFileParser.AssumeFastaFile Then
+            If clsParseProteinFile.IsFastaFile(proteinInputFilePath) Or mProteinFileParser.AssumeFastaFile Then
                 MyBase.LogMessage("Input file format = Fasta", MessageTypeConstants.Normal)
-                blnDigestSequences = True
+                digestionEnabled = True
             Else
                 eDelimitedFileFormatCode = mProteinFileParser.DelimitedFileFormatCode
-                MyBase.LogMessage("Input file format = " & eDelimitedFileFormatCode.ToString, MessageTypeConstants.Normal)
-                blnDigestSequences = mDigestSequences
+                MyBase.LogMessage("Input file format = " & eDelimitedFileFormatCode.ToString(), MessageTypeConstants.Normal)
+                digestionEnabled = Me.DigestSequences
             End If
 
             Select Case eDelimitedFileFormatCode
                 Case DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID,
                      DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence
-                    ' Reading peptides from a delimited file; blnDigestSequences is typically False, but could be true
+                    ' Reading peptides from a delimited file; digestionEnabled is typically False, but could be true
                 Case DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET,
                      DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore,
                      DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence_Mass_NET
-                    ' Reading peptides from a delimited file; blnDigestSequences is typically False, but could be true
+                    ' Reading peptides from a delimited file; digestionEnabled is typically False, but could be true
                 Case Else
                     ' Force digest Sequences to true
-                    blnDigestSequences = True
+                    digestionEnabled = True
             End Select
 
-            MyBase.LogMessage("Digest sequences = " & blnDigestSequences.ToString, MessageTypeConstants.Normal)
+            MyBase.LogMessage("Digest sequences = " & digestionEnabled.ToString(), MessageTypeConstants.Normal)
 
-            If blnDigestSequences Then
-                blnSuccess = LoadProteinsOrPeptidesWork(strProteinInputFilePath)
+            If digestionEnabled Then
+                success = LoadProteinsOrPeptidesWork(proteinInputFilePath)
             Else
                 ' We can assume peptides in the input file are already digested and thus do not need to pre-cache the entire file in memory
                 ' Load the data directly using this class instead
 
                 ' Load each peptide using ProteinFileReader.DelimitedFileReader
-                blnSuccess = LoadPeptidesFromDelimitedFile(strProteinInputFilePath)
+                success = LoadPeptidesFromDelimitedFile(proteinInputFilePath)
                 ' ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
             End If
 
-            If blnSuccess Then
+            If success Then
                 MyBase.LogMessage("Loaded " & mComparisonPeptideInfo.Count & " peptides corresponding to " & mProteinInfo.Count & " proteins", MessageTypeConstants.Normal)
             End If
 
         Catch ex As Exception
             SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ErrorReadingInputFile, ex)
-            blnSuccess = False
+            success = False
         End Try
 
-        Return blnSuccess
+        Return success
     End Function
 
-    Private Function LoadPeptidesFromDelimitedFile(strProteinInputFilePath As String) As Boolean
+    Private Function LoadPeptidesFromDelimitedFile(proteinInputFilePath As String) As Boolean
 
         ' Assumes the peptides in the input file are already digested and that they already have unique ID values generated
         ' They could optionally have Mass and NET values defined
 
-        Dim objDelimitedFileReader As DelimitedFileReader = Nothing
+        Dim delimitedFileReader As DelimitedFileReader = Nothing
 
-        Dim objNewPeptide As clsInSilicoDigest.PeptideInfoClass
+        Dim newPeptide As clsInSilicoDigest.PeptideInfoClass
 
-        Dim blnDelimitedFileHasMassAndNET As Boolean
-        Dim blnSuccess As Boolean
-        Dim blnInputPeptideFound As Boolean
+        Dim delimitedFileHasMassAndNET As Boolean
+        Dim success As Boolean
+        Dim inputPeptideFound As Boolean
 
-        Dim intInputFileLinesRead As Integer
-        Dim intInputFileLineSkipCount As Integer
-        Dim strSkipMessage As String
+        Dim inputFileLinesRead As Integer
+        Dim inputFileLineSkipCount As Integer
+        Dim skipMessage As String
 
         Try
-            objDelimitedFileReader = New DelimitedFileReader
-            With objDelimitedFileReader
+            delimitedFileReader = New DelimitedFileReader
+            With delimitedFileReader
                 .Delimiter = mProteinFileParser.InputFileDelimiter
                 .DelimitedFileFormatCode = mProteinFileParser.DelimitedFileFormatCode
             End With
 
             ' Verify that the input file exists
-            If Not File.Exists(strProteinInputFilePath) Then
+            If Not File.Exists(proteinInputFilePath) Then
                 MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidInputFilePath)
-                blnSuccess = False
+                success = False
                 Exit Try
             End If
 
             ' Attempt to open the input file
-            If Not objDelimitedFileReader.OpenFile(strProteinInputFilePath) Then
+            If Not delimitedFileReader.OpenFile(proteinInputFilePath) Then
                 SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ErrorReadingInputFile)
-                blnSuccess = False
+                success = False
                 Exit Try
             End If
 
@@ -1473,113 +1462,103 @@ Public Class clsProteinDigestionSimulator
 
             ' Read each peptide in the input file and add to mComparisonPeptideInfo
 
-            ' Also need to initialize objNewPeptide
-            objNewPeptide = New clsInSilicoDigest.PeptideInfoClass
+            ' Also need to initialize newPeptide
+            newPeptide = New clsInSilicoDigest.PeptideInfoClass
 
-            Select Case objDelimitedFileReader.DelimitedFileFormatCode
+            Select Case delimitedFileReader.DelimitedFileFormatCode
                 Case DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET,
                      DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore,
                      DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence_Mass_NET
                     ' Do not use the computed mass and NET
-                    blnDelimitedFileHasMassAndNET = True
+                    delimitedFileHasMassAndNET = True
                 Case Else
-                    blnDelimitedFileHasMassAndNET = False
+                    delimitedFileHasMassAndNET = False
             End Select
 
-            ' Always auto compute the NET and Mass in the objNewPeptide class
-            ' However, if blnDelimitedFileHasMassAndNET = True and valid Mass and NET values were read from the text file,
+            ' Always auto compute the NET and Mass in the newPeptide class
+            ' However, if delimitedFileHasMassAndNET = True and valid Mass and NET values were read from the text file,
             '  they they are passed to AddOrUpdatePeptide rather than the computed values
-            objNewPeptide.AutoComputeNET = True
+            newPeptide.AutoComputeNET = True
 
             Do
-                blnInputPeptideFound = objDelimitedFileReader.ReadNextProteinEntry()
+                inputPeptideFound = delimitedFileReader.ReadNextProteinEntry()
 
-                intInputFileLinesRead = objDelimitedFileReader.LinesRead
-                intInputFileLineSkipCount += objDelimitedFileReader.LineSkipCount
+                inputFileLinesRead = delimitedFileReader.LinesRead
+                inputFileLineSkipCount += delimitedFileReader.LineSkipCount
 
-                If blnInputPeptideFound Then
+                If inputPeptideFound Then
 
-                    With objNewPeptide
-                        .SequenceOneLetter = objDelimitedFileReader.ProteinSequence
+                    With newPeptide
+                        .SequenceOneLetter = delimitedFileReader.ProteinSequence
 
-                        If Not blnDelimitedFileHasMassAndNET OrElse
-                          (Math.Abs(objDelimitedFileReader.PeptideMass - 0) < Single.Epsilon And
-                           Math.Abs(objDelimitedFileReader.PeptideNET - 0) < Single.Epsilon) Then
-                            AddOrUpdatePeptide(objDelimitedFileReader.EntryUniqueID, .Mass, .NET, 0, 0, objDelimitedFileReader.ProteinName, clsProteinInfo.eCleavageStateConstants.Unknown, String.Empty)
+                        If Not delimitedFileHasMassAndNET OrElse
+                          (Math.Abs(delimitedFileReader.PeptideMass - 0) < Single.Epsilon And
+                           Math.Abs(delimitedFileReader.PeptideNET - 0) < Single.Epsilon) Then
+                            AddOrUpdatePeptide(delimitedFileReader.EntryUniqueID, .Mass, .NET, 0, 0, delimitedFileReader.ProteinName, clsProteinInfo.eCleavageStateConstants.Unknown, String.Empty)
                         Else
-                            AddOrUpdatePeptide(objDelimitedFileReader.EntryUniqueID, objDelimitedFileReader.PeptideMass, objDelimitedFileReader.PeptideNET,
-                                               objDelimitedFileReader.PeptideNETStDev, objDelimitedFileReader.PeptideDiscriminantScore,
-                                               objDelimitedFileReader.ProteinName, clsProteinInfo.eCleavageStateConstants.Unknown, String.Empty)
+                            AddOrUpdatePeptide(delimitedFileReader.EntryUniqueID, delimitedFileReader.PeptideMass, delimitedFileReader.PeptideNET,
+                                               delimitedFileReader.PeptideNETStDev, delimitedFileReader.PeptideDiscriminantScore,
+                                               delimitedFileReader.ProteinName, clsProteinInfo.eCleavageStateConstants.Unknown, String.Empty)
 
                             ' ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
                         End If
 
                     End With
 
-                    UpdateProgress(objDelimitedFileReader.PercentFileProcessed())
+                    UpdateProgress(delimitedFileReader.PercentFileProcessed())
                     If Me.AbortProcessing Then Exit Do
                 End If
 
-            Loop While blnInputPeptideFound
+            Loop While inputPeptideFound
 
-            If intInputFileLineSkipCount > 0 Then
-                strSkipMessage = "Note that " & intInputFileLineSkipCount.ToString & " out of " & intInputFileLinesRead.ToString & " lines were skipped in the input file because they did not match the column order defined on the File Format Options Tab (" & mProteinFileParser.DelimitedFileFormatCode.ToString & ")"
-                MyBase.LogMessage(strSkipMessage, MessageTypeConstants.Warning)
-                mLastErrorMessage = String.Copy(strSkipMessage)
+            If inputFileLineSkipCount > 0 Then
+                skipMessage = "Note that " & inputFileLineSkipCount.ToString() & " out of " & inputFileLinesRead.ToString() & " lines were skipped in the input file because they did not match the column order defined on the File Format Options Tab (" & mProteinFileParser.DelimitedFileFormatCode.ToString() & ")"
+                MyBase.LogMessage(skipMessage, MessageTypeConstants.Warning)
+                mLastErrorMessage = String.Copy(skipMessage)
             End If
 
-            blnSuccess = Not (Me.AbortProcessing)
+            success = Not (Me.AbortProcessing)
 
         Catch ex As Exception
             SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ErrorReadingInputFile, ex)
-            blnSuccess = False
+            success = False
         Finally
-            objDelimitedFileReader.CloseFile()
+            delimitedFileReader.CloseFile()
         End Try
 
-        Return blnSuccess
+        Return success
 
     End Function
 
-    Private Function LoadProteinsOrPeptidesWork(strProteinInputFilePath As String) As Boolean
+    Private Function LoadProteinsOrPeptidesWork(proteinInputFilePath As String) As Boolean
 
-        Dim blnSuccess As Boolean
-        Dim blnGenerateUniqueSequenceID As Boolean
-        Dim blnIsFastaFile As Boolean
+        Dim success As Boolean
+        Dim generateUniqueSequenceID As Boolean
+        Dim isFastaFile As Boolean
 
-        Dim strSkipMessage As String = String.Empty
+        Dim masterSequences As Hashtable = Nothing
 
-        Dim htMasterSequences As Hashtable = Nothing
-        Dim intUniqueSeqID As Integer
-        Dim intNextUniqueIDForMasterSeqs As Integer
-
-        Dim intProteinIndex As Integer
-        Dim intPeptideIndex As Integer
-
-        Dim intPeptideCount As Integer
-        Dim objPeptides() As clsInSilicoDigest.PeptideInfoClass = Nothing
-
-        Dim objProteinOrPeptide As clsParseProteinFile.udtProteinInfoType
+        Dim digestedPeptides As List(Of clsInSilicoDigest.PeptideInfoClass) = Nothing
 
         Try
 
             If mProteinFileParser.GenerateUniqueIDValuesForPeptides Then
                 ' Need to generate unique sequence ID values
-                blnGenerateUniqueSequenceID = True
+                generateUniqueSequenceID = True
 
-                ' Initialize htMasterSequences
-                htMasterSequences = New Hashtable
+                ' Initialize masterSequences
+                masterSequences = New Hashtable
             Else
-                blnGenerateUniqueSequenceID = False
+                generateUniqueSequenceID = False
             End If
-            intNextUniqueIDForMasterSeqs = 1
+            Dim nextUniqueIDForMasterSeqs = 1
 
             With mProteinFileParser
 
-                If clsParseProteinFile.IsFastaFile(strProteinInputFilePath) Or .AssumeFastaFile Then
-                    blnIsFastaFile = True
+                If clsParseProteinFile.IsFastaFile(proteinInputFilePath) Or .AssumeFastaFile Then
+                    isFastaFile = True
                 Else
-                    blnIsFastaFile = False
+                    isFastaFile = False
                 End If
 
 
@@ -1587,106 +1566,112 @@ Public Class clsProteinDigestionSimulator
                 .ComputeProteinMass = False
                 .CreateProteinOutputFile = False
 
-                If mCysPeptidesOnly Then
+                If CysPeptidesOnly Then
                     .DigestionOptions.AminoAcidResidueFilterChars = New Char() {"C"c}
                 Else
                     .DigestionOptions.AminoAcidResidueFilterChars = New Char() {}
                 End If
 
                 ' Load the proteins in the input file into memory
-                blnSuccess = .ParseProteinFile(strProteinInputFilePath, "")
+                success = .ParseProteinFile(proteinInputFilePath, "")
             End With
 
-            If mProteinFileParser.InputFileLineSkipCount > 0 And Not blnIsFastaFile Then
-                strSkipMessage = "Note that " & mProteinFileParser.InputFileLineSkipCount.ToString & " out of " & mProteinFileParser.InputFileLinesRead.ToString & " lines were skipped in the input file because they did not match the column order defined on the File Format Options Tab (" & mProteinFileParser.DelimitedFileFormatCode.ToString & ")"
-                MyBase.LogMessage(strSkipMessage, MessageTypeConstants.Warning)
-                mLastErrorMessage = String.Copy(strSkipMessage)
+            Dim skipMessage As String = String.Empty
+            If mProteinFileParser.InputFileLineSkipCount > 0 And Not isFastaFile Then
+                skipMessage = "Note that " & mProteinFileParser.InputFileLineSkipCount.ToString() &
+                                 " out of " & mProteinFileParser.InputFileLinesRead.ToString() &
+                                 " lines were skipped in the input file because they did not match the column order" &
+                                 " defined on the File Format Options Tab (" & mProteinFileParser.DelimitedFileFormatCode.ToString() & ")"
+                MyBase.LogMessage(skipMessage, MessageTypeConstants.Warning)
+                mLastErrorMessage = String.Copy(skipMessage)
             End If
 
             If mProteinFileParser.GetProteinCountCached <= 0 Then
-                If blnSuccess Then
+                If success Then
                     ' File was successfully loaded, but no proteins were found
                     ' This could easily happen for delimited files that only have a header line, or that don't have a format that matches what the user specified
                     SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ProteinsNotFoundInInputFile)
                     mLastErrorMessage = String.Empty
-                    blnSuccess = False
+                    success = False
                 Else
                     SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ErrorReadingInputFile)
-                    mLastErrorMessage = "Error using ParseProteinFile to read the proteins from " & Path.GetFileName(strProteinInputFilePath)
+                    mLastErrorMessage = "Error using ParseProteinFile to read the proteins from " & Path.GetFileName(proteinInputFilePath)
                 End If
 
-                If mProteinFileParser.InputFileLineSkipCount > 0 And Not blnIsFastaFile Then
+                If mProteinFileParser.InputFileLineSkipCount > 0 And Not isFastaFile Then
                     If mLastErrorMessage.Length > 0 Then
                         mLastErrorMessage &= ". "
                     End If
-                    mLastErrorMessage &= strSkipMessage
+                    mLastErrorMessage &= skipMessage
                 End If
 
-            ElseIf blnSuccess Then
+            ElseIf success Then
 
                 ' Re-enable mass calculation
                 mProteinFileParser.ComputeProteinMass = True
 
                 ResetProgress("Digesting proteins in input file")
 
-                For intProteinIndex = 0 To mProteinFileParser.GetProteinCountCached - 1
-                    objProteinOrPeptide = mProteinFileParser.GetCachedProtein(intProteinIndex)
+                For proteinIndex = 0 To mProteinFileParser.GetProteinCountCached - 1
+                    Dim proteinOrPeptide = mProteinFileParser.GetCachedProtein(proteinIndex)
 
-                    intPeptideCount = mProteinFileParser.GetDigestedPeptidesForCachedProtein(intProteinIndex, objPeptides, mProteinFileParser.DigestionOptions)
+                    Dim peptideCount = mProteinFileParser.GetDigestedPeptidesForCachedProtein(proteinIndex, digestedPeptides, mProteinFileParser.DigestionOptions)
 
-                    If intPeptideCount > 0 Then
-                        For intPeptideIndex = 0 To intPeptideCount - 1
-                            If blnGenerateUniqueSequenceID Then
-                                intUniqueSeqID = GetNextUniqueSequenceID(objPeptides(intPeptideIndex).SequenceOneLetter, htMasterSequences, intNextUniqueIDForMasterSeqs)
+                    If peptideCount > 0 Then
+                        For Each digestedPeptide In digestedPeptides
+                            Dim uniqueSeqID As Integer
+
+                            If generateUniqueSequenceID Then
+                                uniqueSeqID = GetNextUniqueSequenceID(digestedPeptide.SequenceOneLetter, masterSequences, nextUniqueIDForMasterSeqs)
                             Else
                                 ' Must assume each sequence is unique; probably an incorrect assumption
-                                intUniqueSeqID = intNextUniqueIDForMasterSeqs
-                                intNextUniqueIDForMasterSeqs += 1
+                                uniqueSeqID = nextUniqueIDForMasterSeqs
+                                nextUniqueIDForMasterSeqs += 1
                             End If
 
-                            With objPeptides(intPeptideIndex)
-                                AddOrUpdatePeptide(intUniqueSeqID, .Mass, .NET, 0, 0, objProteinOrPeptide.Name, clsProteinInfo.eCleavageStateConstants.Unknown, .PeptideName)
+                            With digestedPeptide
+                                AddOrUpdatePeptide(uniqueSeqID, .Mass, .NET, 0, 0, proteinOrPeptide.Name, clsProteinInfo.eCleavageStateConstants.Unknown, .PeptideName)
                             End With
                         Next
                     End If
 
-                    UpdateProgress(CSng((intProteinIndex + 1) / mProteinFileParser.GetProteinCountCached * 100))
+                    UpdateProgress(CSng((proteinIndex + 1) / mProteinFileParser.GetProteinCountCached * 100))
 
                     If Me.AbortProcessing Then Exit For
-                Next intProteinIndex
+                Next proteinIndex
 
-                blnSuccess = Not (Me.AbortProcessing)
+                success = Not (Me.AbortProcessing)
             End If
 
         Catch ex As Exception
             SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.ErrorReadingInputFile, ex)
-            blnSuccess = False
+            success = False
         End Try
 
-        Return blnSuccess
+        Return success
 
     End Function
 
     Private Sub InitializeBinningRanges(
-      objThresholds As clsPeakMatchingClass.clsSearchThresholds,
-      objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass,
-      objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass,
+      thresholds As clsPeakMatchingClass.clsSearchThresholds,
+      featuresToIdentify As clsPeakMatchingClass.PMFeatureInfoClass,
+      peptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass,
       udtPeptideStatsBinned As udtBinnedPeptideCountStatsType)
 
-        Dim sngFeatureMass As Single
+        Dim featureMass As Single
 
-        Dim intMatchIndex As Integer
+        Dim matchIndex As Integer
 
-        Dim intCurrentFeatureID As Integer
+        Dim currentFeatureID As Integer
         Dim udtFeatureInfo = New clsPeakMatchingClass.udtFeatureInfoType()
 
         Dim udtMatchResultInfo As clsPeakMatchingClass.PMFeatureMatchResultsClass.udtPeakMatchingResultType
 
-        Dim IntegerMass, intRemainder As Integer
+        Dim IntegerMass, remainder As Integer
 
         If udtPeptideStatsBinned.Settings.AutoDetermineMassRange Then
 
-            ' Examine objPeptideMatchResults to determine the minimum and maximum masses for features with matches
+            ' Examine peptideMatchResults to determine the minimum and maximum masses for features with matches
 
             ' First, set the ranges to out-of-range values
             With udtPeptideStatsBinned.Settings
@@ -1695,23 +1680,23 @@ Public Class clsProteinDigestionSimulator
             End With
 
             ' Now examine .PeptideMatchResults()
-            With objThresholds
-                For intMatchIndex = 0 To objPeptideMatchResults.Count - 1
+            With thresholds
+                For matchIndex = 0 To peptideMatchResults.Count - 1
 
-                    objPeptideMatchResults.GetMatchInfoByRowIndex(intMatchIndex, intCurrentFeatureID, udtMatchResultInfo)
+                    peptideMatchResults.GetMatchInfoByRowIndex(matchIndex, currentFeatureID, udtMatchResultInfo)
 
-                    objFeaturesToIdentify.GetFeatureInfoByFeatureID(intCurrentFeatureID, udtFeatureInfo)
-                    sngFeatureMass = CSng(udtFeatureInfo.Mass)
+                    featuresToIdentify.GetFeatureInfoByFeatureID(currentFeatureID, udtFeatureInfo)
+                    featureMass = CSng(udtFeatureInfo.Mass)
 
-                    If sngFeatureMass > udtPeptideStatsBinned.Settings.MassMaximum Then
-                        udtPeptideStatsBinned.Settings.MassMaximum = sngFeatureMass
+                    If featureMass > udtPeptideStatsBinned.Settings.MassMaximum Then
+                        udtPeptideStatsBinned.Settings.MassMaximum = featureMass
                     End If
 
-                    If sngFeatureMass < udtPeptideStatsBinned.Settings.MassMinimum Then
-                        udtPeptideStatsBinned.Settings.MassMinimum = sngFeatureMass
+                    If featureMass < udtPeptideStatsBinned.Settings.MassMinimum Then
+                        udtPeptideStatsBinned.Settings.MassMinimum = featureMass
                     End If
 
-                Next intMatchIndex
+                Next matchIndex
             End With
 
             ' Round the minimum and maximum masses to the nearest 100
@@ -1724,14 +1709,14 @@ Public Class clsProteinDigestionSimulator
                 End If
 
                 IntegerMass = CInt(Math.Round(.MassMinimum, 0))
-                Math.DivRem(IntegerMass, 100, intRemainder)
-                IntegerMass -= intRemainder
+                Math.DivRem(IntegerMass, 100, remainder)
+                IntegerMass -= remainder
 
                 .MassMinimum = IntegerMass
 
                 IntegerMass = CInt(Math.Round(.MassMaximum, 0))
-                Math.DivRem(IntegerMass, 100, intRemainder)
-                IntegerMass += (100 - intRemainder)
+                Math.DivRem(IntegerMass, 100, remainder)
+                IntegerMass += (100 - remainder)
 
                 .MassMaximum = IntegerMass
 
@@ -1774,22 +1759,22 @@ Public Class clsProteinDigestionSimulator
     End Function
 
     ' Main processing function
-    Public Overloads Overrides Function ProcessFile(strInputFilePath As String, strOutputFolderPath As String, strParameterFilePath As String, blnResetErrorCode As Boolean) As Boolean
+    Public Overloads Overrides Function ProcessFile(inputFilePath As String, outputFolderPath As String, parameterFilePath As String, resetErrorCode As Boolean) As Boolean
         ' Returns True if success, False if failure
 
-        Dim ioFile As FileInfo
+        Dim file As FileInfo
 
-        Dim strInputFilePathFull As String
+        Dim inputFilePathFull As String
 
-        Dim blnSuccess As Boolean
+        Dim success As Boolean
 
-        If blnResetErrorCode Then
+        If resetErrorCode Then
             SetLocalErrorCode(eProteinDigestionSimulatorErrorCodes.NoError)
         End If
 
-        If Not LoadParameterFileSettings(strParameterFilePath) Then
-            Dim strStatusMessage = "Parameter file load error: " & strParameterFilePath
-            ShowErrorMessage(strStatusMessage)
+        If Not LoadParameterFileSettings(parameterFilePath) Then
+            Dim statusMessage = "Parameter file load error: " & parameterFilePath
+            ShowErrorMessage(statusMessage)
             If MyBase.ErrorCode = ProcessFilesErrorCodes.NoError Then
                 MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidParameterFile)
             End If
@@ -1797,23 +1782,23 @@ Public Class clsProteinDigestionSimulator
         End If
 
         Try
-            If strInputFilePath Is Nothing OrElse strInputFilePath.Length = 0 Then
+            If inputFilePath Is Nothing OrElse inputFilePath.Length = 0 Then
                 Console.WriteLine("Input file name is empty")
                 MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidInputFilePath)
             Else
 
                 Console.WriteLine()
-                Console.WriteLine("Parsing " & Path.GetFileName(strInputFilePath))
+                Console.WriteLine("Parsing " & Path.GetFileName(inputFilePath))
 
-                If Not CleanupFilePaths(strInputFilePath, strOutputFolderPath) Then
+                If Not CleanupFilePaths(inputFilePath, outputFolderPath) Then
                     MyBase.SetBaseClassErrorCode(ProcessFilesErrorCodes.FilePathError)
                 Else
                     Try
                         ' Obtain the full path to the input file
-                        ioFile = New FileInfo(strInputFilePath)
-                        strInputFilePathFull = ioFile.FullName
+                        file = New FileInfo(inputFilePath)
+                        inputFilePathFull = file.FullName
 
-                        blnSuccess = GenerateUniquenessStats(strInputFilePathFull, strOutputFolderPath, Path.GetFileNameWithoutExtension(strInputFilePath))
+                        success = GenerateUniquenessStats(inputFilePathFull, outputFolderPath, Path.GetFileNameWithoutExtension(inputFilePath))
 
                     Catch ex As Exception
                         Throw New Exception("Error calling ParseProteinFile", ex)
@@ -1824,7 +1809,7 @@ Public Class clsProteinDigestionSimulator
             Throw New Exception("Error in ProcessFile", ex)
         End Try
 
-        Return blnSuccess
+        Return success
 
     End Function
 
@@ -1833,18 +1818,18 @@ Public Class clsProteinDigestionSimulator
         MyBase.ResetProgress()
     End Sub
 
-    Protected Shadows Sub ResetProgress(strProgressStepDescription As String)
+    Protected Shadows Sub ResetProgress(description As String)
         Me.AbortProcessing = False
-        MyBase.ResetProgress(strProgressStepDescription)
+        MyBase.ResetProgress(description)
     End Sub
 
-    Public Function SetPeptideUniquenessMassRangeForBinning(MassMinimum As Single, MassMaximum As Single) As Boolean
+    Public Function SetPeptideUniquenessMassRangeForBinning(massMinimum As Single, massMaximum As Single) As Boolean
         ' Returns True if the minimum and maximum mass specified were valid
 
         With mPeptideUniquenessBinningSettings
-            If MassMinimum < MassMaximum AndAlso MassMinimum >= 0 Then
-                .MassMinimum = MassMinimum
-                .MassMaximum = MassMaximum
+            If massMinimum < massMaximum AndAlso massMinimum >= 0 Then
+                .MassMinimum = massMinimum
+                .MassMaximum = massMaximum
                 Return True
             Else
                 Return False
@@ -1853,32 +1838,32 @@ Public Class clsProteinDigestionSimulator
     End Function
 
     Private Function SummarizeResultsByPeptide(
-      objThresholds As clsPeakMatchingClass.clsSearchThresholds,
-      intThresholdIndex As Integer,
-      objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass,
-      objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass,
-      strOutputFolderPath As String,
-      strOutputFilenameBase As String,
-      srPeptideUniquenessOutFile As StreamWriter) As Boolean
+      thresholds As clsPeakMatchingClass.clsSearchThresholds,
+      thresholdIndex As Integer,
+      featuresToIdentify As clsPeakMatchingClass.PMFeatureInfoClass,
+      peptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass,
+      outputFolderPath As String,
+      outputFilenameBase As String,
+      peptideUniquenessWriter As StreamWriter) As Boolean
 
-        Dim strWorkingFilenameBase As String
-        Dim strOutputFilePath As String
+        Dim workingFilenameBase As String
+        Dim outputFilePath As String
 
-        Dim intPeptideIndex As Integer
-        Dim intFeaturesToIdentifyCount As Integer
+        Dim peptideIndex As Integer
+        Dim featuresToIdentifyCount As Integer
 
         Dim udtFeatureInfo = New clsPeakMatchingClass.udtFeatureInfoType
 
-        Dim intMatchCount As Integer
-        Dim intBinIndex As Integer
-        Dim intPeptideSkipCount As Integer
-        Dim intTotal As Integer
+        Dim matchCount As Integer
+        Dim binIndex As Integer
+        Dim peptideSkipCount As Integer
+        Dim total As Integer
 
-        Dim intMaxMatchCount As Integer
+        Dim maxMatchCount As Integer
 
-        Dim udtPeptideStatsBinned = New udtBinnedPeptideCountStatsType
+        Dim udtPeptideStatsBinned = New udtBinnedPeptideCountStatsType()
 
-        Dim blnSuccess As Boolean
+        Dim success As Boolean
 
         Try
 
@@ -1886,46 +1871,46 @@ Public Class clsProteinDigestionSimulator
             udtPeptideStatsBinned.Settings = mPeptideUniquenessBinningSettings
 
             ' Define the minimum and maximum mass ranges, plus the number of bins required
-            InitializeBinningRanges(objThresholds, objFeaturesToIdentify, objPeptideMatchResults, udtPeptideStatsBinned)
+            InitializeBinningRanges(thresholds, featuresToIdentify, peptideMatchResults, udtPeptideStatsBinned)
 
-            intFeaturesToIdentifyCount = objFeaturesToIdentify.Count
+            featuresToIdentifyCount = featuresToIdentify.Count
 
             ResetProgress("Summarizing results by peptide")
 
             ' --------------------------------------
-            ' Compute the stats for objThresholds
+            ' Compute the stats for thresholds
             ' --------------------------------------
 
             ' Define the maximum match count that will be tracked
-            intMaxMatchCount = Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave)
+            maxMatchCount = Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave)
 
             ' Reserve memory for the bins, store the bin ranges for each bin, and reset the ResultIDs arrays
             InitializeBinnedStats(udtPeptideStatsBinned, udtPeptideStatsBinned.BinCount)
 
-            ' ToDo: When using Sql Server, switch this to use a SP that performs the same function as this For Loop, sotring the results in a table in the DB, but using Bulk Update queries
+            ' ToDo: When using Sql Server, switch this to use a SP that performs the same function as this For Loop, sorting the results in a table in the DB, but using Bulk Update queries
 
-            MyBase.LogMessage("SummarizeResultsByPeptide starting, total feature count = " & intFeaturesToIdentifyCount.ToString, MessageTypeConstants.Normal)
+            MyBase.LogMessage("SummarizeResultsByPeptide starting, total feature count = " & featuresToIdentifyCount.ToString(), MessageTypeConstants.Normal)
 
-            intPeptideSkipCount = 0
-            For intPeptideIndex = 0 To intFeaturesToIdentifyCount - 1
-                If objFeaturesToIdentify.GetFeatureInfoByRowIndex(intPeptideIndex, udtFeatureInfo) Then
-                    intBinIndex = MassToBinIndex(udtFeatureInfo.Mass, udtPeptideStatsBinned.Settings.MassMinimum, udtPeptideStatsBinned.Settings.MassBinSizeDa)
+            peptideSkipCount = 0
+            For peptideIndex = 0 To featuresToIdentifyCount - 1
+                If featuresToIdentify.GetFeatureInfoByRowIndex(peptideIndex, udtFeatureInfo) Then
+                    binIndex = MassToBinIndex(udtFeatureInfo.Mass, udtPeptideStatsBinned.Settings.MassMinimum, udtPeptideStatsBinned.Settings.MassBinSizeDa)
 
-                    If intBinIndex < 0 Or intBinIndex > udtPeptideStatsBinned.BinCount - 1 Then
+                    If binIndex < 0 Or binIndex > udtPeptideStatsBinned.BinCount - 1 Then
                         ' Peptide mass is out-of-range, ignore the result
-                        intPeptideSkipCount += 1
+                        peptideSkipCount += 1
                     Else
-                        If FeatureContainsUniqueMatch(udtFeatureInfo, objPeptideMatchResults, intMatchCount, mUseSLiCScoreForUniqueness, udtPeptideStatsBinned.Settings.MinimumSLiCScore) Then
-                            udtPeptideStatsBinned.Bins(intBinIndex).UniqueResultIDCount += 1
-                            udtPeptideStatsBinned.Bins(intBinIndex).ResultIDCountDistribution(1) += 1
+                        If FeatureContainsUniqueMatch(udtFeatureInfo, peptideMatchResults, matchCount, UseSLiCScoreForUniqueness, udtPeptideStatsBinned.Settings.MinimumSLiCScore) Then
+                            udtPeptideStatsBinned.Bins(binIndex).UniqueResultIDCount += 1
+                            udtPeptideStatsBinned.Bins(binIndex).ResultIDCountDistribution(1) += 1
                         Else
-                            If intMatchCount > 0 Then
+                            If matchCount > 0 Then
                                 ' Feature has 1 or more matches, but they're not unique
-                                udtPeptideStatsBinned.Bins(intBinIndex).NonUniqueResultIDCount += 1
-                                If intMatchCount < intMaxMatchCount Then
-                                    udtPeptideStatsBinned.Bins(intBinIndex).ResultIDCountDistribution(intMatchCount) += 1
+                                udtPeptideStatsBinned.Bins(binIndex).NonUniqueResultIDCount += 1
+                                If matchCount < maxMatchCount Then
+                                    udtPeptideStatsBinned.Bins(binIndex).ResultIDCountDistribution(matchCount) += 1
                                 Else
-                                    udtPeptideStatsBinned.Bins(intBinIndex).ResultIDCountDistribution(intMaxMatchCount) += 1
+                                    udtPeptideStatsBinned.Bins(binIndex).ResultIDCountDistribution(maxMatchCount) += 1
                                 End If
                             End If
                         End If
@@ -1933,51 +1918,51 @@ Public Class clsProteinDigestionSimulator
                     End If
                 End If
 
-                If intPeptideIndex Mod 100 = 0 Then
-                    UpdateProgress(CSng(intPeptideIndex / intFeaturesToIdentifyCount * 100))
+                If peptideIndex Mod 100 = 0 Then
+                    UpdateProgress(CSng(peptideIndex / featuresToIdentifyCount * 100))
                     If Me.AbortProcessing Then Exit For
                 End If
 
-                If intPeptideIndex Mod 100000 = 0 AndAlso intPeptideIndex > 0 Then
-                    MyBase.LogMessage("SummarizeResultsByPeptide, intPeptideIndex = " & intPeptideIndex.ToString, MessageTypeConstants.Normal)
+                If peptideIndex Mod 100000 = 0 AndAlso peptideIndex > 0 Then
+                    MyBase.LogMessage("SummarizeResultsByPeptide, peptideIndex = " & peptideIndex.ToString(), MessageTypeConstants.Normal)
                 End If
-            Next intPeptideIndex
+            Next peptideIndex
 
             With udtPeptideStatsBinned
-                For intBinIndex = 0 To .BinCount - 1
-                    With .Bins(intBinIndex)
-                        intTotal = .UniqueResultIDCount + .NonUniqueResultIDCount
-                        If intTotal > 0 Then
-                            .PercentUnique = CSng(.UniqueResultIDCount / intTotal * 100)
+                For binIndex = 0 To .BinCount - 1
+                    With .Bins(binIndex)
+                        total = .UniqueResultIDCount + .NonUniqueResultIDCount
+                        If total > 0 Then
+                            .PercentUnique = CSng(.UniqueResultIDCount / total * 100)
                         Else
                             .PercentUnique = 0
                         End If
                     End With
-                Next intBinIndex
+                Next binIndex
             End With
 
 
-            If intPeptideSkipCount > 0 Then
-                MyBase.LogMessage("Skipped " & intPeptideSkipCount.ToString & " peptides since their masses were outside the defined bin range", MessageTypeConstants.Warning)
+            If peptideSkipCount > 0 Then
+                MyBase.LogMessage("Skipped " & peptideSkipCount.ToString() & " peptides since their masses were outside the defined bin range", MessageTypeConstants.Warning)
             End If
 
             ' Write out the peptide results for this threshold level
-            If mCreateSeparateOutputFileForEachThreshold Then
-                strWorkingFilenameBase = strOutputFilenameBase & "_PeptideStatsBinned" & (intThresholdIndex + 1).ToString & ".txt"
-                strOutputFilePath = Path.Combine(strOutputFolderPath, strWorkingFilenameBase)
+            If CreateSeparateOutputFileForEachThreshold Then
+                workingFilenameBase = outputFilenameBase & "_PeptideStatsBinned" & (thresholdIndex + 1).ToString() & ".txt"
+                outputFilePath = Path.Combine(outputFolderPath, workingFilenameBase)
 
-                srPeptideUniquenessOutFile = New StreamWriter(strOutputFilePath)
+                peptideUniquenessWriter = New StreamWriter(outputFilePath)
 
-                ExportThresholds(srPeptideUniquenessOutFile, intThresholdIndex, objThresholds)
-                srPeptideUniquenessOutFile.WriteLine()
+                ExportThresholds(peptideUniquenessWriter, thresholdIndex, thresholds)
+                peptideUniquenessWriter.WriteLine()
 
-                SummarizeResultsByPeptideWriteHeaders(srPeptideUniquenessOutFile, mCreateSeparateOutputFileForEachThreshold)
+                SummarizeResultsByPeptideWriteHeaders(peptideUniquenessWriter, CreateSeparateOutputFileForEachThreshold)
             End If
 
-            blnSuccess = ExportPeptideUniquenessResults(intThresholdIndex, udtPeptideStatsBinned, srPeptideUniquenessOutFile)
+            success = ExportPeptideUniquenessResults(thresholdIndex, udtPeptideStatsBinned, peptideUniquenessWriter)
 
-            If mCreateSeparateOutputFileForEachThreshold Then
-                srPeptideUniquenessOutFile.Close()
+            If CreateSeparateOutputFileForEachThreshold Then
+                peptideUniquenessWriter.Close()
             End If
 
             MyBase.LogMessage("SummarizeResultsByPeptide complete", MessageTypeConstants.Normal)
@@ -1985,124 +1970,124 @@ Public Class clsProteinDigestionSimulator
             UpdateProgress(100)
 
         Catch ex As Exception
-            blnSuccess = False
+            success = False
         End Try
 
-        Return blnSuccess
+        Return success
 
     End Function
 
-    Private Sub SummarizeResultsByPeptideWriteHeaders(srOutFile As TextWriter, blnCreateSeparateOutputFileForEachThreshold As Boolean)
+    Private Sub SummarizeResultsByPeptideWriteHeaders(peptideUniquenessWriter As TextWriter, createSeparateOutputFiles As Boolean)
 
-        Dim strLineOut As String
-        Dim intIndex As Integer
+        Dim lineOut As String
+        Dim index As Integer
 
         ' Write the column headers
-        If blnCreateSeparateOutputFileForEachThreshold Then
-            strLineOut = String.Empty
+        If createSeparateOutputFiles Then
+            lineOut = String.Empty
         Else
-            strLineOut = "Threshold_Index" & mOutputFileDelimiter
+            lineOut = "Threshold_Index" & mOutputFileDelimiter
         End If
 
-        strLineOut &= "Bin_Start_Mass" &
+        lineOut &= "Bin_Start_Mass" &
                     mOutputFileDelimiter & "Percent_Unique" &
                     mOutputFileDelimiter & "Peptide_Count_Total"
 
-        For intIndex = 1 To Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave) - 1
-            strLineOut &= mOutputFileDelimiter & "MatchCount_" & intIndex.ToString
-        Next intIndex
+        For index = 1 To Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave) - 1
+            lineOut &= mOutputFileDelimiter & "MatchCount_" & index.ToString()
+        Next index
 
-        strLineOut &= mOutputFileDelimiter & "MatchCount_" & Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave).ToString & "_OrMore"
+        lineOut &= mOutputFileDelimiter & "MatchCount_" & Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave).ToString() & "_OrMore"
 
-        srOutFile.WriteLine(strLineOut)
-        srOutFile.Flush()
+        peptideUniquenessWriter.WriteLine(lineOut)
+        peptideUniquenessWriter.Flush()
 
     End Sub
 
     Private Function SummarizeResultsByProtein(
-      objThresholds As clsPeakMatchingClass.clsSearchThresholds,
-      intThresholdIndex As Integer,
-      objFeaturesToIdentify As clsPeakMatchingClass.PMFeatureInfoClass,
-      objPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass,
-      strOutputFolderPath As String, strOutputFilenameBase As String,
-      srProteinStatsOutFile As StreamWriter) As Boolean
+      thresholds As clsPeakMatchingClass.clsSearchThresholds,
+      thresholdIndex As Integer,
+      featuresToIdentify As clsPeakMatchingClass.PMFeatureInfoClass,
+      peptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass,
+      outputFolderPath As String, outputFilenameBase As String,
+      proteinStatsWriter As StreamWriter) As Boolean
 
-        Dim strWorkingFilenameBase As String
-        Dim strOutputFilePath As String
+        Dim workingFilenameBase As String
+        Dim outputFilePath As String
 
-        Dim intPeptideIndex As Integer
-        Dim intFeaturesToIdentifyCount As Integer
+        Dim peptideIndex As Integer
+        Dim featuresToIdentifyCount As Integer
 
-        Dim intProteinIndex As Integer
-        Dim intMatchCount As Integer
+        Dim proteinIndex As Integer
+        Dim matchCount As Integer
 
-        Dim intProteinIDs() As Integer
-        Dim objNewDataRow As DataRow
+        Dim proteinIDs() As Integer
+        Dim newDataRow As DataRow
 
-        Dim blnSuccess As Boolean
+        Dim success As Boolean
 
         Dim udtFeatureInfo = New clsPeakMatchingClass.udtFeatureInfoType
 
         Try
 
-            intFeaturesToIdentifyCount = objFeaturesToIdentify.Count
+            featuresToIdentifyCount = featuresToIdentify.Count
             ResetProgress("Summarizing results by protein")
 
-            ' Compute the stats for objThresholds
+            ' Compute the stats for thresholds
 
             ' Compute number of unique peptides seen for each protein and write out
-            ' This will allow one to plot Unique peptide vs protein mass or total peptide countvs. protein mass
+            ' This will allow one to plot Unique peptide vs protein mass or total peptide count vs. protein mass
 
             ' Initialize mProteinToIdentifiedPeptideMappingTable
             mProteinToIdentifiedPeptideMappingTable.Clear()
 
-            MyBase.LogMessage("SummarizeResultsByProtein starting, total feature count = " & intFeaturesToIdentifyCount.ToString, MessageTypeConstants.Normal)
+            MyBase.LogMessage("SummarizeResultsByProtein starting, total feature count = " & featuresToIdentifyCount.ToString(), MessageTypeConstants.Normal)
 
-            For intPeptideIndex = 0 To intFeaturesToIdentifyCount - 1
-                If objFeaturesToIdentify.GetFeatureInfoByRowIndex(intPeptideIndex, udtFeatureInfo) Then
-                    If FeatureContainsUniqueMatch(udtFeatureInfo, objPeptideMatchResults, intMatchCount, mUseSLiCScoreForUniqueness, mPeptideUniquenessBinningSettings.MinimumSLiCScore) Then
-                        intProteinIDs = mProteinInfo.GetProteinIDsMappedToPeptideID(udtFeatureInfo.FeatureID)
+            For peptideIndex = 0 To featuresToIdentifyCount - 1
+                If featuresToIdentify.GetFeatureInfoByRowIndex(peptideIndex, udtFeatureInfo) Then
+                    If FeatureContainsUniqueMatch(udtFeatureInfo, peptideMatchResults, matchCount, UseSLiCScoreForUniqueness, mPeptideUniquenessBinningSettings.MinimumSLiCScore) Then
+                        proteinIDs = mProteinInfo.GetProteinIDsMappedToPeptideID(udtFeatureInfo.FeatureID)
 
-                        For intProteinIndex = 0 To intProteinIDs.Length - 1
-                            If Not mProteinToIdentifiedPeptideMappingTable.Rows.Contains(New Object() {intProteinIDs(intProteinIndex), udtFeatureInfo.FeatureID}) Then
-                                objNewDataRow = mProteinToIdentifiedPeptideMappingTable.NewRow
-                                objNewDataRow(PROTEIN_ID_COLUMN) = intProteinIDs(intProteinIndex)
-                                objNewDataRow(PEPTIDE_ID_MATCH_COLUMN) = udtFeatureInfo.FeatureID
-                                mProteinToIdentifiedPeptideMappingTable.Rows.Add(objNewDataRow)
+                        For proteinIndex = 0 To proteinIDs.Length - 1
+                            If Not mProteinToIdentifiedPeptideMappingTable.Rows.Contains(New Object() {proteinIDs(proteinIndex), udtFeatureInfo.FeatureID}) Then
+                                newDataRow = mProteinToIdentifiedPeptideMappingTable.NewRow
+                                newDataRow(PROTEIN_ID_COLUMN) = proteinIDs(proteinIndex)
+                                newDataRow(PEPTIDE_ID_MATCH_COLUMN) = udtFeatureInfo.FeatureID
+                                mProteinToIdentifiedPeptideMappingTable.Rows.Add(newDataRow)
                             End If
-                        Next intProteinIndex
+                        Next proteinIndex
                     End If
 
                 End If
 
-                If intPeptideIndex Mod 100 = 0 Then
-                    UpdateProgress(CSng(intPeptideIndex / intFeaturesToIdentifyCount * 100))
+                If peptideIndex Mod 100 = 0 Then
+                    UpdateProgress(CSng(peptideIndex / featuresToIdentifyCount * 100))
                     If Me.AbortProcessing Then Exit For
                 End If
 
-                If intPeptideIndex Mod 100000 = 0 AndAlso intPeptideIndex > 0 Then
-                    MyBase.LogMessage("SummarizeResultsByProtein, intPeptideIndex = " & intPeptideIndex.ToString, MessageTypeConstants.Normal)
+                If peptideIndex Mod 100000 = 0 AndAlso peptideIndex > 0 Then
+                    MyBase.LogMessage("SummarizeResultsByProtein, peptideIndex = " & peptideIndex.ToString(), MessageTypeConstants.Normal)
                 End If
 
-            Next intPeptideIndex
+            Next peptideIndex
 
             ' Write out the protein results for this threshold level
-            If mCreateSeparateOutputFileForEachThreshold Then
-                strWorkingFilenameBase = strOutputFilenameBase & "_ProteinStatsBinned" & (intThresholdIndex + 1).ToString & ".txt"
-                strOutputFilePath = Path.Combine(strOutputFolderPath, strWorkingFilenameBase)
+            If CreateSeparateOutputFileForEachThreshold Then
+                workingFilenameBase = outputFilenameBase & "_ProteinStatsBinned" & (thresholdIndex + 1).ToString() & ".txt"
+                outputFilePath = Path.Combine(outputFolderPath, workingFilenameBase)
 
-                srProteinStatsOutFile = New StreamWriter(strOutputFilePath)
+                proteinStatsWriter = New StreamWriter(outputFilePath)
 
-                ExportThresholds(srProteinStatsOutFile, intThresholdIndex, objThresholds)
-                srProteinStatsOutFile.WriteLine()
+                ExportThresholds(proteinStatsWriter, thresholdIndex, thresholds)
+                proteinStatsWriter.WriteLine()
 
-                SummarizeResultsByProteinWriteHeaders(srProteinStatsOutFile, mCreateSeparateOutputFileForEachThreshold)
+                SummarizeResultsByProteinWriteHeaders(proteinStatsWriter, CreateSeparateOutputFileForEachThreshold)
             End If
 
-            blnSuccess = ExportProteinStats(intThresholdIndex, srProteinStatsOutFile)
+            success = ExportProteinStats(thresholdIndex, proteinStatsWriter)
 
-            If mCreateSeparateOutputFileForEachThreshold Then
-                srProteinStatsOutFile.Close()
+            If CreateSeparateOutputFileForEachThreshold Then
+                proteinStatsWriter.Close()
             End If
 
             UpdateProgress(100)
@@ -2110,30 +2095,30 @@ Public Class clsProteinDigestionSimulator
             MyBase.LogMessage("SummarizeResultsByProtein complete", MessageTypeConstants.Normal)
 
         Catch ex As Exception
-            blnSuccess = False
+            success = False
         End Try
 
-        Return blnSuccess
+        Return success
 
     End Function
 
-    Private Sub SummarizeResultsByProteinWriteHeaders(srOutFile As TextWriter, blnCreateSeparateOutputFileForEachThreshold As Boolean)
+    Private Sub SummarizeResultsByProteinWriteHeaders(proteinStatsWriter As TextWriter, createSeparateOutputFiles As Boolean)
 
-        Dim strLineOut As String
+        Dim lineOut As String
 
         ' Write the column headers
-        If blnCreateSeparateOutputFileForEachThreshold Then
-            strLineOut = String.Empty
+        If createSeparateOutputFiles Then
+            lineOut = String.Empty
         Else
-            strLineOut = "Threshold_Index" & mOutputFileDelimiter
+            lineOut = "Threshold_Index" & mOutputFileDelimiter
         End If
 
-        strLineOut &= "Protein_Name" &
+        lineOut &= "Protein_Name" &
                     mOutputFileDelimiter & "Protein_ID" &
                     mOutputFileDelimiter & "Peptide_Count_Total" &
                     mOutputFileDelimiter & "Peptide_Count_Uniquely_Identifiable"
-        srOutFile.WriteLine(strLineOut)
-        srOutFile.Flush()
+        proteinStatsWriter.WriteLine(lineOut)
+        proteinStatsWriter.Flush()
 
     End Sub
 
@@ -2144,13 +2129,13 @@ Public Class clsProteinDigestionSimulator
     Private Sub SetLocalErrorCode(eNewErrorCode As eProteinDigestionSimulatorErrorCodes, ex As Exception)
         SetLocalErrorCode(eNewErrorCode, False)
 
-        MyBase.LogMessage(eNewErrorCode.ToString & ": " & ex.Message, MessageTypeConstants.ErrorMsg)
+        MyBase.LogMessage(eNewErrorCode.ToString() & ": " & ex.Message, MessageTypeConstants.ErrorMsg)
         mLastErrorMessage = ex.Message
     End Sub
 
-    Private Sub SetLocalErrorCode(eNewErrorCode As eProteinDigestionSimulatorErrorCodes, blnLeaveExistingErrorCodeUnchanged As Boolean)
+    Private Sub SetLocalErrorCode(eNewErrorCode As eProteinDigestionSimulatorErrorCodes, leaveExistingErrorCodeUnchanged As Boolean)
 
-        If blnLeaveExistingErrorCodeUnchanged AndAlso mLocalErrorCode <> eProteinDigestionSimulatorErrorCodes.NoError Then
+        If leaveExistingErrorCodeUnchanged AndAlso mLocalErrorCode <> eProteinDigestionSimulatorErrorCodes.NoError Then
             ' An error code is already defined; do not change it
         Else
             mLocalErrorCode = eNewErrorCode
@@ -2159,30 +2144,30 @@ Public Class clsProteinDigestionSimulator
 
     End Sub
 
-    Protected Sub UpdateSubtaskProgress(strProgressStepDescription As String)
-        UpdateProgress(strProgressStepDescription, mProgressPercentComplete)
+    Protected Sub UpdateSubtaskProgress(description As String)
+        UpdateProgress(description, mProgressPercentComplete)
     End Sub
 
-    Protected Sub UpdateSubtaskProgress(sngPercentComplete As Single)
-        UpdateProgress(Me.ProgressStepDescription, sngPercentComplete)
+    Protected Sub UpdateSubtaskProgress(percentComplete As Single)
+        UpdateProgress(Me.ProgressStepDescription, percentComplete)
     End Sub
 
-    Protected Sub UpdateSubtaskProgress(strProgressStepDescription As String, sngPercentComplete As Single)
-        Dim blnDescriptionChanged = False
+    Protected Sub UpdateSubtaskProgress(description As String, percentComplete As Single)
+        Dim descriptionChanged = False
 
-        If strProgressStepDescription <> mSubtaskProgressStepDescription Then
-            blnDescriptionChanged = True
+        If description <> mSubtaskProgressStepDescription Then
+            descriptionChanged = True
         End If
 
-        mSubtaskProgressStepDescription = String.Copy(strProgressStepDescription)
-        If sngPercentComplete < 0 Then
-            sngPercentComplete = 0
-        ElseIf sngPercentComplete > 100 Then
-            sngPercentComplete = 100
+        mSubtaskProgressStepDescription = String.Copy(description)
+        If percentComplete < 0 Then
+            percentComplete = 0
+        ElseIf percentComplete > 100 Then
+            percentComplete = 100
         End If
-        mSubtaskProgressPercentComplete = sngPercentComplete
+        mSubtaskProgressPercentComplete = percentComplete
 
-        If blnDescriptionChanged Then
+        If descriptionChanged Then
             If Math.Abs(mSubtaskProgressPercentComplete - 0) < Single.Epsilon Then
                 LogMessage(mSubtaskProgressStepDescription.Replace(ControlChars.NewLine, "; "))
             Else
@@ -2190,42 +2175,42 @@ Public Class clsProteinDigestionSimulator
             End If
         End If
 
-        RaiseEvent SubtaskProgressChanged(Me.ProgressStepDescription, Me.ProgressPercentComplete)
+        RaiseEvent SubtaskProgressChanged(description, Me.ProgressPercentComplete)
 
     End Sub
 
 #Region "Event Handlers"
 
     Private Sub mProteinInfo_SortingList() Handles mProteinInfo.SortingList
-        Static intSortCount As Integer = 0
-        Static dtLastPostTime As DateTime = DateTime.UtcNow
+        Static sortCount As Integer = 0
+        Static lastPostTime As DateTime = DateTime.UtcNow
 
-        intSortCount += 1
-        If DateTime.UtcNow.Subtract(dtLastPostTime).TotalSeconds >= 10 Then
-            MyBase.LogMessage("Sorting protein list (SortCount = " & intSortCount & ")", MessageTypeConstants.Normal)
-            dtLastPostTime = DateTime.UtcNow
+        sortCount += 1
+        If DateTime.UtcNow.Subtract(lastPostTime).TotalSeconds >= 10 Then
+            MyBase.LogMessage("Sorting protein list (SortCount = " & sortCount & ")", MessageTypeConstants.Normal)
+            lastPostTime = DateTime.UtcNow
         End If
     End Sub
 
     Private Sub mProteinInfo_SortingMappings() Handles mProteinInfo.SortingMappings
-        Static intSortCount As Integer = 0
-        Static dtLastPostTime As DateTime = DateTime.UtcNow
+        Static sortCount As Integer = 0
+        Static lastPostTime As DateTime = DateTime.UtcNow
 
-        intSortCount += 1
-        If DateTime.UtcNow.Subtract(dtLastPostTime).TotalSeconds >= 10 Then
-            MyBase.LogMessage("Sorting protein to peptide mapping info (SortCount = " & intSortCount & ")", MessageTypeConstants.Normal)
-            dtLastPostTime = DateTime.UtcNow
+        sortCount += 1
+        If DateTime.UtcNow.Subtract(lastPostTime).TotalSeconds >= 10 Then
+            MyBase.LogMessage("Sorting protein to peptide mapping info (SortCount = " & sortCount & ")", MessageTypeConstants.Normal)
+            lastPostTime = DateTime.UtcNow
         End If
     End Sub
 
     Private Sub mPeptideMatchResults_SortingList() Handles mPeptideMatchResults.SortingList
-        Static intSortCount As Integer = 0
-        Static dtLastPostTime As DateTime = DateTime.UtcNow
+        Static sortCount As Integer = 0
+        Static lastPostTime As DateTime = DateTime.UtcNow
 
-        intSortCount += 1
-        If DateTime.UtcNow.Subtract(dtLastPostTime).TotalSeconds >= 10 Then
-            MyBase.LogMessage("Sorting peptide match results list (SortCount = " & intSortCount & ")", MessageTypeConstants.Normal)
-            dtLastPostTime = DateTime.UtcNow
+        sortCount += 1
+        If DateTime.UtcNow.Subtract(lastPostTime).TotalSeconds >= 10 Then
+            MyBase.LogMessage("Sorting peptide match results list (SortCount = " & sortCount & ")", MessageTypeConstants.Normal)
+            lastPostTime = DateTime.UtcNow
         End If
     End Sub
 
@@ -2246,11 +2231,11 @@ Public Class clsProteinDigestionSimulator
     End Sub
 
     Private Sub mPeakMatchingClass_ProgressContinues() Handles mPeakMatchingClass.ProgressContinues
-        UpdateSubtaskProgress(mPeakMatchingClass.ProgessPct)
+        UpdateSubtaskProgress(mPeakMatchingClass.ProgressPct)
     End Sub
 
-    Private Sub mProteinFileParser_ErrorEvent(strMessage As String, ex As Exception) Handles mProteinFileParser.ErrorEvent
-        ShowErrorMessage("Error in mProteinFileParser: " & strMessage)
+    Private Sub mProteinFileParser_ErrorEvent(message As String, ex As Exception) Handles mProteinFileParser.ErrorEvent
+        ShowErrorMessage("Error in mProteinFileParser: " & message)
     End Sub
 
 #End Region

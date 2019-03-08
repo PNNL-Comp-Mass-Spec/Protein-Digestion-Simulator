@@ -108,7 +108,7 @@ Public Class frmDisclaimer
         txtNotice.SelectionStart = 0
         'txtNotice.SelectionLength = 0
 
-        cmdOK.Text = FORM_CLOSE_DELAY_SECONDS.ToString
+        cmdOK.Text = FORM_CLOSE_DELAY_SECONDS.ToString()
         cmdOK.Enabled = False
 
         mTimerStartTime = DateTime.UtcNow
@@ -121,13 +121,13 @@ Public Class frmDisclaimer
     End Sub
 
     Private Sub mCloseDelayTimer_Elapsed(sender As Object, e As Timers.ElapsedEventArgs) Handles mCloseDelayTimer.Elapsed
-        Dim intSecondsRemaining As Integer
+        Dim secondsRemaining As Integer
 
-        intSecondsRemaining = CInt(Math.Round(FORM_CLOSE_DELAY_SECONDS - DateTime.UtcNow.Subtract(mTimerStartTime).TotalSeconds, 0))
-        If intSecondsRemaining < 0 Then intSecondsRemaining = 0
+        secondsRemaining = CInt(Math.Round(FORM_CLOSE_DELAY_SECONDS - DateTime.UtcNow.Subtract(mTimerStartTime).TotalSeconds, 0))
+        If secondsRemaining < 0 Then secondsRemaining = 0
 
-        If intSecondsRemaining > 0 Then
-            cmdOK.Text = intSecondsRemaining.ToString
+        If secondsRemaining > 0 Then
+            cmdOK.Text = secondsRemaining.ToString()
             Application.DoEvents()
         Else
             cmdOK.Text = "&OK"

@@ -6,14 +6,14 @@ Imports ValidateFastaFile
 
 Public Class frmFastaValidation
 
-    Public Sub New(strFastaFilePath As String)
+    Public Sub New(fastaFilePath As String)
         MyBase.New()
 
         'This call is required by the Windows Form Designer.
         InitializeComponent()
 
         'Add any initialization after the InitializeComponent() call
-        InitializeForm(strFastaFilePath)
+        InitializeForm(fastaFilePath)
     End Sub
 
 
@@ -36,7 +36,7 @@ Public Class frmFastaValidation
 
         Public ValidProteinNameLengthMinimum As Integer
         Public ValidProteinNameLengthMaximum As Integer
-        Public AllowAstericksInResidues As Boolean
+        Public AllowAsterisksInResidues As Boolean
         Public CheckForDuplicateProteinNames As Boolean
         Public LogResultsToFile As Boolean
         Public SaveHashInfoFile As Boolean
@@ -57,8 +57,8 @@ Public Class frmFastaValidation
         Public ConsolidateDuplicateProteins As Boolean
         Public ConsolidateDupsIgnoreILDiff As Boolean
     End Structure
-#End Region
 
+#End Region
 #Region "Classwide variables"
     Private mFastaFilePath As String
 
@@ -125,21 +125,21 @@ Public Class frmFastaValidation
 
 #Region "Procedures"
 
-    Private Sub AppendToString(ByRef strText As String, strNewText As String)
-        strText &= strNewText & ControlChars.NewLine
+    Private Sub AppendToString(ByRef textLine As String, newText As String)
+        textLine &= newText & ControlChars.NewLine
     End Sub
 
-    Private Sub AppendToString(ByRef strText As String, strNumberDescription As String, lngNumber As Long)
-        AppendToString(strText, strNumberDescription, lngNumber, True)
+    Private Sub AppendToString(ByRef textLine As String, numberDescription As String, number As Long)
+        AppendToString(textLine, numberDescription, number, True)
     End Sub
 
-    Private Sub AppendToString(ByRef strText As String, strNumberDescription As String, lngNumber As Long, blnUseCommaSeparator As Boolean)
+    Private Sub AppendToString(ByRef textLine As String, numberDescription As String, number As Long, useCommaSeparator As Boolean)
 
         ' Dim nfi As NumberFormatInfo = New CultureInfo("en-US", False).NumberFormat
-        If blnUseCommaSeparator Then
-            strText &= strNumberDescription & lngNumber.ToString("###,###,###,###,##0") & ControlChars.NewLine
+        If useCommaSeparator Then
+            textLine &= numberDescription & number.ToString("###,###,###,###,##0") & ControlChars.NewLine
         Else
-            strText &= strNumberDescription & lngNumber.ToString & ControlChars.NewLine
+            textLine &= numberDescription & number.ToString() & ControlChars.NewLine
         End If
 
     End Sub
@@ -158,10 +158,9 @@ Public Class frmFastaValidation
 
     Private Sub CreateDefaultValidationRulesFile()
 
-        Dim objSaveFile As New SaveFileDialog()
-        Dim strCustomRuleDefsFilePath As String
+        Dim dialog As New SaveFileDialog()
 
-        With objSaveFile
+        With dialog
             .AddExtension = True
             .CheckFileExists = False
             .CheckPathExists = True
@@ -176,7 +175,7 @@ Public Class frmFastaValidation
 
             If Len(txtCustomValidationRulesFilePath.Text.Length) > 0 Then
                 Try
-                    .InitialDirectory = Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString
+                    .InitialDirectory = Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString()
                 Catch
                     .InitialDirectory = GetApplicationDataFolderPath()
                 End Try
@@ -188,20 +187,20 @@ Public Class frmFastaValidation
 
             .ShowDialog()
             If .FileName.Length > 0 Then
-                strCustomRuleDefsFilePath = .FileName
+                Dim customRuleDefinitionsFilePath = .FileName
 
                 Try
-                    Dim objValidateFastaFile As New clsValidateFastaFile()
-                    objValidateFastaFile.SaveSettingsToParameterFile(strCustomRuleDefsFilePath)
+                    Dim validateFastaFile As New clsValidateFastaFile()
+                    validateFastaFile.SaveSettingsToParameterFile(customRuleDefinitionsFilePath)
 
                     If txtCustomValidationRulesFilePath.TextLength = 0 Then
-                        txtCustomValidationRulesFilePath.Text = strCustomRuleDefsFilePath
+                        txtCustomValidationRulesFilePath.Text = customRuleDefinitionsFilePath
                     End If
 
-                    MessageBox.Show("File " & strCustomRuleDefsFilePath & " now contains the default rule validation settings.", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show("File " & customRuleDefinitionsFilePath & " now contains the default rule validation settings.", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
                 Catch ex As Exception
-                    MessageBox.Show("Error creating/updating file: " & strCustomRuleDefsFilePath & ControlChars.NewLine & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                    MessageBox.Show("Error creating/updating file: " & customRuleDefinitionsFilePath & ControlChars.NewLine & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
                 End Try
 
             End If
@@ -209,47 +208,50 @@ Public Class frmFastaValidation
 
     End Sub
 
-    Private Sub DisplayResults(strParameterFilePath As String)
-        ' Display the results
+    ''' <summary>
+    ''' Display the results
+    ''' </summary>
+    ''' <param name="parameterFilePath"></param>
+    Private Sub DisplayResults(parameterFilePath As String)
 
-        Const strSepChar = ControlChars.Tab
+        Const sepChar = ControlChars.Tab
 
         With mValidateFastaFile
-            Dim strResults = "Results for file " & .FastaFilePath & ControlChars.NewLine
+            Dim results = "Results for file " & .FastaFilePath & ControlChars.NewLine
 
-            AppendToString(strResults, "Protein count = " & .ProteinCount & strSepChar & strSepChar & "Residue count = ", .ResidueCount)
-            AppendToString(strResults, "Error count = " & .ErrorWarningCounts(clsValidateFastaFile.eMsgTypeConstants.ErrorMsg, clsValidateFastaFile.ErrorWarningCountTypes.Total))
-            AppendToString(strResults, "Warning count = ", .ErrorWarningCounts(clsValidateFastaFile.eMsgTypeConstants.WarningMsg, clsValidateFastaFile.ErrorWarningCountTypes.Total))
+            AppendToString(results, "Protein count = " & .ProteinCount & sepChar & sepChar & "Residue count = ", .ResidueCount)
+            AppendToString(results, "Error count = " & .ErrorWarningCounts(clsValidateFastaFile.eMsgTypeConstants.ErrorMsg, clsValidateFastaFile.ErrorWarningCountTypes.Total))
+            AppendToString(results, "Warning count = ", .ErrorWarningCounts(clsValidateFastaFile.eMsgTypeConstants.WarningMsg, clsValidateFastaFile.ErrorWarningCountTypes.Total))
 
             If .OptionSwitch(clsValidateFastaFile.SwitchOptions.GenerateFixedFASTAFile) Then
-                AppendToString(strResults, "Count of long protein names that were truncated = " & .FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.TruncatedProteinNameCount))
-                AppendToString(strResults, "Count of protein names with invalid chars removed = " & .FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.ProteinNamesInvalidCharsReplaced))
-                AppendToString(strResults, "Count of protein names with multiple refs split out = " & .FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.ProteinNamesMultipleRefsRemoved))
-                AppendToString(strResults, "Count of residue lines with invalid chars removed = " & .FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.UpdatedResidueLines))
+                AppendToString(results, "Count of long protein names that were truncated = " & .FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.TruncatedProteinNameCount))
+                AppendToString(results, "Count of protein names with invalid chars removed = " & .FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.ProteinNamesInvalidCharsReplaced))
+                AppendToString(results, "Count of protein names with multiple refs split out = " & .FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.ProteinNamesMultipleRefsRemoved))
+                AppendToString(results, "Count of residue lines with invalid chars removed = " & .FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.UpdatedResidueLines))
 
                 If .OptionSwitch(clsValidateFastaFile.SwitchOptions.FixedFastaRenameDuplicateNameProteins) Then
-                    AppendToString(strResults, "Count of proteins renamed due to duplicate names = " & .FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.DuplicateProteinNamesRenamedCount))
+                    AppendToString(results, "Count of proteins renamed due to duplicate names = " & .FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.DuplicateProteinNamesRenamedCount))
                 ElseIf .OptionSwitch(clsValidateFastaFile.SwitchOptions.CheckForDuplicateProteinNames) Then
-                    AppendToString(strResults, "Count of proteins skipped due to duplicate names = " & .FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.DuplicateProteinNamesSkippedCount))
+                    AppendToString(results, "Count of proteins skipped due to duplicate names = " & .FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.DuplicateProteinNamesSkippedCount))
                 End If
 
                 If .OptionSwitch(clsValidateFastaFile.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs) Then
-                    AppendToString(strResults, "Count of proteins removed due to duplicate sequences = " & .FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.DuplicateProteinSeqsSkippedCount))
+                    AppendToString(results, "Count of proteins removed due to duplicate sequences = " & .FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.DuplicateProteinSeqsSkippedCount))
                 End If
 
             End If
 
-            If strParameterFilePath.Length > 0 Then
-                AppendToString(strResults, "Used validation rules from file " & strParameterFilePath)
+            If parameterFilePath.Length > 0 Then
+                AppendToString(results, "Used validation rules from file " & parameterFilePath)
             Else
-                AppendToString(strResults, "Default validation rules were used.")
+                AppendToString(results, "Default validation rules were used.")
             End If
 
             If .OptionSwitch(clsValidateFastaFile.SwitchOptions.OutputToStatsFile) Then
-                AppendToString(strResults, "Results were logged to file: " & .StatsFilePath())
+                AppendToString(results, "Results were logged to file: " & .StatsFilePath())
             End If
 
-            txtResults.Text = strResults
+            txtResults.Text = results
             txtResults.SelectionStart = 0
             txtResults.SelectionLength = 0
 
@@ -258,14 +260,14 @@ Public Class frmFastaValidation
 
             If .ErrorWarningCounts(clsValidateFastaFile.eMsgTypeConstants.ErrorMsg, clsValidateFastaFile.ErrorWarningCountTypes.Specified) > 0 Then
                 ' List all of the errors
-                PopulateMsgResultsDatagrid(dgErrors, mErrorsDataset, .FileErrorList)
+                PopulateMsgResultsDataGrid(dgErrors, mErrorsDataset, .FileErrorList)
             Else
                 mErrorsDataset.Tables(0).Clear()
             End If
 
             If .ErrorWarningCounts(clsValidateFastaFile.eMsgTypeConstants.WarningMsg, clsValidateFastaFile.ErrorWarningCountTypes.Specified) > 0 Then
-                ' List all of the warnings in the datagrid
-                PopulateMsgResultsDatagrid(dgWarnings, mWarningsDataset, .FileWarningList)
+                ' List all of the warnings in the DataGrid
+                PopulateMsgResultsDataGrid(dgWarnings, mWarningsDataset, .FileWarningList)
             Else
                 mWarningsDataset.Tables(0).Clear()
             End If
@@ -277,18 +279,18 @@ Public Class frmFastaValidation
     End Sub
 
     Private Sub EnableDisableControls()
-        Dim blnEnableFixedFastaOptions As Boolean
+        Dim enableFixedFastaOptions As Boolean
 
-        blnEnableFixedFastaOptions = chkGenerateFixedFastaFile.Checked
+        enableFixedFastaOptions = chkGenerateFixedFastaFile.Checked
 
-        txtLongProteinNameSplitChars.Enabled = blnEnableFixedFastaOptions
-        txtInvalidProteinNameCharsToRemove.Enabled = blnEnableFixedFastaOptions
-        txtResiduesPerLineForWrap.Enabled = blnEnableFixedFastaOptions And chkWrapLongResidueLines.Checked
+        txtLongProteinNameSplitChars.Enabled = enableFixedFastaOptions
+        txtInvalidProteinNameCharsToRemove.Enabled = enableFixedFastaOptions
+        txtResiduesPerLineForWrap.Enabled = enableFixedFastaOptions And chkWrapLongResidueLines.Checked
 
-        chkSplitOutMultipleRefsInProteinName.Enabled = blnEnableFixedFastaOptions
-        chkRenameDuplicateProteins.Enabled = blnEnableFixedFastaOptions
+        chkSplitOutMultipleRefsInProteinName.Enabled = enableFixedFastaOptions
+        chkRenameDuplicateProteins.Enabled = enableFixedFastaOptions
 
-        If blnEnableFixedFastaOptions Then
+        If enableFixedFastaOptions Then
             If chkRenameDuplicateProteins.Checked Then
                 chkKeepDuplicateNamedProteins.Enabled = False
                 chkKeepDuplicateNamedProteins.Checked = False
@@ -301,13 +303,13 @@ Public Class frmFastaValidation
         End If
 
 
-        chkConsolidateDuplicateProteinSeqs.Enabled = blnEnableFixedFastaOptions
-        chkConsolidateDupsIgnoreILDiff.Enabled = blnEnableFixedFastaOptions And chkConsolidateDuplicateProteinSeqs.Checked
+        chkConsolidateDuplicateProteinSeqs.Enabled = enableFixedFastaOptions
+        chkConsolidateDupsIgnoreILDiff.Enabled = enableFixedFastaOptions And chkConsolidateDuplicateProteinSeqs.Checked
 
-        chkTruncateLongProteinNames.Enabled = blnEnableFixedFastaOptions
-        chkSplitOutMultipleRefsForKnownAccession.Enabled = blnEnableFixedFastaOptions
-        chkWrapLongResidueLines.Enabled = blnEnableFixedFastaOptions
-        chkRemoveInvalidResidues.Enabled = blnEnableFixedFastaOptions
+        chkTruncateLongProteinNames.Enabled = enableFixedFastaOptions
+        chkSplitOutMultipleRefsForKnownAccession.Enabled = enableFixedFastaOptions
+        chkWrapLongResidueLines.Enabled = enableFixedFastaOptions
+        chkRemoveInvalidResidues.Enabled = enableFixedFastaOptions
 
         If txtCustomValidationRulesFilePath.TextLength > 0 Then
             chkAllowAsteriskInResidues.Enabled = False
@@ -317,80 +319,80 @@ Public Class frmFastaValidation
 
     End Sub
 
+    ''' <summary>
+    ''' Copy the contents of the DataGrid to the clipboard
+    ''' </summary>
+    ''' <param name="dvDataView"></param>
+    ''' <returns></returns>
     Private Function FlattenDataView(dvDataView As DataView) As String
-        ' Copy the contents of the datagrid to the clipboard
 
-        Const chSepChar As Char = ControlChars.Tab
+        Const sepChar As Char = ControlChars.Tab
 
-        Dim strText As String = String.Empty
-        Dim intIndex As Integer
-        Dim intColumnCount As Integer
-
-        'Dim txtResults As New Windows.Forms.TextBox
-
-        Dim objRow As DataRow
+        Dim flattenedText As String = String.Empty
+        Dim index As Integer
+        Dim columnCount As Integer
 
         Try
-            intColumnCount = dvDataView.Table.Columns.Count
+            columnCount = dvDataView.Table.Columns.Count
             With dvDataView.Table.Columns
-                For intIndex = 0 To intColumnCount - 1
-                    If intIndex < intColumnCount - 1 Then
-                        strText &= .Item(intIndex).ColumnName.ToString & chSepChar
+                For index = 0 To columnCount - 1
+                    If index < columnCount - 1 Then
+                        flattenedText &= .Item(index).ColumnName.ToString() & sepChar
                     Else
-                        strText &= .Item(intIndex).ColumnName.ToString & ControlChars.NewLine
+                        flattenedText &= .Item(index).ColumnName.ToString() & ControlChars.NewLine
                     End If
-                Next intIndex
+                Next index
             End With
 
-            For Each objRow In dvDataView.Table.Rows
-                For intIndex = 0 To intColumnCount - 1
-                    If intIndex < intColumnCount - 1 Then
-                        strText &= objRow(intIndex).ToString & chSepChar
+            For Each currentRow As DataRow In dvDataView.Table.Rows
+                For index = 0 To columnCount - 1
+                    If index < columnCount - 1 Then
+                        flattenedText &= currentRow(index).ToString() & sepChar
                     Else
-                        strText &= objRow(intIndex).ToString & ControlChars.NewLine
+                        flattenedText &= currentRow(index).ToString() & ControlChars.NewLine
                     End If
-                Next intIndex
-            Next objRow
+                Next index
+            Next
 
         Catch ex As Exception
-            strText &= ControlChars.NewLine & ControlChars.NewLine & "Error copying data: " & ex.Message
+            flattenedText &= ControlChars.NewLine & ControlChars.NewLine & "Error copying data: " & ex.Message
         End Try
 
-        Return strText
+        Return flattenedText
 
     End Function
 
     Private Sub CopySummaryText()
-        Dim intSelStart As Integer
-        Dim intSelLength As Integer
+        Dim selStart As Integer
+        Dim selLength As Integer
 
         With txtResults
-            intSelStart = .SelectionStart
-            intSelLength = .SelectionLength
+            selStart = .SelectionStart
+            selLength = .SelectionLength
 
             .SelectAll()
             .Copy()
 
-            .SelectionStart = intSelStart
-            .SelectionLength = intSelLength
+            .SelectionStart = selStart
+            .SelectionLength = selLength
         End With
 
     End Sub
 
     Private Sub FilterLists()
 
-        Dim strFilter As String
+        Dim filter As String
 
         Try
-            strFilter = String.Empty
+            filter = String.Empty
             If txtFilterData.TextLength > 0 Then
-                strFilter = "[" & COL_NAME_PROTEIN & "] LIKE '%" & txtFilterData.Text & "%' OR [" & COL_NAME_DESCRIPTION & "] LIKE '%" & txtFilterData.Text & "%' OR [" & COL_NAME_CONTEXT & "] LIKE '%" & txtFilterData.Text & "%'"
+                filter = "[" & COL_NAME_PROTEIN & "] LIKE '%" & txtFilterData.Text & "%' OR [" & COL_NAME_DESCRIPTION & "] LIKE '%" & txtFilterData.Text & "%' OR [" & COL_NAME_CONTEXT & "] LIKE '%" & txtFilterData.Text & "%'"
             End If
 
-            mErrorsDataView.RowFilter = strFilter
+            mErrorsDataView.RowFilter = filter
             dgErrors.Update()
 
-            mWarningsDataView.RowFilter = strFilter
+            mWarningsDataView.RowFilter = filter
             dgWarnings.Update()
 
         Catch ex As Exception
@@ -400,22 +402,22 @@ Public Class frmFastaValidation
     End Sub
 
     Private Function GetApplicationDataFolderPath() As String
-        Dim strAppDataFolderPath As String = String.Empty
+        Dim appDataFolderPath As String = String.Empty
 
         Try
-            strAppDataFolderPath = Path.Combine(
+            appDataFolderPath = Path.Combine(
                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                "PAST Toolkit\ProteinDigestionSimulator")
 
-            If Not Directory.Exists(strAppDataFolderPath) Then
-                Directory.CreateDirectory(strAppDataFolderPath)
+            If Not Directory.Exists(appDataFolderPath) Then
+                Directory.CreateDirectory(appDataFolderPath)
             End If
 
         Catch ex As Exception
             ' Ignore errors here; an exception will likely be thrown by the calling function that is trying to access this non-existent application data folder
         End Try
 
-        Return strAppDataFolderPath
+        Return appDataFolderPath
 
     End Function
 
@@ -429,7 +431,7 @@ Public Class frmFastaValidation
             .ValidProteinNameLengthMinimum = VBNetRoutines.ParseTextboxValueInt(txtProteinNameLengthMinimum, "", False, 3, False)
             .ValidProteinNameLengthMaximum = VBNetRoutines.ParseTextboxValueInt(txtProteinNameLengthMaximum, "", False, 34, False)
 
-            .AllowAstericksInResidues = chkAllowAsteriskInResidues.Checked
+            .AllowAsterisksInResidues = chkAllowAsteriskInResidues.Checked
             .CheckForDuplicateProteinNames = chkCheckForDuplicateProteinInfo.Checked
             .LogResultsToFile = chkLogResults.Checked
             .SaveHashInfoFile = chkSaveBasicProteinHashInfoFile.Checked
@@ -459,25 +461,25 @@ Public Class frmFastaValidation
 
         Dim dtDataTable As DataTable
 
-        Dim strMsgColumnName As String
-        Dim strDatasetName As String
-        Dim strDatatableName As String
+        Dim msgColumnName As String
+        Dim datasetName As String
+        Dim dataTableName As String
 
         If eMsgType = clsValidateFastaFile.eMsgTypeConstants.WarningMsg Then
-            strMsgColumnName = "Warnings"
+            msgColumnName = "Warnings"
         ElseIf eMsgType = clsValidateFastaFile.eMsgTypeConstants.ErrorMsg Then
-            strMsgColumnName = "Errors"
+            msgColumnName = "Errors"
         Else
-            strMsgColumnName = "Status"
+            msgColumnName = "Status"
         End If
 
-        strDatasetName = "ds" & strMsgColumnName
-        strDatatableName = "T_" & strMsgColumnName
+        datasetName = "ds" & msgColumnName
+        dataTableName = "T_" & msgColumnName
 
         ' Create a DataTable
-        dtDataTable = New DataTable(strDatatableName)
+        dtDataTable = New DataTable(dataTableName)
 
-        ' Add the columns to the datatable
+        ' Add the columns to the DataTable
         ADONetRoutines.AppendColumnIntegerToTable(dtDataTable, COL_NAME_LINE)
         ADONetRoutines.AppendColumnIntegerToTable(dtDataTable, COL_NAME_COLUMN)
         ADONetRoutines.AppendColumnStringToTable(dtDataTable, COL_NAME_PROTEIN)
@@ -491,7 +493,7 @@ Public Class frmFastaValidation
         ''End With
 
         ' Instantiate the DataSet
-        dsDataset = New DataSet(strDatasetName)
+        dsDataset = New DataSet(datasetName)
 
         ' Add the table to the DataSet
         dsDataset.Tables.Add(dtDataTable)
@@ -499,7 +501,7 @@ Public Class frmFastaValidation
         ' Instantiate the DataView
         dvDataView = New DataView
         With dvDataView
-            .Table = dsDataset.Tables(strDatatableName)
+            .Table = dsDataset.Tables(dataTableName)
             .RowFilter = String.Empty
         End With
 
@@ -507,15 +509,15 @@ Public Class frmFastaValidation
         With dgDataGrid
             .DataSource = dvDataView
             .ReadOnly = False
-            .CaptionText = strMsgColumnName
+            .CaptionText = msgColumnName
         End With
 
         ' Update the grid's table style
-        UpdateDatagridTableStyle(dgDataGrid, strDatatableName)
+        UpdateDataGridTableStyle(dgDataGrid, dataTableName)
 
     End Sub
 
-    Private Sub InitializeForm(strFastaFilePath As String)
+    Private Sub InitializeForm(fastaFilePathToValidate As String)
         txtResults.ReadOnly = True
         Me.TextFontSize = 10
 
@@ -528,7 +530,7 @@ Public Class frmFastaValidation
             .Enabled = True
         End With
 
-        SetNewFastaFile(strFastaFilePath)
+        SetNewFastaFile(fastaFilePathToValidate)
 
         EnableDisableControls()
         SetToolTips()
@@ -537,29 +539,29 @@ Public Class frmFastaValidation
 
     End Sub
 
-    Private Sub PopulateMsgResultsDatagrid(dgDataGrid As Control, dsDataset As DataSet, itemList As IEnumerable(Of clsValidateFastaFile.udtMsgInfoType))
+    Private Sub PopulateMsgResultsDataGrid(dgDataGrid As Control, dsDataset As DataSet, itemList As IEnumerable(Of clsValidateFastaFile.udtMsgInfoType))
 
         ' Clear the table
         dsDataset.Tables(0).Clear()
 
         ' Populate it with new data
         For Each item In itemList
-            Dim objRow = dsDataset.Tables(0).NewRow()
+            Dim currentRow = dsDataset.Tables(0).NewRow()
             With item
-                objRow(COL_NAME_LINE) = .LineNumber
-                objRow(COL_NAME_COLUMN) = .ColNumber
+                currentRow(COL_NAME_LINE) = .LineNumber
+                currentRow(COL_NAME_COLUMN) = .ColNumber
                 If .ProteinName Is Nothing OrElse .ProteinName.Length = 0 Then
-                    objRow(COL_NAME_PROTEIN) = "N/A"
+                    currentRow(COL_NAME_PROTEIN) = "N/A"
                 Else
-                    objRow(COL_NAME_PROTEIN) = .ProteinName
+                    currentRow(COL_NAME_PROTEIN) = .ProteinName
                 End If
 
-                objRow(COL_NAME_DESCRIPTION) = mValidateFastaFile.LookupMessageDescription(.MessageCode, .ExtraInfo)
-                objRow(COL_NAME_CONTEXT) = .Context
+                currentRow(COL_NAME_DESCRIPTION) = mValidateFastaFile.LookupMessageDescription(.MessageCode, .ExtraInfo)
+                currentRow(COL_NAME_CONTEXT) = .Context
             End With
 
             ' Add the row to the table
-            dsDataset.Tables(0).Rows.Add(objRow)
+            dsDataset.Tables(0).Rows.Add(currentRow)
         Next
 
         dgDataGrid.Update()
@@ -571,49 +573,48 @@ Public Class frmFastaValidation
         Const MAX_RATIO As Single = 1.5
         Const MENU_HEIGHT = 80
 
-        Dim intDesiredHeight As Integer
+        Dim desiredHeight As Integer
 
-        Dim dblErrorToWarningsRatio As Double
-        dblErrorToWarningsRatio = 1
+        Dim errorToWarningsRatio As Double = 1
 
         Try
             If Not mErrorsDataset Is Nothing AndAlso Not mWarningsDataset Is Nothing Then
                 If mErrorsDataset.Tables(0).Rows.Count = 0 And mWarningsDataset.Tables(0).Rows.Count = 0 Then
-                    dblErrorToWarningsRatio = 1
+                    errorToWarningsRatio = 1
                 ElseIf mErrorsDataset.Tables(0).Rows.Count = 0 Then
-                    dblErrorToWarningsRatio = 1 / MAX_RATIO
+                    errorToWarningsRatio = 1 / MAX_RATIO
                 ElseIf mWarningsDataset.Tables(0).Rows.Count = 0 Then
-                    dblErrorToWarningsRatio = MAX_RATIO
+                    errorToWarningsRatio = MAX_RATIO
                 Else
-                    dblErrorToWarningsRatio = mErrorsDataset.Tables(0).Rows.Count / mWarningsDataset.Tables(0).Rows.Count
+                    errorToWarningsRatio = mErrorsDataset.Tables(0).Rows.Count / mWarningsDataset.Tables(0).Rows.Count
 
-                    If dblErrorToWarningsRatio < 1 / MAX_RATIO Then
-                        dblErrorToWarningsRatio = 1 / MAX_RATIO
-                    ElseIf dblErrorToWarningsRatio > MAX_RATIO Then
-                        dblErrorToWarningsRatio = MAX_RATIO
+                    If errorToWarningsRatio < 1 / MAX_RATIO Then
+                        errorToWarningsRatio = 1 / MAX_RATIO
+                    ElseIf errorToWarningsRatio > MAX_RATIO Then
+                        errorToWarningsRatio = MAX_RATIO
                     End If
                 End If
             End If
         Catch ex As Exception
-            dblErrorToWarningsRatio = 1
+            errorToWarningsRatio = 1
         End Try
 
-        If dblErrorToWarningsRatio >= 1 Then
+        If errorToWarningsRatio >= 1 Then
             ' Errors grid should be taller
-            intDesiredHeight = CInt(Math.Round((Me.Height - dgErrors.Top - MENU_HEIGHT) / (dblErrorToWarningsRatio + 1) * dblErrorToWarningsRatio, 0))
+            desiredHeight = CInt(Math.Round((Me.Height - dgErrors.Top - MENU_HEIGHT) / (errorToWarningsRatio + 1) * errorToWarningsRatio, 0))
         Else
             ' Errors grid should be shorter
-            intDesiredHeight = CInt(Math.Round((Me.Height - dgErrors.Top - MENU_HEIGHT) / (1 / dblErrorToWarningsRatio + 1), 0)) - 2
+            desiredHeight = CInt(Math.Round((Me.Height - dgErrors.Top - MENU_HEIGHT) / (1 / errorToWarningsRatio + 1), 0)) - 2
         End If
 
-        If intDesiredHeight < 5 Then intDesiredHeight = 5
-        dgErrors.Height = intDesiredHeight
+        If desiredHeight < 5 Then desiredHeight = 5
+        dgErrors.Height = desiredHeight
 
         dgWarnings.Top = dgErrors.Top + dgErrors.Height + 10
 
-        intDesiredHeight = CInt(Math.Round(intDesiredHeight / dblErrorToWarningsRatio, 0))
-        If intDesiredHeight < 5 Then intDesiredHeight = 5
-        dgWarnings.Height = intDesiredHeight
+        desiredHeight = CInt(Math.Round(desiredHeight / errorToWarningsRatio, 0))
+        If desiredHeight < 5 Then desiredHeight = 5
+        dgWarnings.Height = desiredHeight
 
     End Sub
 
@@ -652,9 +653,9 @@ Public Class frmFastaValidation
 
     Private Sub SelectCustomRulesFile()
 
-        Dim objOpenFile As New OpenFileDialog()
+        Dim dialog As New OpenFileDialog()
 
-        With objOpenFile
+        With dialog
             .AddExtension = True
             .CheckFileExists = True
             .CheckPathExists = True
@@ -668,7 +669,7 @@ Public Class frmFastaValidation
 
             If Len(txtCustomValidationRulesFilePath.Text.Length) > 0 Then
                 Try
-                    .InitialDirectory = Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString
+                    .InitialDirectory = Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString()
                 Catch
                     .InitialDirectory = GetApplicationDataFolderPath()
                 End Try
@@ -686,8 +687,8 @@ Public Class frmFastaValidation
 
     End Sub
 
-    Public Sub SetNewFastaFile(strFastaFilePath As String)
-        mFastaFilePath = strFastaFilePath
+    Public Sub SetNewFastaFile(fastaFilePathToValidate As String)
+        Me.FastaFilePath = fastaFilePathToValidate
 
         txtResults.Text = String.Empty
 
@@ -700,59 +701,59 @@ Public Class frmFastaValidation
     End Sub
 
     Private Sub ShowAboutBox()
-        Dim strMessage As String
+        Dim message As String
 
-        strMessage = String.Empty
+        message = String.Empty
 
-        strMessage &= "Fasta File Validation module written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2005" & ControlChars.NewLine
-        strMessage &= "Copyright 2018 Battelle Memorial Institute" & ControlChars.NewLine & ControlChars.NewLine
+        message &= "Fasta File Validation module written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2005" & ControlChars.NewLine
+        message &= "Copyright 2018 Battelle Memorial Institute" & ControlChars.NewLine & ControlChars.NewLine
 
-        strMessage &= "This is version " & Application.ProductVersion & " (" & PROGRAM_DATE & ")" & ControlChars.NewLine & ControlChars.NewLine
+        message &= "This is version " & Application.ProductVersion & " (" & PROGRAM_DATE & ")" & ControlChars.NewLine & ControlChars.NewLine
 
-        strMessage &= "E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov" & ControlChars.NewLine
-        strMessage &= "Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/" & ControlChars.NewLine & ControlChars.NewLine
+        message &= "E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov" & ControlChars.NewLine
+        message &= "Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/" & ControlChars.NewLine & ControlChars.NewLine
 
-        strMessage &= "Licensed under the 2-Clause BSD License; https://opensource.org/licenses/BSD-2-Clause" & ControlChars.NewLine & ControlChars.NewLine
+        message &= "Licensed under the 2-Clause BSD License; https://opensource.org/licenses/BSD-2-Clause" & ControlChars.NewLine & ControlChars.NewLine
 
-        strMessage &= "This software is provided by the copyright holders and contributors ""as is"" and "
-        strMessage &= "any express or implied warranties, including, but not limited to, the implied "
-        strMessage &= "warranties of merchantability and fitness for a particular purpose are "
-        strMessage &= "disclaimed. In no event shall the copyright holder or contributors be liable "
-        strMessage &= "for any direct, indirect, incidental, special, exemplary, or consequential "
-        strMessage &= "damages (including, but not limited to, procurement of substitute goods or "
-        strMessage &= "services; loss of use, data, or profits; or business interruption) however "
-        strMessage &= "caused and on any theory of liability, whether in contract, strict liability, "
-        strMessage &= "or tort (including negligence or otherwise) arising in any way out of the use "
-        strMessage &= "of this software, even if advised of the possibility of such damage."
+        message &= "This software is provided by the copyright holders and contributors ""as is"" and "
+        message &= "any express or implied warranties, including, but not limited to, the implied "
+        message &= "warranties of merchantability and fitness for a particular purpose are "
+        message &= "disclaimed. In no event shall the copyright holder or contributors be liable "
+        message &= "for any direct, indirect, incidental, special, exemplary, or consequential "
+        message &= "damages (including, but not limited to, procurement of substitute goods or "
+        message &= "services; loss of use, data, or profits; or business interruption) however "
+        message &= "caused and on any theory of liability, whether in contract, strict liability, "
+        message &= "or tort (including negligence or otherwise) arising in any way out of the use "
+        message &= "of this software, even if advised of the possibility of such damage."
 
-        MessageBox.Show(strMessage, "About", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        MessageBox.Show(message, "About", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
     End Sub
 
-    Private Sub ShowHideObjectsDuringValidation(blnValidating As Boolean)
-        pbarProgress.Visible = blnValidating
+    Private Sub ShowHideObjectsDuringValidation(validating As Boolean)
+        pbarProgress.Visible = validating
 
-        lblFilterData.Visible = Not blnValidating
-        txtFilterData.Visible = Not blnValidating
+        lblFilterData.Visible = Not validating
+        txtFilterData.Visible = Not validating
 
-        cmdValidateFastaFile.Visible = Not blnValidating
-        cmdValidateFastaFile.Enabled = Not blnValidating
+        cmdValidateFastaFile.Visible = Not validating
+        cmdValidateFastaFile.Enabled = Not validating
 
-        cmdCancel.Visible = blnValidating
-        cmdCancel.Enabled = blnValidating
+        cmdCancel.Visible = validating
+        cmdCancel.Enabled = validating
 
     End Sub
 
     Public Sub SetOptions(udtFastaValidationOptions As udtFastaValidationOptionsType)
 
         With udtFastaValidationOptions
-            txtMaxFileErrorsToTrack.Text = .MaximumErrorsToTrackInDetail.ToString
+            txtMaxFileErrorsToTrack.Text = .MaximumErrorsToTrackInDetail.ToString()
             txtMaximumResiduesPerLine.Text = .MaximumResiduesPerLine.ToString()
 
             txtProteinNameLengthMinimum.Text = .ValidProteinNameLengthMinimum.ToString()
             txtProteinNameLengthMaximum.Text = .ValidProteinNameLengthMaximum.ToString()
 
-            chkAllowAsteriskInResidues.Checked = .AllowAstericksInResidues
+            chkAllowAsteriskInResidues.Checked = .AllowAsterisksInResidues
             chkCheckForDuplicateProteinInfo.Checked = .CheckForDuplicateProteinNames
             chkLogResults.Checked = .LogResultsToFile
             chkSaveBasicProteinHashInfoFile.Checked = .SaveHashInfoFile
@@ -777,9 +778,9 @@ Public Class frmFastaValidation
     End Sub
 
     Private Sub SetToolTips()
-        Dim objToolTipControl As New ToolTip()
+        Dim toolTipControl As New ToolTip()
 
-        With objToolTipControl
+        With toolTipControl
             .SetToolTip(txtLongProteinNameSplitChars, "Enter one or more characters to look for when truncating long protein names (do not separate the characters by commas).  Default character is a vertical bar.")
             .SetToolTip(txtInvalidProteinNameCharsToRemove, "Enter one or more characters to look and replace with an underscore (do not separate the characters by commas).  Leave blank to not replace any characters.")
             .SetToolTip(chkSplitOutMultipleRefsForKnownAccession, "If a protein name matches the standard IPI, GI, or JGI accession numbers, and if it contains additional reference information, then the additional information will be moved to the protein's description.")
@@ -790,10 +791,10 @@ Public Class frmFastaValidation
 
     Private Sub StartValidation()
 
-        Dim strParameterFilePath As String
-        Dim blnFileExists As Boolean
+        Dim parameterFilePath As String
+        Dim fileExists As Boolean
 
-        Dim blnSuccess As Boolean
+        Dim success As Boolean
 
         Try
             If mValidateFastaFile Is Nothing Then
@@ -823,23 +824,24 @@ Public Class frmFastaValidation
                     .MaximumResiduesPerLine = VBNetRoutines.ParseTextboxValueInt(txtMaximumResiduesPerLine, "Maximum residues per line should be a number", False, 120, False)
                 End If
 
-                strParameterFilePath = txtCustomValidationRulesFilePath.Text
-                If strParameterFilePath.Length > 0 Then
+                parameterFilePath = txtCustomValidationRulesFilePath.Text
+                If parameterFilePath.Length > 0 Then
                     Try
-                        blnFileExists = File.Exists(strParameterFilePath)
+                        fileExists = File.Exists(parameterFilePath)
                     Catch ex As Exception
-                        blnFileExists = False
+                        fileExists = False
                     End Try
 
-                    If Not blnFileExists Then
-                        MessageBox.Show("Custom rules validation file not found: " & ControlChars.NewLine & strParameterFilePath & ControlChars.NewLine & "Tthe default validation rules will be used instead.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-                        strParameterFilePath = String.Empty
+                    If Not fileExists Then
+                        MessageBox.Show("Custom rules validation file not found: " & ControlChars.NewLine & parameterFilePath & ControlChars.NewLine &
+                                        "The default validation rules will be used instead.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+                        parameterFilePath = String.Empty
                     Else
-                        mValidateFastaFile.LoadParameterFileSettings(strParameterFilePath)
+                        mValidateFastaFile.LoadParameterFileSettings(parameterFilePath)
                     End If
                 End If
 
-                If strParameterFilePath.Length = 0 Then
+                If parameterFilePath.Length = 0 Then
                     .SetDefaultRules()
                 End If
 
@@ -887,12 +889,12 @@ Public Class frmFastaValidation
 
 
             ' Analyze the fasta file; returns true if the analysis was successful (even if the file contains errors or warnings)
-            blnSuccess = mValidateFastaFile.ProcessFile(mFastaFilePath, String.Empty, String.Empty)
+            success = mValidateFastaFile.ProcessFile(FastaFilePath, String.Empty, String.Empty)
 
             cmdCancel.Enabled = False
 
-            If blnSuccess Then
-                DisplayResults(strParameterFilePath)
+            If success Then
+                DisplayResults(parameterFilePath)
             Else
                 txtResults.Text = "Error calling mValidateFastaFile.ProcessFile: " & mValidateFastaFile.GetErrorMessage()
                 If Not String.IsNullOrEmpty(mValidatorErrorMessage) Then
@@ -901,7 +903,7 @@ Public Class frmFastaValidation
             End If
 
         Catch ex As Exception
-            MessageBox.Show("Error validating fasta file: " & mFastaFilePath & ControlChars.NewLine & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            MessageBox.Show("Error validating fasta file: " & FastaFilePath & ControlChars.NewLine & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
         Finally
             mValidateFastaFile = Nothing
             ShowHideObjectsDuringValidation(False)
@@ -912,16 +914,16 @@ Public Class frmFastaValidation
 
     End Sub
 
-    Private Sub UpdateDatagridTableStyle(dgDataGrid As DataGrid, strTargetTableName As String)
+    Private Sub UpdateDataGridTableStyle(dgDataGrid As DataGrid, targetTableName As String)
 
         Dim tsTableStyle As DataGridTableStyle
 
         ' Instantiate the TableStyle
         tsTableStyle = New DataGridTableStyle
 
-        ' Setting the MappingName of the table style to strTargetTableName will cause this style to be used with that table
+        ' Setting the MappingName of the table style to targetTableName will cause this style to be used with that table
         With tsTableStyle
-            .MappingName = strTargetTableName
+            .MappingName = targetTableName
             .AllowSorting = True
             .ColumnHeadersVisible = True
             .RowHeadersVisible = False
@@ -1049,9 +1051,9 @@ Public Class frmFastaValidation
         Try
             ' Check whether the fasta file is over 250 MB in size
             ' If it is, auto-disable the check for duplicate proteins (to avoid using too much memory)
-            Dim fiFastaFile = New FileInfo(mFastaFilePath)
-            If fiFastaFile.Exists Then
-                If fiFastaFile.Length > 250 * 1024 * 1024 Then
+            Dim fastaFile = New FileInfo(FastaFilePath)
+            If fastaFile.Exists Then
+                If fastaFile.Length > 250 * 1024 * 1024 Then
                     chkCheckForDuplicateProteinInfo.Checked = False
                 End If
                 StartValidation()

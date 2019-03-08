@@ -1,5 +1,7 @@
 Option Strict On
 
+Imports System.Runtime.InteropServices
+
 Friend Class clsProteinInfo
     Public Enum eCleavageStateConstants
         None = 0
@@ -21,35 +23,35 @@ Friend Class clsProteinInfo
 
     Protected mMaxProteinIDUsed As Integer
 
-    Protected WithEvents objProteinToPeptideMapping As clsProteinToPeptideMappingInfo
+    Protected WithEvents mProteinToPeptideMapping As clsProteinToPeptideMappingInfo
 
     Protected mUseProteinNameHashTable As Boolean
-    Protected htProteinNameToRowIndex As Hashtable
+    Protected mProteinNameToRowIndex As Hashtable
 
     Public Event SortingList()
     Public Event SortingMappings()
 
     Public Sub New()
-        mUseProteinNameHashTable = True                       ' Set this to False to conserve memory; you must call Clear() after changing this for it to take effec
+        mUseProteinNameHashTable = True                       ' Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
         Me.Clear()
-        objProteinToPeptideMapping = New clsProteinToPeptideMappingInfo
+        mProteinToPeptideMapping = New clsProteinToPeptideMappingInfo
     End Sub
 
-    Public Function Add(strProteinName As String, ByRef intNewProteinID As Integer) As Boolean
+    Public Function Add(proteinName As String, ByRef newProteinID As Integer) As Boolean
         ' Adds the protein by name, auto-assigning the ID value
-        Return Add(strProteinName, intNewProteinID, True)
+        Return Add(proteinName, newProteinID, True)
     End Function
 
-    Public Function Add(strProteinName As String, ByRef intProteinID As Integer, blnAutoDefineProteinID As Boolean) As Boolean
+    Public Function Add(proteinName As String, ByRef proteinID As Integer, autoDefineProteinID As Boolean) As Boolean
         ' Adds the protein by name
-        ' Uses the given protein ID if blnAutoDefineProteinID = False or auto-assigns the ID value if blnAutoDefineProteinID = True
-        ' Returns ByRef the protein ID via intProteinID
-        ' If the protein already exists, then returns True and populates intProteinID
+        ' Uses the given protein ID if autoDefineProteinID = False or auto-assigns the ID value if autoDefineProteinID = True
+        ' Returns ByRef the protein ID via proteinID
+        ' If the protein already exists, then returns True and populates proteinID
 
         ' First, look for an existing entry in mProteins
         ' Once a protein is present in the table, its ID cannot be updated
-        If GetProteinIDByProteinName(strProteinName, intProteinID) Then
-            ' Protein already exists; intProteinID now contains the Protein ID
+        If GetProteinIDByProteinName(proteinName, proteinID) Then
+            ' Protein already exists; proteinID now contains the Protein ID
         Else
             ' Add to mProteins
 
@@ -58,23 +60,23 @@ Friend Class clsProteinInfo
                 'ReDim Preserve mProteins(mProteins.Length + MEMORY_RESERVE_CHUNK - 1)
             End If
 
-            If blnAutoDefineProteinID Then
-                intProteinID = mMaxProteinIDUsed + 1
+            If autoDefineProteinID Then
+                proteinID = mMaxProteinIDUsed + 1
             End If
 
             With mProteins(mProteinCount)
-                .Name = strProteinName
-                .ProteinID = intProteinID
+                .Name = proteinName
+                .ProteinID = proteinID
             End With
 
             If mUseProteinNameHashTable Then
-                htProteinNameToRowIndex.Add(strProteinName, mProteinCount)
+                mProteinNameToRowIndex.Add(proteinName, mProteinCount)
             End If
 
             mProteinCount += 1
             mProteinArrayIsSorted = False
 
-            mMaxProteinIDUsed = Math.Max(mMaxProteinIDUsed, intProteinID)
+            mMaxProteinIDUsed = Math.Max(mMaxProteinIDUsed, proteinID)
 
         End If
 
@@ -83,63 +85,63 @@ Friend Class clsProteinInfo
 
     End Function
 
-    Public Function AddProteinToPeptideMapping(intProteinID As Integer, intPeptideID As Integer) As Boolean
-        Return AddProteinToPeptideMapping(intProteinID, intPeptideID, eCleavageStateConstants.Unknown)
+    Public Function AddProteinToPeptideMapping(proteinID As Integer, peptideID As Integer) As Boolean
+        Return AddProteinToPeptideMapping(proteinID, peptideID, eCleavageStateConstants.Unknown)
     End Function
 
-    Public Function AddProteinToPeptideMapping(intProteinID As Integer, intPeptideID As Integer, eCleavageState As eCleavageStateConstants) As Boolean
-        Return objProteinToPeptideMapping.AddProteinToPeptideMapping(intProteinID, intPeptideID, eCleavageState)
+    Public Function AddProteinToPeptideMapping(proteinID As Integer, peptideID As Integer, eCleavageState As eCleavageStateConstants) As Boolean
+        Return mProteinToPeptideMapping.AddProteinToPeptideMapping(proteinID, peptideID, eCleavageState)
     End Function
 
-    Public Function AddProteinToPeptideMapping(strProteinName As String, intPeptideID As Integer) As Boolean
-        Return AddProteinToPeptideMapping(strProteinName, intPeptideID, eCleavageStateConstants.Unknown)
+    Public Function AddProteinToPeptideMapping(proteinName As String, peptideID As Integer) As Boolean
+        Return AddProteinToPeptideMapping(proteinName, peptideID, eCleavageStateConstants.Unknown)
     End Function
 
-    Public Function AddProteinToPeptideMapping(strProteinName As String, intPeptideID As Integer, eCleavageState As eCleavageStateConstants) As Boolean
-        Return objProteinToPeptideMapping.AddProteinToPeptideMapping(Me, strProteinName, intPeptideID, eCleavageState)
+    Public Function AddProteinToPeptideMapping(proteinName As String, peptideID As Integer, eCleavageState As eCleavageStateConstants) As Boolean
+        Return mProteinToPeptideMapping.AddProteinToPeptideMapping(Me, proteinName, peptideID, eCleavageState)
     End Function
 
-    Private Function BinarySearchFindProtein(strProteinName As String) As Integer
-        ' Looks through mProteins() for strProteinName, returning the index of the item if found, or -1 if not found
+    Private Function BinarySearchFindProtein(proteinName As String) As Integer
+        ' Looks through mProteins() for proteinName, returning the index of the item if found, or -1 if not found
 
-        Dim intMidIndex As Integer
-        Dim intFirstIndex As Integer = 0
-        Dim intLastIndex As Integer = mProteinCount - 1
+        Dim midIndex As Integer
+        Dim firstIndex = 0
+        Dim lastIndex = mProteinCount - 1
 
-        Dim intMatchingRowIndex As Integer = -1
+        Dim matchingRowIndex As Integer = -1
 
         If mProteinCount <= 0 OrElse Not SortProteins() Then
-            Return intMatchingRowIndex
+            Return matchingRowIndex
         End If
 
         Try
-            intMidIndex = (intFirstIndex + intLastIndex) \ 2            ' Note: Using Integer division
-            If intMidIndex < intFirstIndex Then intMidIndex = intFirstIndex
+            midIndex = (firstIndex + lastIndex) \ 2            ' Note: Using Integer division
+            If midIndex < firstIndex Then midIndex = firstIndex
 
-            Do While intFirstIndex <= intLastIndex And mProteins(intMidIndex).Name <> strProteinName
-                If strProteinName < mProteins(intMidIndex).Name Then
+            Do While firstIndex <= lastIndex And mProteins(midIndex).Name <> proteinName
+                If proteinName < mProteins(midIndex).Name Then
                     ' Search the lower half
-                    intLastIndex = intMidIndex - 1
-                ElseIf strProteinName > mProteins(intMidIndex).Name Then
+                    lastIndex = midIndex - 1
+                ElseIf proteinName > mProteins(midIndex).Name Then
                     ' Search the upper half
-                    intFirstIndex = intMidIndex + 1
+                    firstIndex = midIndex + 1
                 End If
                 ' Compute the new mid point
-                intMidIndex = (intFirstIndex + intLastIndex) \ 2
-                If intMidIndex < intFirstIndex Then Exit Do
+                midIndex = (firstIndex + lastIndex) \ 2
+                If midIndex < firstIndex Then Exit Do
             Loop
 
-            If intMidIndex >= intFirstIndex And intMidIndex <= intLastIndex Then
-                If mProteins(intMidIndex).Name = strProteinName Then
-                    intMatchingRowIndex = intMidIndex
+            If midIndex >= firstIndex And midIndex <= lastIndex Then
+                If mProteins(midIndex).Name = proteinName Then
+                    matchingRowIndex = midIndex
                 End If
             End If
 
         Catch ex As Exception
-            intMatchingRowIndex = -1
+            matchingRowIndex = -1
         End Try
 
-        Return intMatchingRowIndex
+        Return matchingRowIndex
 
     End Function
 
@@ -153,15 +155,15 @@ Friend Class clsProteinInfo
         mMaxProteinIDUsed = 0
 
         If mUseProteinNameHashTable Then
-            If htProteinNameToRowIndex Is Nothing Then
-                htProteinNameToRowIndex = New Hashtable
+            If mProteinNameToRowIndex Is Nothing Then
+                mProteinNameToRowIndex = New Hashtable
             Else
-                htProteinNameToRowIndex.Clear()
+                mProteinNameToRowIndex.Clear()
             End If
         Else
-            If Not htProteinNameToRowIndex Is Nothing Then
-                htProteinNameToRowIndex.Clear()
-                htProteinNameToRowIndex = Nothing
+            If Not mProteinNameToRowIndex Is Nothing Then
+                mProteinNameToRowIndex.Clear()
+                mProteinNameToRowIndex = Nothing
             End If
         End If
     End Sub
@@ -172,90 +174,90 @@ Friend Class clsProteinInfo
         End Get
     End Property
 
-    Public Function GetPeptideIDsMappedToProteinID(intProteinID As Integer) As Integer()
-        Return objProteinToPeptideMapping.GetPeptideIDsMappedToProteinID(intProteinID)
+    Public Function GetPeptideIDsMappedToProteinID(proteinID As Integer) As Integer()
+        Return mProteinToPeptideMapping.GetPeptideIDsMappedToProteinID(proteinID)
     End Function
 
-    Public Function GetPeptideCountForProteinByID(intProteinID As Integer) As Integer
-        Return objProteinToPeptideMapping.PeptideCountForProteinID(intProteinID)
+    Public Function GetPeptideCountForProteinByID(proteinID As Integer) As Integer
+        Return mProteinToPeptideMapping.PeptideCountForProteinID(proteinID)
     End Function
 
-    Public Function GetProteinIDsMappedToPeptideID(intPeptideID As Integer) As Integer()
-        Return objProteinToPeptideMapping.GetProteinIDsMappedToPeptideID(intPeptideID)
+    Public Function GetProteinIDsMappedToPeptideID(peptideID As Integer) As Integer()
+        Return mProteinToPeptideMapping.GetProteinIDsMappedToPeptideID(peptideID)
     End Function
 
-    Public Function GetProteinNameByProteinID(intProteinID As Integer, ByRef strProteinName As String) As Boolean
-        ' Since mProteins is sorted by Protein Name, we must fully search the array to obtain the protein name for intProteinID
+    Public Function GetProteinNameByProteinID(proteinID As Integer, ByRef proteinName As String) As Boolean
+        ' Since mProteins is sorted by Protein Name, we must fully search the array to obtain the protein name for proteinID
 
-        Dim blnMatchFound As Boolean = False
+        Dim matchFound = False
 
-        Dim intIndex As Integer
+        Dim index As Integer
 
-        strProteinName = String.Empty
+        proteinName = String.Empty
 
-        For intIndex = 0 To mProteinCount - 1
-            If mProteins(intIndex).ProteinID = intProteinID Then
-                strProteinName = mProteins(intIndex).Name
-                blnMatchFound = True
+        For index = 0 To mProteinCount - 1
+            If mProteins(index).ProteinID = proteinID Then
+                proteinName = mProteins(index).Name
+                matchFound = True
                 Exit For
             End If
-        Next intIndex
+        Next index
 
-        Return blnMatchFound
+        Return matchFound
 
     End Function
 
-    Public Function GetProteinIDByProteinName(strProteinName As String, ByRef intProteinID As Integer) As Boolean
+    Public Function GetProteinIDByProteinName(proteinName As String, ByRef proteinID As Integer) As Boolean
         ' Returns True if the proteins array contains the protein
-        ' If found, returns ProteinID in intProteinID
+        ' If found, returns ProteinID in proteinID
         ' Note that the data will be sorted if necessary, which could lead to slow execution if this function is called repeatedly, while adding new data between calls
 
-        Dim intRowIndex As Integer
+        Dim rowIndex As Integer
 
         If mUseProteinNameHashTable Then
-            If htProteinNameToRowIndex.Contains(strProteinName) Then
-                intRowIndex = CInt(htProteinNameToRowIndex.Item(strProteinName))
+            If mProteinNameToRowIndex.Contains(proteinName) Then
+                rowIndex = CInt(mProteinNameToRowIndex.Item(proteinName))
             Else
-                intRowIndex = -1
+                rowIndex = -1
             End If
         Else
-            ' Perform a binary search of mFeatures for intFeatureID
-            intRowIndex = BinarySearchFindProtein(strProteinName)
+            ' Perform a binary search of mFeatures for featureID
+            rowIndex = BinarySearchFindProtein(proteinName)
         End If
 
-        If intRowIndex >= 0 Then
-            intProteinID = mProteins(intRowIndex).ProteinID
+        If rowIndex >= 0 Then
+            proteinID = mProteins(rowIndex).ProteinID
             Return True
         Else
-            intProteinID = -1
+            proteinID = -1
             Return False
         End If
 
     End Function
 
-    Public Function GetProteinInfoByRowIndex(intRowIndex As Integer, ByRef intProteinID As Integer, ByRef strProteinName As String) As Boolean
+    Public Function GetProteinInfoByRowIndex(rowIndex As Integer, <Out> ByRef proteinID As Integer, <Out> ByRef proteinName As String) As Boolean
 
-        If intRowIndex >= 0 And intRowIndex < mProteinCount Then
-            With mProteins(intRowIndex)
-                strProteinName = .Name
-                intProteinID = .ProteinID
+        If rowIndex >= 0 And rowIndex < mProteinCount Then
+            With mProteins(rowIndex)
+                proteinName = .Name
+                proteinID = .ProteinID
             End With
             Return True
         Else
-            strProteinName = String.Empty
-            intProteinID = -1
+            proteinName = String.Empty
+            proteinID = -1
             Return False
         End If
 
     End Function
 
-    Private Function SortProteins(Optional blnForceSort As Boolean = False) As Boolean
+    Private Function SortProteins(Optional forceSort As Boolean = False) As Boolean
 
-        If Not mProteinArrayIsSorted OrElse blnForceSort Then
+        If Not mProteinArrayIsSorted OrElse forceSort Then
             RaiseEvent SortingList()
             Try
-                Dim objComparer As New ProteinInfoComparerClass
-                Array.Sort(mProteins, 0, mProteinCount, objComparer)
+                Dim comparer As New ProteinInfoComparerClass
+                Array.Sort(mProteins, 0, mProteinCount, comparer)
             Catch
                 Throw
             End Try
@@ -276,7 +278,7 @@ Friend Class clsProteinInfo
         End Set
     End Property
 
-    Private Sub objProteinToPeptideMapping_SortingList() Handles objProteinToPeptideMapping.SortingList
+    Private Sub mProteinToPeptideMapping_SortingList() Handles mProteinToPeptideMapping.SortingList
         RaiseEvent SortingMappings()
     End Sub
 
@@ -319,11 +321,11 @@ Friend Class clsProteinInfo
             Me.Clear()
         End Sub
 
-        Public Function AddProteinToPeptideMapping(intProteinID As Integer, intPeptideID As Integer) As Boolean
-            Return AddProteinToPeptideMapping(intProteinID, intPeptideID, eCleavageStateConstants.Unknown)
+        Public Function AddProteinToPeptideMapping(proteinID As Integer, peptideID As Integer) As Boolean
+            Return AddProteinToPeptideMapping(proteinID, peptideID, eCleavageStateConstants.Unknown)
         End Function
 
-        Public Function AddProteinToPeptideMapping(intProteinID As Integer, intPeptideID As Integer, eCleavageState As eCleavageStateConstants) As Boolean
+        Public Function AddProteinToPeptideMapping(proteinID As Integer, peptideID As Integer, eCleavageState As eCleavageStateConstants) As Boolean
 
             ' Add the mapping
             If mMappingCount >= mMappings.Length Then
@@ -332,8 +334,8 @@ Friend Class clsProteinInfo
             End If
 
             With mMappings(mMappingCount)
-                .ProteinID = intProteinID
-                .PeptideID = intPeptideID
+                .ProteinID = proteinID
+                .PeptideID = peptideID
                 .CleavageState = eCleavageState
             End With
 
@@ -352,59 +354,59 @@ Friend Class clsProteinInfo
         Public Function AddProteinToPeptideMapping(ByRef objProteinInfo As clsProteinInfo, strProteinName As String, intPeptideID As Integer, eCleavageState As eCleavageStateConstants) As Boolean
             Dim intProteinID As Integer
 
-            If Not objProteinInfo.GetProteinIDByProteinName(strProteinName, intProteinID) Then
+            If Not proteinInfo.GetProteinIDByProteinName(proteinName, proteinID) Then
                 ' Need to add the protein
-                If Not objProteinInfo.Add(strProteinName, intProteinID) Then
+                If Not proteinInfo.Add(proteinName, proteinID) Then
                     Return False
                 End If
             End If
 
-            Return AddProteinToPeptideMapping(intProteinID, intPeptideID, eCleavageState)
+            Return AddProteinToPeptideMapping(proteinID, peptideID, eCleavageState)
 
         End Function
 
-        Private Function BinarySearchFindProteinMapping(intProteinIDToFind As Integer) As Integer
-            ' Looks through mMappings() for intProteinIDToFind, returning the index of the item if found, or -1 if not found
+        Private Function BinarySearchFindProteinMapping(proteinIDToFind As Integer) As Integer
+            ' Looks through mMappings() for proteinIDToFind, returning the index of the item if found, or -1 if not found
             ' Since mMappings() can contain multiple entries for a given Protein, this function returns the first entry found
 
-            Dim intMidIndex As Integer
-            Dim intFirstIndex As Integer = 0
-            Dim intLastIndex As Integer = mMappingCount - 1
+            Dim midIndex As Integer
+            Dim firstIndex = 0
+            Dim lastIndex = mMappingCount - 1
 
-            Dim intMatchingRowIndex As Integer = -1
+            Dim matchingRowIndex = -1
 
             If mMappingCount <= 0 OrElse Not SortMappings() Then
-                Return intMatchingRowIndex
+                Return matchingRowIndex
             End If
 
             Try
-                intMidIndex = (intFirstIndex + intLastIndex) \ 2            ' Note: Using Integer division
-                If intMidIndex < intFirstIndex Then intMidIndex = intFirstIndex
+                midIndex = (firstIndex + lastIndex) \ 2            ' Note: Using Integer division
+                If midIndex < firstIndex Then midIndex = firstIndex
 
-                Do While intFirstIndex <= intLastIndex And mMappings(intMidIndex).ProteinID <> intProteinIDToFind
-                    If intProteinIDToFind < mMappings(intMidIndex).ProteinID Then
+                Do While firstIndex <= lastIndex And mMappings(midIndex).ProteinID <> proteinIDToFind
+                    If proteinIDToFind < mMappings(midIndex).ProteinID Then
                         ' Search the lower half
-                        intLastIndex = intMidIndex - 1
-                    ElseIf intProteinIDToFind > mMappings(intMidIndex).ProteinID Then
+                        lastIndex = midIndex - 1
+                    ElseIf proteinIDToFind > mMappings(midIndex).ProteinID Then
                         ' Search the upper half
-                        intFirstIndex = intMidIndex + 1
+                        firstIndex = midIndex + 1
                     End If
                     ' Compute the new mid point
-                    intMidIndex = (intFirstIndex + intLastIndex) \ 2
-                    If intMidIndex < intFirstIndex Then Exit Do
+                    midIndex = (firstIndex + lastIndex) \ 2
+                    If midIndex < firstIndex Then Exit Do
                 Loop
 
-                If intMidIndex >= intFirstIndex And intMidIndex <= intLastIndex Then
-                    If mMappings(intMidIndex).ProteinID = intProteinIDToFind Then
-                        intMatchingRowIndex = intMidIndex
+                If midIndex >= firstIndex And midIndex <= lastIndex Then
+                    If mMappings(midIndex).ProteinID = proteinIDToFind Then
+                        matchingRowIndex = midIndex
                     End If
                 End If
 
             Catch ex As Exception
-                intMatchingRowIndex = -1
+                matchingRowIndex = -1
             End Try
 
-            Return intMatchingRowIndex
+            Return matchingRowIndex
 
         End Function
 
@@ -418,20 +420,20 @@ Friend Class clsProteinInfo
 
         End Sub
 
-        Protected Function ContainsMapping(intProteinID As Integer, intPeptideID As Integer) As Boolean
-            ' Returns True if the data table contains the mapping of intProteinID to intPeptideID
+        Protected Function ContainsMapping(proteinID As Integer, peptideID As Integer) As Boolean
+            ' Returns True if the data table contains the mapping of proteinID to peptideID
             ' Note that the data will be sorted if necessary, which could lead to slow execution if this function is called repeatedly, while adding new data between calls
 
-            Dim intIndex As Integer
-            Dim intIndexFirst As Integer
-            Dim intIndexLast As Integer
+            Dim index As Integer
+            Dim indexFirst As Integer
+            Dim indexLast As Integer
 
-            If GetRowIndicesForProteinID(intProteinID, intIndexFirst, intIndexLast) Then
-                For intIndex = intIndexFirst To intIndexLast
-                    If mMappings(intIndex).PeptideID = intPeptideID Then
+            If GetRowIndicesForProteinID(proteinID, indexFirst, indexLast) Then
+                For index = indexFirst To indexLast
+                    If mMappings(index).PeptideID = peptideID Then
                         Return True
                     End If
-                Next intIndex
+                Next index
             End If
 
             ' If we get here, then the mapping wasn't found
@@ -445,101 +447,99 @@ Friend Class clsProteinInfo
             End Get
         End Property
 
-        Public Function GetPeptideIDsMappedToProteinID(intProteinID As Integer) As Integer()
+        Public Function GetPeptideIDsMappedToProteinID(proteinID As Integer) As Integer()
             ' Returns all of the peptides for the given protein ID
 
-            Dim intMatchingIDs() As Integer
+            Dim matchingIDs() As Integer
 
-            Dim intIndex As Integer
-            Dim intIndexFirst As Integer
-            Dim intIndexLast As Integer
+            Dim index As Integer
+            Dim indexFirst As Integer
+            Dim indexLast As Integer
 
-            If GetRowIndicesForProteinID(intProteinID, intIndexFirst, intIndexLast) Then
+            If GetRowIndicesForProteinID(proteinID, indexFirst, indexLast) Then
 
-                ReDim intMatchingIDs(intIndexLast - intIndexFirst)
+                ReDim matchingIDs(indexLast - indexFirst)
 
-                For intIndex = intIndexFirst To intIndexLast
-                    intMatchingIDs(intIndex - intIndexFirst) = mMappings(intIndex).PeptideID
-                Next intIndex
+                For index = indexFirst To indexLast
+                    matchingIDs(index - indexFirst) = mMappings(index).PeptideID
+                Next index
 
             Else
-                ReDim intMatchingIDs(-1)
+                ReDim matchingIDs(-1)
             End If
 
-            Return intMatchingIDs
+            Return matchingIDs
 
         End Function
 
-        Public Function GetProteinIDsMappedToPeptideID(intPeptideID As Integer) As Integer()
-            ' Since mMappings is sorted by Protein ID, we must fully search the array to obtain the ProteinIDs for intPeptideID
+        Public Function GetProteinIDsMappedToPeptideID(peptideID As Integer) As Integer()
+            ' Since mMappings is sorted by Protein ID, we must fully search the array to obtain the ProteinIDs for peptideID
 
-            Dim ARRAY_ALLOCATION_CHUNK As Integer = 10
-            Dim intMatchingIDs() As Integer
-            Dim intMatchCount As Integer
+            Dim ARRAY_ALLOCATION_CHUNK = 10
+            Dim matchingIDs() As Integer
+            Dim matchCount As Integer
 
-            Dim intindex As Integer
+            ReDim matchingIDs(ARRAY_ALLOCATION_CHUNK - 1)
+            matchCount = 0
 
-            ReDim intMatchingIDs(ARRAY_ALLOCATION_CHUNK - 1)
-            intMatchCount = 0
-
-            For intindex = 0 To mMappingCount - 1
-                If mMappings(intindex).PeptideID = intPeptideID Then
-                    If intMatchCount >= intMatchingIDs.Length Then
-                        ReDim Preserve intMatchingIDs(intMatchingIDs.Length * 2 - 1)
-                        'ReDim Preserve intMatchingIDs(intMatchingIDs.Length + ARRAY_ALLOCATION_CHUNK - 1)
+            For index = 0 To mMappingCount - 1
+                If mMappings(index).PeptideID = peptideID Then
+                    If matchCount >= matchingIDs.Length Then
+                        ReDim Preserve matchingIDs(matchingIDs.Length * 2 - 1)
+                        'ReDim Preserve matchingIDs(matchingIDs.Length + ARRAY_ALLOCATION_CHUNK - 1)
                     End If
 
-                    intMatchingIDs(intMatchCount) = mMappings(intindex).ProteinID
-                    intMatchCount += 1
+                    matchingIDs(matchCount) = mMappings(index).ProteinID
+                    matchCount += 1
                 End If
-            Next intindex
+            Next index
 
-            If intMatchingIDs.Length > intMatchCount Then
-                ReDim Preserve intMatchingIDs(intMatchCount - 1)
+            If matchingIDs.Length > matchCount Then
+                ReDim Preserve matchingIDs(matchCount - 1)
             End If
 
-            Return intMatchingIDs
+            Return matchingIDs
 
         End Function
 
-        Private Function GetRowIndicesForProteinID(intProteinID As Integer, ByRef intIndexFirst As Integer, ByRef intIndexLast As Integer) As Boolean
-            ' Looks for intProteinID in mMappings
-            ' If found, returns the range of rows that contain matches for intProteinID
+        Private Function GetRowIndicesForProteinID(proteinID As Integer, ByRef indexFirst As Integer, ByRef indexLast As Integer) As Boolean
+            ' Looks for proteinID in mMappings
+            ' If found, returns the range of rows that contain matches for proteinID
 
-            ' Perform a binary search of mMappings for intProteinID
-            intIndexFirst = BinarySearchFindProteinMapping(intProteinID)
+            ' Perform a binary search of mMappings for proteinID
+            indexFirst = BinarySearchFindProteinMapping(proteinID)
 
-            If intIndexFirst >= 0 Then
+            If indexFirst >= 0 Then
 
-                ' Match found; need to find all of the rows with intProteinID
-                intIndexLast = intIndexFirst
+                ' Match found; need to find all of the rows with proteinID
+                indexLast = indexFirst
 
-                ' Step backward through mMappings to find the first match for intProteinID
-                Do While intIndexFirst > 0 AndAlso mMappings(intIndexFirst - 1).ProteinID = intProteinID
-                    intIndexFirst -= 1
+                ' Step backward through mMappings to find the first match for proteinID
+                Do While indexFirst > 0 AndAlso mMappings(indexFirst - 1).ProteinID = proteinID
+                    indexFirst -= 1
                 Loop
 
-                ' Step forward through mMappings to find the last match for intProteinID
-                Do While intIndexLast < mMappingCount - 1 AndAlso mMappings(intIndexLast + 1).ProteinID = intProteinID
-                    intIndexLast += 1
+                ' Step forward through mMappings to find the last match for proteinID
+                Do While indexLast < mMappingCount - 1 AndAlso mMappings(indexLast + 1).ProteinID = proteinID
+                    indexLast += 1
                 Loop
 
                 Return True
             Else
-                intIndexFirst = -1
-                intIndexLast = -1
+                indexFirst = -1
+                indexLast = -1
                 Return False
             End If
 
         End Function
 
-        Public ReadOnly Property PeptideCountForProteinID(intProteinID As Integer) As Integer
+        Public ReadOnly Property PeptideCountForProteinID(proteinID As Integer) As Integer
             Get
-                Dim intIndexFirst As Integer
-                Dim intIndexLast As Integer
+                Dim indexFirst As Integer
+                Dim indexLast As Integer
 
-                If GetRowIndicesForProteinID(intProteinID, intIndexFirst, intIndexLast) Then
-                    Return intIndexLast - intIndexFirst + 1
+                If GetRowIndicesForProteinID(proteinID, indexFirst, indexLast) Then
+                    Return indexLast - indexFirst + 1
                 Else
                     Return 0
                 End If
@@ -548,13 +548,13 @@ Friend Class clsProteinInfo
 
         End Property
 
-        Private Function SortMappings(Optional blnForceSort As Boolean = False) As Boolean
+        Private Function SortMappings(Optional forceSort As Boolean = False) As Boolean
 
-            If Not mMappingArrayIsSorted OrElse blnForceSort Then
+            If Not mMappingArrayIsSorted OrElse forceSort Then
                 RaiseEvent SortingList()
                 Try
-                    Dim objComparer As New ProteinToPeptideMappingsComparerClass
-                    Array.Sort(mMappings, 0, mMappingCount, objComparer)
+                    Dim comparer As New ProteinToPeptideMappingsComparerClass
+                    Array.Sort(mMappings, 0, mMappingCount, comparer)
                 Catch
                     Throw
                 End Try

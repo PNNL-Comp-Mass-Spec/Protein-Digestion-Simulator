@@ -1,5 +1,7 @@
 Option Strict On
 
+Imports System.Runtime.InteropServices
+
 ''' <summary>
 ''' This class can be used to perform an in-silico digest of an amino acid sequence
 ''' Utilizes the PeptideInfoClass class
@@ -24,6 +26,7 @@ Public Class clsInSilicoDigest
         ConventionalTrypsin = 1
         TrypsinWithoutProlineException = 2
         EricPartialTrypsin = 3
+        ' ReSharper disable once IdentifierTypo
         TrypsinPlusFVLEY = 4
         KROneEnd = 5
         TerminiiOnly = 6
@@ -35,6 +38,7 @@ Public Class clsInSilicoDigest
         GluC_EOnly = 12
         ArgC = 13
         AspN = 14
+        ' ReSharper disable once IdentifierTypo
         ProteinaseK = 15
         PepsinA = 16
         PepsinB = 17
@@ -65,14 +69,14 @@ Public Class clsInSilicoDigest
 
 #Region "Classwide Variables"
 
-    Private mCleavageRules As udtCleavageRuleList
+    Private ReadOnly mCleavageRules As Dictionary(Of CleavageRuleConstants, udtCleavageRulesType) = New Dictionary(Of CleavageRuleConstants, udtCleavageRulesType)
 
     ' General purpose object for computing mass and calling cleavage and digestion functions
     Private mPeptideSequence As PeptideSequenceClass
 
     Private mpICalculator As clspICalculation
 
-    Public Event ErrorEvent(strMessage As String)
+    Public Event ErrorEvent(message As String)
 
     Public Event ProgressReset()
     Public Event ProgressChanged(taskDescription As String, percentComplete As Single)     ' PercentComplete ranges from 0 to 100, but can contain decimal percentage values
@@ -84,9 +88,9 @@ Public Class clsInSilicoDigest
 #End Region
 
 #Region "Processing Options Interface Functions"
-    Public ReadOnly Property CleaveageRuleCount As Integer
+    Public ReadOnly Property CleavageRuleCount As Integer
         Get
-            Return mCleavageRules.RuleCount
+            Return mCleavageRules.Count
         End Get
     End Property
 
@@ -121,53 +125,54 @@ Public Class clsInSilicoDigest
 
 #End Region
 
-    Public Function CheckSequenceAgainstCleavageRule(strSequence As String, eRuleID As CleavageRuleConstants, Optional ByRef intRuleMatchCount As Integer = 0) As Boolean
-        ' Checks strSequence against the rule given by eRuleID
+
+    Public Function CheckSequenceAgainstCleavageRule(sequence As String, ruleId As CleavageRuleConstants, Optional ByRef ruleMatchCount As Integer = 0) As Boolean
+        ' Checks sequence against the rule given by ruleId
         ' See sub InitializeCleavageRules for a list of the rules
         ' Returns True if valid, False if invalid
-        ' intRuleMatchCount returns 0, 1, or 2:  0 if neither end matches, 1 if one end matches, 2 if both ends match
+        ' ruleMatchCount returns 0, 1, or 2:  0 if neither end matches, 1 if one end matches, 2 if both ends match
         '
-        ' In order to check for Exception residues, strSequence must be in the form "R.ABCDEFGK.L" so that the residue following the final residue of the fragment can be examined
+        ' In order to check for Exception residues, sequence must be in the form "R.ABCDEFGK.L" so that the residue following the final residue of the fragment can be examined
 
-        Dim blnRuleMatch As Boolean
+        Dim ruleMatch As Boolean
 
-        blnRuleMatch = False
-        intRuleMatchCount = 0
+        ruleMatchCount = 0
 
-        If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
-            If eRuleID = CleavageRuleConstants.NoRule Then
+        Dim cleavageRule As udtCleavageRulesType = Nothing
+        If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
+            If ruleId = CleavageRuleConstants.NoRule Then
                 ' No cleavage rule; no point in checking
-                blnRuleMatch = True
-                intRuleMatchCount = 2
+                ruleMatch = True
+                ruleMatchCount = 2
             Else
-                blnRuleMatch = mPeptideSequence.CheckSequenceAgainstCleavageRule(
-                                                            strSequence,
-                                                            mCleavageRules.Rules(eRuleID).CleavageResidues,
-                                                            mCleavageRules.Rules(eRuleID).ExceptionResidues,
-                                                            mCleavageRules.Rules(eRuleID).ReversedCleavageDirection,
-                                                            mCleavageRules.Rules(eRuleID).AllowPartialCleavage,
-                                                            , , , intRuleMatchCount)
+                ruleMatch = mPeptideSequence.CheckSequenceAgainstCleavageRule(
+                                                            sequence,
+                                                            cleavageRule.CleavageResidues,
+                                                            cleavageRule.ExceptionResidues,
+                                                            cleavageRule.ReversedCleavageDirection,
+                                                            cleavageRule.AllowPartialCleavage,
+                                                            , , , ruleMatchCount)
             End If
         Else
             ' No rule selected; assume True
-            intRuleMatchCount = 2
-            blnRuleMatch = True
+            ruleMatchCount = 2
+            ruleMatch = True
         End If
 
-        Return blnRuleMatch
+        Return ruleMatch
 
     End Function
 
-    Public Function ComputeSequenceMass(strSequence As String, Optional blnIncludeXResiduesInMass As Boolean = True) As Double
-        ' Note that strSequence must be in 1-letter notation, and will automatically be converted to uppercase
+    Public Function ComputeSequenceMass(sequence As String, Optional includeXResiduesInMass As Boolean = True) As Double
+        ' Note that sequence must be in 1-letter notation, and will automatically be converted to uppercase
 
         Try
             With mPeptideSequence
-                If blnIncludeXResiduesInMass Then
-                    .SetSequence(strSequence.ToUpper)
+                If includeXResiduesInMass Then
+                    .SetSequence(sequence.ToUpper())
                 Else
-                    ' Exclude X residues from strSequence when calling .SetSequence
-                    .SetSequence(strSequence.ToUpper.Replace("X", ""))
+                    ' Exclude X residues from sequence when calling .SetSequence
+                    .SetSequence(sequence.ToUpper().Replace("X", ""))
                 End If
                 Return .Mass
             End With
@@ -178,29 +183,29 @@ Public Class clsInSilicoDigest
 
     End Function
 
-    Public Function CountTrypticsInSequence(strSequence As String) As Integer
-        Dim intTrypticCount As Integer
-        Dim intStartSearchLoc As Integer, intReturnResidueStart As Integer, intReturnResidueEnd As Integer
-        Dim strFragment As String
+    Public Function CountTrypticsInSequence(sequence As String) As Integer
+        Dim trypticCount As Integer
+        Dim startSearchLoc As Integer, returnResidueStart As Integer, returnResidueEnd As Integer
+        Dim fragment As String
 
         Try
 
-            intTrypticCount = 0
-            intStartSearchLoc = 1
+            trypticCount = 0
+            startSearchLoc = 1
 
-            If strSequence.Length > 0 Then
+            If sequence.Length > 0 Then
                 Do
-                    strFragment = mPeptideSequence.GetTrypticPeptideNext(strSequence, intStartSearchLoc, intReturnResidueStart, intReturnResidueEnd)
-                    If strFragment.Length > 0 Then
-                        intTrypticCount += 1
-                        intStartSearchLoc = intReturnResidueEnd + 1
+                    fragment = mPeptideSequence.GetTrypticPeptideNext(sequence, startSearchLoc, returnResidueStart, returnResidueEnd)
+                    If fragment.Length > 0 Then
+                        trypticCount += 1
+                        startSearchLoc = returnResidueEnd + 1
                     Else
                         Exit Do
                     End If
                 Loop
             End If
 
-            Return intTrypticCount
+            Return trypticCount
 
         Catch ex As Exception
             ReportError("CountTrypticsInSequence", ex)
@@ -234,28 +239,26 @@ Public Class clsInSilicoDigest
                                    filterByIsoelectricPoint As Boolean,
                                    proteinName As String) As Integer
 
-        Dim intTrypticFragmentCount As Integer, intFragmentCountTotal As Integer
-        Dim intTrypticIndex As Integer
-        Dim intSearchStartLoc As Integer
-        Dim intResidueStartLoc As Integer, intResidueEndLoc As Integer
-        Dim intResidueLength As Integer
-        Dim intResidueLengthStart As Integer
+        Dim fragmentsUniqueList As New Specialized.StringDictionary
 
-        Dim intProteinSequenceLength As Integer
+        Dim trypticIndex As Integer
+        Dim searchStartLoc As Integer
+        Dim residueStartLoc As Integer, residueEndLoc As Integer
+        Dim residueLength As Integer
+        Dim residueLengthStart As Integer
 
-        Dim intIndex As Integer
-        Dim intMaxMissedCleavagesStart As Integer
+        Dim proteinSequenceLength As Integer
 
-        Dim intTrypticFragCacheCount As Integer
-        Dim strTrypticFragCache() As String                 ' 0-based array
-        Dim intTrypticFragStartLocs() As Integer            ' 0-based array, parallel to strTypticFragmentCache()
-        Dim intTrypticFragEndLocs() As Integer              ' 0-based array, parallel to strTypticFragmentCache()
+        Dim index As Integer
 
-        Dim strPeptideSequence As String, strPeptideSequenceBase As String
-        Dim strRuleResidues As String, strExceptionSuffixResidues As String
-        Dim blnReversedCleavageDirection As Boolean
+        Dim trypticFragCacheCount As Integer
+        Dim trypticFragCache() As String                 ' 0-based array
+        Dim trypticFragStartLocations() As Integer            ' 0-based array, parallel to trypticFragmentCache()
+        Dim trypticFragEndLocations() As Integer              ' 0-based array, parallel to trypticFragmentCache()
 
-        Dim blnPeptideAdded As Boolean
+        Dim peptideSequence As String, peptideSequenceBase As String
+        Dim ruleResidues As String, exceptionSuffixResidues As String
+        Dim reversedCleavageDirection As Boolean
 
         peptideFragments = New List(Of PeptideInfoClass)()
 
@@ -263,157 +266,141 @@ Public Class clsInSilicoDigest
             Return 0
         End If
 
+        Try
 
-            strRuleResidues = GetCleaveageRuleResiduesSymbols(objDigestionOptions.CleavageRuleID)
-            strExceptionSuffixResidues = GetCleavageExceptionSuffixResidues(objDigestionOptions.CleavageRuleID)
-            blnReversedCleavageDirection = GetCleavageIsReversedDirection(objDigestionOptions.CleavageRuleID)
+            ruleResidues = GetCleavageRuleResiduesSymbols(digestionOptions.CleavageRuleID)
+            exceptionSuffixResidues = GetCleavageExceptionSuffixResidues(digestionOptions.CleavageRuleID)
+            reversedCleavageDirection = GetCleavageIsReversedDirection(digestionOptions.CleavageRuleID)
 
             ' We initially count the number of tryptic peptides in the sequence (regardless of the cleavage rule)
-            intTrypticFragmentCount = CountTrypticsInSequence(strProteinSequence)
+            ' ReSharper disable once UnusedVariable
+            Dim trypticFragmentCount = CountTrypticsInSequence(proteinSequence)
 
-            ' Increment intTrypticFragmentCount to account for missed cleavages
-            ' This will be drastically low if using partial cleavage, but it is a starting point
-            intFragmentCountTotal = 0
+            ReDim trypticFragCache(9)
+            ReDim trypticFragEndLocations(9)
+            ReDim trypticFragStartLocations(9)
 
-            intMaxMissedCleavagesStart = objDigestionOptions.MaxMissedCleavages
-            If intMaxMissedCleavagesStart > strProteinSequence.Length Then
-                intMaxMissedCleavagesStart = strProteinSequence.Length
-            End If
+            trypticFragCacheCount = 0
+            searchStartLoc = 1
 
-            For intIndex = intMaxMissedCleavagesStart + 1 To 1 Step -1
-                intFragmentCountTotal += intIndex * intTrypticFragmentCount
-                If intFragmentCountTotal > MAX_FRAGMENT_COUNT_PRE_RESERVE Then
-                    intFragmentCountTotal = MAX_FRAGMENT_COUNT_PRE_RESERVE
-                    Exit For
-                End If
-            Next intIndex
-
-
-            ReDim strTrypticFragCache(9)
-            ReDim intTrypticFragEndLocs(9)
-            ReDim intTrypticFragStartLocs(9)
-
-            intFragmentCountTotal = 0
-            intTrypticFragCacheCount = 0
-            intSearchStartLoc = 1
-
+            ' Populate trypticFragCache()
+            '
             ' Using the GetTrypticPeptideNext function to retrieve the sequence for each tryptic peptide
             '   is faster than using the GetTrypticPeptideByFragmentNumber function
-            ' Populate strTrypticFragCache()
             Do
-                strPeptideSequence = mPeptideSequence.GetTrypticPeptideNext(strProteinSequence, intSearchStartLoc, intResidueStartLoc, intResidueEndLoc, strRuleResidues, strExceptionSuffixResidues, blnReversedCleavageDirection)
-                If strPeptideSequence.Length > 0 Then
+                peptideSequence = mPeptideSequence.GetTrypticPeptideNext(proteinSequence, searchStartLoc, residueStartLoc, residueEndLoc, ruleResidues, exceptionSuffixResidues, reversedCleavageDirection)
+                If peptideSequence.Length > 0 Then
 
-                    strTrypticFragCache(intTrypticFragCacheCount) = strPeptideSequence
-                    intTrypticFragStartLocs(intTrypticFragCacheCount) = intResidueStartLoc
-                    intTrypticFragEndLocs(intTrypticFragCacheCount) = intResidueEndLoc
-                    intTrypticFragCacheCount += 1
+                    trypticFragCache(trypticFragCacheCount) = peptideSequence
+                    trypticFragStartLocations(trypticFragCacheCount) = residueStartLoc
+                    trypticFragEndLocations(trypticFragCacheCount) = residueEndLoc
+                    trypticFragCacheCount += 1
 
-                    If intTrypticFragCacheCount >= strTrypticFragCache.Length Then
-                        ReDim Preserve strTrypticFragCache(strTrypticFragCache.Length + 10)
-                        ReDim Preserve intTrypticFragEndLocs(strTrypticFragCache.Length - 1)
-                        ReDim Preserve intTrypticFragStartLocs(strTrypticFragCache.Length - 1)
+                    If trypticFragCacheCount >= trypticFragCache.Length Then
+                        ReDim Preserve trypticFragCache(trypticFragCache.Length + 10)
+                        ReDim Preserve trypticFragEndLocations(trypticFragCache.Length - 1)
+                        ReDim Preserve trypticFragStartLocations(trypticFragCache.Length - 1)
                     End If
 
-                    intSearchStartLoc = intResidueEndLoc + 1
+                    searchStartLoc = residueEndLoc + 1
                 Else
                     Exit Do
                 End If
             Loop
 
-            ResetProgress("Digesting protein " & strProteinName)
+            ResetProgress("Digesting protein " & proteinName)
 
-            For intTrypticIndex = 0 To intTrypticFragCacheCount - 1
-                strPeptideSequenceBase = String.Empty
-                strPeptideSequence = String.Empty
-                intResidueStartLoc = intTrypticFragStartLocs(intTrypticIndex)
+            For trypticIndex = 0 To trypticFragCacheCount - 1
+                peptideSequenceBase = String.Empty
+                peptideSequence = String.Empty
+                residueStartLoc = trypticFragStartLocations(trypticIndex)
 
-                For intIndex = 0 To objDigestionOptions.MaxMissedCleavages
-                    If intTrypticIndex + intIndex >= intTrypticFragCacheCount Then
+                For index = 0 To digestionOptions.MaxMissedCleavages
+                    If trypticIndex + index >= trypticFragCacheCount Then
                         Exit For
                     End If
 
-                    If objDigestionOptions.CleavageRuleID = CleavageRuleConstants.KROneEnd Then
+                    If digestionOptions.CleavageRuleID = CleavageRuleConstants.KROneEnd Then
                         ' Partially tryptic cleavage rule: Add all partially tryptic fragments
-                        If intIndex = 0 Then
-                            intResidueLengthStart = objDigestionOptions.MinFragmentResidueCount
-                            If intResidueLengthStart < 1 Then intResidueLengthStart = 1
+                        If index = 0 Then
+                            residueLengthStart = digestionOptions.MinFragmentResidueCount
+                            If residueLengthStart < 1 Then residueLengthStart = 1
                         Else
-                            intResidueLengthStart = 1
+                            residueLengthStart = 1
                         End If
 
-                        For intResidueLength = intResidueLengthStart To strTrypticFragCache(intTrypticIndex + intIndex).Length
-                            If intIndex > 0 Then
-                                intResidueEndLoc = intTrypticFragEndLocs(intTrypticIndex + intIndex - 1) + intResidueLength
+                        For residueLength = residueLengthStart To trypticFragCache(trypticIndex + index).Length
+                            If index > 0 Then
+                                residueEndLoc = trypticFragEndLocations(trypticIndex + index - 1) + residueLength
                             Else
-                                intResidueEndLoc = intResidueStartLoc + intResidueLength - 1
+                                residueEndLoc = residueStartLoc + residueLength - 1
                             End If
 
-                            strPeptideSequence = strPeptideSequenceBase & strTrypticFragCache(intTrypticIndex + intIndex).Substring(0, intResidueLength)
+                            peptideSequence = peptideSequenceBase & trypticFragCache(trypticIndex + index).Substring(0, residueLength)
 
                             If peptideSequence.Length >= digestionOptions.MinFragmentResidueCount Then
                                 PossiblyAddPeptide(peptideSequence, trypticIndex, index, residueStartLoc, residueEndLoc, proteinSequence, proteinSequenceLength, fragmentsUniqueList, peptideFragments, digestionOptions, filterByIsoelectricPoint)
                             End If
-                        Next intResidueLength
+                        Next residueLength
                     Else
                         ' Normal cleavage rule
-                        intResidueEndLoc = intTrypticFragEndLocs(intTrypticIndex + intIndex)
+                        residueEndLoc = trypticFragEndLocations(trypticIndex + index)
 
-                        strPeptideSequence = strPeptideSequence & strTrypticFragCache(intTrypticIndex + intIndex)
-                        If strPeptideSequence.Length >= objDigestionOptions.MinFragmentResidueCount Then
+                        peptideSequence = peptideSequence & trypticFragCache(trypticIndex + index)
+                        If peptideSequence.Length >= digestionOptions.MinFragmentResidueCount Then
                             PossiblyAddPeptide(peptideSequence, trypticIndex, index, residueStartLoc, residueEndLoc, proteinSequence, proteinSequenceLength, fragmentsUniqueList, peptideFragments, digestionOptions, filterByIsoelectricPoint)
                         End If
                     End If
 
-                    strPeptideSequenceBase = strPeptideSequenceBase & strTrypticFragCache(intTrypticIndex + intIndex)
-                Next intIndex
+                    peptideSequenceBase = peptideSequenceBase & trypticFragCache(trypticIndex + index)
+                Next index
 
-                If objDigestionOptions.CleavageRuleID = CleavageRuleConstants.KROneEnd Then
-                    UpdateProgress(CSng(intTrypticIndex / (intTrypticFragCacheCount * 2) * 100.0))
+                If digestionOptions.CleavageRuleID = CleavageRuleConstants.KROneEnd Then
+                    UpdateProgress(CSng(trypticIndex / (trypticFragCacheCount * 2) * 100.0))
                 End If
-            Next intTrypticIndex
+            Next trypticIndex
 
-            If objDigestionOptions.CleavageRuleID = CleavageRuleConstants.KROneEnd Then
+            If digestionOptions.CleavageRuleID = CleavageRuleConstants.KROneEnd Then
                 ' Partially tryptic cleavage rule: Add all partially tryptic fragments, working from the end toward the front
-                For intTrypticIndex = intTrypticFragCacheCount - 1 To 0 Step -1
-                    strPeptideSequenceBase = String.Empty
-                    strPeptideSequence = String.Empty
-                    intResidueEndLoc = intTrypticFragEndLocs(intTrypticIndex)
+                For trypticIndex = trypticFragCacheCount - 1 To 0 Step -1
+                    peptideSequenceBase = String.Empty
 
-                    For intIndex = 0 To objDigestionOptions.MaxMissedCleavages
-                        If intTrypticIndex - intIndex < 0 Then
+                    residueEndLoc = trypticFragEndLocations(trypticIndex)
+
+                    For index = 0 To digestionOptions.MaxMissedCleavages
+                        If trypticIndex - index < 0 Then
                             Exit For
                         End If
 
-                        If intIndex = 0 Then
-                            intResidueLengthStart = objDigestionOptions.MinFragmentResidueCount
+                        If index = 0 Then
+                            residueLengthStart = digestionOptions.MinFragmentResidueCount
                         Else
-                            intResidueLengthStart = 1
+                            residueLengthStart = 1
                         End If
 
                         ' We can limit the following for loop to the peptide length - 1 since those peptides using the full peptide will have already been added above
-                        For intResidueLength = intResidueLengthStart To strTrypticFragCache(intTrypticIndex - intIndex).Length - 1
-                            If intIndex > 0 Then
-                                intResidueStartLoc = intTrypticFragStartLocs(intTrypticIndex - intIndex + 1) - intResidueLength
+                        For residueLength = residueLengthStart To trypticFragCache(trypticIndex - index).Length - 1
+                            If index > 0 Then
+                                residueStartLoc = trypticFragStartLocations(trypticIndex - index + 1) - residueLength
                             Else
-                                intResidueStartLoc = intResidueEndLoc - (intResidueLength - 1)
+                                residueStartLoc = residueEndLoc - (residueLength - 1)
                             End If
 
-                            ' Grab characters from the end of strTrypticFragCache()
-                            strPeptideSequence = strTrypticFragCache(intTrypticIndex - intIndex).Substring(strTrypticFragCache(intTrypticIndex - intIndex).Length - intResidueLength, intResidueLength) & strPeptideSequenceBase
+                            ' Grab characters from the end of trypticFragCache()
+                            peptideSequence = trypticFragCache(trypticIndex - index).Substring(trypticFragCache(trypticIndex - index).Length - residueLength, residueLength) & peptideSequenceBase
 
-                            If strPeptideSequence.Length >= objDigestionOptions.MinFragmentResidueCount Then
+                            If peptideSequence.Length >= digestionOptions.MinFragmentResidueCount Then
                                 PossiblyAddPeptide(peptideSequence, trypticIndex, index, residueStartLoc, residueEndLoc, proteinSequence, proteinSequenceLength, fragmentsUniqueList, peptideFragments, digestionOptions, filterByIsoelectricPoint)
                             End If
 
-                        Next intResidueLength
+                        Next residueLength
 
-                        strPeptideSequenceBase = strTrypticFragCache(intTrypticIndex - intIndex) & strPeptideSequenceBase
-                    Next intIndex
+                        peptideSequenceBase = trypticFragCache(trypticIndex - index) & peptideSequenceBase
+                    Next index
 
-                    UpdateProgress(CSng((intTrypticFragCacheCount * 2 - intTrypticIndex) / (intTrypticFragCacheCount * 2) * 100))
+                    UpdateProgress(CSng((trypticFragCacheCount * 2 - trypticIndex) / (trypticFragCacheCount * 2) * 100))
 
-                Next intTrypticIndex
+                Next trypticIndex
 
             End If
 
@@ -426,73 +413,80 @@ Public Class clsInSilicoDigest
 
     End Function
 
-    Public Function GetCleavageAllowPartialCleavage(eRuleID As CleavageRuleConstants) As Boolean
-        If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
-            Return mCleavageRules.Rules(eRuleID).AllowPartialCleavage
+    Public Function GetCleavageAllowPartialCleavage(ruleId As CleavageRuleConstants) As Boolean
+        Dim cleavageRule As udtCleavageRulesType = Nothing
+        If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
+            Return cleavageRule.AllowPartialCleavage
         Else
             Return False
         End If
     End Function
 
-    Public Function GetCleavageIsReversedDirection(eRuleID As CleavageRuleConstants) As Boolean
-        If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
-            Return mCleavageRules.Rules(eRuleID).ReversedCleavageDirection
+    Public Function GetCleavageIsReversedDirection(ruleId As CleavageRuleConstants) As Boolean
+        Dim cleavageRule As udtCleavageRulesType = Nothing
+        If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
+            Return cleavageRule.ReversedCleavageDirection
         Else
             Return False
         End If
     End Function
 
-    Public Function GetCleavageExceptionSuffixResidues(eRuleID As CleavageRuleConstants) As String
-        If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
-            Return mCleavageRules.Rules(eRuleID).ExceptionResidues
+    Public Function GetCleavageExceptionSuffixResidues(ruleId As CleavageRuleConstants) As String
+        Dim cleavageRule As udtCleavageRulesType = Nothing
+        If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
+            Return cleavageRule.ExceptionResidues
         Else
             Return String.Empty
         End If
     End Function
 
-    Public Function GetCleaveageRuleName(eRuleID As CleavageRuleConstants) As String
-        If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
-            Return mCleavageRules.Rules(eRuleID).Description
+    Public Function GetCleavageRuleName(ruleId As CleavageRuleConstants) As String
+        Dim cleavageRule As udtCleavageRulesType = Nothing
+        If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
+            Return cleavageRule.Description
         Else
             Return String.Empty
         End If
     End Function
 
-    Public Function GetCleaveageRuleResiduesDescription(eRuleID As CleavageRuleConstants) As String
-        Dim strDescription As String
+    Public Function GetCleavageRuleResiduesDescription(ruleId As CleavageRuleConstants) As String
+        Dim description As String
 
-        If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
-            With mCleavageRules.Rules(eRuleID)
+        Dim cleavageRule As udtCleavageRulesType = Nothing
+        If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
+            With cleavageRule
                 If .ReversedCleavageDirection Then
-                    strDescription = "Before " & .CleavageResidues
+                    description = "Before " & .CleavageResidues
                     If .ExceptionResidues.Length > 0 Then
-                        strDescription &= " not preceded by " & .ExceptionResidues
+                        description &= " not preceded by " & .ExceptionResidues
                     End If
                 Else
-                    strDescription = .CleavageResidues
+                    description = .CleavageResidues
                     If .ExceptionResidues.Length > 0 Then
-                        strDescription &= " not " & .ExceptionResidues
+                        description &= " not " & .ExceptionResidues
                     End If
                 End If
             End With
 
-            Return strDescription
+            Return description
         Else
             Return String.Empty
         End If
     End Function
 
-    Public Function GetCleaveageRuleResiduesSymbols(eRuleID As CleavageRuleConstants) As String
-        If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
-            Return mCleavageRules.Rules(eRuleID).CleavageResidues
+    Public Function GetCleavageRuleResiduesSymbols(ruleId As CleavageRuleConstants) As String
+        Dim cleavageRule As udtCleavageRulesType = Nothing
+        If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
+            Return cleavageRule.CleavageResidues
         Else
             Return String.Empty
         End If
     End Function
 
-    Public Function GetCleaveageRuleIDInParallax(eRuleID As CleavageRuleConstants) As Integer
-        If eRuleID >= 0 And eRuleID < mCleavageRules.RuleCount Then
-            Return mCleavageRules.Rules(eRuleID).RuleIDInParallax
+    Public Function GetCleavageRuleIDInParallax(ruleId As CleavageRuleConstants) As Integer
+        Dim cleavageRule As udtCleavageRulesType = Nothing
+        If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
+            Return cleavageRule.RuleIDInParallax
         Else
             Return -1
         End If
@@ -685,9 +679,9 @@ Public Class clsInSilicoDigest
         Me.InitializepICalculator(New clspICalculation)
     End Sub
 
-    Public Sub InitializepICalculator(ByRef objpICalculator As clspICalculation)
+    Public Sub InitializepICalculator(ByRef pICalculator As clspICalculation)
         If Not mpICalculator Is Nothing Then
-            If mpICalculator Is objpICalculator Then
+            If mpICalculator Is pICalculator Then
                 ' Classes are the same instance of the object; no need to update anything
                 Exit Sub
             Else
@@ -695,18 +689,22 @@ Public Class clsInSilicoDigest
             End If
         End If
 
-        mpICalculator = objpICalculator
+        mpICalculator = pICalculator
     End Sub
 
-    Public Sub InitializepICalculator(eHydrophobicityType As clspICalculation.eHydrophobicityTypeConstants, blnReportMaximumpI As Boolean, intSequenceWidthToExamineForMaximumpI As Integer)
+    Public Sub InitializepICalculator(
+        eHydrophobicityType As clspICalculation.eHydrophobicityTypeConstants,
+        reportMaximumpI As Boolean,
+        sequenceWidthToExamineForMaximumpI As Integer)
+
         If mpICalculator Is Nothing Then
             mpICalculator = New clspICalculation
         End If
 
         With mpICalculator
             .HydrophobicityType = eHydrophobicityType
-            .ReportMaximumpI = blnReportMaximumpI
-            .SequenceWidthToExamineForMaximumpI = intSequenceWidthToExamineForMaximumpI
+            .ReportMaximumpI = reportMaximumpI
+            .SequenceWidthToExamineForMaximumpI = sequenceWidthToExamineForMaximumpI
         End With
     End Sub
 
@@ -722,25 +720,27 @@ Public Class clsInSilicoDigest
         peptideFragments As ICollection(Of PeptideInfoClass),
         digestionOptions As DigestionOptionsClass,
         filterByIsoelectricPoint As Boolean)
+
+        ' Note: proteinSequence is passed ByRef for speed purposes since passing a reference of a large string is easier than passing it ByVal
         '       It is not modified by this function
 
-        Dim blnAddFragment As Boolean
-        Dim strPrefix As String, strSuffix As String
+        Dim addFragment As Boolean
+        Dim prefix As String, suffix As String
 
-        Dim sngIsoelectricPoint As Single
+        Dim isoelectricPoint As Single
 
-        blnAddFragment = True
-        If objDigestionOptions.RemoveDuplicateSequences Then
-            If htFragmentsUniqueList.ContainsKey(strPeptideSequence) Then
-                blnAddFragment = False
+        addFragment = True
+        If digestionOptions.RemoveDuplicateSequences Then
+            If fragmentsUniqueList.ContainsKey(peptideSequence) Then
+                addFragment = False
             Else
-                htFragmentsUniqueList.Add(strPeptideSequence, Nothing)
+                fragmentsUniqueList.Add(peptideSequence, Nothing)
             End If
         End If
 
-        If blnAddFragment AndAlso objDigestionOptions.AminoAcidResidueFilterChars.Length > 0 Then
-            If strPeptideSequence.IndexOfAny(objDigestionOptions.AminoAcidResidueFilterChars) < 0 Then
-                blnAddFragment = False
+        If addFragment AndAlso digestionOptions.AminoAcidResidueFilterChars.Length > 0 Then
+            If peptideSequence.IndexOfAny(digestionOptions.AminoAcidResidueFilterChars) < 0 Then
+                addFragment = False
             End If
         End If
 
@@ -802,19 +802,19 @@ Public Class clsInSilicoDigest
         End If
     End Sub
 
-    Private Sub ReportError(strFunctionName As String, ex As Exception)
+    Private Sub ReportError(functionName As String, ex As Exception)
         Try
-            Dim strErrorMessage As String
+            Dim errorMessage As String
 
-            If Not strFunctionName Is Nothing AndAlso strFunctionName.Length > 0 Then
-                strErrorMessage = "Error in " & strFunctionName & ": " & ex.Message
+            If Not functionName Is Nothing AndAlso functionName.Length > 0 Then
+                errorMessage = "Error in " & functionName & ": " & ex.Message
             Else
-                strErrorMessage = "Error: " & ex.Message
+                errorMessage = "Error: " & ex.Message
             End If
 
-            Console.WriteLine(strErrorMessage)
+            Console.WriteLine(errorMessage)
 
-            RaiseEvent ErrorEvent(strErrorMessage)
+            RaiseEvent ErrorEvent(errorMessage)
 
         Catch exNew As Exception
             ' Ignore errors here
@@ -825,35 +825,30 @@ Public Class clsInSilicoDigest
         RaiseEvent ProgressReset()
     End Sub
 
-    Protected Sub ResetProgress(strProgressStepDescription As String)
-        UpdateProgress(strProgressStepDescription, 0)
+    Protected Sub ResetProgress(description As String)
+        UpdateProgress(description, 0)
         RaiseEvent ProgressReset()
     End Sub
 
-    Protected Sub UpdateProgress(strProgressStepDescription As String)
-        UpdateProgress(strProgressStepDescription, mProgressPercentComplete)
+    Protected Sub UpdateProgress(description As String)
+        UpdateProgress(description, mProgressPercentComplete)
     End Sub
 
-    Protected Sub UpdateProgress(sngPercentComplete As Single)
-        UpdateProgress(Me.ProgressStepDescription, sngPercentComplete)
+    Protected Sub UpdateProgress(percentComplete As Single)
+        UpdateProgress(Me.ProgressStepDescription, percentComplete)
     End Sub
 
-    Protected Sub UpdateProgress(strProgressStepDescription As String, sngPercentComplete As Single)
-        Dim blnDescriptionChanged As Boolean = False
+    Protected Sub UpdateProgress(description As String, percentComplete As Single)
 
-        If strProgressStepDescription <> mProgressStepDescription Then
-            blnDescriptionChanged = True
+        mProgressStepDescription = String.Copy(description)
+        If percentComplete < 0 Then
+            percentComplete = 0
+        ElseIf percentComplete > 100 Then
+            percentComplete = 100
         End If
+        mProgressPercentComplete = percentComplete
 
-        mProgressStepDescription = String.Copy(strProgressStepDescription)
-        If sngPercentComplete < 0 Then
-            sngPercentComplete = 0
-        ElseIf sngPercentComplete > 100 Then
-            sngPercentComplete = 100
-        End If
-        mProgressPercentComplete = sngPercentComplete
-
-        RaiseEvent ProgressChanged(Me.ProgressStepDescription, Me.ProgressPercentComplete)
+        RaiseEvent ProgressChanged(description, ProgressPercentComplete)
 
     End Sub
 
@@ -866,14 +861,14 @@ Public Class clsInSilicoDigest
 
         Public Sub New()
 
-            If objNETPrediction Is Nothing Then
-                objNETPrediction = New NETPrediction.ElutionTimePredictionKangas
+            If NETPredictor Is Nothing Then
+                NETPredictor = New NETPrediction.ElutionTimePredictionKangas
             End If
 
             ' Disable mAutoComputeNET for now so that the call to SetSequence() below doesn't auto-call UpdateNET
             mAutoComputeNET = False
 
-            mPeptideName = String.Empty
+            PeptideName = String.Empty
             SetSequence(String.Empty)
             mNET = 0
             mPrefixResidue = PROTEIN_TERMINUS_SYMBOL
@@ -894,7 +889,7 @@ Public Class clsInSilicoDigest
 
         ' The following is declared Shared so that it is only initialized once per program execution
         ' All objects of type PeptideInfoClass will use the same instance of this object
-        Private Shared objNETPrediction As NETPrediction.iPeptideElutionTime
+        Private Shared NETPredictor As NETPrediction.iPeptideElutionTime
 
 
         Private mAutoComputeNET As Boolean      ' Set to False to skip computation of NET when Sequence changes; useful for speeding up things a little
@@ -946,16 +941,16 @@ Public Class clsInSilicoDigest
 
         Public Property SequenceOneLetter As String
             Get
-                Return MyBase.GetSequence(False)
+                Return GetSequence(False)
             End Get
             Set
-                MyClass.SetSequence(Value, PeptideSequenceClass.NTerminusGroupConstants.Hydrogen, PeptideSequenceClass.CTerminusGroupConstants.Hydroxyl, False)
+                SetSequence(Value, NTerminusGroupConstants.Hydrogen, CTerminusGroupConstants.Hydroxyl, False)
             End Set
         End Property
 
         Public ReadOnly Property SequenceWithPrefixAndSuffix As String
             Get
-                Return mPrefixResidue & "." & MyClass.SequenceOneLetter & "." & mSuffixResidue
+                Return mPrefixResidue & "." & SequenceOneLetter & "." & mSuffixResidue
             End Get
         End Property
 
@@ -973,23 +968,23 @@ Public Class clsInSilicoDigest
         End Property
 #End Region
 
-        Public Overrides Function SetSequence(strSequence As String, Optional eNTerminus As NTerminusGroupConstants = NTerminusGroupConstants.Hydrogen, Optional eCTerminus As CTerminusGroupConstants = CTerminusGroupConstants.Hydroxyl, Optional blnIs3LetterCode As Boolean = False, Optional bln1LetterCheckForPrefixAndSuffixResidues As Boolean = True, Optional bln3LetterCheckForPrefixHandSuffixOH As Boolean = True) As Integer
-            Dim intReturn As Integer
+        Public Overrides Function SetSequence(sequence As String, Optional eNTerminus As NTerminusGroupConstants = NTerminusGroupConstants.Hydrogen, Optional eCTerminus As CTerminusGroupConstants = CTerminusGroupConstants.Hydroxyl, Optional is3LetterCode As Boolean = False, Optional bln1LetterCheckForPrefixAndSuffixResidues As Boolean = True, Optional bln3LetterCheckForPrefixHandSuffixOH As Boolean = True) As Integer
+            Dim returnVal As Integer
 
-            intReturn = MyBase.SetSequence(strSequence, eNTerminus, eCTerminus, blnIs3LetterCode, bln1LetterCheckForPrefixAndSuffixResidues, bln3LetterCheckForPrefixHandSuffixOH)
+            returnVal = MyBase.SetSequence(sequence, eNTerminus, eCTerminus, is3LetterCode, bln1LetterCheckForPrefixAndSuffixResidues, bln3LetterCheckForPrefixHandSuffixOH)
             If mAutoComputeNET Then UpdateNET()
 
-            Return intReturn
+            Return returnVal
         End Function
 
-        Public Overrides Sub SetSequenceOneLetterCharactersOnly(strSequenceNoPrefixOrSuffix As String)
-            MyBase.SetSequenceOneLetterCharactersOnly(strSequenceNoPrefixOrSuffix)
+        Public Overrides Sub SetSequenceOneLetterCharactersOnly(sequenceNoPrefixOrSuffix As String)
+            MyBase.SetSequenceOneLetterCharactersOnly(sequenceNoPrefixOrSuffix)
             If mAutoComputeNET Then UpdateNET()
         End Sub
 
         Public Sub UpdateNET()
             Try
-                mNET = objNETPrediction.GetElutionTime(MyBase.GetSequence(False))
+                mNET = NETPredictor.GetElutionTime(GetSequence(False))
             Catch ex As Exception
                 mNET = 0
             End Try

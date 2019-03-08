@@ -1,5 +1,7 @@
 Option Strict On
 
+Imports System.Runtime.InteropServices
+
 Public Class clsPeakMatchingClass
 
     Public Sub New()
@@ -56,12 +58,12 @@ Public Class clsPeakMatchingClass
         Protected mFeaturesArrayIsSorted As Boolean
 
         Protected mUseFeatureIDHashTable As Boolean
-        Protected htFeatureIDToRowIndex As Hashtable
+        Protected featureIDToRowIndex As Hashtable
 
         Public Event SortingList()
 
         Public Sub New()
-            mUseFeatureIDHashTable = True                       ' Set this to False to conserve memory; you must call Clear() after changing this for it to take effec
+            mUseFeatureIDHashTable = True                       ' Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
             Me.Clear()
         End Sub
 
@@ -71,10 +73,10 @@ Public Class clsPeakMatchingClass
             End With
         End Function
 
-        Public Overridable Function Add(intFeatureID As Integer, strPeptideName As String, dblPeptideMass As Double, sngPeptideNET As Single) As Boolean
+        Public Overridable Function Add(featureID As Integer, peptideName As String, peptideMass As Double, peptideNET As Single) As Boolean
             ' Returns True if the feature was added
 
-            If ContainsFeature(intFeatureID) Then
+            If ContainsFeature(featureID) Then
                 Return False
             Else
                 ' Add the feature
@@ -84,14 +86,14 @@ Public Class clsPeakMatchingClass
                 End If
 
                 With mFeatures(mFeatureCount)
-                    .FeatureID = intFeatureID
-                    .FeatureName = strPeptideName
-                    .Mass = dblPeptideMass
-                    .NET = sngPeptideNET
+                    .FeatureID = featureID
+                    .FeatureName = peptideName
+                    .Mass = peptideMass
+                    .NET = peptideNET
                 End With
 
                 If mUseFeatureIDHashTable Then
-                    htFeatureIDToRowIndex.Add(intFeatureID, mFeatureCount)
+                    featureIDToRowIndex.Add(featureID, mFeatureCount)
                 End If
 
                 mFeatureCount += 1
@@ -103,47 +105,47 @@ Public Class clsPeakMatchingClass
 
         End Function
 
-        Protected Function BinarySearchFindFeature(intFeatureIDToFind As Integer) As Integer
-            ' Looks through mFeatures() for intFeatureIDToFind, returning the index of the item if found, or -1 if not found
+        Protected Function BinarySearchFindFeature(featureIDToFind As Integer) As Integer
+            ' Looks through mFeatures() for featureIDToFind, returning the index of the item if found, or -1 if not found
 
-            Dim intMidIndex As Integer
-            Dim intFirstIndex As Integer = 0
-            Dim intLastIndex As Integer = mFeatureCount - 1
+            Dim midIndex As Integer
+            Dim firstIndex = 0
+            Dim lastIndex As Integer = mFeatureCount - 1
 
-            Dim intMatchingRowIndex As Integer = -1
+            Dim matchingRowIndex As Integer = -1
 
             If mFeatureCount <= 0 OrElse Not SortFeatures() Then
-                Return intMatchingRowIndex
+                Return matchingRowIndex
             End If
 
             Try
-                intMidIndex = (intFirstIndex + intLastIndex) \ 2            ' Note: Using Integer division
-                If intMidIndex < intFirstIndex Then intMidIndex = intFirstIndex
+                midIndex = (firstIndex + lastIndex) \ 2            ' Note: Using Integer division
+                If midIndex < firstIndex Then midIndex = firstIndex
 
-                Do While intFirstIndex <= intLastIndex And mFeatures(intMidIndex).FeatureID <> intFeatureIDToFind
-                    If intFeatureIDToFind < mFeatures(intMidIndex).FeatureID Then
+                Do While firstIndex <= lastIndex And mFeatures(midIndex).FeatureID <> featureIDToFind
+                    If featureIDToFind < mFeatures(midIndex).FeatureID Then
                         ' Search the lower half
-                        intLastIndex = intMidIndex - 1
-                    ElseIf intFeatureIDToFind > mFeatures(intMidIndex).FeatureID Then
+                        lastIndex = midIndex - 1
+                    ElseIf featureIDToFind > mFeatures(midIndex).FeatureID Then
                         ' Search the upper half
-                        intFirstIndex = intMidIndex + 1
+                        firstIndex = midIndex + 1
                     End If
                     ' Compute the new mid point
-                    intMidIndex = (intFirstIndex + intLastIndex) \ 2
-                    If intMidIndex < intFirstIndex Then Exit Do
+                    midIndex = (firstIndex + lastIndex) \ 2
+                    If midIndex < firstIndex Then Exit Do
                 Loop
 
-                If intMidIndex >= intFirstIndex And intMidIndex <= intLastIndex Then
-                    If mFeatures(intMidIndex).FeatureID = intFeatureIDToFind Then
-                        intMatchingRowIndex = intMidIndex
+                If midIndex >= firstIndex And midIndex <= lastIndex Then
+                    If mFeatures(midIndex).FeatureID = featureIDToFind Then
+                        matchingRowIndex = midIndex
                     End If
                 End If
 
             Catch ex As Exception
-                intMatchingRowIndex = -1
+                matchingRowIndex = -1
             End Try
 
-            Return intMatchingRowIndex
+            Return matchingRowIndex
 
         End Function
 
@@ -156,40 +158,40 @@ Public Class clsPeakMatchingClass
             mFeaturesArrayIsSorted = False
 
             If mUseFeatureIDHashTable Then
-                If htFeatureIDToRowIndex Is Nothing Then
-                    htFeatureIDToRowIndex = New Hashtable
+                If featureIDToRowIndex Is Nothing Then
+                    featureIDToRowIndex = New Hashtable
                 Else
-                    htFeatureIDToRowIndex.Clear()
+                    featureIDToRowIndex.Clear()
                 End If
             Else
-                If Not htFeatureIDToRowIndex Is Nothing Then
-                    htFeatureIDToRowIndex.Clear()
-                    htFeatureIDToRowIndex = Nothing
+                If Not featureIDToRowIndex Is Nothing Then
+                    featureIDToRowIndex.Clear()
+                    featureIDToRowIndex = Nothing
                 End If
             End If
         End Sub
 
-        Protected Function ContainsFeature(intFeatureID As Integer) As Boolean
-            Return ContainsFeature(intFeatureID, 0)
+        Protected Function ContainsFeature(featureID As Integer) As Boolean
+            Return ContainsFeature(featureID, 0)
         End Function
 
-        Protected Function ContainsFeature(intFeatureID As Integer, ByRef intRowIndex As Integer) As Boolean
+        Protected Function ContainsFeature(featureID As Integer, <Out> ByRef rowIndex As Integer) As Boolean
             ' Returns True if the features array contains the feature
-            ' If found, returns the row index in intRowIndex
+            ' If found, returns the row index in rowIndex
             ' Note that the data will be sorted if necessary, which could lead to slow execution if this function is called repeatedly, while adding new data between calls
 
             If mUseFeatureIDHashTable Then
-                If htFeatureIDToRowIndex.Contains(intFeatureID) Then
-                    intRowIndex = CInt(htFeatureIDToRowIndex.Item(intFeatureID))
+                If featureIDToRowIndex.Contains(featureID) Then
+                    rowIndex = CInt(featureIDToRowIndex.Item(featureID))
                 Else
-                    intRowIndex = -1
+                    rowIndex = -1
                 End If
             Else
-                ' Perform a binary search of mFeatures for intFeatureID
-                intRowIndex = BinarySearchFindFeature(intFeatureID)
+                ' Perform a binary search of mFeatures for featureID
+                rowIndex = BinarySearchFindFeature(featureID)
             End If
 
-            If intRowIndex >= 0 Then
+            If rowIndex >= 0 Then
                 Return True
             Else
                 Return False
@@ -203,16 +205,16 @@ Public Class clsPeakMatchingClass
             End Get
         End Property
 
-        Public Overridable Function GetFeatureInfoByFeatureID(intFeatureID As Integer, ByRef udtFeatureInfo As udtFeatureInfoType) As Boolean
-            ' Return the feature info for feature intFeatureID
+        Public Overridable Function GetFeatureInfoByFeatureID(featureID As Integer, ByRef udtFeatureInfo As udtFeatureInfoType) As Boolean
+            ' Return the feature info for feature featureID
 
-            Dim blnMatchFound As Boolean = False
-            Dim intRowIndex As Integer
 
-            blnMatchFound = Me.ContainsFeature(intFeatureID, intRowIndex)
+            Dim rowIndex As Integer
 
-            If blnMatchFound Then
-                udtFeatureInfo = mFeatures(intRowIndex)
+            Dim matchFound = Me.ContainsFeature(featureID, rowIndex)
+
+            If matchFound Then
+                udtFeatureInfo = mFeatures(rowIndex)
                 Return True
             Else
                 With udtFeatureInfo
@@ -226,10 +228,10 @@ Public Class clsPeakMatchingClass
             End If
         End Function
 
-        Public Overridable Function GetFeatureInfoByRowIndex(intRowIndex As Integer, ByRef udtFeatureInfo As udtFeatureInfoType) As Boolean
+        Public Overridable Function GetFeatureInfoByRowIndex(rowIndex As Integer, ByRef udtFeatureInfo As udtFeatureInfoType) As Boolean
 
-            If intRowIndex >= 0 And intRowIndex < mFeatureCount Then
-                udtFeatureInfo = mFeatures(intRowIndex)
+            If rowIndex >= 0 And rowIndex < mFeatureCount Then
+                udtFeatureInfo = mFeatures(rowIndex)
                 Return True
             Else
                 With udtFeatureInfo
@@ -243,58 +245,58 @@ Public Class clsPeakMatchingClass
 
         End Function
 
-        Public Overridable Function GetMassArrayByRowRange(intRowIndexStart As Integer, intRowIndexEnd As Integer) As Double()
-            Dim dblMasses() As Double
-            Dim intMatchCount As Integer
+        Public Overridable Function GetMassArrayByRowRange(rowIndexStart As Integer, rowIndexEnd As Integer) As Double()
+            Dim masses() As Double
+            Dim matchCount As Integer
 
-            If intRowIndexEnd < intRowIndexStart Then
-                ReDim dblMasses(-1)
-                Return dblMasses
+            If rowIndexEnd < rowIndexStart Then
+                ReDim masses(-1)
+                Return masses
             End If
 
-            ReDim dblMasses(intRowIndexEnd - intRowIndexStart)
+            ReDim masses(rowIndexEnd - rowIndexStart)
 
-            Dim intIndex As Integer
+            Dim index As Integer
 
             Try
-                If intRowIndexEnd >= mFeatureCount Then
-                    intRowIndexEnd = mFeatureCount - 1
+                If rowIndexEnd >= mFeatureCount Then
+                    rowIndexEnd = mFeatureCount - 1
                 End If
 
-                intMatchCount = 0
-                For intIndex = intRowIndexStart To intRowIndexEnd
-                    dblMasses(intMatchCount) = mFeatures(intIndex).Mass
-                    intMatchCount += 1
-                Next intIndex
+                matchCount = 0
+                For index = rowIndexStart To rowIndexEnd
+                    masses(matchCount) = mFeatures(index).Mass
+                    matchCount += 1
+                Next index
 
-                If dblMasses.Length > intMatchCount Then
-                    ReDim Preserve dblMasses(intMatchCount - 1)
+                If masses.Length > matchCount Then
+                    ReDim Preserve masses(matchCount - 1)
                 End If
 
             Catch ex As Exception
-                Throw ex
+                Throw
             End Try
 
-            Return dblMasses
+            Return masses
         End Function
 
-        Public Overridable Function GetMassByRowIndex(intRowIndex As Integer) As Double
-            If intRowIndex >= 0 And intRowIndex < mFeatureCount Then
-                Return mFeatures(intRowIndex).Mass
+        Public Overridable Function GetMassByRowIndex(rowIndex As Integer) As Double
+            If rowIndex >= 0 And rowIndex < mFeatureCount Then
+                Return mFeatures(rowIndex).Mass
             Else
                 Return 0
             End If
         End Function
 
-        Protected Overridable Function SortFeatures(Optional blnForceSort As Boolean = False) As Boolean
+        Protected Overridable Function SortFeatures(Optional forceSort As Boolean = False) As Boolean
 
-            If Not mFeaturesArrayIsSorted OrElse blnForceSort Then
+            If Not mFeaturesArrayIsSorted OrElse forceSort Then
                 RaiseEvent SortingList()
                 Try
-                    Dim objComparer As New FeatureInfoComparerClass
-                    Array.Sort(mFeatures, 0, mFeatureCount, objComparer)
+                    Dim comparer As New FeatureInfoComparerClass
+                    Array.Sort(mFeatures, 0, mFeatureCount, comparer)
                 Catch ex As Exception
-                    Throw ex
+                    Throw
                 End Try
 
                 mFeaturesArrayIsSorted = True
@@ -351,16 +353,16 @@ Public Class clsPeakMatchingClass
             Me.Clear()
         End Sub
 
-        Public Overloads Function Add(ByRef udtFeatureInfo As udtFeatureInfoType, sngPeptideNETStDev As Single, sngPeptideDiscriminantScore As Single) As Boolean
+        Public Overloads Function Add(ByRef udtFeatureInfo As udtFeatureInfoType, peptideNETStDev As Single, peptideDiscriminantScore As Single) As Boolean
             With udtFeatureInfo
-                Return Add(.FeatureID, .FeatureName, .Mass, .NET, sngPeptideNETStDev, sngPeptideDiscriminantScore)
+                Return Add(.FeatureID, .FeatureName, .Mass, .NET, peptideNETStDev, peptideDiscriminantScore)
             End With
         End Function
 
-        Public Overloads Function Add(intFeatureID As Integer, strPeptideName As String, dblPeptideMass As Double, sngPeptideNET As Single, sngPeptideNETStDev As Single, sngPeptideDiscriminantScore As Single) As Boolean
+        Public Overloads Function Add(featureID As Integer, peptideName As String, peptideMass As Double, peptideNET As Single, peptideNETStDev As Single, peptideDiscriminantScore As Single) As Boolean
 
             ' Add the base feature info
-            If Not MyBase.Add(intFeatureID, strPeptideName, dblPeptideMass, sngPeptideNET) Then
+            If Not MyBase.Add(featureID, peptideName, peptideMass, peptideNET) Then
                 ' The feature already existed, and therefore wasn't added
                 Return False
             Else
@@ -371,8 +373,8 @@ Public Class clsPeakMatchingClass
                 End If
 
                 With mExtendedInfo(mFeatureCount - 1)
-                    .NETStDev = sngPeptideNETStDev
-                    .DiscriminantScore = sngPeptideDiscriminantScore
+                    .NETStDev = peptideNETStDev
+                    .DiscriminantScore = peptideDiscriminantScore
                 End With
 
                 ' If we get here, all went well
@@ -390,18 +392,17 @@ Public Class clsPeakMatchingClass
 
         End Sub
 
-        Public Overloads Function GetFeatureInfoByFeatureID(intFeatureID As Integer, ByRef udtFeatureInfo As udtFeatureInfoType, ByRef sngNETStDev As Single, ByRef sngDiscriminantScore As Single) As Boolean
-            ' Return the feature info for feature intFeatureID
+        Public Overloads Function GetFeatureInfoByFeatureID(featureID As Integer, ByRef udtFeatureInfo As udtFeatureInfoType, ByRef netStDev As Single, ByRef discriminantScore As Single) As Boolean
+            ' Return the feature info for feature featureID
 
-            Dim blnMatchFound As Boolean = False
-            Dim intRowIndex As Integer
+            Dim rowIndex As Integer
 
-            blnMatchFound = Me.ContainsFeature(intFeatureID, intRowIndex)
+            Dim matchFound = Me.ContainsFeature(featureID, rowIndex)
 
-            If blnMatchFound Then
-                udtFeatureInfo = mFeatures(intRowIndex)
-                sngNETStDev = mExtendedInfo(intRowIndex).NETStDev
-                sngDiscriminantScore = mExtendedInfo(intRowIndex).DiscriminantScore
+            If matchFound Then
+                udtFeatureInfo = mFeatures(rowIndex)
+                netStDev = mExtendedInfo(rowIndex).NETStDev
+                discriminantScore = mExtendedInfo(rowIndex).DiscriminantScore
                 Return True
             Else
                 With udtFeatureInfo
@@ -410,19 +411,19 @@ Public Class clsPeakMatchingClass
                     .Mass = 0
                     .NET = 0
                 End With
-                sngNETStDev = 0
-                sngDiscriminantScore = 0
+                netStDev = 0
+                discriminantScore = 0
 
                 Return False
             End If
         End Function
 
-        Public Overloads Function GetFeatureInfoByRowIndex(intRowIndex As Integer, ByRef udtFeatureInfo As udtFeatureInfoType, ByRef sngNETStDev As Single, ByRef sngDiscriminantScore As Single) As Boolean
+        Public Overloads Function GetFeatureInfoByRowIndex(rowIndex As Integer, ByRef udtFeatureInfo As udtFeatureInfoType, ByRef netStDev As Single, ByRef discriminantScore As Single) As Boolean
 
-            If intRowIndex >= 0 And intRowIndex < mFeatureCount Then
-                udtFeatureInfo = mFeatures(intRowIndex)
-                sngNETStDev = mExtendedInfo(intRowIndex).NETStDev
-                sngDiscriminantScore = mExtendedInfo(intRowIndex).DiscriminantScore
+            If rowIndex >= 0 And rowIndex < mFeatureCount Then
+                udtFeatureInfo = mFeatures(rowIndex)
+                netStDev = mExtendedInfo(rowIndex).NETStDev
+                discriminantScore = mExtendedInfo(rowIndex).DiscriminantScore
                 Return True
             Else
                 With udtFeatureInfo
@@ -431,16 +432,16 @@ Public Class clsPeakMatchingClass
                     .Mass = 0
                     .NET = 0
                 End With
-                sngNETStDev = 0
-                sngDiscriminantScore = 0
+                netStDev = 0
+                discriminantScore = 0
                 Return False
             End If
 
         End Function
 
-        Public Overridable Function GetNETStDevByRowIndex(intRowIndex As Integer) As Single
-            If intRowIndex >= 0 And intRowIndex < mFeatureCount Then
-                Return mExtendedInfo(intRowIndex).NETStDev
+        Public Overridable Function GetNETStDevByRowIndex(rowIndex As Integer) As Single
+            If rowIndex >= 0 And rowIndex < mFeatureCount Then
+                Return mExtendedInfo(rowIndex).NETStDev
             Else
                 Return 0
             End If
@@ -478,13 +479,13 @@ Public Class clsPeakMatchingClass
             Me.Clear()
         End Sub
 
-        Public Function AddMatch(intFeatureID As Integer, ByRef udtMatchResultInfo As udtPeakMatchingResultType) As Boolean
+        Public Function AddMatch(featureID As Integer, ByRef udtMatchResultInfo As udtPeakMatchingResultType) As Boolean
             With udtMatchResultInfo
-                Return AddMatch(intFeatureID, .MatchingID, .SLiCScore, .DelSLiC, .MassErr, .NETErr, .MultiAMTHitCount)
+                Return AddMatch(featureID, .MatchingID, .SLiCScore, .DelSLiC, .MassErr, .NETErr, .MultiAMTHitCount)
             End With
         End Function
 
-        Public Function AddMatch(intFeatureID As Integer, intMatchingID As Integer, SLiCScore As Double, DelSLiC As Double, MassErr As Double, NETErr As Double, MultiAMTHitCount As Integer) As Boolean
+        Public Function AddMatch(featureID As Integer, matchingID As Integer, slicScore As Double, delSLiC As Double, massErr As Double, netErr As Double, multiAMTHitCount As Integer) As Boolean
 
             ' Add the match
             If mPMResultsCount >= mPMResults.Length Then
@@ -493,13 +494,13 @@ Public Class clsPeakMatchingClass
             End If
 
             With mPMResults(mPMResultsCount)
-                .FeatureID = intFeatureID
-                .Details.MatchingID = intMatchingID
-                .Details.SLiCScore = SLiCScore
-                .Details.DelSLiC = DelSLiC
-                .Details.MassErr = MassErr
-                .Details.NETErr = NETErr
-                .Details.MultiAMTHitCount = MultiAMTHitCount
+                .FeatureID = featureID
+                .Details.MatchingID = matchingID
+                .Details.SLiCScore = slicScore
+                .Details.DelSLiC = delSLiC
+                .Details.MassErr = massErr
+                .Details.NETErr = netErr
+                .Details.MultiAMTHitCount = multiAMTHitCount
             End With
 
             mPMResultsCount += 1
@@ -510,48 +511,48 @@ Public Class clsPeakMatchingClass
 
         End Function
 
-        Private Function BinarySearchPMResults(intFeatureIDToFind As Integer) As Integer
-            ' Looks through mPMResults() for intFeatureIDToFind, returning the index of the item if found, or -1 if not found
+        Private Function BinarySearchPMResults(featureIDToFind As Integer) As Integer
+            ' Looks through mPMResults() for featureIDToFind, returning the index of the item if found, or -1 if not found
             ' Since mPMResults() can contain multiple entries for a given Feature, this function returns the first entry found
 
-            Dim intMidIndex As Integer
-            Dim intFirstIndex As Integer = 0
-            Dim intLastIndex As Integer = mPMResultsCount - 1
+            Dim midIndex As Integer
+            Dim firstIndex = 0
+            Dim lastIndex As Integer = mPMResultsCount - 1
 
-            Dim intMatchingRowIndex As Integer = -1
+            Dim matchingRowIndex As Integer = -1
 
             If mPMResultsCount <= 0 OrElse Not SortPMResults() Then
-                Return intMatchingRowIndex
+                Return matchingRowIndex
             End If
 
             Try
-                intMidIndex = (intFirstIndex + intLastIndex) \ 2            ' Note: Using Integer division
-                If intMidIndex < intFirstIndex Then intMidIndex = intFirstIndex
+                midIndex = (firstIndex + lastIndex) \ 2            ' Note: Using Integer division
+                If midIndex < firstIndex Then midIndex = firstIndex
 
-                Do While intFirstIndex <= intLastIndex And mPMResults(intMidIndex).FeatureID <> intFeatureIDToFind
-                    If intFeatureIDToFind < mPMResults(intMidIndex).FeatureID Then
+                Do While firstIndex <= lastIndex And mPMResults(midIndex).FeatureID <> featureIDToFind
+                    If featureIDToFind < mPMResults(midIndex).FeatureID Then
                         ' Search the lower half
-                        intLastIndex = intMidIndex - 1
-                    ElseIf intFeatureIDToFind > mPMResults(intMidIndex).FeatureID Then
+                        lastIndex = midIndex - 1
+                    ElseIf featureIDToFind > mPMResults(midIndex).FeatureID Then
                         ' Search the upper half
-                        intFirstIndex = intMidIndex + 1
+                        firstIndex = midIndex + 1
                     End If
                     ' Compute the new mid point
-                    intMidIndex = (intFirstIndex + intLastIndex) \ 2
-                    If intMidIndex < intFirstIndex Then Exit Do
+                    midIndex = (firstIndex + lastIndex) \ 2
+                    If midIndex < firstIndex Then Exit Do
                 Loop
 
-                If intMidIndex >= intFirstIndex And intMidIndex <= intLastIndex Then
-                    If mPMResults(intMidIndex).FeatureID = intFeatureIDToFind Then
-                        intMatchingRowIndex = intMidIndex
+                If midIndex >= firstIndex And midIndex <= lastIndex Then
+                    If mPMResults(midIndex).FeatureID = featureIDToFind Then
+                        matchingRowIndex = midIndex
                     End If
                 End If
 
             Catch ex As Exception
-                intMatchingRowIndex = -1
+                matchingRowIndex = -1
             End Try
 
-            Return intMatchingRowIndex
+            Return matchingRowIndex
 
         End Function
 
@@ -571,100 +572,100 @@ Public Class clsPeakMatchingClass
             End Get
         End Property
 
-        Public Function GetMatchInfoByFeatureID(intFeatureID As Integer, ByRef udtMatchResults() As udtPeakMatchingResultType, ByRef intMatchCount As Integer) As Boolean
+        Public Function GetMatchInfoByFeatureID(featureID As Integer, ByRef udtMatchResults() As udtPeakMatchingResultType, ByRef matchCount As Integer) As Boolean
             ' Returns all of the matches for the given feature ID row index
             ' Returns false if the feature has no matches
             ' Note that this function never shrinks udtMatchResults; it only expands it if needed
 
-            Dim blnMatchesFound As Boolean = False
+            Dim matchesFound = False
 
             Try
-                Dim intIndex As Integer
-                Dim intIndexFirst As Integer
-                Dim intIndexLast As Integer
+                Dim index As Integer
+                Dim indexFirst As Integer
+                Dim indexLast As Integer
 
-                If GetRowIndicesForFeatureID(intFeatureID, intIndexFirst, intIndexLast) Then
+                If GetRowIndicesForFeatureID(featureID, indexFirst, indexLast) Then
 
-                    intMatchCount = intIndexLast - intIndexFirst + 1
-                    If udtMatchResults Is Nothing OrElse intMatchCount > udtMatchResults.Length Then
-                        ReDim udtMatchResults(intMatchCount - 1)
+                    matchCount = indexLast - indexFirst + 1
+                    If udtMatchResults Is Nothing OrElse matchCount > udtMatchResults.Length Then
+                        ReDim udtMatchResults(matchCount - 1)
                     End If
 
-                    For intIndex = intIndexFirst To intIndexLast
-                        udtMatchResults(intIndex - intIndexFirst) = mPMResults(intIndex).Details
-                    Next intIndex
-                    blnMatchesFound = True
+                    For index = indexFirst To indexLast
+                        udtMatchResults(index - indexFirst) = mPMResults(index).Details
+                    Next index
+                    matchesFound = True
 
                 End If
 
             Catch ex As Exception
-                blnMatchesFound = False
+                matchesFound = False
             End Try
 
 
-            Return blnMatchesFound
+            Return matchesFound
 
         End Function
 
-        Public Function GetMatchInfoByRowIndex(intRowIndex As Integer, ByRef intFeatureID As Integer, ByRef udtMatchResultInfo As udtPeakMatchingResultType) As Boolean
-            ' Populates intFeatureID and udtMatchResultInfo with the peak matching results for the given row index
+        Public Function GetMatchInfoByRowIndex(rowIndex As Integer, ByRef featureID As Integer, ByRef udtMatchResultInfo As udtPeakMatchingResultType) As Boolean
+            ' Populates featureID and udtMatchResultInfo with the peak matching results for the given row index
 
-            Dim blnMatchFound As Boolean = False
+            Dim matchFound = False
 
             Try
-                If intRowIndex < mPMResultsCount Then
-                    intFeatureID = mPMResults(intRowIndex).FeatureID
-                    udtMatchResultInfo = mPMResults(intRowIndex).Details
+                If rowIndex < mPMResultsCount Then
+                    featureID = mPMResults(rowIndex).FeatureID
+                    udtMatchResultInfo = mPMResults(rowIndex).Details
 
-                    blnMatchFound = True
+                    matchFound = True
                 End If
             Catch ex As Exception
-                blnMatchFound = False
+                matchFound = False
             End Try
 
-            Return blnMatchFound
+            Return matchFound
 
         End Function
 
-        Private Function GetRowIndicesForFeatureID(intFeatureID As Integer, ByRef intIndexFirst As Integer, ByRef intIndexLast As Integer) As Boolean
-            ' Looks for intFeatureID in mPMResults
-            ' If found, returns the range of rows that contain matches for intFeatureID
+        Private Function GetRowIndicesForFeatureID(featureID As Integer, ByRef indexFirst As Integer, ByRef indexLast As Integer) As Boolean
+            ' Looks for featureID in mPMResults
+            ' If found, returns the range of rows that contain matches for featureID
 
 
-            ' Perform a binary search of mPMResults for intFeatureID
-            intIndexFirst = BinarySearchPMResults(intFeatureID)
+            ' Perform a binary search of mPMResults for featureID
+            indexFirst = BinarySearchPMResults(featureID)
 
-            If intIndexFirst >= 0 Then
+            If indexFirst >= 0 Then
 
-                ' Match found; need to find all of the rows with intFeatureID
-                intIndexLast = intIndexFirst
+                ' Match found; need to find all of the rows with featureID
+                indexLast = indexFirst
 
-                ' Step backward through mPMResults to find the first match for intFeatureID
-                Do While intIndexFirst > 0 AndAlso mPMResults(intIndexFirst - 1).FeatureID = intFeatureID
-                    intIndexFirst -= 1
+                ' Step backward through mPMResults to find the first match for featureID
+                Do While indexFirst > 0 AndAlso mPMResults(indexFirst - 1).FeatureID = featureID
+                    indexFirst -= 1
                 Loop
 
-                ' Step forward through mPMResults to find the last match for intFeatureID
-                Do While intIndexLast < mPMResultsCount - 1 AndAlso mPMResults(intIndexLast + 1).FeatureID = intFeatureID
-                    intIndexLast += 1
+                ' Step forward through mPMResults to find the last match for featureID
+                Do While indexLast < mPMResultsCount - 1 AndAlso mPMResults(indexLast + 1).FeatureID = featureID
+                    indexLast += 1
                 Loop
 
                 Return True
             Else
-                intIndexFirst = -1
-                intIndexLast = -1
+                indexFirst = -1
+                indexLast = -1
                 Return False
             End If
 
         End Function
 
-        Public ReadOnly Property MatchCountForFeatureID(intFeatureID As Integer) As Integer
+        Public ReadOnly Property MatchCountForFeatureID(featureID As Integer) As Integer
             Get
-                Dim intIndexFirst As Integer
-                Dim intIndexLast As Integer
+                Dim indexFirst As Integer
+                Dim indexLast As Integer
 
-                If GetRowIndicesForFeatureID(intFeatureID, intIndexFirst, intIndexLast) Then
-                    Return intIndexLast - intIndexFirst + 1
+                If GetRowIndicesForFeatureID(featureID, indexFirst, indexLast) Then
+                    Return indexLast - indexFirst + 1
                 Else
                     Return 0
                 End If
@@ -672,15 +673,15 @@ Public Class clsPeakMatchingClass
             End Get
         End Property
 
-        Private Function SortPMResults(Optional blnForceSort As Boolean = False) As Boolean
+        Private Function SortPMResults(Optional forceSort As Boolean = False) As Boolean
 
-            If Not mPMResultsIsSorted OrElse blnForceSort Then
+            If Not mPMResultsIsSorted OrElse forceSort Then
                 RaiseEvent SortingList()
                 Try
-                    Dim objComparer As New PeakMatchingResultsComparerClass
-                    Array.Sort(mPMResults, 0, mPMResultsCount, objComparer)
+                    Dim comparer As New PeakMatchingResultsComparerClass
+                    Array.Sort(mPMResults, 0, mPMResultsCount, comparer)
                 Catch ex As Exception
-                    Throw ex
+                    Throw
                 End Try
 
                 mPMResultsIsSorted = True
@@ -722,7 +723,7 @@ Public Class clsPeakMatchingClass
     Private mSearchModeOptions As udtSearchModeOptionsType
 
     Private mProgressDescription As String
-    Private mProgessPct As Single
+    Private mProgressPercent As Single
     Private mAbortProcessing As Boolean
 
     Public Event ProgressContinues()
@@ -748,9 +749,9 @@ Public Class clsPeakMatchingClass
         End Get
     End Property
 
-    Public ReadOnly Property ProgessPct As Single
+    Public ReadOnly Property ProgressPct As Single
         Get
-            Return mProgessPct
+            Return mProgressPercent
         End Get
     End Property
 
@@ -816,74 +817,74 @@ Public Class clsPeakMatchingClass
         mAbortProcessing = True
     End Sub
 
-    Private Sub ComputeSLiCScores(ByRef udtFeatureToIdentify As udtFeatureInfoType, ByRef objFeatureMatchResults As PMFeatureMatchResultsClass, ByRef udtRawMatches() As udtPeakMatchingRawMatchesType, ByRef objComparisonFeatures As PMComparisonFeatureInfoClass, ByRef objSearchThresholds As clsSearchThresholds, udtComputedTolerances As clsSearchThresholds.udtSearchTolerancesType)
+    Private Sub ComputeSLiCScores(ByRef udtFeatureToIdentify As udtFeatureInfoType, ByRef featureMatchResults As PMFeatureMatchResultsClass, ByRef udtRawMatches() As udtPeakMatchingRawMatchesType, ByRef comparisonFeatures As PMComparisonFeatureInfoClass, ByRef searchThresholds As clsSearchThresholds, udtComputedTolerances As clsSearchThresholds.udtSearchTolerancesType)
 
-        Dim intIndex As Integer
-        Dim intNewMatchCount As Integer
+        Dim index As Integer
+        Dim newMatchCount As Integer
 
-        Dim dblMassStDevPPM As Double
-        Dim dblMassStDevAbs As Double
+        Dim massStDevPPM As Double
+        Dim massStDevAbs As Double
 
-        Dim dblNETStDevCombined As Double
-        Dim dblNumeratorSum As Double
+        Dim netStDevCombined As Double
+        Dim numeratorSum As Double
 
-        Dim udtComparisonFeatureInfo As udtFeatureInfoType = New udtFeatureInfoType
+        Dim udtComparisonFeatureInfo = New udtFeatureInfoType()
 
-        Dim strMessage As String
+        Dim message As String
 
         ' Compute the match scores (aka SLiC scores)
 
-        dblMassStDevPPM = objSearchThresholds.SLiCScoreMassPPMStDev
-        If dblMassStDevPPM <= 0 Then dblMassStDevPPM = 3
+        massStDevPPM = searchThresholds.SLiCScoreMassPPMStDev
+        If massStDevPPM <= 0 Then massStDevPPM = 3
 
-        dblMassStDevAbs = objSearchThresholds.PPMToMass(dblMassStDevPPM, udtFeatureToIdentify.Mass)
-        If dblMassStDevAbs <= 0 Then
-            strMessage = "Assertion failed in ComputeSLiCScores; dblMassStDevAbs is <= 0, which isn't allowed; will assume 0.003"
-            Console.WriteLine(strMessage)
-            PostLogEntry(strMessage, MessageTypeConstants.ErrorMsg)
-            dblMassStDevAbs = 0.003
+        massStDevAbs = searchThresholds.PPMToMass(massStDevPPM, udtFeatureToIdentify.Mass)
+        If massStDevAbs <= 0 Then
+            message = "Assertion failed in ComputeSLiCScores; massStDevAbs is <= 0, which isn't allowed; will assume 0.003"
+            Console.WriteLine(message)
+            PostLogEntry(message, MessageTypeConstants.ErrorMsg)
+            massStDevAbs = 0.003
         End If
 
-        ' Compute the standarized squared distance and the numerator sum
-        dblNumeratorSum = 0
-        For intIndex = 0 To udtRawMatches.Length - 1
+        ' Compute the standardized squared distance and the numerator sum
+        numeratorSum = 0
+        For index = 0 To udtRawMatches.Length - 1
 
-            If objSearchThresholds.SLiCScoreUseAMTNETStDev Then
-                ' The NET StDev is computed by combining the default NETStDev value with the Comparison Features's specific NETStDev
+            If searchThresholds.SLiCScoreUseAMTNETStDev Then
+                ' The NET StDev is computed by combining the default NETStDev value with the Comparison Features' specific NETStDev
                 ' The combining is done by "adding in quadrature", which means to square each number, add together, and take the square root
-                dblNETStDevCombined = Math.Sqrt(objSearchThresholds.SLiCScoreNETStDev ^ 2 + objComparisonFeatures.GetNETStDevByRowIndex(udtRawMatches(intIndex).MatchingIDIndex) ^ 2)
+                netStDevCombined = Math.Sqrt(searchThresholds.SLiCScoreNETStDev ^ 2 + comparisonFeatures.GetNETStDevByRowIndex(udtRawMatches(index).MatchingIDIndex) ^ 2)
             Else
                 ' Simply use the default NETStDev value
-                dblNETStDevCombined = objSearchThresholds.SLiCScoreNETStDev
+                netStDevCombined = searchThresholds.SLiCScoreNETStDev
             End If
 
-            If dblNETStDevCombined <= 0 Then
-                strMessage = "Assertion failed in ComputeSLiCScores; dblNETStDevCombined is <= 0, which isn't allowed; will assume 0.025"
-                Console.WriteLine(strMessage)
-                PostLogEntry(strMessage, MessageTypeConstants.ErrorMsg)
-                dblNETStDevCombined = 0.025
+            If netStDevCombined <= 0 Then
+                message = "Assertion failed in ComputeSLiCScores; netStDevCombined is <= 0, which isn't allowed; will assume 0.025"
+                Console.WriteLine(message)
+                PostLogEntry(message, MessageTypeConstants.ErrorMsg)
+                netStDevCombined = 0.025
             End If
 
-            With udtRawMatches(intIndex)
-                .StandardizedSquaredDistance = .MassErr ^ 2 / dblMassStDevAbs ^ 2 + .NETErr ^ 2 / dblNETStDevCombined ^ 2
+            With udtRawMatches(index)
+                .StandardizedSquaredDistance = .MassErr ^ 2 / massStDevAbs ^ 2 + .NETErr ^ 2 / netStDevCombined ^ 2
 
-                .SLiCScoreNumerator = (1 / (dblMassStDevAbs * dblNETStDevCombined)) * Math.Exp(- .StandardizedSquaredDistance / 2)
+                .SLiCScoreNumerator = (1 / (massStDevAbs * netStDevCombined)) * Math.Exp(- .StandardizedSquaredDistance / 2)
 
-                dblNumeratorSum += .SLiCScoreNumerator
+                numeratorSum += .SLiCScoreNumerator
 
             End With
-        Next intIndex
+        Next index
 
         ' Compute the match score for each match
-        For intIndex = 0 To udtRawMatches.Length - 1
-            With udtRawMatches(intIndex)
-                If dblNumeratorSum > 0 Then
-                    .SLiCScore = Math.Round(.SLiCScoreNumerator / dblNumeratorSum, 5)
+        For index = 0 To udtRawMatches.Length - 1
+            With udtRawMatches(index)
+                If numeratorSum > 0 Then
+                    .SLiCScore = Math.Round(.SLiCScoreNumerator / numeratorSum, 5)
                 Else
                     .SLiCScore = 0
                 End If
             End With
-        Next intIndex
+        Next index
 
         If udtRawMatches.Length > 1 Then
             ' Sort by SLiCScore descending
@@ -905,9 +906,9 @@ Public Class clsPeakMatchingClass
             If udtRawMatches.Length > 1 Then
                 udtRawMatches(0).DelSLiC = (udtRawMatches(0).SLiCScore - udtRawMatches(1).SLiCScore)
 
-                For intIndex = 1 To udtRawMatches.Length - 1
-                    udtRawMatches(intIndex).DelSLiC = 0
-                Next intIndex
+                For index = 1 To udtRawMatches.Length - 1
+                    udtRawMatches(index).DelSLiC = 0
+                Next index
             Else
                 udtRawMatches(0).DelSLiC = 1
             End If
@@ -917,235 +918,231 @@ Public Class clsPeakMatchingClass
             '
             ' When testing whether to keep the match or not, we're testing whether the match is in the ellipse bounded by MWTolAbsFinal and NETTolFinal
             ' Note that these are half-widths of the ellipse
-            intNewMatchCount = 0
-            For intIndex = 0 To udtRawMatches.Length - 1
-                If TestPointInEllipse(udtRawMatches(intIndex).NETErr, udtRawMatches(intIndex).MassErr, udtComputedTolerances.NETTolFinal, udtComputedTolerances.MWTolAbsFinal) Then
-                    udtRawMatches(intNewMatchCount) = udtRawMatches(intIndex)
-                    intNewMatchCount += 1
+            newMatchCount = 0
+            For index = 0 To udtRawMatches.Length - 1
+                If TestPointInEllipse(udtRawMatches(index).NETErr, udtRawMatches(index).MassErr, udtComputedTolerances.NETTolFinal, udtComputedTolerances.MWTolAbsFinal) Then
+                    udtRawMatches(newMatchCount) = udtRawMatches(index)
+                    newMatchCount += 1
                 End If
-            Next intIndex
+            Next index
 
-            If intNewMatchCount = 0 Then
+            If newMatchCount = 0 Then
                 ReDim udtRawMatches(-1)
-            ElseIf intNewMatchCount < udtRawMatches.Length Then
-                ReDim Preserve udtRawMatches(intNewMatchCount - 1)
+            ElseIf newMatchCount < udtRawMatches.Length Then
+                ReDim Preserve udtRawMatches(newMatchCount - 1)
             End If
 
-            ' Add new match results to objFeatureMatchResults
+            ' Add new match results to featureMatchResults
             ' Record, at most, mMaxPeakMatchingResultsPerFeatureToSave entries
-            For intIndex = 0 To CInt(Math.Min(mMaxPeakMatchingResultsPerFeatureToSave, udtRawMatches.Length)) - 1
-                With udtRawMatches(intIndex)
-                    objComparisonFeatures.GetFeatureInfoByRowIndex(.MatchingIDIndex, udtComparisonFeatureInfo)
-                    objFeatureMatchResults.AddMatch(udtFeatureToIdentify.FeatureID, udtComparisonFeatureInfo.FeatureID, .SLiCScore, .DelSLiC, .MassErr, .NETErr, udtRawMatches.Length)
+            For index = 0 To CInt(Math.Min(mMaxPeakMatchingResultsPerFeatureToSave, udtRawMatches.Length)) - 1
+                With udtRawMatches(index)
+                    comparisonFeatures.GetFeatureInfoByRowIndex(.MatchingIDIndex, udtComparisonFeatureInfo)
+                    featureMatchResults.AddMatch(udtFeatureToIdentify.FeatureID, udtComparisonFeatureInfo.FeatureID, .SLiCScore, .DelSLiC, .MassErr, .NETErr, udtRawMatches.Length)
                 End With
-            Next intIndex
+            Next index
         End If
 
     End Sub
 
-    Friend Shared Function FillRangeSearchObject(ByRef objRangeSearch As clsSearchRange, ByRef objComparisonFeatures As PMComparisonFeatureInfoClass) As Boolean
+    Friend Shared Function FillRangeSearchObject(ByRef rangeSearch As clsSearchRange, ByRef comparisonFeatures As PMComparisonFeatureInfoClass) As Boolean
         ' Initialize the range searching class
 
-        Const LOAD_BLOCK_SIZE As Integer = 50000
-        Dim intIndex As Integer
-        Dim intComparisonFeatureCount As Integer
-        Dim blnSuccess As Boolean
+        Const LOAD_BLOCK_SIZE = 50000
+        Dim index As Integer
+        Dim comparisonFeatureCount As Integer
+        Dim success As Boolean
 
         Try
-            If objRangeSearch Is Nothing Then
-                objRangeSearch = New clsSearchRange
+            If rangeSearch Is Nothing Then
+                rangeSearch = New clsSearchRange
             Else
-                objRangeSearch.ClearData()
+                rangeSearch.ClearData()
             End If
 
-            If objComparisonFeatures.Count <= 0 Then
+            If comparisonFeatures.Count <= 0 Then
                 ' No comparison features to search against
-                blnSuccess = False
+                success = False
             Else
-                objRangeSearch.InitializeDataFillDouble(objComparisonFeatures.Count)
+                rangeSearch.InitializeDataFillDouble(comparisonFeatures.Count)
 
-                ''For intIndex = 0 To objComparisonFeatures.Count - 1
-                ''    objRangeSearch.FillWithDataAddPoint(objComparisonFeatures.GetMassByRowIndex(intIndex))
-                ''Next intIndex
+                ''For index = 0 To comparisonFeatures.Count - 1
+                ''    rangeSearch.FillWithDataAddPoint(comparisonFeatures.GetMassByRowIndex(index))
+                ''Next index
 
-                intComparisonFeatureCount = objComparisonFeatures.Count
-                intIndex = 0
-                Do While intIndex < intComparisonFeatureCount
-                    objRangeSearch.FillWithDataAddBlock(objComparisonFeatures.GetMassArrayByRowRange(intIndex, intIndex + LOAD_BLOCK_SIZE - 1))
-                    intIndex += LOAD_BLOCK_SIZE
+                comparisonFeatureCount = comparisonFeatures.Count
+                index = 0
+                Do While index < comparisonFeatureCount
+                    rangeSearch.FillWithDataAddBlock(comparisonFeatures.GetMassArrayByRowRange(index, index + LOAD_BLOCK_SIZE - 1))
+                    index += LOAD_BLOCK_SIZE
                 Loop
 
-                blnSuccess = objRangeSearch.FinalizeDataFill()
+                success = rangeSearch.FinalizeDataFill()
             End If
 
         Catch ex As Exception
-            Throw ex
-            blnSuccess = False
+            Throw
+            success = False
         End Try
 
-        Return blnSuccess
+        Return success
 
     End Function
 
-    Friend Function IdentifySequences(objSearchThresholds As clsSearchThresholds, ByRef objFeaturesToIdentify As PMFeatureInfoClass, ByRef objComparisonFeatures As PMComparisonFeatureInfoClass, ByRef objFeatureMatchResults As PMFeatureMatchResultsClass, Optional ByRef objRangeSearch As clsSearchRange = Nothing) As Boolean
+    Friend Function IdentifySequences(searchThresholds As clsSearchThresholds, ByRef featuresToIdentify As PMFeatureInfoClass, ByRef comparisonFeatures As PMComparisonFeatureInfoClass, ByRef featureMatchResults As PMFeatureMatchResultsClass, Optional ByRef rangeSearch As clsSearchRange = Nothing) As Boolean
         ' Returns True if success, False if the search is cancelled
         ' Will return true even if none of the features match any of the comparison features
         '
-        ' If objRangeSearch is Nothing or if objRangeSearch contains a different number of entries than udtComparisonfeatures,
+        ' If rangeSearch is Nothing or if rangeSearch contains a different number of entries than udtComparisonFeatures,
         '   then will auto-populate it; otherwise, assumes it is populated
 
-        ' Note that objFeatureMatchResults will only contain info on the features in objFeaturesToIdentify that matched entries in objComparisonFeatures
+        ' Note that featureMatchResults will only contain info on the features in featuresToIdentify that matched entries in comparisonFeatures
 
-        Dim intFeatureIndex As Integer
-        Dim intFeatureCount As Integer
+        Dim featureIndex As Integer
+        Dim featureCount As Integer
 
-        Dim intMatchIndex As Integer
-        Dim intComparisonFeaturesOriginalRowIndex As Integer
+        Dim matchIndex As Integer
+        Dim comparisonFeaturesOriginalRowIndex As Integer
 
-        Dim udtCurrentFeatureToIdentify As udtFeatureInfoType = New udtFeatureInfoType
-        Dim udtCurrentComparisonFeature As udtFeatureInfoType = New udtFeatureInfoType
+        Dim udtCurrentFeatureToIdentify = New udtFeatureInfoType()
+        Dim udtCurrentComparisonFeature = New udtFeatureInfoType()
 
-        Dim dblMassTol As Double, dblNETTol As Double
-        Dim dblNetDiff As Double
+        Dim massTol As Double, netTol As Double
+        Dim netDiff As Double
 
         Dim MatchInd1, MatchInd2 As Integer
         Dim udtComputedTolerances As clsSearchThresholds.udtSearchTolerancesType
 
         ' The following hold the matches using the broad search tolerances (if .UseMaxSearchDistanceMultiplierAndSLiCScore = True, otherwise, simply holds the matches)
-        Dim intRawMatchCount As Integer
-        Dim udtRawMatches() As udtPeakMatchingRawMatchesType    ' Pointers into objComparisonFeatures; list of peptides that match within both mass and NET tolerance
+        Dim rawMatchCount As Integer
+        Dim udtRawMatches() As udtPeakMatchingRawMatchesType    ' Pointers into comparisonFeatures; list of peptides that match within both mass and NET tolerance
 
-        Dim intMatchResultsCount As Integer
+        Dim storeMatch As Boolean
+        Dim success As Boolean
 
-        Dim blnStoreMatch As Boolean
-        Dim blnSuccess As Boolean
+        Dim message As String
 
-        Dim strMessage As String
-
-        If objFeatureMatchResults Is Nothing Then
+        If featureMatchResults Is Nothing Then
             ''If mUseSqlServerForMatchResults Then
-            ''    objFeatureMatchResults = New PMFeatureMatchResultsClass(mSqlServerConnectionString, mTableNameFeatureMatchResults)
+            ''    featureMatchResults = New PMFeatureMatchResultsClass(mSqlServerConnectionString, mTableNameFeatureMatchResults)
             ''Else
-            objFeatureMatchResults = New PMFeatureMatchResultsClass
+            featureMatchResults = New PMFeatureMatchResultsClass
             ''End If
         Else
             ' Clear any existing results
-            objFeatureMatchResults.Clear()
+            featureMatchResults.Clear()
         End If
 
-        If objRangeSearch Is Nothing OrElse objRangeSearch.DataCount <> objComparisonFeatures.Count Then
-            blnSuccess = FillRangeSearchObject(objRangeSearch, objComparisonFeatures)
+        If rangeSearch Is Nothing OrElse rangeSearch.DataCount <> comparisonFeatures.Count Then
+            success = FillRangeSearchObject(rangeSearch, comparisonFeatures)
         Else
-            blnSuccess = True
+            success = True
         End If
 
-        If Not blnSuccess Then Return False
+        If Not success Then Return False
 
         Try
-            intMatchResultsCount = 0
-            intFeatureCount = objFeaturesToIdentify.Count
+            featureCount = featuresToIdentify.Count
 
             UpdateProgress("Finding matching peptides for given search thresholds", 0)
             mAbortProcessing = False
 
-            PostLogEntry("IdentifySequences starting, total feature count = " & intFeatureCount.ToString, MessageTypeConstants.Normal)
+            PostLogEntry("IdentifySequences starting, total feature count = " & featureCount.ToString(), MessageTypeConstants.Normal)
 
-            For intFeatureIndex = 0 To intFeatureCount - 1
-                ' Use objRangeSearch to search for matches to each peptide in udtComparisonFeatures
+            For featureIndex = 0 To featureCount - 1
+                ' Use rangeSearch to search for matches to each peptide in udtComparisonFeatures
 
-                If objFeaturesToIdentify.GetFeatureInfoByRowIndex(intFeatureIndex, udtCurrentFeatureToIdentify) Then
+                If featuresToIdentify.GetFeatureInfoByRowIndex(featureIndex, udtCurrentFeatureToIdentify) Then
                     ' By Calling .ComputedSearchTolerances() with a mass, the tolerances will be auto re-computed
-                    udtComputedTolerances = objSearchThresholds.ComputedSearchTolerances(udtCurrentFeatureToIdentify.Mass)
+                    udtComputedTolerances = searchThresholds.ComputedSearchTolerances(udtCurrentFeatureToIdentify.Mass)
 
                     If mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore Then
-                        dblMassTol = udtComputedTolerances.MWTolAbsBroad
-                        dblNETTol = udtComputedTolerances.NETTolBroad
+                        massTol = udtComputedTolerances.MWTolAbsBroad
+                        netTol = udtComputedTolerances.NETTolBroad
                     Else
-                        dblMassTol = udtComputedTolerances.MWTolAbsFinal
-                        dblNETTol = udtComputedTolerances.NETTolFinal
+                        massTol = udtComputedTolerances.MWTolAbsFinal
+                        netTol = udtComputedTolerances.NETTolFinal
                     End If
 
                     MatchInd1 = 0
                     MatchInd2 = -1
-                    If objRangeSearch.FindValueRange(udtCurrentFeatureToIdentify.Mass, dblMassTol, MatchInd1, MatchInd2) Then
+                    If rangeSearch.FindValueRange(udtCurrentFeatureToIdentify.Mass, massTol, MatchInd1, MatchInd2) Then
 
-                        intRawMatchCount = 0
+                        rawMatchCount = 0
                         ReDim udtRawMatches(MatchInd2 - MatchInd1)
 
-                        For intMatchIndex = MatchInd1 To MatchInd2
-                            intComparisonFeaturesOriginalRowIndex = objRangeSearch.OriginalIndex(intMatchIndex)
+                        For matchIndex = MatchInd1 To MatchInd2
+                            comparisonFeaturesOriginalRowIndex = rangeSearch.OriginalIndex(matchIndex)
 
-                            If objComparisonFeatures.GetFeatureInfoByRowIndex(intComparisonFeaturesOriginalRowIndex, udtCurrentComparisonFeature) Then
-                                dblNetDiff = udtCurrentFeatureToIdentify.NET - udtCurrentComparisonFeature.NET
-                                If Math.Abs(dblNetDiff) <= dblNETTol Then
+                            If comparisonFeatures.GetFeatureInfoByRowIndex(comparisonFeaturesOriginalRowIndex, udtCurrentComparisonFeature) Then
+                                netDiff = udtCurrentFeatureToIdentify.NET - udtCurrentComparisonFeature.NET
+                                If Math.Abs(netDiff) <= netTol Then
 
                                     If mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore Then
                                         ' Store this match
-                                        blnStoreMatch = True
+                                        storeMatch = True
                                     Else
                                         ' The match is within a rectangle defined by udtComputedTolerances.MWTolAbsBroad and udtComputedTolerances.NETTolBroad
                                         If mSearchModeOptions.UseEllipseSearchRegion Then
                                             ' Only keep the match if it's within the ellipse defined by the search tolerances
                                             ' Note that the search tolerances we send to TestPointInEllipse should be half-widths (i.e. tolerance +- comparison value), not full widths
-                                            blnStoreMatch = TestPointInEllipse(dblNetDiff, udtCurrentFeatureToIdentify.Mass - udtCurrentComparisonFeature.Mass, dblNETTol, dblMassTol)
+                                            storeMatch = TestPointInEllipse(netDiff, udtCurrentFeatureToIdentify.Mass - udtCurrentComparisonFeature.Mass, netTol, massTol)
                                         Else
-                                            blnStoreMatch = True
+                                            storeMatch = True
                                         End If
                                     End If
 
-                                    If blnStoreMatch Then
-                                        udtRawMatches(intRawMatchCount).MatchingIDIndex = intComparisonFeaturesOriginalRowIndex
-                                        udtRawMatches(intRawMatchCount).SLiCScore = -1
-                                        udtRawMatches(intRawMatchCount).MassErr = udtCurrentFeatureToIdentify.Mass - udtCurrentComparisonFeature.Mass
-                                        udtRawMatches(intRawMatchCount).NETErr = dblNetDiff
+                                    If storeMatch Then
+                                        udtRawMatches(rawMatchCount).MatchingIDIndex = comparisonFeaturesOriginalRowIndex
+                                        udtRawMatches(rawMatchCount).SLiCScore = -1
+                                        udtRawMatches(rawMatchCount).MassErr = udtCurrentFeatureToIdentify.Mass - udtCurrentComparisonFeature.Mass
+                                        udtRawMatches(rawMatchCount).NETErr = netDiff
 
-                                        intRawMatchCount += 1
+                                        rawMatchCount += 1
                                     End If
                                 End If
 
                             End If
 
-                        Next intMatchIndex
+                        Next matchIndex
 
-                        If intRawMatchCount > 0 Then
-                            ' Store the FeatureIDIndex in objFeatureMatchResults
-                            If intRawMatchCount < udtRawMatches.Length Then
+                        If rawMatchCount > 0 Then
+                            ' Store the FeatureIDIndex in featureMatchResults
+                            If rawMatchCount < udtRawMatches.Length Then
                                 ' Shrink udtRawMatches
-                                ReDim Preserve udtRawMatches(intRawMatchCount - 1)
+                                ReDim Preserve udtRawMatches(rawMatchCount - 1)
                             End If
 
                             ' Compute the SLiC Scores and store the results
-                            ComputeSLiCScores(udtCurrentFeatureToIdentify, objFeatureMatchResults, udtRawMatches, objComparisonFeatures, objSearchThresholds, udtComputedTolerances)
+                            ComputeSLiCScores(udtCurrentFeatureToIdentify, featureMatchResults, udtRawMatches, comparisonFeatures, searchThresholds, udtComputedTolerances)
                         End If
 
-                        intMatchResultsCount += 1
                     End If
                 Else
-                    strMessage = "Programming error in IdentifySequences: Feature not found in objFeaturesToIdentify using feature index: " & intFeatureIndex.ToString
-                    Console.WriteLine(strMessage)
-                    PostLogEntry(strMessage, MessageTypeConstants.ErrorMsg)
+                    message = "Programming error in IdentifySequences: Feature not found in featuresToIdentify using feature index: " & featureIndex.ToString()
+                    Console.WriteLine(message)
+                    PostLogEntry(message, MessageTypeConstants.ErrorMsg)
                 End If
 
-                If intFeatureIndex Mod 100 = 0 Then
-                    UpdateProgress(CSng(intFeatureIndex / intFeatureCount * 100))
+                If featureIndex Mod 100 = 0 Then
+                    UpdateProgress(CSng(featureIndex / featureCount * 100))
                     If mAbortProcessing Then Exit For
                 End If
 
-                If intFeatureIndex Mod 10000 = 0 AndAlso intFeatureIndex > 0 Then
-                    PostLogEntry("IdentifySequences, intFeatureIndex = " & intFeatureIndex.ToString, MessageTypeConstants.Health)
+                If featureIndex Mod 10000 = 0 AndAlso featureIndex > 0 Then
+                    PostLogEntry("IdentifySequences, featureIndex = " & featureIndex.ToString(), MessageTypeConstants.Health)
                 End If
-            Next intFeatureIndex
+            Next featureIndex
 
             UpdateProgress("IdentifySequences complete", 100)
             PostLogEntry("IdentifySequences complete", MessageTypeConstants.Normal)
 
-            blnSuccess = Not mAbortProcessing
+            success = Not mAbortProcessing
 
         Catch ex As Exception
-            blnSuccess = False
+            success = False
         End Try
 
-        Return blnSuccess
+        Return success
 
     End Function
 
@@ -1163,11 +1160,11 @@ Public Class clsPeakMatchingClass
         ''mTableNameFeatureMatchResults = PMFeatureMatchResultsClass.DEFAULT_FEATURE_MATCH_RESULTS_TABLE_NAME
     End Sub
 
-    Private Sub PostLogEntry(strMessage As String, EntryType As MessageTypeConstants)
-        RaiseEvent LogEvent(strMessage, EntryType)
+    Private Sub PostLogEntry(message As String, EntryType As MessageTypeConstants)
+        RaiseEvent LogEvent(message, EntryType)
     End Sub
 
-    Private Function TestPointInEllipse(dblPointX As Double, dblPointY As Double, dblXTol As Double, dblYTol As Double) As Boolean
+    Private Function TestPointInEllipse(pointX As Double, pointY As Double, xTol As Double, yTol As Double) As Boolean
         ' The equation for the points along the edge of an ellipse is x^2/a^2 + y^2/b^2 = 1 where a and b are
         ' the half-widths of the ellipse and x and y are the coordinates of each point on the ellipse's perimeter
         '
@@ -1175,7 +1172,7 @@ Public Class clsPeakMatchingClass
         ' If the result is <= 1, then the point at x,y is inside the ellipse
 
         Try
-            If dblPointX ^ 2 / dblXTol ^ 2 + dblPointY ^ 2 / dblYTol ^ 2 <= 1 Then
+            If pointX ^ 2 / xTol ^ 2 + pointY ^ 2 / yTol ^ 2 <= 1 Then
                 Return True
             Else
                 Return False
@@ -1187,14 +1184,23 @@ Public Class clsPeakMatchingClass
 
     End Function
 
-    Private Sub UpdateProgress(sngProgessPct As Single)
-        mProgessPct = sngProgessPct
+    ''' <summary>
+    ''' Update the progress
+    ''' </summary>
+    ''' <param name="progressPercent">Value between 0 and 100</param>
+    Private Sub UpdateProgress(progressPercent As Single)
+        mProgressPercent = progressPercent
         RaiseEvent ProgressContinues()
     End Sub
 
-    Private Sub UpdateProgress(strProgressDescription As String, sngProgessPct As Single)
-        mProgressDescription = strProgressDescription
-        mProgessPct = sngProgessPct
+    ''' <summary>
+    ''' Update the progress
+    ''' </summary>
+    ''' <param name="description">Progress description</param>
+    ''' <param name="progressPercent">Value between 0 and 100</param>
+    Private Sub UpdateProgress(description As String, progressPercent As Single)
+        mProgressDescription = description
+        mProgressPercent = progressPercent
         RaiseEvent ProgressContinues()
     End Sub
 
@@ -1207,7 +1213,7 @@ Public Class clsPeakMatchingClass
 
         Public Function Compare(x As udtPeakMatchingRawMatchesType, y As udtPeakMatchingRawMatchesType) As Integer Implements IComparer(Of udtPeakMatchingRawMatchesType).Compare
 
-            ' Sort by .SLiCScore descending, and by MatchingIDIndexOriginal Ascencing
+            ' Sort by .SLiCScore descending, and by MatchingIDIndexOriginal Ascending
 
             If x.SLiCScore > y.SLiCScore Then
                 Return -1
@@ -1263,6 +1269,7 @@ Public Class clsPeakMatchingClass
             Public NETTolBroad As Double
             Public NETTolFinal As Double
         End Structure
+
 #End Region
 
 #Region "Classwide Variables"
@@ -1297,9 +1304,9 @@ Public Class clsPeakMatchingClass
             End Get
         End Property
 
-        Public ReadOnly Property ComputedSearchTolerances(dblReferenceMass As Double) As udtSearchTolerancesType
+        Public ReadOnly Property ComputedSearchTolerances(referenceMass As Double) As udtSearchTolerancesType
             Get
-                DefinePeakMatchingTolerances(dblReferenceMass)
+                DefinePeakMatchingTolerances(referenceMass)
                 Return mComputedSearchTolerances
             End Get
         End Property
@@ -1380,7 +1387,7 @@ Public Class clsPeakMatchingClass
         End Property
 #End Region
 
-        Public Sub DefinePeakMatchingTolerances(ByRef dblReferenceMass As Double)
+        Public Sub DefinePeakMatchingTolerances(ByRef referenceMass As Double)
             ' Thresholds are all half-widths; i.e. tolerance +- comparison value
 
             Dim MWTolPPMBroad As Double
@@ -1388,12 +1395,12 @@ Public Class clsPeakMatchingClass
             With mComputedSearchTolerances
                 Select Case mMassTolType
                     Case MassToleranceConstants.PPM
-                        .MWTolAbsFinal = PPMToMass(mMassTolerance, dblReferenceMass)
+                        .MWTolAbsFinal = PPMToMass(mMassTolerance, referenceMass)
                         MWTolPPMBroad = mMassTolerance
                     Case MassToleranceConstants.Absolute
                         .MWTolAbsFinal = mMassTolerance
-                        If dblReferenceMass > 0 Then
-                            MWTolPPMBroad = MassToPPM(mMassTolerance, dblReferenceMass)
+                        If referenceMass > 0 Then
+                            MWTolPPMBroad = MassToPPM(mMassTolerance, referenceMass)
                         Else
                             MWTolPPMBroad = mSLiCScoreOptions.MassPPMStDev
                         End If
@@ -1415,16 +1422,16 @@ Public Class clsPeakMatchingClass
                 .NETTolFinal = mNETTolerance
 
                 ' Convert from PPM to Absolute mass
-                .MWTolAbsBroad = PPMToMass(MWTolPPMBroad, dblReferenceMass)
+                .MWTolAbsBroad = PPMToMass(MWTolPPMBroad, referenceMass)
 
             End With
 
         End Sub
 
-        Private Sub InitializeSLiCScoreOptions(blnComputeUsingSearchThresholds As Boolean)
+        Private Sub InitializeSLiCScoreOptions(computeUsingSearchThresholds As Boolean)
 
             With mSLiCScoreOptions
-                If blnComputeUsingSearchThresholds Then
+                If computeUsingSearchThresholds Then
                     ' Define the Mass StDev (in ppm) using the narrow mass tolerance divided by 2 = STDEV_SCALING_FACTOR
                     Select Case mMassTolType
                         Case MassToleranceConstants.Absolute
