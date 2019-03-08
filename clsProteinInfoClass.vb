@@ -347,12 +347,12 @@ Friend Class clsProteinInfo
 
         End Function
 
-        Public Function AddProteinToPeptideMapping(ByRef objProteinInfo As clsProteinInfo, strProteinName As String, intPeptideID As Integer) As Boolean
-            Return AddProteinToPeptideMapping(objProteinInfo, strProteinName, intPeptideID, eCleavageStateConstants.Unknown)
+        Public Function AddProteinToPeptideMapping(proteinInfo As clsProteinInfo, proteinName As String, peptideID As Integer) As Boolean
+            Return AddProteinToPeptideMapping(proteinInfo, proteinName, peptideID, eCleavageStateConstants.Unknown)
         End Function
 
-        Public Function AddProteinToPeptideMapping(ByRef objProteinInfo As clsProteinInfo, strProteinName As String, intPeptideID As Integer, eCleavageState As eCleavageStateConstants) As Boolean
-            Dim intProteinID As Integer
+        Public Function AddProteinToPeptideMapping(proteinInfo As clsProteinInfo, proteinName As String, peptideID As Integer, eCleavageState As eCleavageStateConstants) As Boolean
+            Dim proteinID As Integer
 
             If Not proteinInfo.GetProteinIDByProteinName(proteinName, proteinID) Then
                 ' Need to add the protein
