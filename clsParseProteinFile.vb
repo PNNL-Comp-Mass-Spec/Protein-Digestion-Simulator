@@ -128,21 +128,12 @@ Public Class clsParseProteinFile
 
 #Region "Classwide Variables"
     Private mInputFileDelimiter As Char                              ' Only used for delimited protein input files, not for fasta files
-    Private mDelimitedInputFileFormatCode As DelimitedFileReader.eDelimitedFileFormatCode
 
     Private mInputFileProteinsProcessed As Integer
     Private mInputFileLinesRead As Integer
     Private mInputFileLineSkipCount As Integer
 
     Private mOutputFileDelimiter As Char
-
-    Private mProteinScramblingMode As ProteinScramblingModeConstants
-    Private mProteinScramblingSamplingPercentage As Integer
-    Private mProteinScramblingLoopCount As Integer
-
-
-    ' pI options
-    Private mHydrophobicityType As clspICalculation.eHydrophobicityTypeConstants
 
     Private mSequenceWidthToExamineForMaximumpI As Integer
 
@@ -263,13 +254,6 @@ Public Class clsParseProteinFile
 #Region "Processing Options Interface Functions"
 
     Public Property DelimitedFileFormatCode As DelimitedFileReader.eDelimitedFileFormatCode
-        Get
-            Return mDelimitedInputFileFormatCode
-        End Get
-        Set
-            mDelimitedInputFileFormatCode = Value
-        End Set
-    End Property
 
     Public Property ElementMassMode As PeptideSequenceClass.ElementModeConstants
         Get
@@ -288,13 +272,6 @@ Public Class clsParseProteinFile
     End Property
 
     Public Property HydrophobicityType As clspICalculation.eHydrophobicityTypeConstants
-        Get
-            Return mHydrophobicityType
-        End Get
-        Set
-            mHydrophobicityType = Value
-        End Set
-    End Property
 
     Public Property InputFileDelimiter As Char
         Get
@@ -349,31 +326,10 @@ Public Class clsParseProteinFile
     End Property
 
     Public Property ProteinScramblingLoopCount As Integer
-        Get
-            Return mProteinScramblingLoopCount
-        End Get
-        Set
-            mProteinScramblingLoopCount = Value
-        End Set
-    End Property
 
     Public Property ProteinScramblingMode As ProteinScramblingModeConstants
-        Get
-            Return mProteinScramblingMode
-        End Get
-        Set
-            mProteinScramblingMode = Value
-        End Set
-    End Property
 
     Public Property ProteinScramblingSamplingPercentage As Integer
-        Get
-            Return mProteinScramblingSamplingPercentage
-        End Get
-        Set
-            mProteinScramblingSamplingPercentage = Value
-        End Set
-    End Property
 
     Public Property SequenceWidthToExamineForMaximumpI As Integer
         Get
@@ -654,7 +610,7 @@ Public Class clsParseProteinFile
         AssumeDelimitedFile = False
         AssumeFastaFile = False
         mInputFileDelimiter = ControlChars.Tab
-        mDelimitedInputFileFormatCode = DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
+        DelimitedFileFormatCode = DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
 
         mInputFileProteinsProcessed = 0
         mInputFileLinesRead = 0
@@ -672,9 +628,9 @@ Public Class clsParseProteinFile
         TruncateProteinDescription = True
 
         IncludeXResiduesInMass = False
-        mProteinScramblingMode = ProteinScramblingModeConstants.None
-        mProteinScramblingSamplingPercentage = 100
-        mProteinScramblingLoopCount = 1
+        ProteinScramblingMode = ProteinScramblingModeConstants.None
+        ProteinScramblingSamplingPercentage = 100
+        ProteinScramblingLoopCount = 1
 
         CreateFastaOutputFile = False
         CreateProteinOutputFile = False
@@ -691,7 +647,7 @@ Public Class clsParseProteinFile
 
         mFileNameAbbreviated = String.Empty
 
-        mHydrophobicityType = clspICalculation.eHydrophobicityTypeConstants.HW
+        HydrophobicityType = clspICalculation.eHydrophobicityTypeConstants.HW
         ReportMaximumpI = False
         mSequenceWidthToExamineForMaximumpI = 10
 

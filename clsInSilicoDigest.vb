@@ -895,7 +895,6 @@ Public Class clsInSilicoDigest
 
         Private mAutoComputeNET As Boolean      ' Set to False to skip computation of NET when Sequence changes; useful for speeding up things a little
 
-        Private mPeptideName As String
         Private mNET As Single
         Private mPrefixResidue As String
         Private mSuffixResidue As String
@@ -913,13 +912,6 @@ Public Class clsInSilicoDigest
         End Property
 
         Public Property PeptideName As String
-            Get
-                Return mPeptideName
-            End Get
-            Set
-                mPeptideName = Value
-            End Set
-        End Property
 
         Public ReadOnly Property NET As Single
             Get
@@ -1000,7 +992,7 @@ Public Class clsInSilicoDigest
 
         Public Sub New()
             mMaxMissedCleavages = 0
-            mCleavageRuleID = clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
+            CleavageRuleID = CleavageRuleConstants.ConventionalTrypsin
             mMinFragmentResidueCount = 4
 
             mMinFragmentMass = 0
@@ -1009,14 +1001,13 @@ Public Class clsInSilicoDigest
             mMinIsoelectricPoint = 0
             mMaxIsoelectricPoint = 100
 
-            mRemoveDuplicateSequences = False
-            mIncludePrefixAndSuffixResidues = False
-            ReDim mAminoAcidResidueFilterChars(-1)
+            RemoveDuplicateSequences = False
+            IncludePrefixAndSuffixResidues = False
+            ReDim AminoAcidResidueFilterChars(-1)
         End Sub
 
 #Region "Classwide Variables"
         Private mMaxMissedCleavages As Integer
-        Private mCleavageRuleID As clsInSilicoDigest.CleavageRuleConstants
         Private mMinFragmentResidueCount As Integer
         Private mMinFragmentMass As Integer
         Private mMaxFragmentMass As Integer
@@ -1024,22 +1015,12 @@ Public Class clsInSilicoDigest
         Private mMinIsoelectricPoint As Single
         Private mMaxIsoelectricPoint As Single
 
-        Private mRemoveDuplicateSequences As Boolean
-        Private mIncludePrefixAndSuffixResidues As Boolean
-        Private mAminoAcidResidueFilterChars As Char()
 #End Region
 
 #Region "Processing Options Interface Functions"
 
 
         Public Property AminoAcidResidueFilterChars As Char()
-            Get
-                Return mAminoAcidResidueFilterChars
-            End Get
-            Set
-                mAminoAcidResidueFilterChars = Value
-            End Set
-        End Property
 
         Public Property MaxMissedCleavages As Integer
             Get
@@ -1052,14 +1033,7 @@ Public Class clsInSilicoDigest
             End Set
         End Property
 
-        Public Property CleavageRuleID As clsInSilicoDigest.CleavageRuleConstants
-            Get
-                Return mCleavageRuleID
-            End Get
-            Set
-                mCleavageRuleID = Value
-            End Set
-        End Property
+        Public Property CleavageRuleID As CleavageRuleConstants
 
         Public Property MinFragmentResidueCount As Integer
             Get
@@ -1110,22 +1084,9 @@ Public Class clsInSilicoDigest
         End Property
 
         Public Property RemoveDuplicateSequences As Boolean
-            Get
-                Return mRemoveDuplicateSequences
-            End Get
-            Set
-                mRemoveDuplicateSequences = Value
-            End Set
-        End Property
 
         Public Property IncludePrefixAndSuffixResidues As Boolean
-            Get
-                Return mIncludePrefixAndSuffixResidues
-            End Get
-            Set
-                mIncludePrefixAndSuffixResidues = Value
-            End Set
-        End Property
+
 #End Region
 
         Public Sub ValidateOptions()

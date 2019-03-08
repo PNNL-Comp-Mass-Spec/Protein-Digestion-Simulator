@@ -1273,15 +1273,12 @@ Public Class clsPeakMatchingClass
 #End Region
 
 #Region "Classwide Variables"
-
-        Private mMassTolType As MassToleranceConstants
         Private mMassTolerance As Double          ' Mass search tolerance, +- this value; TolType defines if this is PPM or Da
         Private mNETTolerance As Double           ' NET search tolerance, +- this value
         Private mSLiCScoreMaxSearchDistanceMultiplier As Single
 
         Private mSLiCScoreOptions As udtSLiCScoreOptionsType
 
-        Private mAutoDefineSLiCScoreThresholds As Boolean
 
         Private mComputedSearchTolerances As udtSearchTolerancesType
 
@@ -1290,13 +1287,6 @@ Public Class clsPeakMatchingClass
 #Region "Processing Options Interface Functions"
 
         Public Property AutoDefineSLiCScoreThresholds As Boolean
-            Get
-                Return mAutoDefineSLiCScoreThresholds
-            End Get
-            Set
-                mAutoDefineSLiCScoreThresholds = Value
-            End Set
-        End Property
 
         Public ReadOnly Property ComputedSearchTolerances As udtSearchTolerancesType
             Get
@@ -1312,13 +1302,6 @@ Public Class clsPeakMatchingClass
         End Property
 
         Public Property MassTolType As MassToleranceConstants
-            Get
-                Return mMassTolType
-            End Get
-            Set
-                mMassTolType = Value
-            End Set
-        End Property
 
         Public Property MassTolerance As Double
             Get
@@ -1326,7 +1309,7 @@ Public Class clsPeakMatchingClass
             End Get
             Set
                 mMassTolerance = Value
-                If mAutoDefineSLiCScoreThresholds Then
+                If AutoDefineSLiCScoreThresholds Then
                     InitializeSLiCScoreOptions(True)
                 End If
             End Set
@@ -1338,7 +1321,7 @@ Public Class clsPeakMatchingClass
             End Get
             Set
                 mNETTolerance = Value
-                If mAutoDefineSLiCScoreThresholds Then
+                If AutoDefineSLiCScoreThresholds Then
                     InitializeSLiCScoreOptions(True)
                 End If
             End Set
@@ -1380,7 +1363,7 @@ Public Class clsPeakMatchingClass
             Set
                 If Value < 1 Then Value = 1
                 mSLiCScoreMaxSearchDistanceMultiplier = Value
-                If mAutoDefineSLiCScoreThresholds Then
+                If AutoDefineSLiCScoreThresholds Then
                     InitializeSLiCScoreOptions(True)
                 End If
             End Set
@@ -1393,7 +1376,7 @@ Public Class clsPeakMatchingClass
             Dim MWTolPPMBroad As Double
 
             With mComputedSearchTolerances
-                Select Case mMassTolType
+                Select Case MassTolType
                     Case MassToleranceConstants.PPM
                         .MWTolAbsFinal = PPMToMass(mMassTolerance, referenceMass)
                         MWTolPPMBroad = mMassTolerance
@@ -1405,7 +1388,7 @@ Public Class clsPeakMatchingClass
                             MWTolPPMBroad = mSLiCScoreOptions.MassPPMStDev
                         End If
                     Case Else
-                        Console.WriteLine("Programming error in DefinePeakMatchingTolerances; Unknown MassToleranceType: " & mMassTolType.ToString)
+                        Console.WriteLine("Programming error in DefinePeakMatchingTolerances; Unknown MassToleranceType: " & MassTolType.ToString())
                 End Select
 
                 With mSLiCScoreOptions
@@ -1433,7 +1416,7 @@ Public Class clsPeakMatchingClass
             With mSLiCScoreOptions
                 If computeUsingSearchThresholds Then
                     ' Define the Mass StDev (in ppm) using the narrow mass tolerance divided by 2 = STDEV_SCALING_FACTOR
-                    Select Case mMassTolType
+                    Select Case MassTolType
                         Case MassToleranceConstants.Absolute
                             .MassPPMStDev = MassToPPM(mMassTolerance, 1000) / STDEV_SCALING_FACTOR
                         Case MassToleranceConstants.PPM
@@ -1461,14 +1444,14 @@ Public Class clsPeakMatchingClass
 
         Private Sub InitializeLocalVariables()
 
-            mAutoDefineSLiCScoreThresholds = True
+            AutoDefineSLiCScoreThresholds = True
 
-            mMassTolType = MassToleranceConstants.PPM
+            MassTolType = MassToleranceConstants.PPM
             mMassTolerance = 5
             mNETTolerance = 0.05
             mSLiCScoreMaxSearchDistanceMultiplier = DEFAULT_SLIC_MAX_SEARCH_DISTANCE_MULTIPLIER
 
-            InitializeSLiCScoreOptions(mAutoDefineSLiCScoreThresholds)
+            InitializeSLiCScoreOptions(AutoDefineSLiCScoreThresholds)
 
         End Sub
 

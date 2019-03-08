@@ -60,7 +60,6 @@ Public Class frmFastaValidation
 
 #End Region
 #Region "Classwide variables"
-    Private mFastaFilePath As String
 
     Private mErrorsDataset As DataSet
     Private mErrorsDataView As DataView
@@ -90,13 +89,6 @@ Public Class frmFastaValidation
     End Property
 
     Public Property FastaFilePath As String
-        Get
-            Return mFastaFilePath
-        End Get
-        Set
-            mFastaFilePath = Value
-        End Set
-    End Property
 
     Public Property TextFontSize As Single
         Get

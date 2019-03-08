@@ -86,18 +86,10 @@ Public Class clsProteinDigestionSimulator
 
     Public WithEvents mProteinFileParser As clsParseProteinFile     ' This class is exposed as public so that we can directly access some of its properties without having to create wrapper properties in this class
 
-    Private mDigestSequences As Boolean                 ' Ignored for fasta files; they are always digested
-    Private mCysPeptidesOnly As Boolean
-
     Private mOutputFileDelimiter As Char
-    Private mCreateSeparateOutputFileForEachThreshold As Boolean
-
-    Private mSavePeakMatchingResults As Boolean
     Private mMaxPeakMatchingResultsPerFeatureToSave As Integer
 
     Private mPeptideUniquenessBinningSettings As udtMassBinningOptionsType
-    Private mUseSLiCScoreForUniqueness As Boolean
-    Private mUseEllipseSearchRegion As Boolean         ' Only valid if mUseSLiCScoreForUniqueness = False; if both mUseSLiCScoreForUniqueness= False and mUseEllipseSearchRegion = False, then uses a rectangle to determine uniqueness
 
     Private mLocalErrorCode As eProteinDigestionSimulatorErrorCodes
     Private mLastErrorMessage As String
@@ -142,31 +134,15 @@ Public Class clsProteinDigestionSimulator
     End Property
 
     Public Property CreateSeparateOutputFileForEachThreshold As Boolean
-        Get
-            Return mCreateSeparateOutputFileForEachThreshold
-        End Get
-        Set
-            mCreateSeparateOutputFileForEachThreshold = Value
-        End Set
-    End Property
 
     Public Property CysPeptidesOnly As Boolean
-        Get
-            Return mCysPeptidesOnly
-        End Get
-        Set
-            mCysPeptidesOnly = Value
-        End Set
-    End Property
 
+    ''' <summary>
+    '''
+    ''' </summary>
+    ''' <returns></returns>
+    ''' <remarks>Ignored for fasta files; they are always digested</remarks>
     Public Property DigestSequences As Boolean
-        Get
-            Return mDigestSequences
-        End Get
-        Set
-            mDigestSequences = Value
-        End Set
-    End Property
 
     Public Property ElementMassMode As PeptideSequenceClass.ElementModeConstants
         Get
@@ -232,13 +208,6 @@ Public Class clsProteinDigestionSimulator
     End Property
 
     Public Property SavePeakMatchingResults As Boolean
-        Get
-            Return mSavePeakMatchingResults
-        End Get
-        Set
-            mSavePeakMatchingResults = Value
-        End Set
-    End Property
 
     ''Public Property SqlServerConnectionString() As String
     ''    Get
@@ -285,23 +254,17 @@ Public Class clsProteinDigestionSimulator
     ''    End Set
     ''End Property
 
+    ''' <summary>
+    ''' Use Ellipse Search Region
+    ''' </summary>
+    ''' <returns></returns>
+    ''' <remarks>
+    ''' Only valid if mUseSLiCScoreForUniqueness = False
+    ''' If both mUseSLiCScoreForUniqueness = False and mUseEllipseSearchRegion = False, uses a rectangle to determine uniqueness
+    ''' </remarks>
     Public Property UseEllipseSearchRegion As Boolean
-        Get
-            Return mUseEllipseSearchRegion
-        End Get
-        Set
-            mUseEllipseSearchRegion = Value
-        End Set
-    End Property
 
     Public Property UseSLiCScoreForUniqueness As Boolean
-        Get
-            Return mUseSLiCScoreForUniqueness
-        End Get
-        Set
-            mUseSLiCScoreForUniqueness = Value
-        End Set
-    End Property
 
     ''Public Property UseSqlServerDBToCacheData() As Boolean
     ''    Get
