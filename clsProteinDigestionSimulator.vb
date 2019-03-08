@@ -84,7 +84,11 @@ Public Class clsProteinDigestionSimulator
 
 #Region "Classwide Variables"
 
-    Public WithEvents mProteinFileParser As clsParseProteinFile     ' This class is exposed as public so that we can directly access some of its properties without having to create wrapper properties in this class
+    ''' <summary>
+    ''' Protein file parser
+    ''' </summary>
+    ''' <remarks>This class is exposed as public so that we can directly access some of its properties without having to create wrapper properties in this class</remarks>
+    Public WithEvents mProteinFileParser As clsParseProteinFile
 
     Private mOutputFileDelimiter As Char
     Private mMaxPeakMatchingResultsPerFeatureToSave As Integer
@@ -95,29 +99,32 @@ Public Class clsProteinDigestionSimulator
     Private mLastErrorMessage As String
 
     Private WithEvents mPeakMatchingClass As clsPeakMatchingClass
-    Private WithEvents mComparisonPeptideInfo As clsPeakMatchingClass.PMComparisonFeatureInfoClass             ' Comparison peptides to match against
+
+    ''' <summary>
+    ''' Comparison peptides to match against
+    ''' </summary>
+    Private WithEvents mComparisonPeptideInfo As clsPeakMatchingClass.PMComparisonFeatureInfoClass
     Private WithEvents mProteinInfo As clsProteinInfo
     Private WithEvents mPeptideMatchResults As clsPeakMatchingClass.PMFeatureMatchResultsClass
 
-    Private mProteinToIdentifiedPeptideMappingTable As DataTable                        ' Holds the lists of peptides that were uniquely identified for each protein
+    ''' <summary>
+    ''' Holds the lists of peptides that were uniquely identified for each protein
+    ''' </summary>
+    Private mProteinToIdentifiedPeptideMappingTable As DataTable
 
-    Private mThresholdLevels() As clsPeakMatchingClass.clsSearchThresholds       ' Thresholds to use for searching
-
-    ''Private mUseSqlServerDBToCacheData As Boolean
-    ''Private mUseSqlServerForMatchResults As Boolean
-    ''Private mSqlServerConnectionString As String
-    ''Private mUseBulkInsert As Boolean
-    ''Private mSqlServerUseExistingData As Boolean
-
-    ''Private mTableNameFeaturesToIdentify As String
-    ''Private mTableNameComparisonPeptides As String
-    ''Private mTableNameProteinInfo As String
-    ''Private mTableNameProteinToPeptideMap As String
+    ''' <summary>
+    ''' Thresholds to use for searching
+    ''' </summary>
+    Private mThresholdLevels() As clsPeakMatchingClass.clsSearchThresholds
 
     Private mSubtaskProgressStepDescription As String = String.Empty
     Private mSubtaskProgressPercentComplete As Single = 0
 
-    ' PercentComplete ranges from 0 to 100, but can contain decimal percentage values
+    ''' <summary>
+    '''
+    ''' </summary>
+    ''' <param name="taskDescription"></param>
+    ''' <param name="percentComplete">Ranges from 0 to 100, but can contain decimal percentage values</param>
     Public Event SubtaskProgressChanged(taskDescription As String, percentComplete As Single)
 
 #End Region
@@ -209,50 +216,6 @@ Public Class clsProteinDigestionSimulator
 
     Public Property SavePeakMatchingResults As Boolean
 
-    ''Public Property SqlServerConnectionString() As String
-    ''    Get
-    ''        Return mSqlServerConnectionString
-    ''    End Get
-    ''    Set(Value As String)
-    ''        mSqlServerConnectionString = Value
-    ''    End Set
-    ''End Property
-
-    ''Public Property SqlServerTableNameComparisonPeptides() As String
-    ''    Get
-    ''        Return mTableNameComparisonPeptides
-    ''    End Get
-    ''    Set(Value As String)
-    ''        mTableNameComparisonPeptides = Value
-    ''    End Set
-    ''End Property
-
-    ''Public Property SqlServerTableNameFeaturesToIdentify() As String
-    ''    Get
-    ''        Return mTableNameFeaturesToIdentify
-    ''    End Get
-    ''    Set(Value As String)
-    ''        mTableNameFeaturesToIdentify = Value
-    ''    End Set
-    ''End Property
-
-    ''Public Property SqlServerUseBulkInsert() As Boolean
-    ''    Get
-    ''        Return mUseBulkInsert
-    ''    End Get
-    ''    Set(Value As Boolean)
-    ''        mUseBulkInsert = Value
-    ''    End Set
-    ''End Property
-
-    ''Public Property SqlServerUseExistingData() As Boolean
-    ''    Get
-    ''        Return mSqlServerUseExistingData
-    ''    End Get
-    ''    Set(Value As Boolean)
-    ''        mSqlServerUseExistingData = Value
-    ''    End Set
-    ''End Property
 
     ''' <summary>
     ''' Use Ellipse Search Region
@@ -265,24 +228,6 @@ Public Class clsProteinDigestionSimulator
     Public Property UseEllipseSearchRegion As Boolean
 
     Public Property UseSLiCScoreForUniqueness As Boolean
-
-    ''Public Property UseSqlServerDBToCacheData() As Boolean
-    ''    Get
-    ''        Return mUseSqlServerDBToCacheData
-    ''    End Get
-    ''    Set(Value As Boolean)
-    ''        mUseSqlServerDBToCacheData = Value
-    ''    End Set
-    ''End Property
-
-    ''Public Property UseSqlServerForMatchResults() As Boolean
-    ''    Get
-    ''        Return mUseSqlServerForMatchResults
-    ''    End Get
-    ''    Set(Value As Boolean)
-    ''        mUseSqlServerForMatchResults = Value
-    ''    End Set
-    ''End Property
 
 #End Region
 

@@ -1279,8 +1279,8 @@ Public Class clsPeakMatchingClass
 
         Private mSLiCScoreOptions As udtSLiCScoreOptionsType
 
-
-        Private mComputedSearchTolerances As udtSearchTolerancesType
+        ' ReSharper disable once FieldCanBeMadeReadOnly.Local
+        Private mComputedSearchTolerances As udtSearchTolerancesType = New udtSearchTolerancesType()
 
 #End Region
 
