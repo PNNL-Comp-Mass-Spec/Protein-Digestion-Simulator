@@ -702,8 +702,21 @@ Public Class PeptideSequenceClass
 
     End Function
 
-    Public Function GetTrypticNameMultipleMatches(strProteinResidues As String, strPeptideResidues As String, Optional ByRef intReturnMatchCount As Integer = 1, Optional ByRef intReturnResidueStart As Integer = 0, Optional ByRef intReturnResidueEnd As Integer = 0, Optional blnICR2LSCompatible As Boolean = False, Optional strRuleResidues As String = TRYPTIC_RULE_RESIDUES, Optional strExceptionResidues As String = TRYPTIC_EXCEPTION_RESIDUES, Optional blnReversedCleavageDirection As Boolean = False, Optional chTerminiiSymbol As Char = TERMINII_SYMBOL, Optional blnIgnoreCase As Boolean = True, Optional intProteinSearchStartLoc As Integer = 1, Optional strListDelimeter As String = ", ") As String
-        ' Examines strPeptideResidues to see where they exist in strProteinResidues
+    Public Function GetTrypticNameMultipleMatches(
+        proteinResidues As String,
+        peptideResidues As String,
+        Optional ByRef returnMatchCount As Integer = 1,
+        Optional ByRef returnResidueStart As Integer = 0,
+        Optional ByRef returnResidueEnd As Integer = 0,
+        Optional iCR2LSCompatible As Boolean = False,
+        Optional ruleResidues As String = TRYPTIC_RULE_RESIDUES,
+        Optional exceptionResidues As String = TRYPTIC_EXCEPTION_RESIDUES,
+        Optional reversedCleavageDirection As Boolean = False,
+        Optional terminiiSymbol As Char = TERMINII_SYMBOL,
+        Optional ignoreCase As Boolean = True,
+        Optional proteinSearchStartLoc As Integer = 1,
+        Optional listDelimiter As String = ", ") As String
+
         ' Looks for all possible matches, returning them as a comma separated list
         ' Returns the number of matches in intReturnMatchCount
         ' intReturnResidueStart contains the residue number of the start of the first match
@@ -722,9 +735,9 @@ Public Class PeptideSequenceClass
         Do
             strCurrentName = GetTrypticName(strProteinResidues, strPeptideResidues, intCurrentResidueStart, intCurrentResidueEnd, blnICR2LSCompatible, strRuleResidues, strExceptionResidues, blnReversedCleavageDirection, chTerminiiSymbol, blnIgnoreCase, intCurrentSearchLoc)
 
-            If strCurrentName.Length > 0 Then
-                If strNameList.Length > 0 Then
-                    strNameList &= strListDelimeter
+            If currentName.Length > 0 Then
+                If nameList.Length > 0 Then
+                    nameList &= listDelimiter
                 End If
                 strNameList &= strCurrentName
                 intCurrentSearchLoc = intCurrentResidueEnd + 1

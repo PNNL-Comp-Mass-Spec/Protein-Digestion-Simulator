@@ -819,8 +819,8 @@ Public Class clsParseProteinFile
 
         Dim objSettingsFile As New XmlSettingsFileAccessor()
 
-        Dim intDelimeterIndex As Integer
         Dim strCustomDelimiter As String
+        Dim delimiterIndex As Integer
 
         Dim blnCysPeptidesOnly As Boolean
 
@@ -847,23 +847,23 @@ Public Class clsParseProteinFile
                     SetLocalErrorCode(eParseProteinFileErrorCodes.ProteinFileParsingOptionsSectionNotFound)
                     Return False
                 Else
-                    'Me.ComparisonFastaFile = objSettingsFile.GetParam(XML_SECTION_OPTIONS, "ComparisonFastaFile", Me.ComparisonFastaFile)
-                    intDelimeterIndex = DelimiterCharConstants.Tab
-                    strCustomDelimiter = ControlChars.Tab
+                    ' ComparisonFastaFile = settingsFile.GetParam(XML_SECTION_OPTIONS, "ComparisonFastaFile", ComparisonFastaFile)
+                    delimiterIndex = DelimiterCharConstants.Tab
+                    customDelimiter = ControlChars.Tab
 
-                    intDelimeterIndex = objSettingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiterIndex", intDelimeterIndex)
-                    strCustomDelimiter = objSettingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiter", strCustomDelimiter)
+                    delimiterIndex = settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiterIndex", delimiterIndex)
+                    customDelimiter = settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiter", customDelimiter)
 
-                    Me.InputFileDelimiter = LookupColumnDelimiterChar(intDelimeterIndex, strCustomDelimiter, Me.InputFileDelimiter)
+                    InputFileDelimiter = LookupColumnDelimiterChar(delimiterIndex, customDelimiter, InputFileDelimiter)
 
-                    Me.DelimitedFileFormatCode = CType(objSettingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnOrdering", CInt(Me.DelimitedFileFormatCode)), DelimitedFileReader.eDelimitedFileFormatCode)
+                    DelimitedFileFormatCode = CType(settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnOrdering", DelimitedFileFormatCode), DelimitedFileReader.eDelimitedFileFormatCode)
 
-                    intDelimeterIndex = DelimiterCharConstants.Tab
-                    strCustomDelimiter = ControlChars.Tab
-                    intDelimeterIndex = objSettingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimeterIndex", intDelimeterIndex)
-                    strCustomDelimiter = objSettingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimeter", strCustomDelimiter)
+                    delimiterIndex = DelimiterCharConstants.Tab
+                    customDelimiter = ControlChars.Tab
+                    delimiterIndex = settingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimiterIndex", delimiterIndex)
+                    customDelimiter = settingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimiter", customDelimiter)
 
-                    Me.OutputFileDelimiter = LookupColumnDelimiterChar(intDelimeterIndex, strCustomDelimiter, Me.OutputFileDelimiter)
+                    OutputFileDelimiter = LookupColumnDelimiterChar(delimiterIndex, customDelimiter, OutputFileDelimiter)
 
                     With Me.DigestionOptions
                         .IncludePrefixAndSuffixResidues = objSettingsFile.GetParam(XML_SECTION_OPTIONS, "IncludePrefixAndSuffixResidues", .IncludePrefixAndSuffixResidues)
@@ -872,12 +872,12 @@ Public Class clsParseProteinFile
                     With Me.FastaFileOptions
                         .ProteinLineStartChar = objSettingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "RefStartChar", .ProteinLineStartChar.ToString).Chars(0)
 
-                        intDelimeterIndex = DelimiterCharConstants.Space
-                        strCustomDelimiter = " "c
+                        delimiterIndex = DelimiterCharConstants.Space
+                        customDelimiter = " "c
 
-                        intDelimeterIndex = objSettingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "RefEndCharIndex", intDelimeterIndex)
+                        delimiterIndex = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "RefEndCharIndex", delimiterIndex)
 
-                        .ProteinLineAccessionEndChar = LookupColumnDelimiterChar(intDelimeterIndex, strCustomDelimiter, .ProteinLineAccessionEndChar)
+                        .ProteinLineAccessionEndChar = LookupColumnDelimiterChar(delimiterIndex, customDelimiter, .ProteinLineAccessionEndChar)
 
                         .LookForAddnlRefInDescription = objSettingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "LookForAddnlRefInDescription", .LookForAddnlRefInDescription)
 

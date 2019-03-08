@@ -53,7 +53,7 @@ The Protein Digestion Simulator is typically used as a GUI application, but it a
 
 ```
 ProteinDigestionSimulator.exe 
-  /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimeter] 
+  /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimiter] 
   [/O:OutputDirectoryPath] [/P:ParameterFilePath] [/S:[MaxLevel]] 
   [/A:AlternateOutputDirectoryPath] [/R] [/Q]
 ```

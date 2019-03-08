@@ -6,8 +6,8 @@
     <item key="InputFileColumnDelimiterIndex" value="1" />
     <item key="InputFileColumnDelimiter" value=";" />
     <item key="InputFileColumnOrdering" value="2" />
-    <item key="OutputFileFieldDelimeterIndex" value="1" />
-    <item key="OutputFileFieldDelimeter" value=";" />
+    <item key="OutputFileFieldDelimiterIndex" value="1" />
+    <item key="OutputFileFieldDelimiter" value=";" />
     <item key="IncludePrefixAndSuffixResidues" value="False" />
     <item key="EnableLogging" value="False" />
     <item key="CustomValidationRulesFilePath" value="" />

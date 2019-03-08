@@ -172,8 +172,8 @@ Partial Class frmMain
         Me.mnuEditParseFile = New System.Windows.Forms.MenuItem()
         Me.MainMenuControl = New System.Windows.Forms.MainMenu(Me.components)
         Me.lblOutputFileFieldDelimiter = New System.Windows.Forms.Label()
-        Me.cboOutputFileFieldDelimeter = New System.Windows.Forms.ComboBox()
-        Me.txtOutputFileFieldDelimeter = New System.Windows.Forms.TextBox()
+        Me.cboOutputFileFieldDelimiter = New System.Windows.Forms.ComboBox()
+        Me.txtOutputFileFieldDelimiter = New System.Windows.Forms.TextBox()
         Me.fraOutputTextOptions = New System.Windows.Forms.GroupBox()
         Me.fraPeakMatchingOptions.SuspendLayout()
         Me.TabPageUniquenessStats.SuspendLayout()
@@ -1685,24 +1685,24 @@ Partial Class frmMain
         Me.lblOutputFileFieldDelimiter.TabIndex = 0
         Me.lblOutputFileFieldDelimiter.Text = "Field delimiter"
         '
-        'cboOutputFileFieldDelimeter
+        'cboOutputFileFieldDelimiter
         '
-        Me.cboOutputFileFieldDelimeter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboOutputFileFieldDelimeter.Location = New System.Drawing.Point(171, 30)
-        Me.cboOutputFileFieldDelimeter.Margin = New System.Windows.Forms.Padding(4)
-        Me.cboOutputFileFieldDelimeter.Name = "cboOutputFileFieldDelimeter"
-        Me.cboOutputFileFieldDelimeter.Size = New System.Drawing.Size(92, 24)
-        Me.cboOutputFileFieldDelimeter.TabIndex = 1
+        Me.cboOutputFileFieldDelimiter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboOutputFileFieldDelimiter.Location = New System.Drawing.Point(171, 30)
+        Me.cboOutputFileFieldDelimiter.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboOutputFileFieldDelimiter.Name = "cboOutputFileFieldDelimiter"
+        Me.cboOutputFileFieldDelimiter.Size = New System.Drawing.Size(92, 24)
+        Me.cboOutputFileFieldDelimiter.TabIndex = 1
         '
-        'txtOutputFileFieldDelimeter
+        'txtOutputFileFieldDelimiter
         '
-        Me.txtOutputFileFieldDelimeter.Location = New System.Drawing.Point(277, 30)
-        Me.txtOutputFileFieldDelimeter.Margin = New System.Windows.Forms.Padding(4)
-        Me.txtOutputFileFieldDelimeter.MaxLength = 1
-        Me.txtOutputFileFieldDelimeter.Name = "txtOutputFileFieldDelimeter"
-        Me.txtOutputFileFieldDelimeter.Size = New System.Drawing.Size(41, 22)
-        Me.txtOutputFileFieldDelimeter.TabIndex = 2
-        Me.txtOutputFileFieldDelimeter.Text = ";"
+        Me.txtOutputFileFieldDelimiter.Location = New System.Drawing.Point(277, 30)
+        Me.txtOutputFileFieldDelimiter.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtOutputFileFieldDelimiter.MaxLength = 1
+        Me.txtOutputFileFieldDelimiter.Name = "txtOutputFileFieldDelimiter"
+        Me.txtOutputFileFieldDelimiter.Size = New System.Drawing.Size(41, 22)
+        Me.txtOutputFileFieldDelimiter.TabIndex = 2
+        Me.txtOutputFileFieldDelimiter.Text = ";"
         '
         'fraOutputTextOptions
         '
@@ -1712,8 +1712,8 @@ Partial Class frmMain
         Me.fraOutputTextOptions.Controls.Add(Me.cmdSelectOutputFile)
         Me.fraOutputTextOptions.Controls.Add(Me.txtProteinOutputFilePath)
         Me.fraOutputTextOptions.Controls.Add(Me.chkIncludePrefixAndSuffixResidues)
-        Me.fraOutputTextOptions.Controls.Add(Me.cboOutputFileFieldDelimeter)
-        Me.fraOutputTextOptions.Controls.Add(Me.txtOutputFileFieldDelimeter)
+        Me.fraOutputTextOptions.Controls.Add(Me.cboOutputFileFieldDelimiter)
+        Me.fraOutputTextOptions.Controls.Add(Me.txtOutputFileFieldDelimiter)
         Me.fraOutputTextOptions.Controls.Add(Me.lblOutputFileFieldDelimiter)
         Me.fraOutputTextOptions.Location = New System.Drawing.Point(16, 133)
         Me.fraOutputTextOptions.Margin = New System.Windows.Forms.Padding(4)
@@ -1911,8 +1911,8 @@ Partial Class frmMain
     Friend WithEvents mnuEditParseFile As System.Windows.Forms.MenuItem
     Friend WithEvents MainMenuControl As System.Windows.Forms.MainMenu
     Friend WithEvents lblOutputFileFieldDelimiter As System.Windows.Forms.Label
-    Friend WithEvents cboOutputFileFieldDelimeter As System.Windows.Forms.ComboBox
-    Friend WithEvents txtOutputFileFieldDelimeter As System.Windows.Forms.TextBox
+    Friend WithEvents cboOutputFileFieldDelimiter As System.Windows.Forms.ComboBox
+    Friend WithEvents txtOutputFileFieldDelimiter As System.Windows.Forms.TextBox
     Friend WithEvents fraOutputTextOptions As System.Windows.Forms.GroupBox
     Friend WithEvents chkTruncateProteinDescription As System.Windows.Forms.CheckBox
     Friend WithEvents chkComputeSequenceHashValues As System.Windows.Forms.CheckBox

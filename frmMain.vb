@@ -437,7 +437,7 @@ Public Class frmMain
         fraDigestionOptions.Enabled = blnEnableDigestionOptions
         chkIncludePrefixAndSuffixResidues.Enabled = blnEnableDigestionOptions
 
-        txtOutputFileFieldDelimeter.Enabled = (cboOutputFileFieldDelimeter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Other)
+        txtOutputFileFieldDelimiter.Enabled = (cboOutputFileFieldDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Other)
         txtRefEndChar.Enabled = (cboRefEndChar.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Other)
 
         blnEnableDelimitedFileOptions = chkLookForAddnlRefInDescription.Checked
@@ -691,8 +691,8 @@ Public Class frmMain
 
                 cboInputFileColumnOrdering.SelectedIndex = objXmlFile.GetParam(OptionsSection, "InputFileColumnOrdering", cboInputFileColumnOrdering.SelectedIndex)
 
-                cboOutputFileFieldDelimeter.SelectedIndex = objXmlFile.GetParam(OptionsSection, "OutputFileFieldDelimeterIndex", cboOutputFileFieldDelimeter.SelectedIndex)
-                txtOutputFileFieldDelimeter.Text = objXmlFile.GetParam(OptionsSection, "OutputFileFieldDelimeter", txtOutputFileFieldDelimeter.Text)
+                cboOutputFileFieldDelimiter.SelectedIndex = xmlSettings.GetParam(OptionsSection, "OutputFileFieldDelimiterIndex", cboOutputFileFieldDelimiter.SelectedIndex)
+                txtOutputFileFieldDelimiter.Text = xmlSettings.GetParam(OptionsSection, "OutputFileFieldDelimiter", txtOutputFileFieldDelimiter.Text)
 
                 chkIncludePrefixAndSuffixResidues.Checked = objXmlFile.GetParam(OptionsSection, "IncludePrefixAndSuffixResidues", chkIncludePrefixAndSuffixResidues.Checked)
                 chkEnableLogging.Checked = objXmlFile.GetParam(OptionsSection, "EnableLogging", chkEnableLogging.Checked)
@@ -862,8 +862,8 @@ Public Class frmMain
                     objXmlFile.SetParam(OptionsSection, "InputFileColumnOrdering", cboInputFileColumnOrdering.SelectedIndex)
 
 
-                    objXmlFile.SetParam(OptionsSection, "OutputFileFieldDelimeterIndex", cboOutputFileFieldDelimeter.SelectedIndex)
-                    objXmlFile.SetParam(OptionsSection, "OutputFileFieldDelimeter", txtOutputFileFieldDelimeter.Text)
+                    xmlSettings.SetParam(OptionsSection, "OutputFileFieldDelimiterIndex", cboOutputFileFieldDelimiter.SelectedIndex)
+                    xmlSettings.SetParam(OptionsSection, "OutputFileFieldDelimiter", txtOutputFileFieldDelimiter.Text)
 
                     objXmlFile.SetParam(OptionsSection, "IncludePrefixAndSuffixResidues", chkIncludePrefixAndSuffixResidues.Checked)
                     objXmlFile.SetParam(OptionsSection, "EnableLogging", chkEnableLogging.Checked)
@@ -1084,7 +1084,7 @@ Public Class frmMain
             End If
 
             .InputFileDelimiter = LookupColumnDelimiter(cboInputFileColumnDelimiter, txtInputFileColumnDelimiter, ControlChars.Tab)
-            .OutputFileDelimiter = LookupColumnDelimiter(cboOutputFileFieldDelimeter, txtOutputFileFieldDelimeter, ControlChars.Tab)
+            .OutputFileDelimiter = LookupColumnDelimiter(cboOutputFileFieldDelimiter, txtOutputFileFieldDelimiter, ControlChars.Tab)
 
             With .FastaFileOptions
                 ValidateTextbox(txtRefStartChar, mDefaultFastaFileOptions.ProteinLineStartChar)
@@ -1193,7 +1193,7 @@ Public Class frmMain
             .SetToolTip(cmdParseInputFile, "Parse proteins in input file to create output file(s).")
             .SetToolTip(cboInputFileColumnDelimiter, "Character separating columns in a delimited text input file.")
             .SetToolTip(txtInputFileColumnDelimiter, "Custom character separating columns in a delimited text input file.")
-            .SetToolTip(txtOutputFileFieldDelimeter, "Character separating the fields in the output file.")
+            .SetToolTip(txtOutputFileFieldDelimiter, "Character separating the fields in the output file.")
             .SetToolTip(txtRefStartChar, "Character at the start of each protein description line in a Fasta file.")
             .SetToolTip(cboRefEndChar, "Character at the end of the protein accession name in a Fasta file.")
             .SetToolTip(txtRefEndChar, "Custom character at the end of the protein accession name in a Fasta file.")
@@ -1454,7 +1454,7 @@ Public Class frmMain
                 .SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Tab
             End With
 
-            With cboOutputFileFieldDelimeter
+            With cboOutputFileFieldDelimiter
                 With .Items
                     .Clear()
                     For intIndex = 0 To cboInputFileColumnDelimiter.Items.Count - 1
@@ -1592,8 +1592,8 @@ Public Class frmMain
         cboInputFileColumnDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Tab
         txtInputFileColumnDelimiter.Text = ";"c
 
-        cboOutputFileFieldDelimeter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Tab
-        txtOutputFileFieldDelimeter.Text = ";"c
+        cboOutputFileFieldDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Tab
+        txtOutputFileFieldDelimiter.Text = ";"c
 
         chkEnableLogging.Checked = False
 
@@ -2121,7 +2121,7 @@ Public Class frmMain
         EnableDisableControls()
     End Sub
 
-    Private Sub cboOutputFileFieldDelimeter_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboOutputFileFieldDelimeter.SelectedIndexChanged
+    Private Sub cboOutputFileFieldDelimiter_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboOutputFileFieldDelimiter.SelectedIndexChanged
         EnableDisableControls()
     End Sub
 
