@@ -125,6 +125,26 @@ Public Class clsInSilicoDigest
 
 #End Region
 
+    Private Sub AddCleavageRule(
+        ruleId As CleavageRuleConstants,
+        description As String,
+        cleavageResidues As String,
+        exceptionResidues As String,
+        reversedCleavageDirection As Boolean,
+        ruleIdInParallax As Integer,
+        Optional allowPartialCleavage As Boolean = False)
+
+        Dim cleavageRule = New udtCleavageRulesType() With {
+                .Description = description,
+                .CleavageResidues = cleavageResidues,
+                .ExceptionResidues = exceptionResidues,
+                .ReversedCleavageDirection = reversedCleavageDirection,
+                .RuleIDInParallax = ruleIdInParallax,
+                .AllowPartialCleavage = allowPartialCleavage
+                }
+
+        mCleavageRules.Add(ruleId, cleavageRule)
+    End Sub
 
     Public Function CheckSequenceAgainstCleavageRule(sequence As String, ruleId As CleavageRuleConstants, Optional ByRef ruleMatchCount As Integer = 0) As Boolean
         ' Checks sequence against the rule given by ruleId
@@ -497,181 +517,162 @@ Public Class clsInSilicoDigest
 
         ' Useful site for cleavage rule info is https://web.expasy.org/peptide_mass/peptide-mass-doc.html
 
-        With mCleavageRules
-            .RuleCount = CleavageRuleCount
-            ReDim .Rules(.RuleCount - 1)          ' 0-based array
+        mCleavageRules.Clear()
 
-            With .Rules(CleavageRuleConstants.NoRule)
-                .Description = "No cleavage rule"
-                .CleavageResidues = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                .ExceptionResidues = String.Empty
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 0
-            End With
+        ' ReSharper disable StringLiteralTypo
+        AddCleavageRule(CleavageRuleConstants.NoRule,
+                        "No cleavage rule",
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                        String.Empty,
+                        False,
+                        0)
 
-            With .Rules(CleavageRuleConstants.ConventionalTrypsin)
-                .Description = "Fully Tryptic"
-                .CleavageResidues = "KR"
-                .ExceptionResidues = "P"
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 10
-            End With
 
-            With .Rules(CleavageRuleConstants.TrypsinWithoutProlineException)
-                .Description = "Fully Tryptic (no Proline Rule)"
-                .CleavageResidues = "KR"
-                .ExceptionResidues = String.Empty
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 0
-            End With
+        AddCleavageRule(CleavageRuleConstants.ConventionalTrypsin,
+            "Fully Tryptic",
+            "KR",
+            "P",
+            False,
+            10)
 
-            With .Rules(CleavageRuleConstants.EricPartialTrypsin)
-                .Description = "Eric's Partial Trypsin"
-                .CleavageResidues = "KRFYVEL"
-                .ExceptionResidues = String.Empty
-                .ReversedCleavageDirection = False
-                .AllowPartialCleavage = True                        ' Allows partial cleavage
-                .RuleIDInParallax = 11
-            End With
+        AddCleavageRule(CleavageRuleConstants.TrypsinWithoutProlineException,
+            "Fully Tryptic (no Proline Rule)",
+            "KR",
+            String.Empty,
+            False,
+            0)
 
-            With .Rules(CleavageRuleConstants.TrypsinPlusFVLEY)
-                .Description = "Trypsin Plus FVLEY"
-                .CleavageResidues = "KRFYVEL"
-                .ExceptionResidues = ""
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 12
-            End With
+        ' Allows partial cleavage
+        AddCleavageRule(CleavageRuleConstants.EricPartialTrypsin,
+            "Eric's Partial Trypsin",
+            "KRFYVEL",
+            String.Empty,
+            False,
+            11,
+            True)
 
-            With .Rules(CleavageRuleConstants.KROneEnd)
-                .Description = "Half (Partial) Trypsin "
-                .CleavageResidues = "KR"
-                .ExceptionResidues = "P"
-                .ReversedCleavageDirection = False
-                .AllowPartialCleavage = True
-                .RuleIDInParallax = 13
-            End With
+        AddCleavageRule(CleavageRuleConstants.TrypsinPlusFVLEY,
+            "Trypsin Plus FVLEY",
+            "KRFYVEL",
+            "",
+            False,
+            12)
 
-            With .Rules(CleavageRuleConstants.TerminiiOnly)
-                .Description = "Peptide Database; terminii only"
-                .CleavageResidues = "-"
-                .ExceptionResidues = String.Empty
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 20
-            End With
+        ' Allows partial cleavage
+        AddCleavageRule(CleavageRuleConstants.KROneEnd,
+            "Half (Partial) Trypsin ",
+            "KR",
+            "P",
+            False,
+            13,
+            True)
 
-            With .Rules(CleavageRuleConstants.Chymotrypsin)
-                .Description = "Chymotrypsin"
-                .CleavageResidues = "FWYL"
-                .ExceptionResidues = String.Empty
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 30
-            End With
+        AddCleavageRule(CleavageRuleConstants.TerminiiOnly,
+            "Peptide Database; terminii only",
+            "-",
+            String.Empty,
+            False,
+            20)
 
-            With .Rules(CleavageRuleConstants.ChymotrypsinAndTrypsin)
-                .Description = "Chymotrypsin + Trypsin"
-                .CleavageResidues = "FWYLKR"
-                .ExceptionResidues = String.Empty
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 31
-            End With
+        AddCleavageRule(CleavageRuleConstants.Chymotrypsin,
+            "Chymotrypsin",
+            "FWYL",
+            String.Empty,
+            False,
+            30)
 
-            With .Rules(CleavageRuleConstants.GluC)
-                .Description = "Glu-C"
-                .CleavageResidues = "ED"
-                .ExceptionResidues = String.Empty
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 40
-            End With
+        AddCleavageRule(CleavageRuleConstants.ChymotrypsinAndTrypsin,
+            "Chymotrypsin + Trypsin",
+            "FWYLKR",
+            String.Empty,
+            False,
+            31)
 
-            With .Rules(CleavageRuleConstants.CyanBr)
-                .Description = "CyanBr"
-                .CleavageResidues = "M"
-                .ExceptionResidues = String.Empty
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 50
-            End With
+        AddCleavageRule(CleavageRuleConstants.GluC,
+            "Glu-C",
+            "ED",
+            String.Empty,
+            False,
+            40)
 
-            With .Rules(CleavageRuleConstants.LysC)
-                .Description = "Lys-C"
-                .CleavageResidues = "K"
-                .ExceptionResidues = String.Empty
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 0
-            End With
+        AddCleavageRule(CleavageRuleConstants.CyanBr,
+            "CyanBr",
+            "M",
+            String.Empty,
+            False,
+            50)
 
-            With .Rules(CleavageRuleConstants.GluC_EOnly)
-                .Description = "Glu-C, just Glu"
-                .CleavageResidues = "E"
-                .ExceptionResidues = String.Empty
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 0
-            End With
+        AddCleavageRule(CleavageRuleConstants.LysC,
+            "Lys-C",
+            "K",
+            String.Empty,
+            False,
+            0)
 
-            With .Rules(CleavageRuleConstants.ArgC)
-                .Description = "Arg-C"
-                .CleavageResidues = "R"
-                .ExceptionResidues = String.Empty
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 0
-            End With
+        AddCleavageRule(CleavageRuleConstants.GluC_EOnly,
+            "Glu-C, just Glu",
+            "E",
+            String.Empty,
+            False,
+            0)
 
-            With .Rules(CleavageRuleConstants.AspN)
-                .Description = "Asp-N"
-                .CleavageResidues = "D"
-                .ExceptionResidues = String.Empty
-                .ReversedCleavageDirection = True
-                .RuleIDInParallax = 0
-            End With
+        AddCleavageRule(CleavageRuleConstants.ArgC,
+            "Arg-C",
+            "R",
+            String.Empty,
+            False,
+            0)
 
-            With .Rules(CleavageRuleConstants.ProteinaseK)
-                .Description = "Proteinase K"
-                .CleavageResidues = "AEFILTVWY"
-                .ExceptionResidues = String.Empty
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 0
-            End With
+        AddCleavageRule(CleavageRuleConstants.AspN,
+            "Asp-N",
+            "D",
+            String.Empty,
+            True,
+            0)
 
-            With .Rules(CleavageRuleConstants.PepsinA)
-                .Description = "PepsinA"
-                .CleavageResidues = "FLIWY"
-                .ExceptionResidues = "P"
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 0
-            End With
+        AddCleavageRule(CleavageRuleConstants.ProteinaseK,
+            "Proteinase K",
+            "AEFILTVWY",
+            String.Empty,
+            False,
+            0)
 
-            With .Rules(CleavageRuleConstants.PepsinB)
-                .Description = "PepsinB"
-                .CleavageResidues = "FLIWY"
-                .ExceptionResidues = "PVAG"
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 0
-            End With
+        AddCleavageRule(CleavageRuleConstants.PepsinA,
+            "PepsinA",
+            "FLIWY",
+            "P",
+            False,
+            0)
 
-            With .Rules(CleavageRuleConstants.PepsinC)
-                .Description = "PepsinC"
-                .CleavageResidues = "FLWYA"
-                .ExceptionResidues = "P"
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 0
-            End With
+        AddCleavageRule(CleavageRuleConstants.PepsinB,
+            "PepsinB",
+            "FLIWY",
+            "PVAG",
+            False,
+            0)
 
-            With .Rules(CleavageRuleConstants.PepsinD)
-                .Description = "PepsinD"
-                .CleavageResidues = "FLWYAEQ"
-                .ExceptionResidues = ""
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 0
-            End With
+        AddCleavageRule(CleavageRuleConstants.PepsinC,
+            "PepsinC",
+            "FLWYA",
+            "P",
+            False,
+            0)
 
-            With .Rules(CleavageRuleConstants.AceticAcidD)
-                .Description = "Acetic Acid Hydrolysis"
-                .CleavageResidues = "D"
-                .ExceptionResidues = String.Empty
-                .ReversedCleavageDirection = False
-                .RuleIDInParallax = 0
-            End With
+        AddCleavageRule(CleavageRuleConstants.PepsinD,
+            "PepsinD",
+            "FLWYAEQ",
+            "",
+            False,
+            0)
 
-        End With
+        AddCleavageRule(CleavageRuleConstants.AceticAcidD,
+            "Acetic Acid Hydrolysis",
+            "D",
+            String.Empty,
+            False,
+            0)
+
+        ' ReSharper restore StringLiteralTypo
 
     End Sub
 
