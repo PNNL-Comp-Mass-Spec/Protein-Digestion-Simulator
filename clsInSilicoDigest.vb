@@ -61,7 +61,6 @@ Public Class clsInSilicoDigest
         Public ReversedCleavageDirection As Boolean
 
         Public AllowPartialCleavage As Boolean
-        Public RuleIDInParallax As Integer             ' Unused in this software
     End Structure
 
 
@@ -131,7 +130,6 @@ Public Class clsInSilicoDigest
         cleavageResidues As String,
         exceptionResidues As String,
         reversedCleavageDirection As Boolean,
-        ruleIdInParallax As Integer,
         Optional allowPartialCleavage As Boolean = False)
 
         Dim cleavageRule = New udtCleavageRulesType() With {
@@ -139,7 +137,6 @@ Public Class clsInSilicoDigest
                 .CleavageResidues = cleavageResidues,
                 .ExceptionResidues = exceptionResidues,
                 .ReversedCleavageDirection = reversedCleavageDirection,
-                .RuleIDInParallax = ruleIdInParallax,
                 .AllowPartialCleavage = allowPartialCleavage
                 }
 
@@ -503,16 +500,6 @@ Public Class clsInSilicoDigest
         End If
     End Function
 
-    Public Function GetCleavageRuleIDInParallax(ruleId As CleavageRuleConstants) As Integer
-        Dim cleavageRule As udtCleavageRulesType = Nothing
-        If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
-            Return cleavageRule.RuleIDInParallax
-        Else
-            Return -1
-        End If
-
-    End Function
-
     Private Sub InitializeCleavageRules()
 
         ' Useful site for cleavage rule info is https://web.expasy.org/peptide_mass/peptide-mass-doc.html
@@ -524,23 +511,20 @@ Public Class clsInSilicoDigest
                         "No cleavage rule",
                         "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
                         String.Empty,
-                        False,
-                        0)
+                        False)
 
 
         AddCleavageRule(CleavageRuleConstants.ConventionalTrypsin,
             "Fully Tryptic",
             "KR",
             "P",
-            False,
-            10)
+            False)
 
         AddCleavageRule(CleavageRuleConstants.TrypsinWithoutProlineException,
             "Fully Tryptic (no Proline Rule)",
             "KR",
             String.Empty,
-            False,
-            0)
+            False)
 
         ' Allows partial cleavage
         AddCleavageRule(CleavageRuleConstants.EricPartialTrypsin,
@@ -548,15 +532,13 @@ Public Class clsInSilicoDigest
             "KRFYVEL",
             String.Empty,
             False,
-            11,
             True)
 
         AddCleavageRule(CleavageRuleConstants.TrypsinPlusFVLEY,
             "Trypsin Plus FVLEY",
             "KRFYVEL",
             "",
-            False,
-            12)
+            False)
 
         ' Allows partial cleavage
         AddCleavageRule(CleavageRuleConstants.KROneEnd,
@@ -564,113 +546,97 @@ Public Class clsInSilicoDigest
             "KR",
             "P",
             False,
-            13,
             True)
 
         AddCleavageRule(CleavageRuleConstants.TerminiiOnly,
             "Peptide Database; terminii only",
             "-",
             String.Empty,
-            False,
-            20)
+            False)
 
         AddCleavageRule(CleavageRuleConstants.Chymotrypsin,
             "Chymotrypsin",
             "FWYL",
             String.Empty,
-            False,
-            30)
+            False)
 
         AddCleavageRule(CleavageRuleConstants.ChymotrypsinAndTrypsin,
             "Chymotrypsin + Trypsin",
             "FWYLKR",
             String.Empty,
-            False,
-            31)
+            False)
 
         AddCleavageRule(CleavageRuleConstants.GluC,
             "Glu-C",
             "ED",
             String.Empty,
-            False,
-            40)
+            False)
 
         AddCleavageRule(CleavageRuleConstants.CyanBr,
             "CyanBr",
             "M",
             String.Empty,
-            False,
-            50)
+            False)
 
         AddCleavageRule(CleavageRuleConstants.LysC,
             "Lys-C",
             "K",
             String.Empty,
-            False,
-            0)
+            False)
 
         AddCleavageRule(CleavageRuleConstants.GluC_EOnly,
             "Glu-C, just Glu",
             "E",
             String.Empty,
-            False,
-            0)
+            False)
 
         AddCleavageRule(CleavageRuleConstants.ArgC,
             "Arg-C",
             "R",
             String.Empty,
-            False,
-            0)
+            False)
 
         AddCleavageRule(CleavageRuleConstants.AspN,
             "Asp-N",
             "D",
             String.Empty,
-            True,
-            0)
+            True)
 
         AddCleavageRule(CleavageRuleConstants.ProteinaseK,
             "Proteinase K",
             "AEFILTVWY",
             String.Empty,
-            False,
-            0)
+            False)
 
         AddCleavageRule(CleavageRuleConstants.PepsinA,
             "PepsinA",
             "FLIWY",
             "P",
-            False,
-            0)
+            False)
 
         AddCleavageRule(CleavageRuleConstants.PepsinB,
             "PepsinB",
             "FLIWY",
             "PVAG",
-            False,
-            0)
+            False)
 
         AddCleavageRule(CleavageRuleConstants.PepsinC,
             "PepsinC",
             "FLWYA",
             "P",
-            False,
-            0)
+            False)
 
         AddCleavageRule(CleavageRuleConstants.PepsinD,
             "PepsinD",
             "FLWYAEQ",
             "",
-            False,
-            0)
+            False)
 
         AddCleavageRule(CleavageRuleConstants.AceticAcidD,
             "Acetic Acid Hydrolysis",
             "D",
             String.Empty,
-            False,
-            0)
+            False)
 
         ' ReSharper restore StringLiteralTypo
 
