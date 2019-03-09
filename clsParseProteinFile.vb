@@ -1055,7 +1055,6 @@ Public Class clsParseProteinFile
                 allowLookForAddnlRefInDescription = FastaFileOptions.LookForAddnlRefInDescription
             End If
 
-            Dim hashGenerator As clsHashGenerator = Nothing
             Dim outLine = New StringBuilder()
 
             For loopIndex = 1 To loopCount
@@ -1139,7 +1138,6 @@ Public Class clsParseProteinFile
 
                     If ComputeSequenceHashValues Then
                         outLine.Append(mOutputFileDelimiter & "SequenceHash")
-                        hashGenerator = New clsHashGenerator()
                     End If
 
                     If Not ExcludeProteinSequence Then
@@ -1209,7 +1207,7 @@ Public Class clsParseProteinFile
                     mInputFileProteinsProcessed += 1
                     mInputFileLinesRead = proteinFileReader.LinesRead
 
-                    ParseProteinFileStoreProtein(proteinFileReader, hashGenerator, lookForAddnlRefInDescription)
+                    ParseProteinFileStoreProtein(proteinFileReader, lookForAddnlRefInDescription)
 
                     If CreateProteinOutputFile Then
                         If loopIndex = 1 Then
@@ -1329,7 +1327,6 @@ Public Class clsParseProteinFile
 
     Private Sub ParseProteinFileStoreProtein(
       proteinFileReader As ProteinFileReaderBaseClass,
-      hashGenerator As clsHashGenerator,
       lookForAddnlRefInDescription As Boolean)
 
         With mProteins(mProteinCount)
@@ -1350,12 +1347,10 @@ Public Class clsParseProteinFile
 
             .Sequence = proteinFileReader.ProteinSequence
 
-            If Not hashGenerator Is Nothing Then
-                If ComputeSequenceHashIgnoreILDiff Then
-                    .SequenceHash = hashGenerator.GenerateHash(.Sequence.Replace("L"c, "I"c))
-                Else
-                    .SequenceHash = hashGenerator.GenerateHash(.Sequence)
-                End If
+            If ComputeSequenceHashIgnoreILDiff Then
+                .SequenceHash = PRISM.HashUtilities.ComputeStringHashSha1(.Sequence.Replace("L"c, "I"c)).ToUpper()
+            Else
+                .SequenceHash = PRISM.HashUtilities.ComputeStringHashSha1(.Sequence).ToUpper()
             End If
 
             If ComputeProteinMass Then
