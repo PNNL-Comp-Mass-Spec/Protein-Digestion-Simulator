@@ -28,7 +28,7 @@ Public Class clsProteinDigestionSimulator
     Inherits FileProcessor.ProcessFilesBase
 
     Public Sub New()
-        MyBase.mFileDate = "March 8, 2019"
+        MyBase.mFileDate = "March 13, 2019"
         InitializeLocalVariables()
     End Sub
 

@@ -35,7 +35,7 @@ Public Class clsParseProteinFile
     Inherits ProcessFilesBase
 
     Public Sub New()
-        mFileDate = "March 8, 2019"
+        mFileDate = "March 13, 2019"
         InitializeLocalVariables()
     End Sub
 
