@@ -256,7 +256,7 @@ Public Class clsInSilicoDigest
                                    filterByIsoelectricPoint As Boolean,
                                    proteinName As String) As Integer
 
-        Dim fragmentsUniqueList As New Specialized.StringDictionary
+        Dim fragmentsUniqueList As New SortedSet(Of String)
 
         Dim trypticIndex As Integer
         Dim searchStartLoc As Integer
@@ -683,7 +683,7 @@ Public Class clsInSilicoDigest
         residueEndLoc As Integer,
         ByRef proteinSequence As String,
         proteinSequenceLength As Integer,
-        fragmentsUniqueList As Specialized.StringDictionary,
+        fragmentsUniqueList As ISet(Of String),
         peptideFragments As ICollection(Of PeptideInfoClass),
         digestionOptions As DigestionOptionsClass,
         filterByIsoelectricPoint As Boolean)
@@ -698,10 +698,10 @@ Public Class clsInSilicoDigest
 
         addFragment = True
         If digestionOptions.RemoveDuplicateSequences Then
-            If fragmentsUniqueList.ContainsKey(peptideSequence) Then
+            If fragmentsUniqueList.Contains(peptideSequence) Then
                 addFragment = False
             Else
-                fragmentsUniqueList.Add(peptideSequence, Nothing)
+                fragmentsUniqueList.Add(peptideSequence)
             End If
         End If
 
