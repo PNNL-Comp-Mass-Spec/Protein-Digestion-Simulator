@@ -201,18 +201,17 @@ Public Class clsInSilicoDigest
     End Function
 
     Public Function CountTrypticsInSequence(sequence As String) As Integer
-        Dim trypticCount As Integer
-        Dim startSearchLoc As Integer, returnResidueStart As Integer, returnResidueEnd As Integer
-        Dim fragment As String
 
         Try
 
-            trypticCount = 0
-            startSearchLoc = 1
+            Dim trypticCount = 0
+            Dim startSearchLoc = 1
 
             If sequence.Length > 0 Then
                 Do
-                    fragment = mPeptideSequence.GetTrypticPeptideNext(sequence, startSearchLoc, returnResidueStart, returnResidueEnd)
+                    Dim returnResidueStart As Integer, returnResidueEnd As Integer
+
+                    Dim fragment = mPeptideSequence.GetTrypticPeptideNext(sequence, startSearchLoc, returnResidueStart, returnResidueEnd)
                     If fragment.Length > 0 Then
                         trypticCount += 1
                         startSearchLoc = returnResidueEnd + 1
@@ -258,24 +257,9 @@ Public Class clsInSilicoDigest
 
         Dim fragmentsUniqueList As New SortedSet(Of String)
 
-        Dim trypticIndex As Integer
-        Dim searchStartLoc As Integer
-        Dim residueStartLoc As Integer, residueEndLoc As Integer
-        Dim residueLength As Integer
-        Dim residueLengthStart As Integer
-
-        Dim proteinSequenceLength As Integer
-
-        Dim index As Integer
-
-        Dim trypticFragCacheCount As Integer
-        Dim trypticFragCache() As String                 ' 0-based array
+        Dim trypticFragCache() As String                      ' 0-based array
         Dim trypticFragStartLocations() As Integer            ' 0-based array, parallel to trypticFragmentCache()
         Dim trypticFragEndLocations() As Integer              ' 0-based array, parallel to trypticFragmentCache()
-
-        Dim peptideSequence As String, peptideSequenceBase As String
-        Dim ruleResidues As String, exceptionSuffixResidues As String
-        Dim reversedCleavageDirection As Boolean
 
         peptideFragments = New List(Of PeptideInfoClass)()
 
@@ -283,11 +267,13 @@ Public Class clsInSilicoDigest
             Return 0
         End If
 
+        Dim proteinSequenceLength As Integer = proteinSequence.Length
+
         Try
 
-            ruleResidues = GetCleavageRuleResiduesSymbols(digestionOptions.CleavageRuleID)
-            exceptionSuffixResidues = GetCleavageExceptionSuffixResidues(digestionOptions.CleavageRuleID)
-            reversedCleavageDirection = GetCleavageIsReversedDirection(digestionOptions.CleavageRuleID)
+            Dim ruleResidues = GetCleavageRuleResiduesSymbols(digestionOptions.CleavageRuleID)
+            Dim exceptionSuffixResidues = GetCleavageExceptionSuffixResidues(digestionOptions.CleavageRuleID)
+            Dim reversedCleavageDirection = GetCleavageIsReversedDirection(digestionOptions.CleavageRuleID)
 
             ' We initially count the number of tryptic peptides in the sequence (regardless of the cleavage rule)
             ' ReSharper disable once UnusedVariable
@@ -297,15 +283,18 @@ Public Class clsInSilicoDigest
             ReDim trypticFragEndLocations(9)
             ReDim trypticFragStartLocations(9)
 
-            trypticFragCacheCount = 0
-            searchStartLoc = 1
+            Dim trypticFragCacheCount = 0
+            Dim searchStartLoc = 1
 
             ' Populate trypticFragCache()
             '
             ' Using the GetTrypticPeptideNext function to retrieve the sequence for each tryptic peptide
             '   is faster than using the GetTrypticPeptideByFragmentNumber function
             Do
-                peptideSequence = mPeptideSequence.GetTrypticPeptideNext(proteinSequence, searchStartLoc, residueStartLoc, residueEndLoc, ruleResidues, exceptionSuffixResidues, reversedCleavageDirection)
+                Dim residueStartLoc As Integer
+                Dim residueEndLoc As Integer
+
+                Dim peptideSequence = mPeptideSequence.GetTrypticPeptideNext(proteinSequence, searchStartLoc, residueStartLoc, residueEndLoc, ruleResidues, exceptionSuffixResidues, reversedCleavageDirection)
                 If peptideSequence.Length > 0 Then
 
                     trypticFragCache(trypticFragCacheCount) = peptideSequence
@@ -328,9 +317,10 @@ Public Class clsInSilicoDigest
             ResetProgress("Digesting protein " & proteinName)
 
             For trypticIndex = 0 To trypticFragCacheCount - 1
-                peptideSequenceBase = String.Empty
-                peptideSequence = String.Empty
-                residueStartLoc = trypticFragStartLocations(trypticIndex)
+                Dim peptideSequenceBase = String.Empty
+                Dim peptideSequence = String.Empty
+                Dim residueStartLoc = trypticFragStartLocations(trypticIndex)
+                Dim residueEndLoc As Integer
 
                 For index = 0 To digestionOptions.MaxMissedCleavages
                     If trypticIndex + index >= trypticFragCacheCount Then
@@ -339,6 +329,7 @@ Public Class clsInSilicoDigest
 
                     If digestionOptions.CleavageRuleID = CleavageRuleConstants.KROneEnd Then
                         ' Partially tryptic cleavage rule: Add all partially tryptic fragments
+                        Dim residueLengthStart As Integer
                         If index = 0 Then
                             residueLengthStart = digestionOptions.MinFragmentResidueCount
                             If residueLengthStart < 1 Then residueLengthStart = 1
@@ -347,6 +338,7 @@ Public Class clsInSilicoDigest
                         End If
 
                         For residueLength = residueLengthStart To trypticFragCache(trypticIndex + index).Length
+
                             If index > 0 Then
                                 residueEndLoc = trypticFragEndLocations(trypticIndex + index - 1) + residueLength
                             Else
@@ -380,14 +372,16 @@ Public Class clsInSilicoDigest
             If digestionOptions.CleavageRuleID = CleavageRuleConstants.KROneEnd Then
                 ' Partially tryptic cleavage rule: Add all partially tryptic fragments, working from the end toward the front
                 For trypticIndex = trypticFragCacheCount - 1 To 0 Step -1
-                    peptideSequenceBase = String.Empty
+                    Dim peptideSequenceBase = String.Empty
 
-                    residueEndLoc = trypticFragEndLocations(trypticIndex)
+                    Dim residueEndLoc = trypticFragEndLocations(trypticIndex)
 
                     For index = 0 To digestionOptions.MaxMissedCleavages
                         If trypticIndex - index < 0 Then
                             Exit For
                         End If
+
+                        Dim residueLengthStart As Integer
 
                         If index = 0 Then
                             residueLengthStart = digestionOptions.MinFragmentResidueCount
@@ -397,6 +391,8 @@ Public Class clsInSilicoDigest
 
                         ' We can limit the following for loop to the peptide length - 1 since those peptides using the full peptide will have already been added above
                         For residueLength = residueLengthStart To trypticFragCache(trypticIndex - index).Length - 1
+                            Dim residueStartLoc As Integer
+
                             If index > 0 Then
                                 residueStartLoc = trypticFragStartLocations(trypticIndex - index + 1) - residueLength
                             Else
@@ -404,7 +400,7 @@ Public Class clsInSilicoDigest
                             End If
 
                             ' Grab characters from the end of trypticFragCache()
-                            peptideSequence = trypticFragCache(trypticIndex - index).Substring(trypticFragCache(trypticIndex - index).Length - residueLength, residueLength) & peptideSequenceBase
+                            Dim peptideSequence = trypticFragCache(trypticIndex - index).Substring(trypticFragCache(trypticIndex - index).Length - residueLength, residueLength) & peptideSequenceBase
 
                             If peptideSequence.Length >= digestionOptions.MinFragmentResidueCount Then
                                 PossiblyAddPeptide(peptideSequence, trypticIndex, index, residueStartLoc, residueEndLoc, proteinSequence, proteinSequenceLength, fragmentsUniqueList, peptideFragments, digestionOptions, filterByIsoelectricPoint)
