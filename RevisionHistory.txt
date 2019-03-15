@@ -1,5 +1,10 @@
 Protein Digestion Simulator Change Log
 
+Version 2.3.7012; March 14, 2019
+	- Add delimited text file mode "ProteinName, Description, Hash, Sequence"
+	- New versions of PRISM.dll and NETPrediction.dll
+	- Remove NETPredictionBasic-based project
+
 Version 2.3.7007; March 8, 2019
 	- Fix typo in parameter names; now OutputFileFieldDelimiterIndex and OutputFileFieldDelimiter
 	- New version of PRISM.dll (from NuGet)
