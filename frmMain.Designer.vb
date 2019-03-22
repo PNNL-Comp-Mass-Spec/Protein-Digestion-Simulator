@@ -175,6 +175,8 @@ Partial Class frmMain
         Me.cboOutputFileFieldDelimiter = New System.Windows.Forms.ComboBox()
         Me.txtOutputFileFieldDelimiter = New System.Windows.Forms.TextBox()
         Me.fraOutputTextOptions = New System.Windows.Forms.GroupBox()
+        Me.lblCysTreatment = New System.Windows.Forms.Label()
+        Me.cboCysTreatment = New System.Windows.Forms.ComboBox()
         Me.fraPeakMatchingOptions.SuspendLayout()
         Me.TabPageUniquenessStats.SuspendLayout()
         Me.fraSqlServerOptions.SuspendLayout()
@@ -1138,6 +1140,8 @@ Partial Class frmMain
         '
         'fraDigestionOptions
         '
+        Me.fraDigestionOptions.Controls.Add(Me.cboCysTreatment)
+        Me.fraDigestionOptions.Controls.Add(Me.lblCysTreatment)
         Me.fraDigestionOptions.Controls.Add(Me.txtDigestProteinsMaximumpI)
         Me.fraDigestionOptions.Controls.Add(Me.lblDigestProteinsMaximumpI)
         Me.fraDigestionOptions.Controls.Add(Me.txtDigestProteinsMinimumpI)
@@ -1165,7 +1169,7 @@ Partial Class frmMain
         '
         'txtDigestProteinsMaximumpI
         '
-        Me.txtDigestProteinsMaximumpI.Location = New System.Drawing.Point(693, 98)
+        Me.txtDigestProteinsMaximumpI.Location = New System.Drawing.Point(663, 98)
         Me.txtDigestProteinsMaximumpI.Margin = New System.Windows.Forms.Padding(4)
         Me.txtDigestProteinsMaximumpI.Name = "txtDigestProteinsMaximumpI"
         Me.txtDigestProteinsMaximumpI.Size = New System.Drawing.Size(52, 22)
@@ -1174,7 +1178,7 @@ Partial Class frmMain
         '
         'lblDigestProteinsMaximumpI
         '
-        Me.lblDigestProteinsMaximumpI.Location = New System.Drawing.Point(587, 98)
+        Me.lblDigestProteinsMaximumpI.Location = New System.Drawing.Point(560, 98)
         Me.lblDigestProteinsMaximumpI.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblDigestProteinsMaximumpI.Name = "lblDigestProteinsMaximumpI"
         Me.lblDigestProteinsMaximumpI.Size = New System.Drawing.Size(96, 20)
@@ -1183,7 +1187,7 @@ Partial Class frmMain
         '
         'txtDigestProteinsMinimumpI
         '
-        Me.txtDigestProteinsMinimumpI.Location = New System.Drawing.Point(693, 69)
+        Me.txtDigestProteinsMinimumpI.Location = New System.Drawing.Point(663, 69)
         Me.txtDigestProteinsMinimumpI.Margin = New System.Windows.Forms.Padding(4)
         Me.txtDigestProteinsMinimumpI.Name = "txtDigestProteinsMinimumpI"
         Me.txtDigestProteinsMinimumpI.Size = New System.Drawing.Size(52, 22)
@@ -1192,7 +1196,7 @@ Partial Class frmMain
         '
         'lblDigestProteinsMinimumpI
         '
-        Me.lblDigestProteinsMinimumpI.Location = New System.Drawing.Point(587, 69)
+        Me.lblDigestProteinsMinimumpI.Location = New System.Drawing.Point(560, 69)
         Me.lblDigestProteinsMinimumpI.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.lblDigestProteinsMinimumpI.Name = "lblDigestProteinsMinimumpI"
         Me.lblDigestProteinsMinimumpI.Size = New System.Drawing.Size(96, 20)
@@ -1212,7 +1216,7 @@ Partial Class frmMain
         '
         'chkCysPeptidesOnly
         '
-        Me.chkCysPeptidesOnly.Location = New System.Drawing.Point(661, 20)
+        Me.chkCysPeptidesOnly.Location = New System.Drawing.Point(648, 20)
         Me.chkCysPeptidesOnly.Margin = New System.Windows.Forms.Padding(4)
         Me.chkCysPeptidesOnly.Name = "chkCysPeptidesOnly"
         Me.chkCysPeptidesOnly.Size = New System.Drawing.Size(149, 39)
@@ -1221,7 +1225,7 @@ Partial Class frmMain
         '
         'txtDigestProteinsMinimumResidueCount
         '
-        Me.txtDigestProteinsMinimumResidueCount.Location = New System.Drawing.Point(491, 69)
+        Me.txtDigestProteinsMinimumResidueCount.Location = New System.Drawing.Point(479, 69)
         Me.txtDigestProteinsMinimumResidueCount.Margin = New System.Windows.Forms.Padding(4)
         Me.txtDigestProteinsMinimumResidueCount.Name = "txtDigestProteinsMinimumResidueCount"
         Me.txtDigestProteinsMinimumResidueCount.Size = New System.Drawing.Size(41, 22)
@@ -1239,7 +1243,7 @@ Partial Class frmMain
         '
         'txtDigestProteinsMaximumMissedCleavages
         '
-        Me.txtDigestProteinsMaximumMissedCleavages.Location = New System.Drawing.Point(491, 98)
+        Me.txtDigestProteinsMaximumMissedCleavages.Location = New System.Drawing.Point(479, 98)
         Me.txtDigestProteinsMaximumMissedCleavages.Margin = New System.Windows.Forms.Padding(4)
         Me.txtDigestProteinsMaximumMissedCleavages.Name = "txtDigestProteinsMaximumMissedCleavages"
         Me.txtDigestProteinsMaximumMissedCleavages.Size = New System.Drawing.Size(41, 22)
@@ -1724,6 +1728,24 @@ Partial Class frmMain
         Me.fraOutputTextOptions.TabStop = False
         Me.fraOutputTextOptions.Text = "Output Options"
         '
+        'lblCysTreatment
+        '
+        Me.lblCysTreatment.Location = New System.Drawing.Point(737, 63)
+        Me.lblCysTreatment.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCysTreatment.Name = "lblCysTreatment"
+        Me.lblCysTreatment.Size = New System.Drawing.Size(138, 26)
+        Me.lblCysTreatment.TabIndex = 16
+        Me.lblCysTreatment.Text = "Cys treatment:"
+        '
+        'cboCysTreatment
+        '
+        Me.cboCysTreatment.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboCysTreatment.Location = New System.Drawing.Point(737, 94)
+        Me.cboCysTreatment.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboCysTreatment.Name = "cboCysTreatment"
+        Me.cboCysTreatment.Size = New System.Drawing.Size(155, 24)
+        Me.cboCysTreatment.TabIndex = 17
+        '
         'frmMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
@@ -1919,4 +1941,6 @@ Partial Class frmMain
     Friend WithEvents chkComputeSequenceHashIgnoreILDiff As System.Windows.Forms.CheckBox
     Friend WithEvents chkExcludeProteinDescription As CheckBox
     Friend WithEvents cmdNETInfo As Button
+    Friend WithEvents cboCysTreatment As ComboBox
+    Friend WithEvents lblCysTreatment As Label
 End Class
