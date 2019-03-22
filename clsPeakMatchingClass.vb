@@ -68,9 +68,7 @@ Public Class clsPeakMatchingClass
         End Sub
 
         Public Overridable Function Add(ByRef udtFeatureInfo As udtFeatureInfoType) As Boolean
-            With udtFeatureInfo
-                Return Add(.FeatureID, .FeatureName, .Mass, .NET)
-            End With
+            Return Add(udtFeatureInfo.FeatureID, udtFeatureInfo.FeatureName, udtFeatureInfo.Mass, udtFeatureInfo.NET)
         End Function
 
         Public Overridable Function Add(featureID As Integer, peptideName As String, peptideMass As Double, peptideNET As Single) As Boolean
@@ -85,12 +83,10 @@ Public Class clsPeakMatchingClass
                     'ReDim Preserve mFeatures(mFeatures.Length + MEMORY_RESERVE_CHUNK - 1)
                 End If
 
-                With mFeatures(mFeatureCount)
-                    .FeatureID = featureID
-                    .FeatureName = peptideName
-                    .Mass = peptideMass
-                    .NET = peptideNET
-                End With
+                mFeatures(mFeatureCount).FeatureID = featureID
+                mFeatures(mFeatureCount).FeatureName = peptideName
+                mFeatures(mFeatureCount).Mass = peptideMass
+                mFeatures(mFeatureCount).NET = peptideNET
 
                 If mUseFeatureIDHashTable Then
                     featureIDToRowIndex.Add(featureID, mFeatureCount)
@@ -217,12 +213,10 @@ Public Class clsPeakMatchingClass
                 udtFeatureInfo = mFeatures(rowIndex)
                 Return True
             Else
-                With udtFeatureInfo
-                    .FeatureID = 0
-                    .FeatureName = String.Empty
-                    .Mass = 0
-                    .NET = 0
-                End With
+                udtFeatureInfo.FeatureID = 0
+                udtFeatureInfo.FeatureName = String.Empty
+                udtFeatureInfo.Mass = 0
+                udtFeatureInfo.NET = 0
 
                 Return False
             End If
@@ -234,12 +228,11 @@ Public Class clsPeakMatchingClass
                 udtFeatureInfo = mFeatures(rowIndex)
                 Return True
             Else
-                With udtFeatureInfo
-                    .FeatureID = 0
-                    .FeatureName = String.Empty
-                    .Mass = 0
-                    .NET = 0
-                End With
+                udtFeatureInfo.FeatureID = 0
+                udtFeatureInfo.FeatureName = String.Empty
+                udtFeatureInfo.Mass = 0
+                udtFeatureInfo.NET = 0
+
                 Return False
             End If
 
@@ -354,9 +347,7 @@ Public Class clsPeakMatchingClass
         End Sub
 
         Public Overloads Function Add(ByRef udtFeatureInfo As udtFeatureInfoType, peptideNETStDev As Single, peptideDiscriminantScore As Single) As Boolean
-            With udtFeatureInfo
-                Return Add(.FeatureID, .FeatureName, .Mass, .NET, peptideNETStDev, peptideDiscriminantScore)
-            End With
+            Return Add(udtFeatureInfo.FeatureID, udtFeatureInfo.FeatureName, udtFeatureInfo.Mass, udtFeatureInfo.NET, peptideNETStDev, peptideDiscriminantScore)
         End Function
 
         Public Overloads Function Add(featureID As Integer, peptideName As String, peptideMass As Double, peptideNET As Single, peptideNETStDev As Single, peptideDiscriminantScore As Single) As Boolean
@@ -372,10 +363,8 @@ Public Class clsPeakMatchingClass
                     ReDim Preserve mExtendedInfo(mFeatures.Length - 1)
                 End If
 
-                With mExtendedInfo(mFeatureCount - 1)
-                    .NETStDev = peptideNETStDev
-                    .DiscriminantScore = peptideDiscriminantScore
-                End With
+                mExtendedInfo(mFeatureCount - 1).NETStDev = peptideNETStDev
+                mExtendedInfo(mFeatureCount - 1).DiscriminantScore = peptideDiscriminantScore
 
                 ' If we get here, all went well
                 Return True
@@ -405,12 +394,10 @@ Public Class clsPeakMatchingClass
                 discriminantScore = mExtendedInfo(rowIndex).DiscriminantScore
                 Return True
             Else
-                With udtFeatureInfo
-                    .FeatureID = 0
-                    .FeatureName = String.Empty
-                    .Mass = 0
-                    .NET = 0
-                End With
+                udtFeatureInfo.FeatureID = 0
+                udtFeatureInfo.FeatureName = String.Empty
+                udtFeatureInfo.Mass = 0
+                udtFeatureInfo.NET = 0
                 netStDev = 0
                 discriminantScore = 0
 
@@ -426,14 +413,13 @@ Public Class clsPeakMatchingClass
                 discriminantScore = mExtendedInfo(rowIndex).DiscriminantScore
                 Return True
             Else
-                With udtFeatureInfo
-                    .FeatureID = 0
-                    .FeatureName = String.Empty
-                    .Mass = 0
-                    .NET = 0
-                End With
+                udtFeatureInfo.FeatureID = 0
+                udtFeatureInfo.FeatureName = String.Empty
+                udtFeatureInfo.Mass = 0
+                udtFeatureInfo.NET = 0
                 netStDev = 0
                 discriminantScore = 0
+
                 Return False
             End If
 
@@ -480,9 +466,10 @@ Public Class clsPeakMatchingClass
         End Sub
 
         Public Function AddMatch(featureID As Integer, ByRef udtMatchResultInfo As udtPeakMatchingResultType) As Boolean
-            With udtMatchResultInfo
-                Return AddMatch(featureID, .MatchingID, .SLiCScore, .DelSLiC, .MassErr, .NETErr, .MultiAMTHitCount)
-            End With
+            Return AddMatch(featureID, udtMatchResultInfo.MatchingID,
+                            udtMatchResultInfo.SLiCScore, udtMatchResultInfo.DelSLiC,
+                            udtMatchResultInfo.MassErr, udtMatchResultInfo.NETErr,
+                            udtMatchResultInfo.MultiAMTHitCount)
         End Function
 
         Public Function AddMatch(featureID As Integer, matchingID As Integer, slicScore As Double, delSLiC As Double, massErr As Double, netErr As Double, multiAMTHitCount As Integer) As Boolean
@@ -490,18 +477,15 @@ Public Class clsPeakMatchingClass
             ' Add the match
             If mPMResultsCount >= mPMResults.Length Then
                 ReDim Preserve mPMResults(mPMResults.Length * 2 - 1)
-                'ReDim Preserve mPMResults(mPMResults.Length + MEMORY_RESERVE_CHUNK - 1)
             End If
 
-            With mPMResults(mPMResultsCount)
-                .FeatureID = featureID
-                .Details.MatchingID = matchingID
-                .Details.SLiCScore = slicScore
-                .Details.DelSLiC = delSLiC
-                .Details.MassErr = massErr
-                .Details.NETErr = netErr
-                .Details.MultiAMTHitCount = multiAMTHitCount
-            End With
+            mPMResults(mPMResultsCount).FeatureID = featureID
+            mPMResults(mPMResultsCount).Details.MatchingID = matchingID
+            mPMResults(mPMResultsCount).Details.SLiCScore = slicScore
+            mPMResults(mPMResultsCount).Details.DelSLiC = delSLiC
+            mPMResults(mPMResultsCount).Details.MassErr = massErr
+            mPMResults(mPMResultsCount).Details.NETErr = netErr
+            mPMResults(mPMResultsCount).Details.MultiAMTHitCount = multiAMTHitCount
 
             mPMResultsCount += 1
             mPMResultsIsSorted = False
@@ -865,25 +849,22 @@ Public Class clsPeakMatchingClass
                 netStDevCombined = 0.025
             End If
 
-            With udtRawMatches(index)
-                .StandardizedSquaredDistance = .MassErr ^ 2 / massStDevAbs ^ 2 + .NETErr ^ 2 / netStDevCombined ^ 2
+            udtRawMatches(index).StandardizedSquaredDistance = udtRawMatches(index).MassErr ^ 2 / massStDevAbs ^ 2 +
+                                                               udtRawMatches(index).NETErr ^ 2 / netStDevCombined ^ 2
 
-                .SLiCScoreNumerator = (1 / (massStDevAbs * netStDevCombined)) * Math.Exp(- .StandardizedSquaredDistance / 2)
+            udtRawMatches(index).SLiCScoreNumerator = (1 / (massStDevAbs * netStDevCombined)) * Math.Exp(-udtRawMatches(index).StandardizedSquaredDistance / 2)
 
-                numeratorSum += .SLiCScoreNumerator
+            numeratorSum += udtRawMatches(index).SLiCScoreNumerator
 
-            End With
         Next index
 
         ' Compute the match score for each match
         For index = 0 To udtRawMatches.Length - 1
-            With udtRawMatches(index)
-                If numeratorSum > 0 Then
-                    .SLiCScore = Math.Round(.SLiCScoreNumerator / numeratorSum, 5)
-                Else
-                    .SLiCScore = 0
-                End If
-            End With
+            If numeratorSum > 0 Then
+                udtRawMatches(index).SLiCScore = Math.Round(udtRawMatches(index).SLiCScoreNumerator / numeratorSum, 5)
+            Else
+                udtRawMatches(index).SLiCScore = 0
+            End If
         Next index
 
         If udtRawMatches.Length > 1 Then
@@ -935,10 +916,11 @@ Public Class clsPeakMatchingClass
             ' Add new match results to featureMatchResults
             ' Record, at most, mMaxPeakMatchingResultsPerFeatureToSave entries
             For index = 0 To CInt(Math.Min(mMaxPeakMatchingResultsPerFeatureToSave, udtRawMatches.Length)) - 1
-                With udtRawMatches(index)
-                    comparisonFeatures.GetFeatureInfoByRowIndex(.MatchingIDIndex, udtComparisonFeatureInfo)
-                    featureMatchResults.AddMatch(udtFeatureToIdentify.FeatureID, udtComparisonFeatureInfo.FeatureID, .SLiCScore, .DelSLiC, .MassErr, .NETErr, udtRawMatches.Length)
-                End With
+                comparisonFeatures.GetFeatureInfoByRowIndex(udtRawMatches(index).MatchingIDIndex, udtComparisonFeatureInfo)
+                featureMatchResults.AddMatch(udtFeatureToIdentify.FeatureID, udtComparisonFeatureInfo.FeatureID,
+                                             udtRawMatches(index).SLiCScore, udtRawMatches(index).DelSLiC,
+                                             udtRawMatches(index).MassErr, udtRawMatches(index).NETErr,
+                                             udtRawMatches.Length)
             Next index
         End If
 
@@ -1149,10 +1131,8 @@ Public Class clsPeakMatchingClass
     Private Sub InitializeLocalVariables()
         mMaxPeakMatchingResultsPerFeatureToSave = 20
 
-        With mSearchModeOptions
-            .UseMaxSearchDistanceMultiplierAndSLiCScore = True
-            .UseEllipseSearchRegion = True
-        End With
+        mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore = True
+        mSearchModeOptions.UseEllipseSearchRegion = True
 
         ''mUseSqlServerDBToCacheData = False
         ''mUseSqlServerForMatchResults = False
@@ -1375,70 +1355,63 @@ Public Class clsPeakMatchingClass
 
             Dim MWTolPPMBroad As Double
 
-            With mComputedSearchTolerances
-                Select Case MassTolType
-                    Case MassToleranceConstants.PPM
-                        .MWTolAbsFinal = PPMToMass(mMassTolerance, referenceMass)
-                        MWTolPPMBroad = mMassTolerance
-                    Case MassToleranceConstants.Absolute
-                        .MWTolAbsFinal = mMassTolerance
-                        If referenceMass > 0 Then
-                            MWTolPPMBroad = MassToPPM(mMassTolerance, referenceMass)
-                        Else
-                            MWTolPPMBroad = mSLiCScoreOptions.MassPPMStDev
-                        End If
-                    Case Else
-                        Console.WriteLine("Programming error in DefinePeakMatchingTolerances; Unknown MassToleranceType: " & MassTolType.ToString())
-                End Select
-
-                With mSLiCScoreOptions
-                    If MWTolPPMBroad < .MassPPMStDev * .MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR Then
-                        MWTolPPMBroad = .MassPPMStDev * .MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR
+            Select Case MassTolType
+                Case MassToleranceConstants.PPM
+                    mComputedSearchTolerances.MWTolAbsFinal = PPMToMass(mMassTolerance, referenceMass)
+                    MWTolPPMBroad = mMassTolerance
+                Case MassToleranceConstants.Absolute
+                    mComputedSearchTolerances.MWTolAbsFinal = mMassTolerance
+                    If referenceMass > 0 Then
+                        MWTolPPMBroad = MassToPPM(mMassTolerance, referenceMass)
+                    Else
+                        MWTolPPMBroad = mSLiCScoreOptions.MassPPMStDev
                     End If
-                End With
+                Case Else
+                    Console.WriteLine("Programming error in DefinePeakMatchingTolerances; Unknown MassToleranceType: " & MassTolType.ToString())
+            End Select
 
-                .NETTolBroad = mSLiCScoreOptions.NETStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR
-                If .NETTolBroad < mNETTolerance Then
-                    .NETTolBroad = mNETTolerance
-                End If
+            If MWTolPPMBroad < mSLiCScoreOptions.MassPPMStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR Then
+                MWTolPPMBroad = mSLiCScoreOptions.MassPPMStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR
+            End If
 
-                .NETTolFinal = mNETTolerance
+            mComputedSearchTolerances.NETTolBroad = mSLiCScoreOptions.NETStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR
+            If mComputedSearchTolerances.NETTolBroad < mNETTolerance Then
+                mComputedSearchTolerances.NETTolBroad = mNETTolerance
+            End If
 
-                ' Convert from PPM to Absolute mass
-                .MWTolAbsBroad = PPMToMass(MWTolPPMBroad, referenceMass)
+            mComputedSearchTolerances.NETTolFinal = mNETTolerance
 
-            End With
+            ' Convert from PPM to Absolute mass
+            mComputedSearchTolerances.MWTolAbsBroad = PPMToMass(MWTolPPMBroad, referenceMass)
 
         End Sub
 
         Private Sub InitializeSLiCScoreOptions(computeUsingSearchThresholds As Boolean)
 
-            With mSLiCScoreOptions
-                If computeUsingSearchThresholds Then
-                    ' Define the Mass StDev (in ppm) using the narrow mass tolerance divided by 2 = STDEV_SCALING_FACTOR
-                    Select Case MassTolType
-                        Case MassToleranceConstants.Absolute
-                            .MassPPMStDev = MassToPPM(mMassTolerance, 1000) / STDEV_SCALING_FACTOR
-                        Case MassToleranceConstants.PPM
-                            .MassPPMStDev = mMassTolerance / STDEV_SCALING_FACTOR
-                        Case Else
-                            ' Unknown type
-                            .MassPPMStDev = 3
-                    End Select
+            If computeUsingSearchThresholds Then
+                ' Define the Mass StDev (in ppm) using the narrow mass tolerance divided by 2 = STDEV_SCALING_FACTOR
+                Select Case MassTolType
+                    Case MassToleranceConstants.Absolute
+                        mSLiCScoreOptions.MassPPMStDev = MassToPPM(mMassTolerance, 1000) / STDEV_SCALING_FACTOR
+                    Case MassToleranceConstants.PPM
+                        mSLiCScoreOptions.MassPPMStDev = mMassTolerance / STDEV_SCALING_FACTOR
+                    Case Else
+                        ' Unknown type
+                        mSLiCScoreOptions.MassPPMStDev = 3
+                End Select
 
-                    ' Define the Net StDev using the narrow NET tolerance divided by 2 = STDEV_SCALING_FACTOR
-                    .NETStDev = mNETTolerance / STDEV_SCALING_FACTOR
-                Else
-                    .MassPPMStDev = 3
-                    .NETStDev = 0.025
-                End If
+                ' Define the Net StDev using the narrow NET tolerance divided by 2 = STDEV_SCALING_FACTOR
+                mSLiCScoreOptions.NETStDev = mNETTolerance / STDEV_SCALING_FACTOR
+            Else
+                mSLiCScoreOptions.MassPPMStDev = 3
+                mSLiCScoreOptions.NETStDev = 0.025
+            End If
 
-                .UseAMTNETStDev = False
-                .MaxSearchDistanceMultiplier = mSLiCScoreMaxSearchDistanceMultiplier
-                If .MaxSearchDistanceMultiplier < 1 Then
-                    .MaxSearchDistanceMultiplier = DEFAULT_SLIC_MAX_SEARCH_DISTANCE_MULTIPLIER
-                End If
-            End With
+            mSLiCScoreOptions.UseAMTNETStDev = False
+            mSLiCScoreOptions.MaxSearchDistanceMultiplier = mSLiCScoreMaxSearchDistanceMultiplier
+            If mSLiCScoreOptions.MaxSearchDistanceMultiplier < 1 Then
+                mSLiCScoreOptions.MaxSearchDistanceMultiplier = DEFAULT_SLIC_MAX_SEARCH_DISTANCE_MULTIPLIER
+            End If
 
         End Sub
 

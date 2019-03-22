@@ -1230,23 +1230,21 @@ Public Class PeptideSequenceClass
 
         Dim returnVal As Integer
 
-        With mCTerminus
-            .Formula = formula
-            .Mass = ComputeFormulaWeightCHNOSP(.Formula)
-            .MassElementMode = mCurrentElementMode
-            If .Mass < 0 Then
-                .Mass = 0
-                returnVal = 1
-            Else
-                returnVal = 0
-            End If
-            .PrecedingResidue = String.Empty
-            If use3LetterCode AndAlso followingResidue.Length > 0 Then
-                .FollowingResidue = GetAminoAcidSymbolConversion(followingResidue, False)
-            Else
-                .FollowingResidue = followingResidue
-            End If
-        End With
+        mCTerminus.Formula = formula
+        mCTerminus.Mass = ComputeFormulaWeightCHNOSP(mCTerminus.Formula)
+        mCTerminus.MassElementMode = mCurrentElementMode
+        If mCTerminus.Mass < 0 Then
+            mCTerminus.Mass = 0
+            returnVal = 1
+        Else
+            returnVal = 0
+        End If
+        mCTerminus.PrecedingResidue = String.Empty
+        If use3LetterCode AndAlso followingResidue.Length > 0 Then
+            mCTerminus.FollowingResidue = GetAminoAcidSymbolConversion(followingResidue, False)
+        Else
+            mCTerminus.FollowingResidue = followingResidue
+        End If
 
         If Not mDelayUpdateResidueMass Then UpdateSequenceMass()
         Return returnVal
@@ -1281,24 +1279,22 @@ Public Class PeptideSequenceClass
 
         Dim returnVal As Integer
 
-        With mNTerminus
-            .Formula = formula
-            .Mass = ComputeFormulaWeightCHNOSP(.Formula)
-            .MassElementMode = mCurrentElementMode
-            If .Mass < 0 Then
-                .Mass = 0
-                returnVal = 1
-            Else
-                returnVal = 0
-            End If
-            .PrecedingResidue = String.Empty
-            If use3LetterCode AndAlso precedingResidue.Length > 0 Then
-                .PrecedingResidue = GetAminoAcidSymbolConversion(precedingResidue, False)
-            Else
-                .PrecedingResidue = precedingResidue
-            End If
-            .FollowingResidue = String.Empty
-        End With
+        mNTerminus.Formula = formula
+        mNTerminus.Mass = ComputeFormulaWeightCHNOSP(mNTerminus.Formula)
+        mNTerminus.MassElementMode = mCurrentElementMode
+        If mNTerminus.Mass < 0 Then
+            mNTerminus.Mass = 0
+            returnVal = 1
+        Else
+            returnVal = 0
+        End If
+        mNTerminus.PrecedingResidue = String.Empty
+        If use3LetterCode AndAlso precedingResidue.Length > 0 Then
+            mNTerminus.PrecedingResidue = GetAminoAcidSymbolConversion(precedingResidue, False)
+        Else
+            mNTerminus.PrecedingResidue = precedingResidue
+        End If
+        mNTerminus.FollowingResidue = String.Empty
 
         If Not mDelayUpdateResidueMass Then UpdateSequenceMass()
         Return returnVal
@@ -1392,12 +1388,12 @@ Public Class PeptideSequenceClass
                     Else
                         ' First letter is a character, but next two are not; ignore it
                         index += 1
-                End If
+                    End If
                 Else
-                ' Ignore anything else
-                index += 1
+                    ' Ignore anything else
+                    index += 1
                 End If
-        Loop
+            Loop
         End If
 
         ' By calling SetNTerminus and SetCTerminus, the UpdateSequenceMass() Sub will also be called
@@ -1481,19 +1477,15 @@ Public Class PeptideSequenceClass
     End Sub
 
     Private Sub ValidateTerminusMasses()
-        With mNTerminus
-            If .MassElementMode <> mCurrentElementMode Then
-                .Mass = ComputeFormulaWeightCHNOSP(.Formula)
-                .MassElementMode = mCurrentElementMode
-            End If
-        End With
+        If mNTerminus.MassElementMode <> mCurrentElementMode Then
+            mNTerminus.Mass = ComputeFormulaWeightCHNOSP(mNTerminus.Formula)
+            mNTerminus.MassElementMode = mCurrentElementMode
+        End If
 
-        With mCTerminus
-            If .MassElementMode <> mCurrentElementMode Then
-                .Mass = ComputeFormulaWeightCHNOSP(.Formula)
-                .MassElementMode = mCurrentElementMode
-            End If
-        End With
+        If mCTerminus.MassElementMode <> mCurrentElementMode Then
+            mCTerminus.Mass = ComputeFormulaWeightCHNOSP(mCTerminus.Formula)
+            mCTerminus.MassElementMode = mCurrentElementMode
+        End If
     End Sub
 
     Private Sub InitializeSharedData()
@@ -1504,25 +1496,23 @@ Public Class PeptideSequenceClass
             ElementMasses.Clear()
         End If
 
-        With ElementMasses
-            If mCurrentElementMode = ElementModeConstants.IsotopicMass Then
-                ' Isotopic masses
-                .Add("C"c, 12.0)
-                .Add("H"c, 1.0078246)
-                .Add("N"c, 14.003074)
-                .Add("O"c, 15.994915)
-                .Add("S"c, 31.972072)
-                .Add("P"c, 30.973763)
-            Else
-                ' Average masses
-                .Add("C"c, 12.0107)
-                .Add("H"c, 1.00794)
-                .Add("N"c, 14.00674)
-                .Add("O"c, 15.9994)
-                .Add("S"c, 32.066)
-                .Add("P"c, 30.973761)
-            End If
-        End With
+        If mCurrentElementMode = ElementModeConstants.IsotopicMass Then
+            ' Isotopic masses
+            ElementMasses.Add("C"c, 12.0)
+            ElementMasses.Add("H"c, 1.0078246)
+            ElementMasses.Add("N"c, 14.003074)
+            ElementMasses.Add("O"c, 15.994915)
+            ElementMasses.Add("S"c, 31.972072)
+            ElementMasses.Add("P"c, 30.973763)
+        Else
+            ' Average masses
+            ElementMasses.Add("C"c, 12.0107)
+            ElementMasses.Add("H"c, 1.00794)
+            ElementMasses.Add("N"c, 14.00674)
+            ElementMasses.Add("O"c, 15.9994)
+            ElementMasses.Add("S"c, 32.066)
+            ElementMasses.Add("P"c, 30.973761)
+        End If
 
         If AminoAcidMasses Is Nothing Then
             AminoAcidMasses = New Dictionary(Of Char, Double)

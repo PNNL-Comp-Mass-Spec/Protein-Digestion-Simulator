@@ -460,17 +460,15 @@ Public Class clsParseProteinFile
                             End If
                         End If
 
-                        With udtAlternateNames(index)
-                            If charIndex >= proteinNames(index).Length - 1 Then
-                                ' No accession after the colon; invalid entry so discard this entry and stop parsing
-                                ReDim Preserve udtAlternateNames(index - 1)
-                                Exit For
-                            End If
+                        If charIndex >= proteinNames(index).Length - 1 Then
+                            ' No accession after the colon; invalid entry so discard this entry and stop parsing
+                            ReDim Preserve udtAlternateNames(index - 1)
+                            Exit For
+                        End If
 
-                            .RefName = proteinNames(index).Substring(0, charIndex)
-                            .RefAccession = proteinNames(index).Substring(charIndex + 1)
-                            alternateNameCount += 1
-                        End With
+                        udtAlternateNames(index).RefName = proteinNames(index).Substring(0, charIndex)
+                        udtAlternateNames(index).RefAccession = proteinNames(index).Substring(charIndex + 1)
+                        alternateNameCount += 1
 
                         charIndex = description.IndexOf(proteinNames(index), StringComparison.Ordinal)
                         If charIndex >= 0 Then
@@ -839,25 +837,21 @@ Public Class clsParseProteinFile
 
                     OutputFileDelimiter = LookupColumnDelimiterChar(delimiterIndex, customDelimiter, OutputFileDelimiter)
 
-                    With DigestionOptions
-                        .IncludePrefixAndSuffixResidues = settingsFile.GetParam(XML_SECTION_OPTIONS, "IncludePrefixAndSuffixResidues", .IncludePrefixAndSuffixResidues)
-                    End With
+                    DigestionOptions.IncludePrefixAndSuffixResidues = settingsFile.GetParam(XML_SECTION_OPTIONS, "IncludePrefixAndSuffixResidues", DigestionOptions.IncludePrefixAndSuffixResidues)
 
-                    With FastaFileOptions
-                        .ProteinLineStartChar = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "RefStartChar", .ProteinLineStartChar.ToString()).Chars(0)
+                    FastaFileOptions.ProteinLineStartChar = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "RefStartChar", FastaFileOptions.ProteinLineStartChar.ToString()).Chars(0)
 
-                        delimiterIndex = DelimiterCharConstants.Space
-                        customDelimiter = " "c
+                    delimiterIndex = DelimiterCharConstants.Space
+                    customDelimiter = " "c
 
-                        delimiterIndex = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "RefEndCharIndex", delimiterIndex)
+                    delimiterIndex = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "RefEndCharIndex", delimiterIndex)
 
-                        .ProteinLineAccessionEndChar = LookupColumnDelimiterChar(delimiterIndex, customDelimiter, .ProteinLineAccessionEndChar)
+                    FastaFileOptions.ProteinLineAccessionEndChar = LookupColumnDelimiterChar(delimiterIndex, customDelimiter, FastaFileOptions.ProteinLineAccessionEndChar)
 
-                        .LookForAddnlRefInDescription = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "LookForAddnlRefInDescription", .LookForAddnlRefInDescription)
+                    FastaFileOptions.LookForAddnlRefInDescription = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "LookForAddnlRefInDescription", FastaFileOptions.LookForAddnlRefInDescription)
 
-                        .AddnlRefSepChar = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "AddnlRefSepChar", .AddnlRefSepChar.ToString()).Chars(0)
-                        .AddnlRefAccessionSepChar = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "AddnlRefAccessionSepChar", .AddnlRefAccessionSepChar.ToString()).Chars(0)
-                    End With
+                    FastaFileOptions.AddnlRefSepChar = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "AddnlRefSepChar", FastaFileOptions.AddnlRefSepChar.ToString()).Chars(0)
+                    FastaFileOptions.AddnlRefAccessionSepChar = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "AddnlRefAccessionSepChar", FastaFileOptions.AddnlRefAccessionSepChar.ToString()).Chars(0)
 
                     ExcludeProteinSequence = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ExcludeProteinSequence", ExcludeProteinSequence)
                     ComputeProteinMass = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeProteinMass", ComputeProteinMass)
@@ -872,22 +866,20 @@ Public Class clsParseProteinFile
                     ProteinScramblingMode = CType(settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinReversalIndex", ProteinScramblingMode), ProteinScramblingModeConstants)
                     ProteinScramblingLoopCount = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinScramblingLoopCount", ProteinScramblingLoopCount)
 
-                    With DigestionOptions
-                        .CleavageRuleID = CType(settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CleavageRuleTypeIndex", .CleavageRuleID), clsInSilicoDigest.CleavageRuleConstants)
-                        .RemoveDuplicateSequences = Not settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "IncludeDuplicateSequences", Not .RemoveDuplicateSequences)
+                    DigestionOptions.CleavageRuleID = CType(settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CleavageRuleTypeIndex", DigestionOptions.CleavageRuleID), clsInSilicoDigest.CleavageRuleConstants)
+                    DigestionOptions.RemoveDuplicateSequences = Not settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "IncludeDuplicateSequences", Not DigestionOptions.RemoveDuplicateSequences)
 
-                        cysPeptidesOnly = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CysPeptidesOnly", False)
-                        If cysPeptidesOnly Then
-                            .AminoAcidResidueFilterChars = New Char() {"C"c}
-                        Else
-                            .AminoAcidResidueFilterChars = New Char() {}
-                        End If
+                    cysPeptidesOnly = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CysPeptidesOnly", False)
+                    If cysPeptidesOnly Then
+                        DigestionOptions.AminoAcidResidueFilterChars = New Char() {"C"c}
+                    Else
+                        DigestionOptions.AminoAcidResidueFilterChars = New Char() {}
+                    End If
 
-                        .MinFragmentMass = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMinimumMass", .MinFragmentMass)
-                        .MaxFragmentMass = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMaximumMass", .MaxFragmentMass)
-                        .MinFragmentResidueCount = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMinimumResidueCount", .MinFragmentResidueCount)
-                        .MaxMissedCleavages = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMaximumMissedCleavages", .MaxMissedCleavages)
-                    End With
+                    DigestionOptions.MinFragmentMass = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMinimumMass", DigestionOptions.MinFragmentMass)
+                    DigestionOptions.MaxFragmentMass = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMaximumMass", DigestionOptions.MaxFragmentMass)
+                    DigestionOptions.MinFragmentResidueCount = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMinimumResidueCount", DigestionOptions.MinFragmentResidueCount)
+                    DigestionOptions.MaxMissedCleavages = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMaximumMissedCleavages", DigestionOptions.MaxMissedCleavages)
 
                 End If
             End If
@@ -1006,11 +998,9 @@ Public Class clsParseProteinFile
             ' Set the options for mpICalculator
             ' Note that this will also update the pICalculator object in inSilicoDigest
             If Not mpICalculator Is Nothing Then
-                With mpICalculator
-                    .HydrophobicityType = HydrophobicityType
-                    .ReportMaximumpI = ReportMaximumpI
-                    .SequenceWidthToExamineForMaximumpI = mSequenceWidthToExamineForMaximumpI
-                End With
+                mpICalculator.HydrophobicityType = HydrophobicityType
+                mpICalculator.ReportMaximumpI = ReportMaximumpI
+                mpICalculator.SequenceWidthToExamineForMaximumpI = mSequenceWidthToExamineForMaximumpI
             End If
 
             If CreateProteinOutputFile Then
@@ -1068,16 +1058,14 @@ Public Class clsParseProteinFile
 
                 If CreateProteinOutputFile Then
                     eScramblingMode = ProteinScramblingMode
-                    With udtResidueCache
-                        .SamplingPercentage = ProteinScramblingSamplingPercentage
-                        If .SamplingPercentage <= 0 Then .SamplingPercentage = 100
-                        If .SamplingPercentage > 100 Then .SamplingPercentage = 100
+                    udtResidueCache.SamplingPercentage = ProteinScramblingSamplingPercentage
+                    If udtResidueCache.SamplingPercentage <= 0 Then udtResidueCache.SamplingPercentage = 100
+                    If udtResidueCache.SamplingPercentage > 100 Then udtResidueCache.SamplingPercentage = 100
 
-                        .Cache = String.Empty
-                        .CacheLength = SCRAMBLING_CACHE_LENGTH
-                        .OutputCount = 0
-                        .ResiduesToWrite = String.Empty
-                    End With
+                    udtResidueCache.Cache = String.Empty
+                    udtResidueCache.CacheLength = SCRAMBLING_CACHE_LENGTH
+                    udtResidueCache.OutputCount = 0
+                    udtResidueCache.ResiduesToWrite = String.Empty
 
                     If eScramblingMode <> ProteinScramblingModeConstants.None Then
 
@@ -1127,9 +1115,7 @@ Public Class clsParseProteinFile
                     If lookForAddnlRefInDescription Then
 
                         For index = 0 To udtAddnlRefsToOutput.Length - 1
-                            With udtAddnlRefsToOutput(index)
-                                outLine.Append(.RefName & mOutputFileDelimiter)
-                            End With
+                            outLine.Append(udtAddnlRefsToOutput(index).RefName & mOutputFileDelimiter)
                         Next index
                     End If
 
@@ -1329,53 +1315,55 @@ Public Class clsParseProteinFile
       proteinFileReader As ProteinFileReaderBaseClass,
       lookForAddnlRefInDescription As Boolean)
 
-        With mProteins(mProteinCount)
-            .Name = proteinFileReader.ProteinName
-            .Description = proteinFileReader.ProteinDescription
 
-            If TruncateProteinDescription AndAlso .Description.Length > MAX_PROTEIN_DESCRIPTION_LENGTH Then
-                .Description = .Description.Substring(0, MAX_PROTEIN_DESCRIPTION_LENGTH - 3) & "..."
-            End If
+        mProteins(mProteinCount).Name = proteinFileReader.ProteinName
+        mProteins(mProteinCount).Description = proteinFileReader.ProteinDescription
 
-            If lookForAddnlRefInDescription Then
-                ' Look for additional protein names in .Description, delimited by FastaFileOptions.AddnlRefSepChar
-                .AlternateNameCount = ExtractAlternateProteinNamesFromDescription(.Description, .AlternateNames)
-            Else
-                .AlternateNameCount = 0
-                ReDim .AlternateNames(0)
-            End If
+        If TruncateProteinDescription AndAlso mProteins(mProteinCount).Description.Length > MAX_PROTEIN_DESCRIPTION_LENGTH Then
+            mProteins(mProteinCount).Description = mProteins(mProteinCount).Description.Substring(0, MAX_PROTEIN_DESCRIPTION_LENGTH - 3) & "..."
+        End If
 
-            .Sequence = proteinFileReader.ProteinSequence
+        If lookForAddnlRefInDescription Then
+            ' Look for additional protein names in .Description, delimited by FastaFileOptions.AddnlRefSepChar
+            mProteins(mProteinCount).AlternateNameCount = ExtractAlternateProteinNamesFromDescription(
+                mProteins(mProteinCount).Description,
+                mProteins(mProteinCount).AlternateNames)
+        Else
+            mProteins(mProteinCount).AlternateNameCount = 0
+            ReDim mProteins(mProteinCount).AlternateNames(0)
+        End If
 
-            If ComputeSequenceHashIgnoreILDiff Then
-                .SequenceHash = PRISM.HashUtilities.ComputeStringHashSha1(.Sequence.Replace("L"c, "I"c)).ToUpper()
-            Else
-                .SequenceHash = PRISM.HashUtilities.ComputeStringHashSha1(.Sequence).ToUpper()
-            End If
+        Dim sequence = proteinFileReader.ProteinSequence
+        mProteins(mProteinCount).Sequence = sequence
 
-            If ComputeProteinMass Then
-                .Mass = ComputeSequenceMass(.Sequence)
-            Else
-                .Mass = 0
-            End If
+        If ComputeSequenceHashIgnoreILDiff Then
+            mProteins(mProteinCount).SequenceHash = PRISM.HashUtilities.ComputeStringHashSha1(sequence.Replace("L"c, "I"c)).ToUpper()
+        Else
+            mProteins(mProteinCount).SequenceHash = PRISM.HashUtilities.ComputeStringHashSha1(sequence).ToUpper()
+        End If
 
-            If ComputepI Then
-                .pI = ComputeSequencepI(.Sequence)
-                .Hydrophobicity = ComputeSequenceHydrophobicity(.Sequence)
-            Else
-                .pI = 0
-                .Hydrophobicity = 0
-            End If
+        If ComputeProteinMass Then
+            mProteins(mProteinCount).Mass = ComputeSequenceMass(sequence)
+        Else
+            mProteins(mProteinCount).Mass = 0
+        End If
 
-            If ComputeNET Then
-                .ProteinNET = ComputeSequenceNET(.Sequence)
-            End If
+        If ComputepI Then
+            mProteins(mProteinCount).pI = ComputeSequencepI(sequence)
+            mProteins(mProteinCount).Hydrophobicity = ComputeSequenceHydrophobicity(sequence)
+        Else
+            mProteins(mProteinCount).pI = 0
+            mProteins(mProteinCount).Hydrophobicity = 0
+        End If
 
-            If ComputeSCXNET Then
-                .ProteinSCXNET = ComputeSequenceSCXNET(.Sequence)
-            End If
+        If ComputeNET Then
+            mProteins(mProteinCount).ProteinNET = ComputeSequenceNET(sequence)
+        End If
 
-        End With
+        If ComputeSCXNET Then
+            mProteins(mProteinCount).ProteinSCXNET = ComputeSequenceSCXNET(sequence)
+        End If
+
 
     End Sub
 
@@ -1451,28 +1439,28 @@ Public Class clsParseProteinFile
     Private Sub ParseProteinFileWriteFasta(proteinFileWriter As TextWriter, outLine As StringBuilder)
         ' Write the entry to the output fasta file
 
-        With mProteins(mProteinCount)
-            If .Name = "ProteinName" AndAlso .Description = "Description" AndAlso .Sequence = "Sequence" Then
-                ' Skip this entry; it's an artifact from converting from a fasta file to a text file, then back to a fasta file
-                Return
-            End If
+        If mProteins(mProteinCount).Name = "ProteinName" AndAlso
+           mProteins(mProteinCount).Description = "Description" AndAlso
+           mProteins(mProteinCount).Sequence = "Sequence" Then
+            ' Skip this entry; it's an artifact from converting from a fasta file to a text file, then back to a fasta file
+            Return
+        End If
 
-            outLine.Clear()
-            outLine.Append(FastaFileOptions.ProteinLineStartChar & .Name)
-            If Not ExcludeProteinDescription Then
-                outLine.Append(FastaFileOptions.ProteinLineAccessionEndChar & .Description)
-            End If
-            proteinFileWriter.WriteLine(outLine.ToString())
+        outLine.Clear()
+        outLine.Append(FastaFileOptions.ProteinLineStartChar & mProteins(mProteinCount).Name)
+        If Not ExcludeProteinDescription Then
+            outLine.Append(FastaFileOptions.ProteinLineAccessionEndChar & mProteins(mProteinCount).Description)
+        End If
+        proteinFileWriter.WriteLine(outLine.ToString())
 
-            If Not ExcludeProteinSequence Then
-                Dim index = 0
-                Do While index < .Sequence.Length
-                    Dim length = Math.Min(60, .Sequence.Length - index)
-                    proteinFileWriter.WriteLine(.Sequence.Substring(index, length))
-                    index += 60
-                Loop
-            End If
-        End With
+        If Not ExcludeProteinSequence Then
+            Dim index = 0
+            Do While index < mProteins(mProteinCount).Sequence.Length
+                Dim length = Math.Min(60, mProteins(mProteinCount).Sequence.Length - index)
+                proteinFileWriter.WriteLine(mProteins(mProteinCount).Sequence.Substring(index, length))
+                index += 60
+            Loop
+        End If
     End Sub
 
     Private Sub ParseProteinFileWriteTextDelimited(
@@ -1485,68 +1473,65 @@ Public Class clsParseProteinFile
 
         outLine.Clear()
 
-        With mProteins(mProteinCount)
 
-            If lookForAddnlRefInDescription Then
-                ' Reset the Accession numbers in udtAddnlRefsToOutput
-                For index = 0 To udtAddnlRefsToOutput.Length - 1
-                    udtAddnlRefsToOutput(index).RefAccession = String.Empty
-                Next index
+        If lookForAddnlRefInDescription Then
+            ' Reset the Accession numbers in udtAddnlRefsToOutput
+            For index = 0 To udtAddnlRefsToOutput.Length - 1
+                udtAddnlRefsToOutput(index).RefAccession = String.Empty
+            Next index
 
-                ' Update the accession numbers in udtAddnlRefsToOutput
-                For index = 0 To .AlternateNameCount - 1
-                    For compareIndex = 0 To udtAddnlRefsToOutput.Length - 1
-                        If udtAddnlRefsToOutput(compareIndex).RefName.ToUpper = .AlternateNames(index).RefName.ToUpper Then
-                            udtAddnlRefsToOutput(compareIndex).RefAccession = .AlternateNames(index).RefAccession
-                            Exit For
-                        End If
-                    Next compareIndex
-                Next index
+            ' Update the accession numbers in udtAddnlRefsToOutput
+            For index = 0 To mProteins(mProteinCount).AlternateNameCount - 1
+                For compareIndex = 0 To udtAddnlRefsToOutput.Length - 1
+                    If udtAddnlRefsToOutput(compareIndex).RefName.ToUpper = mProteins(mProteinCount).AlternateNames(index).RefName.ToUpper Then
+                        udtAddnlRefsToOutput(compareIndex).RefAccession = mProteins(mProteinCount).AlternateNames(index).RefAccession
+                        Exit For
+                    End If
+                Next compareIndex
+            Next index
 
-                outLine.Append(.Name & mOutputFileDelimiter)
-                For index = 0 To udtAddnlRefsToOutput.Length - 1
-                    With udtAddnlRefsToOutput(index)
-                        outLine.Append(.RefAccession & mOutputFileDelimiter)
-                    End With
-                Next index
+            outLine.Append(mProteins(mProteinCount).Name & mOutputFileDelimiter)
+            For index = 0 To udtAddnlRefsToOutput.Length - 1
+                outLine.Append(udtAddnlRefsToOutput(index).RefAccession & mOutputFileDelimiter)
+            Next index
 
-                If Not ExcludeProteinDescription Then
-                    outLine.Append(.Description)
-                End If
-
-            Else
-                outLine.Append(.Name & mOutputFileDelimiter)
-                If Not ExcludeProteinDescription Then
-                    outLine.Append(.Description)
-                End If
-
+            If Not ExcludeProteinDescription Then
+                outLine.Append(mProteins(mProteinCount).Description)
             End If
 
-            If ComputeSequenceHashValues Then
-                outLine.Append(mOutputFileDelimiter & .SequenceHash)
+        Else
+            outLine.Append(mProteins(mProteinCount).Name & mOutputFileDelimiter)
+            If Not ExcludeProteinDescription Then
+                outLine.Append(mProteins(mProteinCount).Description)
             End If
 
-            If Not ExcludeProteinSequence Then
-                outLine.Append(mOutputFileDelimiter & .Sequence)
-            End If
+        End If
 
-            If ComputeProteinMass Then
-                outLine.Append(mOutputFileDelimiter & Math.Round(.Mass, 5).ToString())
-            End If
+        If ComputeSequenceHashValues Then
+            outLine.Append(mOutputFileDelimiter & mProteins(mProteinCount).SequenceHash)
+        End If
 
-            If ComputepI Then
-                outLine.Append(mOutputFileDelimiter & .pI.ToString("0.000") & mOutputFileDelimiter & .Hydrophobicity.ToString("0.0000"))
-            End If
+        If Not ExcludeProteinSequence Then
+            outLine.Append(mOutputFileDelimiter & mProteins(mProteinCount).Sequence)
+        End If
 
-            If ComputeNET Then
-                outLine.Append(mOutputFileDelimiter & .ProteinNET.ToString("0.0000"))
-            End If
+        If ComputeProteinMass Then
+            outLine.Append(mOutputFileDelimiter & Math.Round(mProteins(mProteinCount).Mass, 5).ToString())
+        End If
 
-            If ComputeSCXNET Then
-                outLine.Append(mOutputFileDelimiter & .ProteinSCXNET.ToString("0.0000"))
-            End If
+        If ComputepI Then
+            outLine.Append(mOutputFileDelimiter & mProteins(mProteinCount).pI.ToString("0.000") &
+                           mOutputFileDelimiter & mProteins(mProteinCount).Hydrophobicity.ToString("0.0000"))
+        End If
 
-        End With
+        If ComputeNET Then
+            outLine.Append(mOutputFileDelimiter & mProteins(mProteinCount).ProteinNET.ToString("0.0000"))
+        End If
+
+        If ComputeSCXNET Then
+            outLine.Append(mOutputFileDelimiter & mProteins(mProteinCount).ProteinSCXNET.ToString("0.0000"))
+        End If
+
         proteinFileWriter.WriteLine(outLine.ToString())
 
     End Sub
@@ -1730,11 +1715,10 @@ Public Class clsParseProteinFile
         Dim inputProteinFound As Boolean
 
         Try
-            reader = New FastaFileReader
-            With reader
-                .ProteinLineStartChar = FastaFileOptions.ProteinLineStartChar
+            reader = New FastaFileReader() With {
+                .ProteinLineStartChar = FastaFileOptions.ProteinLineStartChar,
                 .ProteinLineAccessionEndChar = FastaFileOptions.ProteinLineAccessionEndChar
-            End With
+            }
 
             ' Attempt to open the input file
             If Not reader.OpenFile(proteinInputFilePath) Then
@@ -1761,21 +1745,19 @@ Public Class clsParseProteinFile
                 inputProteinFound = reader.ReadNextProteinEntry()
 
                 If inputProteinFound Then
-                    With udtProtein
-                        .Name = reader.ProteinName
-                        .Description = reader.ProteinDescription
+                    udtProtein.Name = reader.ProteinName
+                    udtProtein.Description = reader.ProteinDescription
 
-                        ' Look for additional protein names in .Description, delimited by FastaFileOptions.AddnlRefSepChar
-                        ReDim .AlternateNames(0)
-                        .AlternateNameCount = ExtractAlternateProteinNamesFromDescription(.Description, .AlternateNames)
+                    ' Look for additional protein names in .Description, delimited by FastaFileOptions.AddnlRefSepChar
+                    ReDim udtProtein.AlternateNames(0)
+                    udtProtein.AlternateNameCount = ExtractAlternateProteinNamesFromDescription(udtProtein.Description, udtProtein.AlternateNames)
 
-                        ' Make sure each of the names in .AlternateNames() is in addnlRefMasterNames
-                        For index = 0 To .AlternateNameCount - 1
-                            If Not addnlRefMasterNames.Contains(.AlternateNames(index).RefName) Then
-                                addnlRefMasterNames.Add(.AlternateNames(index).RefName)
-                            End If
-                        Next index
-                    End With
+                    ' Make sure each of the names in .AlternateNames() is in addnlRefMasterNames
+                    For index = 0 To udtProtein.AlternateNameCount - 1
+                        If Not addnlRefMasterNames.Contains(udtProtein.AlternateNames(index).RefName) Then
+                            addnlRefMasterNames.Add(udtProtein.AlternateNames(index).RefName)
+                        End If
+                    Next index
 
                     UpdateProgress(reader.PercentFileProcessed())
 
@@ -1818,37 +1800,35 @@ Public Class clsParseProteinFile
         Dim residueCount As Integer
         Dim residuesToAppend As Integer
 
-        With udtResidueCache
-            If .Cache.Length > 0 Then
-                residueCount = CInt(Math.Round(.Cache.Length * .SamplingPercentage / 100.0, 0))
-                If residueCount < 1 Then residueCount = 1
-                If residueCount > .Cache.Length Then residueCount = .Cache.Length
+        If udtResidueCache.Cache.Length > 0 Then
+            residueCount = CInt(Math.Round(udtResidueCache.Cache.Length * udtResidueCache.SamplingPercentage / 100.0, 0))
+            If residueCount < 1 Then residueCount = 1
+            If residueCount > udtResidueCache.Cache.Length Then residueCount = udtResidueCache.Cache.Length
 
-                Do While residueCount > 0
-                    If .ResiduesToWrite.Length + residueCount <= .CacheLength Then
-                        .ResiduesToWrite &= .Cache.Substring(0, residueCount)
-                        .Cache = String.Empty
-                        residueCount = 0
-                    Else
-                        residuesToAppend = .CacheLength - .ResiduesToWrite.Length
-                        .ResiduesToWrite &= .Cache.Substring(0, residuesToAppend)
-                        .Cache = .Cache.Substring(residuesToAppend)
-                        residueCount -= residuesToAppend
-                    End If
+            Do While residueCount > 0
+                If udtResidueCache.ResiduesToWrite.Length + residueCount <= udtResidueCache.CacheLength Then
+                    udtResidueCache.ResiduesToWrite &= udtResidueCache.Cache.Substring(0, residueCount)
+                    udtResidueCache.Cache = String.Empty
+                    residueCount = 0
+                Else
+                    residuesToAppend = udtResidueCache.CacheLength - udtResidueCache.ResiduesToWrite.Length
+                    udtResidueCache.ResiduesToWrite &= udtResidueCache.Cache.Substring(0, residuesToAppend)
+                    udtResidueCache.Cache = udtResidueCache.Cache.Substring(residuesToAppend)
+                    residueCount -= residuesToAppend
+                End If
 
-                    If .ResiduesToWrite.Length >= udtResidueCache.CacheLength Then
-                        ' Write out .ResiduesToWrite
-                        WriteFastaEmptyCache(scrambledFileWriter, udtResidueCache, proteinNamePrefix, .SamplingPercentage)
-                    End If
+                If udtResidueCache.ResiduesToWrite.Length >= udtResidueCache.CacheLength Then
+                    ' Write out .ResiduesToWrite
+                    WriteFastaEmptyCache(scrambledFileWriter, udtResidueCache, proteinNamePrefix, udtResidueCache.SamplingPercentage)
+                End If
 
-                Loop
+            Loop
 
-            End If
+        End If
 
-            If flushResiduesToWrite AndAlso .ResiduesToWrite.Length > 0 Then
-                WriteFastaEmptyCache(scrambledFileWriter, udtResidueCache, proteinNamePrefix, .SamplingPercentage)
-            End If
-        End With
+        If flushResiduesToWrite AndAlso udtResidueCache.ResiduesToWrite.Length > 0 Then
+            WriteFastaEmptyCache(scrambledFileWriter, udtResidueCache, proteinNamePrefix, udtResidueCache.SamplingPercentage)
+        End If
 
     End Sub
 
@@ -1856,32 +1836,30 @@ Public Class clsParseProteinFile
         Dim proteinName As String
         Dim headerLine As String
 
-        With udtResidueCache
-            If .ResiduesToWrite.Length > 0 Then
-                .OutputCount += 1
+        If udtResidueCache.ResiduesToWrite.Length > 0 Then
+            udtResidueCache.OutputCount += 1
 
-                proteinName = proteinNamePrefix & mFileNameAbbreviated
+            proteinName = proteinNamePrefix & mFileNameAbbreviated
 
-                If samplingPercentage < 100 Then
-                    proteinName = ValidateProteinName(proteinName, MAXIMUM_PROTEIN_NAME_LENGTH - 7 - Math.Max(5, .OutputCount.ToString.Length))
-                Else
-                    proteinName = ValidateProteinName(proteinName, MAXIMUM_PROTEIN_NAME_LENGTH - 1 - Math.Max(5, .OutputCount.ToString.Length))
-                End If
-
-                If samplingPercentage < 100 Then
-                    proteinName &= "_" & samplingPercentage.ToString() & "pct" & "_"
-                Else
-                    proteinName &= proteinName & "_"
-                End If
-
-                proteinName &= .OutputCount.ToString()
-
-                headerLine = FastaFileOptions.ProteinLineStartChar & proteinName & FastaFileOptions.ProteinLineAccessionEndChar & proteinName
-
-                WriteFastaProteinAndResidues(scrambledFileWriter, headerLine, .ResiduesToWrite)
-                .ResiduesToWrite = String.Empty
+            If samplingPercentage < 100 Then
+                proteinName = ValidateProteinName(proteinName, MAXIMUM_PROTEIN_NAME_LENGTH - 7 - Math.Max(5, udtResidueCache.OutputCount.ToString.Length))
+            Else
+                proteinName = ValidateProteinName(proteinName, MAXIMUM_PROTEIN_NAME_LENGTH - 1 - Math.Max(5, udtResidueCache.OutputCount.ToString.Length))
             End If
-        End With
+
+            If samplingPercentage < 100 Then
+                proteinName &= "_" & samplingPercentage.ToString() & "pct" & "_"
+            Else
+                proteinName &= proteinName & "_"
+            End If
+
+            proteinName &= udtResidueCache.OutputCount.ToString()
+
+            headerLine = FastaFileOptions.ProteinLineStartChar & proteinName & FastaFileOptions.ProteinLineAccessionEndChar & proteinName
+
+            WriteFastaProteinAndResidues(scrambledFileWriter, headerLine, udtResidueCache.ResiduesToWrite)
+            udtResidueCache.ResiduesToWrite = String.Empty
+        End If
 
     End Sub
 
@@ -1946,27 +1924,23 @@ Public Class clsParseProteinFile
         End If
 
         If udtResidueCache.SamplingPercentage >= 100 Then
-            With udtProtein
-                proteinName = ValidateProteinName(proteinNamePrefix & .Name, MAXIMUM_PROTEIN_NAME_LENGTH)
-                headerLine = FastaFileOptions.ProteinLineStartChar & proteinName & FastaFileOptions.ProteinLineAccessionEndChar & .Description
-            End With
+            proteinName = ValidateProteinName(proteinNamePrefix & udtProtein.Name, MAXIMUM_PROTEIN_NAME_LENGTH)
+            headerLine = FastaFileOptions.ProteinLineStartChar & proteinName & FastaFileOptions.ProteinLineAccessionEndChar & udtProtein.Description
 
             WriteFastaProteinAndResidues(scrambledFileWriter, headerLine, scrambledSequence)
         Else
             ' Writing a sampling of the residues to the output file
 
             Do While scrambledSequence.Length > 0
-                With udtResidueCache
-                    ' Append to the cache
-                    If .Cache.Length + scrambledSequence.Length <= .CacheLength Then
-                        .Cache &= scrambledSequence
+                ' Append to the cache
+                If udtResidueCache.Cache.Length + scrambledSequence.Length <= udtResidueCache.CacheLength Then
+                        udtResidueCache.Cache &= scrambledSequence
                         scrambledSequence = String.Empty
                     Else
-                        residueCount = .CacheLength - .Cache.Length
-                        .Cache &= scrambledSequence.Substring(0, residueCount)
+                        residueCount = udtResidueCache.CacheLength - udtResidueCache.Cache.Length
+                        udtResidueCache.Cache &= scrambledSequence.Substring(0, residueCount)
                         scrambledSequence = scrambledSequence.Substring(residueCount)
                     End If
-                End With
 
                 If udtResidueCache.Cache.Length >= udtResidueCache.CacheLength Then
                     ' Write out a portion of the cache

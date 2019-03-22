@@ -246,21 +246,21 @@ Public Class clsProteinDigestionSimulator
             InitializeThresholdLevels(mThresholdLevels, mThresholdLevels.Length + 1, True)
         End If
 
-        With mThresholdLevels(mThresholdLevels.Length - 1)
-            .AutoDefineSLiCScoreThresholds = autoDefineSLiCScoreThresholds
+        Dim index = mThresholdLevels.Length - 1
 
-            .SLiCScoreMaxSearchDistanceMultiplier = slicScoreMaxSearchDistanceMultiplier
-            .MassTolType = eMassToleranceType
-            .MassTolerance = massTolerance
-            .NETTolerance = netTolerance
+        mThresholdLevels(index).AutoDefineSLiCScoreThresholds = autoDefineSLiCScoreThresholds
 
-            .SLiCScoreUseAMTNETStDev = slicScoreUseAMTNETStDev
+        mThresholdLevels(index).SLiCScoreMaxSearchDistanceMultiplier = slicScoreMaxSearchDistanceMultiplier
+        mThresholdLevels(index).MassTolType = eMassToleranceType
+        mThresholdLevels(index).MassTolerance = massTolerance
+        mThresholdLevels(index).NETTolerance = netTolerance
 
-            If Not autoDefineSLiCScoreThresholds Then
-                .SLiCScoreMassPPMStDev = slicScoreMassPPMStDev
-                .SLiCScoreNETStDev = slicScoreNETStDev
-            End If
-        End With
+        mThresholdLevels(index).SLiCScoreUseAMTNETStDev = slicScoreUseAMTNETStDev
+
+        If Not autoDefineSLiCScoreThresholds Then
+            mThresholdLevels(index).SLiCScoreMassPPMStDev = slicScoreMassPPMStDev
+            mThresholdLevels(index).SLiCScoreNETStDev = slicScoreNETStDev
+        End If
     End Sub
 
     ''' <summary>
@@ -468,27 +468,26 @@ Public Class clsProteinDigestionSimulator
 
         Try
 
-            With udtBinResults
-                For binIndex = 0 To .BinCount - 1
-                    With .Bins(binIndex)
-                        If CreateSeparateOutputFileForEachThreshold Then
-                            lineOut = String.Empty
-                        Else
-                            lineOut = (thresholdIndex + 1).ToString() & mOutputFileDelimiter
-                        End If
-                        lineOut &= Math.Round(.MassBinStart, 2).ToString() &
-                                    mOutputFileDelimiter & Math.Round(.PercentUnique, 3).ToString() &
-                                    mOutputFileDelimiter & Math.Round(.NonUniqueResultIDCount + .UniqueResultIDCount, 3).ToString()
+            For binIndex = 0 To udtBinResults.BinCount - 1
+                If CreateSeparateOutputFileForEachThreshold Then
+                    lineOut = String.Empty
+                Else
+                    lineOut = (thresholdIndex + 1).ToString() & mOutputFileDelimiter
+                End If
 
-                        For index = 1 To Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave)
-                            lineOut &= mOutputFileDelimiter & .ResultIDCountDistribution(index).ToString()
-                        Next index
-                    End With
+                Dim peptideCountTotal = udtBinResults.Bins(binIndex).NonUniqueResultIDCount + udtBinResults.Bins(binIndex).UniqueResultIDCount
 
-                    peptideUniquenessWriter.WriteLine(lineOut)
+                lineOut &= Math.Round(udtBinResults.Bins(binIndex).MassBinStart, 2).ToString() & mOutputFileDelimiter &
+                           Math.Round(udtBinResults.Bins(binIndex).PercentUnique, 3).ToString() & mOutputFileDelimiter &
+                           peptideCountTotal.ToString()
 
-                Next binIndex
-            End With
+                For index = 1 To Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave)
+                    lineOut &= mOutputFileDelimiter & udtBinResults.Bins(binIndex).ResultIDCountDistribution(index).ToString()
+                Next index
+
+                peptideUniquenessWriter.WriteLine(lineOut)
+
+            Next binIndex
 
             peptideUniquenessWriter.Flush()
             success = True
@@ -625,33 +624,33 @@ Public Class clsProteinDigestionSimulator
 
         delimiter = "; "
 
-        With searchThresholds
-            ' Write the thresholds
-            lineOut = "Threshold Index: " & (thresholdIndex + 1).ToString()
-            lineOut &= delimiter & "Mass Tolerance: +- "
-            Select Case .MassTolType
-                Case clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.Absolute
-                    lineOut &= Math.Round(.MassTolerance, 5).ToString() & " Da"
-                Case clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.PPM
-                    lineOut &= Math.Round(.MassTolerance, 2).ToString() & " ppm"
-                Case Else
-                    lineOut &= "Unknown mass tolerance mode"
-            End Select
+        ' Write the thresholds
+        lineOut = "Threshold Index: " & (thresholdIndex + 1).ToString()
+        lineOut &= delimiter & "Mass Tolerance: +- "
+        Select Case searchThresholds.MassTolType
+            Case clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.Absolute
+                lineOut &= Math.Round(searchThresholds.MassTolerance, 5).ToString() & " Da"
+            Case clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.PPM
+                lineOut &= Math.Round(searchThresholds.MassTolerance, 2).ToString() & " ppm"
+            Case Else
+                lineOut &= "Unknown mass tolerance mode"
+        End Select
 
-            lineOut &= delimiter & "NET Tolerance: +- " & Math.Round(.NETTolerance, 4).ToString()
+        lineOut &= delimiter & "NET Tolerance: +- " & Math.Round(searchThresholds.NETTolerance, 4).ToString()
 
-            If UseSLiCScoreForUniqueness Then
-                lineOut &= delimiter & "Minimum SLiC Score: " & Math.Round(mPeptideUniquenessBinningSettings.MinimumSLiCScore, 3).ToString() & "; Max search distance multiplier: " & Math.Round(.SLiCScoreMaxSearchDistanceMultiplier, 1).ToString()
+        If UseSLiCScoreForUniqueness Then
+            lineOut &= delimiter &
+                       "Minimum SLiC Score: " & Math.Round(mPeptideUniquenessBinningSettings.MinimumSLiCScore, 3).ToString() & "; " &
+                       "Max search distance multiplier: " & Math.Round(searchThresholds.SLiCScoreMaxSearchDistanceMultiplier, 1).ToString()
+        Else
+            If UseEllipseSearchRegion Then
+                lineOut &= delimiter & "Minimum SLiC Score: N/A; using ellipse to find matching features"
             Else
-                If UseEllipseSearchRegion Then
-                    lineOut &= delimiter & "Minimum SLiC Score: N/A; using ellipse to find matching features"
-                Else
-                    lineOut &= delimiter & "Minimum SLiC Score: N/A; using rectangle to find matching features"
-                End If
+                lineOut &= delimiter & "Minimum SLiC Score: N/A; using rectangle to find matching features"
             End If
+        End If
 
-            writer.WriteLine(lineOut)
-        End With
+        writer.WriteLine(lineOut)
 
     End Sub
 
@@ -763,12 +762,11 @@ Public Class clsProteinDigestionSimulator
                         ' Initialize the peak matching class
                         '----------------------------------------------------
 
-                        mPeakMatchingClass = New clsPeakMatchingClass()
-                        With mPeakMatchingClass
-                            .MaxPeakMatchingResultsPerFeatureToSave = mMaxPeakMatchingResultsPerFeatureToSave
-                            .UseMaxSearchDistanceMultiplierAndSLiCScore = UseSLiCScoreForUniqueness
+                        mPeakMatchingClass = New clsPeakMatchingClass() With {
+                            .MaxPeakMatchingResultsPerFeatureToSave = mMaxPeakMatchingResultsPerFeatureToSave,
+                            .UseMaxSearchDistanceMultiplierAndSLiCScore = UseSLiCScoreForUniqueness,
                             .UseEllipseSearchRegion = UseEllipseSearchRegion
-                        End With
+                        }
 
                         '----------------------------------------------------
                         ' Initialize the output files if combining all results
@@ -934,10 +932,8 @@ Public Class clsProteinDigestionSimulator
     End Function
 
     Public Sub GetPeptideUniquenessMassRangeForBinning(<Out> ByRef massMinimum As Single, <Out> ByRef massMaximum As Single)
-        With mPeptideUniquenessBinningSettings
-            massMinimum = .MassMinimum
-            massMaximum = .MassMaximum
-        End With
+        massMinimum = mPeptideUniquenessBinningSettings.MassMinimum
+        massMaximum = mPeptideUniquenessBinningSettings.MassMaximum
     End Sub
 
     Private Function GetPeptidesUniquelyIdentifiedCountByProteinID(proteinID As Integer) As Integer
@@ -956,21 +952,18 @@ Public Class clsProteinDigestionSimulator
 
         Dim binIndex As Integer
 
-        With udtStatsBinned
-            .BinCount = binCount
-            ReDim .Bins(.BinCount - 1)
+        udtStatsBinned.BinCount = binCount
+        ReDim udtStatsBinned.Bins(udtStatsBinned.BinCount - 1)
 
-            For binIndex = 0 To .BinCount - 1
-                .Bins(binIndex).MassBinStart = .Settings.MassMinimum + .Settings.MassBinSizeDa * binIndex
-                .Bins(binIndex).MassBinEnd = .Settings.MassMinimum + .Settings.MassBinSizeDa * (binIndex + 1)
-                With .Bins(binIndex)
-                    .PercentUnique = 0
-                    .UniqueResultIDCount = 0
-                    .NonUniqueResultIDCount = 0
-                    ReDim .ResultIDCountDistribution(Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave))
-                End With
-            Next binIndex
-        End With
+        For binIndex = 0 To udtStatsBinned.BinCount - 1
+            udtStatsBinned.Bins(binIndex).MassBinStart = udtStatsBinned.Settings.MassMinimum + udtStatsBinned.Settings.MassBinSizeDa * binIndex
+            udtStatsBinned.Bins(binIndex).MassBinEnd = udtStatsBinned.Settings.MassMinimum + udtStatsBinned.Settings.MassBinSizeDa * (binIndex + 1)
+
+            udtStatsBinned.Bins(binIndex).PercentUnique = 0
+            udtStatsBinned.Bins(binIndex).UniqueResultIDCount = 0
+            udtStatsBinned.Bins(binIndex).NonUniqueResultIDCount = 0
+            ReDim udtStatsBinned.Bins(binIndex).ResultIDCountDistribution(Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave))
+        Next binIndex
 
     End Sub
 
@@ -1062,13 +1055,11 @@ Public Class clsProteinDigestionSimulator
         SavePeakMatchingResults = False
         mMaxPeakMatchingResultsPerFeatureToSave = 3
 
-        With mPeptideUniquenessBinningSettings
-            .AutoDetermineMassRange = True
-            .MassBinSizeDa = 25
-            .MassMinimum = 400
-            .MassMaximum = 6000
-            .MinimumSLiCScore = 0.99
-        End With
+        mPeptideUniquenessBinningSettings.AutoDetermineMassRange = True
+        mPeptideUniquenessBinningSettings.MassBinSizeDa = 25
+        mPeptideUniquenessBinningSettings.MassMinimum = 400
+        mPeptideUniquenessBinningSettings.MassMaximum = 6000
+        mPeptideUniquenessBinningSettings.MinimumSLiCScore = 0.99
 
         UseSLiCScoreForUniqueness = True
         UseEllipseSearchRegion = True
@@ -1088,7 +1079,7 @@ Public Class clsProteinDigestionSimulator
 
         ''mUseBulkInsert = False
 
-        ''mSqlServerConnectionString = SharedVBNetRoutines.ADONetRoutines.DEFAULT_CONNECTION_STRING_NO_PROVIDER
+        ''mSqlServerConnectionString = SharedPRISMWin.TextBoxUtils.DatabaseUtils.DataTableUtils.DEFAULT_CONNECTION_STRING_NO_PROVIDER
         ''mTableNameFeaturesToIdentify = clsPeakMatchingClass.PMFeatureInfoClass.DEFAULT_FEATURE_INFO_TABLE_NAME
         ''mTableNameComparisonPeptides = clsPeakMatchingClass.PMComparisonFeatureInfoClass.DEFAULT_COMPARISON_FEATURE_INFO_TABLE_NAME
 
@@ -1105,13 +1096,14 @@ Public Class clsProteinDigestionSimulator
             '---------------------
             ' Protein stats uniquely identified peptides table
             '---------------------
-            ADONetRoutines.AppendColumnIntegerToTable(mProteinToIdentifiedPeptideMappingTable, PROTEIN_ID_COLUMN)
-            ADONetRoutines.AppendColumnStringToTable(mProteinToIdentifiedPeptideMappingTable, PEPTIDE_ID_MATCH_COLUMN)
+            DatabaseUtils.DataTableUtils.AppendColumnIntegerToTable(mProteinToIdentifiedPeptideMappingTable, PROTEIN_ID_COLUMN)
+            DatabaseUtils.DataTableUtils.AppendColumnStringToTable(mProteinToIdentifiedPeptideMappingTable, PEPTIDE_ID_MATCH_COLUMN)
 
             ' Define the PROTEIN_ID_COLUMN AND PEPTIDE_ID_COLUMN columns to be the primary key
-            With mProteinToIdentifiedPeptideMappingTable
-                .PrimaryKey = New DataColumn() { .Columns(PROTEIN_ID_COLUMN), .Columns(PEPTIDE_ID_MATCH_COLUMN)}
-            End With
+            mProteinToIdentifiedPeptideMappingTable.PrimaryKey = New DataColumn() {
+                mProteinToIdentifiedPeptideMappingTable.Columns(PROTEIN_ID_COLUMN),
+                mProteinToIdentifiedPeptideMappingTable.Columns(PEPTIDE_ID_MATCH_COLUMN)
+            }
 
         Else
             mProteinToIdentifiedPeptideMappingTable.Clear()
@@ -1139,31 +1131,28 @@ Public Class clsProteinDigestionSimulator
 
     ''    startTime = System.DateTime.UtcNow
 
-    ''    With dsDataset.Tables(PEPTIDE_INFO_TABLE_NAME)
+    ''    For index = 0 To indexEnd
+    ''        newFeatureID = rnd.Next(0, MAX_FEATURE_COUNT)
 
-    ''        For index = 0 To indexEnd
-    ''            newFeatureID = rnd.Next(0, MAX_FEATURE_COUNT)
+    ''        ' Look for existing entry in table
+    ''        If Not dsDataset.Tables(PEPTIDE_INFO_TABLE_NAME).Rows.Contains(newFeatureID) Then
+    ''            drNewRow = dsDataset.Tables(PEPTIDE_INFO_TABLE_NAME).NewRow
+    ''            drNewRow(COMPARISON_FEATURE_ID_COLUMN) = newFeatureID
+    ''            drNewRow(FEATURE_NAME_COLUMN) = "Feature" & newFeatureID.ToString()
+    ''            drNewRow(MASS_COLUMN) = newFeatureID / CSng(MAX_FEATURE_COUNT) * 1000
+    ''            drNewRow(NET_COLUMN) = rnd.Next(0, 1000) / 1000.0
+    ''            drNewRow(NET_STDEV_COLUMN) = rnd.Next(0, 1000) / 10000.0
+    ''            drNewRow(DISCRIMINANT_SCORE_COLUMN) = rnd.Next(0, 1000) / 1000.0
+    ''            dsDataset.Tables(PEPTIDE_INFO_TABLE_NAME).Rows.Add(drNewRow)
+    ''        End If
 
-    ''            ' Look for existing entry in table
-    ''            If Not .Rows.Contains(newFeatureID) Then
-    ''                drNewRow = .NewRow
-    ''                drNewRow(COMPARISON_FEATURE_ID_COLUMN) = newFeatureID
-    ''                drNewRow(FEATURE_NAME_COLUMN) = "Feature" & newFeatureID.ToString()
-    ''                drNewRow(MASS_COLUMN) = newFeatureID / CSng(MAX_FEATURE_COUNT) * 1000
-    ''                drNewRow(NET_COLUMN) = rnd.Next(0, 1000) / 1000.0
-    ''                drNewRow(NET_STDEV_COLUMN) = rnd.Next(0, 1000) / 10000.0
-    ''                drNewRow(DISCRIMINANT_SCORE_COLUMN) = rnd.Next(0, 1000) / 1000.0
-    ''                .Rows.Add(drNewRow)
-    ''            End If
+    ''        If index Mod 100 = 0 Then
+    ''            progressForm.UpdateProgressBar(index)
+    ''            Application.DoEvents()
 
-    ''            If index Mod 100 = 0 Then
-    ''                progressForm.UpdateProgressBar(index)
-    ''                Application.DoEvents()
-
-    ''                If progressForm.KeyPressAbortProcess Then Exit For
-    ''            End If
-    ''        Next index
-    ''    End With
+    ''            If progressForm.KeyPressAbortProcess Then Exit For
+    ''        End If
+    ''    Next index
 
     ''    MessageBox.Show("Elapsed time: " & Math.Round(System.DateTime.UtcNow.Subtract(startTime).TotalSeconds, 2).ToString() & " seconds", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
     ''End Sub
@@ -1176,29 +1165,24 @@ Public Class clsProteinDigestionSimulator
         End If
 
         If resetToDefaults Then
-            With mProteinFileParser
-                .ComputeProteinMass = True
-                .ElementMassMode = PeptideSequenceClass.ElementModeConstants.IsotopicMass
+            mProteinFileParser.ComputeProteinMass = True
+            mProteinFileParser.ElementMassMode = PeptideSequenceClass.ElementModeConstants.IsotopicMass
 
-                .CreateDigestedProteinOutputFile = False
-                .CreateProteinOutputFile = False
+            mProteinFileParser.CreateDigestedProteinOutputFile = False
+            mProteinFileParser.CreateProteinOutputFile = False
 
-                .DelimitedFileFormatCode = DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
+            mProteinFileParser.DelimitedFileFormatCode = DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
 
-                With .DigestionOptions
-                    .CleavageRuleID = clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
-                    .MaxMissedCleavages = 1
+            mProteinFileParser.DigestionOptions.CleavageRuleID = clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
+            mProteinFileParser.DigestionOptions.MaxMissedCleavages = 1
 
-                    .MinFragmentResidueCount = 0
-                    .MinFragmentMass = 600
-                    .MaxFragmentMass = 3000
+            mProteinFileParser.DigestionOptions.MinFragmentResidueCount = 0
+            mProteinFileParser.DigestionOptions.MinFragmentMass = 600
+            mProteinFileParser.DigestionOptions.MaxFragmentMass = 3000
 
-                    .RemoveDuplicateSequences = True
+            mProteinFileParser.DigestionOptions.RemoveDuplicateSequences = True
 
-                    .IncludePrefixAndSuffixResidues = False
-                End With
-
-            End With
+            mProteinFileParser.DigestionOptions.IncludePrefixAndSuffixResidues = False
         End If
 
     End Sub
@@ -1345,11 +1329,10 @@ Public Class clsProteinDigestionSimulator
         Dim skipMessage As String
 
         Try
-            delimitedFileReader = New DelimitedFileReader
-            With delimitedFileReader
-                .Delimiter = mProteinFileParser.InputFileDelimiter
+            delimitedFileReader = New DelimitedFileReader() With {
+                .Delimiter = mProteinFileParser.InputFileDelimiter,
                 .DelimitedFileFormatCode = mProteinFileParser.DelimitedFileFormatCode
-            End With
+            }
 
             ' Verify that the input file exists
             If Not File.Exists(proteinInputFilePath) Then
@@ -1395,22 +1378,20 @@ Public Class clsProteinDigestionSimulator
 
                 If inputPeptideFound Then
 
-                    With newPeptide
-                        .SequenceOneLetter = delimitedFileReader.ProteinSequence
+                    newPeptide.SequenceOneLetter = delimitedFileReader.ProteinSequence
 
-                        If Not delimitedFileHasMassAndNET OrElse
+                    If Not delimitedFileHasMassAndNET OrElse
                           (Math.Abs(delimitedFileReader.PeptideMass - 0) < Single.Epsilon And
                            Math.Abs(delimitedFileReader.PeptideNET - 0) < Single.Epsilon) Then
-                            AddOrUpdatePeptide(delimitedFileReader.EntryUniqueID, .Mass, .NET, 0, 0, delimitedFileReader.ProteinName, clsProteinInfo.eCleavageStateConstants.Unknown, String.Empty)
-                        Else
-                            AddOrUpdatePeptide(delimitedFileReader.EntryUniqueID, delimitedFileReader.PeptideMass, delimitedFileReader.PeptideNET,
-                                               delimitedFileReader.PeptideNETStDev, delimitedFileReader.PeptideDiscriminantScore,
-                                               delimitedFileReader.ProteinName, clsProteinInfo.eCleavageStateConstants.Unknown, String.Empty)
+                        AddOrUpdatePeptide(delimitedFileReader.EntryUniqueID, newPeptide.Mass, newPeptide.NET, 0, 0, delimitedFileReader.ProteinName, clsProteinInfo.eCleavageStateConstants.Unknown, String.Empty)
+                    Else
+                        AddOrUpdatePeptide(delimitedFileReader.EntryUniqueID, delimitedFileReader.PeptideMass, delimitedFileReader.PeptideNET,
+                                           delimitedFileReader.PeptideNETStDev, delimitedFileReader.PeptideDiscriminantScore,
+                                           delimitedFileReader.ProteinName, clsProteinInfo.eCleavageStateConstants.Unknown, String.Empty)
 
-                            ' ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
-                        End If
+                        ' ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
+                    End If
 
-                    End With
 
                     UpdateProgress(delimitedFileReader.PercentFileProcessed())
                     If Me.AbortProcessing Then Exit Do
@@ -1460,35 +1441,32 @@ Public Class clsProteinDigestionSimulator
             End If
             Dim nextUniqueIDForMasterSeqs = 1
 
-            With mProteinFileParser
-
-                If clsParseProteinFile.IsFastaFile(proteinInputFilePath) Or .AssumeFastaFile Then
-                    isFastaFile = True
-                Else
-                    isFastaFile = False
-                End If
+            If clsParseProteinFile.IsFastaFile(proteinInputFilePath) Or mProteinFileParser.AssumeFastaFile Then
+                isFastaFile = True
+            Else
+                isFastaFile = False
+            End If
 
 
-                ' Disable mass calculation
-                .ComputeProteinMass = False
-                .CreateProteinOutputFile = False
+            ' Disable mass calculation
+            mProteinFileParser.ComputeProteinMass = False
+            mProteinFileParser.CreateProteinOutputFile = False
 
-                If CysPeptidesOnly Then
-                    .DigestionOptions.AminoAcidResidueFilterChars = New Char() {"C"c}
-                Else
-                    .DigestionOptions.AminoAcidResidueFilterChars = New Char() {}
-                End If
+            If CysPeptidesOnly Then
+                mProteinFileParser.DigestionOptions.AminoAcidResidueFilterChars = New Char() {"C"c}
+            Else
+                mProteinFileParser.DigestionOptions.AminoAcidResidueFilterChars = New Char() {}
+            End If
 
-                ' Load the proteins in the input file into memory
-                success = .ParseProteinFile(proteinInputFilePath, "")
-            End With
+            ' Load the proteins in the input file into memory
+            success = mProteinFileParser.ParseProteinFile(proteinInputFilePath, "")
 
             Dim skipMessage As String = String.Empty
             If mProteinFileParser.InputFileLineSkipCount > 0 And Not isFastaFile Then
                 skipMessage = "Note that " & mProteinFileParser.InputFileLineSkipCount.ToString() &
-                                 " out of " & mProteinFileParser.InputFileLinesRead.ToString() &
-                                 " lines were skipped in the input file because they did not match the column order" &
-                                 " defined on the File Format Options Tab (" & mProteinFileParser.DelimitedFileFormatCode.ToString() & ")"
+                              " out of " & mProteinFileParser.InputFileLinesRead.ToString() &
+                              " lines were skipped in the input file because they did not match the column order" &
+                              " defined on the File Format Options Tab (" & mProteinFileParser.DelimitedFileFormatCode.ToString() & ")"
                 MyBase.LogMessage(skipMessage, MessageTypeConstants.Warning)
                 mLastErrorMessage = String.Copy(skipMessage)
             End If
@@ -1536,9 +1514,11 @@ Public Class clsProteinDigestionSimulator
                                 nextUniqueIDForMasterSeqs += 1
                             End If
 
-                            With digestedPeptide
-                                AddOrUpdatePeptide(uniqueSeqID, .Mass, .NET, 0, 0, proteinOrPeptide.Name, clsProteinInfo.eCleavageStateConstants.Unknown, .PeptideName)
-                            End With
+                            AddOrUpdatePeptide(uniqueSeqID,
+                                               digestedPeptide.Mass, digestedPeptide.NET, 0, 0,
+                                               proteinOrPeptide.Name,
+                                               clsProteinInfo.eCleavageStateConstants.Unknown,
+                                               digestedPeptide.PeptideName)
                         Next
                     End If
 
@@ -1581,71 +1561,63 @@ Public Class clsProteinDigestionSimulator
             ' Examine peptideMatchResults to determine the minimum and maximum masses for features with matches
 
             ' First, set the ranges to out-of-range values
-            With udtPeptideStatsBinned.Settings
-                .MassMinimum = Double.MaxValue
-                .MassMaximum = Double.MinValue
-            End With
+            udtPeptideStatsBinned.Settings.MassMinimum = Double.MaxValue
+            udtPeptideStatsBinned.Settings.MassMaximum = Double.MinValue
 
             ' Now examine .PeptideMatchResults()
-            With thresholds
-                For matchIndex = 0 To peptideMatchResults.Count - 1
+            For matchIndex = 0 To peptideMatchResults.Count - 1
 
-                    peptideMatchResults.GetMatchInfoByRowIndex(matchIndex, currentFeatureID, udtMatchResultInfo)
+                peptideMatchResults.GetMatchInfoByRowIndex(matchIndex, currentFeatureID, udtMatchResultInfo)
 
-                    featuresToIdentify.GetFeatureInfoByFeatureID(currentFeatureID, udtFeatureInfo)
-                    featureMass = CSng(udtFeatureInfo.Mass)
+                featuresToIdentify.GetFeatureInfoByFeatureID(currentFeatureID, udtFeatureInfo)
+                featureMass = CSng(udtFeatureInfo.Mass)
 
-                    If featureMass > udtPeptideStatsBinned.Settings.MassMaximum Then
-                        udtPeptideStatsBinned.Settings.MassMaximum = featureMass
-                    End If
+                If featureMass > udtPeptideStatsBinned.Settings.MassMaximum Then
+                    udtPeptideStatsBinned.Settings.MassMaximum = featureMass
+                End If
 
-                    If featureMass < udtPeptideStatsBinned.Settings.MassMinimum Then
-                        udtPeptideStatsBinned.Settings.MassMinimum = featureMass
-                    End If
+                If featureMass < udtPeptideStatsBinned.Settings.MassMinimum Then
+                    udtPeptideStatsBinned.Settings.MassMinimum = featureMass
+                End If
 
-                Next matchIndex
-            End With
+            Next matchIndex
 
             ' Round the minimum and maximum masses to the nearest 100
 
-            With udtPeptideStatsBinned.Settings
-                If Math.Abs(.MassMinimum - Double.MaxValue) < Double.Epsilon Or Math.Abs(.MassMaximum - Double.MinValue) < Double.Epsilon Then
-                    ' No matches were found; set these to defaults
-                    .MassMinimum = 400
-                    .MassMaximum = 6000
-                End If
+            If Math.Abs(udtPeptideStatsBinned.Settings.MassMinimum - Double.MaxValue) < Double.Epsilon OrElse
+               Math.Abs(udtPeptideStatsBinned.Settings.MassMaximum - Double.MinValue) < Double.Epsilon Then
+                ' No matches were found; set these to defaults
+                udtPeptideStatsBinned.Settings.MassMinimum = 400
+                udtPeptideStatsBinned.Settings.MassMaximum = 6000
+            End If
 
-                IntegerMass = CInt(Math.Round(.MassMinimum, 0))
-                Math.DivRem(IntegerMass, 100, remainder)
-                IntegerMass -= remainder
+            IntegerMass = CInt(Math.Round(udtPeptideStatsBinned.Settings.MassMinimum, 0))
+            Math.DivRem(IntegerMass, 100, remainder)
+            IntegerMass -= remainder
 
-                .MassMinimum = IntegerMass
+            udtPeptideStatsBinned.Settings.MassMinimum = IntegerMass
 
-                IntegerMass = CInt(Math.Round(.MassMaximum, 0))
-                Math.DivRem(IntegerMass, 100, remainder)
-                IntegerMass += (100 - remainder)
+            IntegerMass = CInt(Math.Round(udtPeptideStatsBinned.Settings.MassMaximum, 0))
+            Math.DivRem(IntegerMass, 100, remainder)
+            IntegerMass += (100 - remainder)
 
-                .MassMaximum = IntegerMass
-
-            End With
+            udtPeptideStatsBinned.Settings.MassMaximum = IntegerMass
 
         End If
 
         ' Determine BinCount; do not allow more than 1,000,000 bins
-        With udtPeptideStatsBinned
-            If Math.Abs(.Settings.MassBinSizeDa - 0) < 0.00001 Then .Settings.MassBinSizeDa = 1
+        If Math.Abs(udtPeptideStatsBinned.Settings.MassBinSizeDa - 0) < 0.00001 Then udtPeptideStatsBinned.Settings.MassBinSizeDa = 1
 
-            Do
-                Try
-                    .BinCount = CInt(Math.Ceiling(.Settings.MassMaximum - .Settings.MassMinimum) / .Settings.MassBinSizeDa)
-                    If .BinCount > 1000000 Then
-                        .Settings.MassBinSizeDa *= 10
-                    End If
-                Catch ex As Exception
-                    .BinCount = 1000000000
-                End Try
-            Loop While .BinCount > 1000000
-        End With
+        Do
+            Try
+                udtPeptideStatsBinned.BinCount = CInt(Math.Ceiling(udtPeptideStatsBinned.Settings.MassMaximum - udtPeptideStatsBinned.Settings.MassMinimum) / udtPeptideStatsBinned.Settings.MassBinSizeDa)
+                If udtPeptideStatsBinned.BinCount > 1000000 Then
+                    udtPeptideStatsBinned.Settings.MassBinSizeDa *= 10
+                End If
+            Catch ex As Exception
+                udtPeptideStatsBinned.BinCount = 1000000000
+            End Try
+        Loop While udtPeptideStatsBinned.BinCount > 1000000
 
     End Sub
 
@@ -1733,15 +1705,14 @@ Public Class clsProteinDigestionSimulator
     Public Function SetPeptideUniquenessMassRangeForBinning(massMinimum As Single, massMaximum As Single) As Boolean
         ' Returns True if the minimum and maximum mass specified were valid
 
-        With mPeptideUniquenessBinningSettings
-            If massMinimum < massMaximum AndAlso massMinimum >= 0 Then
-                .MassMinimum = massMinimum
-                .MassMaximum = massMaximum
-                Return True
-            Else
-                Return False
-            End If
-        End With
+        If massMinimum < massMaximum AndAlso massMinimum >= 0 Then
+            mPeptideUniquenessBinningSettings.MassMinimum = massMinimum
+            mPeptideUniquenessBinningSettings.MassMaximum = massMaximum
+            Return True
+        End If
+
+        Return False
+
     End Function
 
     Private Function SummarizeResultsByPeptide(
@@ -1835,19 +1806,14 @@ Public Class clsProteinDigestionSimulator
                 End If
             Next peptideIndex
 
-            With udtPeptideStatsBinned
-                For binIndex = 0 To .BinCount - 1
-                    With .Bins(binIndex)
-                        total = .UniqueResultIDCount + .NonUniqueResultIDCount
-                        If total > 0 Then
-                            .PercentUnique = CSng(.UniqueResultIDCount / total * 100)
-                        Else
-                            .PercentUnique = 0
-                        End If
-                    End With
-                Next binIndex
-            End With
-
+            For binIndex = 0 To udtPeptideStatsBinned.BinCount - 1
+                total = udtPeptideStatsBinned.Bins(binIndex).UniqueResultIDCount + udtPeptideStatsBinned.Bins(binIndex).NonUniqueResultIDCount
+                If total > 0 Then
+                    udtPeptideStatsBinned.Bins(binIndex).PercentUnique = CSng(udtPeptideStatsBinned.Bins(binIndex).UniqueResultIDCount / total * 100)
+                Else
+                    udtPeptideStatsBinned.Bins(binIndex).PercentUnique = 0
+                End If
+            Next binIndex
 
             If peptideSkipCount > 0 Then
                 MyBase.LogMessage("Skipped " & peptideSkipCount.ToString() & " peptides since their masses were outside the defined bin range", MessageTypeConstants.Warning)
@@ -1896,9 +1862,9 @@ Public Class clsProteinDigestionSimulator
             lineOut = "Threshold_Index" & mOutputFileDelimiter
         End If
 
-        lineOut &= "Bin_Start_Mass" &
-                    mOutputFileDelimiter & "Percent_Unique" &
-                    mOutputFileDelimiter & "Peptide_Count_Total"
+        lineOut &= "Bin_Start_Mass" & mOutputFileDelimiter &
+                   "Percent_Unique" & mOutputFileDelimiter &
+                   "Peptide_Count_Total"
 
         For index = 1 To Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave) - 1
             lineOut &= mOutputFileDelimiter & "MatchCount_" & index.ToString()

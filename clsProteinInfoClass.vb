@@ -64,10 +64,8 @@ Friend Class clsProteinInfo
                 proteinID = mMaxProteinIDUsed + 1
             End If
 
-            With mProteins(mProteinCount)
-                .Name = proteinName
-                .ProteinID = proteinID
-            End With
+            mProteins(mProteinCount).Name = proteinName
+            mProteins(mProteinCount).ProteinID = proteinID
 
             If mUseProteinNameHashTable Then
                 mProteinNameToRowIndex.Add(proteinName, mProteinCount)
@@ -238,10 +236,8 @@ Friend Class clsProteinInfo
     Public Function GetProteinInfoByRowIndex(rowIndex As Integer, <Out> ByRef proteinID As Integer, <Out> ByRef proteinName As String) As Boolean
 
         If rowIndex >= 0 And rowIndex < mProteinCount Then
-            With mProteins(rowIndex)
-                proteinName = .Name
-                proteinID = .ProteinID
-            End With
+            proteinName = mProteins(rowIndex).Name
+            proteinID = mProteins(rowIndex).ProteinID
             Return True
         Else
             proteinName = String.Empty
@@ -333,11 +329,9 @@ Friend Class clsProteinInfo
                 'ReDim Preserve mMappings(mMappings.Length + MEMORY_RESERVE_CHUNK - 1)
             End If
 
-            With mMappings(mMappingCount)
-                .ProteinID = proteinID
-                .PeptideID = peptideID
-                .CleavageState = eCleavageState
-            End With
+            mMappings(mMappingCount).ProteinID = proteinID
+            mMappings(mMappingCount).PeptideID = peptideID
+            mMappings(mMappingCount).CleavageState = eCleavageState
 
             mMappingCount += 1
             mMappingArrayIsSorted = False

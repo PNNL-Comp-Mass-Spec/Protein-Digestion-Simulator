@@ -113,23 +113,19 @@ Module modMain
             AddHandler mParseProteinFile.ProgressReset, AddressOf ProcessingClass_ProgressReset
 
             ' Note: the following settings will be overridden if mParameterFilePath points to a valid parameter file that has these settings defined
-            With mParseProteinFile
-                .AssumeFastaFile = mAssumeFastaFile
-                .CreateProteinOutputFile = True
-                .CreateDigestedProteinOutputFile = mCreateDigestedProteinOutputFile
-                .ComputeProteinMass = mComputeProteinMass
+            mParseProteinFile.AssumeFastaFile = mAssumeFastaFile
+            mParseProteinFile.CreateProteinOutputFile = True
+            mParseProteinFile.CreateDigestedProteinOutputFile = mCreateDigestedProteinOutputFile
+            mParseProteinFile.ComputeProteinMass = mComputeProteinMass
 
-                .InputFileDelimiter = mInputFileDelimiter
-                .DelimitedFileFormatCode = DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
+            mParseProteinFile.InputFileDelimiter = mInputFileDelimiter
+            mParseProteinFile.DelimitedFileFormatCode = DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
 
-                With .DigestionOptions
-                    .RemoveDuplicateSequences = False
-                End With
+            mParseProteinFile.DigestionOptions.RemoveDuplicateSequences = False
 
-                .LogMessagesToFile = mLogMessagesToFile
-                .LogFilePath = mLogFilePath
-                .LogDirectoryPath = mLogDirectoryPath
-            End With
+            mParseProteinFile.LogMessagesToFile = mLogMessagesToFile
+            mParseProteinFile.LogFilePath = mLogFilePath
+            mParseProteinFile.LogDirectoryPath = mLogDirectoryPath
 
             If mRecurseDirectories Then
                 If mParseProteinFile.ProcessFilesAndRecurseDirectories(mInputFilePath, mOutputDirectoryPath,
@@ -194,46 +190,45 @@ Module modMain
                     (From item In commandLineParser.InvalidParameters(validParameters) Select "/" + item).ToList())
                 Return False
             Else
-                With commandLineParser
-                    ' Query commandLineParser to see if various parameters are present
-                    If .RetrieveValueForParameter("I", value) Then
-                        mInputFilePath = value
-                    ElseIf .NonSwitchParameterCount > 0 Then
-                        mInputFilePath = .RetrieveNonSwitchParameter(0)
+                ' Query commandLineParser to see if various parameters are present
+                If commandLineParser.RetrieveValueForParameter("I", value) Then
+                    mInputFilePath = value
+                ElseIf commandLineParser.NonSwitchParameterCount > 0 Then
+                    mInputFilePath = commandLineParser.RetrieveNonSwitchParameter(0)
+                End If
+
+                If commandLineParser.RetrieveValueForParameter("F", value) Then mAssumeFastaFile = True
+                If commandLineParser.RetrieveValueForParameter("D", value) Then mCreateDigestedProteinOutputFile = True
+                If commandLineParser.RetrieveValueForParameter("M", value) Then mComputeProteinMass = True
+                If commandLineParser.RetrieveValueForParameter("AD", value) Then mInputFileDelimiter = value.Chars(0)
+                If commandLineParser.RetrieveValueForParameter("O", value) Then mOutputDirectoryPath = value
+                If commandLineParser.RetrieveValueForParameter("P", value) Then mParameterFilePath = value
+
+                If commandLineParser.RetrieveValueForParameter("S", value) Then
+                    mRecurseDirectories = True
+                    If Integer.TryParse(value, valueInt) Then
+                        mMaxLevelsToRecurse = valueInt
                     End If
+                End If
+                If commandLineParser.RetrieveValueForParameter("A", value) Then mOutputDirectoryAlternatePath = value
+                If commandLineParser.RetrieveValueForParameter("R", value) Then mRecreateDirectoryHierarchyInAlternatePath = True
 
-                    If .RetrieveValueForParameter("F", value) Then mAssumeFastaFile = True
-                    If .RetrieveValueForParameter("D", value) Then mCreateDigestedProteinOutputFile = True
-                    If .RetrieveValueForParameter("M", value) Then mComputeProteinMass = True
-                    If .RetrieveValueForParameter("AD", value) Then mInputFileDelimiter = value.Chars(0)
-                    If .RetrieveValueForParameter("O", value) Then mOutputDirectoryPath = value
-                    If .RetrieveValueForParameter("P", value) Then mParameterFilePath = value
+                'If commandLineParser.RetrieveValueForParameter("L", value) Then
+                '	mLogMessagesToFile = True
+                '	If Not String.IsNullOrEmpty(value) Then
+                '		mLogFilePath = value
+                '	End If
+                'End If
 
-                    If .RetrieveValueForParameter("S", value) Then
-                        mRecurseDirectories = True
-                        If Integer.TryParse(value, valueInt) Then
-                            mMaxLevelsToRecurse = valueInt
-                        End If
-                    End If
-                    If .RetrieveValueForParameter("A", value) Then mOutputDirectoryAlternatePath = value
-                    If .RetrieveValueForParameter("R", value) Then mRecreateDirectoryHierarchyInAlternatePath = True
+                'If commandLineParser.RetrieveValueForParameter("LogDir", value) Then
+                '	mLogMessagesToFile = True
+                '	If Not String.IsNullOrEmpty(value) Then
+                '		mLogDirectoryPath = value
+                '	End If
+                'End If
 
-                    'If .RetrieveValueForParameter("L", value) Then
-                    '	mLogMessagesToFile = True
-                    '	If Not String.IsNullOrEmpty(value) Then
-                    '		mLogFilePath = value
-                    '	End If
-                    'End If
+                If commandLineParser.RetrieveValueForParameter("DEBUG", value) Then mShowDebugPrompts = True
 
-                    'If .RetrieveValueForParameter("LogDir", value) Then
-                    '	mLogMessagesToFile = True
-                    '	If Not String.IsNullOrEmpty(value) Then
-                    '		mLogDirectoryPath = value
-                    '	End If
-                    'End If
-
-                    If .RetrieveValueForParameter("DEBUG", value) Then mShowDebugPrompts = True
-                End With
 
                 Return True
             End If

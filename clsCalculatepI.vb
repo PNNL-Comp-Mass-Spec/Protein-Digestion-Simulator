@@ -308,17 +308,15 @@ Public Class clspICalculation
 
     Private Sub AddAminoAcid(oneLetterSymbol As Char, hw As Double, kd As Double, eisenberg As Double, ges As Double, meekPH7p4 As Double, meekPH2p1 As Double)
 
-        Dim aaInfo = New AA()
-
-        With aaInfo
-            .Symbol = oneLetterSymbol
-            .HW = hw
-            .KD = kd
-            .Eisenberg = eisenberg
-            .GES = ges
-            .MeekPH7p4 = meekPH7p4
+        Dim aaInfo = New AA With {
+            .Symbol = oneLetterSymbol,
+            .HW = hw,
+            .KD = kd,
+            .Eisenberg = eisenberg,
+            .GES = ges,
+            .MeekPH7p4 = meekPH7p4,
             .MeekPH2p1 = meekPH2p1
-        End With
+        }
 
         mAminoAcids.Add(oneLetterSymbol, aaInfo)
 

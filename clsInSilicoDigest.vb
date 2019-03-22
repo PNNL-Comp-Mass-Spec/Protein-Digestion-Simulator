@@ -184,15 +184,13 @@ Public Class clsInSilicoDigest
         ' Note that sequence must be in 1-letter notation, and will automatically be converted to uppercase
 
         Try
-            With mPeptideSequence
-                If includeXResiduesInMass Then
-                    .SetSequence(sequence.ToUpper())
-                Else
-                    ' Exclude X residues from sequence when calling .SetSequence
-                    .SetSequence(sequence.ToUpper().Replace("X", ""))
-                End If
-                Return .Mass
-            End With
+            If includeXResiduesInMass Then
+                mPeptideSequence.SetSequence(sequence.ToUpper())
+            Else
+                ' Exclude X residues from sequence when calling .SetSequence
+                mPeptideSequence.SetSequence(sequence.ToUpper().Replace("X", ""))
+            End If
+            Return mPeptideSequence.Mass
         Catch ex As Exception
             ReportError("ComputeSequenceMass", ex)
             Return 0
@@ -467,19 +465,17 @@ Public Class clsInSilicoDigest
 
         Dim cleavageRule As udtCleavageRulesType = Nothing
         If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
-            With cleavageRule
-                If .ReversedCleavageDirection Then
-                    description = "Before " & .CleavageResidues
-                    If .ExceptionResidues.Length > 0 Then
-                        description &= " not preceded by " & .ExceptionResidues
-                    End If
-                Else
-                    description = .CleavageResidues
-                    If .ExceptionResidues.Length > 0 Then
-                        description &= " not " & .ExceptionResidues
-                    End If
+            If cleavageRule.ReversedCleavageDirection Then
+                description = "Before " & cleavageRule.CleavageResidues
+                If cleavageRule.ExceptionResidues.Length > 0 Then
+                    description &= " not preceded by " & cleavageRule.ExceptionResidues
                 End If
-            End With
+            Else
+                description = cleavageRule.CleavageResidues
+                If cleavageRule.ExceptionResidues.Length > 0 Then
+                    description &= " not " & cleavageRule.ExceptionResidues
+                End If
+            End If
 
             Return description
         Else
@@ -661,14 +657,12 @@ Public Class clsInSilicoDigest
         sequenceWidthToExamineForMaximumpI As Integer)
 
         If mpICalculator Is Nothing Then
-            mpICalculator = New clspICalculation
+            mpICalculator = New clspICalculation()
         End If
 
-        With mpICalculator
-            .HydrophobicityType = eHydrophobicityType
-            .ReportMaximumpI = reportMaximumpI
-            .SequenceWidthToExamineForMaximumpI = sequenceWidthToExamineForMaximumpI
-        End With
+        mpICalculator.HydrophobicityType = eHydrophobicityType
+        mpICalculator.ReportMaximumpI = reportMaximumpI
+        mpICalculator.SequenceWidthToExamineForMaximumpI = sequenceWidthToExamineForMaximumpI
     End Sub
 
     Private Sub PossiblyAddPeptide(
