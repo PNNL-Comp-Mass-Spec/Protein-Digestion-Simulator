@@ -15,10 +15,11 @@
 
 Imports System.ComponentModel
 Imports System.IO
+Imports System.Text
 Imports NETPrediction
 Imports PRISM
+Imports PRISMWin
 Imports ProteinFileReader
-Imports SharedVBNetRoutines
 
 Public Class frmMain
 
@@ -45,7 +46,7 @@ Public Class frmMain
 
     Private Const XML_SETTINGS_FILE_NAME As String = "ProteinDigestionSimulatorOptions.xml"
 
-    Private Const OUTPUT_FILE_SUFFIX As String = "_output.txt"                              ' Note that this const starts with an underscore
+    Private Const OUTPUT_FILE_SUFFIX As String = "_output.txt"                         ' Note that this const starts with an underscore
     Private Const PEAK_MATCHING_STATS_FILE_SUFFIX As String = "_PeakMatching.txt"      ' Note that this const starts with an underscore
 
     Private Const PM_THRESHOLDS_DATA_TABLE As String = "PeakMatchingThresholds"
@@ -985,11 +986,11 @@ Public Class frmMain
         Dim pmThresholds = New DataTable(PM_THRESHOLDS_DATA_TABLE)
 
         ' Add the columns to the data table
-        ADONetRoutines.AppendColumnDoubleToTable(pmThresholds, COL_NAME_MASS_TOLERANCE)
-        ADONetRoutines.AppendColumnDoubleToTable(pmThresholds, COL_NAME_NET_TOLERANCE)
-        ADONetRoutines.AppendColumnDoubleToTable(pmThresholds, COL_NAME_SLIC_MASS_STDEV, DEFAULT_SLIC_MASS_STDEV)
-        ADONetRoutines.AppendColumnDoubleToTable(pmThresholds, COL_NAME_SLIC_NET_STDEV, DEFAULT_SLIC_NET_STDEV)
-        ADONetRoutines.AppendColumnIntegerToTable(pmThresholds, COL_NAME_PM_THRESHOLD_ROW_ID, 0, True, True)
+        DatabaseUtils.DataTableUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_MASS_TOLERANCE)
+        DatabaseUtils.DataTableUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_NET_TOLERANCE)
+        DatabaseUtils.DataTableUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_SLIC_MASS_STDEV, DEFAULT_SLIC_MASS_STDEV)
+        DatabaseUtils.DataTableUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_SLIC_NET_STDEV, DEFAULT_SLIC_NET_STDEV)
+        DatabaseUtils.DataTableUtils.AppendColumnIntegerToTable(pmThresholds, COL_NAME_PM_THRESHOLD_ROW_ID, 0, True, True)
 
         With pmThresholds
             Dim PrimaryKeyColumn = New DataColumn() { .Columns(COL_NAME_PM_THRESHOLD_ROW_ID)}
@@ -1023,23 +1024,21 @@ Public Class frmMain
         tsPMThresholdsTableStyle = New DataGridTableStyle
 
         ' Setting the MappingName of the table style to PM_THRESHOLDS_DATA_TABLE will cause this style to be used with that table
-        With tsPMThresholdsTableStyle
-            .MappingName = PM_THRESHOLDS_DATA_TABLE
-            .AllowSorting = True
-            .ColumnHeadersVisible = True
-            .RowHeadersVisible = True
-            .ReadOnly = False
-        End With
+        tsPMThresholdsTableStyle.MappingName = PM_THRESHOLDS_DATA_TABLE
+        tsPMThresholdsTableStyle.AllowSorting = True
+        tsPMThresholdsTableStyle.ColumnHeadersVisible = True
+        tsPMThresholdsTableStyle.RowHeadersVisible = True
+        tsPMThresholdsTableStyle.ReadOnly = False
 
-        ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_MASS_TOLERANCE, "Mass Tolerance", 90)
-        ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_NET_TOLERANCE, "NET Tolerance", 90)
+        DataGridUtils.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_MASS_TOLERANCE, "Mass Tolerance", 90)
+        DataGridUtils.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_NET_TOLERANCE, "NET Tolerance", 90)
 
         If chkAutoDefineSLiCScoreTolerances.Checked Then
             dgPeakMatchingThresholds.Width = 250
         Else
             dgPeakMatchingThresholds.Width = 425
-            ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_SLIC_MASS_STDEV, "SLiC Mass StDev", 90)
-            ADONetRoutines.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_SLIC_NET_STDEV, "SLiC NET StDev", 90)
+            DataGridUtils.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_SLIC_MASS_STDEV, "SLiC Mass StDev", 90)
+            DataGridUtils.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_SLIC_NET_STDEV, "SLiC NET StDev", 90)
         End If
 
         cmdPastePMThresholdsList.Left = dgPeakMatchingThresholds.Left + dgPeakMatchingThresholds.Width + 15
@@ -1743,34 +1742,33 @@ Public Class frmMain
     End Sub
 
     Private Sub ShowAboutBox()
-        Dim message As String
+        Dim message = New StringBuilder()
 
-        message = String.Empty
 
-        message &= "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004" & ControlChars.NewLine
-        message &= "Copyright 2018 Battelle Memorial Institute" & ControlChars.NewLine & ControlChars.NewLine
+        message.AppendLine("Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004")
+        message.AppendLine("Copyright 2018 Battelle Memorial Institute")
+        message.AppendLine()
+        message.AppendLine("This is version " & Application.ProductVersion & " (" & PROGRAM_DATE & ")")
+        message.AppendLine()
+        message.AppendLine("E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov")
+        message.AppendLine("Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/")
+        message.AppendLine()
+        message.AppendLine(frmDisclaimer.GetKangasPetritisDisclaimerText())
+        message.AppendLine()
+        message.AppendLine("Licensed under the 2-Clause BSD License; https://opensource.org/licenses/BSD-2-Clause")
+        message.AppendLine()
+        message.Append("This software is provided by the copyright holders and contributors ""as is"" and ")
+        message.Append("any express or implied warranties, including, but not limited to, the implied ")
+        message.Append("warranties of merchantability and fitness for a particular purpose are ")
+        message.Append("disclaimed. In no event shall the copyright holder or contributors be liable ")
+        message.Append("for any direct, indirect, incidental, special, exemplary, or consequential ")
+        message.Append("damages (including, but not limited to, procurement of substitute goods or ")
+        message.Append("services; loss of use, data, or profits; or business interruption) however ")
+        message.Append("caused and on any theory of liability, whether in contract, strict liability, ")
+        message.Append("or tort (including negligence or otherwise) arising in any way out of the use ")
+        message.Append("of this software, even if advised of the possibility of such damage.")
 
-        message &= "This is version " & Application.ProductVersion & " (" & PROGRAM_DATE & ")" & ControlChars.NewLine & ControlChars.NewLine
-
-        message &= "E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov" & ControlChars.NewLine
-        message &= "Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/" & ControlChars.NewLine & ControlChars.NewLine
-
-        message &= frmDisclaimer.GetKangasPetritisDisclaimerText() & ControlChars.NewLine & ControlChars.NewLine
-
-        message &= "Licensed under the 2-Clause BSD License; https://opensource.org/licenses/BSD-2-Clause" & ControlChars.NewLine & ControlChars.NewLine
-
-        message &= "This software is provided by the copyright holders and contributors ""as is"" and "
-        message &= "any express or implied warranties, including, but not limited to, the implied "
-        message &= "warranties of merchantability and fitness for a particular purpose are "
-        message &= "disclaimed. In no event shall the copyright holder or contributors be liable "
-        message &= "for any direct, indirect, incidental, special, exemplary, or consequential "
-        message &= "damages (including, but not limited to, procurement of substitute goods or "
-        message &= "services; loss of use, data, or profits; or business interruption) however "
-        message &= "caused and on any theory of liability, whether in contract, strict liability, "
-        message &= "or tort (including negligence or otherwise) arising in any way out of the use "
-        message &= "of this software, even if advised of the possibility of such damage."
-
-        MessageBox.Show(message, "About", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        MessageBox.Show(message.ToString(), "About", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
     End Sub
 
@@ -2174,28 +2172,28 @@ Public Class frmMain
     End Sub
 
     Private Sub txtDigestProteinsMinimumMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMinimumMass.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtDigestProteinsMinimumMass, e, True)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMinimumMass, e, True)
     End Sub
 
     Private Sub txtDigestProteinsMaximumMissedCleavages_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMaximumMissedCleavages.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtDigestProteinsMaximumMissedCleavages, e, True)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMaximumMissedCleavages, e, True)
     End Sub
 
     Private Sub txtDigestProteinsMinimumResidueCount_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMinimumResidueCount.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtDigestProteinsMinimumResidueCount, e, True)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMinimumResidueCount, e, True)
     End Sub
 
     Private Sub txtDigestProteinsMaximumMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMaximumMass.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtDigestProteinsMaximumMass, e, True)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMaximumMass, e, True)
     End Sub
 
     Private Sub txtMaxPeakMatchingResultsPerFeatureToSave_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtMaxPeakMatchingResultsPerFeatureToSave.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtMaxPeakMatchingResultsPerFeatureToSave, e, True)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtMaxPeakMatchingResultsPerFeatureToSave, e, True)
     End Sub
 
     Private Sub txtMaxPeakMatchingResultsPerFeatureToSave_Validating(sender As Object, e As CancelEventArgs) Handles txtMaxPeakMatchingResultsPerFeatureToSave.Validating
         If txtMaxPeakMatchingResultsPerFeatureToSave.Text.Trim = "0" Then txtMaxPeakMatchingResultsPerFeatureToSave.Text = "1"
-        VBNetRoutines.ValidateTextboxInt(txtMaxPeakMatchingResultsPerFeatureToSave, 1, 100, 3)
+        PRISMWin.TextBoxUtils.ValidateTextboxInt(txtMaxPeakMatchingResultsPerFeatureToSave, 1, 100, 3)
     End Sub
 
     Private Sub txtMaxpISequenceLength_KeyDown(sender As Object, e As KeyEventArgs) Handles txtMaxpISequenceLength.KeyDown
@@ -2203,11 +2201,11 @@ Public Class frmMain
     End Sub
 
     Private Sub txtMaxpISequenceLength_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtMaxpISequenceLength.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtMaxpISequenceLength, e, True, False)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtMaxpISequenceLength, e, True, False)
     End Sub
 
     Private Sub txtMaxpISequenceLength_Validating(sender As Object, e As CancelEventArgs) Handles txtMaxpISequenceLength.Validating
-        VBNetRoutines.ValidateTextboxInt(txtMaxpISequenceLength, 1, 10000, 10)
+        PRISMWin.TextBoxUtils.ValidateTextboxInt(txtMaxpISequenceLength, 1, 10000, 10)
     End Sub
 
     Private Sub txtMaxpISequenceLength_Validated(sender As Object, e As EventArgs) Handles txtMaxpISequenceLength.Validated
@@ -2215,11 +2213,11 @@ Public Class frmMain
     End Sub
 
     Private Sub txtMinimumSLiCScore_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtMinimumSLiCScore.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtMinimumSLiCScore, e, True, True)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtMinimumSLiCScore, e, True, True)
     End Sub
 
     Private Sub txtMinimumSLiCScore_Validating(sender As Object, e As CancelEventArgs) Handles txtMinimumSLiCScore.Validating
-        VBNetRoutines.ValidateTextboxSng(txtMinimumSLiCScore, 0, 1, 0.95)
+        PRISMWin.TextBoxUtils.ValidateTextBoxFloat(txtMinimumSLiCScore, 0, 1, 0.95)
     End Sub
 
     Private Sub txtProteinInputFilePath_TextChanged(sender As Object, e As EventArgs) Handles txtProteinInputFilePath.TextChanged
@@ -2228,11 +2226,11 @@ Public Class frmMain
     End Sub
 
     Private Sub txtProteinReversalSamplingPercentage_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtProteinReversalSamplingPercentage.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtProteinReversalSamplingPercentage, e, True)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtProteinReversalSamplingPercentage, e, True)
     End Sub
 
     Private Sub txtProteinScramblingLoopCount_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtProteinScramblingLoopCount.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtProteinScramblingLoopCount, e, True)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtProteinScramblingLoopCount, e, True)
     End Sub
 
     Private Sub txtSequenceForpI_TextChanged(sender As Object, e As EventArgs) Handles txtSequenceForpI.TextChanged
@@ -2240,15 +2238,15 @@ Public Class frmMain
     End Sub
 
     Private Sub txtUniquenessBinWidth_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtUniquenessBinWidth.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtUniquenessBinWidth, e, True)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtUniquenessBinWidth, e, True)
     End Sub
 
     Private Sub txtUniquenessBinStartMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtUniquenessBinStartMass.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtUniquenessBinStartMass, e, True)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtUniquenessBinStartMass, e, True)
     End Sub
 
     Private Sub txtUniquenessBinEndMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtUniquenessBinEndMass.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtUniquenessBinEndMass, e, True)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtUniquenessBinEndMass, e, True)
     End Sub
 
 #End Region

@@ -1,7 +1,8 @@
 ﻿Option Strict On
 
 Imports System.IO
-Imports SharedVBNetRoutines
+Imports System.Text
+Imports PRISMWin
 Imports ValidateFastaFile
 
 Public Class frmFastaValidation
@@ -418,10 +419,10 @@ Public Class frmFastaValidation
         Dim udtFastaValidationOptions As udtFastaValidationOptionsType
 
         With udtFastaValidationOptions
-            .MaximumErrorsToTrackInDetail = VBNetRoutines.ParseTextboxValueInt(txtMaxFileErrorsToTrack, "", False, 10, False)
-            .MaximumResiduesPerLine = VBNetRoutines.ParseTextboxValueInt(txtMaximumResiduesPerLine, "", False, 120, False)
-            .ValidProteinNameLengthMinimum = VBNetRoutines.ParseTextboxValueInt(txtProteinNameLengthMinimum, "", False, 3, False)
-            .ValidProteinNameLengthMaximum = VBNetRoutines.ParseTextboxValueInt(txtProteinNameLengthMaximum, "", False, 34, False)
+            .MaximumErrorsToTrackInDetail = PRISMWin.TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "", False, 10, False)
+            .MaximumResiduesPerLine = PRISMWin.TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "", False, 120, False)
+            .ValidProteinNameLengthMinimum = PRISMWin.TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "", False, 3, False)
+            .ValidProteinNameLengthMaximum = PRISMWin.TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "", False, 34, False)
 
             .AllowAsterisksInResidues = chkAllowAsteriskInResidues.Checked
             .CheckForDuplicateProteinNames = chkCheckForDuplicateProteinInfo.Checked
@@ -439,7 +440,7 @@ Public Class frmFastaValidation
                 .SplitOutMultipleRefsInProteinName = chkSplitOutMultipleRefsInProteinName.Checked
                 .ConsolidateDuplicateProteins = chkConsolidateDuplicateProteinSeqs.Checked
                 .ConsolidateDupsIgnoreILDiff = chkConsolidateDupsIgnoreILDiff.Checked
-                .ResiduesPerLineForWrap = VBNetRoutines.ParseTextboxValueInt(txtResiduesPerLineForWrap, "", False, 60, False)
+                .ResiduesPerLineForWrap = PRISMWin.TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "", False, 60, False)
             End With
 
             .Initialized = True
@@ -472,11 +473,11 @@ Public Class frmFastaValidation
         dtDataTable = New DataTable(dataTableName)
 
         ' Add the columns to the DataTable
-        ADONetRoutines.AppendColumnIntegerToTable(dtDataTable, COL_NAME_LINE)
-        ADONetRoutines.AppendColumnIntegerToTable(dtDataTable, COL_NAME_COLUMN)
-        ADONetRoutines.AppendColumnStringToTable(dtDataTable, COL_NAME_PROTEIN)
-        ADONetRoutines.AppendColumnStringToTable(dtDataTable, COL_NAME_DESCRIPTION)
-        ADONetRoutines.AppendColumnStringToTable(dtDataTable, COL_NAME_CONTEXT)
+        PRISM.DatabaseUtils.DataTableUtils.AppendColumnIntegerToTable(dtDataTable, COL_NAME_LINE)
+        PRISM.DatabaseUtils.DataTableUtils.AppendColumnIntegerToTable(dtDataTable, COL_NAME_COLUMN)
+        PRISM.DatabaseUtils.DataTableUtils.AppendColumnStringToTable(dtDataTable, COL_NAME_PROTEIN)
+        PRISM.DatabaseUtils.DataTableUtils.AppendColumnStringToTable(dtDataTable, COL_NAME_DESCRIPTION)
+        PRISM.DatabaseUtils.DataTableUtils.AppendColumnStringToTable(dtDataTable, COL_NAME_CONTEXT)
 
         ' Could define a primary key
         ''With dtDataTable
@@ -908,25 +909,21 @@ Public Class frmFastaValidation
 
     Private Sub UpdateDataGridTableStyle(dgDataGrid As DataGrid, targetTableName As String)
 
-        Dim tsTableStyle As DataGridTableStyle
-
         ' Instantiate the TableStyle
-        tsTableStyle = New DataGridTableStyle
-
         ' Setting the MappingName of the table style to targetTableName will cause this style to be used with that table
-        With tsTableStyle
-            .MappingName = targetTableName
-            .AllowSorting = True
-            .ColumnHeadersVisible = True
-            .RowHeadersVisible = False
+        Dim tsTableStyle = New DataGridTableStyle With {
+            .MappingName = targetTableName,
+            .AllowSorting = True,
+            .ColumnHeadersVisible = True,
+            .RowHeadersVisible = False,
             .ReadOnly = True
-        End With
+        }
 
-        ADONetRoutines.AppendColumnToTableStyle(tsTableStyle, COL_NAME_LINE, "Line", 80)
-        ADONetRoutines.AppendColumnToTableStyle(tsTableStyle, COL_NAME_COLUMN, "Column", 80)
-        ADONetRoutines.AppendColumnToTableStyle(tsTableStyle, COL_NAME_PROTEIN, "Protein", 200)
-        ADONetRoutines.AppendColumnToTableStyle(tsTableStyle, COL_NAME_DESCRIPTION, "Value", 550)
-        ADONetRoutines.AppendColumnToTableStyle(tsTableStyle, COL_NAME_CONTEXT, "Context", 200)
+        DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_LINE, "Line", 80)
+        DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_COLUMN, "Column", 80)
+        DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_PROTEIN, "Protein", 200)
+        DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_DESCRIPTION, "Value", 550)
+        DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_CONTEXT, "Context", 200)
 
         With dgDataGrid
             .TableStyles.Clear()
@@ -1004,23 +1001,23 @@ Public Class frmFastaValidation
     End Sub
 
     Private Sub txtMaxFileErrorsToTrack_KeyPress1(sender As Object, e As KeyPressEventArgs) Handles txtMaxFileErrorsToTrack.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtMaxFileErrorsToTrack, e, True)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtMaxFileErrorsToTrack, e, True)
     End Sub
 
     Private Sub txtMaximumResiduesPerLine_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtMaximumResiduesPerLine.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtMaximumResiduesPerLine, e, True)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtMaximumResiduesPerLine, e, True)
     End Sub
 
     Private Sub txtProteinNameLengthMinimum_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtProteinNameLengthMinimum.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtProteinNameLengthMinimum, e, True)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtProteinNameLengthMinimum, e, True)
     End Sub
 
     Private Sub txtProteinNameLengthMaximum_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtProteinNameLengthMaximum.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtProteinNameLengthMaximum, e, True)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtProteinNameLengthMaximum, e, True)
     End Sub
 
     Private Sub txtResiduesPerLineForWrap_TextChanged(sender As Object, e As KeyPressEventArgs) Handles txtResiduesPerLineForWrap.KeyPress
-        VBNetRoutines.TextBoxKeyPressHandler(txtResiduesPerLineForWrap, e, True)
+        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtResiduesPerLineForWrap, e, True)
     End Sub
 
     Private Sub txtResults_KeyDown(sender As Object, e As KeyEventArgs) Handles txtResults.KeyDown

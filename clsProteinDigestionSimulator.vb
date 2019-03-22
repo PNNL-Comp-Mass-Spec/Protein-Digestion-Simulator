@@ -18,7 +18,6 @@ Imports System.Reflection
 Imports System.Runtime.InteropServices
 Imports PRISM
 Imports ProteinFileReader
-Imports SharedVBNetRoutines
 
 ''' <summary>
 ''' This class will read two fasta files and look for overlap in protein sequence between the proteins of

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -82,10 +82,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Lib\NETPrediction.dll</HintPath>
     </Reference>
-    <Reference Include="SharedVBNetRoutines">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Lib\SharedVBNetRoutines.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
@@ -141,7 +137,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="PRISM-Library">
-      <Version>2.5.12</Version>
+      <Version>2.5.16</Version>
     </PackageReference>
     <PackageReference Include="ProteinFileReader">
       <Version>1.3.1</Version>
