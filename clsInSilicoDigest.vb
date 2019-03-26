@@ -9,8 +9,9 @@ Imports System.Runtime.InteropServices
 Public Class clsInSilicoDigest
 
     Public Sub New()
-        mPeptideSequence = New PeptideSequenceClass
-        mPeptideSequence.ElementMode = PeptideSequenceClass.ElementModeConstants.IsotopicMass
+        mPeptideSequence = New PeptideSequenceClass With {
+            .ElementMode = PeptideSequenceClass.ElementModeConstants.IsotopicMass
+        }
 
         InitializeCleavageRules()
         InitializepICalculator()
@@ -124,7 +125,7 @@ Public Class clsInSilicoDigest
         End Get
         Set
             If mPeptideSequence Is Nothing Then
-                mPeptideSequence = New PeptideSequenceClass
+                mPeptideSequence = New PeptideSequenceClass()
             End If
             mPeptideSequence.ElementMode = Value
         End Set
@@ -183,24 +184,23 @@ Public Class clsInSilicoDigest
         If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
             If ruleId = CleavageRuleConstants.NoRule Then
                 ' No cleavage rule; no point in checking
-                ruleMatch = True
                 ruleMatchCount = 2
+                Return True
             Else
-                ruleMatch = mPeptideSequence.CheckSequenceAgainstCleavageRule(
+                Dim ruleMatch = mPeptideSequence.CheckSequenceAgainstCleavageRule(
                                                             sequence,
                                                             cleavageRule.CleavageResidues,
                                                             cleavageRule.ExceptionResidues,
                                                             cleavageRule.ReversedCleavageDirection,
                                                             cleavageRule.AllowPartialCleavage,
                                                             , , , ruleMatchCount)
+                Return ruleMatch
             End If
-        Else
-            ' No rule selected; assume True
-            ruleMatchCount = 2
-            ruleMatch = True
         End If
 
-        Return ruleMatch
+        ' No rule selected; assume True
+        ruleMatchCount = 2
+        Return True
 
     End Function
 
@@ -778,8 +778,8 @@ Public Class clsInSilicoDigest
         End If
 
         If filterByIsoelectricPoint AndAlso (
-                   isoelectricPoint < digestionOptions.MinIsoelectricPoint OrElse
-                   isoelectricPoint > digestionOptions.MaxIsoelectricPoint) Then
+           isoelectricPoint < digestionOptions.MinIsoelectricPoint OrElse
+           isoelectricPoint > digestionOptions.MaxIsoelectricPoint) Then
             Return
         End If
 
