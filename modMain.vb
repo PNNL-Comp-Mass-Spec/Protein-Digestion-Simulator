@@ -31,7 +31,7 @@ Imports ProteinFileReader
 ''' </summary>
 Module modMain
 
-    Public Const PROGRAM_DATE As String = "March 20, 2019"
+    Public Const PROGRAM_DATE As String = "March 23, 2019"
 
     Private Declare Auto Function ShowWindow Lib "user32.dll" (hWnd As IntPtr, nCmdShow As Integer) As Boolean
     Private Declare Auto Function GetConsoleWindow Lib "kernel32.dll" () As IntPtr
