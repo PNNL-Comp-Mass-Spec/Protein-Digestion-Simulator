@@ -554,22 +554,24 @@ Public Class PeptideSequenceClass
         Dim symbol As Char
 
         If oneLetterTo3Letter Then
-            symbol = symbolToFind.Substring(0, 1).ToUpper.Chars(0)
+            ' 1 letter to 3 letter
+            symbol = symbolToParse.Substring(0, 1).ToUpper.Chars(0)
             If AminoAcidSymbols.ContainsKey(symbol) Then
                 Return AminoAcidSymbols(symbol)
             Else
                 Return String.Empty
             End If
         Else
+            ' 3 letter to 1 letter
             Dim myEnumerator As IDictionaryEnumerator = AminoAcidSymbols.GetEnumerator()
-            symbolToFind = symbolToFind.ToUpper
+            symbolToParse = symbolToParse.ToUpper()
             Do While myEnumerator.MoveNext()
-                If CType(myEnumerator.Value, String).ToUpper = symbolToFind Then
+                If CType(myEnumerator.Value, String).ToUpper() = symbolToParse Then
                     Return CType(myEnumerator.Key, String)
                 End If
             Loop
 
-            ' If we get here, then the value wasn't found
+            ' If we get here, the value wasn't found
             Return String.Empty
         End If
 
@@ -1495,7 +1497,7 @@ Public Class PeptideSequenceClass
 
         Else
             ' Sequence is 3 letter codes
-            If bln3LetterCheckForPrefixHandSuffixOH Then
+            If threeLetterCheckForPrefixHandSuffixOH Then
                 ' Look for a leading H or trailing OH, provided those don't match any of the amino acids
                 RemoveLeadingH(sequence)
                 RemoveTrailingOH(sequence)

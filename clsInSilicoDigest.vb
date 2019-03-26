@@ -1029,7 +1029,7 @@ Public Class clsInSilicoDigest
 
             Dim returnVal As Integer
 
-            returnVal = MyBase.SetSequence(sequence, eNTerminus, eCTerminus, is3LetterCode, bln1LetterCheckForPrefixAndSuffixResidues, bln3LetterCheckForPrefixHandSuffixOH)
+            returnVal = MyBase.SetSequence(sequence, eNTerminus, eCTerminus, is3LetterCode, oneLetterCheckForPrefixAndSuffixResidues, threeLetterCheckForPrefixHandSuffixOH)
             If mAutoComputeNET Then UpdateNET()
 
             Return returnVal

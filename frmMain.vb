@@ -79,7 +79,7 @@ Public Class frmMain
     Private Enum PredefinedPMThresholdsConstants
         OneMassOneNET = 0
         OneMassThreeNET = 1
-        OneNETThreeMass = 2
+        ThreeMassOneNET = 2
         ThreeMassThreeNET = 3
         FiveMassThreeNET = 4
     End Enum
@@ -1159,7 +1159,7 @@ Public Class frmMain
         Dim length As Integer
 
         Try
-            length = PRISMWin.TextBoxUtils.ParseTextboxValueInt(txtMaxpISequenceLength, String.Empty, invalidValue, 10)
+            length = PRISMWin.TextBoxUtils.ParseTextBoxValueInt(txtMaxpISequenceLength, String.Empty, invalidValue, 10)
             If invalidValue Then
                 txtMaxpISequenceLength.Text = length.ToString()
             End If
@@ -1219,8 +1219,8 @@ Public Class frmMain
                     mParseProteinFile.ProteinScramblingMode = CType(cboProteinReversalOptions.SelectedIndex, clsParseProteinFile.ProteinScramblingModeConstants)
                 End If
 
-                mParseProteinFile.ProteinScramblingSamplingPercentage = PRISMWin.TextBoxUtils.ParseTextboxValueInt(txtProteinReversalSamplingPercentage, "", False, 100, False)
-                mParseProteinFile.ProteinScramblingLoopCount = PRISMWin.TextBoxUtils.ParseTextboxValueInt(txtProteinScramblingLoopCount, "", False, 1, False)
+                mParseProteinFile.ProteinScramblingSamplingPercentage = PRISMWin.TextBoxUtils.ParseTextBoxValueInt(txtProteinReversalSamplingPercentage, "", False, 100, False)
+                mParseProteinFile.ProteinScramblingLoopCount = PRISMWin.TextBoxUtils.ParseTextBoxValueInt(txtProteinScramblingLoopCount, "", False, 1, False)
                 mParseProteinFile.CreateDigestedProteinOutputFile = chkDigestProteins.Checked
                 mParseProteinFile.CreateFastaOutputFile = chkCreateFastaOutputFile.Checked
 
@@ -1467,7 +1467,7 @@ Public Class frmMain
             cboPMPredefinedThresholds.Items.Clear()
             cboPMPredefinedThresholds.Items.Insert(PredefinedPMThresholdsConstants.OneMassOneNET, "5 ppm; 0.05 " & NET_UNITS)
             cboPMPredefinedThresholds.Items.Insert(PredefinedPMThresholdsConstants.OneMassThreeNET, "5 ppm; 0.01, 0.05, 100 " & NET_UNITS)
-            cboPMPredefinedThresholds.Items.Insert(PredefinedPMThresholdsConstants.OneNETThreeMass, "0.5, 1, & 5 ppm; 0.05 " & NET_UNITS)
+            cboPMPredefinedThresholds.Items.Insert(PredefinedPMThresholdsConstants.ThreeMassOneNET, "0.5, 1, & 5 ppm; 0.05 " & NET_UNITS)
             cboPMPredefinedThresholds.Items.Insert(PredefinedPMThresholdsConstants.ThreeMassThreeNET, "0.5, 1, 5 ppm; 0.01, 0.05, & 100 " & NET_UNITS)
             cboPMPredefinedThresholds.Items.Insert(PredefinedPMThresholdsConstants.FiveMassThreeNET, "0.5, 1, 5, 10, & 50 ppm; 0.01, 0.05, & 100 " & NET_UNITS)
             cboPMPredefinedThresholds.SelectedIndex = PredefinedPMThresholdsConstants.OneMassOneNET
@@ -2144,7 +2144,7 @@ Public Class frmMain
 
     Private Sub txtMaxPeakMatchingResultsPerFeatureToSave_Validating(sender As Object, e As CancelEventArgs) Handles txtMaxPeakMatchingResultsPerFeatureToSave.Validating
         If txtMaxPeakMatchingResultsPerFeatureToSave.Text.Trim = "0" Then txtMaxPeakMatchingResultsPerFeatureToSave.Text = "1"
-        PRISMWin.TextBoxUtils.ValidateTextboxInt(txtMaxPeakMatchingResultsPerFeatureToSave, 1, 100, 3)
+        PRISMWin.TextBoxUtils.ValidateTextBoxInt(txtMaxPeakMatchingResultsPerFeatureToSave, 1, 100, 3)
     End Sub
 
     Private Sub txtMaxpISequenceLength_KeyDown(sender As Object, e As KeyEventArgs) Handles txtMaxpISequenceLength.KeyDown
@@ -2156,7 +2156,7 @@ Public Class frmMain
     End Sub
 
     Private Sub txtMaxpISequenceLength_Validating(sender As Object, e As CancelEventArgs) Handles txtMaxpISequenceLength.Validating
-        PRISMWin.TextBoxUtils.ValidateTextboxInt(txtMaxpISequenceLength, 1, 10000, 10)
+        PRISMWin.TextBoxUtils.ValidateTextBoxInt(txtMaxpISequenceLength, 1, 10000, 10)
     End Sub
 
     Private Sub txtMaxpISequenceLength_Validated(sender As Object, e As EventArgs) Handles txtMaxpISequenceLength.Validated
