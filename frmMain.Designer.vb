@@ -112,6 +112,8 @@ Partial Class frmMain
         Me.chkIncludeXResidues = New System.Windows.Forms.CheckBox()
         Me.chkComputeProteinMass = New System.Windows.Forms.CheckBox()
         Me.fraDigestionOptions = New System.Windows.Forms.GroupBox()
+        Me.cboCysTreatmentMode = New System.Windows.Forms.ComboBox()
+        Me.lblCysTreatment = New System.Windows.Forms.Label()
         Me.txtDigestProteinsMaximumpI = New System.Windows.Forms.TextBox()
         Me.lblDigestProteinsMaximumpI = New System.Windows.Forms.Label()
         Me.txtDigestProteinsMinimumpI = New System.Windows.Forms.TextBox()
@@ -175,8 +177,6 @@ Partial Class frmMain
         Me.cboOutputFileFieldDelimiter = New System.Windows.Forms.ComboBox()
         Me.txtOutputFileFieldDelimiter = New System.Windows.Forms.TextBox()
         Me.fraOutputTextOptions = New System.Windows.Forms.GroupBox()
-        Me.lblCysTreatment = New System.Windows.Forms.Label()
-        Me.cboCysTreatment = New System.Windows.Forms.ComboBox()
         Me.fraPeakMatchingOptions.SuspendLayout()
         Me.TabPageUniquenessStats.SuspendLayout()
         Me.fraSqlServerOptions.SuspendLayout()
@@ -1140,7 +1140,7 @@ Partial Class frmMain
         '
         'fraDigestionOptions
         '
-        Me.fraDigestionOptions.Controls.Add(Me.cboCysTreatment)
+        Me.fraDigestionOptions.Controls.Add(Me.cboCysTreatmentMode)
         Me.fraDigestionOptions.Controls.Add(Me.lblCysTreatment)
         Me.fraDigestionOptions.Controls.Add(Me.txtDigestProteinsMaximumpI)
         Me.fraDigestionOptions.Controls.Add(Me.lblDigestProteinsMaximumpI)
@@ -1166,6 +1166,24 @@ Partial Class frmMain
         Me.fraDigestionOptions.TabIndex = 2
         Me.fraDigestionOptions.TabStop = False
         Me.fraDigestionOptions.Text = "Digestion Options"
+        '
+        'cboCysTreatmentMode
+        '
+        Me.cboCysTreatmentMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboCysTreatmentMode.Location = New System.Drawing.Point(737, 94)
+        Me.cboCysTreatmentMode.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboCysTreatmentMode.Name = "cboCysTreatmentMode"
+        Me.cboCysTreatmentMode.Size = New System.Drawing.Size(155, 24)
+        Me.cboCysTreatmentMode.TabIndex = 17
+        '
+        'lblCysTreatment
+        '
+        Me.lblCysTreatment.Location = New System.Drawing.Point(737, 69)
+        Me.lblCysTreatment.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCysTreatment.Name = "lblCysTreatment"
+        Me.lblCysTreatment.Size = New System.Drawing.Size(138, 26)
+        Me.lblCysTreatment.TabIndex = 16
+        Me.lblCysTreatment.Text = "Cys treatment:"
         '
         'txtDigestProteinsMaximumpI
         '
@@ -1728,23 +1746,9 @@ Partial Class frmMain
         Me.fraOutputTextOptions.TabStop = False
         Me.fraOutputTextOptions.Text = "Output Options"
         '
-        'lblCysTreatment
         '
-        Me.lblCysTreatment.Location = New System.Drawing.Point(737, 63)
-        Me.lblCysTreatment.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.lblCysTreatment.Name = "lblCysTreatment"
-        Me.lblCysTreatment.Size = New System.Drawing.Size(138, 26)
-        Me.lblCysTreatment.TabIndex = 16
-        Me.lblCysTreatment.Text = "Cys treatment:"
         '
-        'cboCysTreatment
         '
-        Me.cboCysTreatment.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboCysTreatment.Location = New System.Drawing.Point(737, 94)
-        Me.cboCysTreatment.Margin = New System.Windows.Forms.Padding(4)
-        Me.cboCysTreatment.Name = "cboCysTreatment"
-        Me.cboCysTreatment.Size = New System.Drawing.Size(155, 24)
-        Me.cboCysTreatment.TabIndex = 17
         '
         'frmMain
         '
@@ -1941,6 +1945,6 @@ Partial Class frmMain
     Friend WithEvents chkComputeSequenceHashIgnoreILDiff As System.Windows.Forms.CheckBox
     Friend WithEvents chkExcludeProteinDescription As CheckBox
     Friend WithEvents cmdNETInfo As Button
-    Friend WithEvents cboCysTreatment As ComboBox
+    Friend WithEvents cboCysTreatmentMode As ComboBox
     Friend WithEvents lblCysTreatment As Label
 End Class

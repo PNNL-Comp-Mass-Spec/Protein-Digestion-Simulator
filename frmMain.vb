@@ -726,6 +726,7 @@ Public Class frmMain
                 txtDigestProteinsMinimumpI.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMinimumpI", txtDigestProteinsMinimumpI.Text)
                 txtDigestProteinsMaximumpI.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMaximumpI", txtDigestProteinsMaximumpI.Text)
 
+                cboCysTreatmentMode.SelectedIndex = xmlSettings.GetParam(DigestionOptions, "CysTreatmentModeIndex", cboCysTreatmentMode.SelectedIndex)
                 ' Load Uniqueness Options
                 chkAssumeInputFileIsDigested.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "AssumeInputFileIsDigested", chkAssumeInputFileIsDigested.Checked)
 
@@ -888,6 +889,7 @@ Public Class frmMain
                     xmlSettings.SetParam(DigestionOptions, "DigestProteinsMinimumpI", txtDigestProteinsMinimumpI.Text)
                     xmlSettings.SetParam(DigestionOptions, "DigestProteinsMaximumpI", txtDigestProteinsMaximumpI.Text)
 
+                    xmlSettings.SetParam(DigestionOptions, "CysTreatmentModeIndex", cboCysTreatmentMode.SelectedIndex)
                     ' Load Uniqueness Options
                     xmlSettings.SetParam(UniquenessStatsOptions, "AssumeInputFileIsDigested", chkAssumeInputFileIsDigested.Checked)
 
@@ -1113,6 +1115,10 @@ Public Class frmMain
 
         parseProteinFile.DigestionOptions.MaxIsoelectricPoint = ParseTextBoxValueSng(txtDigestProteinsMaximumpI, lblDigestProteinsMaximumpI.Text & " must be a decimal value", invalidValue)
         If invalidValue Then Return False
+
+        If cboCysTreatmentMode.SelectedIndex >= 0 Then
+            parseProteinFile.DigestionOptions.CysTreatmentMode = CType(cboCysTreatmentMode.SelectedIndex, PeptideSequenceClass.CysTreatmentModeConstants)
+        End If
 
         parseProteinFile.DigestionOptions.RemoveDuplicateSequences = Not chkIncludeDuplicateSequences.Checked
         If chkCysPeptidesOnly.Checked Then
@@ -1459,6 +1465,12 @@ Public Class frmMain
             cboHydrophobicityMode.Items.Insert(clspICalculation.eHydrophobicityTypeConstants.MeekPH7p4, "Meek pH 7.4")
             cboHydrophobicityMode.Items.Insert(clspICalculation.eHydrophobicityTypeConstants.MeekPH2p1, "Meek pH 2.1")
             cboHydrophobicityMode.SelectedIndex = clspICalculation.eHydrophobicityTypeConstants.HW
+
+            cboCysTreatmentMode.Items.Clear()
+            cboCysTreatmentMode.Items.Insert(PeptideSequenceClass.CysTreatmentModeConstants.Untreated, "Untreated")
+            cboCysTreatmentMode.Items.Insert(PeptideSequenceClass.CysTreatmentModeConstants.Iodoacetamide, "Iodoacetamide (+57.02)")
+            cboCysTreatmentMode.Items.Insert(PeptideSequenceClass.CysTreatmentModeConstants.IodoaceticAcid, "Iodoacetic Acid (+58.01)")
+            cboCysTreatmentMode.SelectedIndex = PeptideSequenceClass.CysTreatmentModeConstants.Untreated
 
         Catch ex As Exception
             ShowErrorMessage("Error initializing the combo boxes: " & ex.Message)

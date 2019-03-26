@@ -703,7 +703,10 @@ Public Class clsInSilicoDigest
 
         If Not addFragment Then Return
 
-        Dim peptideFragment = New PeptideInfoClass With {.AutoComputeNET = False}
+        Dim peptideFragment = New PeptideInfoClass With {
+            .AutoComputeNET = False,
+            .CysTreatmentMode = digestionOptions.CysTreatmentMode
+        }
 
         peptideFragment.SequenceOneLetter = peptideSequence
 
@@ -951,6 +954,8 @@ Public Class clsInSilicoDigest
             CleavageRuleID = CleavageRuleConstants.ConventionalTrypsin
             mMinFragmentResidueCount = 4
 
+            CysTreatmentMode = PeptideSequenceClass.CysTreatmentModeConstants.Untreated
+
             mMinFragmentMass = 0
             mMaxFragmentMass = 6000
 
@@ -975,7 +980,6 @@ Public Class clsInSilicoDigest
 
 #Region "Processing Options Interface Functions"
 
-
         Public Property AminoAcidResidueFilterChars As Char()
 
         Public Property MaxMissedCleavages As Integer
@@ -990,6 +994,8 @@ Public Class clsInSilicoDigest
         End Property
 
         Public Property CleavageRuleID As CleavageRuleConstants
+
+        Public Property CysTreatmentMode As PeptideSequenceClass.CysTreatmentModeConstants
 
         Public Property MinFragmentResidueCount As Integer
             Get

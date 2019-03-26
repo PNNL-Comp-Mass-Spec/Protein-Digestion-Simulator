@@ -42,6 +42,15 @@ Public Class PeptideSequenceClass
         None = 6
     End Enum
 
+    ''' <summary>
+    ''' Cysteine treatment constants
+    ''' </summary>
+    Public Enum CysTreatmentModeConstants
+        Untreated = 0
+        Iodoacetamide = 1       ' +57.0215 (alkylated)
+        IodoaceticAcid = 2      ' +58.0055
+    End Enum
+
     Public Enum ElementModeConstants
         AverageMass = 0
         IsotopicMass = 1
@@ -71,6 +80,18 @@ Public Class PeptideSequenceClass
     Private Shared mCurrentElementMode As ElementModeConstants
     Private Shared mHydrogenMass As Double           ' Mass of hydrogen
     Private Shared mChargeCarrierMass As Double      ' H minus one electron
+
+    ''' <summary>
+    ''' Mass value to add for each Cys residue when CysTreatmentMode is Iodoacetamide
+    ''' </summary>
+    ''' <remarks>Auto-updated when mCurrentElementMode is updated</remarks>
+    Private Shared mIodoacetamideMass As Double
+
+    ''' <summary>
+    ''' Mass value to add for each Cys residue when CysTreatmentMode is IodoaceticAcid
+    ''' </summary>
+    ''' <remarks>Auto-updated when mCurrentElementMode is updated</remarks>
+    Private Shared mIodoaceticAcidMass As Double
 #End Region
 
 #Region "Classwide Variables"
@@ -89,6 +110,13 @@ Public Class PeptideSequenceClass
 #End Region
 
 #Region "Processing Options Interface Functions"
+
+
+    ''' <summary>
+    ''' Cysteine treatment mode
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property CysTreatmentMode As CysTreatmentModeConstants
 
     Public Property ElementMode As ElementModeConstants
         Get
@@ -1443,7 +1471,21 @@ Public Class PeptideSequenceClass
 
             For index = 0 To mResidues.Length - 1
                 Try
-                    runningTotal += AminoAcidMasses(mResidues.Chars(index))
+                    Dim oneLetterSymbol = mResidues.Chars(index)
+
+                    runningTotal += AminoAcidMasses(oneLetterSymbol)
+
+                    If oneLetterSymbol = "C"c AndAlso CysTreatmentMode <> CysTreatmentModeConstants.Untreated Then
+                        Select Case CysTreatmentMode
+                            Case CysTreatmentModeConstants.Iodoacetamide
+                                runningTotal += mIodoacetamideMass
+
+                            Case CysTreatmentModeConstants.IodoaceticAcid
+                                runningTotal += mIodoaceticAcidMass
+                        End Select
+
+                    End If
+
                 Catch ex As Exception
                     ' Skip this residue
                     Console.WriteLine("Error parsing Residue symbols in UpdateSequenceMass; " & ex.Message)
@@ -1473,6 +1515,9 @@ Public Class PeptideSequenceClass
 
         ' Update Hydrogen mass
         mHydrogenMass = ComputeFormulaWeightCHNOSP("H")
+
+        mIodoacetamideMass = ComputeFormulaWeightCHNOSP("C2H3NO")
+        mIodoaceticAcidMass = ComputeFormulaWeightCHNOSP("C2H2O2")
 
     End Sub
 
