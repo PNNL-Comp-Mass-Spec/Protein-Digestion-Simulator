@@ -1235,14 +1235,14 @@ Public Class PeptideSequenceClass
     ''' <summary>
     ''' Removing the leading H, if present
     ''' </summary>
-    ''' <param name="workingSequence"></param>
+    ''' <param name="workingSequence">Amino acids, in 3 letter notation</param>
     ''' <remarks>This is only applicable for sequences in 3 letter notation</remarks>
     Private Sub RemoveLeadingH(ByRef workingSequence As String)
 
         Dim oneLetterSymbol As String
 
-        If workingSequence.Substring(0, 1).ToUpper = "H" AndAlso workingSequence.Length >= 4 Then
-            ' If next character is not a character, then remove the H and the next character
+        If workingSequence.Substring(0, 1).ToUpper() = "H" AndAlso workingSequence.Length >= 4 Then
+            ' If next character is not a character, remove the H and the next character
             If Not Char.IsLetter(workingSequence.Chars(1)) Then
                 workingSequence = workingSequence.Substring(2)
             Else
@@ -1254,8 +1254,8 @@ Public Class PeptideSequenceClass
 
                     oneLetterSymbol = GetAminoAcidSymbolConversion(workingSequence.Substring(1, 3), False)
 
-                    If oneLetterSymbol.Length = 0 Then
-                        ' Doesn't start with a valid amino acid 3 letter abbreviation, so remove the initial H
+                    If oneLetterSymbol.Length > 0 Then
+                        ' Starts with H then a valid 3 letter abbreviation, so remove the initial H
                         workingSequence = workingSequence.Substring(1)
                     End If
                 End If
@@ -1275,7 +1275,7 @@ Public Class PeptideSequenceClass
         Dim stringLength As Integer
 
         stringLength = workingSequence.Length
-        If workingSequence.Substring(stringLength - 2, 2).ToUpper = "OH" And stringLength >= 5 Then
+        If workingSequence.Substring(stringLength - 2, 2).ToUpper() = "OH" And stringLength >= 5 Then
             ' If previous character is not a character, then remove the OH (and the character preceding)
             If Not Char.IsLetter(workingSequence.Chars(stringLength - 3)) Then
                 workingSequence = workingSequence.Substring(0, stringLength - 3)
@@ -1288,8 +1288,8 @@ Public Class PeptideSequenceClass
 
                     oneLetterSymbol = GetAminoAcidSymbolConversion(workingSequence.Substring(stringLength - 4, 3), False)
 
-                    If oneLetterSymbol.Length = 0 Then
-                        ' Doesn't end with a valid amino acid 3 letter abbreviation, so remove the trailing OH
+                    If oneLetterSymbol.Length > 0 Then
+                        ' Ends with a valid 3 letter abbreviation then OH, so remove the OH
                         workingSequence = workingSequence.Substring(0, stringLength - 2)
                     End If
                 End If
@@ -1500,7 +1500,6 @@ Public Class PeptideSequenceClass
                     If Char.IsLetter(sequence.Chars(index + 1)) And
                        Char.IsLetter(sequence.Chars(index + 2)) Then
 
-
                         oneLetterSymbol = GetAminoAcidSymbolConversion(sequence.Substring(index, 3), False)
 
                         If oneLetterSymbol.Length = 0 Then
@@ -1637,6 +1636,7 @@ Public Class PeptideSequenceClass
             mCTerminus.Mass = ComputeFormulaWeightCHNOSP(mCTerminus.Formula)
             mCTerminus.MassElementMode = mCurrentElementMode
         End If
+
     End Sub
 
     Private Sub InitializeSharedData()
