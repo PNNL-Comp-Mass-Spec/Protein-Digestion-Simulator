@@ -62,6 +62,9 @@ Public Class frmMain
 
     Private Const PROGRESS_TAB_INDEX As Integer = 4
 
+    ''' <summary>
+    ''' Input file format constants
+    ''' </summary>
     Private Enum InputFileFormatConstants
         AutoDetermine = 0
         FastaFile = 1
@@ -69,6 +72,10 @@ Public Class frmMain
     End Enum
 
     Private Const PREDEFINED_PM_THRESHOLDS_COUNT As Integer = 5
+
+    ''' <summary>
+    ''' Predefined peak matching threshold constants
+    ''' </summary>
     Private Enum PredefinedPMThresholdsConstants
         OneMassOneNET = 0
         OneMassThreeNET = 1

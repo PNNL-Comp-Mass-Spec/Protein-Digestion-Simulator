@@ -71,15 +71,35 @@ Public Class PeptideSequenceClass
 
 #Region "Shared Classwide Variables"
     ' Variables shared across all instances of this class
-    Private Shared mSharedArraysInitialized As Boolean
-    Private Shared AminoAcidMasses As Dictionary(Of Char, Double)       ' Hash of one letter symbols and corresponding mass for each
-    Private Shared AminoAcidSymbols As Dictionary(Of Char, String)      ' Hash of one letter symbols and corresponding three letter symbol for each
 
-    Private Shared ElementMasses As Dictionary(Of Char, Double)         ' Hash of one letter element symbols and corresponding mass for each
+    Private Shared mSharedArraysInitialized As Boolean
+
+    ''' <summary>
+    ''' One letter symbols and corresponding mass for each
+    ''' </summary>
+    Private Shared AminoAcidMasses As Dictionary(Of Char, Double)
+
+    ''' <summary>
+    ''' One letter symbols and corresponding three letter symbol for each
+    ''' </summary>
+    Private Shared AminoAcidSymbols As Dictionary(Of Char, String)
+
+    ''' <summary>
+    ''' One letter element symbols and corresponding mass for each
+    ''' </summary>
+    Private Shared ElementMasses As Dictionary(Of Char, Double)
 
     Private Shared mCurrentElementMode As ElementModeConstants
-    Private Shared mHydrogenMass As Double           ' Mass of hydrogen
-    Private Shared mChargeCarrierMass As Double      ' H minus one electron
+
+    ''' <summary>
+    ''' Mass of hydrogen
+    ''' </summary>
+    Private Shared mHydrogenMass As Double
+
+    ''' <summary>
+    ''' Charge carrier mass: hydrogen minus one electron
+    ''' </summary>
+    Private Shared mChargeCarrierMass As Double
 
     ''' <summary>
     ''' Mass value to add for each Cys residue when CysTreatmentMode is Iodoacetamide
@@ -97,11 +117,15 @@ Public Class PeptideSequenceClass
 #Region "Classwide Variables"
     Private mResidues As String
 
-    ' ReSharper disable once UnassignedField.Local
-    Private mNTerminus As udtTerminusType       ' Formula on the N-Terminus
+    ''' <summary>
+    ''' Formula on the N-Terminus
+    ''' </summary>
+    Private mNTerminus As udtTerminusType
 
-    ' ReSharper disable once UnassignedField.Local
-    Private mCTerminus As udtTerminusType       ' Formula on the C-Terminus
+    ''' <summary>
+    ''' Formula on the C-Terminus
+    ''' </summary>
+    Private mCTerminus As udtTerminusType
 
     Private mTotalMass As Double
     Private mTotalMassElementMode As ElementModeConstants
@@ -111,6 +135,15 @@ Public Class PeptideSequenceClass
 
 #Region "Processing Options Interface Functions"
 
+    ''' <summary>
+    ''' Charge carrier mass
+    ''' </summary>
+    ''' <returns></returns>
+    Public Shared ReadOnly Property ChargeCarrierMass As Double
+        Get
+            Return mChargeCarrierMass
+        End Get
+    End Property
 
     ''' <summary>
     ''' Cysteine treatment mode
@@ -118,6 +151,10 @@ Public Class PeptideSequenceClass
     ''' <returns></returns>
     Public Property CysTreatmentMode As CysTreatmentModeConstants
 
+    ''' <summary>
+    ''' Element mode
+    ''' </summary>
+    ''' <returns></returns>
     Public Property ElementMode As ElementModeConstants
         Get
             Return mCurrentElementMode
@@ -129,17 +166,29 @@ Public Class PeptideSequenceClass
         End Set
     End Property
 
+    ''' <summary>
+    ''' Sequence mass
+    ''' </summary>
+    ''' <returns></returns>
     Public ReadOnly Property Mass As Double
         Get
             If mTotalMassElementMode <> mCurrentElementMode Then UpdateSequenceMass()
             Return mTotalMass
         End Get
     End Property
+
 #End Region
 
+    ''' <summary>
+    ''' Adds new entry to AminoAcidMasses and AminoAcidSymbols
+    ''' </summary>
+    ''' <param name="symbolOneLetter"></param>
+    ''' <param name="symbolThreeLetter"></param>
+    ''' <param name="formula">
+    ''' Can only contain C, H, N, O, S, or P, with each element optionally having an integer after it
+    ''' Cannot contain any parentheses or other advanced formula features
+    ''' </param>
     Private Sub AddAminoAcidStatEntry(symbolOneLetter As Char, symbolThreeLetter As String, formula As String)
-        ' Adds new entry to AminoAcidMasses and AminoAcidSymbols
-        ' Note: formula can only contain C, H, N, O, S, or P, and cannot contain any parentheses or other advanced formula features
 
         Dim aminoAcidMass As Double
 
@@ -389,10 +438,15 @@ Public Class PeptideSequenceClass
 
     End Function
 
+    ''' <summary>
+    ''' Very simple mass computation utility; only considers elements C, H, N, O, S, and P
+    ''' </summary>
+    ''' <param name="formula">
+    ''' Can only contain C, H, N, O, S, or P, with each element optionally having an integer after it
+    ''' Cannot contain any parentheses or other advanced formula features
+    ''' </param>
+    ''' <returns>Formula mass, or 0 if any unknown symbols are encountered</returns>
     Private Function ComputeFormulaWeightCHNOSP(formula As String) As Double
-        ' Very simple mass computation utility; only considers elements C, H, N, O, S, and P
-        ' Does not handle parentheses or any other advanced formula features
-        ' Returns 0 if any unknown symbols are encountered
 
         Dim formulaMass As Double = 0
         Dim index As Integer
@@ -486,10 +540,16 @@ Public Class PeptideSequenceClass
 
     End Function
 
-    Private Function GetAminoAcidSymbolConversion(symbolToFind As String, oneLetterTo3Letter As Boolean) As String
-        ' If oneLetterTo3Letter = True, then converting 1 letter codes to 3 letter codes
-        ' Returns the symbol, if found
-        ' Otherwise, returns ""
+    ''' <summary>
+    ''' Convert between 1 letter and 3 letter symbol
+    ''' </summary>
+    ''' <param name="symbolToParse">Amino acid symbol to parse</param>
+    ''' <param name="oneLetterTo3Letter">
+    ''' When true, converting 1 letter codes to 3 letter codes
+    ''' Otherwise, converting 3 letter codes to 1 letter codes
+    ''' </param>
+    ''' <returns>Converted amino acid symbol if a valid amino acid symbol, otherwise an empty string</returns>
+    Private Function GetAminoAcidSymbolConversion(symbolToParse As String, oneLetterTo3Letter As Boolean) As String
 
         Dim symbol As Char
 
@@ -1217,7 +1277,7 @@ Public Class PeptideSequenceClass
     ''' <summary>
     ''' Removing the trailing OH, if present
     ''' </summary>
-    ''' <param name="workingSequence"></param>
+    ''' <param name="workingSequence">Amino acids, in 3 letter notation</param>
     ''' <remarks>This is only applicable for sequences in 3 letter notation</remarks>
     Private Sub RemoveTrailingOH(ByRef workingSequence As String)
 
@@ -1248,13 +1308,19 @@ Public Class PeptideSequenceClass
 
     End Sub
 
+    ''' <summary>
+    ''' Define the C-terminus using an empirical formula
+    ''' </summary>
+    ''' <param name="formula">Can only contain C, H, N, O, S, or P, and cannot contain any parentheses or other advanced formula features</param>
+    ''' <param name="followingResidue"></param>
+    ''' <param name="use3LetterCode"></param>
+    ''' <returns>0 if success; 1 if error</returns>
+    ''' <remarks>
+    ''' Typical C terminus groups
+    ''' Free Acid = OH
+    ''' Amide = NH2
+    ''' </remarks>
     Private Function SetCTerminus(formula As String, Optional followingResidue As String = "", Optional use3LetterCode As Boolean = False) As Integer
-        ' Note: formula can only contain C, H, N, O, S, or P, and cannot contain any parentheses or other advanced formula features
-        ' Returns 0 if success; 1 if error
-
-        ' Typical N terminus mods
-        ' Free Acid = OH
-        ' Amide = NH2
 
         Dim returnVal As Integer
 
@@ -1279,8 +1345,15 @@ Public Class PeptideSequenceClass
 
     End Function
 
+    ''' <summary>
+    ''' Define the C-terminus using an enum in CTerminusGroupConstants
+    ''' </summary>
+    ''' <param name="eCTerminusGroup"></param>
+    ''' <param name="followingResidue"></param>
+    ''' <param name="use3LetterCode"></param>
+    ''' <returns>0 if success; 1 if error</returns>
     Public Function SetCTerminusGroup(eCTerminusGroup As CTerminusGroupConstants, Optional followingResidue As String = "", Optional use3LetterCode As Boolean = False) As Integer
-        ' Returns 0 if success; 1 if error
+
         Dim errorCode As Integer
 
         Select Case eCTerminusGroup
@@ -1294,16 +1367,22 @@ Public Class PeptideSequenceClass
 
     End Function
 
+    ''' <summary>
+    ''' Define the N-terminus using an empirical formula
+    ''' </summary>
+    ''' <param name="formula">Can only contain C, H, N, O, S, or P, and cannot contain any parentheses or other advanced formula features</param>
+    ''' <param name="precedingResidue"></param>
+    ''' <param name="use3LetterCode"></param>
+    ''' <returns>0 if success; 1 if error</returns>
+    ''' <remarks>
+    ''' Typical N terminus groups
+    ''' Hydrogen = H
+    ''' Acetyl = C2OH3
+    ''' PyroGlu = C5O2NH6
+    ''' Carbamyl = CONH2
+    ''' PTC = C7H6NS
+    ''' </remarks>
     Private Function SetNTerminus(formula As String, Optional precedingResidue As String = "", Optional use3LetterCode As Boolean = False) As Integer
-        ' Note: formula can only contain C, H, N, O, S, or P, and cannot contain any parentheses or other advanced formula features
-        ' Returns 0 if success; 1 if error
-
-        ' Typical N terminus mods
-        ' Hydrogen = H
-        ' Acetyl = C2OH3
-        ' PyroGlu = C5O2NH6
-        ' Carbamyl = CONH2
-        ' PTC = C7H6NS
 
         Dim returnVal As Integer
 
@@ -1329,8 +1408,15 @@ Public Class PeptideSequenceClass
 
     End Function
 
+    ''' <summary>
+    ''' Define the N-terminus using an enum in NTerminusGroupConstants
+    ''' </summary>
+    ''' <param name="eNTerminusGroup"></param>
+    ''' <param name="precedingResidue"></param>
+    ''' <param name="use3LetterCode"></param>
+    ''' <returns>0 if success; 1 if error</returns>
     Public Function SetNTerminusGroup(eNTerminusGroup As NTerminusGroupConstants, Optional precedingResidue As String = "", Optional use3LetterCode As Boolean = False) As Integer
-        ' Returns 0 if success; 1 if error
+
         Dim errorCode As Integer
 
         Select Case eNTerminusGroup
@@ -1349,11 +1435,33 @@ Public Class PeptideSequenceClass
 
     End Function
 
-    Public Overridable Function SetSequence(sequence As String, Optional eNTerminus As NTerminusGroupConstants = NTerminusGroupConstants.Hydrogen, Optional eCTerminus As CTerminusGroupConstants = CTerminusGroupConstants.Hydroxyl, Optional is3LetterCode As Boolean = False, Optional oneLetterCheckForPrefixAndSuffixResidues As Boolean = True, Optional bln3LetterCheckForPrefixHandSuffixOH As Boolean = True) As Integer
-        ' If is3LetterCode = false, look for sequence of the form: R.ABCDEFGK.R
-        ' If found, remove the leading and ending residues since these aren't for this peptide
-        ' Returns 0 if success or 1 if an error
-        ' Will return 0 even in sequence is blank or if it contains no valid residues
+    ''' <summary>
+    ''' Define the peptide sequence
+    ''' </summary>
+    ''' <param name="sequence">Peptide or protein amino acid symbols</param>
+    ''' <param name="eNTerminus">N-terminus type</param>
+    ''' <param name="eCTerminus">C-terminus type</param>
+    ''' <param name="is3LetterCode">When true, sequence uses 3 letter amino acid symbols</param>
+    ''' <param name="oneLetterCheckForPrefixAndSuffixResidues">
+    ''' When true, if the sequence has prefix and suffix letters, they are removed
+    ''' For example: R.ABCDEFGK.R will be stored as ABCDEFGK
+    ''' </param>
+    ''' <param name="threeLetterCheckForPrefixHandSuffixOH">
+    ''' When true, if the sequence starts with H or OH, remove those letters
+    ''' For example: Arg.AlaCysAspPheGlyLys.Arg will be stored as AlaCysAspPheGlyLys
+    ''' </param>
+    ''' <returns>
+    ''' 0 if success or 1 if an error
+    ''' Will return 0 if the sequence is blank or if it contains no valid residues
+    ''' </returns>
+    ''' <remarks>Calls UpdateSequenceMass</remarks>
+    Public Overridable Function SetSequence(
+      sequence As String,
+      Optional eNTerminus As NTerminusGroupConstants = NTerminusGroupConstants.Hydrogen,
+      Optional eCTerminus As CTerminusGroupConstants = CTerminusGroupConstants.Hydroxyl,
+      Optional is3LetterCode As Boolean = False,
+      Optional oneLetterCheckForPrefixAndSuffixResidues As Boolean = True,
+      Optional threeLetterCheckForPrefixHandSuffixOH As Boolean = True) As Integer
 
         Dim sequenceStrLength As Integer, index As Integer
         Dim oneLetterSymbol As String
@@ -1437,15 +1545,22 @@ Public Class PeptideSequenceClass
 
     End Function
 
+    ''' <summary>
+    ''' Updates the sequence without performing any error checking
+    ''' Does not look for or remove prefix or suffix letters
+    ''' </summary>
+    ''' <param name="sequenceNoPrefixOrSuffix"></param>
+    ''' <remarks>Calls UpdateSequenceMass</remarks>
     Public Overridable Sub SetSequenceOneLetterCharactersOnly(sequenceNoPrefixOrSuffix As String)
-        ' Updates mResidues without performing any error checking
         mResidues = sequenceNoPrefixOrSuffix
         UpdateSequenceMass()
     End Sub
 
+    ''' <summary>
+    ''' Computes mass for each residue in mResidues
+    ''' Only process one letter amino acid abbreviations
+    ''' </summary>
     Private Sub UpdateSequenceMass()
-        ' Computes mass for each residue in mResidues
-        ' Only process one letter amino acid abbreviations
 
         Dim runningTotal As Double
         Dim protonatedNTerminus As Boolean
@@ -1459,6 +1574,7 @@ Public Class PeptideSequenceClass
         Else
             ' The N-terminus ions are the basis for the running total
             ValidateTerminusMasses()
+
             runningTotal = mNTerminus.Mass
             If mNTerminus.Formula.ToUpper = "HH" Then
                 ' ntgNTerminusGroupConstants.HydrogenPlusProton; since we add back in the proton below when computing the fragment masses,

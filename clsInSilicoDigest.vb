@@ -78,7 +78,9 @@ Public Class clsInSilicoDigest
 
     Private ReadOnly mCleavageRules As Dictionary(Of CleavageRuleConstants, udtCleavageRulesType) = New Dictionary(Of CleavageRuleConstants, udtCleavageRulesType)
 
-    ' General purpose object for computing mass and calling cleavage and digestion functions
+    ''' <summary>
+    ''' General purpose object for computing mass and calling cleavage and digestion functions
+    ''' </summary>
     Private mPeptideSequence As PeptideSequenceClass
 
     Private mpICalculator As clspICalculation
@@ -86,11 +88,22 @@ Public Class clsInSilicoDigest
     Public Event ErrorEvent(message As String)
 
     Public Event ProgressReset()
-    Public Event ProgressChanged(taskDescription As String, percentComplete As Single)     ' PercentComplete ranges from 0 to 100, but can contain decimal percentage values
+
+    ''' <summary>
+    ''' Progress changed event
+    ''' </summary>
+    ''' <param name="taskDescription"></param>
+    ''' <param name="percentComplete">ranges from 0 to 100, but can contain decimal percentage values</param>
+    Public Event ProgressChanged(taskDescription As String, percentComplete As Single)
+
     Public Event ProgressComplete()
 
     Protected mProgressStepDescription As String
-    Protected mProgressPercentComplete As Single        ' Ranges from 0 to 100, but can contain decimal percentage values
+
+    ''' <summary>
+    ''' Percent complete, ranges from 0 to 100, but can contain decimal percentage values
+    ''' </summary>
+    Protected mProgressPercentComplete As Single
 
 #End Region
 
@@ -123,7 +136,10 @@ Public Class clsInSilicoDigest
         End Get
     End Property
 
-    ' ProgressPercentComplete ranges from 0 to 100, but can contain decimal percentage values
+    ''' <summary>
+    ''' Percent complete, value between 0 and 100, but can contain decimal percentage values
+    ''' </summary>
+    ''' <returns></returns>
     Public ReadOnly Property ProgressPercentComplete As Single
         Get
             Return CType(Math.Round(mProgressPercentComplete, 2), Single)
@@ -151,17 +167,17 @@ Public Class clsInSilicoDigest
         mCleavageRules.Add(ruleId, cleavageRule)
     End Sub
 
-    Public Function CheckSequenceAgainstCleavageRule(sequence As String, ruleId As CleavageRuleConstants, Optional ByRef ruleMatchCount As Integer = 0) As Boolean
-        ' Checks sequence against the rule given by ruleId
-        ' See sub InitializeCleavageRules for a list of the rules
-        ' Returns True if valid, False if invalid
-        ' ruleMatchCount returns 0, 1, or 2:  0 if neither end matches, 1 if one end matches, 2 if both ends match
-        '
-        ' In order to check for Exception residues, sequence must be in the form "R.ABCDEFGK.L" so that the residue following the final residue of the fragment can be examined
-
-        Dim ruleMatch As Boolean
-
-        ruleMatchCount = 0
+    ''' <summary>
+    ''' Checks sequence against the rule given by ruleId
+    ''' </summary>
+    ''' <param name="sequence"></param>
+    ''' <param name="ruleId"></param>
+    ''' <param name="ruleMatchCount">Output: 0 if neither end matches, 1 if one end matches, 2 if both ends match</param>
+    ''' <returns>True if valid, False if invalid</returns>
+    ''' <remarks>
+    ''' In order to check for Exception residues, sequence must be in the form "R.ABCDEFGK.L" so that the residue following the final residue of the fragment can be examined.
+    ''' See method InitializeCleavageRules for a list of the rules</remarks>
+    Public Function CheckSequenceAgainstCleavageRule(sequence As String, ruleId As CleavageRuleConstants, <Out> Optional ByRef ruleMatchCount As Integer = 0) As Boolean
 
         Dim cleavageRule As udtCleavageRulesType = Nothing
         If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
@@ -188,8 +204,13 @@ Public Class clsInSilicoDigest
 
     End Function
 
+    ''' <summary>
+    ''' Compute the monoisotopic mass of the sequence
+    ''' </summary>
+    ''' <param name="sequence">Residues in 1-letter notation; automatically be converted to uppercase</param>
+    ''' <param name="includeXResiduesInMass">When true, treat X residues as Ile/Leu (C6H11NO)</param>
+    ''' <returns></returns>
     Public Function ComputeSequenceMass(sequence As String, Optional includeXResiduesInMass As Boolean = True) As Double
-        ' Note that sequence must be in 1-letter notation, and will automatically be converted to uppercase
 
         Try
             If includeXResiduesInMass Then
@@ -887,8 +908,11 @@ Public Class clsInSilicoDigest
         ' All objects of type PeptideInfoClass will use the same instance of this object
         Private Shared NETPredictor As NETPrediction.iPeptideElutionTime
 
-
-        Private mAutoComputeNET As Boolean      ' Set to False to skip computation of NET when Sequence changes; useful for speeding up things a little
+        ''' <summary>
+        ''' When true, auto-compute NET when Sequence change
+        ''' Set to False to speed things up a little
+        ''' </summary>
+        Private mAutoComputeNET As Boolean
 
         Private mNET As Single
         Private mPrefixResidue As String
@@ -897,6 +921,11 @@ Public Class clsInSilicoDigest
 #End Region
 
 #Region "Processing Options Interface Functions"
+
+        ''' <summary>
+        ''' When true, auto-compute NET
+        ''' </summary>
+        ''' <returns></returns>
         Public Property AutoComputeNET As Boolean
             Get
                 Return mAutoComputeNET
@@ -906,14 +935,26 @@ Public Class clsInSilicoDigest
             End Set
         End Property
 
+        ''' <summary>
+        ''' Peptide name
+        ''' </summary>
+        ''' <returns></returns>
         Public Property PeptideName As String
 
+        ''' <summary>
+        ''' Normalized elution time
+        ''' </summary>
+        ''' <returns></returns>
         Public ReadOnly Property NET As Single
             Get
                 Return mNET
             End Get
         End Property
 
+        ''' <summary>
+        ''' Prefix residue
+        ''' </summary>
+        ''' <returns></returns>
         Public Property PrefixResidue As String
             Get
                 Return mPrefixResidue
@@ -927,6 +968,10 @@ Public Class clsInSilicoDigest
             End Set
         End Property
 
+        ''' <summary>
+        ''' Peptide sequence in 1-letter format
+        ''' </summary>
+        ''' <returns></returns>
         Public Property SequenceOneLetter As String
             Get
                 Return GetSequence(False)
@@ -936,12 +981,20 @@ Public Class clsInSilicoDigest
             End Set
         End Property
 
+        ''' <summary>
+        ''' Sequence with prefix and suffix residues
+        ''' </summary>
+        ''' <returns></returns>
         Public ReadOnly Property SequenceWithPrefixAndSuffix As String
             Get
                 Return mPrefixResidue & "." & SequenceOneLetter & "." & mSuffixResidue
             End Get
         End Property
 
+        ''' <summary>
+        ''' Suffix residue
+        ''' </summary>
+        ''' <returns></returns>
         Public Property SuffixResidue As String
             Get
                 Return mSuffixResidue
@@ -956,7 +1009,24 @@ Public Class clsInSilicoDigest
         End Property
 #End Region
 
-        Public Overrides Function SetSequence(sequence As String, Optional eNTerminus As NTerminusGroupConstants = NTerminusGroupConstants.Hydrogen, Optional eCTerminus As CTerminusGroupConstants = CTerminusGroupConstants.Hydroxyl, Optional is3LetterCode As Boolean = False, Optional bln1LetterCheckForPrefixAndSuffixResidues As Boolean = True, Optional bln3LetterCheckForPrefixHandSuffixOH As Boolean = True) As Integer
+        ''' <summary>
+        ''' Define the peptide sequence
+        ''' </summary>
+        ''' <param name="sequence"></param>
+        ''' <param name="eNTerminus"></param>
+        ''' <param name="eCTerminus"></param>
+        ''' <param name="is3LetterCode"></param>
+        ''' <param name="oneLetterCheckForPrefixAndSuffixResidues"></param>
+        ''' <param name="threeLetterCheckForPrefixHandSuffixOH"></param>
+        ''' <returns></returns>
+        Public Overrides Function SetSequence(
+          sequence As String,
+          Optional eNTerminus As NTerminusGroupConstants = NTerminusGroupConstants.Hydrogen,
+          Optional eCTerminus As CTerminusGroupConstants = CTerminusGroupConstants.Hydroxyl,
+          Optional is3LetterCode As Boolean = False,
+          Optional oneLetterCheckForPrefixAndSuffixResidues As Boolean = True,
+          Optional threeLetterCheckForPrefixHandSuffixOH As Boolean = True) As Integer
+
             Dim returnVal As Integer
 
             returnVal = MyBase.SetSequence(sequence, eNTerminus, eCTerminus, is3LetterCode, bln1LetterCheckForPrefixAndSuffixResidues, bln3LetterCheckForPrefixHandSuffixOH)
@@ -965,11 +1035,20 @@ Public Class clsInSilicoDigest
             Return returnVal
         End Function
 
+        ''' <summary>
+        ''' Updates the sequence without performing any error checking
+        ''' Does not look for or remove prefix or suffix letters
+        ''' </summary>
+        ''' <param name="sequenceNoPrefixOrSuffix"></param>
+        ''' <remarks>Calls UpdateSequenceMass and UpdateNET</remarks>
         Public Overrides Sub SetSequenceOneLetterCharactersOnly(sequenceNoPrefixOrSuffix As String)
             MyBase.SetSequenceOneLetterCharactersOnly(sequenceNoPrefixOrSuffix)
             If mAutoComputeNET Then UpdateNET()
         End Sub
 
+        ''' <summary>
+        ''' Update the predicted normalized elution time
+        ''' </summary>
         Public Sub UpdateNET()
             Try
                 mNET = NETPredictor.GetElutionTime(GetSequence(False))
@@ -985,6 +1064,9 @@ Public Class clsInSilicoDigest
 
     Public Class DigestionOptionsClass
 
+        ''' <summary>
+        ''' Constructor
+        ''' </summary>
         Public Sub New()
             mMaxMissedCleavages = 0
             CleavageRuleID = CleavageRuleConstants.ConventionalTrypsin
