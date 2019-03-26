@@ -352,29 +352,29 @@ Public Class frmMain
         massValues(4) = 50
 
         ' OneMassOneNET
-        DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(0), 5, 0.05)
+        DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(PredefinedPMThresholdsConstants.OneMassOneNET), 5, 0.05)
 
         ' OneMassThreeNET
         For netIndex = 0 To netValues.Length - 1
-            DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(1), 5, netValues(netIndex))
+            DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(PredefinedPMThresholdsConstants.OneMassThreeNET), 5, netValues(netIndex))
         Next netIndex
 
         ' ThreeMassOneNET
         For massIndex = 0 To 2
-            DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(2), massValues(massIndex), 0.05)
+            DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(PredefinedPMThresholdsConstants.ThreeMassOneNet), massValues(massIndex), 0.05)
         Next massIndex
 
         ' ThreeMassThreeNET
         For netIndex = 0 To netValues.Length - 1
             For massIndex = 0 To 2
-                DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(3), massValues(massIndex), netValues(netIndex))
+                DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(PredefinedPMThresholdsConstants.ThreeMassThreeNET), massValues(massIndex), netValues(netIndex))
             Next massIndex
         Next netIndex
 
         ' FiveMassThreeNET
         For netIndex = 0 To netValues.Length - 1
             For massIndex = 0 To massValues.Length - 1
-                DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(4), massValues(massIndex), netValues(netIndex))
+                DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(PredefinedPMThresholdsConstants.FiveMassThreeNET), massValues(massIndex), netValues(netIndex))
             Next massIndex
         Next netIndex
 
@@ -922,7 +922,6 @@ Public Class frmMain
                     ''xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerUseExistingData", chkSqlServerUseExistingData.Checked)
                     ''xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerUsername", txtSqlServerUsername.Text)
                     ''xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerPassword", txtSqlServerPassword.Text)
-
 
                     ' Save the peak matching thresholds
                     xmlSettings.SetParam(PMOptions, "MassToleranceType", cboMassTolType.SelectedIndex.ToString())
