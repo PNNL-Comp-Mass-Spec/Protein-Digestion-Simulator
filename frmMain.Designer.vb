@@ -177,6 +177,8 @@ Partial Class frmMain
         Me.cboOutputFileFieldDelimiter = New System.Windows.Forms.ComboBox()
         Me.txtOutputFileFieldDelimiter = New System.Windows.Forms.TextBox()
         Me.fraOutputTextOptions = New System.Windows.Forms.GroupBox()
+        Me.lblFragmentMassMode = New System.Windows.Forms.Label()
+        Me.cboFragmentMassMode = New System.Windows.Forms.ComboBox()
         Me.fraPeakMatchingOptions.SuspendLayout()
         Me.TabPageUniquenessStats.SuspendLayout()
         Me.fraSqlServerOptions.SuspendLayout()
@@ -1140,6 +1142,8 @@ Partial Class frmMain
         '
         'fraDigestionOptions
         '
+        Me.fraDigestionOptions.Controls.Add(Me.cboFragmentMassMode)
+        Me.fraDigestionOptions.Controls.Add(Me.lblFragmentMassMode)
         Me.fraDigestionOptions.Controls.Add(Me.cboCysTreatmentMode)
         Me.fraDigestionOptions.Controls.Add(Me.lblCysTreatment)
         Me.fraDigestionOptions.Controls.Add(Me.txtDigestProteinsMaximumpI)
@@ -1225,7 +1229,7 @@ Partial Class frmMain
         '
         Me.chkGenerateUniqueIDValues.Checked = True
         Me.chkGenerateUniqueIDValues.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkGenerateUniqueIDValues.Location = New System.Drawing.Point(11, 128)
+        Me.chkGenerateUniqueIDValues.Location = New System.Drawing.Point(291, 125)
         Me.chkGenerateUniqueIDValues.Margin = New System.Windows.Forms.Padding(4)
         Me.chkGenerateUniqueIDValues.Name = "chkGenerateUniqueIDValues"
         Me.chkGenerateUniqueIDValues.Size = New System.Drawing.Size(235, 20)
@@ -1746,9 +1750,23 @@ Partial Class frmMain
         Me.fraOutputTextOptions.TabStop = False
         Me.fraOutputTextOptions.Text = "Output Options"
         '
+        'lblFragmentMassMode
         '
+        Me.lblFragmentMassMode.Location = New System.Drawing.Point(11, 130)
+        Me.lblFragmentMassMode.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblFragmentMassMode.Name = "lblFragmentMassMode"
+        Me.lblFragmentMassMode.Size = New System.Drawing.Size(90, 20)
+        Me.lblFragmentMassMode.TabIndex = 18
+        Me.lblFragmentMassMode.Text = "Mass Mode"
         '
+        'cboFragmentMassMode
         '
+        Me.cboFragmentMassMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboFragmentMassMode.Location = New System.Drawing.Point(100, 128)
+        Me.cboFragmentMassMode.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboFragmentMassMode.Name = "cboFragmentMassMode"
+        Me.cboFragmentMassMode.Size = New System.Drawing.Size(155, 24)
+        Me.cboFragmentMassMode.TabIndex = 19
         '
         'frmMain
         '
@@ -1947,4 +1965,6 @@ Partial Class frmMain
     Friend WithEvents cmdNETInfo As Button
     Friend WithEvents cboCysTreatmentMode As ComboBox
     Friend WithEvents lblCysTreatment As Label
+    Friend WithEvents cboFragmentMassMode As ComboBox
+    Friend WithEvents lblFragmentMassMode As Label
 End Class

@@ -47,6 +47,14 @@ Public Class clsInSilicoDigest
         AceticAcidD = 20
     End Enum
 
+    ''' <summary>
+    ''' Fragment mass range mode constants
+    ''' </summary>
+    Public Enum FragmentMassConstants
+        Monoisotopic = 0
+        MH = 1
+    End Enum
+
 #End Region
 
 #Region "Structures"
@@ -314,6 +322,17 @@ Public Class clsInSilicoDigest
 
             ResetProgress("Digesting protein " & proteinName)
 
+            Dim minFragmentMass As Double
+            Dim maxFragmentMass As Double
+
+            If digestionOptions.FragmentMassMode = FragmentMassConstants.MH Then
+                minFragmentMass = digestionOptions.MinFragmentMass + PeptideSequenceClass.ChargeCarrierMass
+                maxFragmentMass = digestionOptions.MaxFragmentMass + PeptideSequenceClass.ChargeCarrierMass
+            Else
+                minFragmentMass = digestionOptions.MinFragmentMass
+                maxFragmentMass = digestionOptions.MaxFragmentMass
+            End If
+
             For trypticIndex = 0 To trypticFragCacheCount - 1
                 Dim peptideSequenceBase = String.Empty
                 Dim peptideSequence = String.Empty
@@ -346,7 +365,12 @@ Public Class clsInSilicoDigest
                             peptideSequence = peptideSequenceBase & trypticFragCache(trypticIndex + index).Substring(0, residueLength)
 
                             If peptideSequence.Length >= digestionOptions.MinFragmentResidueCount Then
-                                PossiblyAddPeptide(peptideSequence, trypticIndex, index, residueStartLoc, residueEndLoc, proteinSequence, proteinSequenceLength, fragmentsUniqueList, peptideFragments, digestionOptions, filterByIsoelectricPoint)
+                                PossiblyAddPeptide(peptideSequence, trypticIndex, index,
+                                                   residueStartLoc, residueEndLoc,
+                                                   proteinSequence, proteinSequenceLength,
+                                                   fragmentsUniqueList, peptideFragments,
+                                                   digestionOptions, filterByIsoelectricPoint,
+                                                   minFragmentMass, maxFragmentMass)
                             End If
                         Next residueLength
                     Else
@@ -355,7 +379,12 @@ Public Class clsInSilicoDigest
 
                         peptideSequence = peptideSequence & trypticFragCache(trypticIndex + index)
                         If peptideSequence.Length >= digestionOptions.MinFragmentResidueCount Then
-                            PossiblyAddPeptide(peptideSequence, trypticIndex, index, residueStartLoc, residueEndLoc, proteinSequence, proteinSequenceLength, fragmentsUniqueList, peptideFragments, digestionOptions, filterByIsoelectricPoint)
+                            PossiblyAddPeptide(peptideSequence, trypticIndex, index,
+                                               residueStartLoc, residueEndLoc,
+                                               proteinSequence, proteinSequenceLength,
+                                               fragmentsUniqueList, peptideFragments,
+                                               digestionOptions, filterByIsoelectricPoint,
+                                               minFragmentMass, maxFragmentMass)
                         End If
                     End If
 
@@ -401,7 +430,12 @@ Public Class clsInSilicoDigest
                             Dim peptideSequence = trypticFragCache(trypticIndex - index).Substring(trypticFragCache(trypticIndex - index).Length - residueLength, residueLength) & peptideSequenceBase
 
                             If peptideSequence.Length >= digestionOptions.MinFragmentResidueCount Then
-                                PossiblyAddPeptide(peptideSequence, trypticIndex, index, residueStartLoc, residueEndLoc, proteinSequence, proteinSequenceLength, fragmentsUniqueList, peptideFragments, digestionOptions, filterByIsoelectricPoint)
+                                PossiblyAddPeptide(peptideSequence, trypticIndex, index,
+                                                   residueStartLoc, residueEndLoc,
+                                                   proteinSequence, proteinSequenceLength,
+                                                   fragmentsUniqueList, peptideFragments,
+                                                   digestionOptions, filterByIsoelectricPoint,
+                                                   minFragmentMass, maxFragmentMass)
                             End If
 
                         Next residueLength
@@ -676,7 +710,9 @@ Public Class clsInSilicoDigest
         fragmentsUniqueList As ISet(Of String),
         peptideFragments As ICollection(Of PeptideInfoClass),
         digestionOptions As DigestionOptionsClass,
-        filterByIsoelectricPoint As Boolean)
+        filterByIsoelectricPoint As Boolean,
+        minFragmentMass As Double,
+        maxFragmentMass As Double)
 
         ' Note: proteinSequence is passed ByRef for speed purposes since passing a reference of a large string is easier than passing it ByVal
         '       It is not modified by this function
@@ -710,8 +746,8 @@ Public Class clsInSilicoDigest
 
         peptideFragment.SequenceOneLetter = peptideSequence
 
-        If peptideFragment.Mass < digestionOptions.MinFragmentMass OrElse
-           peptideFragment.Mass > digestionOptions.MaxFragmentMass Then
+        If peptideFragment.Mass < minFragmentMass OrElse
+           peptideFragment.Mass > maxFragmentMass Then
             Return
         End If
 
@@ -956,6 +992,8 @@ Public Class clsInSilicoDigest
 
             CysTreatmentMode = PeptideSequenceClass.CysTreatmentModeConstants.Untreated
 
+            FragmentMassMode = FragmentMassConstants.Monoisotopic
+
             mMinFragmentMass = 0
             mMaxFragmentMass = 6000
 
@@ -996,6 +1034,8 @@ Public Class clsInSilicoDigest
         Public Property CleavageRuleID As CleavageRuleConstants
 
         Public Property CysTreatmentMode As PeptideSequenceClass.CysTreatmentModeConstants
+
+        Public Property FragmentMassMode As FragmentMassConstants
 
         Public Property MinFragmentResidueCount As Integer
             Get

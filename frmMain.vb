@@ -726,7 +726,9 @@ Public Class frmMain
                 txtDigestProteinsMinimumpI.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMinimumpI", txtDigestProteinsMinimumpI.Text)
                 txtDigestProteinsMaximumpI.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMaximumpI", txtDigestProteinsMaximumpI.Text)
 
+                cboFragmentMassMode.SelectedIndex = xmlSettings.GetParam(DigestionOptions, "FragmentMassModeIndex", cboFragmentMassMode.SelectedIndex)
                 cboCysTreatmentMode.SelectedIndex = xmlSettings.GetParam(DigestionOptions, "CysTreatmentModeIndex", cboCysTreatmentMode.SelectedIndex)
+
                 ' Load Uniqueness Options
                 chkAssumeInputFileIsDigested.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "AssumeInputFileIsDigested", chkAssumeInputFileIsDigested.Checked)
 
@@ -889,7 +891,9 @@ Public Class frmMain
                     xmlSettings.SetParam(DigestionOptions, "DigestProteinsMinimumpI", txtDigestProteinsMinimumpI.Text)
                     xmlSettings.SetParam(DigestionOptions, "DigestProteinsMaximumpI", txtDigestProteinsMaximumpI.Text)
 
+                    xmlSettings.SetParam(DigestionOptions, "FragmentMassModeIndex", cboFragmentMassMode.SelectedIndex)
                     xmlSettings.SetParam(DigestionOptions, "CysTreatmentModeIndex", cboCysTreatmentMode.SelectedIndex)
+
                     ' Load Uniqueness Options
                     xmlSettings.SetParam(UniquenessStatsOptions, "AssumeInputFileIsDigested", chkAssumeInputFileIsDigested.Checked)
 
@@ -1118,6 +1122,10 @@ Public Class frmMain
 
         If cboCysTreatmentMode.SelectedIndex >= 0 Then
             parseProteinFile.DigestionOptions.CysTreatmentMode = CType(cboCysTreatmentMode.SelectedIndex, PeptideSequenceClass.CysTreatmentModeConstants)
+        End If
+
+        If cboFragmentMassMode.SelectedIndex >= 0 Then
+            parseProteinFile.DigestionOptions.FragmentMassMode = CType(cboFragmentMassMode.SelectedIndex, clsInSilicoDigest.FragmentMassConstants)
         End If
 
         parseProteinFile.DigestionOptions.RemoveDuplicateSequences = Not chkIncludeDuplicateSequences.Checked
@@ -1471,6 +1479,11 @@ Public Class frmMain
             cboCysTreatmentMode.Items.Insert(PeptideSequenceClass.CysTreatmentModeConstants.Iodoacetamide, "Iodoacetamide (+57.02)")
             cboCysTreatmentMode.Items.Insert(PeptideSequenceClass.CysTreatmentModeConstants.IodoaceticAcid, "Iodoacetic Acid (+58.01)")
             cboCysTreatmentMode.SelectedIndex = PeptideSequenceClass.CysTreatmentModeConstants.Untreated
+
+            cboFragmentMassMode.Items.Clear()
+            cboFragmentMassMode.Items.Insert(clsInSilicoDigest.FragmentMassConstants.Monoisotopic, "Monoisotopic")
+            cboFragmentMassMode.Items.Insert(clsInSilicoDigest.FragmentMassConstants.MH, "M+H")
+            cboFragmentMassMode.SelectedIndex = clsInSilicoDigest.FragmentMassConstants.Monoisotopic
 
         Catch ex As Exception
             ShowErrorMessage("Error initializing the combo boxes: " & ex.Message)
@@ -2298,5 +2311,4 @@ Public Class frmMain
     End Sub
 
 #End Region
-
 End Class
