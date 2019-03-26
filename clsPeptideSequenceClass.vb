@@ -449,7 +449,6 @@ Public Class PeptideSequenceClass
     Private Function ComputeFormulaWeightCHNOSP(formula As String) As Double
 
         Dim formulaMass As Double = 0
-        Dim index As Integer
         Dim lastElementIndex As Integer = -1
         Dim multiplier As String = String.Empty
 
@@ -475,18 +474,8 @@ Public Class PeptideSequenceClass
     End Function
 
     Private Function ComputeFormulaWeightLookupMass(symbol As Char, multiplier As String) As Double
-        Dim multiplierVal As Integer
 
-        If multiplier.Length > 0 Then
-            Try
-                multiplierVal = Integer.Parse(multiplier)
-            Catch ex As Exception
-                ' Error converting to integer
-                multiplierVal = 1
-            End Try
-        Else
-            multiplierVal = 1
-        End If
+        Dim multiplierVal = PRISM.DataUtils.StringToValueUtils.CIntSafe(multiplier, 1)
 
         Try
             Return ElementMasses(symbol) * multiplierVal
@@ -511,10 +500,9 @@ Public Class PeptideSequenceClass
         Optional addSpaceEvery10Residues As Boolean = False,
         Optional separateResiduesWithDash As Boolean = False) As String
 
-        Dim peptide As New PeptideSequenceClass
+        Dim peptide As New PeptideSequenceClass()
         Dim prefix As String = String.Empty
         Dim suffix As String = String.Empty
-        Dim sequenceOut As String
 
         Try
             If oneLetterTo3Letter Then
@@ -522,7 +510,7 @@ Public Class PeptideSequenceClass
             End If
             peptide.SetSequence(sequence, NTerminusGroupConstants.None, CTerminusGroupConstants.None, Not oneLetterTo3Letter)
 
-            sequenceOut = peptide.GetSequence(oneLetterTo3Letter, addSpaceEvery10Residues, separateResiduesWithDash)
+            Dim sequenceOut = peptide.GetSequence(oneLetterTo3Letter, addSpaceEvery10Residues, separateResiduesWithDash)
 
             If oneLetterTo3Letter AndAlso (prefix.Length > 0 Or suffix.Length > 0) Then
                 peptide.SetSequence(prefix, NTerminusGroupConstants.None, CTerminusGroupConstants.None, False)
@@ -532,11 +520,11 @@ Public Class PeptideSequenceClass
                 sequenceOut &= "." & peptide.GetSequence(True, False, False)
             End If
 
-        Catch ex As Exception
-            sequenceOut = String.Empty
-        End Try
+            Return sequenceOut
 
-        Return sequenceOut
+        Catch ex As Exception
+            Return String.Empty
+        End Try
 
     End Function
 
