@@ -339,8 +339,9 @@ Public Class clsInSilicoDigest
             Dim maxFragmentMass As Double
 
             If digestionOptions.FragmentMassMode = FragmentMassConstants.MH Then
-                minFragmentMass = digestionOptions.MinFragmentMass + PeptideSequenceClass.ChargeCarrierMass
-                maxFragmentMass = digestionOptions.MaxFragmentMass + PeptideSequenceClass.ChargeCarrierMass
+                ' Adjust the thresholds down by the charge carrier mass (which is easier than computing the M+H mass of every peptide)
+                minFragmentMass = digestionOptions.MinFragmentMass - PeptideSequenceClass.ChargeCarrierMass
+                maxFragmentMass = digestionOptions.MaxFragmentMass - PeptideSequenceClass.ChargeCarrierMass
             Else
                 minFragmentMass = digestionOptions.MinFragmentMass
                 maxFragmentMass = digestionOptions.MaxFragmentMass
