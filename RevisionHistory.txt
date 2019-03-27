@@ -1,5 +1,11 @@
 Protein Digestion Simulator Change Log
 
+Version 2.3.7025; March 27, 2019
+	- Add enzyme Trypsin plus Lys-C
+	- When digesting proteins, optionally add +57.02 or +58.01 to all C residues (due treatment with iodoacetamide or iodoacetic acid)
+	- When digesting proteins, optionally treat the minimum/maximum fragment mass values as M+H values
+	- Replace SharedVBNetRoutines.dll with PRISMWin
+
 Version 2.3.7012; March 14, 2019
 	- Add delimited text file mode "ProteinName, Description, Hash, Sequence"
 	- New versions of PRISM.dll and NETPrediction.dll
