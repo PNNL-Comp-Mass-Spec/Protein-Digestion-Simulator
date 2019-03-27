@@ -45,28 +45,28 @@ algorithm, please see:
 
 The Protein Digestion Simulator supports the following enzymes:
 
-| Enzyme Name   |  Cleavage Residues | Exception Residues | Comments |
-|---------------|--------------------|--------------------|----------|
-| Fully Tryptic | KR                 | P                  | Cleave after K or R, but not if K or R is followed by P  |
-| Fully Tryptic (no Proline Rule) | KR | Cleave after K or R, even if followed by P |
-| Half (Partial) Trypsin  | KR | P |  |
-| Trypsin Plus FVLEY | KRFYVEL |  |  |
-| Trypsin plus Lys-C | KR | P for R | Either after R (no P) or after K (P allowed)
-| Acetic Acid Hydrolysis | D |  |  |
-| Arg-C | R |  |  |
-| Asp-N | D |  | Cleaves N-terminal to D |
-| Chymotrypsin | FWYL |  |  |
-| Chymotrypsin + Trypsin | FWYLKR |  |  |
-| CyanBr | M |  |  |
-| Glu-C | ED |  |  |
-| Glu-C, just Glu | E |  |  |
-| Lys-C | K |  |  |
-| PepsinA | FLIWY | P |  |
-| PepsinB | FLIWY | PVAG |  |
-| PepsinC | FLWYA | P |  |
-| PepsinD | FLWYAEQ |  |  |
-| Proteinase K | AEFILTVWY |  |  |
-| No cleavage rule" | Cleave after any residue |  |  | 
+| Enzyme Name                        |  Cleavage Residues | Exception Residues | Comments                                                 |
+|------------------------------------|--------------------|--------------------|----------------------------------------------------------|
+| Fully Tryptic                      | KR                 | P                  | Cleave after K or R, but not if K or R is followed by P  |
+| Fully Tryptic (no Proline Rule)    | KR                 |                    | Cleave after K or R, even if followed by P               |
+| Half (Partial) Trypsin             | KR                 | P                  |                                                          |
+| Trypsin Plus FVLEY                 | KRFYVEL            |                    |                                                          |
+| Trypsin plus Lys-C                 | KR                 | P for R            | Either after R (no P) or after K (P allowed)             |
+| Acetic Acid Hydrolysis             | D                  |                    |                                                          |
+| Arg-C                              | R                  |                    |                                                          |
+| Asp-N                              | D                  |                    | Cleaves N-terminal to D                                  |
+| Chymotrypsin                       | FWYL               |                    |                                                          |
+| Chymotrypsin plus Trypsin          | FWYLKR             |                    |                                                          |
+| CyanBr                             | M                  |                    |                                                          |
+| Glu-C                              | ED                 |                    |                                                          |
+| Glu-C, just Glu                    | E                  |                    |                                                          |
+| Lys-C                              | K                  |                    |                                                          |
+| PepsinA                            | FLIWY              | P                  |                                                          |
+| PepsinB                            | FLIWY              | PVAG               |                                                          |
+| PepsinC                            | FLWYA              | P                  |                                                          |
+| PepsinD                            | FLWYAEQ            |                    |                                                          |
+| Proteinase K                       | AEFILTVWY          |                    |                                                          |
+| No cleavage rule                   | Cleave after any residue |              |                                                          | 
 
 ## Installation
 
