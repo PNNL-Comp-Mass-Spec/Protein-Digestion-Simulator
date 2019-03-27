@@ -176,11 +176,8 @@ Public Class clsInSilicoDigest
             Else
                 Dim ruleMatch = mPeptideSequence.CheckSequenceAgainstCleavageRule(
                                                             sequence,
-                                                            cleavageRule.CleavageResidues,
-                                                            cleavageRule.ExceptionResidues,
-                                                            cleavageRule.ReversedCleavageDirection,
-                                                            cleavageRule.AllowPartialCleavage,
-                                                            , , , ruleMatchCount)
+                                                            cleavageRule,
+                                                            ruleMatchCount)
                 Return ruleMatch
             End If
         End If
@@ -215,13 +212,14 @@ Public Class clsInSilicoDigest
     End Function
 
     Public Function CountTrypticsInSequence(sequence As String) As Integer
+        Dim trypticCount = 0
+        Dim startSearchLoc = 1
 
         Try
 
-            Dim trypticCount = 0
-            Dim startSearchLoc = 1
-
             If sequence.Length > 0 Then
+
+
                 Do
                     Dim returnResidueStart As Integer, returnResidueEnd As Integer
 
@@ -239,6 +237,8 @@ Public Class clsInSilicoDigest
 
         Catch ex As Exception
             ReportError("CountTrypticsInSequence", ex)
+            Console.WriteLine("Tryptic count is " & trypticCount)
+            Console.WriteLine("Current startSearchLoc is " & startSearchLoc)
             Return 0
         End Try
 
@@ -285,9 +285,13 @@ Public Class clsInSilicoDigest
 
         Try
 
-            Dim ruleResidues = GetCleavageRuleResiduesSymbols(digestionOptions.CleavageRuleID)
-            Dim exceptionSuffixResidues = GetCleavageExceptionSuffixResidues(digestionOptions.CleavageRuleID)
-            Dim reversedCleavageDirection = GetCleavageIsReversedDirection(digestionOptions.CleavageRuleID)
+            Dim cleavageRule As clsCleavageRule = Nothing
+
+            Dim success = GetCleavageRuleById(digestionOptions.CleavageRuleID, cleavageRule)
+            If Not success Then
+                ReportError("DigestSequence", New Exception("Invalid cleavage rule: " & digestionOptions.CleavageRuleID))
+                Return 0
+            End If
 
             ' We initially count the number of tryptic peptides in the sequence (regardless of the cleavage rule)
             ' ReSharper disable once UnusedVariable
@@ -308,7 +312,7 @@ Public Class clsInSilicoDigest
                 Dim residueStartLoc As Integer
                 Dim residueEndLoc As Integer
 
-                Dim peptideSequence = mPeptideSequence.GetTrypticPeptideNext(proteinSequence, searchStartLoc, residueStartLoc, residueEndLoc, ruleResidues, exceptionSuffixResidues, reversedCleavageDirection)
+                Dim peptideSequence = mPeptideSequence.GetTrypticPeptideNext(proteinSequence, searchStartLoc, cleavageRule, residueStartLoc, residueEndLoc)
                 If peptideSequence.Length > 0 Then
 
                     trypticFragCache(trypticFragCacheCount) = peptideSequence
@@ -466,14 +470,6 @@ Public Class clsInSilicoDigest
 
     End Function
 
-    Public Function GetCleavageAllowPartialCleavage(ruleId As CleavageRuleConstants) As Boolean
-        Dim cleavageRule As udtCleavageRulesType = Nothing
-        If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
-            Return cleavageRule.AllowPartialCleavage
-        Else
-            Return False
-        End If
-    End Function
 
     Public Function GetCleavageIsReversedDirection(ruleId As CleavageRuleConstants) As Boolean
         Dim cleavageRule As udtCleavageRulesType = Nothing

@@ -8,6 +8,9 @@ Imports System.Runtime.InteropServices
 ''' </summary>
 Public Class PeptideSequenceClass
 
+    ''' <summary>
+    ''' Constructor
+    ''' </summary>
     Public Sub New()
         If Not mSharedArraysInitialized Then
             mCurrentElementMode = ElementModeConstants.IsotopicMass
@@ -112,6 +115,9 @@ Public Class PeptideSequenceClass
     ''' </summary>
     ''' <remarks>Auto-updated when mCurrentElementMode is updated</remarks>
     Private Shared mIodoaceticAcidMass As Double
+
+    Private Shared mTrypticCleavageRule As clsCleavageRule
+
 #End Region
 
 #Region "Classwide Variables"
@@ -131,6 +137,7 @@ Public Class PeptideSequenceClass
     Private mTotalMassElementMode As ElementModeConstants
 
     Private mDelayUpdateResidueMass As Boolean
+
 #End Region
 
 #Region "Processing Options Interface Functions"
@@ -190,13 +197,11 @@ Public Class PeptideSequenceClass
     ''' </param>
     Private Sub AddAminoAcidStatEntry(symbolOneLetter As Char, symbolThreeLetter As String, formula As String)
 
-        Dim aminoAcidMass As Double
-
         If AminoAcidMasses.ContainsKey(symbolOneLetter) Then
             AminoAcidMasses.Remove(symbolOneLetter)
         End If
 
-        aminoAcidMass = ComputeFormulaWeightCHNOSP(formula)
+        Dim aminoAcidMass = ComputeFormulaWeightCHNOSP(formula)
         AminoAcidMasses.Add(symbolOneLetter, aminoAcidMass)
 
         ' Uncomment this to create a file named "AminoAcidMasses.txt" containing the amino acid symbols and masses
@@ -596,8 +601,6 @@ Public Class PeptideSequenceClass
     Public Function GetResidueCountSpecificResidue(residueSymbol As String, Optional use3LetterCode As Boolean = False) As Integer
 
         Dim searchResidue1Letter As Char
-        Dim residueCount As Integer
-        Dim residueIndex As Integer
 
         If mResidues Is Nothing OrElse mResidues.Length = 0 Then Return 0
 
@@ -611,8 +614,8 @@ Public Class PeptideSequenceClass
             Return -1
         End Try
 
-        residueIndex = -1
-        residueCount = 0
+        Dim residueIndex = -1
+        Dim residueCount = 0
         Do
             residueIndex = mResidues.IndexOf(searchResidue1Letter, residueIndex + 1)
             If residueIndex >= 0 Then
@@ -633,10 +636,8 @@ Public Class PeptideSequenceClass
 
         ' Construct a text sequence using Residues() and the N and C Terminus info
 
-        Dim sequence As String, symbol3Letter As String
+        Dim sequence As String
         Dim dashAdd As String = String.Empty
-        Dim index As Integer
-        Dim lastIndex As Integer
 
         If mResidues Is Nothing Then Return String.Empty
 
@@ -648,12 +649,12 @@ Public Class PeptideSequenceClass
             If separateResiduesWithDash Then dashAdd = "-" Else dashAdd = String.Empty
 
             sequence = String.Empty
-            lastIndex = mResidues.Length - 1
+            Dim lastIndex = mResidues.Length - 1
             For index = 0 To lastIndex
 
                 If use3LetterCode Then
-                    symbol3Letter = GetAminoAcidSymbolConversion(mResidues.Chars(index), True)
-                    If symbol3Letter = "" Then symbol3Letter = UNKNOWN_SYMBOL_THREE_LETTERS
+                    Dim symbol3Letter = GetAminoAcidSymbolConversion(mResidues.Chars(index), True)
+                    If symbol3Letter = String.Empty Then symbol3Letter = UNKNOWN_SYMBOL_THREE_LETTERS
                     sequence &= symbol3Letter
                 Else
                     sequence &= mResidues.Chars(index)
@@ -691,12 +692,10 @@ Public Class PeptideSequenceClass
     ''' </summary>
     ''' <param name="proteinResidues"></param>
     ''' <param name="peptideResidues"></param>
+    ''' <param name="cleavageRule"></param>
     ''' <param name="returnResidueStart">Output: residue in the protein where the peptide starts</param>
     ''' <param name="returnResidueEnd">Output: residue in the protein where the peptide ends</param>
     ''' <param name="icr2LSCompatible"></param>
-    ''' <param name="ruleResidues"></param>
-    ''' <param name="exceptionResidues"></param>
-    ''' <param name="reversedCleavageDirection"></param>
     ''' <param name="terminiiSymbol"></param>
     ''' <param name="ignoreCase"></param>
     ''' <param name="proteinSearchStartLoc"></param>
@@ -704,12 +703,10 @@ Public Class PeptideSequenceClass
     Public Function GetTrypticName(
         proteinResidues As String,
         peptideResidues As String,
+        cleavageRule As clsCleavageRule,
         <Out> Optional ByRef returnResidueStart As Integer = 0,
         <Out> Optional ByRef returnResidueEnd As Integer = 0,
         Optional icr2LSCompatible As Boolean = False,
-        Optional ruleResidues As String = TRYPTIC_RULE_RESIDUES,
-        Optional exceptionResidues As String = TRYPTIC_EXCEPTION_RESIDUES,
-        Optional reversedCleavageDirection As Boolean = False,
         Optional terminiiSymbol As Char = TERMINII_SYMBOL,
         Optional ignoreCase As Boolean = True,
         Optional proteinSearchStartLoc As Integer = 1) As String
@@ -747,22 +744,13 @@ Public Class PeptideSequenceClass
 
         ' ReSharper restore CommentTypo
 
-        Dim startLoc As Integer, endLoc As Integer        ' Residue numbers, ranging from 1 to length of the protein
-        Dim trypticName As String
-        Dim prefix As String, suffix As String
-        Dim residueFollowingSearchResidues As String
-        Dim matchesCleavageRule As Boolean
-
-        Dim trypticResidueNumber As Integer
-        Dim ruleResidueMatchCount As Integer
-        Dim ruleResidueLoc As Integer
-        Dim proteinResiduesBeforeStartLoc As String
-        Dim peptideResiduesLength As Integer
-
         If ignoreCase Then
             proteinResidues = proteinResidues.ToUpper()
             peptideResidues = peptideResidues.ToUpper()
         End If
+
+        ' startLoc and endLoc track residue numbers, ranging from 1 to length of the protein
+        Dim startLoc As Integer
 
         If proteinSearchStartLoc <= 1 Then
             startLoc = proteinResidues.IndexOf(peptideResidues, StringComparison.Ordinal) + 1
@@ -773,10 +761,12 @@ Public Class PeptideSequenceClass
             End If
         End If
 
-        peptideResiduesLength = peptideResidues.Length
+        Dim peptideResiduesLength = peptideResidues.Length
 
         If startLoc > 0 And proteinResidues.Length > 0 And peptideResiduesLength > 0 Then
-            endLoc = startLoc + peptideResiduesLength - 1
+            Dim endLoc = startLoc + peptideResiduesLength - 1
+            Dim prefix As Char
+            Dim suffix As Char
 
             ' Determine if the residue is tryptic
             ' Use CheckSequenceAgainstCleavageRule() for this
@@ -792,39 +782,47 @@ Public Class PeptideSequenceClass
                 suffix = proteinResidues.Chars(endLoc)
             End If
 
-            matchesCleavageRule = CheckSequenceAgainstCleavageRule(prefix & "." & peptideResidues & "." & suffix, ruleResidues, exceptionResidues, reversedCleavageDirection, False, "."c, terminiiSymbol, ignoreCase)
+            Dim ruleMatchCount As Integer
+
+            ' We can set ignoreCase to false when calling CheckSequenceAgainstCleavageRule
+            ' since proteinResidues and peptideResidues are already uppercase
+            Dim matchesCleavageRule = CheckSequenceAgainstCleavageRule(prefix & "." & peptideResidues & "." & suffix, cleavageRule, ruleMatchCount, "."c, terminiiSymbol, False)
+
+            Dim trypticName As String
 
             If matchesCleavageRule Then
                 ' Construct trypticName
+
+                Dim trypticResidueNumber As Integer
 
                 ' Determine which tryptic residue peptideResidues is
                 If startLoc = 1 Then
                     trypticResidueNumber = 1
                 Else
                     trypticResidueNumber = 0
-                    proteinResiduesBeforeStartLoc = proteinResidues.Substring(0, startLoc - 1)
-                    residueFollowingSearchResidues = peptideResidues.Chars(0)
+                    Dim proteinResiduesBeforeStartLoc = proteinResidues.Substring(0, startLoc - 1)
+                    Dim residueFollowingSearchResidues = peptideResidues.Chars(0)
 
-                    ruleResidueLoc = 0
+                    Dim ruleResidueNumForProtein = 0
                     Do
-                        ruleResidueLoc = GetTrypticNameFindNextCleavageLoc(proteinResiduesBeforeStartLoc, residueFollowingSearchResidues, ruleResidueLoc + 1, ruleResidues, exceptionResidues, reversedCleavageDirection, terminiiSymbol)
-                        If ruleResidueLoc > 0 Then
+                        ruleResidueNumForProtein = GetTrypticNameFindNextCleavageLoc(proteinResiduesBeforeStartLoc, residueFollowingSearchResidues, ruleResidueNumForProtein + 1, cleavageRule, terminiiSymbol)
+                        If ruleResidueNumForProtein > 0 Then
                             trypticResidueNumber += 1
                         End If
-                    Loop While ruleResidueLoc > 0 And ruleResidueLoc + 1 < startLoc
+                    Loop While ruleResidueNumForProtein > 0 And ruleResidueNumForProtein + 1 < startLoc
                     trypticResidueNumber += 1
                 End If
 
                 ' Determine number of K or R residues in peptideResidues
                 ' Ignore K or R residues followed by Proline
-                ruleResidueMatchCount = 0
-                ruleResidueLoc = 0
+                Dim ruleResidueMatchCount = 0
+                Dim ruleResidueNumForPeptide = 0
                 Do
-                    ruleResidueLoc = GetTrypticNameFindNextCleavageLoc(peptideResidues, suffix, ruleResidueLoc + 1, ruleResidues, exceptionResidues, reversedCleavageDirection, terminiiSymbol)
-                    If ruleResidueLoc > 0 Then
+                    ruleResidueNumForPeptide = GetTrypticNameFindNextCleavageLoc(peptideResidues, suffix, ruleResidueNumForPeptide + 1, cleavageRule, terminiiSymbol)
+                    If ruleResidueNumForPeptide > 0 Then
                         ruleResidueMatchCount += 1
                     End If
-                Loop While ruleResidueLoc > 0 And ruleResidueLoc < peptideResiduesLength
+                Loop While ruleResidueNumForPeptide > 0 And ruleResidueNumForPeptide < peptideResiduesLength
 
                 trypticName = "t" & trypticResidueNumber.ToString()
                 If ruleResidueMatchCount > 1 Then
@@ -856,13 +854,11 @@ Public Class PeptideSequenceClass
     ''' </summary>
     ''' <param name="proteinResidues"></param>
     ''' <param name="peptideResidues"></param>
+    ''' <param name="cleavageRule"></param>
     ''' <param name="returnMatchCount">Output: number of times peptideResidues is found in proteinResidues</param>
     ''' <param name="returnResidueStart">Output: residue in the protein where the peptide starts</param>
     ''' <param name="returnResidueEnd">Output: residue in the protein where the peptide ends</param>
     ''' <param name="icr2LSCompatible"></param>
-    ''' <param name="ruleResidues"></param>
-    ''' <param name="exceptionResidues"></param>
-    ''' <param name="reversedCleavageDirection"></param>
     ''' <param name="terminiiSymbol"></param>
     ''' <param name="ignoreCase"></param>
     ''' <param name="proteinSearchStartLoc"></param>
@@ -872,31 +868,27 @@ Public Class PeptideSequenceClass
     Public Function GetTrypticNameMultipleMatches(
         proteinResidues As String,
         peptideResidues As String,
+        cleavageRule As clsCleavageRule,
         <Out> Optional ByRef returnMatchCount As Integer = 1,
         <Out> Optional ByRef returnResidueStart As Integer = 0,
         <Out> Optional ByRef returnResidueEnd As Integer = 0,
         Optional icr2LSCompatible As Boolean = False,
-        Optional ruleResidues As String = TRYPTIC_RULE_RESIDUES,
-        Optional exceptionResidues As String = TRYPTIC_EXCEPTION_RESIDUES,
-        Optional reversedCleavageDirection As Boolean = False,
         Optional terminiiSymbol As Char = TERMINII_SYMBOL,
         Optional ignoreCase As Boolean = True,
         Optional proteinSearchStartLoc As Integer = 1,
         Optional listDelimiter As String = ", ") As String
 
-        Dim nameList As String
-        Dim currentName As String
-        Dim currentSearchLoc As Integer
         Dim currentResidueStart As Integer, currentResidueEnd As Integer
 
-        currentSearchLoc = proteinSearchStartLoc
         returnMatchCount = 0
         returnResidueStart = 0
         returnResidueEnd = 0
-        nameList = String.Empty
+
+        Dim currentSearchLoc = proteinSearchStartLoc
+        Dim nameList = String.Empty
 
         Do
-            currentName = GetTrypticName(proteinResidues, peptideResidues, currentResidueStart, currentResidueEnd, icr2LSCompatible, ruleResidues, exceptionResidues, reversedCleavageDirection, terminiiSymbol, ignoreCase, currentSearchLoc)
+            Dim currentName = GetTrypticName(proteinResidues, peptideResidues, cleavageRule, currentResidueStart, currentResidueEnd, icr2LSCompatible, terminiiSymbol, ignoreCase, currentSearchLoc)
 
             If currentName.Length > 0 Then
                 If nameList.Length > 0 Then
@@ -1041,7 +1033,7 @@ Public Class PeptideSequenceClass
         <Out> Optional ByRef returnResidueStart As Integer = 0,
         <Out> Optional ByRef returnResidueEnd As Integer = 0) As String
 
-        Return GetTrypticPeptideNext(proteinResidues, searchStartLoc, returnResidueStart, returnResidueEnd, TRYPTIC_RULE_RESIDUES, TRYPTIC_EXCEPTION_RESIDUES, False)
+        Return GetTrypticPeptideNext(proteinResidues, searchStartLoc, mTrypticCleavageRule, returnResidueStart, returnResidueEnd)
     End Function
 
     ''' <summary>
@@ -1049,11 +1041,9 @@ Public Class PeptideSequenceClass
     ''' </summary>
     ''' <param name="proteinResidues"></param>
     ''' <param name="searchStartLoc"></param>
+    ''' <param name="cleavageRule">Cleavage rule</param>
     ''' <param name="returnResidueStart">Output: residue in the protein where the peptide starts</param>
     ''' <param name="returnResidueEnd">Output: residue in the protein where the peptide ends</param>
-    ''' <param name="ruleResidues"></param>
-    ''' <param name="exceptionResidues"></param>
-    ''' <param name="reversedCleavageDirection"></param>
     ''' <param name="terminiiSymbol"></param>
     ''' <returns>The next tryptic peptide in proteinResidues</returns>
     ''' <remarks>
@@ -1063,14 +1053,11 @@ Public Class PeptideSequenceClass
     Public Function GetTrypticPeptideNext(
         proteinResidues As String,
         searchStartLoc As Integer,
+        cleavageRule As clsCleavageRule,
         <Out> ByRef returnResidueStart As Integer,
         <Out> ByRef returnResidueEnd As Integer,
-        ruleResidues As String,
-        exceptionResidues As String,
-        reversedCleavageDirection As Boolean,
         Optional terminiiSymbol As Char = TERMINII_SYMBOL) As String
 
-        Dim ruleResidueLoc As Integer
         Dim proteinResiduesLength As Integer
 
         If searchStartLoc < 1 Then searchStartLoc = 1
@@ -1082,16 +1069,18 @@ Public Class PeptideSequenceClass
         End If
 
         If searchStartLoc > proteinResiduesLength Then
+            returnResidueStart = 0
+            returnResidueEnd = 0
             Return String.Empty
         End If
 
-        ruleResidueLoc = GetTrypticNameFindNextCleavageLoc(proteinResidues, terminiiSymbol, searchStartLoc, ruleResidues, exceptionResidues, reversedCleavageDirection, terminiiSymbol)
-        If ruleResidueLoc > 0 Then
+        Dim ruleResidueNum = GetTrypticNameFindNextCleavageLoc(proteinResidues, terminiiSymbol, searchStartLoc, cleavageRule, terminiiSymbol)
+        If ruleResidueNum > 0 Then
             returnResidueStart = searchStartLoc
-            If ruleResidueLoc > proteinResiduesLength Then
+            If ruleResidueNum > proteinResiduesLength Then
                 returnResidueEnd = proteinResiduesLength
             Else
-                returnResidueEnd = ruleResidueLoc
+                returnResidueEnd = ruleResidueNum
             End If
             Return proteinResidues.Substring(returnResidueStart - 1, returnResidueEnd - returnResidueStart + 1)
         Else
@@ -1107,22 +1096,18 @@ Public Class PeptideSequenceClass
     ''' </summary>
     ''' <param name="proteinResidues"></param>
     ''' <param name="desiredPeptideNumber"></param>
+    ''' <param name="cleavageRule"></param>
     ''' <param name="returnResidueStart">Output: residue in the protein where the peptide starts</param>
     ''' <param name="returnResidueEnd">Output: residue in the protein where the peptide ends</param>
-    ''' <param name="ruleResidues"></param>
-    ''' <param name="exceptionResidues"></param>
-    ''' <param name="reversedCleavageDirection"></param>
     ''' <param name="terminiiSymbol"></param>
     ''' <param name="ignoreCase"></param>
     ''' <returns></returns>
     Public Function GetTrypticPeptideByFragmentNumber(
         proteinResidues As String,
         desiredPeptideNumber As Integer,
+        cleavageRule As clsCleavageRule,
         <Out> Optional ByRef returnResidueStart As Integer = 0,
         <Out> Optional ByRef returnResidueEnd As Integer = 0,
-        Optional ruleResidues As String = TRYPTIC_RULE_RESIDUES,
-        Optional exceptionResidues As String = TRYPTIC_EXCEPTION_RESIDUES,
-        Optional reversedCleavageDirection As Boolean = False,
         Optional terminiiSymbol As Char = TERMINII_SYMBOL,
         Optional ignoreCase As Boolean = True) As String
 
@@ -1140,10 +1125,10 @@ Public Class PeptideSequenceClass
         '  using returnResidueStart and returnResidueEnd
 
 
-        Dim startLoc As Integer, ruleResidueLoc As Integer
-        Dim prevStartLoc As Integer
-        Dim proteinResiduesLength As Integer
-        Dim currentTrypticPeptideNumber As Integer
+        'Dim startLoc As Integer, ruleResidueNum As Integer
+        'Dim prevStartLoc As Integer
+        'Dim proteinResiduesLength As Integer
+        'Dim currentTrypticPeptideNumber As Integer
 
         Dim matchingFragment As String
 
@@ -1156,16 +1141,21 @@ Public Class PeptideSequenceClass
         If ignoreCase Then
             proteinResidues = proteinResidues.ToUpper
         End If
-        proteinResiduesLength = proteinResidues.Length
+        Dim proteinResiduesLength = proteinResidues.Length
 
-        startLoc = 1
-        currentTrypticPeptideNumber = 0
+        ' startLoc tracks residue number, ranging from 1 to length of the protein
+        Dim startLoc = 1
+        Dim prevStartLoc = 0
+
+        Dim ruleResidueNum As Integer
+        Dim currentTrypticPeptideNumber = 0
+
         Do
-            ruleResidueLoc = GetTrypticNameFindNextCleavageLoc(proteinResidues, terminiiSymbol, startLoc, ruleResidues, exceptionResidues, reversedCleavageDirection, terminiiSymbol)
-            If ruleResidueLoc > 0 Then
+            ruleResidueNum = GetTrypticNameFindNextCleavageLoc(proteinResidues, terminiiSymbol, startLoc, cleavageRule, terminiiSymbol)
+            If ruleResidueNum > 0 Then
                 currentTrypticPeptideNumber += 1
                 prevStartLoc = startLoc
-                startLoc = ruleResidueLoc + 1
+                startLoc = ruleResidueNum + 1
 
                 If prevStartLoc > proteinResiduesLength Then
                     ' User requested a peptide number that doesn't exist
@@ -1189,12 +1179,12 @@ Public Class PeptideSequenceClass
             Else
                 ' Match found, find the extent of this peptide
                 returnResidueStart = prevStartLoc
-                If ruleResidueLoc > proteinResiduesLength Then
+                If ruleResidueNum > proteinResiduesLength Then
                     returnResidueEnd = proteinResiduesLength
                 Else
-                    returnResidueEnd = ruleResidueLoc
+                    returnResidueEnd = ruleResidueNum
                 End If
-                matchingFragment = proteinResidues.Substring(prevStartLoc - 1, ruleResidueLoc - prevStartLoc + 1)
+                matchingFragment = proteinResidues.Substring(prevStartLoc - 1, ruleResidueNum - prevStartLoc + 1)
             End If
         Else
             returnResidueStart = 1
@@ -1204,6 +1194,63 @@ Public Class PeptideSequenceClass
 
         Return matchingFragment
 
+    End Function
+
+    Private Function FindNextCleavageResidue(
+      cleavageRule As clsCleavageRule,
+      charIndexInCleavageResidues As Integer,
+      searchResidues As String,
+      startResidueNum As Integer,
+      <Out> ByRef cleavageResidueNum As Integer) As Boolean
+
+        If cleavageRule.ReversedCleavageDirection Then
+            ' Cleave before the matched residue
+            ' Note that the CharLoc value we're storing is the location just before the cleavage point
+            cleavageResidueNum = searchResidues.IndexOf(cleavageRule.CleavageResidues.Chars(charIndexInCleavageResidues), startResidueNum)
+        Else
+            cleavageResidueNum = searchResidues.IndexOf(cleavageRule.CleavageResidues.Chars(charIndexInCleavageResidues), startResidueNum - 1) + 1
+        End If
+
+        If cleavageResidueNum >= 1 And cleavageResidueNum >= startResidueNum Then
+            Return True
+        End If
+
+        Return False
+
+    End Function
+
+    Private Function IsMatchToExceptionResidue(
+      cleavageRule As clsCleavageRule,
+      searchResidues As String,
+      residueFollowingSearchResidues As String,
+      cleavedResidueIndex As Integer,
+      <Out> ByRef exceptionCharIndexInSearchResidues As Integer) As Boolean
+
+        Dim exceptionResidueToCheck As Char
+
+        If cleavageRule.ReversedCleavageDirection Then
+            ' Make sure the residue before the matched residue does not match exceptionResidues
+            ' We already subtracted 1 from charLoc so charLoc is already the correct character number
+            ' Note that the logic in FindNextCleavageResidue assures that charLoc is > 0
+            exceptionCharIndexInSearchResidues = cleavedResidueIndex
+            exceptionResidueToCheck = searchResidues.Chars(exceptionCharIndexInSearchResidues - 1)
+        Else
+            ' Make sure suffixResidue does not match exceptionResidues
+            If cleavedResidueIndex < searchResidues.Length Then
+                exceptionCharIndexInSearchResidues = cleavedResidueIndex + 1
+                exceptionResidueToCheck = searchResidues.Chars(exceptionCharIndexInSearchResidues - 1)
+            Else
+                ' Matched the last residue in searchResidues
+                exceptionCharIndexInSearchResidues = searchResidues.Length + 1
+                exceptionResidueToCheck = residueFollowingSearchResidues.Chars(0)
+            End If
+        End If
+
+        If cleavageRule.ExceptionResidues.IndexOf(exceptionResidueToCheck) >= 0 Then
+            Return True
+        End If
+
+        Return False
     End Function
 
     ''' <summary>
@@ -1271,6 +1318,19 @@ Public Class PeptideSequenceClass
         End If
 
     End Sub
+
+    Private Function ResiduesMatchCleavageRule(testResidue As Char, exceptionResidue As Char, cleavageRule As clsCleavageRule) As Boolean
+
+        If CheckSequenceAgainstCleavageRuleMatchTestResidue(testResidue, cleavageRule.CleavageResidues) Then
+            ' Match found
+            ' See if exceptionResidue matches any of the exception residues
+            If Not CheckSequenceAgainstCleavageRuleMatchTestResidue(exceptionResidue, cleavageRule.ExceptionResidues) Then
+                Return True
+            End If
+        End If
+
+        Return False
+    End Function
 
     ''' <summary>
     ''' Define the C-terminus using an empirical formula
@@ -1679,6 +1739,8 @@ Public Class PeptideSequenceClass
         AddAminoAcidStatEntry("Z"c, "Zzz", "C5H8N2O2")       ' Q or E (note that these are 0.984 Da apart)
 
         UpdateStandardMasses()
+
+        mTrypticCleavageRule = New clsCleavageRule("Fully Tryptic", TRYPTIC_RULE_RESIDUES, TRYPTIC_EXCEPTION_RESIDUES, False)
 
     End Sub
 
