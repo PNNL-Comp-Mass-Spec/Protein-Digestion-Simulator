@@ -13,14 +13,14 @@ The latest version of the application is available on the [AppVeyor CI server](h
 ## Features
 
 The Protein Digestion Simulator program can be used to read a text file containing 
-protein or peptide sequences (fasta format or delimited text) then output the 
+protein or peptide sequences (FASTA format or delimited text) then output the 
 data to a tab-delimited file.  It can optionally digest the input sequences 
-using trypsin or partial trpysin rules, and can add the predicted normalized 
-elution time (NET) values for the peptides.  It can also validate a fasta file, 
+using trypsin, partial trpysin, or various other enzymes, and can add the predicted 
+normalized elution time (NET) values for the peptides.  It can also validate a FASTA file, 
 testing it against a set of rules that identify common formatting errors.
 
-As an alternative to digesting the peptides, one can read in a fasta file and
-create a new fasta file with all of the protein sequences reversed or even
+As an alternative to digesting the peptides, the software can read in a FASTA file and
+create a new FASTA file with all of the protein sequences reversed or even
 randomized.  This new file can be the equivalent length of the original file,
 or can include just a subset of the original file.
 
@@ -41,6 +41,33 @@ algorithm, please see:
 > Analytical Chemistry, 78, (14), 5026-5039 (2006). \
 > [PMID: 16841926](https://www.ncbi.nlm.nih.gov/pubmed/16841926)
 
+### Enzymes
+
+The Protein Digestion Simulator supports the following enzymes:
+
+| Enzyme Name   |  Cleavage Residues | Exception Residues | Comments |
+|---------------|--------------------|--------------------|----------|
+| Fully Tryptic | KR                 | P                  | Cleave after K or R, but not if K or R is followed by P  |
+| Fully Tryptic (no Proline Rule) | KR | Cleave after K or R, even if followed by P |
+| Half (Partial) Trypsin  | KR | P |  |
+| Trypsin Plus FVLEY | KRFYVEL |  |  |
+| Trypsin plus Lys-C | KR | P for R | Either after R (no P) or after K (P allowed)
+| Acetic Acid Hydrolysis | D |  |  |
+| Arg-C | R |  |  |
+| Asp-N | D |  | Cleaves N-terminal to D |
+| Chymotrypsin | FWYL |  |  |
+| Chymotrypsin + Trypsin | FWYLKR |  |  |
+| CyanBr | M |  |  |
+| Glu-C | ED |  |  |
+| Glu-C, just Glu | E |  |  |
+| Lys-C | K |  |  |
+| PepsinA | FLIWY | P |  |
+| PepsinB | FLIWY | PVAG |  |
+| PepsinC | FLWYA | P |  |
+| PepsinD | FLWYAEQ |  |  |
+| Proteinase K | AEFILTVWY |  |  |
+| No cleavage rule" | Cleave after any residue |  |  | 
+
 ## Installation
 
 * Download Protein-Digestion-Simulator.zip from [AppVeyor](https://ci.appveyor.com/project/PNNLCompMassSpec/protein-digestion-simulator/build/artifacts)
@@ -58,16 +85,16 @@ ProteinDigestionSimulator.exe
   [/A:AlternateOutputDirectoryPath] [/R] [/Q]
 ```
 
-The input file path can contain the wildcard character * and should point to a fasta file or tab-delimited text file.
+The input file path can contain the wildcard character * and should point to a FASTA file or tab-delimited text file.
 
-Use /F to indicate that the input file is a fasta file.  If /F is not used, then the format will be assumed to be fasta 
+Use /F to indicate that the input file is a FASTA file.  If /F is not used, then the format will be assumed to be FASTA 
 only if the file contains .fasta in the name
 
 Use /D to indicate that an in-silico digestion of the proteins should be performed.  Digestion options must be specified in the Parameter file.
 
 Use /M to indicate that protein mass should be computed.
 
-Use /AD to specify a delimiter other than the Tab character (not applicable for fasta files).
+Use /AD to specify a delimiter other than the Tab character (not applicable for FASTA files).
 
 The output directory path is optional.  If omitted, the output files will be created in the same director as the input file.
 
