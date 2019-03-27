@@ -46,6 +46,7 @@ Public Class clsInSilicoDigest
         PepsinC = 18
         PepsinD = 19
         AceticAcidD = 20
+        TrypsinPlusLysC = 21
     End Enum
 
     ''' <summary>
@@ -516,7 +517,7 @@ Public Class clsInSilicoDigest
         AddCleavageRule(CleavageRuleConstants.TrypsinPlusFVLEY,
             "Trypsin Plus FVLEY",
             "KRFYVEL",
-            "",
+            String.Empty,
             False)
 
         ' Allows partial cleavage
@@ -557,7 +558,7 @@ Public Class clsInSilicoDigest
             String.Empty,
             False)
 
-        AddCleavageRule(CleavageRuleConstants.LysC,
+        Dim cleavageRuleLysC = AddCleavageRule(CleavageRuleConstants.LysC,
             "Lys-C",
             "K",
             String.Empty,
@@ -608,7 +609,7 @@ Public Class clsInSilicoDigest
         AddCleavageRule(CleavageRuleConstants.PepsinD,
             "PepsinD",
             "FLWYAEQ",
-            "",
+            String.Empty,
             False)
 
         AddCleavageRule(CleavageRuleConstants.AceticAcidD,
@@ -616,6 +617,18 @@ Public Class clsInSilicoDigest
             "D",
             String.Empty,
             False)
+
+        Dim additionalRuleLysC = New List(Of clsCleavageRule) From {
+            cleavageRuleLysC
+        }
+
+        AddCleavageRule(CleavageRuleConstants.TrypsinPlusLysC,
+                        "Trypsin plus Lys-C",
+                        "KR",
+                        "P",
+                        False,
+                        False,
+                        additionalRuleLysC)
 
         ' ReSharper restore StringLiteralTypo
 
@@ -762,6 +775,8 @@ Public Class clsInSilicoDigest
             End If
 
             Console.WriteLine(errorMessage)
+
+            Console.WriteLine(PRISM.StackTraceFormatter.GetExceptionStackTraceMultiLine(ex))
 
             RaiseEvent ErrorEvent(errorMessage)
 
