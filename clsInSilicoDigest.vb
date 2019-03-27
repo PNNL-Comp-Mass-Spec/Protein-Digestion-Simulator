@@ -58,26 +58,9 @@ Public Class clsInSilicoDigest
 
 #End Region
 
-#Region "Structures"
-
-    Private Structure udtCleavageRulesType
-        Public Description As String
-        Public CleavageResidues As String
-        Public ExceptionResidues As String
-
-        ' If ReversedCleavageDirection= False, then cleave after the CleavageResidues, unless followed by the ExceptionResidues, e.g. Trypsin, CNBr, GluC
-        ' If ReversedCleavageDirection= True, then cleave before the CleavageResidues, unless preceded by the ExceptionResidues, e.g. Asp-N
-        Public ReversedCleavageDirection As Boolean
-
-        Public AllowPartialCleavage As Boolean
-    End Structure
-
-
-#End Region
-
 #Region "Classwide Variables"
 
-    Private ReadOnly mCleavageRules As Dictionary(Of CleavageRuleConstants, udtCleavageRulesType) = New Dictionary(Of CleavageRuleConstants, udtCleavageRulesType)
+    Private ReadOnly mCleavageRules As Dictionary(Of CleavageRuleConstants, clsCleavageRule) = New Dictionary(Of CleavageRuleConstants, clsCleavageRule)
 
     ''' <summary>
     ''' General purpose object for computing mass and calling cleavage and digestion functions
@@ -157,13 +140,12 @@ Public Class clsInSilicoDigest
         reversedCleavageDirection As Boolean,
         Optional allowPartialCleavage As Boolean = False)
 
-        Dim cleavageRule = New udtCleavageRulesType() With {
-                .Description = description,
-                .CleavageResidues = cleavageResidues,
-                .ExceptionResidues = exceptionResidues,
-                .ReversedCleavageDirection = reversedCleavageDirection,
-                .AllowPartialCleavage = allowPartialCleavage
-                }
+        Dim cleavageRule = New clsCleavageRule(
+            description,
+            cleavageResidues,
+            exceptionResidues,
+            reversedCleavageDirection,
+            allowPartialCleavage,
 
         mCleavageRules.Add(ruleId, cleavageRule)
     End Sub
@@ -180,7 +162,7 @@ Public Class clsInSilicoDigest
     ''' See method InitializeCleavageRules for a list of the rules</remarks>
     Public Function CheckSequenceAgainstCleavageRule(sequence As String, ruleId As CleavageRuleConstants, <Out> Optional ByRef ruleMatchCount As Integer = 0) As Boolean
 
-        Dim cleavageRule As udtCleavageRulesType = Nothing
+        Dim cleavageRule As clsCleavageRule = Nothing
         If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
             If ruleId = CleavageRuleConstants.NoRule Then
                 ' No cleavage rule; no point in checking
