@@ -255,26 +255,20 @@ Public Class PeptideSequenceClass
     ''' Both the prefix residue and the residue at the end of the sequence are tested against ruleResidues and exceptionResidues
     ''' </summary>
     ''' <param name="sequence"></param>
-    ''' <param name="ruleResidues">residues that specify the cleavage rule</param>
-    ''' <param name="exceptionResidues"></param>
-    ''' <param name="reversedCleavageDirection">When True, cleave on the N-terminal side of ruleResidues</param>
-    ''' <param name="allowPartialCleavage"></param>
+    ''' <param name="cleavageRule"></param>
+    ''' <param name="ruleMatchCount">Output: the number of ends that matched the rule (0, 1, or 2); terminii are counted as rule matches</param>
     ''' <param name="separationChar"></param>
     ''' <param name="terminiiSymbol"></param>
-    ''' <param name="ignoreCase"></param>
-    ''' <param name="ruleMatchCount">Output: the number of ends that matched the rule (0, 1, or 2); terminii are counted as rule matches</param>
+    ''' <param name="ignoreCase">When true, will capitalize all letters in sequence; if the calling method has already capitalized them, this can be set to False for a slight speed advantage</param>
     ''' <returns>True if a valid match, False if not a match</returns>
     ''' <remarks>Returns True if sequence doesn't contain any periods, and thus, can't be examined</remarks>
     Public Function CheckSequenceAgainstCleavageRule(
         sequence As String,
-        ruleResidues As String,
-        exceptionResidues As String,
-        reversedCleavageDirection As Boolean,
-        allowPartialCleavage As Boolean,
+        cleavageRule As clsCleavageRule,
+        <Out> ByRef ruleMatchCount As Integer,
         Optional separationChar As String = ".",
         Optional terminiiSymbol As Char = TERMINII_SYMBOL,
-        Optional ignoreCase As Boolean = True,
-        <Out> Optional ByRef ruleMatchCount As Integer = 0) As Boolean
+        Optional ignoreCase As Boolean = True) As Boolean
 
         ' ReSharper disable CommentTypo
 
@@ -285,32 +279,21 @@ Public Class PeptideSequenceClass
 
         ' ReSharper restore CommentTypo
 
-        Dim sequenceStart As Char, sequenceEnd As Char
-        Dim prefix As Char
-        Dim suffix As Char
-        Dim matchesCleavageRule As Boolean, skipThisEnd As Boolean
-        Dim testResidue As Char
-        Dim exceptionResidue As Char
-
-        Dim periodIndex1 As Integer
-        Dim periodIndex2 As Integer
-
-        Dim endToCheck As Integer
-        Dim terminusCount As Integer
-
         ' Need to reset this to zero since passed ByRef
         ruleMatchCount = 0
-        terminusCount = 0
+        Dim terminusCount = 0
 
         ' First, make sure the sequence is in the form A.BCDEFG.H or A.BCDEFG or BCDEFG.H
         ' If it isn't, then we can't check it (we'll return true)
 
-        If ruleResidues Is Nothing OrElse ruleResidues.Length = 0 Then
+        If cleavageRule.CleavageResidues Is Nothing OrElse cleavageRule.CleavageResidues.Length = 0 Then
             ' No rules
             Return True
         End If
 
-        periodIndex1 = sequence.IndexOf(separationChar, StringComparison.Ordinal)
+        Dim periodIndex1 = sequence.IndexOf(separationChar, StringComparison.Ordinal)
+        Dim periodIndex2 As Integer
+
         If periodIndex1 < 0 Then
             ' No periods, can't check
             Console.WriteLine("CheckSequenceAgainstCleavageRule called with a sequence that doesn't contain prefix or suffix separation characters; unable to process: " & sequence)
@@ -320,8 +303,13 @@ Public Class PeptideSequenceClass
         End If
 
         If ignoreCase Then
-            sequence = sequence.ToUpper
+            sequence = sequence.ToUpper()
         End If
+
+        Dim prefix As Char
+        Dim suffix As Char
+        Dim sequenceStart As Char
+        Dim sequenceEnd As Char
 
         ' Find the prefix residue and starting residue
         '
@@ -341,88 +329,94 @@ Public Class PeptideSequenceClass
             sequenceEnd = sequence.Chars(sequence.Length - 1)
         End If
 
-        If ruleResidues = terminiiSymbol Then
+        If cleavageRule.CleavageResidues = terminiiSymbol Then
             ' Peptide database rules
             ' See if prefix and suffix are both "" or are both terminiiSymbol
             If (prefix = terminiiSymbol AndAlso suffix = terminiiSymbol) OrElse
                (prefix = Nothing AndAlso suffix = Nothing) Then
                 ruleMatchCount = 2
-                matchesCleavageRule = True
+                ' Count this as a match to the cleavage rule
+                Return True
             Else
-                matchesCleavageRule = False
+                Return False
             End If
-        Else
-            If ignoreCase Then
-                ruleResidues = ruleResidues.ToUpper
-            End If
-
-            ' Test both prefix and sequenceEnd against ruleResidues
-            ' Make sure suffix does not match exceptionResidues
-            For endToCheck = 0 To 1
-                skipThisEnd = False
-                If endToCheck = 0 Then
-                    ' N terminus
-                    If prefix = terminiiSymbol Then
-                        terminusCount += 1
-                        skipThisEnd = True
-                    Else
-                        If reversedCleavageDirection Then
-                            testResidue = sequenceStart
-                            exceptionResidue = prefix
-                        Else
-                            testResidue = prefix
-                            exceptionResidue = sequenceStart
-                        End If
-                    End If
-                Else
-                    ' C terminus
-                    If suffix = terminiiSymbol Then
-                        terminusCount += 1
-                        skipThisEnd = True
-                    Else
-                        If reversedCleavageDirection Then
-                            testResidue = suffix
-                            exceptionResidue = sequenceEnd
-                        Else
-                            testResidue = sequenceEnd
-                            exceptionResidue = suffix
-                        End If
-                    End If
-                End If
-
-                If Not skipThisEnd Then
-                    If CheckSequenceAgainstCleavageRuleMatchTestResidue(testResidue, ruleResidues) Then
-                        ' Match found
-                        ' See if exceptionResidue matches any of the exception residues
-                        If Not CheckSequenceAgainstCleavageRuleMatchTestResidue(exceptionResidue, exceptionResidues) Then
-                            ruleMatchCount += 1
-                        End If
-                    End If
-                End If
-
-            Next endToCheck
-
-            If terminusCount = 2 Then
-                ' Both ends of the peptide are terminii; label as fully matching the rules and set RuleMatchCount to 2
-                matchesCleavageRule = True
-                ruleMatchCount = 2
-            ElseIf terminusCount = 1 Then
-                ' One end was a terminus; can either be fully cleaved or non-cleaved; never partially cleaved
-                If ruleMatchCount >= 1 Then
-                    matchesCleavageRule = True
-                    ruleMatchCount = 2
-                End If
-            Else
-                If ruleMatchCount = 2 Then
-                    matchesCleavageRule = True
-                ElseIf ruleMatchCount >= 1 AndAlso allowPartialCleavage Then
-                    matchesCleavageRule = True
-                End If
-            End If
-
         End If
 
-        Return matchesCleavageRule
+        ' Test both prefix and sequenceEnd against ruleResidues
+        ' Make sure suffix does not match exceptionResidues
+        For endToCheck = 0 To 1
+            Dim skipThisEnd = False
+            Dim testResidue As Char
+            Dim exceptionResidue As Char
+
+            If endToCheck = 0 Then
+                ' N terminus
+                If prefix = terminiiSymbol Then
+                    terminusCount += 1
+                    skipThisEnd = True
+                Else
+                    If cleavageRule.ReversedCleavageDirection Then
+                        testResidue = sequenceStart
+                        exceptionResidue = prefix
+                    Else
+                        testResidue = prefix
+                        exceptionResidue = sequenceStart
+                    End If
+                End If
+            Else
+                ' C terminus
+                If suffix = terminiiSymbol Then
+                    terminusCount += 1
+                    skipThisEnd = True
+                Else
+                    If cleavageRule.ReversedCleavageDirection Then
+                        testResidue = suffix
+                        exceptionResidue = sequenceEnd
+                    Else
+                        testResidue = sequenceEnd
+                        exceptionResidue = suffix
+                    End If
+                End If
+            End If
+
+            If skipThisEnd Then Continue For
+
+            Dim ruleMatch = ResiduesMatchCleavageRule(testResidue, exceptionResidue, cleavageRule)
+
+            If ruleMatch Then
+                ruleMatchCount += 1
+            Else
+                For Each additionalRule In cleavageRule.AdditionalCleavageRules
+                    Dim altRuleMatch = ResiduesMatchCleavageRule(testResidue, exceptionResidue, additionalRule)
+                    If altRuleMatch Then
+                        ruleMatchCount += 1
+                        Exit For
+                    End If
+                Next
+            End If
+
+
+        Next endToCheck
+
+        If terminusCount = 2 Then
+            ' Both ends of the peptide are terminii; label as fully matching the rules and set RuleMatchCount to 2
+            Return True
+            ruleMatchCount = 2
+        ElseIf terminusCount = 1 Then
+            ' One end was a terminus; can either be fully cleaved or non-cleaved; never partially cleaved
+            If ruleMatchCount >= 1 Then
+                Return True
+                ruleMatchCount = 2
+            End If
+        Else
+            If ruleMatchCount = 2 Then
+                Return True
+            ElseIf ruleMatchCount >= 1 AndAlso cleavageRule.AllowPartialCleavage Then
+                Return True
+            End If
+        End If
+
+        Return False
 
     End Function
 
@@ -927,136 +921,116 @@ Public Class PeptideSequenceClass
 
     End Function
 
+    ''' <summary>
+    ''' Finds the location of the next cleavage point in searchResidues using the given cleavage rule
+    ''' </summary>
+    ''' <param name="searchResidues"></param>
+    ''' <param name="residueFollowingSearchResidues">Residue following the last residue in searchResidues</param>
+    ''' <param name="startResidueNum">Starting residue number (value between 1 and length of searchResidues)</param>
+    ''' <param name="cleavageRule"></param>
+    ''' <param name="terminiiSymbol"></param>
+    ''' <returns>Residue number of the next cleavage location (value between 1 and length of searchResidues), or 0 if no match</returns>
+    ''' <remarks>
+    ''' Assumes searchResidues are already upper case
+    ''' </remarks>
     Private Function GetTrypticNameFindNextCleavageLoc(
-        searchResidues As String,
-        residueFollowingSearchResidues As String,
-        startChar As Integer,
-        Optional ruleResidues As String = TRYPTIC_RULE_RESIDUES,
-        Optional exceptionResidues As String = TRYPTIC_EXCEPTION_RESIDUES,
-        Optional reversedCleavageDirection As Boolean = False,
-        Optional terminiiSymbol As Char = TERMINII_SYMBOL) As Integer
+      searchResidues As String,
+      residueFollowingSearchResidues As String,
+      startResidueNum As Integer,
+      cleavageRule As clsCleavageRule,
+      Optional terminiiSymbol As Char = TERMINII_SYMBOL) As Integer
 
-        ' Finds the location of the next searchChar in searchResidues (K or R by default)
-        ' Assumes searchResidues are already upper case
-        ' Examines the residue following the matched residue
-        '   If it matches one of the characters in exceptionResidues, then the match is not counted
-        ' Note that residueFollowingSearchResidues is necessary in case the potential cleavage residue is the final residue in searchResidues
-        ' We need to know the next residue to determine if it matches an exception residue
 
         ' ReSharper disable CommentTypo
 
-        ' For example, if searchResidues =      "IGASGEHIFIIGVDKPNR"
+        ' For example, if searchResidues = "IGASGEHIFIIGVDKPNR" and residueFollowingSearchResidues = "Q"
         '  and the protein it is part of is: TNSANFRIGASGEHIFIIGVDKPNRQPDS
-        '  and searchChars = "KR while exceptionResidues  = "P"
-        ' Then the K in IGASGEHIFIIGVDKPNR is ignored because the following residue is P,
+        '  and cleavageRule has CleavageResidues = "KR and ExceptionResidues = "P"
+        ' The K in IGASGEHIFIIGVDKPNR is ignored because the following residue is P,
         '  while the R in IGASGEHIFIIGVDKPNR is OK because residueFollowingSearchResidues is Q
+
         ' It is the calling function's responsibility to assign the correct residue to residueFollowingSearchResidues
-        ' If no match is found, but residueFollowingSearchResidues is "-", then the cleavage location returned is Len(searchResidues) + 1
+        ' If no match is found, but residueFollowingSearchResidues is "-", the cleavage location returned is Len(searchResidues) + 1
 
         ' ReSharper restore CommentTypo
 
-        Dim charIndexInSearchChars As Integer
-        Dim charLoc As Integer, minCharLoc As Integer
-        Dim exceptionSuffixResidueCount As Integer
-        Dim exceptionResidueToCheck As Char
-        Dim exceptionCharLocInSearchResidues As Integer, charLocViaRecursiveSearch As Integer
-        Dim newStartCharLoc As Integer
+        Dim exceptionSuffixResidueCount = cleavageRule.ExceptionResidues.Length
 
-        Dim matchFound As Boolean
-        Dim recursiveCheck As Boolean
-
-        If exceptionResidues Is Nothing Then
-            exceptionSuffixResidueCount = 0
-        Else
-            exceptionSuffixResidueCount = exceptionResidues.Length
-        End If
-
-        minCharLoc = -1
-        For charIndexInSearchChars = 0 To ruleResidues.Length - 1
-            matchFound = False
-            If reversedCleavageDirection Then
-                ' Cleave before the matched residue
-                ' Note that the CharLoc value we're storing is the location just before the cleavage point
-                charLoc = searchResidues.IndexOf(ruleResidues.Chars(charIndexInSearchChars), startChar)
-            Else
-                charLoc = searchResidues.IndexOf(ruleResidues.Chars(charIndexInSearchChars), startChar - 1) + 1
-            End If
-
-            If charLoc >= 1 And charLoc >= startChar Then matchFound = True
+        Dim minCleavedResidueNum = -1
+        For charIndexInCleavageResidues = 0 To cleavageRule.CleavageResidues.Length - 1
+            Dim cleavedResidueNum As Integer
+            Dim matchFound As Boolean = FindNextCleavageResidue(cleavageRule, charIndexInCleavageResidues, searchResidues, startResidueNum, cleavedResidueNum)
 
             If matchFound Then
                 If exceptionSuffixResidueCount > 0 Then
-                    If reversedCleavageDirection Then
-                        ' Make sure the residue before the matched residue does not match exceptionResidues
-                        ' We already subtracted 1 from charLoc so charLoc is already the correct character number
-                        ' Note that the above logic assures that charLoc is > 0
-                        exceptionCharLocInSearchResidues = charLoc
-                        exceptionResidueToCheck = searchResidues.Chars(exceptionCharLocInSearchResidues - 1)
-                    Else
-                        ' Make sure suffixResidue does not match exceptionResidues
-                        If charLoc < searchResidues.Length Then
-                            exceptionCharLocInSearchResidues = charLoc + 1
-                            exceptionResidueToCheck = searchResidues.Chars(exceptionCharLocInSearchResidues - 1)
-                        Else
-                            ' Matched the last residue in searchResidues
-                            exceptionCharLocInSearchResidues = searchResidues.Length + 1
-                            exceptionResidueToCheck = residueFollowingSearchResidues.Chars(0)
-                        End If
-                    End If
 
-                    If exceptionResidues.IndexOf(exceptionResidueToCheck) >= 0 Then
+                    Dim exceptionCharIndexInSearchResidues As Integer
+                    Dim matchFoundToExceptionResidue As Boolean = IsMatchToExceptionResidue(cleavageRule, searchResidues, residueFollowingSearchResidues, cleavedResidueNum, exceptionCharIndexInSearchResidues)
+
+                    If matchFoundToExceptionResidue Then
+
                         ' Exception char matched; can't count this as the cleavage point
                         matchFound = False
-                        recursiveCheck = False
-                        If reversedCleavageDirection Then
-                            If charLoc + 1 < searchResidues.Length Then
+                        Dim recursiveCheck = False
+                        Dim newStartResidueNum As Integer
+
+                        If cleavageRule.ReversedCleavageDirection Then
+                            If cleavedResidueNum + 1 < searchResidues.Length Then
                                 recursiveCheck = True
-                                newStartCharLoc = charLoc + 2
+                                newStartResidueNum = cleavedResidueNum + 2
                             End If
                         Else
-                            If exceptionCharLocInSearchResidues < searchResidues.Length Then
+                            If exceptionCharIndexInSearchResidues < searchResidues.Length Then
                                 recursiveCheck = True
-                                newStartCharLoc = exceptionCharLocInSearchResidues
+                                newStartResidueNum = exceptionCharIndexInSearchResidues
                             End If
                         End If
 
                         If recursiveCheck Then
-                            ' Recursively call this function to find the next cleavage position, using an updated startChar position
-                            charLocViaRecursiveSearch = GetTrypticNameFindNextCleavageLoc(searchResidues, residueFollowingSearchResidues, newStartCharLoc, ruleResidues, exceptionResidues, reversedCleavageDirection, terminiiSymbol)
+                            ' Recursively call this function to find the next cleavage position, using an updated startResidue position
 
-                            If charLocViaRecursiveSearch > 0 Then
+                            Dim residueNumViaRecursiveSearch = GetTrypticNameFindNextCleavageLoc(searchResidues, residueFollowingSearchResidues, newStartResidueNum, cleavageRule, terminiiSymbol)
+
+                            If residueNumViaRecursiveSearch > 0 Then
                                 ' Found a residue further along that is a valid cleavage point
-                                charLoc = charLocViaRecursiveSearch
-                                If charLoc >= 1 And charLoc >= startChar Then matchFound = True
+                                cleavedResidueNum = residueNumViaRecursiveSearch
+                                If cleavedResidueNum >= 1 And cleavedResidueNum >= startResidueNum Then matchFound = True
                             Else
-                                charLoc = 0
+                                cleavedResidueNum = 0
                             End If
                         Else
-                            charLoc = 0
+                            cleavedResidueNum = 0
                         End If
                     End If
                 End If
             End If
 
             If matchFound Then
-                If minCharLoc < 0 Then
-                    minCharLoc = charLoc
+                If minCleavedResidueNum < 0 Then
+                    minCleavedResidueNum = cleavedResidueNum
                 Else
-                    If charLoc < minCharLoc Then
-                        minCharLoc = charLoc
+                    If cleavedResidueNum < minCleavedResidueNum Then
+                        minCleavedResidueNum = cleavedResidueNum
                     End If
                 End If
             End If
-        Next charIndexInSearchChars
+        Next
 
-        If minCharLoc < 0 And residueFollowingSearchResidues = terminiiSymbol Then
-            minCharLoc = searchResidues.Length + 1
+        If minCleavedResidueNum < 0 And residueFollowingSearchResidues = terminiiSymbol Then
+            minCleavedResidueNum = searchResidues.Length + 1
         End If
 
-        If minCharLoc < 0 Then
+        For Each additionalRule In cleavageRule.AdditionalCleavageRules
+            Dim additionalRuleResidueNum = GetTrypticNameFindNextCleavageLoc(searchResidues, residueFollowingSearchResidues, startResidueNum, additionalRule, terminiiSymbol)
+            If additionalRuleResidueNum >= 0 AndAlso additionalRuleResidueNum < minCleavedResidueNum Then
+                minCleavedResidueNum = additionalRuleResidueNum
+            End If
+        Next
+
+        If minCleavedResidueNum < 0 Then
             Return 0
         Else
-            Return minCharLoc
+            Return minCleavedResidueNum
         End If
 
     End Function

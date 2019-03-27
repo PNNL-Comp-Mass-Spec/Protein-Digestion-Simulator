@@ -132,13 +132,14 @@ Public Class clsInSilicoDigest
 
 #End Region
 
-    Private Sub AddCleavageRule(
+    Private Function AddCleavageRule(
         ruleId As CleavageRuleConstants,
         description As String,
         cleavageResidues As String,
         exceptionResidues As String,
         reversedCleavageDirection As Boolean,
-        Optional allowPartialCleavage As Boolean = False)
+        Optional allowPartialCleavage As Boolean = False,
+        Optional additionalCleavageRules As IReadOnlyCollection(Of clsCleavageRule) = Nothing) As clsCleavageRule
 
         Dim cleavageRule = New clsCleavageRule(
             description,
@@ -146,9 +147,13 @@ Public Class clsInSilicoDigest
             exceptionResidues,
             reversedCleavageDirection,
             allowPartialCleavage,
+            additionalCleavageRules)
 
         mCleavageRules.Add(ruleId, cleavageRule)
-    End Sub
+
+        Return cleavageRule
+
+    End Function
 
     ''' <summary>
     ''' Checks sequence against the rule given by ruleId
