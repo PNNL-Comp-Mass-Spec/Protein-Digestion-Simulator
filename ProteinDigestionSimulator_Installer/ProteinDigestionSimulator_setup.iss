@@ -17,8 +17,8 @@ Source: ..\bin\ProteinDigestionSimulator.pdb          ; DestDir: {app}
 Source: ..\bin\FlexibleFileSortUtility.dll            ; DestDir: {app}
 Source: ..\bin\NETPrediction.dll                      ; DestDir: {app}
 Source: ..\bin\PRISM.dll                              ; DestDir: {app}
+Source: ..\bin\PRISMWin.dll                           ; DestDir: {app}
 Source: ..\bin\ProteinFileReader.dll                  ; DestDir: {app}
-Source: ..\bin\SharedVBNetRoutines.dll                ; DestDir: {app}
 Source: ..\bin\ValidateFastaFile.dll                  ; DestDir: {app}
 Source: ..\bin\QC_Standards_2004-01-21.fasta          ; DestDir: {app}
 Source: ..\bin\ProteinDigestionSimulatorOptions.xml   ; DestDir: {app}
