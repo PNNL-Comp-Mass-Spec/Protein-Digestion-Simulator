@@ -470,63 +470,12 @@ Public Class clsInSilicoDigest
 
     End Function
 
-
-    Public Function GetCleavageIsReversedDirection(ruleId As CleavageRuleConstants) As Boolean
-        Dim cleavageRule As udtCleavageRulesType = Nothing
+    Public Function GetCleavageRuleById(ruleId As CleavageRuleConstants, <Out> ByRef cleavageRule As clsCleavageRule) As Boolean
         If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
-            Return cleavageRule.ReversedCleavageDirection
+            Return True
         Else
+            cleavageRule = Nothing
             Return False
-        End If
-    End Function
-
-    Public Function GetCleavageExceptionSuffixResidues(ruleId As CleavageRuleConstants) As String
-        Dim cleavageRule As udtCleavageRulesType = Nothing
-        If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
-            Return cleavageRule.ExceptionResidues
-        Else
-            Return String.Empty
-        End If
-    End Function
-
-    Public Function GetCleavageRuleName(ruleId As CleavageRuleConstants) As String
-        Dim cleavageRule As udtCleavageRulesType = Nothing
-        If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
-            Return cleavageRule.Description
-        Else
-            Return String.Empty
-        End If
-    End Function
-
-    Public Function GetCleavageRuleResiduesDescription(ruleId As CleavageRuleConstants) As String
-        Dim description As String
-
-        Dim cleavageRule As udtCleavageRulesType = Nothing
-        If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
-            If cleavageRule.ReversedCleavageDirection Then
-                description = "Before " & cleavageRule.CleavageResidues
-                If cleavageRule.ExceptionResidues.Length > 0 Then
-                    description &= " not preceded by " & cleavageRule.ExceptionResidues
-                End If
-            Else
-                description = cleavageRule.CleavageResidues
-                If cleavageRule.ExceptionResidues.Length > 0 Then
-                    description &= " not " & cleavageRule.ExceptionResidues
-                End If
-            End If
-
-            Return description
-        Else
-            Return String.Empty
-        End If
-    End Function
-
-    Public Function GetCleavageRuleResiduesSymbols(ruleId As CleavageRuleConstants) As String
-        Dim cleavageRule As udtCleavageRulesType = Nothing
-        If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
-            Return cleavageRule.CleavageResidues
-        Else
-            Return String.Empty
         End If
     End Function
 

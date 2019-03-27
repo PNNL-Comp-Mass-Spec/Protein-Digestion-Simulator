@@ -1452,7 +1452,11 @@ Public Class frmMain
             cboCleavageRuleType.Items.Clear()
             For index = 0 To inSilicoDigest.CleavageRuleCount - 1
                 Dim eRuleID = CType(index, clsInSilicoDigest.CleavageRuleConstants)
-                cboCleavageRuleType.Items.Add(inSilicoDigest.GetCleavageRuleName(eRuleID) & " (" & inSilicoDigest.GetCleavageRuleResiduesDescription(eRuleID) & ")")
+
+                Dim cleavageRule As clsCleavageRule = Nothing
+                inSilicoDigest.GetCleavageRuleById(eRuleID, cleavageRule)
+
+                cboCleavageRuleType.Items.Add(cleavageRule.Description & " (" & cleavageRule.GetDetailedRuleDescription() & ")")
             Next index
             If cboCleavageRuleType.Items.Count > clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin Then
                 cboCleavageRuleType.SelectedIndex = clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
