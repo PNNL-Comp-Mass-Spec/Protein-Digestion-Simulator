@@ -538,11 +538,9 @@ Public Class PeptideSequenceClass
     ''' <returns>Converted amino acid symbol if a valid amino acid symbol, otherwise an empty string</returns>
     Private Function GetAminoAcidSymbolConversion(symbolToParse As String, oneLetterTo3Letter As Boolean) As String
 
-        Dim symbol As Char
-
         If oneLetterTo3Letter Then
             ' 1 letter to 3 letter
-            symbol = symbolToParse.Substring(0, 1).ToUpper.Chars(0)
+            Dim symbol = symbolToParse.Substring(0, 1).ToUpper.Chars(0)
             If AminoAcidSymbols.ContainsKey(symbol) Then
                 Return AminoAcidSymbols(symbol)
             Else
@@ -1124,12 +1122,6 @@ Public Class PeptideSequenceClass
         ' Optionally, returns the position of the start and end residues
         '  using returnResidueStart and returnResidueEnd
 
-
-        'Dim startLoc As Integer, ruleResidueNum As Integer
-        'Dim prevStartLoc As Integer
-        'Dim proteinResiduesLength As Integer
-        'Dim currentTrypticPeptideNumber As Integer
-
         Dim matchingFragment As String
 
         If desiredPeptideNumber < 1 Then
@@ -1141,6 +1133,7 @@ Public Class PeptideSequenceClass
         If ignoreCase Then
             proteinResidues = proteinResidues.ToUpper
         End If
+
         Dim proteinResiduesLength = proteinResidues.Length
 
         ' startLoc tracks residue number, ranging from 1 to length of the protein
@@ -1260,8 +1253,6 @@ Public Class PeptideSequenceClass
     ''' <remarks>This is only applicable for sequences in 3 letter notation</remarks>
     Private Sub RemoveLeadingH(ByRef workingSequence As String)
 
-        Dim oneLetterSymbol As String
-
         If workingSequence.Substring(0, 1).ToUpper() = "H" AndAlso workingSequence.Length >= 4 Then
             ' If next character is not a character, remove the H and the next character
             If Not Char.IsLetter(workingSequence.Chars(1)) Then
@@ -1273,7 +1264,7 @@ Public Class PeptideSequenceClass
                     Char.IsLetter(workingSequence.Chars(3)) Then
                     ' Formula starts with 4 characters and the first is H, see if the first 3 characters are a valid amino acid code
 
-                    oneLetterSymbol = GetAminoAcidSymbolConversion(workingSequence.Substring(1, 3), False)
+                    Dim oneLetterSymbol = GetAminoAcidSymbolConversion(workingSequence.Substring(1, 3), False)
 
                     If oneLetterSymbol.Length > 0 Then
                         ' Starts with H then a valid 3 letter abbreviation, so remove the initial H
@@ -1292,10 +1283,7 @@ Public Class PeptideSequenceClass
     ''' <remarks>This is only applicable for sequences in 3 letter notation</remarks>
     Private Sub RemoveTrailingOH(ByRef workingSequence As String)
 
-        Dim oneLetterSymbol As String
-        Dim stringLength As Integer
-
-        stringLength = workingSequence.Length
+        Dim stringLength = workingSequence.Length
         If workingSequence.Substring(stringLength - 2, 2).ToUpper() = "OH" And stringLength >= 5 Then
             ' If previous character is not a character, then remove the OH (and the character preceding)
             If Not Char.IsLetter(workingSequence.Chars(stringLength - 3)) Then
@@ -1307,7 +1295,7 @@ Public Class PeptideSequenceClass
                     Char.IsLetter(workingSequence.Chars(stringLength - 4)) Then
                     ' Formula ends with 3 characters and the last two are OH, see if the last 3 characters are a valid amino acid code
 
-                    oneLetterSymbol = GetAminoAcidSymbolConversion(workingSequence.Substring(stringLength - 4, 3), False)
+                    Dim oneLetterSymbol = GetAminoAcidSymbolConversion(workingSequence.Substring(stringLength - 4, 3), False)
 
                     If oneLetterSymbol.Length > 0 Then
                         ' Ends with a valid 3 letter abbreviation then OH, so remove the OH
@@ -1487,13 +1475,10 @@ Public Class PeptideSequenceClass
       Optional oneLetterCheckForPrefixAndSuffixResidues As Boolean = True,
       Optional threeLetterCheckForPrefixHandSuffixOH As Boolean = True) As Integer
 
-        Dim sequenceStrLength As Integer, index As Integer
-        Dim oneLetterSymbol As String
-
         mResidues = String.Empty
 
-        sequence = sequence.Trim
-        sequenceStrLength = sequence.Length
+        sequence = sequence.Trim()
+        Dim sequenceStrLength = sequence.Length
         If sequenceStrLength = 0 Then
             UpdateSequenceMass()
             Return 0
@@ -1528,13 +1513,13 @@ Public Class PeptideSequenceClass
                 sequenceStrLength = sequence.Length
             End If
 
-            index = 0
+            Dim index = 0
             Do While index <= sequenceStrLength - 3
                 If Char.IsLetter(sequence.Chars(index)) Then
                     If Char.IsLetter(sequence.Chars(index + 1)) And
                        Char.IsLetter(sequence.Chars(index + 2)) Then
 
-                        oneLetterSymbol = GetAminoAcidSymbolConversion(sequence.Substring(index, 3), False)
+                        Dim oneLetterSymbol = GetAminoAcidSymbolConversion(sequence.Substring(index, 3), False)
 
                         If oneLetterSymbol.Length = 0 Then
                             ' 3 letter symbol not found
@@ -1587,8 +1572,6 @@ Public Class PeptideSequenceClass
 
         Dim runningTotal As Double
         Dim protonatedNTerminus As Boolean
-
-        Dim index As Integer
 
         If mDelayUpdateResidueMass Then Exit Sub
 

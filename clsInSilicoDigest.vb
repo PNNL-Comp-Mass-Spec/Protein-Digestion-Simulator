@@ -684,12 +684,7 @@ Public Class clsInSilicoDigest
         ' Note: proteinSequence is passed ByRef for speed purposes since passing a reference of a large string is easier than passing it ByVal
         '       It is not modified by this function
 
-        Dim addFragment As Boolean
-        Dim prefix As String, suffix As String
-
-        Dim isoelectricPoint As Single
-
-        addFragment = True
+        Dim addFragment = True
         If digestionOptions.RemoveDuplicateSequences Then
             If fragmentsUniqueList.Contains(peptideSequence) Then
                 addFragment = False
@@ -706,7 +701,7 @@ Public Class clsInSilicoDigest
 
         If Not addFragment Then Return
 
-        Dim peptideFragment = New PeptideInfoClass With {
+        Dim peptideFragment = New PeptideInfoClass() With {
             .AutoComputeNET = False,
             .CysTreatmentMode = digestionOptions.CysTreatmentMode
         }
@@ -717,6 +712,8 @@ Public Class clsInSilicoDigest
            peptideFragment.Mass > maxFragmentMass Then
             Return
         End If
+
+        Dim isoelectricPoint As Single
 
         ' Possibly compute the isoelectric point for the peptide
         If filterByIsoelectricPoint Then
@@ -733,6 +730,9 @@ Public Class clsInSilicoDigest
         peptideFragment.UpdateNET()
 
         If digestionOptions.IncludePrefixAndSuffixResidues Then
+            Dim prefix As String
+            Dim suffix As String
+
             If residueStartLoc <= 1 Then
                 prefix = PeptideInfoClass.PROTEIN_TERMINUS_SYMBOL
             Else
@@ -827,7 +827,7 @@ Public Class clsInSilicoDigest
         Public Sub New()
 
             If NETPredictor Is Nothing Then
-                NETPredictor = New NETPrediction.ElutionTimePredictionKangas
+                NETPredictor = New NETPrediction.ElutionTimePredictionKangas()
             End If
 
             ' Disable mAutoComputeNET for now so that the call to SetSequence() below doesn't auto-call UpdateNET
