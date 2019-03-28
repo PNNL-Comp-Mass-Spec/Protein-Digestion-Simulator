@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.3.7026; March 28, 2019
+	- When computing predicted NET, change C residues to c if they are alkylated or treated with iodoacetic acid
+
 Version 2.3.7025; March 27, 2019
 	- Add enzyme Trypsin plus Lys-C
 	- When digesting proteins, optionally add +57.02 or +58.01 to all C residues (due to treatment with iodoacetamide or iodoacetic acid)
