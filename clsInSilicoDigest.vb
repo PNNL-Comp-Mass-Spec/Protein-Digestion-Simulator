@@ -999,7 +999,14 @@ Public Class clsInSilicoDigest
         ''' </summary>
         Public Sub UpdateNET()
             Try
-                mNET = NETPredictor.GetElutionTime(GetSequence(False))
+                Dim sequence = GetSequence(False)
+                If CysTreatmentMode <> CysTreatmentModeConstants.Untreated Then
+                    ' Change cysteine residues to lowercase so that the NET predictor will recognize them as alkylated
+                    mNET = NETPredictor.GetElutionTime(sequence.Replace("C", "c"))
+                Else
+                    mNET = NETPredictor.GetElutionTime(sequence)
+                End If
+
             Catch ex As Exception
                 mNET = 0
             End Try
