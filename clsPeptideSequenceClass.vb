@@ -626,13 +626,19 @@ Public Class PeptideSequenceClass
         Return residueCount
     End Function
 
+    ''' <summary>
+    ''' Construct the peptide sequence using Residues() and the N and C Terminus info
+    ''' </summary>
+    ''' <param name="use3LetterCode"></param>
+    ''' <param name="addSpaceEvery10Residues"></param>
+    ''' <param name="separateResiduesWithDash"></param>
+    ''' <param name="includeNAndCTerminii"></param>
+    ''' <returns></returns>
     Public Function GetSequence(
         Optional use3LetterCode As Boolean = False,
         Optional addSpaceEvery10Residues As Boolean = False,
         Optional separateResiduesWithDash As Boolean = False,
         Optional includeNAndCTerminii As Boolean = False) As String
-
-        ' Construct a text sequence using Residues() and the N and C Terminus info
 
         Dim sequence As String
         Dim dashAdd As String = String.Empty
@@ -1099,7 +1105,13 @@ Public Class PeptideSequenceClass
     ''' <param name="returnResidueEnd">Output: residue in the protein where the peptide ends</param>
     ''' <param name="terminiiSymbol"></param>
     ''' <param name="ignoreCase"></param>
-    ''' <returns></returns>
+    ''' <returns>The desired tryptic peptide from proteinResidues</returns>
+    ''' <remarks>
+    ''' For example, if proteinResidues = "IGKANRMTFGL"
+    ''' when desiredPeptideNumber = 1, returns "IGK"
+    ''' when desiredPeptideNumber = 2, returns "ANR"
+    ''' when desiredPeptideNumber = 3, returns "MTFGL"
+    ''' </remarks>
     Public Function GetTrypticPeptideByFragmentNumber(
         proteinResidues As String,
         desiredPeptideNumber As Integer,
@@ -1108,19 +1120,6 @@ Public Class PeptideSequenceClass
         <Out> Optional ByRef returnResidueEnd As Integer = 0,
         Optional terminiiSymbol As Char = TERMINII_SYMBOL,
         Optional ignoreCase As Boolean = True) As String
-
-        ' ReSharper disable CommentTypo
-
-        ' Returns the desired tryptic peptide from proteinResidues
-        ' For example, if proteinResidues = "IGKANRMTFGL" then
-        '  when desiredPeptideNumber = 1, returns "IGK"
-        '  when desiredPeptideNumber = 2, returns "ANR"
-        '  when desiredPeptideNumber = 3, returns "MTFGL"
-
-        ' ReSharper restore CommentTypo
-
-        ' Optionally, returns the position of the start and end residues
-        '  using returnResidueStart and returnResidueEnd
 
         Dim matchingFragment As String
 
@@ -1157,7 +1156,7 @@ Public Class PeptideSequenceClass
                     Return String.Empty
                 End If
             Else
-                ' I don't think I'll ever reach this code
+                ' This code should never be reached
                 Console.WriteLine("Unexpected code point reached in GetTrypticPeptideByFragmentNumber")
                 Exit Do
             End If
@@ -1345,6 +1344,7 @@ Public Class PeptideSequenceClass
         Else
             returnVal = 0
         End If
+
         mCTerminus.PrecedingResidue = String.Empty
         If use3LetterCode AndAlso followingResidue.Length > 0 Then
             mCTerminus.FollowingResidue = GetAminoAcidSymbolConversion(followingResidue, False)
