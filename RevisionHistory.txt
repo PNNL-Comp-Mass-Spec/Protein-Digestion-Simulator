@@ -1,5 +1,9 @@
 Protein Digestion Simulator Change Log
 
+Version 2.3.7069; March 27, 2019
+	- Add enzymes Thermolysin and Trypsin plus Thermolysin
+	- Sort enzymes in the Digestion Options dropdown box
+
 Version 2.3.7026; March 28, 2019
 	- When computing predicted NET, change C residues to c if they are alkylated or treated with iodoacetic acid
 

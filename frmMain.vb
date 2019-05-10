@@ -381,7 +381,7 @@ Public Class frmMain
 
         ' ThreeMassOneNET
         For massIndex = 0 To 2
-            DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(PredefinedPMThresholdsConstants.ThreeMassOneNet), massValues(massIndex), 0.05)
+            DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(PredefinedPMThresholdsConstants.ThreeMassOneNET), massValues(massIndex), 0.05)
         Next massIndex
 
         ' ThreeMassThreeNET
