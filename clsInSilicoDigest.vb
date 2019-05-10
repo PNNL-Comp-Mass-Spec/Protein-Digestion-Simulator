@@ -83,8 +83,6 @@ Public Class clsInSilicoDigest
     ''' <param name="percentComplete">ranges from 0 to 100, but can contain decimal percentage values</param>
     Public Event ProgressChanged(taskDescription As String, percentComplete As Single)
 
-    Public Event ProgressComplete()
-
     Protected mProgressStepDescription As String
 
     ''' <summary>

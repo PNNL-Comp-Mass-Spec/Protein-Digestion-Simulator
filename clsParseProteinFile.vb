@@ -2194,10 +2194,6 @@ Public Class clsParseProteinFile
         UpdateSubtaskProgress(taskDescription, percentComplete)
     End Sub
 
-    Private Sub InSilicoDigest_ProgressComplete() Handles mInSilicoDigest.ProgressComplete
-        UpdateSubtaskProgress(100)
-    End Sub
-
     Private Sub InSilicoDigest_ProgressReset() Handles mInSilicoDigest.ProgressReset
         ' Don't do anything with this event
     End Sub
