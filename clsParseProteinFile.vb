@@ -1337,9 +1337,9 @@ Public Class clsParseProteinFile
         mProteins(mProteinCount).Sequence = sequence
 
         If ComputeSequenceHashIgnoreILDiff Then
-            mProteins(mProteinCount).SequenceHash = PRISM.HashUtilities.ComputeStringHashSha1(sequence.Replace("L"c, "I"c)).ToUpper()
+            mProteins(mProteinCount).SequenceHash = HashUtilities.ComputeStringHashSha1(sequence.Replace("L"c, "I"c)).ToUpper()
         Else
-            mProteins(mProteinCount).SequenceHash = PRISM.HashUtilities.ComputeStringHashSha1(sequence).ToUpper()
+            mProteins(mProteinCount).SequenceHash = HashUtilities.ComputeStringHashSha1(sequence).ToUpper()
         End If
 
         If ComputeProteinMass Then

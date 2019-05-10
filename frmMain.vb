@@ -1208,7 +1208,7 @@ Public Class frmMain
         Dim length As Integer
 
         Try
-            length = PRISMWin.TextBoxUtils.ParseTextBoxValueInt(txtMaxpISequenceLength, String.Empty, invalidValue, 10)
+            length = TextBoxUtils.ParseTextBoxValueInt(txtMaxpISequenceLength, String.Empty, invalidValue, 10)
             If invalidValue Then
                 txtMaxpISequenceLength.Text = length.ToString()
             End If
@@ -1268,8 +1268,8 @@ Public Class frmMain
                     mParseProteinFile.ProteinScramblingMode = CType(cboProteinReversalOptions.SelectedIndex, clsParseProteinFile.ProteinScramblingModeConstants)
                 End If
 
-                mParseProteinFile.ProteinScramblingSamplingPercentage = PRISMWin.TextBoxUtils.ParseTextBoxValueInt(txtProteinReversalSamplingPercentage, "", False, 100, False)
-                mParseProteinFile.ProteinScramblingLoopCount = PRISMWin.TextBoxUtils.ParseTextBoxValueInt(txtProteinScramblingLoopCount, "", False, 1, False)
+                mParseProteinFile.ProteinScramblingSamplingPercentage = TextBoxUtils.ParseTextBoxValueInt(txtProteinReversalSamplingPercentage, "", False, 100, False)
+                mParseProteinFile.ProteinScramblingLoopCount = TextBoxUtils.ParseTextBoxValueInt(txtProteinScramblingLoopCount, "", False, 1, False)
                 mParseProteinFile.CreateDigestedProteinOutputFile = chkDigestProteins.Checked
                 mParseProteinFile.CreateFastaOutputFile = chkCreateFastaOutputFile.Checked
 
@@ -2218,28 +2218,28 @@ Public Class frmMain
     End Sub
 
     Private Sub txtDigestProteinsMinimumMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMinimumMass.KeyPress
-        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMinimumMass, e, True)
+        TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMinimumMass, e, True)
     End Sub
 
     Private Sub txtDigestProteinsMaximumMissedCleavages_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMaximumMissedCleavages.KeyPress
-        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMaximumMissedCleavages, e, True)
+        TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMaximumMissedCleavages, e, True)
     End Sub
 
     Private Sub txtDigestProteinsMinimumResidueCount_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMinimumResidueCount.KeyPress
-        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMinimumResidueCount, e, True)
+        TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMinimumResidueCount, e, True)
     End Sub
 
     Private Sub txtDigestProteinsMaximumMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMaximumMass.KeyPress
-        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMaximumMass, e, True)
+        TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMaximumMass, e, True)
     End Sub
 
     Private Sub txtMaxPeakMatchingResultsPerFeatureToSave_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtMaxPeakMatchingResultsPerFeatureToSave.KeyPress
-        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtMaxPeakMatchingResultsPerFeatureToSave, e, True)
+        TextBoxUtils.TextBoxKeyPressHandler(txtMaxPeakMatchingResultsPerFeatureToSave, e, True)
     End Sub
 
     Private Sub txtMaxPeakMatchingResultsPerFeatureToSave_Validating(sender As Object, e As CancelEventArgs) Handles txtMaxPeakMatchingResultsPerFeatureToSave.Validating
         If txtMaxPeakMatchingResultsPerFeatureToSave.Text.Trim = "0" Then txtMaxPeakMatchingResultsPerFeatureToSave.Text = "1"
-        PRISMWin.TextBoxUtils.ValidateTextBoxInt(txtMaxPeakMatchingResultsPerFeatureToSave, 1, 100, 3)
+        TextBoxUtils.ValidateTextBoxInt(txtMaxPeakMatchingResultsPerFeatureToSave, 1, 100, 3)
     End Sub
 
     Private Sub txtMaxpISequenceLength_KeyDown(sender As Object, e As KeyEventArgs) Handles txtMaxpISequenceLength.KeyDown
@@ -2247,11 +2247,11 @@ Public Class frmMain
     End Sub
 
     Private Sub txtMaxpISequenceLength_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtMaxpISequenceLength.KeyPress
-        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtMaxpISequenceLength, e, True, False)
+        TextBoxUtils.TextBoxKeyPressHandler(txtMaxpISequenceLength, e, True, False)
     End Sub
 
     Private Sub txtMaxpISequenceLength_Validating(sender As Object, e As CancelEventArgs) Handles txtMaxpISequenceLength.Validating
-        PRISMWin.TextBoxUtils.ValidateTextBoxInt(txtMaxpISequenceLength, 1, 10000, 10)
+        TextBoxUtils.ValidateTextBoxInt(txtMaxpISequenceLength, 1, 10000, 10)
     End Sub
 
     Private Sub txtMaxpISequenceLength_Validated(sender As Object, e As EventArgs) Handles txtMaxpISequenceLength.Validated
@@ -2259,11 +2259,11 @@ Public Class frmMain
     End Sub
 
     Private Sub txtMinimumSLiCScore_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtMinimumSLiCScore.KeyPress
-        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtMinimumSLiCScore, e, True, True)
+        TextBoxUtils.TextBoxKeyPressHandler(txtMinimumSLiCScore, e, True, True)
     End Sub
 
     Private Sub txtMinimumSLiCScore_Validating(sender As Object, e As CancelEventArgs) Handles txtMinimumSLiCScore.Validating
-        PRISMWin.TextBoxUtils.ValidateTextBoxFloat(txtMinimumSLiCScore, 0, 1, 0.95)
+        TextBoxUtils.ValidateTextBoxFloat(txtMinimumSLiCScore, 0, 1, 0.95)
     End Sub
 
     Private Sub txtProteinInputFilePath_TextChanged(sender As Object, e As EventArgs) Handles txtProteinInputFilePath.TextChanged
@@ -2272,11 +2272,11 @@ Public Class frmMain
     End Sub
 
     Private Sub txtProteinReversalSamplingPercentage_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtProteinReversalSamplingPercentage.KeyPress
-        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtProteinReversalSamplingPercentage, e, True)
+        TextBoxUtils.TextBoxKeyPressHandler(txtProteinReversalSamplingPercentage, e, True)
     End Sub
 
     Private Sub txtProteinScramblingLoopCount_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtProteinScramblingLoopCount.KeyPress
-        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtProteinScramblingLoopCount, e, True)
+        TextBoxUtils.TextBoxKeyPressHandler(txtProteinScramblingLoopCount, e, True)
     End Sub
 
     Private Sub txtSequenceForpI_TextChanged(sender As Object, e As EventArgs) Handles txtSequenceForpI.TextChanged
@@ -2284,15 +2284,15 @@ Public Class frmMain
     End Sub
 
     Private Sub txtUniquenessBinWidth_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtUniquenessBinWidth.KeyPress
-        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtUniquenessBinWidth, e, True)
+        TextBoxUtils.TextBoxKeyPressHandler(txtUniquenessBinWidth, e, True)
     End Sub
 
     Private Sub txtUniquenessBinStartMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtUniquenessBinStartMass.KeyPress
-        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtUniquenessBinStartMass, e, True)
+        TextBoxUtils.TextBoxKeyPressHandler(txtUniquenessBinStartMass, e, True)
     End Sub
 
     Private Sub txtUniquenessBinEndMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtUniquenessBinEndMass.KeyPress
-        PRISMWin.TextBoxUtils.TextBoxKeyPressHandler(txtUniquenessBinEndMass, e, True)
+        TextBoxUtils.TextBoxKeyPressHandler(txtUniquenessBinEndMass, e, True)
     End Sub
 
 #End Region
