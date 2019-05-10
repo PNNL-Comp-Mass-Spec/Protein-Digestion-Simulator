@@ -39,6 +39,8 @@ Public Class frmMain
         NETCalculator = New ElutionTimePredictionKangas()
         SCXNETCalculator = New SCXElutionTimePredictionKangas()
 
+        mCleavageRuleComboboxIndexToType = New Dictionary(Of Integer, clsInSilicoDigest.CleavageRuleConstants)
+
         InitializeControls()
     End Sub
 
@@ -116,6 +118,11 @@ Public Class frmMain
 
     Private ReadOnly SCXNETCalculator As SCXElutionTimePredictionKangas
 
+    ''' <summary>
+    ''' Keys in this dictionary are the index in combobox cboCleavageRuleType, values are the cleavage rule enum for that index
+    ''' </summary>
+    Private ReadOnly mCleavageRuleComboboxIndexToType As Dictionary(Of Integer, clsInSilicoDigest.CleavageRuleConstants)
+
     Private mTabPageIndexSaved As Integer = 0
 
     Private mFastaValidationOptions As frmFastaValidation.udtFastaValidationOptionsType
@@ -178,6 +185,19 @@ Public Class frmMain
             myDataRow(3) = slicNETStDev
             mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE).Rows.Add(myDataRow)
         End If
+    End Sub
+
+    Private Sub AppendEnzymeToCleavageRuleCombobox(inSilicoDigest As clsInSilicoDigest, cleavageRuleId As clsInSilicoDigest.CleavageRuleConstants)
+
+        Dim cleavageRule As clsCleavageRule = Nothing
+        inSilicoDigest.GetCleavageRuleById(cleavageRuleId, cleavageRule)
+
+        If cleavageRule Is Nothing Then Return
+
+        Dim targetIndex = cboCleavageRuleType.Items.Count
+        cboCleavageRuleType.Items.Add(cleavageRule.Description & " (" & cleavageRule.GetDetailedRuleDescription() & ")")
+
+        mCleavageRuleComboboxIndexToType.Add(targetIndex, cleavageRuleId)
     End Sub
 
     Private Sub AutoDefineOutputFile()
@@ -617,6 +637,19 @@ Public Class frmMain
 
     Private Function GetProteinInputFilePath() As String
         Return txtProteinInputFilePath.Text.Trim({""""c, " "c})
+    End Function
+
+    Private Function GetSelectedCleavageRule() As clsInSilicoDigest.CleavageRuleConstants
+
+        Dim selectedIndex = cboCleavageRuleType.SelectedIndex
+        Dim selectedCleavageRule = clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
+
+        If selectedIndex < 0 OrElse Not mCleavageRuleComboboxIndexToType.TryGetValue(selectedIndex, selectedCleavageRule) Then
+            Return clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
+        End If
+
+        Return selectedCleavageRule
+
     End Function
 
     Private Function GetSettingsFilePath() As String
@@ -1103,7 +1136,7 @@ Public Class frmMain
         parseProteinFile.GenerateUniqueIDValuesForPeptides = chkGenerateUniqueIDValues.Checked
 
         If cboCleavageRuleType.SelectedIndex >= 0 Then
-            parseProteinFile.DigestionOptions.CleavageRuleID = CType(cboCleavageRuleType.SelectedIndex, clsInSilicoDigest.CleavageRuleConstants)
+            parseProteinFile.DigestionOptions.CleavageRuleID = GetSelectedCleavageRule()
         End If
 
         parseProteinFile.DigestionOptions.IncludePrefixAndSuffixResidues = chkIncludePrefixAndSuffixResidues.Checked
@@ -1450,17 +1483,37 @@ Public Class frmMain
 
             Dim inSilicoDigest = New clsInSilicoDigest()
             cboCleavageRuleType.Items.Clear()
-            For index = 0 To inSilicoDigest.CleavageRuleCount - 1
-                Dim eRuleID = CType(index, clsInSilicoDigest.CleavageRuleConstants)
+            mCleavageRuleComboboxIndexToType.Clear()
 
-                Dim cleavageRule As clsCleavageRule = Nothing
-                inSilicoDigest.GetCleavageRuleById(eRuleID, cleavageRule)
+            ' Add Trypsin rules first
+            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, clsInSilicoDigest.CleavageRuleConstants.NoRule)
+            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin)
+            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, clsInSilicoDigest.CleavageRuleConstants.TrypsinWithoutProlineException)
+            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, clsInSilicoDigest.CleavageRuleConstants.KROneEnd)
+            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, clsInSilicoDigest.CleavageRuleConstants.TrypsinPlusFVLEY)
+            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, clsInSilicoDigest.CleavageRuleConstants.TrypsinPlusLysC)
+            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, clsInSilicoDigest.CleavageRuleConstants.TrypsinPlusThermolysin)
 
-                cboCleavageRuleType.Items.Add(cleavageRule.Description & " (" & cleavageRule.GetDetailedRuleDescription() & ")")
-            Next index
-            If cboCleavageRuleType.Items.Count > clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin Then
-                cboCleavageRuleType.SelectedIndex = clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
-            End If
+            ' Add the remaining enzymes based on the description, but skip CleavageRuleConstants.EricPartialTrypsin
+
+            ' Keys in this dictionary are cleavage rule enums, values are the rule description
+            Dim additionalRulesToAppend = New Dictionary(Of clsInSilicoDigest.CleavageRuleConstants, String)
+
+            For Each cleavageRule In inSilicoDigest.CleavageRules
+                Dim cleavageRuleId = cleavageRule.Key
+                If mCleavageRuleComboboxIndexToType.ContainsValue(cleavageRuleId) Then Continue For
+
+                additionalRulesToAppend.Add(cleavageRuleId, cleavageRule.Value.Description)
+            Next
+
+            For Each ruleToAdd In (From item In additionalRulesToAppend Order By item.Value Select item.Key)
+                If ruleToAdd = clsInSilicoDigest.CleavageRuleConstants.EricPartialTrypsin Then Continue For
+
+                AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, ruleToAdd)
+            Next
+
+            ' Select the fully tryptic enzyme rule
+            SetSelectedCleavageRule(clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin)
 
             cboMassTolType.Items.Clear()
             cboMassTolType.Items.Insert(clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.PPM, "PPM")
@@ -1567,7 +1620,8 @@ Public Class frmMain
         txtProteinReversalSamplingPercentage.Text = "100"
         txtProteinScramblingLoopCount.Text = "1"
 
-        cboCleavageRuleType.SelectedIndex = clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
+        SetSelectedCleavageRule(clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin)
+
         chkIncludeDuplicateSequences.Checked = False
         chkCysPeptidesOnly.Checked = False
         chkGenerateUniqueIDValues.Checked = True
@@ -1692,6 +1746,27 @@ Public Class frmMain
         If saveFile.FileName.Length > 0 Then
             txtProteinOutputFilePath.Text = saveFile.FileName
         End If
+
+    End Sub
+
+    Private Sub SetSelectedCleavageRule(cleavageRuleName As String)
+        Dim cleavageRule As clsInSilicoDigest.CleavageRuleConstants
+
+        If [Enum].TryParse(cleavageRuleName, True, cleavageRule) Then
+            SetSelectedCleavageRule(cleavageRule)
+        End If
+
+    End Sub
+
+    Private Sub SetSelectedCleavageRule(cleavageRule As clsInSilicoDigest.CleavageRuleConstants)
+
+        Dim query = From item In mCleavageRuleComboboxIndexToType
+                    Where item.Value = cleavageRule
+                    Select item.Key
+
+        For Each item In query.Take(1)
+            cboCleavageRuleType.SelectedIndex = item
+        Next
 
     End Sub
 
