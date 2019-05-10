@@ -21,6 +21,9 @@ Source: ..\bin\PRISMWin.dll                           ; DestDir: {app}
 Source: ..\bin\ProteinFileReader.dll                  ; DestDir: {app}
 Source: ..\bin\ValidateFastaFile.dll                  ; DestDir: {app}
 Source: ..\bin\QC_Standards_2004-01-21.fasta          ; DestDir: {app}
+Source: ..\bin\QC_Standards_2004-01-21.txt                            ; DestDir: {app}
+Source: ..\bin\QC_Standards_2004-01-21_digested_Mass400to6000.txt     ; DestDir: {app}
+
 Source: ..\bin\ProteinDigestionSimulatorOptions.xml   ; DestDir: {app}
 Source: ..\bin\Elute1052.wts                          ; DestDir: {app}
 Source: ..\bin\SCX1052.wts                            ; DestDir: {app}
