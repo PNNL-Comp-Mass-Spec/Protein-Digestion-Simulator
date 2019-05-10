@@ -1,6 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <sections>
   <section name="ProteinDigestionSimulatorOptions">
+    <item key="WindowWidth" value="960" />
+    <item key="WindowHeight" value="800" />
     <item key="InputFilePath" value="QC_Standards_2004-01-21.fasta" />
     <item key="InputFileFormatIndex" value="0" />
     <item key="InputFileColumnDelimiterIndex" value="1" />
@@ -11,8 +13,6 @@
     <item key="IncludePrefixAndSuffixResidues" value="False" />
     <item key="EnableLogging" value="False" />
     <item key="CustomValidationRulesFilePath" value="" />
-    <item key="WindowWidth" value="675" />
-    <item key="WindowHeight" value="670" />
   </section>
   <section name="FastaInputOptions">
     <item key="RefStartChar" value="&gt;" />
@@ -24,20 +24,23 @@
   </section>
   <section name="ProcessingOptions">
     <item key="ExcludeProteinSequence" value="False" />
-    <item key="ComputeProteinMass" value="True" />
-    <item key="ElementMassMode" value="1" />
-    <item key="ComputepI" value="True" />
-    <item key="ComputeSCX" value="True" />
-    <item key="IncludeXResidues" value="True" />
+    <item key="ComputeProteinMass" value="False" />
+    <item key="ComputepI" value="False" />
+    <item key="IncludeXResidues" value="False" />
+    <item key="ComputeSequenceHashValues" value="True" />
+    <item key="ComputeSequenceHashIgnoreILDiff" value="True" />
+    <item key="TruncateProteinDescription" value="True" />
+    <item key="ExcludeProteinDescription" value="False" />
     <item key="DigestProteins" value="False" />
     <item key="ProteinReversalIndex" value="0" />
     <item key="ProteinScramblingLoopCount" value="1" />
+    <item key="ElementMassMode" value="1" />
     <item key="HydrophobicityMode" value="0" />
     <item key="MaxpIModeEnabled" value="False" />
     <item key="MaxpISequenceLength" value="10" />
   </section>
   <section name="DigestionOptions">
-    <item key="CleavageRuleTypeIndex" value="1" />
+    <item key="CleavageRuleName" value="ConventionalTrypsin" />
     <item key="IncludeDuplicateSequences" value="False" />
     <item key="CysPeptidesOnly" value="False" />
     <item key="DigestProteinsMinimumMass" value="400" />
@@ -46,6 +49,8 @@
     <item key="DigestProteinsMaximumMissedCleavages" value="3" />
     <item key="DigestProteinsMinimumpI" value="0" />
     <item key="DigestProteinsMaximumpI" value="14" />
+    <item key="FragmentMassModeIndex" value="0" />
+    <item key="CysTreatmentModeIndex" value="0" />
   </section>
   <section name="UniquenessStatsOptions">
     <item key="AssumeInputFileIsDigested" value="True" />

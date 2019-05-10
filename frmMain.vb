@@ -754,7 +754,23 @@ Public Class frmMain
                 chkMaxpIModeEnabled.Checked = xmlSettings.GetParam(ProcessingOptions, "MaxpIModeEnabled", chkMaxpIModeEnabled.Checked)
                 txtMaxpISequenceLength.Text = xmlSettings.GetParam(ProcessingOptions, "MaxpISequenceLength", LookupMaxpISequenceLength).ToString()
 
-                cboCleavageRuleType.SelectedIndex = xmlSettings.GetParam(DigestionOptions, "CleavageRuleTypeIndex", cboCleavageRuleType.SelectedIndex)
+                Dim cleavageRuleName = xmlSettings.GetParam(DigestionOptions, "CleavageRuleName", String.Empty)
+
+                If Not String.IsNullOrWhiteSpace(cleavageRuleName) Then
+                    SetSelectedCleavageRule(cleavageRuleName)
+                Else
+                    Dim legacyCleavageRuleIndexSetting = xmlSettings.GetParam(DigestionOptions, "CleavageRuleTypeIndex", -1)
+                    If legacyCleavageRuleIndexSetting >= 0 Then
+
+                        Try
+                            Dim cleavageRule = CType(legacyCleavageRuleIndexSetting, clsInSilicoDigest.CleavageRuleConstants)
+                            SetSelectedCleavageRule(cleavageRule)
+                        Catch ex As Exception
+                            ' Ignore errors here
+                        End Try
+                    End If
+                End If
+
                 chkIncludeDuplicateSequences.Checked = xmlSettings.GetParam(DigestionOptions, "IncludeDuplicateSequences", chkIncludeDuplicateSequences.Checked)
                 chkCysPeptidesOnly.Checked = xmlSettings.GetParam(DigestionOptions, "CysPeptidesOnly", chkCysPeptidesOnly.Checked)
 
@@ -919,7 +935,8 @@ Public Class frmMain
                     xmlSettings.SetParam(ProcessingOptions, "MaxpIModeEnabled", chkMaxpIModeEnabled.Checked)
                     xmlSettings.SetParam(ProcessingOptions, "MaxpISequenceLength", LookupMaxpISequenceLength())
 
-                    xmlSettings.SetParam(DigestionOptions, "CleavageRuleTypeIndex", cboCleavageRuleType.SelectedIndex)
+                    xmlSettings.SetParam(DigestionOptions, "CleavageRuleName", GetSelectedCleavageRule().ToString())
+
                     xmlSettings.SetParam(DigestionOptions, "IncludeDuplicateSequences", chkIncludeDuplicateSequences.Checked)
                     xmlSettings.SetParam(DigestionOptions, "CysPeptidesOnly", chkCysPeptidesOnly.Checked)
 
