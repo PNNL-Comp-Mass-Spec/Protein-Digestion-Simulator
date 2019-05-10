@@ -95,9 +95,16 @@ Public Class clsInSilicoDigest
 #End Region
 
 #Region "Processing Options Interface Functions"
+
     Public ReadOnly Property CleavageRuleCount As Integer
         Get
             Return mCleavageRules.Count
+        End Get
+    End Property
+
+    Public ReadOnly Property CleavageRules As IReadOnlyDictionary(Of CleavageRuleConstants, clsCleavageRule)
+        Get
+            Return mCleavageRules
         End Get
     End Property
 
@@ -518,7 +525,7 @@ Public Class clsInSilicoDigest
             True)
 
         AddCleavageRule(CleavageRuleConstants.TrypsinPlusFVLEY,
-            "Trypsin Plus FVLEY",
+            "Trypsin plus FVLEY",
             "KRFYVEL",
             String.Empty,
             False)
