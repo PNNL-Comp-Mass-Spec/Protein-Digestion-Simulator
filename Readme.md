@@ -52,6 +52,7 @@ The Protein Digestion Simulator supports the following enzymes:
 | Half (Partial) Trypsin             | KR                 | P                  |                                                          |
 | Trypsin Plus FVLEY                 | KRFYVEL            |                    |                                                          |
 | Trypsin plus Lys-C                 | KR                 | P for R            | Either after R (no P) or after K (P allowed)             |
+| Trypsin plus Thermolysin           | KRLFVIAM           | P for R            |                                                          |
 | Acetic Acid Hydrolysis             | D                  |                    |                                                          |
 | Arg-C                              | R                  |                    |                                                          |
 | Asp-N                              | D                  |                    | Cleaves N-terminal to D                                  |
@@ -66,7 +67,9 @@ The Protein Digestion Simulator supports the following enzymes:
 | PepsinC                            | FLWYA              | P                  |                                                          |
 | PepsinD                            | FLWYAEQ            |                    |                                                          |
 | Proteinase K                       | AEFILTVWY          |                    |                                                          |
+| Thermolysin                        | LFVIAM             |                    |                                                          |
 | No cleavage rule                   | Cleave after any residue |              |                                                          | 
+| Peptide Database                   | Do not cleavage after any residue |     | Use to extract peptides in a given mass range            |
 
 ## Installation
 
