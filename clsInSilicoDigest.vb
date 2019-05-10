@@ -47,6 +47,8 @@ Public Class clsInSilicoDigest
         PepsinD = 19
         AceticAcidD = 20
         TrypsinPlusLysC = 21
+        Thermolysin = 22
+        TrypsinPlusThermolysin = 23
     End Enum
 
     ''' <summary>
@@ -620,8 +622,8 @@ Public Class clsInSilicoDigest
             False)
 
         Dim additionalRuleLysC = New List(Of clsCleavageRule) From {
-            cleavageRuleLysC
-        }
+                cleavageRuleLysC
+                }
 
         AddCleavageRule(CleavageRuleConstants.TrypsinPlusLysC,
                         "Trypsin plus Lys-C",
@@ -630,6 +632,24 @@ Public Class clsInSilicoDigest
                         False,
                         False,
                         additionalRuleLysC)
+
+        Dim cleavageRuleThermolysin = AddCleavageRule(CleavageRuleConstants.Thermolysin,
+                                               "Thermolysin",
+                                               "LFVIAM",
+                                               String.Empty,
+                                               True)
+
+        Dim additionalRuleThermolysin = New List(Of clsCleavageRule) From {
+                cleavageRuleThermolysin
+                }
+
+        AddCleavageRule(CleavageRuleConstants.TrypsinPlusThermolysin,
+                        "Trypsin plus Thermolysin",
+                        "KR",
+                        "P",
+                        False,
+                        False,
+                        additionalRuleThermolysin)
 
         ' ReSharper restore StringLiteralTypo
 
