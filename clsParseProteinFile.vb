@@ -1934,13 +1934,13 @@ Public Class clsParseProteinFile
             Do While scrambledSequence.Length > 0
                 ' Append to the cache
                 If udtResidueCache.Cache.Length + scrambledSequence.Length <= udtResidueCache.CacheLength Then
-                        udtResidueCache.Cache &= scrambledSequence
-                        scrambledSequence = String.Empty
-                    Else
-                        residueCount = udtResidueCache.CacheLength - udtResidueCache.Cache.Length
-                        udtResidueCache.Cache &= scrambledSequence.Substring(0, residueCount)
-                        scrambledSequence = scrambledSequence.Substring(residueCount)
-                    End If
+                    udtResidueCache.Cache &= scrambledSequence
+                    scrambledSequence = String.Empty
+                Else
+                    residueCount = udtResidueCache.CacheLength - udtResidueCache.Cache.Length
+                    udtResidueCache.Cache &= scrambledSequence.Substring(0, residueCount)
+                    scrambledSequence = scrambledSequence.Substring(residueCount)
+                End If
 
                 If udtResidueCache.Cache.Length >= udtResidueCache.CacheLength Then
                     ' Write out a portion of the cache

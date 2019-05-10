@@ -1379,6 +1379,7 @@ Public Class PeptideSequenceClass
 
     End Function
 
+
     ''' <summary>
     ''' Define the N-terminus using an empirical formula
     ''' </summary>
