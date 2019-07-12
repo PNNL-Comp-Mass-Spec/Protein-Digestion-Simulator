@@ -1364,7 +1364,6 @@ Public Class clsParseProteinFile
             mProteins(mProteinCount).ProteinSCXNET = ComputeSequenceSCXNET(sequence)
         End If
 
-
     End Sub
 
     Private Sub ParseProteinFileWriteDigested(
@@ -1406,6 +1405,7 @@ Public Class clsParseProteinFile
                     outLine.Append(baseSequence & mOutputFileDelimiter)
                 End If
             End If
+
             outLine.Append(uniqueSeqID.ToString() & mOutputFileDelimiter &
                            peptideFragment.Mass & mOutputFileDelimiter &
                            Math.Round(peptideFragment.NET, 4).ToString() & mOutputFileDelimiter &
@@ -1426,9 +1426,9 @@ Public Class clsParseProteinFile
             End If
 
             If ComputeSCXNET Then
-                Dim scsNET = ComputeSequenceSCXNET(baseSequence)
+                Dim scxNET = ComputeSequenceSCXNET(baseSequence)
 
-                outLine.Append(mOutputFileDelimiter & scsNET.ToString("0.0000"))
+                outLine.Append(mOutputFileDelimiter & scxNET.ToString("0.0000"))
             End If
 
             digestFileWriter.WriteLine(outLine.ToString())
