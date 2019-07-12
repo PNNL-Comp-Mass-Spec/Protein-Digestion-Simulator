@@ -1420,7 +1420,7 @@ Public Class clsParseProteinFile
             End If
 
             If ComputeNET Then
-                Dim lcNET = ComputeSequenceSCXNET(baseSequence)
+                Dim lcNET = ComputeSequenceNET(baseSequence)
 
                 outLine.Append(mOutputFileDelimiter & lcNET.ToString("0.0000"))
             End If
