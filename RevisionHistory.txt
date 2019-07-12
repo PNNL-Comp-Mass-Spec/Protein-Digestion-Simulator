@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.3.7131; July 11, 2019
+	- Fix bug that wrote SCX NET instead of LC NET to the digested protein output file
+
 Version 2.3.7069; March 27, 2019
 	- Add enzymes Thermolysin and Trypsin plus Thermolysin
 	- Sort enzymes in the Digestion Options dropdown box
