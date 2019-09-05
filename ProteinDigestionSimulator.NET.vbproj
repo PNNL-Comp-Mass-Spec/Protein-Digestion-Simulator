@@ -175,10 +175,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="PRISM-Library">
-      <Version>2.5.24</Version>
+      <Version>2.5.25</Version>
     </PackageReference>
     <PackageReference Include="PRISMWin-Library">
-      <Version>1.0.12</Version>
+      <Version>1.0.13</Version>
     </PackageReference>
     <PackageReference Include="ProteinFileReader">
       <Version>1.3.1</Version>
