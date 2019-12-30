@@ -35,6 +35,8 @@ Source: ..\RevisionHistory.txt                        ; DestDir: {app}
 Source: ..\PNNL_NETPrediction_License.pdf             ; DestDir: {app}
 Source: Images\delete_16x.ico                         ; DestDir: {app}
 
+Source: ..\Docs\ProteinDigestionSimulatorOptions.xml     ; DestDir: {app}\Docs
+
 [Dirs]
 Name: {commonappdata}\ProteinDigestionSimulator; Flags: uninsalwaysuninstall
 
