@@ -683,11 +683,11 @@ Public Class frmMain
         Dim columnDelimiters = New Char() {ControlChars.Tab, ","c}
 
         ResetToDefaults(False)
+        Dim settingsFilePath = GetSettingsFilePath()
 
         Try
 
             ' Pass False to .LoadSettings() here to turn off case sensitive matching
-            Dim settingsFilePath = GetSettingsFilePath()
             xmlSettings.LoadSettings(settingsFilePath, False)
             PRISM.FileProcessor.ProcessFilesBase.CreateSettingsFileIfMissing(settingsFilePath)
 
@@ -850,16 +850,16 @@ Public Class frmMain
                 End If
 
             Catch ex As Exception
-                ShowErrorMessage("Invalid parameter in settings file: " & Path.GetFileName(GetSettingsFilePath()), "Error")
+                ShowErrorMessage("Invalid parameter in settings file: " & Path.GetFileName(settingsFilePath), "Error")
             End Try
 
         Catch ex As Exception
-            ShowErrorMessage("Error loading settings from file: " & GetSettingsFilePath(), "Error")
+            ShowErrorMessage("Error loading settings from file: " & settingsFilePath, "Error")
         End Try
 
     End Sub
 
-    Private Sub IniFileSaveOptions(Optional saveWindowDimensionsOnly As Boolean = False)
+    Private Sub IniFileSaveOptions(showFilePath As Boolean, Optional saveWindowDimensionsOnly As Boolean = False)
 
         Const OptionsSection As String = clsParseProteinFile.XML_SECTION_OPTIONS
         Const FASTAOptions As String = clsParseProteinFile.XML_SECTION_FASTA_OPTIONS
@@ -869,10 +869,10 @@ Public Class frmMain
         Const PMOptions As String = clsProteinDigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS
 
         Dim xmlSettings As New XmlSettingsFileAccessor()
-
+        Dim settingsFilePath = GetSettingsFilePath()
 
         Try
-            Dim settingsFile = New FileInfo(GetSettingsFilePath())
+            Dim settingsFile = New FileInfo(settingsFilePath)
             If Not settingsFile.Exists Then
                 saveWindowDimensionsOnly = False
             End If
@@ -883,7 +883,7 @@ Public Class frmMain
         Try
 
             ' Pass True to .LoadSettings() to turn on case sensitive matching
-            xmlSettings.LoadSettings(GetSettingsFilePath(), True)
+            xmlSettings.LoadSettings(settingsFilePath, True)
 
             Try
                 If Not saveWindowDimensionsOnly Then
@@ -991,15 +991,18 @@ Public Class frmMain
                     xmlSettings.SetParam(PMOptions, "ThresholdData", thresholdData)
                 End If
             Catch ex As Exception
-                ShowErrorMessage("Error storing parameter in settings file: " & Path.GetFileName(GetSettingsFilePath()), "Error")
+                ShowErrorMessage("Error storing parameter in settings file: " & Path.GetFileName(settingsFilePath), "Error")
             End Try
 
             xmlSettings.SaveSettings()
 
-        Catch ex As Exception
-            ShowErrorMessage("Error saving settings to file: " & GetSettingsFilePath(), "Error")
-        End Try
+            If showFilePath Then
+                MessageBox.Show("Saved settings to file " & settingsFilePath, "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            End If
 
+        Catch ex As Exception
+            ShowErrorMessage("Error saving settings to file: " & settingsFilePath, "Error")
+        End Try
 
     End Sub
 
@@ -1790,7 +1793,6 @@ Public Class frmMain
     Private Sub ShowAboutBox()
         Dim message = New StringBuilder()
 
-
         message.AppendLine("Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004")
         message.AppendLine("Copyright 2018 Battelle Memorial Institute")
         message.AppendLine()
@@ -2214,7 +2216,7 @@ Public Class frmMain
     End Sub
 
     Private Sub frmMain_Closing(sender As Object, e As CancelEventArgs) Handles MyBase.Closing
-        IniFileSaveOptions(True)
+        IniFileSaveOptions(False, True)
     End Sub
 
     Private Sub txtDigestProteinsMinimumMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMinimumMass.KeyPress
@@ -2307,7 +2309,7 @@ Public Class frmMain
     End Sub
 
     Private Sub mnuFileSaveDefaultOptions_Click(sender As Object, e As EventArgs) Handles mnuFileSaveDefaultOptions.Click
-        IniFileSaveOptions()
+        IniFileSaveOptions(True)
     End Sub
 
     Private Sub mnuFileExit_Click(sender As Object, e As EventArgs) Handles mnuFileExit.Click
