@@ -404,21 +404,26 @@ Public Class PeptideSequenceClass
         Next endToCheck
 
         If terminusCount = 2 Then
-            ' Both ends of the peptide are terminii; label as fully matching the rules and set RuleMatchCount to 2
-            Return True
+            ' Both ends of the peptide are terminii; label as fully matching the rules and set ruleMatchCount to 2
             ruleMatchCount = 2
-        ElseIf terminusCount = 1 Then
+            Return True
+        End If
+
+        If terminusCount = 1 Then
             ' One end was a terminus; can either be fully cleaved or non-cleaved; never partially cleaved
             If ruleMatchCount >= 1 Then
-                Return True
                 ruleMatchCount = 2
-            End If
-        Else
-            If ruleMatchCount = 2 Then
-                Return True
-            ElseIf ruleMatchCount >= 1 AndAlso cleavageRule.AllowPartialCleavage Then
                 Return True
             End If
+            Return False
+        End If
+
+        If ruleMatchCount = 2 Then
+            Return True
+        End If
+
+        If ruleMatchCount >= 1 AndAlso cleavageRule.AllowPartialCleavage Then
+            Return True
         End If
 
         Return False
