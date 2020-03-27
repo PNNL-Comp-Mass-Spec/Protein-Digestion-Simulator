@@ -1,5 +1,5 @@
-; This is an Inno Setup configuration file
-; http://www.jrsoftware.org/isinfo.php
+﻿; This is an Inno Setup configuration file
+; https://jrsoftware.org/isinfo.php
 
 #define ApplicationVersion GetFileVersion('..\bin\ProteinDigestionSimulator.exe')
 
@@ -54,26 +54,30 @@ AppVersion={#ApplicationVersion}
 ;AppVerName=ProteinDigestionSimulator
 AppID=ProteinDigestionSimulatorId
 AppPublisher=Pacific Northwest National Laboratory
-AppPublisherURL=http://omics.pnl.gov/software
-AppSupportURL=http://omics.pnl.gov/software
-AppUpdatesURL=http://omics.pnl.gov/software
-DefaultDirName={pf}\ProteinDigestionSimulator
+AppPublisherURL=https://omics.pnl.gov/software
+AppSupportURL=https://omics.pnl.gov/software
+AppUpdatesURL=https://github.com/PNNL-Comp-Mass-Spec/Protein-Digestion-Simulator
+ArchitecturesAllowed=x64 x86
+ArchitecturesInstallIn64BitMode=x64
+DefaultDirName={autopf}\ProteinDigestionSimulator
 DefaultGroupName=PAST Toolkit
-AppCopyright=� PNNL
+AppCopyright=© PNNL
 ;LicenseFile=.\License.rtf
-PrivilegesRequired=poweruser
+PrivilegesRequired=admin
 OutputBaseFilename=ProteinDigestionSimulator_Installer
 VersionInfoVersion={#ApplicationVersion}
 VersionInfoCompany=PNNL
 VersionInfoDescription=Protein Digestion Simulator
 VersionInfoCopyright=PNNL
-DisableFinishedPage=true
+DisableFinishedPage=yes
+DisableWelcomePage=no
 ShowLanguageDialog=no
-ChangesAssociations=false
-EnableDirDoesntExistWarning=false
-AlwaysShowDirOnReadyPage=true
+ChangesAssociations=no
+WizardStyle=modern
+EnableDirDoesntExistWarning=no
+AlwaysShowDirOnReadyPage=yes
 UninstallDisplayIcon={app}\delete_16x.ico
-ShowTasksTreeLines=true
+ShowTasksTreeLines=yes
 OutputDir=.\Output
 
 [Registry]
