@@ -94,6 +94,7 @@ Public Class clsSearchRange
         End Get
     End Property
 
+    ' ReSharper disable once UnusedMember.Global
     Public Property UsePointerIndexArray As Boolean
         Get
             Return mUsePointerIndexArray
