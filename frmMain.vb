@@ -20,6 +20,7 @@ Imports NETPrediction
 Imports PRISM
 Imports PRISMWin
 Imports ProteinFileReader
+Imports DBUtils = PRISMDatabaseUtils.DataTableUtils
 
 Public Class frmMain
 
@@ -1037,11 +1038,11 @@ Public Class frmMain
         Dim pmThresholds = New DataTable(PM_THRESHOLDS_DATA_TABLE)
 
         ' Add the columns to the data table
-        DatabaseUtils.DataTableUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_MASS_TOLERANCE)
-        DatabaseUtils.DataTableUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_NET_TOLERANCE)
-        DatabaseUtils.DataTableUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_SLIC_MASS_STDEV, DEFAULT_SLIC_MASS_STDEV)
-        DatabaseUtils.DataTableUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_SLIC_NET_STDEV, DEFAULT_SLIC_NET_STDEV)
-        DatabaseUtils.DataTableUtils.AppendColumnIntegerToTable(pmThresholds, COL_NAME_PM_THRESHOLD_ROW_ID, 0, True, True)
+        DBUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_MASS_TOLERANCE)
+        DBUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_NET_TOLERANCE)
+        DBUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_SLIC_MASS_STDEV, DEFAULT_SLIC_MASS_STDEV)
+        DBUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_SLIC_NET_STDEV, DEFAULT_SLIC_NET_STDEV)
+        DBUtils.AppendColumnIntegerToTable(pmThresholds, COL_NAME_PM_THRESHOLD_ROW_ID, 0, True, True)
 
         Dim PrimaryKeyColumn = New DataColumn() {pmThresholds.Columns(COL_NAME_PM_THRESHOLD_ROW_ID)}
         pmThresholds.PrimaryKey = PrimaryKeyColumn

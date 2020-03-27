@@ -18,6 +18,7 @@ Imports System.Reflection
 Imports System.Runtime.InteropServices
 Imports PRISM
 Imports ProteinFileReader
+Imports DBUtils = PRISMDatabaseUtils.DataTableUtils
 
 ''' <summary>
 ''' This class will read two fasta files and look for overlap in protein sequence between the proteins of
@@ -27,7 +28,7 @@ Public Class clsProteinDigestionSimulator
     Inherits FileProcessor.ProcessFilesBase
 
     Public Sub New()
-        MyBase.mFileDate = "December 30, 2019"
+        MyBase.mFileDate = "March 27, 2020"
         InitializeLocalVariables()
     End Sub
 
@@ -1079,7 +1080,7 @@ Public Class clsProteinDigestionSimulator
 
         ''mUseBulkInsert = False
 
-        ''mSqlServerConnectionString = SharedPRISMWin.TextBoxUtils.DatabaseUtils.DataTableUtils.DEFAULT_CONNECTION_STRING_NO_PROVIDER
+        ''mSqlServerConnectionString = DBUtils.DEFAULT_CONNECTION_STRING_NO_PROVIDER
         ''mTableNameFeaturesToIdentify = clsPeakMatchingClass.PMFeatureInfoClass.DEFAULT_FEATURE_INFO_TABLE_NAME
         ''mTableNameComparisonPeptides = clsPeakMatchingClass.PMComparisonFeatureInfoClass.DEFAULT_COMPARISON_FEATURE_INFO_TABLE_NAME
 
@@ -1096,8 +1097,8 @@ Public Class clsProteinDigestionSimulator
             '---------------------
             ' Protein stats uniquely identified peptides table
             '---------------------
-            DatabaseUtils.DataTableUtils.AppendColumnIntegerToTable(mProteinToIdentifiedPeptideMappingTable, PROTEIN_ID_COLUMN)
-            DatabaseUtils.DataTableUtils.AppendColumnStringToTable(mProteinToIdentifiedPeptideMappingTable, PEPTIDE_ID_MATCH_COLUMN)
+            DBUtils.AppendColumnIntegerToTable(mProteinToIdentifiedPeptideMappingTable, PROTEIN_ID_COLUMN)
+            DBUtils.AppendColumnStringToTable(mProteinToIdentifiedPeptideMappingTable, PEPTIDE_ID_MATCH_COLUMN)
 
             ' Define the PROTEIN_ID_COLUMN AND PEPTIDE_ID_COLUMN columns to be the primary key
             mProteinToIdentifiedPeptideMappingTable.PrimaryKey = New DataColumn() {

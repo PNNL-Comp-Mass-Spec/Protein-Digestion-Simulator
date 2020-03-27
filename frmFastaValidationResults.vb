@@ -2,9 +2,9 @@
 
 Imports System.IO
 Imports System.Text
-Imports PRISM.DatabaseUtils
 Imports PRISMWin
 Imports ValidateFastaFile
+Imports DBUtils = PRISMDatabaseUtils.DataTableUtils
 
 Public Class frmFastaValidation
 
@@ -457,11 +457,11 @@ Public Class frmFastaValidation
         dtDataTable = New DataTable(dataTableName)
 
         ' Add the columns to the DataTable
-        DataTableUtils.AppendColumnIntegerToTable(dtDataTable, COL_NAME_LINE)
-        DataTableUtils.AppendColumnIntegerToTable(dtDataTable, COL_NAME_COLUMN)
-        DataTableUtils.AppendColumnStringToTable(dtDataTable, COL_NAME_PROTEIN)
-        DataTableUtils.AppendColumnStringToTable(dtDataTable, COL_NAME_DESCRIPTION)
-        DataTableUtils.AppendColumnStringToTable(dtDataTable, COL_NAME_CONTEXT)
+        DBUtils.AppendColumnIntegerToTable(dtDataTable, COL_NAME_LINE)
+        DBUtils.AppendColumnIntegerToTable(dtDataTable, COL_NAME_COLUMN)
+        DBUtils.AppendColumnStringToTable(dtDataTable, COL_NAME_PROTEIN)
+        DBUtils.AppendColumnStringToTable(dtDataTable, COL_NAME_DESCRIPTION)
+        DBUtils.AppendColumnStringToTable(dtDataTable, COL_NAME_CONTEXT)
 
         ' Could define a primary key
         ''With dtDataTable
