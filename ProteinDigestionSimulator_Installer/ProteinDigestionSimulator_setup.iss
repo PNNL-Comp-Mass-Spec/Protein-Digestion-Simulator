@@ -12,15 +12,27 @@ WelcomeLabel2=This will install [name/ver] on your computer.
 ; WelcomeLabel2=Welcome message%n%nAdditional sentence
 
 [Files]
-Source: ..\bin\ProteinDigestionSimulator.exe          ; DestDir: {app}
-Source: ..\bin\ProteinDigestionSimulator.pdb          ; DestDir: {app}
-Source: ..\bin\FlexibleFileSortUtility.dll            ; DestDir: {app}
-Source: ..\bin\NETPrediction.dll                      ; DestDir: {app}
-Source: ..\bin\PRISM.dll                              ; DestDir: {app}
-Source: ..\bin\PRISMWin.dll                           ; DestDir: {app}
-Source: ..\bin\ProteinFileReader.dll                  ; DestDir: {app}
-Source: ..\bin\ValidateFastaFile.dll                  ; DestDir: {app}
-Source: ..\bin\QC_Standards_2004-01-21.fasta          ; DestDir: {app}
+Source: ..\bin\ProteinDigestionSimulator.exe               ; DestDir: {app}
+Source: ..\bin\ProteinDigestionSimulator.pdb               ; DestDir: {app}
+Source: ..\bin\FlexibleFileSortUtility.dll                 ; DestDir: {app}
+Source: ..\bin\Microsoft.Bcl.AsyncInterfaces.dll           ; DestDir: {app}
+Source: ..\bin\NETPrediction.dll                           ; DestDir: {app}
+Source: ..\bin\Npgsql.dll                                  ; DestDir: {app}
+Source: ..\bin\PRISM.dll                                   ; DestDir: {app}
+Source: ..\bin\PRISMDatabaseUtils.dll                      ; DestDir: {app}
+Source: ..\bin\PRISMWin.dll                                ; DestDir: {app}
+Source: ..\bin\ProteinFileReader.dll                       ; DestDir: {app}
+Source: ..\bin\System.Buffers.dll                          ; DestDir: {app}
+Source: ..\bin\System.Memory.dll                           ; DestDir: {app}
+Source: ..\bin\System.Numerics.Vectors.dll                 ; DestDir: {app}
+Source: ..\bin\System.Runtime.CompilerServices.Unsafe.dll  ; DestDir: {app}
+Source: ..\bin\System.Text.Encodings.Web.dll               ; DestDir: {app}
+Source: ..\bin\System.Text.Json.dll                        ; DestDir: {app}
+Source: ..\bin\System.Threading.Tasks.Extensions.dll       ; DestDir: {app}
+Source: ..\bin\System.ValueTuple.dll                       ; DestDir: {app}
+Source: ..\bin\ValidateFastaFile.dll                       ; DestDir: {app}
+
+Source: ..\bin\QC_Standards_2004-01-21.fasta                          ; DestDir: {app}
 Source: ..\bin\QC_Standards_2004-01-21.txt                            ; DestDir: {app}
 Source: ..\bin\QC_Standards_2004-01-21_digested_Mass400to6000.txt     ; DestDir: {app}
 
