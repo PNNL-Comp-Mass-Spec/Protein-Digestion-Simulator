@@ -4,6 +4,13 @@
 The Protein Digestion Simulator is a utility for processing [FASTA files](https://en.wikipedia.org/wiki/FASTA_format)
 including converting to/from tab delimited text.  It also supports FASTA file validation.
 
+## Downloads
+
+Download a .zip file with the installer from:
+https://github.com/PNNL-Comp-Mass-Spec/Protein-Digestion-Simulator/releases
+
+The release page also includes a .zip file with ProteinDigestionSimulator.exe
+
 ### Continuous Integration
 
 The latest version of the application is available on the [AppVeyor CI server](https://ci.appveyor.com/project/PNNLCompMassSpec/protein-digestion-simulator/build/artifacts)
