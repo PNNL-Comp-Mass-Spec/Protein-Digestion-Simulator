@@ -80,7 +80,7 @@ Public Class frmDisclaimer
     Const FORM_CLOSE_DELAY_SECONDS As Integer = 2
 
     Protected WithEvents mCloseDelayTimer As Timers.Timer
-    Protected mTimerStartTime As DateTime
+    Protected mTimerStartTime As Date
 
 #End Region
 
@@ -111,7 +111,7 @@ Public Class frmDisclaimer
         cmdOK.Text = FORM_CLOSE_DELAY_SECONDS.ToString()
         cmdOK.Enabled = False
 
-        mTimerStartTime = DateTime.UtcNow
+        mTimerStartTime = Date.UtcNow
 
         mCloseDelayTimer = New Timers.Timer(250)
         mCloseDelayTimer.SynchronizingObject = Me
@@ -123,7 +123,7 @@ Public Class frmDisclaimer
     Private Sub mCloseDelayTimer_Elapsed(sender As Object, e As Timers.ElapsedEventArgs) Handles mCloseDelayTimer.Elapsed
         Dim secondsRemaining As Integer
 
-        secondsRemaining = CInt(Math.Round(FORM_CLOSE_DELAY_SECONDS - DateTime.UtcNow.Subtract(mTimerStartTime).TotalSeconds, 0))
+        secondsRemaining = CInt(Math.Round(FORM_CLOSE_DELAY_SECONDS - Date.UtcNow.Subtract(mTimerStartTime).TotalSeconds, 0))
         If secondsRemaining < 0 Then secondsRemaining = 0
 
         If secondsRemaining > 0 Then
