@@ -91,7 +91,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="ValidateFastaFile, Version=2.1.5926.17173, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ValidateFastaFile, Version=2.2.7410.26061, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Lib\ValidateFastaFile.dll</HintPath>
     </Reference>
