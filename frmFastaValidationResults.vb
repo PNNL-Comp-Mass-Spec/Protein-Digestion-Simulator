@@ -2,6 +2,7 @@
 
 Imports System.IO
 Imports System.Text
+Imports PRISM.Logging
 Imports PRISMWin
 Imports ValidateFastaFile
 Imports DBUtils = PRISMDatabaseUtils.DataTableUtils
@@ -90,6 +91,10 @@ Public Class frmFastaValidation
 
     Private mValidatorErrorMessage As String
 
+    Private ReadOnly mValidateFastaFileErrors As List(Of String) = New List(Of String)
+
+    Private ReadOnly mValidateFastaFileWarnings As List(Of String) = New List(Of String)
+
     Public Event FastaValidationStarted()
 #End Region
 
@@ -132,21 +137,43 @@ Public Class frmFastaValidation
 
 #Region "Procedures"
 
-    Private Sub AppendToString(ByRef textLine As String, newText As String)
-        textLine &= newText & ControlChars.NewLine
+    Private Sub AppendToString(results As ICollection(Of String), newText As String)
+        results.Add(newText)
     End Sub
 
-    Private Sub AppendToString(ByRef textLine As String, numberDescription As String, number As Long)
-        AppendToString(textLine, numberDescription, number, True)
+    Private Sub AppendToString(results As ICollection(Of String), numberDescription As String, number As Long)
+        AppendToString(results, numberDescription, number, True)
     End Sub
 
-    Private Sub AppendToString(ByRef textLine As String, numberDescription As String, number As Long, useCommaSeparator As Boolean)
+    Private Sub AppendToString(results As ICollection(Of String), numberDescription As String, number As Long, useCommaSeparator As Boolean)
 
         ' Dim nfi As NumberFormatInfo = New CultureInfo("en-US", False).NumberFormat
         If useCommaSeparator Then
-            textLine &= numberDescription & number.ToString("###,###,###,###,##0") & ControlChars.NewLine
+            results.Add(number.ToString("###,###,###,###,##0"))
         Else
-            textLine &= numberDescription & number.ToString() & ControlChars.NewLine
+            results.Add(numberDescription & number.ToString())
+        End If
+
+    End Sub
+
+    Private Sub AppendValidatorErrors(results As ICollection(Of String))
+
+        If mValidateFastaFileErrors.Count > 0 Then
+            AppendToString(results, String.Empty)
+            AppendToString(results, "Errors from the validator")
+
+            For Each item In mValidateFastaFileErrors
+                AppendToString(results, item)
+            Next
+        End If
+
+        If mValidateFastaFileWarnings.Count > 0 Then
+            AppendToString(results, String.Empty)
+            AppendToString(results, "Warnings from the validator")
+
+            For Each item In mValidateFastaFileWarnings
+                AppendToString(results, item)
+            Next
         End If
 
     End Sub
@@ -220,7 +247,8 @@ Public Class frmFastaValidation
 
         Const sepChar = ControlChars.Tab
 
-        Dim results = "Results for file " & mValidateFastaFile.FastaFilePath & ControlChars.NewLine
+        Dim results = New List(Of String)
+        results.Append("Results for file " & mValidateFastaFile.FastaFilePath)
 
         AppendToString(results, "Protein count = " & mValidateFastaFile.ProteinCount & sepChar & sepChar & "Residue count = ", mValidateFastaFile.ResidueCount)
         AppendToString(results, "Error count = " & mValidateFastaFile.ErrorWarningCounts(clsValidateFastaFile.eMsgTypeConstants.ErrorMsg, clsValidateFastaFile.ErrorWarningCountTypes.Total))
@@ -254,7 +282,10 @@ Public Class frmFastaValidation
             AppendToString(results, "Results were logged to file: " & mValidateFastaFile.StatsFilePath())
         End If
 
-        txtResults.Text = results
+        AppendValidatorErrors(results)
+
+        txtResults.Text = String.Join(ControlChars.NewLine, results)
+
         txtResults.SelectionStart = 0
         txtResults.SelectionLength = 0
 
@@ -767,6 +798,8 @@ Public Class frmFastaValidation
         Try
 
             mValidatorErrorMessage = String.Empty
+            mValidateFastaFileErrors.Clear()
+            mValidateFastaFileWarnings.Clear()
 
             RaiseEvent FastaValidationStarted()
 
@@ -855,7 +888,13 @@ Public Class frmFastaValidation
             If success Then
                 DisplayResults(parameterFilePath)
             Else
-                txtResults.Text = "Error calling mValidateFastaFile.ProcessFile: " & mValidateFastaFile.GetErrorMessage()
+                Dim results = New List(Of String)
+                results.Add("Error calling mValidateFastaFile.ProcessFile: " & mValidateFastaFile.GetErrorMessage())
+
+                AppendValidatorErrors(results)
+
+                txtResults.Text = String.Join(ControlChars.NewLine, results)
+
                 If Not String.IsNullOrEmpty(mValidatorErrorMessage) Then
                     txtResults.AppendText(ControlChars.NewLine & mValidatorErrorMessage)
                 End If
@@ -1079,6 +1118,12 @@ Public Class frmFastaValidation
     Private Sub ErrorEventHandler(message As String, ex As Exception)
         mValidatorErrorMessage = message
 
+        If Not ex Is Nothing And Not message.Contains(ex.Message) Then
+            mValidateFastaFileErrors.Add(message & ": " & ex.Message)
+        Else
+            mValidateFastaFileErrors.Add(message)
+        End If
+
     End Sub
 
     Private Sub MessageEventHandler(message As String)
@@ -1095,6 +1140,9 @@ Public Class frmFastaValidation
         End Try
     End Sub
 
+    Private Sub WarningEventHandler(message As String)
+        mValidateFastaFileWarnings.Add(message)
+    End Sub
 #End Region
 
 End Class
