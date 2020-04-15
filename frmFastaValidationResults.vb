@@ -16,6 +16,18 @@ Public Class frmFastaValidation
 
         'Add any initialization after the InitializeComponent() call
         InitializeForm(fastaFilePath)
+
+
+        mValidationTriggerTimer = New Timer With {
+            .Interval = 100,
+            .Enabled = True
+            }
+
+        AddHandler mValidationTriggerTimer.Tick, AddressOf mValidationTriggerTimer_Tick
+
+        mValidateFastaFile = New clsValidateFastaFile()
+        RegisterEvents(mValidateFastaFile)
+
     End Sub
 
 
@@ -72,8 +84,9 @@ Public Class frmFastaValidation
     Private mKeepDuplicateNamedProteinsLastValue As Boolean = False
 
     ' This timer is used to cause StartValidation to be called after the form becomes visible
-    Private WithEvents mValidationTriggerTimer As Timer
-    Private WithEvents mValidateFastaFile As clsValidateFastaFile
+    Private ReadOnly mValidationTriggerTimer As Timer
+
+    Private ReadOnly mValidateFastaFile As clsValidateFastaFile
 
     Private mValidatorErrorMessage As String
 
@@ -498,11 +511,6 @@ Public Class frmFastaValidation
         InitializeDataGrid(dgErrors, mErrorsDataset, mErrorsDataView, clsValidateFastaFile.eMsgTypeConstants.ErrorMsg)
         InitializeDataGrid(dgWarnings, mWarningsDataset, mWarningsDataView, clsValidateFastaFile.eMsgTypeConstants.WarningMsg)
 
-        mValidationTriggerTimer = New Timer With {
-            .Interval = 100,
-            .Enabled = True
-        }
-
         SetNewFastaFile(fastaFilePathToValidate)
 
         EnableDisableControls()
@@ -757,9 +765,6 @@ Public Class frmFastaValidation
         Dim success As Boolean
 
         Try
-            If mValidateFastaFile Is Nothing Then
-                mValidateFastaFile = New clsValidateFastaFile
-            End If
 
             mValidatorErrorMessage = String.Empty
 
@@ -859,7 +864,6 @@ Public Class frmFastaValidation
         Catch ex As Exception
             MessageBox.Show("Error validating fasta file: " & FastaFilePath & ControlChars.NewLine & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
         Finally
-            mValidateFastaFile = Nothing
             ShowHideObjectsDuringValidation(False)
 
             Cursor.Current = Cursors.Default
@@ -993,7 +997,7 @@ Public Class frmFastaValidation
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
     ''' <remarks></remarks>
-    Private Sub mValidationTriggerTimer_Tick(sender As Object, e As EventArgs) Handles mValidationTriggerTimer.Tick
+    Private Sub mValidationTriggerTimer_Tick(sender As Object, e As EventArgs)
         mValidationTriggerTimer.Enabled = False
 
         Try
@@ -1065,11 +1069,24 @@ Public Class frmFastaValidation
 
 #Region "Event Handlers"
 
-    Private Sub mValidateFastaFile_ErrorEvent(message As String, ex As Exception) Handles mValidateFastaFile.ErrorEvent
-        mValidatorErrorMessage = message
+    Private Overloads Sub RegisterEvents(oClass As IEventNotifier)
+        AddHandler oClass.StatusEvent, AddressOf MessageEventHandler
+        AddHandler oClass.ErrorEvent, AddressOf ErrorEventHandler
+        AddHandler oClass.ProgressUpdate, AddressOf ProgressUpdateHandler
+        AddHandler oClass.WarningEvent, AddressOf WarningEventHandler
     End Sub
 
-    Private Sub mValidateFastaFile_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mValidateFastaFile.ProgressUpdate
+    Private Sub ErrorEventHandler(message As String, ex As Exception)
+        mValidatorErrorMessage = message
+
+    End Sub
+
+    Private Sub MessageEventHandler(message As String)
+        ' Uncomment to debug:
+        ' Console.WriteLine(message)
+    End Sub
+
+    Private Sub ProgressUpdateHandler(taskDescription As String, percentComplete As Single)
         Try
             pbarProgress.Value = CType(percentComplete, Integer)
             Application.DoEvents()
@@ -1077,6 +1094,7 @@ Public Class frmFastaValidation
             ' Ignore errors here
         End Try
     End Sub
+
 #End Region
 
 End Class
