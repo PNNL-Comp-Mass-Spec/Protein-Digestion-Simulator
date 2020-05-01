@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.3.7426; May 1, 2020
+	- Fix bug displaying FASTA file validation results
+
 Version 2.3.7394; March 30, 2020
 	- Update to .NET 4.7.2
 	- Add NuGet package PRISM-DatabaseUtils
