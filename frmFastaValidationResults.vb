@@ -149,7 +149,7 @@ Public Class frmFastaValidation
 
         ' Dim nfi As NumberFormatInfo = New CultureInfo("en-US", False).NumberFormat
         If useCommaSeparator Then
-            results.Add(number.ToString("###,###,###,###,##0"))
+            results.Add(numberDescription & number.ToString("###,###,###,###,##0"))
         Else
             results.Add(numberDescription & number.ToString())
         End If
@@ -247,8 +247,9 @@ Public Class frmFastaValidation
 
         Const sepChar = ControlChars.Tab
 
-        Dim results = New List(Of String)
-        results.Append("Results for file " & mValidateFastaFile.FastaFilePath)
+        Dim results = New List(Of String) From {
+            "Results for file " & mValidateFastaFile.FastaFilePath
+        }
 
         AppendToString(results, "Protein count = " & mValidateFastaFile.ProteinCount & sepChar & sepChar & "Residue count = ", mValidateFastaFile.ResidueCount)
         AppendToString(results, "Error count = " & mValidateFastaFile.ErrorWarningCounts(clsValidateFastaFile.eMsgTypeConstants.ErrorMsg, clsValidateFastaFile.ErrorWarningCountTypes.Total))
