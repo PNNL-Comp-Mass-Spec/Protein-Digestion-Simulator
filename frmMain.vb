@@ -733,7 +733,7 @@ Public Class frmMain
                 chkComputeProteinMass.Checked = xmlSettings.GetParam(ProcessingOptions, "ComputeProteinMass", chkComputeProteinMass.Checked)
                 cboElementMassMode.SelectedIndex = xmlSettings.GetParam(ProcessingOptions, "ElementMassMode", cboElementMassMode.SelectedIndex)
 
-                ' In the GUI, chkComputepI controls both computing pI and SCX
+                ' In the GUI, chkComputepI controls computing pI, NET, and SCX
                 ' Running from the command line, you can toggle those options separately using "ComputepI" and "ComputeSCX"
                 chkComputepIandNET.Checked = xmlSettings.GetParam(ProcessingOptions, "ComputepI", chkComputepIandNET.Checked)
                 chkIncludeXResidues.Checked = xmlSettings.GetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
@@ -920,6 +920,9 @@ Public Class frmMain
                     xmlSettings.SetParam(ProcessingOptions, "ExcludeProteinSequence", chkExcludeProteinSequence.Checked)
                     xmlSettings.SetParam(ProcessingOptions, "ComputeProteinMass", chkComputeProteinMass.Checked)
                     xmlSettings.SetParam(ProcessingOptions, "ComputepI", chkComputepIandNET.Checked)
+                    xmlSettings.SetParam(ProcessingOptions, "ComputeNET", chkComputepIandNET.Checked)
+                    xmlSettings.SetParam(ProcessingOptions, "ComputeSCX", chkComputepIandNET.Checked)
+
                     xmlSettings.SetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
 
                     xmlSettings.SetParam(ProcessingOptions, "ComputeSequenceHashValues", chkComputeSequenceHashValues.Checked)
