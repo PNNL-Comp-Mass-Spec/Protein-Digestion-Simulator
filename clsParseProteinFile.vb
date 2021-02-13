@@ -936,7 +936,7 @@ Public Class clsParseProteinFile
         Dim lookForAddnlRefInDescription As Boolean
         Dim addnlRefMasterNames As SortedSet(Of String)
 
-        Dim udtAddnlRefsToOutput() As udtAddnlRefType = Nothing
+        Dim addnlRefsToOutput() As udtAddnlRefType = Nothing
 
         Dim generateUniqueSequenceID As Boolean
 
@@ -1072,19 +1072,19 @@ Public Class clsParseProteinFile
 
                     If addnlRefMasterNames.Count > 0 Then
                         ' Need to extract out the key names from addnlRefMasterNames and sort them alphabetically
-                        ReDim udtAddnlRefsToOutput(addnlRefMasterNames.Count - 1)
+                        ReDim addnlRefsToOutput(addnlRefMasterNames.Count - 1)
                         lookForAddnlRefInDescription = True
 
                         Dim index = 0
                         For Each addnlRef In addnlRefMasterNames
-                            udtAddnlRefsToOutput(index).RefName = String.Copy(addnlRef)
+                            addnlRefsToOutput(index).RefName = String.Copy(addnlRef)
                             index += 1
                         Next
 
                         Dim iAddnlRefComparerClass As New AddnlRefComparerClass
-                        Array.Sort(udtAddnlRefsToOutput, iAddnlRefComparerClass)
+                        Array.Sort(addnlRefsToOutput, iAddnlRefComparerClass)
                     Else
-                        ReDim udtAddnlRefsToOutput(0)
+                        ReDim addnlRefsToOutput(0)
                         lookForAddnlRefInDescription = False
                     End If
                 End If
@@ -1099,8 +1099,8 @@ Public Class clsParseProteinFile
 
                     If lookForAddnlRefInDescription Then
 
-                        For index = 0 To udtAddnlRefsToOutput.Length - 1
-                            outLine.Append(udtAddnlRefsToOutput(index).RefName & mOutputFileDelimiter)
+                        For index = 0 To addnlRefsToOutput.Length - 1
+                            outLine.Append(addnlRefsToOutput(index).RefName & mOutputFileDelimiter)
                         Next index
                     End If
 
@@ -1186,7 +1186,7 @@ Public Class clsParseProteinFile
                             If CreateFastaOutputFile Then
                                 ParseProteinFileWriteFasta(proteinFileWriter, outLine)
                             Else
-                                ParseProteinFileWriteTextDelimited(proteinFileWriter, outLine, lookForAddnlRefInDescription, udtAddnlRefsToOutput)
+                                ParseProteinFileWriteTextDelimited(proteinFileWriter, outLine, lookForAddnlRefInDescription, addnlRefsToOutput)
                             End If
 
                         End If
@@ -1452,7 +1452,7 @@ Public Class clsParseProteinFile
       proteinFileWriter As TextWriter,
       outLine As StringBuilder,
       lookForAddnlRefInDescription As Boolean,
-      ByRef udtAddnlRefsToOutput() As udtAddnlRefType)
+      ByRef addnlRefsToOutput() As udtAddnlRefType)
 
         ' Write the entry to the protein output file, and possibly digest it
 
@@ -1460,24 +1460,24 @@ Public Class clsParseProteinFile
 
 
         If lookForAddnlRefInDescription Then
-            ' Reset the Accession numbers in udtAddnlRefsToOutput
-            For index = 0 To udtAddnlRefsToOutput.Length - 1
-                udtAddnlRefsToOutput(index).RefAccession = String.Empty
+            ' Reset the Accession numbers in addnlRefsToOutput
+            For index = 0 To addnlRefsToOutput.Length - 1
+                addnlRefsToOutput(index).RefAccession = String.Empty
             Next index
 
-            ' Update the accession numbers in udtAddnlRefsToOutput
+            ' Update the accession numbers in addnlRefsToOutput
             For index = 0 To mProteins(mProteinCount).AlternateNameCount - 1
-                For compareIndex = 0 To udtAddnlRefsToOutput.Length - 1
-                    If udtAddnlRefsToOutput(compareIndex).RefName.ToUpper = mProteins(mProteinCount).AlternateNames(index).RefName.ToUpper Then
-                        udtAddnlRefsToOutput(compareIndex).RefAccession = mProteins(mProteinCount).AlternateNames(index).RefAccession
+                For compareIndex = 0 To addnlRefsToOutput.Length - 1
+                    If addnlRefsToOutput(compareIndex).RefName.ToUpper = mProteins(mProteinCount).AlternateNames(index).RefName.ToUpper Then
+                        addnlRefsToOutput(compareIndex).RefAccession = mProteins(mProteinCount).AlternateNames(index).RefAccession
                         Exit For
                     End If
                 Next compareIndex
             Next index
 
             outLine.Append(mProteins(mProteinCount).Name & mOutputFileDelimiter)
-            For index = 0 To udtAddnlRefsToOutput.Length - 1
-                outLine.Append(udtAddnlRefsToOutput(index).RefAccession & mOutputFileDelimiter)
+            For index = 0 To addnlRefsToOutput.Length - 1
+                outLine.Append(addnlRefsToOutput(index).RefAccession & mOutputFileDelimiter)
             Next index
 
             If Not ExcludeProteinDescription Then

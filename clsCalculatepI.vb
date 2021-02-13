@@ -101,19 +101,19 @@ Public Class clspICalculation
     Public Property SequenceWidthToExamineForMaximumpI As Integer
 
     Private Function CalculateCharge(pH As Double, numC As Integer, numD As Integer, numE As Integer, numH As Integer, numK As Integer, numR As Integer, numY As Integer) As Double
-        Dim Value As Double
+        Dim value As Double
 
-        Value = 0
-        Value += CalculateNp(pH, Ck, numC)
-        Value += CalculateNp(pH, Dk, numD)
-        Value += CalculateNp(pH, Ek, numE)
-        Value += CalculateNp(pH, Hk, numH)
-        Value += CalculateNp(pH, Kk, numK)
-        Value += CalculateNp(pH, Rk, numR)
-        Value += CalculateNp(pH, Yk, numY)
-        Value += CalculateNp(pH, NH2k, 1)
-        Value += CalculateNp(pH, COOHk, 1)
-        Value -= (numC + numD + numE + numY + 1)
+        value = 0
+        value += CalculateNp(pH, Ck, numC)
+        value += CalculateNp(pH, Dk, numD)
+        value += CalculateNp(pH, Ek, numE)
+        value += CalculateNp(pH, Hk, numH)
+        value += CalculateNp(pH, Kk, numK)
+        value += CalculateNp(pH, Rk, numR)
+        value += CalculateNp(pH, Yk, numY)
+        value += CalculateNp(pH, NH2k, 1)
+        value += CalculateNp(pH, COOHk, 1)
+        value -= (numC + numD + numE + numY + 1)
         Return Value
 
     End Function

@@ -194,7 +194,7 @@ Public Class clsPeakMatchingClass
         End Property
 
         Public Overridable Function GetFeatureInfoByFeatureID(featureID As Integer, ByRef udtFeatureInfo As udtFeatureInfoType) As Boolean
-            ' Return the feature info for feature featureID
+            ' Return the feature info for featureID
 
 
             Dim rowIndex As Integer
@@ -370,7 +370,7 @@ Public Class clsPeakMatchingClass
         End Sub
 
         Public Overloads Function GetFeatureInfoByFeatureID(featureID As Integer, ByRef udtFeatureInfo As udtFeatureInfoType, ByRef netStDev As Single, ByRef discriminantScore As Single) As Boolean
-            ' Return the feature info for feature featureID
+            ' Return the feature info for featureID
 
             Dim rowIndex As Integer
 
@@ -450,11 +450,11 @@ Public Class clsPeakMatchingClass
             Me.Clear()
         End Sub
 
-        Public Function AddMatch(featureID As Integer, ByRef udtMatchResultInfo As udtPeakMatchingResultType) As Boolean
-            Return AddMatch(featureID, udtMatchResultInfo.MatchingID,
-                            udtMatchResultInfo.SLiCScore, udtMatchResultInfo.DelSLiC,
-                            udtMatchResultInfo.MassErr, udtMatchResultInfo.NETErr,
-                            udtMatchResultInfo.MultiAMTHitCount)
+        Public Function AddMatch(featureID As Integer, ByRef matchResultInfo As udtPeakMatchingResultType) As Boolean
+            Return AddMatch(featureID, matchResultInfo.MatchingID,
+                            matchResultInfo.SLiCScore, matchResultInfo.DelSLiC,
+                            matchResultInfo.MassErr, matchResultInfo.NETErr,
+                            matchResultInfo.MultiAMTHitCount)
         End Function
 
         Public Function AddMatch(featureID As Integer, matchingID As Integer, slicScore As Double, delSLiC As Double, massErr As Double, netErr As Double, multiAMTHitCount As Integer) As Boolean
@@ -541,10 +541,10 @@ Public Class clsPeakMatchingClass
             End Get
         End Property
 
-        Public Function GetMatchInfoByFeatureID(featureID As Integer, ByRef udtMatchResults() As udtPeakMatchingResultType, ByRef matchCount As Integer) As Boolean
+        Public Function GetMatchInfoByFeatureID(featureID As Integer, ByRef matchResults() As udtPeakMatchingResultType, ByRef matchCount As Integer) As Boolean
             ' Returns all of the matches for the given feature ID row index
             ' Returns false if the feature has no matches
-            ' Note that this function never shrinks udtMatchResults; it only expands it if needed
+            ' Note that this function never shrinks matchResults; it only expands it if needed
 
             Dim matchesFound = False
 
@@ -556,12 +556,12 @@ Public Class clsPeakMatchingClass
                 If GetRowIndicesForFeatureID(featureID, indexFirst, indexLast) Then
 
                     matchCount = indexLast - indexFirst + 1
-                    If udtMatchResults Is Nothing OrElse matchCount > udtMatchResults.Length Then
-                        ReDim udtMatchResults(matchCount - 1)
+                    If matchResults Is Nothing OrElse matchCount > matchResults.Length Then
+                        ReDim matchResults(matchCount - 1)
                     End If
 
                     For index = indexFirst To indexLast
-                        udtMatchResults(index - indexFirst) = mPMResults(index).Details
+                        matchResults(index - indexFirst) = mPMResults(index).Details
                     Next index
                     matchesFound = True
 
@@ -576,15 +576,15 @@ Public Class clsPeakMatchingClass
 
         End Function
 
-        Public Function GetMatchInfoByRowIndex(rowIndex As Integer, ByRef featureID As Integer, ByRef udtMatchResultInfo As udtPeakMatchingResultType) As Boolean
-            ' Populates featureID and udtMatchResultInfo with the peak matching results for the given row index
+        Public Function GetMatchInfoByRowIndex(rowIndex As Integer, ByRef featureID As Integer, ByRef matchResultInfo As udtPeakMatchingResultType) As Boolean
+            ' Populates featureID and matchResultInfo with the peak matching results for the given row index
 
             Dim matchFound = False
 
             Try
                 If rowIndex < mPMResultsCount Then
                     featureID = mPMResults(rowIndex).FeatureID
-                    udtMatchResultInfo = mPMResults(rowIndex).Details
+                    matchResultInfo = mPMResults(rowIndex).Details
 
                     matchFound = True
                 End If
@@ -776,7 +776,7 @@ Public Class clsPeakMatchingClass
         mAbortProcessing = True
     End Sub
 
-    Private Sub ComputeSLiCScores(ByRef udtFeatureToIdentify As udtFeatureInfoType, ByRef featureMatchResults As PMFeatureMatchResultsClass, ByRef udtRawMatches() As udtPeakMatchingRawMatchesType, ByRef comparisonFeatures As PMComparisonFeatureInfoClass, ByRef searchThresholds As clsSearchThresholds, udtComputedTolerances As clsSearchThresholds.udtSearchTolerancesType)
+    Private Sub ComputeSLiCScores(ByRef udtFeatureToIdentify As udtFeatureInfoType, ByRef featureMatchResults As PMFeatureMatchResultsClass, ByRef rawMatches() As udtPeakMatchingRawMatchesType, ByRef comparisonFeatures As PMComparisonFeatureInfoClass, ByRef searchThresholds As clsSearchThresholds, udtComputedTolerances As clsSearchThresholds.udtSearchTolerancesType)
 
         Dim index As Integer
         Dim newMatchCount As Integer
@@ -806,12 +806,12 @@ Public Class clsPeakMatchingClass
 
         ' Compute the standardized squared distance and the numerator sum
         numeratorSum = 0
-        For index = 0 To udtRawMatches.Length - 1
+        For index = 0 To rawMatches.Length - 1
 
             If searchThresholds.SLiCScoreUseAMTNETStDev Then
                 ' The NET StDev is computed by combining the default NETStDev value with the Comparison Features' specific NETStDev
                 ' The combining is done by "adding in quadrature", which means to square each number, add together, and take the square root
-                netStDevCombined = Math.Sqrt(searchThresholds.SLiCScoreNETStDev ^ 2 + comparisonFeatures.GetNETStDevByRowIndex(udtRawMatches(index).MatchingIDIndex) ^ 2)
+                netStDevCombined = Math.Sqrt(searchThresholds.SLiCScoreNETStDev ^ 2 + comparisonFeatures.GetNETStDevByRowIndex(rawMatches(index).MatchingIDIndex) ^ 2)
             Else
                 ' Simply use the default NETStDev value
                 netStDevCombined = searchThresholds.SLiCScoreNETStDev
@@ -824,32 +824,32 @@ Public Class clsPeakMatchingClass
                 netStDevCombined = 0.025
             End If
 
-            udtRawMatches(index).StandardizedSquaredDistance = udtRawMatches(index).MassErr ^ 2 / massStDevAbs ^ 2 +
-                                                               udtRawMatches(index).NETErr ^ 2 / netStDevCombined ^ 2
+            rawMatches(index).StandardizedSquaredDistance = rawMatches(index).MassErr ^ 2 / massStDevAbs ^ 2 +
+                                                            rawMatches(index).NETErr ^ 2 / netStDevCombined ^ 2
 
-            udtRawMatches(index).SLiCScoreNumerator = (1 / (massStDevAbs * netStDevCombined)) * Math.Exp(-udtRawMatches(index).StandardizedSquaredDistance / 2)
+            rawMatches(index).SLiCScoreNumerator = (1 / (massStDevAbs * netStDevCombined)) * Math.Exp(-rawMatches(index).StandardizedSquaredDistance / 2)
 
-            numeratorSum += udtRawMatches(index).SLiCScoreNumerator
+            numeratorSum += rawMatches(index).SLiCScoreNumerator
 
         Next index
 
         ' Compute the match score for each match
-        For index = 0 To udtRawMatches.Length - 1
+        For index = 0 To rawMatches.Length - 1
             If numeratorSum > 0 Then
-                udtRawMatches(index).SLiCScore = Math.Round(udtRawMatches(index).SLiCScoreNumerator / numeratorSum, 5)
+                rawMatches(index).SLiCScore = Math.Round(rawMatches(index).SLiCScoreNumerator / numeratorSum, 5)
             Else
-                udtRawMatches(index).SLiCScore = 0
+                rawMatches(index).SLiCScore = 0
             End If
         Next index
 
-        If udtRawMatches.Length > 1 Then
+        If rawMatches.Length > 1 Then
             ' Sort by SLiCScore descending
             Dim iPeakMatchingRawMatchesComparerClass As New PeakMatchingRawMatchesComparerClass
-            Array.Sort(udtRawMatches, iPeakMatchingRawMatchesComparerClass)
+            Array.Sort(rawMatches, iPeakMatchingRawMatchesComparerClass)
             iPeakMatchingRawMatchesComparerClass = Nothing
         End If
 
-        If udtRawMatches.Length > 0 Then
+        If rawMatches.Length > 0 Then
 
             ' Compute the DelSLiC value
             ' If there is only one match, then the DelSLiC value is 1
@@ -859,14 +859,14 @@ Public Class clsPeakMatchingClass
             ' This allows one to quickly identify the features with a single match (DelSLiC = 1) or with a match
             '  distinct from other matches (DelSLiC > threshold)
 
-            If udtRawMatches.Length > 1 Then
-                udtRawMatches(0).DelSLiC = (udtRawMatches(0).SLiCScore - udtRawMatches(1).SLiCScore)
+            If rawMatches.Length > 1 Then
+                rawMatches(0).DelSLiC = (rawMatches(0).SLiCScore - rawMatches(1).SLiCScore)
 
-                For index = 1 To udtRawMatches.Length - 1
-                    udtRawMatches(index).DelSLiC = 0
+                For index = 1 To rawMatches.Length - 1
+                    rawMatches(index).DelSLiC = 0
                 Next index
             Else
-                udtRawMatches(0).DelSLiC = 1
+                rawMatches(0).DelSLiC = 1
             End If
 
             ' Now filter the list using the tighter tolerances:
@@ -875,27 +875,27 @@ Public Class clsPeakMatchingClass
             ' When testing whether to keep the match or not, we're testing whether the match is in the ellipse bounded by MWTolAbsFinal and NETTolFinal
             ' Note that these are half-widths of the ellipse
             newMatchCount = 0
-            For index = 0 To udtRawMatches.Length - 1
-                If TestPointInEllipse(udtRawMatches(index).NETErr, udtRawMatches(index).MassErr, udtComputedTolerances.NETTolFinal, udtComputedTolerances.MWTolAbsFinal) Then
-                    udtRawMatches(newMatchCount) = udtRawMatches(index)
+            For index = 0 To rawMatches.Length - 1
+                If TestPointInEllipse(rawMatches(index).NETErr, rawMatches(index).MassErr, udtComputedTolerances.NETTolFinal, udtComputedTolerances.MWTolAbsFinal) Then
+                    rawMatches(newMatchCount) = rawMatches(index)
                     newMatchCount += 1
                 End If
             Next index
 
             If newMatchCount = 0 Then
-                ReDim udtRawMatches(-1)
-            ElseIf newMatchCount < udtRawMatches.Length Then
-                ReDim Preserve udtRawMatches(newMatchCount - 1)
+                ReDim rawMatches(-1)
+            ElseIf newMatchCount < rawMatches.Length Then
+                ReDim Preserve rawMatches(newMatchCount - 1)
             End If
 
             ' Add new match results to featureMatchResults
             ' Record, at most, mMaxPeakMatchingResultsPerFeatureToSave entries
-            For index = 0 To CInt(Math.Min(mMaxPeakMatchingResultsPerFeatureToSave, udtRawMatches.Length)) - 1
-                comparisonFeatures.GetFeatureInfoByRowIndex(udtRawMatches(index).MatchingIDIndex, udtComparisonFeatureInfo)
+            For index = 0 To CInt(Math.Min(mMaxPeakMatchingResultsPerFeatureToSave, rawMatches.Length)) - 1
+                comparisonFeatures.GetFeatureInfoByRowIndex(rawMatches(index).MatchingIDIndex, udtComparisonFeatureInfo)
                 featureMatchResults.AddMatch(udtFeatureToIdentify.FeatureID, udtComparisonFeatureInfo.FeatureID,
-                                             udtRawMatches(index).SLiCScore, udtRawMatches(index).DelSLiC,
-                                             udtRawMatches(index).MassErr, udtRawMatches(index).NETErr,
-                                             udtRawMatches.Length)
+                                             rawMatches(index).SLiCScore, rawMatches(index).DelSLiC,
+                                             rawMatches(index).MassErr, rawMatches(index).NETErr,
+                                             rawMatches.Length)
             Next index
         End If
 
@@ -960,18 +960,18 @@ Public Class clsPeakMatchingClass
         Dim matchIndex As Integer
         Dim comparisonFeaturesOriginalRowIndex As Integer
 
-        Dim udtCurrentFeatureToIdentify = New udtFeatureInfoType()
-        Dim udtCurrentComparisonFeature = New udtFeatureInfoType()
+        Dim currentFeatureToIdentify = New udtFeatureInfoType()
+        Dim currentComparisonFeature = New udtFeatureInfoType()
 
         Dim massTol As Double, netTol As Double
         Dim netDiff As Double
 
-        Dim MatchInd1, MatchInd2 As Integer
+        Dim matchInd1, matchInd2 As Integer
         Dim udtComputedTolerances As clsSearchThresholds.udtSearchTolerancesType
 
         ' The following hold the matches using the broad search tolerances (if .UseMaxSearchDistanceMultiplierAndSLiCScore = True, otherwise, simply holds the matches)
         Dim rawMatchCount As Integer
-        Dim udtRawMatches() As udtPeakMatchingRawMatchesType    ' Pointers into comparisonFeatures; list of peptides that match within both mass and NET tolerance
+        Dim rawMatches() As udtPeakMatchingRawMatchesType    ' Pointers into comparisonFeatures; list of peptides that match within both mass and NET tolerance
 
         Dim storeMatch As Boolean
         Dim success As Boolean
@@ -1006,11 +1006,11 @@ Public Class clsPeakMatchingClass
             PostLogEntry("IdentifySequences starting, total feature count = " & featureCount.ToString(), MessageTypeConstants.Normal)
 
             For featureIndex = 0 To featureCount - 1
-                ' Use rangeSearch to search for matches to each peptide in udtComparisonFeatures
+                ' Use rangeSearch to search for matches to each peptide in comparisonFeatures
 
-                If featuresToIdentify.GetFeatureInfoByRowIndex(featureIndex, udtCurrentFeatureToIdentify) Then
+                If featuresToIdentify.GetFeatureInfoByRowIndex(featureIndex, currentFeatureToIdentify) Then
                     ' By Calling .ComputedSearchTolerances() with a mass, the tolerances will be auto re-computed
-                    udtComputedTolerances = searchThresholds.ComputedSearchTolerances(udtCurrentFeatureToIdentify.Mass)
+                    udtComputedTolerances = searchThresholds.ComputedSearchTolerances(currentFeatureToIdentify.Mass)
 
                     If mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore Then
                         massTol = udtComputedTolerances.MWTolAbsBroad
@@ -1020,18 +1020,18 @@ Public Class clsPeakMatchingClass
                         netTol = udtComputedTolerances.NETTolFinal
                     End If
 
-                    MatchInd1 = 0
-                    MatchInd2 = -1
-                    If rangeSearch.FindValueRange(udtCurrentFeatureToIdentify.Mass, massTol, MatchInd1, MatchInd2) Then
+                    matchInd1 = 0
+                    matchInd2 = -1
+                    If rangeSearch.FindValueRange(currentFeatureToIdentify.Mass, massTol, matchInd1, matchInd2) Then
 
                         rawMatchCount = 0
-                        ReDim udtRawMatches(MatchInd2 - MatchInd1)
+                        ReDim rawMatches(matchInd2 - matchInd1)
 
-                        For matchIndex = MatchInd1 To MatchInd2
+                        For matchIndex = matchInd1 To matchInd2
                             comparisonFeaturesOriginalRowIndex = rangeSearch.OriginalIndex(matchIndex)
 
-                            If comparisonFeatures.GetFeatureInfoByRowIndex(comparisonFeaturesOriginalRowIndex, udtCurrentComparisonFeature) Then
-                                netDiff = udtCurrentFeatureToIdentify.NET - udtCurrentComparisonFeature.NET
+                            If comparisonFeatures.GetFeatureInfoByRowIndex(comparisonFeaturesOriginalRowIndex, currentComparisonFeature) Then
+                                netDiff = currentFeatureToIdentify.NET - currentComparisonFeature.NET
                                 If Math.Abs(netDiff) <= netTol Then
 
                                     If mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore Then
@@ -1042,17 +1042,17 @@ Public Class clsPeakMatchingClass
                                         If mSearchModeOptions.UseEllipseSearchRegion Then
                                             ' Only keep the match if it's within the ellipse defined by the search tolerances
                                             ' Note that the search tolerances we send to TestPointInEllipse should be half-widths (i.e. tolerance +- comparison value), not full widths
-                                            storeMatch = TestPointInEllipse(netDiff, udtCurrentFeatureToIdentify.Mass - udtCurrentComparisonFeature.Mass, netTol, massTol)
+                                            storeMatch = TestPointInEllipse(netDiff, currentFeatureToIdentify.Mass - currentComparisonFeature.Mass, netTol, massTol)
                                         Else
                                             storeMatch = True
                                         End If
                                     End If
 
                                     If storeMatch Then
-                                        udtRawMatches(rawMatchCount).MatchingIDIndex = comparisonFeaturesOriginalRowIndex
-                                        udtRawMatches(rawMatchCount).SLiCScore = -1
-                                        udtRawMatches(rawMatchCount).MassErr = udtCurrentFeatureToIdentify.Mass - udtCurrentComparisonFeature.Mass
-                                        udtRawMatches(rawMatchCount).NETErr = netDiff
+                                        rawMatches(rawMatchCount).MatchingIDIndex = comparisonFeaturesOriginalRowIndex
+                                        rawMatches(rawMatchCount).SLiCScore = -1
+                                        rawMatches(rawMatchCount).MassErr = currentFeatureToIdentify.Mass - currentComparisonFeature.Mass
+                                        rawMatches(rawMatchCount).NETErr = netDiff
 
                                         rawMatchCount += 1
                                     End If
@@ -1064,13 +1064,13 @@ Public Class clsPeakMatchingClass
 
                         If rawMatchCount > 0 Then
                             ' Store the FeatureIDIndex in featureMatchResults
-                            If rawMatchCount < udtRawMatches.Length Then
-                                ' Shrink udtRawMatches
-                                ReDim Preserve udtRawMatches(rawMatchCount - 1)
+                            If rawMatchCount < rawMatches.Length Then
+                                ' Shrink rawMatches
+                                ReDim Preserve rawMatches(rawMatchCount - 1)
                             End If
 
                             ' Compute the SLiC Scores and store the results
-                            ComputeSLiCScores(udtCurrentFeatureToIdentify, featureMatchResults, udtRawMatches, comparisonFeatures, searchThresholds, udtComputedTolerances)
+                            ComputeSLiCScores(currentFeatureToIdentify, featureMatchResults, rawMatches, comparisonFeatures, searchThresholds, udtComputedTolerances)
                         End If
 
                     End If
