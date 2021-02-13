@@ -498,7 +498,7 @@ Public Class frmMain
                 If chkEnableLogging.Checked Then
                     mProteinDigestionSimulator.LogMessagesToFile = True
 
-                    Dim appFolderPath = FileProcessor.ProcessFilesBase.GetAppDataDirectoryPath("ProteinDigestionSimulator")
+                    Dim appFolderPath = ProcessFilesOrDirectoriesBase.GetAppDataDirectoryPath("ProteinDigestionSimulator")
                     Dim logFilePath = Path.Combine(appFolderPath, "ProteinDigestionSimulatorLog.txt")
                     mProteinDigestionSimulator.LogFilePath = logFilePath
                 End If
@@ -634,7 +634,7 @@ Public Class frmMain
     End Function
 
     Private Function GetSettingsFilePath() As String
-        Return FileProcessor.ProcessFilesBase.GetSettingsFilePathLocal("ProteinDigestionSimulator", XML_SETTINGS_FILE_NAME)
+        Return ProcessFilesOrDirectoriesBase.GetSettingsFilePathLocal("ProteinDigestionSimulator", XML_SETTINGS_FILE_NAME)
     End Function
 
     Private Sub IniFileLoadOptions()
@@ -670,7 +670,7 @@ Public Class frmMain
 
             ' Pass False to .LoadSettings() here to turn off case sensitive matching
             xmlSettings.LoadSettings(settingsFilePath, False)
-            PRISM.FileProcessor.ProcessFilesBase.CreateSettingsFileIfMissing(settingsFilePath)
+            ProcessFilesOrDirectoriesBase.CreateSettingsFileIfMissing(settingsFilePath)
 
             If Not File.Exists(settingsFilePath) Then
                 ShowErrorMessage("Parameter file not Found: " & settingsFilePath)
@@ -1662,7 +1662,7 @@ Public Class frmMain
         mCustomValidationRulesFilePath = String.Empty
 
         Dim settingsFilePath = GetSettingsFilePath()
-        PRISM.FileProcessor.ProcessFilesBase.CreateSettingsFileIfMissing(settingsFilePath)
+        ProcessFilesOrDirectoriesBase.CreateSettingsFileIfMissing(settingsFilePath)
 
     End Sub
 
