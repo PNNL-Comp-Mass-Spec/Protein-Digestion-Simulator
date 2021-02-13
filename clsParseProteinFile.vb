@@ -242,8 +242,7 @@ Public Class clsParseProteinFile
 
     Public Property TruncateProteinDescription As Boolean
 
-
-    Public Property DelimitedFileFormatCode As DelimitedFileReader.eDelimitedFileFormatCode
+    Public Property DelimitedFileFormatCode As DelimitedProteinFileReader.ProteinFileFormatCode
 
     Public Property ElementMassMode As PeptideSequenceClass.ElementModeConstants
         Get
@@ -596,7 +595,7 @@ Public Class clsParseProteinFile
         AssumeDelimitedFile = False
         AssumeFastaFile = False
         mInputFileDelimiter = ControlChars.Tab
-        DelimitedFileFormatCode = DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
+        DelimitedFileFormatCode = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence
 
         mInputFileProteinsProcessed = 0
         mInputFileLinesRead = 0
@@ -815,7 +814,7 @@ Public Class clsParseProteinFile
 
                     InputFileDelimiter = LookupColumnDelimiterChar(delimiterIndex, customDelimiter, InputFileDelimiter)
 
-                    DelimitedFileFormatCode = CType(settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnOrdering", DelimitedFileFormatCode), DelimitedFileReader.eDelimitedFileFormatCode)
+                    DelimitedFileFormatCode = CType(settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnOrdering", DelimitedFileFormatCode), DelimitedProteinFileReader.ProteinFileFormatCode)
 
                     delimiterIndex = DelimiterCharConstants.Tab
                     customDelimiter = ControlChars.Tab
@@ -1575,7 +1574,7 @@ Public Class clsParseProteinFile
                     .ProteinLineAccessionEndChar = FastaFileOptions.ProteinLineAccessionEndChar}
             proteinFileReader = reader
         Else
-            Dim reader = New DelimitedFileReader With {
+            Dim reader = New DelimitedProteinFileReader With {
                 .Delimiter = mInputFileDelimiter,
                 .DelimitedFileFormatCode = DelimitedFileFormatCode}
             proteinFileReader = reader

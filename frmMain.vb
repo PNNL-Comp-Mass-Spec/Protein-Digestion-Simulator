@@ -1099,7 +1099,7 @@ Public Class frmMain
         End If
 
         If cboInputFileColumnOrdering.SelectedIndex >= 0 Then
-            parseProteinFile.DelimitedFileFormatCode = CType(cboInputFileColumnOrdering.SelectedIndex, DelimitedFileReader.eDelimitedFileFormatCode)
+            parseProteinFile.DelimitedFileFormatCode = CType(cboInputFileColumnOrdering.SelectedIndex, DelimitedProteinFileReader.ProteinFileFormatCode)
         End If
 
         parseProteinFile.InputFileDelimiter = LookupColumnDelimiter(cboInputFileColumnDelimiter, txtInputFileColumnDelimiter, ControlChars.Tab)
@@ -1463,16 +1463,16 @@ Public Class frmMain
             cboRefEndChar.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Space
 
             cboInputFileColumnOrdering.Items.Clear()
-            cboInputFileColumnOrdering.Items.Insert(DelimitedFileReader.eDelimitedFileFormatCode.SequenceOnly, "Sequence Only")
-            cboInputFileColumnOrdering.Items.Insert(DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Sequence, "ProteinName and Sequence")
-            cboInputFileColumnOrdering.Items.Insert(DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence, "ProteinName, Description, Sequence")
-            cboInputFileColumnOrdering.Items.Insert(DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence, "UniqueID and Seq")
-            cboInputFileColumnOrdering.Items.Insert(DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID, "ProteinName, Seq, UniqueID")
-            cboInputFileColumnOrdering.Items.Insert(DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET, "ProteinName, Seq, UniqueID, Mass, NET")
-            cboInputFileColumnOrdering.Items.Insert(DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore, "ProteinName, Seq, UniqueID, Mass, NET, NETStDev, DiscriminantScore")
-            cboInputFileColumnOrdering.Items.Insert(DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence_Mass_NET, "UniqueID, Seq, Mass, NET")
-            cboInputFileColumnOrdering.Items.Insert(DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Hash_Sequence, "ProteinName, Description, Hash, Sequence")
-            cboInputFileColumnOrdering.SelectedIndex = DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
+            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.SequenceOnly, "Sequence Only")
+            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Sequence, "ProteinName and Sequence")
+            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence, "ProteinName, Description, Sequence")
+            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.UniqueID_Sequence, "UniqueID and Seq")
+            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID, "ProteinName, Seq, UniqueID")
+            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET, "ProteinName, Seq, UniqueID, Mass, NET")
+            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore, "ProteinName, Seq, UniqueID, Mass, NET, NETStDev, DiscriminantScore")
+            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.UniqueID_Sequence_Mass_NET, "UniqueID, Seq, Mass, NET")
+            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Hash_Sequence, "ProteinName, Description, Hash, Sequence")
+            cboInputFileColumnOrdering.SelectedIndex = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence
 
             cboElementMassMode.Items.Clear()
             cboElementMassMode.Items.Insert(PeptideSequenceClass.ElementModeConstants.AverageMass, "Average")

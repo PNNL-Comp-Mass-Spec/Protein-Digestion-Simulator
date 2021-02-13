@@ -120,7 +120,7 @@ Module modMain
             mParseProteinFile.ComputeProteinMass = mComputeProteinMass
 
             mParseProteinFile.InputFileDelimiter = mInputFileDelimiter
-            mParseProteinFile.DelimitedFileFormatCode = DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
+            mParseProteinFile.DelimitedFileFormatCode = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence
 
             mParseProteinFile.DigestionOptions.RemoveDuplicateSequences = False
 

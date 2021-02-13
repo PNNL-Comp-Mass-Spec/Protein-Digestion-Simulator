@@ -1158,7 +1158,7 @@ Public Class clsProteinDigestionSimulator
             mProteinFileParser.CreateDigestedProteinOutputFile = False
             mProteinFileParser.CreateProteinOutputFile = False
 
-            mProteinFileParser.DelimitedFileFormatCode = DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_Description_Sequence
+            mProteinFileParser.DelimitedFileFormatCode = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence
 
             mProteinFileParser.DigestionOptions.CleavageRuleID = clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
             mProteinFileParser.DigestionOptions.MaxMissedCleavages = 1
@@ -1226,7 +1226,7 @@ Public Class clsProteinDigestionSimulator
 
     Private Function LoadProteinsOrPeptides(proteinInputFilePath As String) As Boolean
 
-        Dim eDelimitedFileFormatCode As DelimitedFileReader.eDelimitedFileFormatCode
+        Dim eDelimitedFileFormatCode As DelimitedProteinFileReader.ProteinFileFormatCode
 
         Dim success As Boolean
         Dim digestionEnabled As Boolean
@@ -1261,12 +1261,12 @@ Public Class clsProteinDigestionSimulator
             End If
 
             Select Case eDelimitedFileFormatCode
-                Case DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID,
-                     DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence
+                Case DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID,
+                     DelimitedProteinFileReader.ProteinFileFormatCode.UniqueID_Sequence
                     ' Reading peptides from a delimited file; digestionEnabled is typically False, but could be true
-                Case DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET,
-                     DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore,
-                     DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence_Mass_NET
+                Case DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET,
+                     DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore,
+                     DelimitedProteinFileReader.ProteinFileFormatCode.UniqueID_Sequence_Mass_NET
                     ' Reading peptides from a delimited file; digestionEnabled is typically False, but could be true
                 Case Else
                     ' Force digest Sequences to true
@@ -1303,7 +1303,7 @@ Public Class clsProteinDigestionSimulator
         ' Assumes the peptides in the input file are already digested and that they already have unique ID values generated
         ' They could optionally have Mass and NET values defined
 
-        Dim delimitedFileReader As DelimitedFileReader = Nothing
+        Dim delimitedFileReader As DelimitedProteinFileReader = Nothing
 
         Dim newPeptide As clsInSilicoDigest.PeptideInfoClass
 
@@ -1316,7 +1316,7 @@ Public Class clsProteinDigestionSimulator
         Dim skipMessage As String
 
         Try
-            delimitedFileReader = New DelimitedFileReader() With {
+            delimitedFileReader = New DelimitedProteinFileReader() With {
                 .Delimiter = mProteinFileParser.InputFileDelimiter,
                 .DelimitedFileFormatCode = mProteinFileParser.DelimitedFileFormatCode
             }
@@ -1343,9 +1343,9 @@ Public Class clsProteinDigestionSimulator
             newPeptide = New clsInSilicoDigest.PeptideInfoClass
 
             Select Case delimitedFileReader.DelimitedFileFormatCode
-                Case DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET,
-                     DelimitedFileReader.eDelimitedFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore,
-                     DelimitedFileReader.eDelimitedFileFormatCode.UniqueID_Sequence_Mass_NET
+                Case DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET,
+                     DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore,
+                     DelimitedProteinFileReader.ProteinFileFormatCode.UniqueID_Sequence_Mass_NET
                     ' Do not use the computed mass and NET
                     delimitedFileHasMassAndNET = True
                 Case Else
