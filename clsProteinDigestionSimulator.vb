@@ -30,7 +30,7 @@ Public Class clsProteinDigestionSimulator
     ' Ignore Spelling: Da, Sql
 
     Public Sub New()
-        MyBase.mFileDate = "April 15, 2020"
+        MyBase.mFileDate = "February 12, 2021"
         InitializeLocalVariables()
     End Sub
 

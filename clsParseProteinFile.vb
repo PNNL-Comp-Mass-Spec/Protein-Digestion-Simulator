@@ -37,7 +37,7 @@ Public Class clsParseProteinFile
     ' Ignore Spelling: silico, gi, Ile, Leu, SepChar, ComputepI, Cys, hydrophobicity
 
     Public Sub New()
-        mFileDate = "July 11, 2019"
+        mFileDate = "February 12, 2021"
         InitializeLocalVariables()
     End Sub
 
