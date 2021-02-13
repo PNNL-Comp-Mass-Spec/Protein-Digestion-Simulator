@@ -76,6 +76,8 @@ Public Class frmDisclaimer
 
 #End Region
 
+    ' Ignore Spelling: Kangas, Petritis, cmd, chk, txt, frm
+
     Const FORM_CLOSE_DELAY_SECONDS As Integer = 2
 
     Protected WithEvents mCloseDelayTimer As Timers.Timer

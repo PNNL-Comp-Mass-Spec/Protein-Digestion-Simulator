@@ -34,6 +34,8 @@ Imports ValidateFastaFile
 Public Class clsParseProteinFile
     Inherits ProcessFilesBase
 
+    ' Ignore Spelling: silico, gi, Ile, Leu, SepChar, ComputepI, Cys, hydrophobicity
+
     Public Sub New()
         mFileDate = "July 11, 2019"
         InitializeLocalVariables()
@@ -55,8 +57,8 @@ Public Class clsParseProteinFile
 
     Private Const MAX_ABBREVIATED_FILENAME_LENGTH As Integer = 15
 
-    ' The value of 7995 is chosen because the maximum varchar() value in Sql Server is varchar(8000)
-    ' and we want to prevent truncation errors when importing protein names and descriptions into Sql Server
+    ' The value of 7995 is chosen because the maximum varchar() value in SQL Server is varchar(8000)
+    ' and we want to prevent truncation errors when importing protein names and descriptions into SQL Server
     Private Const MAX_PROTEIN_DESCRIPTION_LENGTH As Integer = clsValidateFastaFile.MAX_PROTEIN_DESCRIPTION_LENGTH
 
     ' Error codes specialized for this class
@@ -396,7 +398,7 @@ Public Class clsParseProteinFile
     ''' <param name="peptideFragments"></param>
     ''' <param name="options"></param>
     ''' <param name="proteinName"></param>
-    ''' <returns>The number of digested peptides in udtPeptides</returns>
+    ''' <returns>The number of digested peptides in peptideFragments</returns>
     Public Function DigestProteinSequence(
         peptideSequence As String,
         <Out> ByRef peptideFragments As List(Of clsInSilicoDigest.PeptideInfoClass),
@@ -981,7 +983,7 @@ Public Class clsParseProteinFile
 
         Try
             ' Set the options for mpICalculator
-            ' Note that this will also update the pICalculator object in inSilicoDigest
+            ' Note that this will also update the pICalculator object in mInSilicoDigest
             If Not mpICalculator Is Nothing Then
                 mpICalculator.HydrophobicityType = HydrophobicityType
                 mpICalculator.ReportMaximumpI = ReportMaximumpI

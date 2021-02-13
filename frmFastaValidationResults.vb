@@ -9,6 +9,8 @@ Imports DBUtils = PRISMDatabaseUtils.DataTableUtils
 
 Public Class frmFastaValidation
 
+    ' Ignore Spelling: validator, dt, ds, chk
+
     Public Sub New(fastaFilePath As String)
         MyBase.New()
 

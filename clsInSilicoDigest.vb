@@ -4,9 +4,12 @@ Imports System.Runtime.InteropServices
 
 ''' <summary>
 ''' This class can be used to perform an in-silico digest of an amino acid sequence
-''' Utilizes the PeptideInfoClass class
+''' Utilizes PeptideInfoClass
 ''' </summary>
 Public Class clsInSilicoDigest
+
+    ' Ignore Spelling: silico, Ile, Leu, Tryptics, frag, terminii
+    ' Ignore Spelling: Chymotrypsin, Glu, Lys, Arg, Proteinase, Thermolysin, isoelectric, alkylated
 
     Public Sub New()
         mPeptideSequence = New PeptideSequenceClass With {

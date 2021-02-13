@@ -32,6 +32,7 @@ Imports ProteinFileReader
 Module modMain
 
     Public Const PROGRAM_DATE As String = "July 8, 2020"
+    ' Ignore Spelling: silico
 
     Private Declare Auto Function ShowWindow Lib "user32.dll" (hWnd As IntPtr, nCmdShow As Integer) As Boolean
     Private Declare Auto Function GetConsoleWindow Lib "kernel32.dll" () As IntPtr

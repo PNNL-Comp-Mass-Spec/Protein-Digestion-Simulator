@@ -20,6 +20,9 @@ Option Strict On
 ''' </summary>
 Public Class clspICalculation
 
+    ' Ignore Spelling: MaximumpI, hydrophobicity, hydrophilicity
+    ' Ignore Spelling: Mant, Hopp, Kyte, Eisenberg, Engleman, al
+
     Public Sub New()
         mAminoAcids = New Dictionary(Of Char, AA)
         InitializeLocalVariables()
@@ -56,17 +59,6 @@ Public Class clspICalculation
     Private Const Yk As Double = 9.7        ' 10.95
     Private Const NH2k As Double = 7.3      ' 8.56
     Private Const COOHk As Double = 3.9     ' 3.56
-
-    ' Alternate values for the dissociation constants
-    ' Private Const Ck As Double = 8.3
-    ' Private Const Dk As Double = 3.91
-    ' Private Const Ek As Double = 4.25
-    ' Private Const Hk As Double = 6.5
-    ' Private Const Kk As Double = 10.79
-    ' Private Const Rk As Double = 12.5
-    ' Private Const Yk As Double = 10.95
-    ' Private Const NH2k As Double = 8.56
-    ' Private Const COOHk As Double = 3.56
 
     Private Structure AA
         ' ReSharper disable once NotAccessedField.Local

@@ -24,6 +24,10 @@ Imports DBUtils = PRISMDatabaseUtils.DataTableUtils
 
 Public Class frmMain
 
+    ' Ignore Spelling: const, combobox, cbo, Hydrophobicity, frm, chk, ComputepI, Sep, Cys, diff,
+    ' Ignore Spelling: MaxpI, MinimumpI, MaximumpI, Sql, Kangas, Kostas, Petritis, gauging, CrLf, Da
+    ' Ignore Spelling: Hopp, Kyte, Eisenberg, Engleman, Iodoacetamide, Iodoacetic, al
+
     Public Sub New()
         MyBase.New()
 
@@ -521,7 +525,7 @@ Public Class frmMain
                     End If
                 End If
 
-                ' Check input file size and possibly warn user to enable/disable Sql Server DB Usage
+                ' Check input file size and possibly warn user to enable/disable SQL Server DB Usage
                 If chkAllowSqlServerCaching.Checked Then
                     If Not ValidateSqlServerCachingOptionsForInputFile(GetProteinInputFilePath(), chkAssumeInputFileIsDigested.Checked, mProteinDigestionSimulator.mProteinFileParser) Then
                         Exit Try
@@ -1901,7 +1905,7 @@ Public Class frmMain
     End Sub
 
     Private Sub SwitchFromProgressTab()
-        ' Wait 500 msec, then switch from the progress tab back to the tab that was visible before we started, but only if the current tab is the progress tb
+        ' Wait 500 msec, then switch from the progress tab back to the tab that was visible before we started, but only if the current tab is the progress tab
 
         If tbsOptions.SelectedIndex = PROGRESS_TAB_INDEX Then
             tbsOptions.SelectedIndex = mTabPageIndexSaved
@@ -2256,6 +2260,7 @@ Public Class frmMain
         TextBoxUtils.TextBoxKeyPressHandler(txtProteinScramblingLoopCount, e, True)
     End Sub
 
+    ' ReSharper disable once IdentifierTypo
     Private Sub txtSequenceForpI_TextChanged(sender As Object, e As EventArgs) Handles txtSequenceForpI.TextChanged
         ComputeSequencepI()
     End Sub

@@ -4,6 +4,8 @@ Imports System.Runtime.InteropServices
 
 Public Class clsPeakMatchingClass
 
+    ' Ignore Spelling: Da, Sql, tol
+
     Public Sub New()
         InitializeLocalVariables()
     End Sub
@@ -946,10 +948,10 @@ Public Class clsPeakMatchingClass
     End Function
 
     Friend Function IdentifySequences(searchThresholds As clsSearchThresholds, ByRef featuresToIdentify As PMFeatureInfoClass, ByRef comparisonFeatures As PMComparisonFeatureInfoClass, ByRef featureMatchResults As PMFeatureMatchResultsClass, Optional ByRef rangeSearch As clsSearchRange = Nothing) As Boolean
-        ' Returns True if success, False if the search is cancelled
+        ' Returns True if success, False if the search is canceled
         ' Will return true even if none of the features match any of the comparison features
         '
-        ' If rangeSearch is Nothing or if rangeSearch contains a different number of entries than udtComparisonFeatures,
+        ' If rangeSearch is Nothing or if rangeSearch contains a different number of entries than comparisonFeatures,
         '   then will auto-populate it; otherwise, assumes it is populated
 
         ' Note that featureMatchResults will only contain info on the features in featuresToIdentify that matched entries in comparisonFeatures

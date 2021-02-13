@@ -27,6 +27,8 @@ Imports DBUtils = PRISMDatabaseUtils.DataTableUtils
 Public Class clsProteinDigestionSimulator
     Inherits FileProcessor.ProcessFilesBase
 
+    ' Ignore Spelling: Da, Sql
+
     Public Sub New()
         MyBase.mFileDate = "April 15, 2020"
         InitializeLocalVariables()
@@ -1100,12 +1102,12 @@ Public Class clsProteinDigestionSimulator
     ''Private Sub FillWithLotsOfData(ByRef targetDataset as System.Data.DataSet)
     ''    Const MAX_FEATURE_COUNT As Integer = 300000
 
-    ''    Dim rnd As New Random
+    ''    Dim randomGenerator As New Random
     ''    Dim newFeatureID As Integer
     ''    Dim index As Integer
     ''    Dim indexEnd As Integer
 
-    ''    Dim drNewRow as System.Data.DataRow
+    ''    Dim newRow as System.Data.DataRow
     ''    Dim progressForm As New ProgressFormNET.frmProgress
     ''    Dim startTime As DateTime
 
@@ -1117,18 +1119,18 @@ Public Class clsProteinDigestionSimulator
     ''    startTime = System.DateTime.UtcNow
 
     ''    For index = 0 To indexEnd
-    ''        newFeatureID = rnd.Next(0, MAX_FEATURE_COUNT)
+    ''        newFeatureID = randomGenerator.Next(0, MAX_FEATURE_COUNT)
 
     ''        ' Look for existing entry in table
     ''        If Not dsDataset.Tables(PEPTIDE_INFO_TABLE_NAME).Rows.Contains(newFeatureID) Then
-    ''            drNewRow = dsDataset.Tables(PEPTIDE_INFO_TABLE_NAME).NewRow
-    ''            drNewRow(COMPARISON_FEATURE_ID_COLUMN) = newFeatureID
-    ''            drNewRow(FEATURE_NAME_COLUMN) = "Feature" & newFeatureID.ToString()
-    ''            drNewRow(MASS_COLUMN) = newFeatureID / CSng(MAX_FEATURE_COUNT) * 1000
-    ''            drNewRow(NET_COLUMN) = rnd.Next(0, 1000) / 1000.0
-    ''            drNewRow(NET_STDEV_COLUMN) = rnd.Next(0, 1000) / 10000.0
-    ''            drNewRow(DISCRIMINANT_SCORE_COLUMN) = rnd.Next(0, 1000) / 1000.0
-    ''            dsDataset.Tables(PEPTIDE_INFO_TABLE_NAME).Rows.Add(drNewRow)
+    ''            newRow = dsDataset.Tables(PEPTIDE_INFO_TABLE_NAME).NewRow
+    ''            newRow(COMPARISON_FEATURE_ID_COLUMN) = newFeatureID
+    ''            newRow(FEATURE_NAME_COLUMN) = "Feature" & newFeatureID.ToString()
+    ''            newRow(MASS_COLUMN) = newFeatureID / CSng(MAX_FEATURE_COUNT) * 1000
+    ''            newRow(NET_COLUMN) = randomGenerator.Next(0, 1000) / 1000.0
+    ''            newRow(NET_STDEV_COLUMN) = randomGenerator.Next(0, 1000) / 10000.0
+    ''            newRow(DISCRIMINANT_SCORE_COLUMN) = randomGenerator.Next(0, 1000) / 1000.0
+    ''            dsDataset.Tables(PEPTIDE_INFO_TABLE_NAME).Rows.Add(newRow)
     ''        End If
 
     ''        If index Mod 100 = 0 Then
@@ -1352,7 +1354,7 @@ Public Class clsProteinDigestionSimulator
 
             ' Always auto compute the NET and Mass in the newPeptide class
             ' However, if delimitedFileHasMassAndNET = True and valid Mass and NET values were read from the text file,
-            '  they they are passed to AddOrUpdatePeptide rather than the computed values
+            '  they are passed to AddOrUpdatePeptide rather than the computed values
             newPeptide.AutoComputeNET = True
 
             Do
