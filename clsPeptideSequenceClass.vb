@@ -21,7 +21,6 @@ Public Class PeptideSequenceClass
         mResidues = String.Empty
     End Sub
 
-#Region "Constants and Enums"
     Private Const UNKNOWN_SYMBOL_ONE_LETTER As Char = "X"c
     Private Const UNKNOWN_SYMBOL_THREE_LETTERS As String = "Xxx"
 
@@ -58,9 +57,7 @@ Public Class PeptideSequenceClass
         AverageMass = 0
         IsotopicMass = 1
     End Enum
-#End Region
 
-#Region "Structures"
     Private Structure udtTerminusType
         Public Formula As String
         Public Mass As Double
@@ -70,9 +67,7 @@ Public Class PeptideSequenceClass
         ' ReSharper disable once NotAccessedField.Local
         Public FollowingResidue As String      ' If the peptide sequence is part of a protein, the user can record the first residue of the next peptide sequence here
     End Structure
-#End Region
 
-#Region "Shared Classwide Variables"
     ' Variables shared across all instances of this class
 
     Private Shared mSharedArraysInitialized As Boolean
@@ -118,9 +113,6 @@ Public Class PeptideSequenceClass
 
     Private Shared mTrypticCleavageRule As clsCleavageRule
 
-#End Region
-
-#Region "Classwide Variables"
     Private mResidues As String
 
     ''' <summary>
@@ -137,10 +129,6 @@ Public Class PeptideSequenceClass
     Private mTotalMassElementMode As ElementModeConstants
 
     Private mDelayUpdateResidueMass As Boolean
-
-#End Region
-
-#Region "Processing Options Interface Functions"
 
     ''' <summary>
     ''' Charge carrier mass
@@ -183,8 +171,6 @@ Public Class PeptideSequenceClass
             Return mTotalMass
         End Get
     End Property
-
-#End Region
 
     ''' <summary>
     ''' Adds new entry to AminoAcidMasses and AminoAcidSymbols

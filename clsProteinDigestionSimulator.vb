@@ -32,8 +32,6 @@ Public Class clsProteinDigestionSimulator
         InitializeLocalVariables()
     End Sub
 
-#Region "Constants and Enums"
-
     Public Const XML_SECTION_PEAK_MATCHING_OPTIONS As String = "PeakMatchingOptions"
 
     Private Const PROTEIN_ID_COLUMN As String = "ProteinID"
@@ -52,10 +50,6 @@ Public Class clsProteinDigestionSimulator
         UserAbortedSearch = 32
         UnspecifiedError = -1
     End Enum
-
-#End Region
-
-#Region "Structures"
 
     Private Structure udtSingleBinStatsType
         Public MassBinStart As Double               ' Mass is >= this value
@@ -79,10 +73,6 @@ Public Class clsProteinDigestionSimulator
         Public BinCount As Integer
         Public Bins() As udtSingleBinStatsType
     End Structure
-
-#End Region
-
-#Region "Classwide Variables"
 
     ''' <summary>
     ''' Protein file parser
@@ -126,10 +116,6 @@ Public Class clsProteinDigestionSimulator
     ''' <param name="taskDescription"></param>
     ''' <param name="percentComplete">Ranges from 0 to 100, but can contain decimal percentage values</param>
     Public Event SubtaskProgressChanged(taskDescription As String, percentComplete As Single)
-
-#End Region
-
-#Region "Processing Options Interface Functions"
 
     Public Property AutoDetermineMassRangeForBinning As Boolean
         Get
@@ -228,8 +214,6 @@ Public Class clsProteinDigestionSimulator
     Public Property UseEllipseSearchRegion As Boolean
 
     Public Property UseSLiCScoreForUniqueness As Boolean
-
-#End Region
 
     Public Sub AddSearchThresholdLevel(eMassToleranceType As clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants, massTolerance As Double, netTolerance As Double, clearExistingThresholds As Boolean)
         AddSearchThresholdLevel(eMassToleranceType, massTolerance, netTolerance, True, 0, 0, True, clearExistingThresholds)
@@ -2053,8 +2037,6 @@ Public Class clsProteinDigestionSimulator
 
     End Sub
 
-#Region "Event Handlers"
-
     Private Sub mProteinInfo_SortingList() Handles mProteinInfo.SortingList
         Static sortCount As Integer = 0
         Static lastPostTime As DateTime = DateTime.UtcNow
@@ -2111,8 +2093,6 @@ Public Class clsProteinDigestionSimulator
     Private Sub mProteinFileParser_ErrorEvent(message As String, ex As Exception) Handles mProteinFileParser.ErrorEvent
         ShowErrorMessage("Error in mProteinFileParser: " & message)
     End Sub
-
-#End Region
 
 End Class
 

@@ -39,8 +39,6 @@ Public Class clsParseProteinFile
         InitializeLocalVariables()
     End Sub
 
-#Region "Constants and Enums"
-
     Public Const XML_SECTION_OPTIONS As String = "ProteinDigestionSimulatorOptions"
     Public Const XML_SECTION_FASTA_OPTIONS As String = "FastaInputOptions"
     Public Const XML_SECTION_PROCESSING_OPTIONS As String = "ProcessingOptions"
@@ -88,9 +86,6 @@ Public Class clsParseProteinFile
         Other = 3
     End Enum
 
-#End Region
-
-#Region "Structures"
     Public Structure udtAddnlRefType
         Public RefName As String                'e.g. in gi:12334  the RefName is "gi" and the RefAccession is "1234"
         Public RefAccession As String
@@ -125,9 +120,7 @@ Public Class clsParseProteinFile
         Public OutputCount As Integer
         Public ResiduesToWrite As String
     End Structure
-#End Region
 
-#Region "Classwide Variables"
     Private mInputFileDelimiter As Char                              ' Only used for delimited protein input files, not for fasta files
 
     Private mInputFileProteinsProcessed As Integer
@@ -165,9 +158,6 @@ Public Class clsParseProteinFile
     ' PercentComplete ranges from 0 to 100, but can contain decimal percentage values
     Public Event SubtaskProgressChanged(taskDescription As String, percentComplete As Single)
 
-#End Region
-
-#Region "Auto-properties"
     Public Property AssumeDelimitedFile As Boolean
 
     Public Property AssumeFastaFile As Boolean
@@ -250,9 +240,6 @@ Public Class clsParseProteinFile
 
     Public Property TruncateProteinDescription As Boolean
 
-#End Region
-
-#Region "Processing Options Interface Functions"
 
     Public Property DelimitedFileFormatCode As DelimitedFileReader.eDelimitedFileFormatCode
 
@@ -341,8 +328,6 @@ Public Class clsParseProteinFile
             mSequenceWidthToExamineForMaximumpI = Value
         End Set
     End Property
-
-#End Region
 
     Private Function ComputeSequenceHydrophobicity(peptideSequence As String) As Single
 
@@ -2103,7 +2088,6 @@ Public Class clsParseProteinFile
             mAddnlRefAccessionSepChar = ":"c
         End Sub
 
-#Region "Classwide Variables"
         Private mReadonlyClass As Boolean
 
         Private mProteinLineStartChar As Char
@@ -2114,9 +2098,6 @@ Public Class clsParseProteinFile
         Private mAddnlRefSepChar As Char
         Private mAddnlRefAccessionSepChar As Char
 
-#End Region
-
-#Region "Processing Options Interface Functions"
         Public Property ReadonlyClass As Boolean
             Get
                 Return mReadonlyClass
@@ -2182,7 +2163,6 @@ Public Class clsParseProteinFile
                 End If
             End Set
         End Property
-#End Region
 
     End Class
 

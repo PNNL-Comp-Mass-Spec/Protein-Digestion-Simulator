@@ -8,7 +8,6 @@ Public Class clsPeakMatchingClass
         InitializeLocalVariables()
     End Sub
 
-#Region "Constants and Enums"
     Public Const DEFAULT_SLIC_MAX_SEARCH_DISTANCE_MULTIPLIER As Single = 2
 
     Private Const STDEV_SCALING_FACTOR As Integer = 2
@@ -20,10 +19,6 @@ Public Class clsPeakMatchingClass
         Warning = 2
         Health = 3
     End Enum
-
-#End Region
-
-#Region "Structures"
 
     Public Structure udtFeatureInfoType
         Public FeatureID As Int32                                   ' Each feature should have a unique ID
@@ -46,9 +41,6 @@ Public Class clsPeakMatchingClass
         Public UseMaxSearchDistanceMultiplierAndSLiCScore As Boolean
         Public UseEllipseSearchRegion As Boolean        ' Only valid if UseMaxSearchDistanceMultiplierAndSLiCScore = False; if both UseMaxSearchDistanceMultiplierAndSLiCScore = False and UseEllipseSearchRegion = False, then uses a rectangle for peak matching
     End Structure
-#End Region
-
-#Region "PMFeatureInfoClass"
 
     Friend Class PMFeatureInfoClass
 
@@ -328,10 +320,6 @@ Public Class clsPeakMatchingClass
         End Class
     End Class
 
-#End Region
-
-#Region "PMComparisonFeatureInfoClass"
-
     Friend Class PMComparisonFeatureInfoClass
         Inherits PMFeatureInfoClass
 
@@ -435,9 +423,6 @@ Public Class clsPeakMatchingClass
 
     End Class
 
-#End Region
-
-#Region "PMFeatureMatchResultsClass"
     Friend Class PMFeatureMatchResultsClass
 
         Public Structure udtPeakMatchingResultType
@@ -700,9 +685,7 @@ Public Class clsPeakMatchingClass
 
         End Class
     End Class
-#End Region
 
-#Region "Classwide Variables"
     Private mMaxPeakMatchingResultsPerFeatureToSave As Integer
     Private mSearchModeOptions As udtSearchModeOptionsType
 
@@ -712,10 +695,6 @@ Public Class clsPeakMatchingClass
 
     Public Event ProgressContinues()
     Public Event LogEvent(Message As String, EventType As MessageTypeConstants)
-
-#End Region
-
-#Region "Processing Options Interface Functions"
 
     Public Property MaxPeakMatchingResultsPerFeatureToSave As Integer
         Get
@@ -792,10 +771,6 @@ Public Class clsPeakMatchingClass
     ''        mUseSqlServerForMatchResults = Value
     ''    End Set
     ''End Property
-
-#End Region
-
-#Region "Peak Matching Functions"
 
     Public Sub AbortProcessingNow()
         mAbortProcessing = True
@@ -1184,8 +1159,6 @@ Public Class clsPeakMatchingClass
         RaiseEvent ProgressContinues()
     End Sub
 
-#End Region
-
 #Region "Peak Matching Raw Matches Sorting Class"
 
     Private Class PeakMatchingRawMatchesComparerClass
@@ -1215,23 +1188,16 @@ Public Class clsPeakMatchingClass
 
 #End Region
 
-#Region "Search Thresholds Class"
     Public Class clsSearchThresholds
 
         Public Sub New()
             InitializeLocalVariables()
         End Sub
 
-#Region "Constants and Enums"
-
         Public Enum MassToleranceConstants
             PPM = 0             ' parts per million
             Absolute = 1        ' absolute (Da)
         End Enum
-
-#End Region
-
-#Region "Structures"
 
         ' The following defines how the SLiC scores (aka match scores) are computed
         Private Structure udtSLiCScoreOptionsType
@@ -1250,9 +1216,6 @@ Public Class clsPeakMatchingClass
             Public NETTolFinal As Double
         End Structure
 
-#End Region
-
-#Region "Classwide Variables"
         Private mMassTolerance As Double          ' Mass search tolerance, +- this value; TolType defines if this is PPM or Da
         Private mNETTolerance As Double           ' NET search tolerance, +- this value
         Private mSLiCScoreMaxSearchDistanceMultiplier As Single
@@ -1261,10 +1224,6 @@ Public Class clsPeakMatchingClass
 
         ' ReSharper disable once FieldCanBeMadeReadOnly.Local
         Private mComputedSearchTolerances As udtSearchTolerancesType = New udtSearchTolerancesType()
-
-#End Region
-
-#Region "Processing Options Interface Functions"
 
         Public Property AutoDefineSLiCScoreThresholds As Boolean
 
@@ -1348,7 +1307,6 @@ Public Class clsPeakMatchingClass
                 End If
             End Set
         End Property
-#End Region
 
         Public Sub DefinePeakMatchingTolerances(ByRef referenceMass As Double)
             ' Thresholds are all half-widths; i.e. tolerance +- comparison value
@@ -1443,6 +1401,5 @@ Public Class clsPeakMatchingClass
         End Sub
 
     End Class
-#End Region
 
 End Class

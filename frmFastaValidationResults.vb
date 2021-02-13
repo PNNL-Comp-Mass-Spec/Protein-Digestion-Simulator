@@ -31,18 +31,12 @@ Public Class frmFastaValidation
 
     End Sub
 
-
-#Region "Constants and Enums"
-
     Private Const COL_NAME_LINE As String = "Line"
     Private Const COL_NAME_COLUMN As String = "Column"
     Private Const COL_NAME_PROTEIN As String = "Protein"
     Private Const COL_NAME_DESCRIPTION As String = "Description"
     Private Const COL_NAME_CONTEXT As String = "Context"
 
-#End Region
-
-#Region "Structures"
     Public Structure udtFastaValidationOptionsType
         Public Initialized As Boolean
 
@@ -73,9 +67,6 @@ Public Class frmFastaValidation
         Public ConsolidateDupsIgnoreILDiff As Boolean
     End Structure
 
-#End Region
-#Region "Classwide variables"
-
     Private mErrorsDataset As DataSet
     Private mErrorsDataView As DataView
 
@@ -96,9 +87,7 @@ Public Class frmFastaValidation
     Private ReadOnly mValidateFastaFileWarnings As List(Of String) = New List(Of String)
 
     Public Event FastaValidationStarted()
-#End Region
 
-#Region "Processing Options Interface Functions"
     Public Property CustomRulesFilePath As String
         Get
             Return txtCustomValidationRulesFilePath.Text
@@ -133,9 +122,6 @@ Public Class frmFastaValidation
 
         End Set
     End Property
-#End Region
-
-#Region "Procedures"
 
     Private Sub AppendToString(results As ICollection(Of String), newText As String)
         results.Add(newText)
@@ -147,7 +133,6 @@ Public Class frmFastaValidation
 
     Private Sub AppendToString(results As ICollection(Of String), numberDescription As String, number As Long, useCommaSeparator As Boolean)
 
-        ' Dim nfi As NumberFormatInfo = New CultureInfo("en-US", False).NumberFormat
         If useCommaSeparator Then
             results.Add(numberDescription & number.ToString("###,###,###,###,##0"))
         Else
@@ -940,8 +925,6 @@ Public Class frmFastaValidation
 
     End Sub
 
-#End Region
-
 #Region "Control Handlers"
 
     Private Sub chkGenerateFixedFastaFile_CheckedChanged(sender As Object, e As EventArgs) Handles chkGenerateFixedFastaFile.CheckedChanged
@@ -1144,6 +1127,7 @@ Public Class frmFastaValidation
     Private Sub WarningEventHandler(message As String)
         mValidateFastaFileWarnings.Add(message)
     End Sub
+
 #End Region
 
 End Class

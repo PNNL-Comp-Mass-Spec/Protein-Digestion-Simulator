@@ -297,7 +297,6 @@ Friend Class clsProteinInfo
 
     End Class
 
-#Region "Protein to Peptide Mapping Class"
     Protected Class clsProteinToPeptideMappingInfo
 
         Public Structure udtProteinToPeptideMappingType
@@ -585,7 +584,6 @@ Friend Class clsProteinInfo
 
         End Class
     End Class
-#End Region
 
 End Class
 

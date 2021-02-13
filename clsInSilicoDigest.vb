@@ -17,8 +17,6 @@ Public Class clsInSilicoDigest
         InitializepICalculator()
     End Sub
 
-#Region "Constants and Enums"
-
     ' Note: Good list of enzymes is at https://web.expasy.org/peptide_cutter/peptidecutter_enzymes.html
     '                              and https://web.expasy.org/peptide_mass/peptide-mass-doc.html
 
@@ -59,10 +57,6 @@ Public Class clsInSilicoDigest
         MH = 1
     End Enum
 
-#End Region
-
-#Region "Classwide Variables"
-
     Private ReadOnly mCleavageRules As Dictionary(Of CleavageRuleConstants, clsCleavageRule) = New Dictionary(Of CleavageRuleConstants, clsCleavageRule)
 
     ''' <summary>
@@ -89,10 +83,6 @@ Public Class clsInSilicoDigest
     ''' Percent complete, ranges from 0 to 100, but can contain decimal percentage values
     ''' </summary>
     Protected mProgressPercentComplete As Single
-
-#End Region
-
-#Region "Processing Options Interface Functions"
 
     Public ReadOnly Property CleavageRuleCount As Integer
         Get
@@ -137,8 +127,6 @@ Public Class clsInSilicoDigest
             Return CType(Math.Round(mProgressPercentComplete, 2), Single)
         End Get
     End Property
-
-#End Region
 
     Private Function AddCleavageRule(
         ruleId As CleavageRuleConstants,
@@ -842,8 +830,6 @@ Public Class clsInSilicoDigest
 
     End Sub
 
-#Region "Peptide Info class"
-
     Public Class PeptideInfoClass
         Inherits PeptideSequenceClass
 
@@ -868,14 +854,7 @@ Public Class clsInSilicoDigest
             mAutoComputeNET = True
         End Sub
 
-#Region "Constants and Enums"
         Public Const PROTEIN_TERMINUS_SYMBOL As String = "-"
-#End Region
-
-#Region "Structures"
-#End Region
-
-#Region "Classwide Variables"
 
         ' The following is declared Shared so that it is only initialized once per program execution
         ' All objects of type PeptideInfoClass will use the same instance of this object
@@ -890,10 +869,6 @@ Public Class clsInSilicoDigest
         Private mNET As Single
         Private mPrefixResidue As String
         Private mSuffixResidue As String
-
-#End Region
-
-#Region "Processing Options Interface Functions"
 
         ''' <summary>
         ''' When true, auto-compute NET
@@ -980,7 +955,6 @@ Public Class clsInSilicoDigest
                 End If
             End Set
         End Property
-#End Region
 
         ''' <summary>
         ''' Define the peptide sequence
@@ -1038,9 +1012,6 @@ Public Class clsInSilicoDigest
         End Sub
 
     End Class
-#End Region
-
-#Region "Digestion options class"
 
     Public Class DigestionOptionsClass
 
@@ -1067,7 +1038,6 @@ Public Class clsInSilicoDigest
             ReDim AminoAcidResidueFilterChars(-1)
         End Sub
 
-#Region "Classwide Variables"
         Private mMaxMissedCleavages As Integer
         Private mMinFragmentResidueCount As Integer
         Private mMinFragmentMass As Integer
@@ -1075,10 +1045,6 @@ Public Class clsInSilicoDigest
 
         Private mMinIsoelectricPoint As Single
         Private mMaxIsoelectricPoint As Single
-
-#End Region
-
-#Region "Processing Options Interface Functions"
 
         Public Property AminoAcidResidueFilterChars As Char()
 
@@ -1151,8 +1117,6 @@ Public Class clsInSilicoDigest
 
         Public Property IncludePrefixAndSuffixResidues As Boolean
 
-#End Region
-
         Public Sub ValidateOptions()
             If mMaxFragmentMass < mMinFragmentMass Then
                 mMaxFragmentMass = mMinFragmentMass
@@ -1164,7 +1128,6 @@ Public Class clsInSilicoDigest
         End Sub
 
     End Class
-#End Region
 
 End Class
 

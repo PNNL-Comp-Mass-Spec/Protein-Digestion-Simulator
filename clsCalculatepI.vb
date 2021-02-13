@@ -25,7 +25,6 @@ Public Class clspICalculation
         InitializeLocalVariables()
     End Sub
 
-#Region "Constants and Enums"
     ''' <summary>
     ''' Hydrophobicity values for each amino acid
     ''' </summary>
@@ -69,9 +68,6 @@ Public Class clspICalculation
     ' Private Const NH2k As Double = 8.56
     ' Private Const COOHk As Double = 3.56
 
-#End Region
-
-#Region "Structures"
     Private Structure AA
         ' ReSharper disable once NotAccessedField.Local
         Public Symbol As String              ' One letter abbreviation for the amino acid
@@ -82,13 +78,8 @@ Public Class clspICalculation
         Public MeekPH7p4 As Double
         Public MeekPH2p1 As Double
     End Structure
-#End Region
 
-#Region "Classwide Variables"
     Private ReadOnly mAminoAcids As Dictionary(Of Char, AA)
-#End Region
-
-#Region "Processing Options Interface Functions"
 
     ''' <summary>
     ''' Hydrophobicity type
@@ -108,8 +99,6 @@ Public Class clspICalculation
     ''' </summary>
     ''' <returns></returns>
     Public Property SequenceWidthToExamineForMaximumpI As Integer
-
-#End Region
 
     Private Function CalculateCharge(pH As Double, numC As Integer, numD As Integer, numE As Integer, numH As Integer, numK As Integer, numR As Integer, numY As Integer) As Double
         Dim Value As Double

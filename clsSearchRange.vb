@@ -26,7 +26,6 @@ Public Class clsSearchRange
         InitializeLocalVariables()
     End Sub
 
-#Region "Constants and Enums"
     Private Enum eDataTypeToUse
         NoDataPresent = 0
         IntegerType = 1
@@ -36,12 +35,7 @@ Public Class clsSearchRange
         FillingSingleType = 5
         FillingDoubleType = 6
     End Enum
-#End Region
 
-#Region "Structures"
-#End Region
-
-#Region "Classwide Variables"
     Private mDataType As eDataTypeToUse
 
     Private mDataInt() As Integer
@@ -55,9 +49,6 @@ Public Class clsSearchRange
     Private mPointerArrayIsValid As Boolean
     Private mUsePointerIndexArray As Boolean    ' Set this to false to conserve memory usage
 
-#End Region
-
-#Region "Interface Functions"
     Public ReadOnly Property DataCount As Integer
         Get
             Select Case mDataType
@@ -103,9 +94,6 @@ Public Class clsSearchRange
             mUsePointerIndexArray = Value
         End Set
     End Property
-#End Region
-
-#Region "Binary Search Range"
 
     Private Sub BinarySearchRangeInt(searchValue As Integer, toleranceHalfWidth As Integer, ByRef matchIndexStart As Integer, ByRef matchIndexEnd As Integer)
         ' Recursive search function
@@ -265,7 +253,6 @@ Public Class clsSearchRange
         End If
 
     End Sub
-#End Region
 
     Private Sub ClearUnusedData()
         If mDataType <> eDataTypeToUse.IntegerType Then ReDim mDataInt(-1)
@@ -282,8 +269,6 @@ Public Class clsSearchRange
         mDataType = eDataTypeToUse.NoDataPresent
         ClearUnusedData()
     End Sub
-
-#Region "Fill with Data"
 
     Public Sub InitializeDataFillInteger(expectedDataCount As Integer)
         ' Call this sub to initialize the data arrays, which will allow you to
@@ -658,11 +643,6 @@ Public Class clsSearchRange
 
     End Function
 
-#End Region
-
-
-#Region "Find Value Range"
-
     Public Function FindValueRange(searchValue As Integer, toleranceHalfWidth As Integer, Optional ByRef matchIndexStart As Integer = 0, Optional ByRef matchIndexEnd As Integer = 0) As Boolean
         ' Searches the loaded data for searchValue with a tolerance of +-tolerance
         ' Returns True if a match is found; in addition, populates matchIndexStart and matchIndexEnd
@@ -809,10 +789,7 @@ Public Class clsSearchRange
 
         Return matchFound
     End Function
-#End Region
 
-
-#Region "Get Value by Index"
     Public Function GetValueByIndexInt(index As Integer) As Integer
         Try
             Return CInt(GetValueByIndex(index))
@@ -849,10 +826,7 @@ Public Class clsSearchRange
             Return 0
         End Try
     End Function
-#End Region
 
-
-#Region "Get Value by Original Index"
     Public Function GetValueByOriginalIndexInt(index As Integer) As Integer
         Try
             Return CInt(GetValueByOriginalIndex(index))
@@ -895,7 +869,6 @@ Public Class clsSearchRange
             Return 0
         End Try
     End Function
-#End Region
 
     Private Sub InitializeLocalVariables()
         mDataType = eDataTypeToUse.NoDataPresent

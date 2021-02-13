@@ -45,8 +45,6 @@ Public Class frmMain
         InitializeControls()
     End Sub
 
-#Region "Constants and Enums"
-
     Private Const XML_SETTINGS_FILE_NAME As String = "ProteinDigestionSimulatorOptions.xml"
 
     Private Const OUTPUT_FILE_SUFFIX As String = "_output.txt"                         ' Note that this const starts with an underscore
@@ -86,9 +84,6 @@ Public Class frmMain
         ThreeMassThreeNET = 3
         FiveMassThreeNET = 4
     End Enum
-#End Region
-
-#Region "Structures"
 
     Private Structure udtPeakMatchingThresholdsType
         Public MassTolerance As Double
@@ -99,10 +94,6 @@ Public Class frmMain
         Public MassTolType As clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants
         Public Thresholds() As udtPeakMatchingThresholdsType
     End Structure
-
-#End Region
-
-#Region "Classwide Variables"
 
     ' The following is used to lookup the default symbols for Fasta files, and should thus be treated as ReadOnly
     Private ReadOnly mDefaultFastaFileOptions As clsParseProteinFile.FastaFileOptionsClass
@@ -134,9 +125,6 @@ Public Class frmMain
 
     Private WithEvents mFastaValidation As frmFastaValidation
 
-#End Region
-
-#Region "Properties"
     Private Property SubtaskProgressIsVisible As Boolean
         Get
             Return lblSubtaskProgressDescription.Visible
@@ -146,9 +134,6 @@ Public Class frmMain
             lblSubtaskProgressDescription.Visible = Value
         End Set
     End Property
-#End Region
-
-#Region "Procedures"
 
     Private Sub AbortProcessingNow()
         Try
@@ -2092,7 +2077,6 @@ Public Class frmMain
             thisTextBox.Text = defaultText
         End If
     End Sub
-#End Region
 
 #Region "Control Handlers"
 

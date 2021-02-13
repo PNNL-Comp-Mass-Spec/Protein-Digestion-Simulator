@@ -76,13 +76,10 @@ Public Class frmDisclaimer
 
 #End Region
 
-#Region "Form-wide Variables"
     Const FORM_CLOSE_DELAY_SECONDS As Integer = 2
 
     Protected WithEvents mCloseDelayTimer As Timers.Timer
     Protected mTimerStartTime As Date
-
-#End Region
 
     Public Shared Function GetKangasPetritisDisclaimerText(Optional addNewlines As Boolean = True) As String
 
