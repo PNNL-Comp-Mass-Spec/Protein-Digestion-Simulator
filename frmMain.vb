@@ -18,6 +18,7 @@ Imports System.IO
 Imports System.Text
 Imports NETPrediction
 Imports PRISM
+Imports PRISM.FileProcessor
 Imports PRISMWin
 Imports ProteinFileReader
 Imports DBUtils = PRISMDatabaseUtils.DataTableUtils
@@ -193,11 +194,12 @@ Public Class frmMain
 
     Private Function AutoDefineOutputFileWork(inputFilePath As String) As String
 
-        Dim inputFileName = Path.GetFileName(inputFilePath)
+        Dim inputFileName = clsParseProteinFile.StripExtension(Path.GetFileName(inputFilePath), ".gz")
+
         Dim outputFileName As String
 
         If chkCreateFastaOutputFile.Enabled AndAlso chkCreateFastaOutputFile.Checked Then
-            If Path.GetExtension(inputFileName).ToLower = ".fasta" Then
+            If clsParseProteinFile.IsFastaFile(inputFilePath) Then
                 outputFileName = Path.GetFileNameWithoutExtension(inputFileName) & "_new.fasta"
             Else
                 outputFileName = Path.ChangeExtension(inputFileName, ".fasta")
@@ -396,7 +398,7 @@ Public Class frmMain
         Dim allowSqlServerCaching As Boolean
 
         Dim inputFilePath = GetProteinInputFilePath()
-        Dim sourceIsFasta = Path.GetFileName(inputFilePath).ToLower().EndsWith(".fasta")
+        Dim sourceIsFasta = clsParseProteinFile.IsFastaFile(inputFilePath)
 
         If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.DelimitedText Then
             enableDelimitedFileOptions = True
@@ -1685,12 +1687,14 @@ Public Class frmMain
             .DereferenceLinks = True,
             .Multiselect = False,
             .ValidateNames = True,
-            .Filter = "Fasta files (*.fasta)|*.fasta|Text files (*.txt)|*.txt|All files (*.*)|*.*"
+            .Filter = "Fasta files (*.fasta)|*.fasta|Fasta files (*.fasta.gz)|*.fasta.gz|Text files (*.txt)|*.txt|All files (*.*)|*.*"
         }
 
         If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.DelimitedText Then
-            openFile.FilterIndex = 2
+            openFile.FilterIndex = 3
         ElseIf currentExtension.ToLower() = ".txt" Then
+            openFile.FilterIndex = 3
+        ElseIf currentExtension.ToLower() = ".gz" Then
             openFile.FilterIndex = 2
         Else
             openFile.FilterIndex = 1

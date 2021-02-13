@@ -504,6 +504,7 @@ Public Class clsParseProteinFile
     Public Overrides Function GetDefaultExtensionsToParse() As IList(Of String)
         Dim extensionsToParse = New List(Of String) From {
                 ".fasta",
+                ".fasta.gz",
                 ".txt"
                 }
 
@@ -638,10 +639,18 @@ Public Class clsParseProteinFile
 
     End Sub
 
+    ''' <summary>
+    ''' Examines the file's extension and returns true if it ends in .fasta or .fasta.gz
+    ''' </summary>
+    ''' <param name="filePath"></param>
+    ''' <returns></returns>
     Public Shared Function IsFastaFile(filePath As String) As Boolean
-        ' Examines the file's extension and true if it ends in .fasta
 
-        If Path.GetFileName(filePath).ToLower.EndsWith(".fasta") Then
+        If String.IsNullOrWhiteSpace(filePath) Then
+            Return False
+        End If
+
+        If Path.GetExtension(StripExtension(filePath, ".gz")).Equals(".fasta", StringComparison.OrdinalIgnoreCase) Then
             Return True
         Else
             Return False
@@ -1549,7 +1558,7 @@ Public Class clsParseProteinFile
                 outputFileName = String.Copy(pathInfo.OutputFileNameBaseOverride)
 
                 If CreateFastaOutputFile Then
-                    If Path.GetExtension(outputFileName).ToLower <> ".fasta" Then
+                    If Not Path.GetExtension(outputFileName).Equals(".fasta", StringComparison.OrdinalIgnoreCase) Then
                         outputFileName &= ".fasta"
                     End If
                 Else
@@ -1590,12 +1599,18 @@ Public Class clsParseProteinFile
         If mParsedFileIsFastaFile Then
             If outputFileName.Length = 0 Then
                 outputFileName = Path.GetFileName(pathInfo.ProteinInputFilePath)
-                If Path.GetExtension(outputFileName).ToLower = ".fasta" Then
+
+                If Path.GetExtension(outputFileName).Equals(".fasta", StringComparison.OrdinalIgnoreCase) Then
                     ' Nothing special to do; will replace the extension below
+
+                ElseIf outputFileName.EndsWith(".fasta.gz", StringComparison.OrdinalIgnoreCase) Then
+                    ' Remove .gz from outputFileName
+                    outputFileName = StripExtension(outputFileName, ".gz")
+
                 Else
                     ' .Fasta appears somewhere in the middle
                     ' Remove the text .Fasta, then add the extension .txt (unless it already ends in .txt)
-                    Dim charIndex = outputFileName.ToLower.LastIndexOf(".fasta", StringComparison.Ordinal)
+                    Dim charIndex = outputFileName.ToLower().LastIndexOf(".fasta", StringComparison.Ordinal)
                     If charIndex > 0 Then
                         If charIndex < outputFileName.Length Then
                             outputFileName = outputFileName.Substring(0, charIndex) & outputFileName.Substring(charIndex + 6)
@@ -1759,6 +1774,29 @@ Public Class clsParseProteinFile
 
         Return
     End Sub
+
+    ''' <summary>
+    ''' If filePath ends with extension, remove it
+    ''' Supports multi-part extensions like .fasta.gz
+    ''' </summary>
+    ''' <param name="filePath">File name or path</param>
+    ''' <param name="extension">Extension, with or without the leading period</param>
+    ''' <returns></returns>
+    Public Shared Function StripExtension(filePath As String, extension As String) As String
+        If String.IsNullOrWhiteSpace(extension) Then
+            Return filePath
+        End If
+
+        If Not extension.StartsWith(".") Then
+            extension = "." & extension
+        End If
+
+        If Not filePath.EndsWith(extension, StringComparison.OrdinalIgnoreCase) Then
+            Return filePath
+        End If
+
+        Return filePath.Substring(0, filePath.Length - extension.Length)
+    End Function
 
     Private Function ValidateProteinName(proteinName As String, maximumLength As Integer) As String
         Dim sepChars = New Char() {" "c, ","c, ";"c, ":"c, "_"c, "-"c, "|"c, "/"c}
