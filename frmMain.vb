@@ -125,15 +125,6 @@ Public Class frmMain
 
     Private WithEvents mFastaValidation As frmFastaValidation
 
-    Private Property SubtaskProgressIsVisible As Boolean
-        Get
-            Return lblSubtaskProgressDescription.Visible
-        End Get
-        Set
-            lblSubtaskProgress.Visible = Value
-            lblSubtaskProgressDescription.Visible = Value
-        End Set
-    End Property
 
     Private Sub AbortProcessingNow()
         Try
@@ -592,7 +583,7 @@ Public Class frmMain
                 mWorking = True
                 cmdGenerateUniquenessStats.Enabled = False
 
-                ResetProgress(True)
+                ResetProgress()
                 SwitchToProgressTab()
 
                 success = mProteinDigestionSimulator.GenerateUniquenessStats(GetProteinInputFilePath(), Path.GetDirectoryName(outputFilePath), Path.GetFileNameWithoutExtension(outputFilePath))
@@ -1016,7 +1007,7 @@ Public Class frmMain
 
         EnableDisableControls()
 
-        ResetProgress(True)
+        ResetProgress()
     End Sub
 
     Private Sub InitializePeakMatchingDataGrid()
@@ -1273,7 +1264,7 @@ Public Class frmMain
                 mWorking = True
                 cmdParseInputFile.Enabled = False
 
-                ResetProgress(True)
+                ResetProgress()
                 SwitchToProgressTab()
 
                 Dim outputFolderPath As String = String.Empty
@@ -1563,7 +1554,7 @@ Public Class frmMain
 
     End Sub
 
-    Private Sub ResetProgress(hideSubtaskProgress As Boolean)
+    Private Sub ResetProgress()
         lblProgressDescription.Text = String.Empty
         lblProgress.Text = FormatPercentComplete(0)
         pbarProgress.Value = 0
@@ -1571,10 +1562,6 @@ Public Class frmMain
 
         lblSubtaskProgressDescription.Text = String.Empty
         lblSubtaskProgress.Text = FormatPercentComplete(0)
-
-        If hideSubtaskProgress Then
-            SubtaskProgressIsVisible = False
-        End If
 
         lblErrorMessage.Text = String.Empty
 
@@ -2351,19 +2338,17 @@ Public Class frmMain
 
         lblSubtaskProgress.Text = ""
         lblSubtaskProgressDescription.Text = ""
-        SubtaskProgressIsVisible = False
 
         Application.DoEvents()
     End Sub
 
     Private Sub mParseProteinFile_ProgressReset() Handles mParseProteinFile.ProgressReset
-        ResetProgress(False)
+        ResetProgress()
     End Sub
 
     Private Sub mParseProteinFile_SubtaskProgressChanged(taskDescription As String, percentComplete As Single) Handles mParseProteinFile.SubtaskProgressChanged
         lblSubtaskProgressDescription.Text = taskDescription
         lblSubtaskProgress.Text = FormatPercentComplete(percentComplete)
-        SubtaskProgressIsVisible = True
         Application.DoEvents()
     End Sub
 
@@ -2386,19 +2371,17 @@ Public Class frmMain
 
         lblSubtaskProgress.Text = ""
         lblSubtaskProgressDescription.Text = ""
-        SubtaskProgressIsVisible = False
 
         Application.DoEvents()
     End Sub
 
     Private Sub mProteinDigestionSimulator_ProgressReset() Handles mProteinDigestionSimulator.ProgressReset
-        ResetProgress(False)
+        ResetProgress()
     End Sub
 
     Private Sub mProteinDigestionSimulator_SubtaskProgressChanged(taskDescription As String, percentComplete As Single) Handles mProteinDigestionSimulator.SubtaskProgressChanged
         lblSubtaskProgressDescription.Text = taskDescription
         lblSubtaskProgress.Text = FormatPercentComplete(percentComplete)
-        SubtaskProgressIsVisible = True
         Application.DoEvents()
     End Sub
 
