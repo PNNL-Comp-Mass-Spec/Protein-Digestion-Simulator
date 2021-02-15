@@ -293,7 +293,7 @@ Module modMain
             Console.WriteLine()
             Console.WriteLine(WrapParagraph("The input file path can contain the wildcard character * and should point to a fasta file or tab-delimited text file."))
             Console.WriteLine()
-            Console.WriteLine(WrapParagraph("Use /F to indicate that the input file is a fasta file.  If /F is not used, then the format will be assumed to be fasta only if the file contains .fasta in the name"))
+            Console.WriteLine(WrapParagraph("Use /F to indicate that the input file is a fasta file.  If /F is not used, the format will be assumed to be fasta only if the filename ends with .fasta or .fasta.gz"))
             Console.WriteLine()
             Console.WriteLine(WrapParagraph("Use /D to indicate that an in-silico digestion of the proteins should be performed.  Digestion options must be specified in the Parameter file."))
             Console.WriteLine()
