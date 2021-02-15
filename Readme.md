@@ -99,9 +99,10 @@ ProteinDigestionSimulator.exe
 ```
 
 The input file path can contain the wildcard character * and should point to a FASTA file or tab-delimited text file.
+* Gzipped FASTA files are also supported, e.g. E_coli_K12_UniProt.fasta.gz
 
-Use /F to indicate that the input file is a FASTA file.  If /F is not used, then the format will be assumed to be FASTA 
-only if the file contains .fasta in the name
+Use /F to indicate that the input file is a FASTA file.  If /F is not used, the format will be assumed to be FASTA 
+only if the filename ends with .fasta or .fasta.gz
 
 Use /D to indicate that an in-silico digestion of the proteins should be performed.  Digestion options must be specified in the Parameter file.
 
