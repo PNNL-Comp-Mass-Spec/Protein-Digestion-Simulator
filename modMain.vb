@@ -33,7 +33,7 @@ Module modMain
 
     ' Ignore Spelling: silico
 
-    Public Const PROGRAM_DATE As String = "February 12, 2021"
+    Public Const PROGRAM_DATE As String = "March 9, 2021"
 
     Private Declare Auto Function ShowWindow Lib "user32.dll" (hWnd As IntPtr, nCmdShow As Integer) As Boolean
     Private Declare Auto Function GetConsoleWindow Lib "kernel32.dll" () As IntPtr
