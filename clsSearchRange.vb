@@ -124,7 +124,7 @@ Public Class clsSearchRange
             ' Inside range; figure out the borders
             leftIndex = indexMidpoint
             Do
-                leftIndex = leftIndex - 1
+                leftIndex -= 1
                 If leftIndex < matchIndexStart Then
                     leftDone = True
                 Else
@@ -134,7 +134,7 @@ Public Class clsSearchRange
             rightIndex = indexMidpoint
 
             Do
-                rightIndex = rightIndex + 1
+                rightIndex += 1
                 If rightIndex > matchIndexEnd Then
                     rightDone = True
                 Else
@@ -177,7 +177,7 @@ Public Class clsSearchRange
             ' Inside range; figure out the borders
             leftIndex = indexMidpoint
             Do
-                leftIndex = leftIndex - 1
+                leftIndex -= 1
                 If leftIndex < matchIndexStart Then
                     leftDone = True
                 Else
@@ -187,7 +187,7 @@ Public Class clsSearchRange
             rightIndex = indexMidpoint
 
             Do
-                rightIndex = rightIndex + 1
+                rightIndex += 1
                 If rightIndex > matchIndexEnd Then
                     rightDone = True
                 Else
@@ -230,7 +230,7 @@ Public Class clsSearchRange
             ' Inside range; figure out the borders
             leftIndex = indexMidpoint
             Do
-                leftIndex = leftIndex - 1
+                leftIndex -= 1
                 If leftIndex < matchIndexStart Then
                     leftDone = True
                 Else
@@ -240,7 +240,7 @@ Public Class clsSearchRange
             rightIndex = indexMidpoint
 
             Do
-                rightIndex = rightIndex + 1
+                rightIndex += 1
                 If rightIndex > matchIndexEnd Then
                     rightDone = True
                 Else
@@ -625,7 +625,7 @@ Public Class clsSearchRange
                     success = False
             End Select
 
-            If success And Not DataArray Is Nothing Then
+            If success And DataArray IsNot Nothing Then
                 If mUsePointerIndexArray Then
                     InitializePointerIndexArray(DataArray.Length)
                     Array.Sort(DataArray, mPointerIndices)

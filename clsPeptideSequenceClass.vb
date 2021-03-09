@@ -561,7 +561,7 @@ Public Class PeptideSequenceClass
     ''' <returns></returns>
     Public Function GetResidue(residueNumber As Integer, Optional use3LetterCode As Boolean = False) As String
 
-        If Not mResidues Is Nothing AndAlso (residueNumber > 0 And residueNumber <= mResidues.Length) Then
+        If mResidues IsNot Nothing AndAlso (residueNumber > 0 And residueNumber <= mResidues.Length) Then
             If use3LetterCode Then
                 Return GetAminoAcidSymbolConversion(mResidues.Chars(residueNumber - 1), True)
             Else
@@ -1580,7 +1580,7 @@ Public Class PeptideSequenceClass
                 ' However, we need to subtract out mHydrogenMass, and not mChargeCarrierMass since the current
                 '  formula's mass was computed using two hydrogen atoms, and not one hydrogen and one charge carrier
                 protonatedNTerminus = True
-                runningTotal = runningTotal - mHydrogenMass
+                runningTotal -= mHydrogenMass
             End If
 
             For index = 0 To mResidues.Length - 1

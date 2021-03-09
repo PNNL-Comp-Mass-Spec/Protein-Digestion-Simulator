@@ -389,7 +389,7 @@ Public Class clsInSilicoDigest
                         ' Normal cleavage rule
                         residueEndLoc = trypticFragEndLocations(trypticIndex + index)
 
-                        peptideSequence = peptideSequence & trypticFragCache(trypticIndex + index)
+                        peptideSequence &= trypticFragCache(trypticIndex + index)
                         If peptideSequence.Length >= digestionOptions.MinFragmentResidueCount Then
                             PossiblyAddPeptide(peptideSequence, trypticIndex, index,
                                                residueStartLoc, residueEndLoc,
@@ -400,7 +400,7 @@ Public Class clsInSilicoDigest
                         End If
                     End If
 
-                    peptideSequenceBase = peptideSequenceBase & trypticFragCache(trypticIndex + index)
+                    peptideSequenceBase &= trypticFragCache(trypticIndex + index)
                 Next index
 
                 If digestionOptions.CleavageRuleID = CleavageRuleConstants.KROneEnd Then
@@ -656,7 +656,7 @@ Public Class clsInSilicoDigest
     End Sub
 
     Public Sub InitializepICalculator(ByRef pICalculator As clspICalculation)
-        If Not mpICalculator Is Nothing Then
+        If mpICalculator IsNot Nothing Then
             If mpICalculator Is pICalculator Then
                 ' Classes are the same instance of the object; no need to update anything
                 Exit Sub
@@ -785,7 +785,7 @@ Public Class clsInSilicoDigest
         Try
             Dim errorMessage As String
 
-            If Not functionName Is Nothing AndAlso functionName.Length > 0 Then
+            If functionName IsNot Nothing AndAlso functionName.Length > 0 Then
                 errorMessage = "Error in " & functionName & ": " & ex.Message
             Else
                 errorMessage = "Error: " & ex.Message
@@ -911,7 +911,7 @@ Public Class clsInSilicoDigest
                 Return mPrefixResidue
             End Get
             Set
-                If Not Value Is Nothing AndAlso Value.Length > 0 Then
+                If Value IsNot Nothing AndAlso Value.Length > 0 Then
                     mPrefixResidue = Value.Chars(0)
                 Else
                     mPrefixResidue = PROTEIN_TERMINUS_SYMBOL
@@ -951,7 +951,7 @@ Public Class clsInSilicoDigest
                 Return mSuffixResidue
             End Get
             Set
-                If Not Value Is Nothing AndAlso Value.Length > 0 Then
+                If Value IsNot Nothing AndAlso Value.Length > 0 Then
                     mSuffixResidue = Value.Chars(0)
                 Else
                     mSuffixResidue = PROTEIN_TERMINUS_SYMBOL

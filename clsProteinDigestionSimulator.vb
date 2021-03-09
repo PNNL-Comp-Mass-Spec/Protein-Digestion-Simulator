@@ -280,7 +280,7 @@ Public Class clsProteinDigestionSimulator
         mComparisonPeptideInfo.Add(uniqueSeqID, peptideName, peptideMass, peptideNET, peptideNETStDev, peptideDiscriminantScore)
 
         ' Determine the ProteinID for proteinName
-        If Not proteinName Is Nothing AndAlso proteinName.Length > 0 Then
+        If proteinName IsNot Nothing AndAlso proteinName.Length > 0 Then
             ' Lookup the index for the given protein
             proteinID = AddOrUpdateProtein(proteinName)
         Else
@@ -826,9 +826,9 @@ Public Class clsProteinDigestionSimulator
                 success = False
             Finally
                 Try
-                    If Not pmResultsWriter Is Nothing Then pmResultsWriter.Close()
-                    If Not peptideUniquenessWriter Is Nothing Then peptideUniquenessWriter.Close()
-                    If Not proteinStatsWriter Is Nothing Then proteinStatsWriter.Close()
+                    If pmResultsWriter IsNot Nothing Then pmResultsWriter.Close()
+                    If peptideUniquenessWriter IsNot Nothing Then peptideUniquenessWriter.Close()
+                    If proteinStatsWriter IsNot Nothing Then proteinStatsWriter.Close()
                     mPeakMatchingClass = Nothing
                 Catch ex As Exception
                     ' Ignore any errors closing files
@@ -892,7 +892,7 @@ Public Class clsProteinDigestionSimulator
             errorMessage = MyBase.GetBaseClassErrorMessage()
         End If
 
-        If Not mLastErrorMessage Is Nothing AndAlso mLastErrorMessage.Length > 0 Then
+        If mLastErrorMessage IsNot Nothing AndAlso mLastErrorMessage.Length > 0 Then
             errorMessage &= ControlChars.NewLine & mLastErrorMessage
         End If
 
@@ -927,7 +927,7 @@ Public Class clsProteinDigestionSimulator
         Dim dataRows() As DataRow
 
         dataRows = mProteinToIdentifiedPeptideMappingTable.Select(PROTEIN_ID_COLUMN & " = " & proteinID.ToString())
-        If Not dataRows Is Nothing Then
+        If dataRows IsNot Nothing Then
             Return dataRows.Length
         Else
             Return 0
@@ -1232,13 +1232,13 @@ Public Class clsProteinDigestionSimulator
         Dim digestionEnabled As Boolean
 
         Try
-            If Not mComparisonPeptideInfo Is Nothing Then
+            If mComparisonPeptideInfo IsNot Nothing Then
                 mComparisonPeptideInfo = Nothing
             End If
 
             mComparisonPeptideInfo = New clsPeakMatchingClass.PMComparisonFeatureInfoClass
 
-            If Not mProteinInfo Is Nothing Then
+            If mProteinInfo IsNot Nothing Then
                 mProteinInfo = Nothing
             End If
 

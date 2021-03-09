@@ -578,7 +578,7 @@ Public Class frmFastaValidation
         Dim errorToWarningsRatio As Double = 1
 
         Try
-            If Not mErrorsDataset Is Nothing AndAlso Not mWarningsDataset Is Nothing Then
+            If mErrorsDataset IsNot Nothing AndAlso mWarningsDataset IsNot Nothing Then
                 If mErrorsDataset.Tables(0).Rows.Count = 0 And mWarningsDataset.Tables(0).Rows.Count = 0 Then
                     errorToWarningsRatio = 1
                 ElseIf mErrorsDataset.Tables(0).Rows.Count = 0 Then
@@ -878,8 +878,9 @@ Public Class frmFastaValidation
             If success Then
                 DisplayResults(parameterFilePath)
             Else
-                Dim results = New List(Of String)
-                results.Add("Error calling mValidateFastaFile.ProcessFile: " & mValidateFastaFile.GetErrorMessage())
+                Dim results = New List(Of String) From {
+                    "Error calling mValidateFastaFile.ProcessFile: " & mValidateFastaFile.GetErrorMessage()
+                }
 
                 AppendValidatorErrors(results)
 
@@ -954,7 +955,7 @@ Public Class frmFastaValidation
     End Sub
 
     Private Sub cmdCancel_Click(sender As Object, e As EventArgs) Handles cmdCancel.Click
-        If Not mValidateFastaFile Is Nothing Then
+        If mValidateFastaFile IsNot Nothing Then
             cmdCancel.Enabled = False
             mValidateFastaFile.AbortProcessingNow()
         End If
@@ -1070,17 +1071,17 @@ Public Class frmFastaValidation
 
     Private Sub mnuEditFontSizeDecrease_Click(sender As Object, e As EventArgs) Handles mnuEditFontSizeDecrease.Click
         If Me.TextFontSize > 14 Then
-            Me.TextFontSize = Me.TextFontSize - 2
+            Me.TextFontSize -= 2
         Else
-            Me.TextFontSize = Me.TextFontSize - 1
+            Me.TextFontSize -= 1
         End If
     End Sub
 
     Private Sub mnuEditFontSizeIncrease_Click(sender As Object, e As EventArgs) Handles mnuEditFontSizeIncrease.Click
         If Me.TextFontSize >= 14 Then
-            Me.TextFontSize = Me.TextFontSize + 2
+            Me.TextFontSize += 2
         Else
-            Me.TextFontSize = Me.TextFontSize + 1
+            Me.TextFontSize += 1
         End If
     End Sub
 
@@ -1106,7 +1107,7 @@ Public Class frmFastaValidation
     Private Sub ErrorEventHandler(message As String, ex As Exception)
         mValidatorErrorMessage = message
 
-        If Not ex Is Nothing And Not message.Contains(ex.Message) Then
+        If ex IsNot Nothing And Not message.Contains(ex.Message) Then
             mValidateFastaFileErrors.Add(message & ": " & ex.Message)
         Else
             mValidateFastaFileErrors.Add(message)

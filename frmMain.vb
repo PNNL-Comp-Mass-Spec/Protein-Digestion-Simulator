@@ -133,11 +133,11 @@ Public Class frmMain
 
     Private Sub AbortProcessingNow()
         Try
-            If Not mParseProteinFile Is Nothing Then
+            If mParseProteinFile IsNot Nothing Then
                 mParseProteinFile.AbortProcessingNow()
             End If
 
-            If Not mProteinDigestionSimulator Is Nothing Then
+            If mProteinDigestionSimulator IsNot Nothing Then
                 mProteinDigestionSimulator.AbortProcessingNow()
             End If
         Catch ex As Exception
@@ -279,7 +279,7 @@ Public Class frmMain
         Dim lcNET As Single
         Dim scxNET As Single
 
-        If Not pICalculator Is Nothing Then
+        If pICalculator IsNot Nothing Then
             If cboHydrophobicityMode.SelectedIndex >= 0 Then
                 pICalculator.HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, clspICalculation.eHydrophobicityTypeConstants)
             End If
@@ -293,12 +293,12 @@ Public Class frmMain
             ' Could compute charge state: pICalculator.CalculateSequenceChargeState(sequence, pI)
         End If
 
-        If Not NETCalculator Is Nothing Then
+        If NETCalculator IsNot Nothing Then
             ' Compute the LC-based normalized elution time
             lcNET = NETCalculator.GetElutionTime(sequence)
         End If
 
-        If Not SCXNETCalculator Is Nothing Then
+        If SCXNETCalculator IsNot Nothing Then
             ' Compute the SCX-based normalized elution time
             scxNET = SCXNETCalculator.GetElutionTime(sequence)
         End If
@@ -808,7 +808,7 @@ Public Class frmMain
                 valueNotPresent = False
                 thresholdData = xmlSettings.GetParam(PMOptions, "ThresholdData", String.Empty, valueNotPresent)
 
-                If Not valueNotPresent AndAlso Not thresholdData Is Nothing AndAlso thresholdData.Length > 0 Then
+                If Not valueNotPresent AndAlso thresholdData IsNot Nothing AndAlso thresholdData.Length > 0 Then
                     thresholds = thresholdData.Split(";"c)
 
                     If thresholds.Length > 0 Then
@@ -1054,14 +1054,14 @@ Public Class frmMain
         Dim tsPMThresholdsTableStyle As DataGridTableStyle
 
         ' Define the PM Thresholds table style
-        tsPMThresholdsTableStyle = New DataGridTableStyle
-
         ' Setting the MappingName of the table style to PM_THRESHOLDS_DATA_TABLE will cause this style to be used with that table
-        tsPMThresholdsTableStyle.MappingName = PM_THRESHOLDS_DATA_TABLE
-        tsPMThresholdsTableStyle.AllowSorting = True
-        tsPMThresholdsTableStyle.ColumnHeadersVisible = True
-        tsPMThresholdsTableStyle.RowHeadersVisible = True
-        tsPMThresholdsTableStyle.ReadOnly = False
+        tsPMThresholdsTableStyle = New DataGridTableStyle With {
+            .MappingName = PM_THRESHOLDS_DATA_TABLE,
+            .AllowSorting = True,
+            .ColumnHeadersVisible = True,
+            .RowHeadersVisible = True,
+            .ReadOnly = False
+        }
 
         DataGridUtils.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_MASS_TOLERANCE, "Mass Tolerance", 90)
         DataGridUtils.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_NET_TOLERANCE, "NET Tolerance", 90)
@@ -1340,7 +1340,7 @@ Public Class frmMain
         ' Examine the clipboard contents
         Dim clipboardObject = Clipboard.GetDataObject()
 
-        If Not clipboardObject Is Nothing Then
+        If clipboardObject IsNot Nothing Then
             If clipboardObject.GetDataPresent(DataFormats.StringFormat, True) Then
                 Dim clipboardData = CType(clipboardObject.GetData(DataFormats.StringFormat, True), String)
 
@@ -1357,7 +1357,7 @@ Public Class frmMain
                     Dim rowsSkipped = 0
 
                     For lineIndex = 0 To dataLines.Length - 1
-                        If Not dataLines(lineIndex) Is Nothing AndAlso dataLines(lineIndex).Length > 0 Then
+                        If dataLines(lineIndex) IsNot Nothing AndAlso dataLines(lineIndex).Length > 0 Then
                             Dim dataColumns = dataLines(lineIndex).Split(columnDelimiters, 5)
                             If dataColumns.Length >= 2 Then
                                 Try
@@ -1941,7 +1941,7 @@ Public Class frmMain
                 End If
 
                 Try
-                    If Not mCustomValidationRulesFilePath Is Nothing AndAlso mCustomValidationRulesFilePath.Length > 0 Then
+                    If mCustomValidationRulesFilePath IsNot Nothing AndAlso mCustomValidationRulesFilePath.Length > 0 Then
                         If File.Exists(mCustomValidationRulesFilePath) Then
                             mFastaValidation.CustomRulesFilePath = mCustomValidationRulesFilePath
                         Else
@@ -1965,7 +1965,7 @@ Public Class frmMain
         Catch ex As Exception
             ShowErrorMessage("Error occurred in frmFastaValidation: " & ex.Message, "Error")
         Finally
-            If Not mFastaValidation Is Nothing Then
+            If mFastaValidation IsNot Nothing Then
                 mCustomValidationRulesFilePath = mFastaValidation.CustomRulesFilePath
             End If
         End Try

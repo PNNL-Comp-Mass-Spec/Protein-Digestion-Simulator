@@ -704,8 +704,8 @@ Public Class clsParseProteinFile
             End If
         End If
 
-        If Not mInSilicoDigest Is Nothing Then
-            If Not mpICalculator Is Nothing Then
+        If mInSilicoDigest IsNot Nothing Then
+            If mpICalculator IsNot Nothing Then
                 mInSilicoDigest.InitializepICalculator(mpICalculator)
             End If
         End If
@@ -992,7 +992,7 @@ Public Class clsParseProteinFile
         Try
             ' Set the options for mpICalculator
             ' Note that this will also update the pICalculator object in mInSilicoDigest
-            If Not mpICalculator Is Nothing Then
+            If mpICalculator IsNot Nothing Then
                 mpICalculator.HydrophobicityType = HydrophobicityType
                 mpICalculator.ReportMaximumpI = ReportMaximumpI
                 mpICalculator.SequenceWidthToExamineForMaximumpI = mSequenceWidthToExamineForMaximumpI
@@ -1201,7 +1201,7 @@ Public Class clsParseProteinFile
 
                         End If
 
-                        If loopIndex = 1 AndAlso Not digestFileWriter Is Nothing Then
+                        If loopIndex = 1 AndAlso digestFileWriter IsNot Nothing Then
                             ParseProteinFileWriteDigested(digestFileWriter, outLine, generateUniqueSequenceID)
                         End If
 
@@ -1245,15 +1245,15 @@ Public Class clsParseProteinFile
 
                 proteinFileReader.CloseFile()
 
-                If Not proteinFileWriter Is Nothing Then
+                If proteinFileWriter IsNot Nothing Then
                     proteinFileWriter.Close()
                 End If
 
-                If Not digestFileWriter Is Nothing Then
+                If digestFileWriter IsNot Nothing Then
                     digestFileWriter.Close()
                 End If
 
-                If Not scrambledFileWriter Is Nothing Then
+                If scrambledFileWriter IsNot Nothing Then
                     scrambledFileWriter.Close()
                 End If
             Next loopIndex
@@ -1291,13 +1291,13 @@ Public Class clsParseProteinFile
                 success = False
             End If
         Finally
-            If Not proteinFileWriter Is Nothing Then
+            If proteinFileWriter IsNot Nothing Then
                 proteinFileWriter.Close()
             End If
-            If Not digestFileWriter Is Nothing Then
+            If digestFileWriter IsNot Nothing Then
                 digestFileWriter.Close()
             End If
-            If Not scrambledFileWriter Is Nothing Then
+            If scrambledFileWriter IsNot Nothing Then
                 scrambledFileWriter.Close()
             End If
         End Try

@@ -154,7 +154,7 @@ Public Class clsPeakMatchingClass
                     featureIDToRowIndex.Clear()
                 End If
             Else
-                If Not featureIDToRowIndex Is Nothing Then
+                If featureIDToRowIndex IsNot Nothing Then
                     featureIDToRowIndex.Clear()
                     featureIDToRowIndex = Nothing
                 End If
@@ -848,7 +848,6 @@ Public Class clsPeakMatchingClass
             ' Sort by SLiCScore descending
             Dim iPeakMatchingRawMatchesComparerClass As New PeakMatchingRawMatchesComparerClass
             Array.Sort(rawMatches, iPeakMatchingRawMatchesComparerClass)
-            iPeakMatchingRawMatchesComparerClass = Nothing
         End If
 
         If rawMatches.Length > 0 Then

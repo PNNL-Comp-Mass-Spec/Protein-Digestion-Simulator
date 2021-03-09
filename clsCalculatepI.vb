@@ -272,7 +272,7 @@ Public Class clspICalculation
                     Value = value1
                     pH += delta
                 Else
-                    delta = delta / (-10)
+                    delta /= (-10)
                     Value = value1
                     pH += delta
                     If Math.Abs(delta) < 0.01 Then Exit Do

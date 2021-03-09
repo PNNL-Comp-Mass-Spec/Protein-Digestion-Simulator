@@ -159,7 +159,7 @@ Friend Class clsProteinInfo
                 mProteinNameToRowIndex.Clear()
             End If
         Else
-            If Not mProteinNameToRowIndex Is Nothing Then
+            If mProteinNameToRowIndex IsNot Nothing Then
                 mProteinNameToRowIndex.Clear()
                 mProteinNameToRowIndex = Nothing
             End If
