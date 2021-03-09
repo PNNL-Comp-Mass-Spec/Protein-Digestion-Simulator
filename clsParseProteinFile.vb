@@ -59,7 +59,7 @@ Public Class clsParseProteinFile
 
     ' The value of 7995 is chosen because the maximum varchar() value in SQL Server is varchar(8000)
     ' and we want to prevent truncation errors when importing protein names and descriptions into SQL Server
-    Private Const MAX_PROTEIN_DESCRIPTION_LENGTH As Integer = clsValidateFastaFile.MAX_PROTEIN_DESCRIPTION_LENGTH
+    Private Const MAX_PROTEIN_DESCRIPTION_LENGTH As Integer = FastaValidator.MAX_PROTEIN_DESCRIPTION_LENGTH
 
     ' Error codes specialized for this class
     Public Enum eParseProteinFileErrorCodes

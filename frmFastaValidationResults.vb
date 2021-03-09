@@ -28,7 +28,7 @@ Public Class frmFastaValidation
 
         AddHandler mValidationTriggerTimer.Tick, AddressOf mValidationTriggerTimer_Tick
 
-        mValidateFastaFile = New clsValidateFastaFile()
+        mValidateFastaFile = New FastaValidator()
         RegisterEvents(mValidateFastaFile)
 
     End Sub
@@ -80,7 +80,7 @@ Public Class frmFastaValidation
     ' This timer is used to cause StartValidation to be called after the form becomes visible
     Private ReadOnly mValidationTriggerTimer As Timer
 
-    Private ReadOnly mValidateFastaFile As clsValidateFastaFile
+    Private ReadOnly mValidateFastaFile As FastaValidator
 
     Private mValidatorErrorMessage As String
 
@@ -209,7 +209,7 @@ Public Class frmFastaValidation
             Dim customRuleDefinitionsFilePath = dialog.FileName
 
             Try
-                Dim validateFastaFile As New clsValidateFastaFile()
+                Dim validateFastaFile As New FastaValidator()
                 validateFastaFile.SaveSettingsToParameterFile(customRuleDefinitionsFilePath)
 
                 If txtCustomValidationRulesFilePath.TextLength = 0 Then
@@ -239,23 +239,23 @@ Public Class frmFastaValidation
         }
 
         AppendToString(results, "Protein count = " & mValidateFastaFile.ProteinCount & sepChar & sepChar & "Residue count = ", mValidateFastaFile.ResidueCount)
-        AppendToString(results, "Error count = " & mValidateFastaFile.ErrorWarningCounts(clsValidateFastaFile.eMsgTypeConstants.ErrorMsg, clsValidateFastaFile.ErrorWarningCountTypes.Total))
-        AppendToString(results, "Warning count = ", mValidateFastaFile.ErrorWarningCounts(clsValidateFastaFile.eMsgTypeConstants.WarningMsg, clsValidateFastaFile.ErrorWarningCountTypes.Total))
+        AppendToString(results, "Error count = " & mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.ErrorMsg, FastaValidator.ErrorWarningCountTypes.Total))
+        AppendToString(results, "Warning count = ", mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.WarningMsg, FastaValidator.ErrorWarningCountTypes.Total))
 
-        If mValidateFastaFile.OptionSwitch(clsValidateFastaFile.SwitchOptions.GenerateFixedFASTAFile) Then
-            AppendToString(results, "Count of long protein names that were truncated = " & mValidateFastaFile.FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.TruncatedProteinNameCount))
-            AppendToString(results, "Count of protein names with invalid chars removed = " & mValidateFastaFile.FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.ProteinNamesInvalidCharsReplaced))
-            AppendToString(results, "Count of protein names with multiple refs split out = " & mValidateFastaFile.FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.ProteinNamesMultipleRefsRemoved))
-            AppendToString(results, "Count of residue lines with invalid chars removed = " & mValidateFastaFile.FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.UpdatedResidueLines))
+        If mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.GenerateFixedFASTAFile) Then
+            AppendToString(results, "Count of long protein names that were truncated = " & mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.TruncatedProteinNameCount))
+            AppendToString(results, "Count of protein names with invalid chars removed = " & mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.ProteinNamesInvalidCharsReplaced))
+            AppendToString(results, "Count of protein names with multiple refs split out = " & mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.ProteinNamesMultipleRefsRemoved))
+            AppendToString(results, "Count of residue lines with invalid chars removed = " & mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.UpdatedResidueLines))
 
-            If mValidateFastaFile.OptionSwitch(clsValidateFastaFile.SwitchOptions.FixedFastaRenameDuplicateNameProteins) Then
-                AppendToString(results, "Count of proteins renamed due to duplicate names = " & mValidateFastaFile.FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.DuplicateProteinNamesRenamedCount))
-            ElseIf mValidateFastaFile.OptionSwitch(clsValidateFastaFile.SwitchOptions.CheckForDuplicateProteinNames) Then
-                AppendToString(results, "Count of proteins skipped due to duplicate names = " & mValidateFastaFile.FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.DuplicateProteinNamesSkippedCount))
+            If mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.FixedFastaRenameDuplicateNameProteins) Then
+                AppendToString(results, "Count of proteins renamed due to duplicate names = " & mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.DuplicateProteinNamesRenamedCount))
+            ElseIf mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.CheckForDuplicateProteinNames) Then
+                AppendToString(results, "Count of proteins skipped due to duplicate names = " & mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.DuplicateProteinNamesSkippedCount))
             End If
 
-            If mValidateFastaFile.OptionSwitch(clsValidateFastaFile.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs) Then
-                AppendToString(results, "Count of proteins removed due to duplicate sequences = " & mValidateFastaFile.FixedFASTAFileStats(clsValidateFastaFile.FixedFASTAFileValues.DuplicateProteinSeqsSkippedCount))
+            If mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs) Then
+                AppendToString(results, "Count of proteins removed due to duplicate sequences = " & mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.DuplicateProteinSeqsSkippedCount))
             End If
 
         End If
@@ -266,7 +266,9 @@ Public Class frmFastaValidation
             AppendToString(results, "Default validation rules were used.")
         End If
 
-        If mValidateFastaFile.OptionSwitch(clsValidateFastaFile.SwitchOptions.OutputToStatsFile) Then
+        Dim outputStatsEnabled = mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.OutputToStatsFile)
+
+        If outputStatsEnabled Then
             AppendToString(results, "Results were logged to file: " & mValidateFastaFile.StatsFilePath())
         End If
 
@@ -280,14 +282,14 @@ Public Class frmFastaValidation
         ' Clear the filters
         txtFilterData.Text = String.Empty
 
-        If mValidateFastaFile.ErrorWarningCounts(clsValidateFastaFile.eMsgTypeConstants.ErrorMsg, clsValidateFastaFile.ErrorWarningCountTypes.Specified) > 0 Then
+        If mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.ErrorMsg, FastaValidator.ErrorWarningCountTypes.Specified) > 0 Then
             ' List all of the errors
             PopulateMsgResultsDataGrid(dgErrors, mErrorsDataset, mValidateFastaFile.FileErrorList)
         Else
             mErrorsDataset.Tables(0).Clear()
         End If
 
-        If mValidateFastaFile.ErrorWarningCounts(clsValidateFastaFile.eMsgTypeConstants.WarningMsg, clsValidateFastaFile.ErrorWarningCountTypes.Specified) > 0 Then
+        If mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.WarningMsg, FastaValidator.ErrorWarningCountTypes.Specified) > 0 Then
             ' List all of the warnings in the DataGrid
             PopulateMsgResultsDataGrid(dgWarnings, mWarningsDataset, mValidateFastaFile.FileWarningList)
         Else
@@ -466,7 +468,7 @@ Public Class frmFastaValidation
 
     End Function
 
-    Private Sub InitializeDataGrid(dgDataGrid As DataGrid, ByRef dsDataset As DataSet, ByRef dvDataView As DataView, eMsgType As clsValidateFastaFile.eMsgTypeConstants)
+    Private Sub InitializeDataGrid(dgDataGrid As DataGrid, ByRef dsDataset As DataSet, ByRef dvDataView As DataView, msgType As FastaValidator.MsgTypeConstants)
 
         Dim dtDataTable As DataTable
 
@@ -474,9 +476,9 @@ Public Class frmFastaValidation
         Dim datasetName As String
         Dim dataTableName As String
 
-        If eMsgType = clsValidateFastaFile.eMsgTypeConstants.WarningMsg Then
+        If msgType = FastaValidator.MsgTypeConstants.WarningMsg Then
             msgColumnName = "Warnings"
-        ElseIf eMsgType = clsValidateFastaFile.eMsgTypeConstants.ErrorMsg Then
+        ElseIf msgType = FastaValidator.MsgTypeConstants.ErrorMsg Then
             msgColumnName = "Errors"
         Else
             msgColumnName = "Status"
@@ -527,8 +529,8 @@ Public Class frmFastaValidation
         txtResults.ReadOnly = True
         Me.TextFontSize = 10
 
-        InitializeDataGrid(dgErrors, mErrorsDataset, mErrorsDataView, clsValidateFastaFile.eMsgTypeConstants.ErrorMsg)
-        InitializeDataGrid(dgWarnings, mWarningsDataset, mWarningsDataView, clsValidateFastaFile.eMsgTypeConstants.WarningMsg)
+        InitializeDataGrid(dgErrors, mErrorsDataset, mErrorsDataView, FastaValidator.MsgTypeConstants.ErrorMsg)
+        InitializeDataGrid(dgWarnings, mWarningsDataset, mWarningsDataView, FastaValidator.MsgTypeConstants.WarningMsg)
 
         SetNewFastaFile(fastaFilePathToValidate)
 
@@ -539,7 +541,7 @@ Public Class frmFastaValidation
 
     End Sub
 
-    Private Sub PopulateMsgResultsDataGrid(dgDataGrid As Control, dsDataset As DataSet, itemList As IEnumerable(Of clsValidateFastaFile.udtMsgInfoType))
+    Private Sub PopulateMsgResultsDataGrid(dgDataGrid As Control, dsDataset As DataSet, itemList As IEnumerable(Of FastaValidator.MsgInfo))
 
         ' Clear the table
         dsDataset.Tables(0).Clear()
@@ -624,7 +626,7 @@ Public Class frmFastaValidation
         txtProteinNameLengthMinimum.Text = "3"
         txtProteinNameLengthMaximum.Text = "34"
 
-        txtLongProteinNameSplitChars.Text = clsValidateFastaFile.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR
+        txtLongProteinNameSplitChars.Text = FastaValidator.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR
         txtInvalidProteinNameCharsToRemove.Text = ""
         txtResiduesPerLineForWrap.Text = "60"
 
@@ -796,8 +798,8 @@ Public Class frmFastaValidation
             Application.DoEvents()
 
             ' Note: the following settings will be overridden if a parameter file with these settings defined is provided to .ProcessFile()
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.WarnBlankLinesBetweenProteins, True)
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.AllowAsteriskInResidues, chkAllowAsteriskInResidues.Checked)
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.WarnBlankLinesBetweenProteins, True)
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.AllowAsteriskInResidues, chkAllowAsteriskInResidues.Checked)
 
             mValidateFastaFile.MinimumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "Minimum protein name length should be a number", False, 3, False)
             mValidateFastaFile.MaximumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "Maximum protein name length should be a number", False, 34, False)
@@ -831,34 +833,34 @@ Public Class frmFastaValidation
 
             mValidateFastaFile.MaximumFileErrorsToTrack = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "Max file errors or warnings should be a positive number", False, 10, False)
 
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.CheckForDuplicateProteinNames, chkCheckForDuplicateProteinInfo.Checked)
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.CheckForDuplicateProteinSequences, chkCheckForDuplicateProteinInfo.Checked)
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.SaveBasicProteinHashInfoFile, chkSaveBasicProteinHashInfoFile.Checked)
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.OutputToStatsFile, chkLogResults.Checked)
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.CheckForDuplicateProteinNames, chkCheckForDuplicateProteinInfo.Checked)
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.CheckForDuplicateProteinSequences, chkCheckForDuplicateProteinInfo.Checked)
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.SaveBasicProteinHashInfoFile, chkSaveBasicProteinHashInfoFile.Checked)
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.OutputToStatsFile, chkLogResults.Checked)
 
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.GenerateFixedFASTAFile, chkGenerateFixedFastaFile.Checked)
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.GenerateFixedFASTAFile, chkGenerateFixedFastaFile.Checked)
 
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.FixedFastaSplitOutMultipleRefsForKnownAccession, chkSplitOutMultipleRefsForKnownAccession.Checked)
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.SplitOutMultipleRefsInProteinName, chkSplitOutMultipleRefsInProteinName.Checked)
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaSplitOutMultipleRefsForKnownAccession, chkSplitOutMultipleRefsForKnownAccession.Checked)
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.SplitOutMultipleRefsInProteinName, chkSplitOutMultipleRefsInProteinName.Checked)
 
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.FixedFastaRenameDuplicateNameProteins, chkRenameDuplicateProteins.Checked)
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.FixedFastaKeepDuplicateNamedProteins, chkKeepDuplicateNamedProteins.Checked)
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs, chkConsolidateDuplicateProteinSeqs.Checked)
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.FixedFastaConsolidateDupsIgnoreILDiff, chkConsolidateDupsIgnoreILDiff.Checked)
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.FixedFastaTruncateLongProteinNames, chkTruncateLongProteinNames.Checked)
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.FixedFastaWrapLongResidueLines, chkWrapLongResidueLines.Checked)
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.FixedFastaRemoveInvalidResidues, chkRemoveInvalidResidues.Checked())
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaRenameDuplicateNameProteins, chkRenameDuplicateProteins.Checked)
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaKeepDuplicateNamedProteins, chkKeepDuplicateNamedProteins.Checked)
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs, chkConsolidateDuplicateProteinSeqs.Checked)
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaConsolidateDupsIgnoreILDiff, chkConsolidateDupsIgnoreILDiff.Checked)
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaTruncateLongProteinNames, chkTruncateLongProteinNames.Checked)
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaWrapLongResidueLines, chkWrapLongResidueLines.Checked)
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaRemoveInvalidResidues, chkRemoveInvalidResidues.Checked())
 
-            mValidateFastaFile.ProteinNameFirstRefSepChars = clsValidateFastaFile.DEFAULT_PROTEIN_NAME_FIRST_REF_SEP_CHARS
-            mValidateFastaFile.ProteinNameSubsequentRefSepChars = clsValidateFastaFile.DEFAULT_PROTEIN_NAME_SUBSEQUENT_REF_SEP_CHARS
+            mValidateFastaFile.ProteinNameFirstRefSepChars = FastaValidator.DEFAULT_PROTEIN_NAME_FIRST_REF_SEP_CHARS
+            mValidateFastaFile.ProteinNameSubsequentRefSepChars = FastaValidator.DEFAULT_PROTEIN_NAME_SUBSEQUENT_REF_SEP_CHARS
 
             ' Also apply chkGenerateFixedFastaFile to SaveProteinSequenceHashInfoFiles
-            mValidateFastaFile.SetOptionSwitch(clsValidateFastaFile.SwitchOptions.SaveProteinSequenceHashInfoFiles, chkGenerateFixedFastaFile.Checked)
+            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.SaveProteinSequenceHashInfoFiles, chkGenerateFixedFastaFile.Checked)
 
             If txtLongProteinNameSplitChars.TextLength > 0 Then
                 mValidateFastaFile.LongProteinNameSplitChars = txtLongProteinNameSplitChars.Text
             Else
-                mValidateFastaFile.LongProteinNameSplitChars = clsValidateFastaFile.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR
+                mValidateFastaFile.LongProteinNameSplitChars = FastaValidator.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR
             End If
 
             mValidateFastaFile.ProteinNameInvalidCharsToRemove = txtInvalidProteinNameCharsToRemove.Text
