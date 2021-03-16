@@ -37,7 +37,7 @@ Public Class clsParseProteinFile
     ' Ignore Spelling: silico, gi, Ile, Leu, SepChar, ComputepI, Cys, hydrophobicity
 
     Public Sub New()
-        mFileDate = "March 9, 2021"
+        mFileDate = "March 16, 2021"
         InitializeLocalVariables()
     End Sub
 
@@ -53,7 +53,7 @@ Public Class clsParseProteinFile
     Private Const PROTEIN_PREFIX_SCRAMBLED As String = "Random_"
     Private Const PROTEIN_PREFIX_REVERSED As String = "XXX."
 
-    Private Const MAXIMUM_PROTEIN_NAME_LENGTH As Integer = 34
+    Private Const MAXIMUM_PROTEIN_NAME_LENGTH As Integer = 512
 
     Private Const MAX_ABBREVIATED_FILENAME_LENGTH As Integer = 15
 
