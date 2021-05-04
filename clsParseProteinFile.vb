@@ -1255,7 +1255,11 @@ Public Class clsParseProteinFile
             Next loopIndex
 
             If ShowDebugPrompts Then
-                MessageBox.Show(Path.GetFileName(pathInfo.ProteinInputFilePath) & ControlChars.NewLine & "Elapsed time: " & Math.Round(DateTime.UtcNow.Subtract(startTime).TotalSeconds, 2).ToString() & " seconds", "Status", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Dim statusMessage = String.Format("{0}{1}Elapsed time: {2:F2} seconds",
+                                                  Path.GetFileName(pathInfo.ProteinInputFilePath), ControlChars.NewLine,
+                                                  DateTime.UtcNow.Subtract(startTime).TotalSeconds)
+
+                MessageBox.Show(statusMessage, "Status", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
 
             Dim message = "Done: Processed " & mInputFileProteinsProcessed.ToString("###,##0") & " proteins (" & mInputFileLinesRead.ToString("###,###,##0") & " lines)"
