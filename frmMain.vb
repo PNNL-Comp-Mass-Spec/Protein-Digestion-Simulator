@@ -2294,23 +2294,23 @@ Public Class frmMain
 
 #Region "Event Handlers"
 
-    Private Sub mFastaValidation_FastaValidationStarted() Handles mFastaValidation.FastaValidationStarted
+    Private Sub FastaValidation_FastaValidationStarted() Handles mFastaValidation.FastaValidationStarted
         mFastaValidationOptions = mFastaValidation.GetOptions()
     End Sub
 
-    Private Sub mParseProteinFile_ErrorEvent(message As String, ex As Exception) Handles mParseProteinFile.ErrorEvent
+    Private Sub ParseProteinFile_ErrorEvent(message As String, ex As Exception) Handles mParseProteinFile.ErrorEvent
         lblErrorMessage.Text = "Error in mParseProteinFile: " & message
         Application.DoEvents()
     End Sub
 
-    Private Sub mParseProteinFile_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mParseProteinFile.ProgressUpdate
+    Private Sub ParseProteinFile_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mParseProteinFile.ProgressUpdate
         lblProgressDescription.Text = taskDescription
         lblProgress.Text = FormatPercentComplete(percentComplete)
         pbarProgress.Value = CInt(percentComplete)
         Application.DoEvents()
     End Sub
 
-    Private Sub mParseProteinFile_ProgressComplete() Handles mParseProteinFile.ProgressComplete
+    Private Sub ParseProteinFile_ProgressComplete() Handles mParseProteinFile.ProgressComplete
         lblProgressDescription.Text = "Processing complete"
         lblProgress.Text = FormatPercentComplete(100)
         pbarProgress.Value = 100
@@ -2321,29 +2321,29 @@ Public Class frmMain
         Application.DoEvents()
     End Sub
 
-    Private Sub mParseProteinFile_ProgressReset() Handles mParseProteinFile.ProgressReset
+    Private Sub ParseProteinFile_ProgressReset() Handles mParseProteinFile.ProgressReset
         ResetProgress()
     End Sub
 
-    Private Sub mParseProteinFile_SubtaskProgressChanged(taskDescription As String, percentComplete As Single) Handles mParseProteinFile.SubtaskProgressChanged
+    Private Sub ParseProteinFile_SubtaskProgressChanged(taskDescription As String, percentComplete As Single) Handles mParseProteinFile.SubtaskProgressChanged
         lblSubtaskProgressDescription.Text = taskDescription
         lblSubtaskProgress.Text = FormatPercentComplete(percentComplete)
         Application.DoEvents()
     End Sub
 
-    Private Sub mProteinDigestionSimulator_ErrorEvent(message As String, ex As Exception) Handles mProteinDigestionSimulator.ErrorEvent
+    Private Sub ProteinDigestionSimulator_ErrorEvent(message As String, ex As Exception) Handles mProteinDigestionSimulator.ErrorEvent
         lblErrorMessage.Text = "Error in mProteinDigestionSimulator: " & message
         Application.DoEvents()
     End Sub
 
-    Private Sub mProteinDigestionSimulator_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mProteinDigestionSimulator.ProgressUpdate
+    Private Sub ProteinDigestionSimulator_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mProteinDigestionSimulator.ProgressUpdate
         lblProgressDescription.Text = taskDescription
         lblProgress.Text = FormatPercentComplete(percentComplete)
         pbarProgress.Value = CInt(percentComplete)
         Application.DoEvents()
     End Sub
 
-    Private Sub mProteinDigestionSimulator_ProgressComplete() Handles mProteinDigestionSimulator.ProgressComplete
+    Private Sub ProteinDigestionSimulator_ProgressComplete() Handles mProteinDigestionSimulator.ProgressComplete
         lblProgressDescription.Text = "Processing complete"
         lblProgress.Text = FormatPercentComplete(100)
         pbarProgress.Value = 100
@@ -2354,11 +2354,11 @@ Public Class frmMain
         Application.DoEvents()
     End Sub
 
-    Private Sub mProteinDigestionSimulator_ProgressReset() Handles mProteinDigestionSimulator.ProgressReset
+    Private Sub ProteinDigestionSimulator_ProgressReset() Handles mProteinDigestionSimulator.ProgressReset
         ResetProgress()
     End Sub
 
-    Private Sub mProteinDigestionSimulator_SubtaskProgressChanged(taskDescription As String, percentComplete As Single) Handles mProteinDigestionSimulator.SubtaskProgressChanged
+    Private Sub ProteinDigestionSimulator_SubtaskProgressChanged(taskDescription As String, percentComplete As Single) Handles mProteinDigestionSimulator.SubtaskProgressChanged
         lblSubtaskProgressDescription.Text = taskDescription
         lblSubtaskProgress.Text = FormatPercentComplete(percentComplete)
         Application.DoEvents()
