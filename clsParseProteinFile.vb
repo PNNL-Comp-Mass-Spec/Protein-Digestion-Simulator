@@ -834,11 +834,6 @@ Public Class clsParseProteinFile
 
                     DigestionOptions.IncludePrefixAndSuffixResidues = settingsFile.GetParam(XML_SECTION_OPTIONS, "IncludePrefixAndSuffixResidues", DigestionOptions.IncludePrefixAndSuffixResidues)
 
-                    delimiterIndex = DelimiterCharConstants.Space
-                    customDelimiter = " "c
-
-                    delimiterIndex = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "RefEndCharIndex", delimiterIndex)
-
                     FastaFileOptions.LookForAddnlRefInDescription = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "LookForAddnlRefInDescription", FastaFileOptions.LookForAddnlRefInDescription)
 
                     FastaFileOptions.AddnlRefSepChar = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "AddnlRefSepChar", FastaFileOptions.AddnlRefSepChar.ToString()).Chars(0)
