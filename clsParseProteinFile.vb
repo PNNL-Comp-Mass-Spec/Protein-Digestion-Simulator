@@ -81,10 +81,15 @@ Public Class clsParseProteinFile
         Randomized = 2
     End Enum
 
+    ''' <summary>
+    ''' Column delimiter to use when processing TSV or CSV files
+    ''' </summary>
+    ''' <remarks>The GUI uses this enum</remarks>
     Public Enum DelimiterCharConstants
         Space = 0
         Tab = 1
         Comma = 2
+        ' ReSharper disable once UnusedMember.Global
         Other = 3
     End Enum
 
