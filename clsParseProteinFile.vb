@@ -786,9 +786,6 @@ Public Class clsParseProteinFile
 
         Dim settingsFile As New XmlSettingsFileAccessor()
 
-        Dim delimiterIndex As Integer
-        Dim customDelimiter As String
-
         Dim cysPeptidesOnly As Boolean
 
         Try
@@ -815,22 +812,18 @@ Public Class clsParseProteinFile
                     Return False
                 Else
                     ' ComparisonFastaFile = settingsFile.GetParam(XML_SECTION_OPTIONS, "ComparisonFastaFile", ComparisonFastaFile)
-                    delimiterIndex = DelimiterCharConstants.Tab
-                    customDelimiter = ControlChars.Tab
 
-                    delimiterIndex = settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiterIndex", delimiterIndex)
-                    customDelimiter = settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiter", customDelimiter)
+                    Dim inputFileColumnDelimiterIndex = settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiterIndex", DelimiterCharConstants.Tab)
+                    Dim customInputFileColumnDelimiter = settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiter", ControlChars.Tab)
 
-                    InputFileDelimiter = LookupColumnDelimiterChar(delimiterIndex, customDelimiter, InputFileDelimiter)
+                    InputFileDelimiter = LookupColumnDelimiterChar(inputFileColumnDelimiterIndex, customInputFileColumnDelimiter, InputFileDelimiter)
 
                     DelimitedFileFormatCode = CType(settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnOrdering", DelimitedFileFormatCode), DelimitedProteinFileReader.ProteinFileFormatCode)
 
-                    delimiterIndex = DelimiterCharConstants.Tab
-                    customDelimiter = ControlChars.Tab
-                    delimiterIndex = settingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimiterIndex", delimiterIndex)
-                    customDelimiter = settingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimiter", customDelimiter)
+                    Dim outputFileFieldDelimiterIndex = settingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimiterIndex", DelimiterCharConstants.Tab)
+                    Dim outputFileFieldDelimiter = settingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimiter", ControlChars.Tab)
 
-                    OutputFileDelimiter = LookupColumnDelimiterChar(delimiterIndex, customDelimiter, OutputFileDelimiter)
+                    OutputFileDelimiter = LookupColumnDelimiterChar(outputFileFieldDelimiterIndex, outputFileFieldDelimiter, OutputFileDelimiter)
 
                     DigestionOptions.IncludePrefixAndSuffixResidues = settingsFile.GetParam(XML_SECTION_OPTIONS, "IncludePrefixAndSuffixResidues", DigestionOptions.IncludePrefixAndSuffixResidues)
 
