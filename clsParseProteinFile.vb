@@ -2110,8 +2110,8 @@ Public Class clsParseProteinFile
     Public Class FastaFileOptionsClass
 
         Public Sub New()
-            mProteinLineStartChar = ">"c
-            mProteinLineAccessionEndChar = " "c
+            ProteinLineStartChar = ">"c
+            ProteinLineAccessionEndChar = " "c
 
             mLookForAddnlRefInDescription = False
             mAddnlRefSepChar = "|"c
@@ -2119,9 +2119,6 @@ Public Class clsParseProteinFile
         End Sub
 
         Private mReadonlyClass As Boolean
-
-        Private mProteinLineStartChar As Char
-        Private mProteinLineAccessionEndChar As Char
 
         Private mLookForAddnlRefInDescription As Boolean
 
@@ -2139,27 +2136,9 @@ Public Class clsParseProteinFile
             End Set
         End Property
 
-        Public Property ProteinLineStartChar As Char
-            Get
-                Return mProteinLineStartChar
-            End Get
-            Set
-                If Not Value = Nothing AndAlso Not mReadonlyClass Then
-                    mProteinLineStartChar = Value
-                End If
-            End Set
-        End Property
+        Public ReadOnly Property ProteinLineStartChar As Char = ">"c
 
-        Public Property ProteinLineAccessionEndChar As Char
-            Get
-                Return mProteinLineAccessionEndChar
-            End Get
-            Set
-                If Not Value = Nothing AndAlso Not mReadonlyClass Then
-                    mProteinLineAccessionEndChar = Value
-                End If
-            End Set
-        End Property
+        Public ReadOnly Property ProteinLineAccessionEndChar As Char = " "c
 
         Public Property LookForAddnlRefInDescription As Boolean
             Get
