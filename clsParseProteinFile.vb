@@ -34,10 +34,10 @@ Imports ValidateFastaFile
 Public Class clsParseProteinFile
     Inherits ProcessFilesBase
 
-    ' Ignore Spelling: silico, gi, Ile, Leu, SepChar, ComputepI, Cys, hydrophobicity
+    ' Ignore Spelling: ComputepI, Cys, gi, hydrophobicity, Ile, Leu, pre, SepChar, silico, varchar
 
     Public Sub New()
-        mFileDate = "March 16, 2021"
+        mFileDate = "May 4, 2021"
         InitializeLocalVariables()
     End Sub
 

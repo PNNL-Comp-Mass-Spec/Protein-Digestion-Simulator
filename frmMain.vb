@@ -25,9 +25,9 @@ Imports DBUtils = PRISMDatabaseUtils.DataTableUtils
 
 Public Class frmMain
 
-    ' Ignore Spelling: const, combobox, cbo, Hydrophobicity, frm, chk, ComputepI, Sep, Cys, diff,
-    ' Ignore Spelling: MaxpI, MinimumpI, MaximumpI, Sql, Kangas, Kostas, Petritis, gauging, CrLf, Da
-    ' Ignore Spelling: Hopp, Kyte, Eisenberg, Engleman, Iodoacetamide, Iodoacetic, al
+    ' Ignore Spelling: al, cbo, chk, combobox, ComputepI, const, CrLf, Cys, Da, diff, Eisenberg, Engleman
+    ' Ignore Spelling: frm, gauging, Hopp, Hydrophobicity, Iodoacetamide, Iodoacetic, Kangas, Kostas, Kyte
+    ' Ignore Spelling: MaximumpI, MaxpI, MinimumpI, Petritis, Sep, Sql, tryptic
 
     Public Sub New()
         MyBase.New()

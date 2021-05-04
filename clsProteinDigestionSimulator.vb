@@ -27,10 +27,10 @@ Imports DBUtils = PRISMDatabaseUtils.DataTableUtils
 Public Class clsProteinDigestionSimulator
     Inherits FileProcessor.ProcessFilesBase
 
-    ' Ignore Spelling: Da, Sql
+    ' Ignore Spelling: const, Da, pre, Sql
 
     Public Sub New()
-        MyBase.mFileDate = "March 16, 2021"
+        MyBase.mFileDate = "May 4, 2021"
         InitializeLocalVariables()
     End Sub
 
