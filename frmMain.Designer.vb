@@ -80,12 +80,6 @@ Partial Class frmMain
         Me.lblInputFileColumnDelimiter = New System.Windows.Forms.Label()
         Me.cboInputFileColumnDelimiter = New System.Windows.Forms.ComboBox()
         Me.TabPageFileFormatOptions = New System.Windows.Forms.TabPage()
-        Me.fraInputOptions = New System.Windows.Forms.GroupBox()
-        Me.txtRefEndChar = New System.Windows.Forms.TextBox()
-        Me.cboRefEndChar = New System.Windows.Forms.ComboBox()
-        Me.lblRefEndChar = New System.Windows.Forms.Label()
-        Me.txtRefStartChar = New System.Windows.Forms.TextBox()
-        Me.lblRefStartChar = New System.Windows.Forms.Label()
         Me.tbsOptions = New System.Windows.Forms.TabControl()
         Me.TabPageParseAndDigest = New System.Windows.Forms.TabPage()
         Me.fraProcessingOptions = New System.Windows.Forms.GroupBox()
@@ -112,6 +106,8 @@ Partial Class frmMain
         Me.chkIncludeXResidues = New System.Windows.Forms.CheckBox()
         Me.chkComputeProteinMass = New System.Windows.Forms.CheckBox()
         Me.fraDigestionOptions = New System.Windows.Forms.GroupBox()
+        Me.cboFragmentMassMode = New System.Windows.Forms.ComboBox()
+        Me.lblFragmentMassMode = New System.Windows.Forms.Label()
         Me.cboCysTreatmentMode = New System.Windows.Forms.ComboBox()
         Me.lblCysTreatment = New System.Windows.Forms.Label()
         Me.txtDigestProteinsMaximumpI = New System.Windows.Forms.TextBox()
@@ -177,8 +173,6 @@ Partial Class frmMain
         Me.cboOutputFileFieldDelimiter = New System.Windows.Forms.ComboBox()
         Me.txtOutputFileFieldDelimiter = New System.Windows.Forms.TextBox()
         Me.fraOutputTextOptions = New System.Windows.Forms.GroupBox()
-        Me.lblFragmentMassMode = New System.Windows.Forms.Label()
-        Me.cboFragmentMassMode = New System.Windows.Forms.ComboBox()
         Me.fraPeakMatchingOptions.SuspendLayout()
         Me.TabPageUniquenessStats.SuspendLayout()
         Me.fraSqlServerOptions.SuspendLayout()
@@ -186,7 +180,6 @@ Partial Class frmMain
         Me.frapIAndHydrophobicity.SuspendLayout()
         Me.fraDelimitedFileOptions.SuspendLayout()
         Me.TabPageFileFormatOptions.SuspendLayout()
-        Me.fraInputOptions.SuspendLayout()
         Me.tbsOptions.SuspendLayout()
         Me.TabPageParseAndDigest.SuspendLayout()
         Me.fraProcessingOptions.SuspendLayout()
@@ -203,46 +196,41 @@ Partial Class frmMain
         '
         Me.txtProteinInputFilePath.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.txtProteinInputFilePath.Location = New System.Drawing.Point(139, 32)
-        Me.txtProteinInputFilePath.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtProteinInputFilePath.Location = New System.Drawing.Point(104, 26)
         Me.txtProteinInputFilePath.Name = "txtProteinInputFilePath"
-        Me.txtProteinInputFilePath.Size = New System.Drawing.Size(813, 22)
+        Me.txtProteinInputFilePath.Size = New System.Drawing.Size(611, 20)
         Me.txtProteinInputFilePath.TabIndex = 1
         '
         'optUseRectangleSearchRegion
         '
-        Me.optUseRectangleSearchRegion.Location = New System.Drawing.Point(309, 118)
-        Me.optUseRectangleSearchRegion.Margin = New System.Windows.Forms.Padding(4)
+        Me.optUseRectangleSearchRegion.Location = New System.Drawing.Point(232, 96)
         Me.optUseRectangleSearchRegion.Name = "optUseRectangleSearchRegion"
-        Me.optUseRectangleSearchRegion.Size = New System.Drawing.Size(181, 20)
+        Me.optUseRectangleSearchRegion.Size = New System.Drawing.Size(136, 16)
         Me.optUseRectangleSearchRegion.TabIndex = 7
         Me.optUseRectangleSearchRegion.Text = "Use rectangle region"
         '
         'optUseEllipseSearchRegion
         '
         Me.optUseEllipseSearchRegion.Checked = True
-        Me.optUseEllipseSearchRegion.Location = New System.Drawing.Point(309, 89)
-        Me.optUseEllipseSearchRegion.Margin = New System.Windows.Forms.Padding(4)
+        Me.optUseEllipseSearchRegion.Location = New System.Drawing.Point(232, 72)
         Me.optUseEllipseSearchRegion.Name = "optUseEllipseSearchRegion"
-        Me.optUseEllipseSearchRegion.Size = New System.Drawing.Size(203, 20)
+        Me.optUseEllipseSearchRegion.Size = New System.Drawing.Size(152, 16)
         Me.optUseEllipseSearchRegion.TabIndex = 6
         Me.optUseEllipseSearchRegion.TabStop = True
         Me.optUseEllipseSearchRegion.Text = "Use ellipse search region"
         '
         'lblUniquenessCalculationsNote
         '
-        Me.lblUniquenessCalculationsNote.Location = New System.Drawing.Point(320, 236)
-        Me.lblUniquenessCalculationsNote.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblUniquenessCalculationsNote.Location = New System.Drawing.Point(240, 192)
         Me.lblUniquenessCalculationsNote.Name = "lblUniquenessCalculationsNote"
-        Me.lblUniquenessCalculationsNote.Size = New System.Drawing.Size(512, 108)
+        Me.lblUniquenessCalculationsNote.Size = New System.Drawing.Size(384, 88)
         Me.lblUniquenessCalculationsNote.TabIndex = 6
         '
         'lblProteinScramblingLoopCount
         '
-        Me.lblProteinScramblingLoopCount.Location = New System.Drawing.Point(309, 52)
-        Me.lblProteinScramblingLoopCount.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblProteinScramblingLoopCount.Location = New System.Drawing.Point(232, 42)
         Me.lblProteinScramblingLoopCount.Name = "lblProteinScramblingLoopCount"
-        Me.lblProteinScramblingLoopCount.Size = New System.Drawing.Size(96, 20)
+        Me.lblProteinScramblingLoopCount.Size = New System.Drawing.Size(72, 16)
         Me.lblProteinScramblingLoopCount.TabIndex = 12
         Me.lblProteinScramblingLoopCount.Text = "Loop Count"
         Me.lblProteinScramblingLoopCount.TextAlign = System.Drawing.ContentAlignment.TopRight
@@ -257,57 +245,50 @@ Partial Class frmMain
         Me.fraPeakMatchingOptions.Controls.Add(Me.txtMinimumSLiCScore)
         Me.fraPeakMatchingOptions.Controls.Add(Me.lblMinimumSLiCScore)
         Me.fraPeakMatchingOptions.Controls.Add(Me.chkUseSLiCScoreForUniqueness)
-        Me.fraPeakMatchingOptions.Location = New System.Drawing.Point(309, 59)
-        Me.fraPeakMatchingOptions.Margin = New System.Windows.Forms.Padding(4)
+        Me.fraPeakMatchingOptions.Location = New System.Drawing.Point(232, 48)
         Me.fraPeakMatchingOptions.Name = "fraPeakMatchingOptions"
-        Me.fraPeakMatchingOptions.Padding = New System.Windows.Forms.Padding(4)
-        Me.fraPeakMatchingOptions.Size = New System.Drawing.Size(523, 167)
+        Me.fraPeakMatchingOptions.Size = New System.Drawing.Size(392, 136)
         Me.fraPeakMatchingOptions.TabIndex = 2
         Me.fraPeakMatchingOptions.TabStop = False
         Me.fraPeakMatchingOptions.Text = "Peak Matching Options"
         '
         'txtMaxPeakMatchingResultsPerFeatureToSave
         '
-        Me.txtMaxPeakMatchingResultsPerFeatureToSave.Location = New System.Drawing.Point(363, 20)
-        Me.txtMaxPeakMatchingResultsPerFeatureToSave.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtMaxPeakMatchingResultsPerFeatureToSave.Location = New System.Drawing.Point(272, 16)
         Me.txtMaxPeakMatchingResultsPerFeatureToSave.Name = "txtMaxPeakMatchingResultsPerFeatureToSave"
-        Me.txtMaxPeakMatchingResultsPerFeatureToSave.Size = New System.Drawing.Size(52, 22)
+        Me.txtMaxPeakMatchingResultsPerFeatureToSave.Size = New System.Drawing.Size(40, 20)
         Me.txtMaxPeakMatchingResultsPerFeatureToSave.TabIndex = 1
         Me.txtMaxPeakMatchingResultsPerFeatureToSave.Text = "3"
         '
         'lblMaxPeakMatchingResultsPerFeatureToSave
         '
-        Me.lblMaxPeakMatchingResultsPerFeatureToSave.Location = New System.Drawing.Point(21, 22)
-        Me.lblMaxPeakMatchingResultsPerFeatureToSave.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblMaxPeakMatchingResultsPerFeatureToSave.Location = New System.Drawing.Point(16, 18)
         Me.lblMaxPeakMatchingResultsPerFeatureToSave.Name = "lblMaxPeakMatchingResultsPerFeatureToSave"
-        Me.lblMaxPeakMatchingResultsPerFeatureToSave.Size = New System.Drawing.Size(341, 20)
+        Me.lblMaxPeakMatchingResultsPerFeatureToSave.Size = New System.Drawing.Size(256, 16)
         Me.lblMaxPeakMatchingResultsPerFeatureToSave.TabIndex = 0
         Me.lblMaxPeakMatchingResultsPerFeatureToSave.Text = "Max Peak Matching Results Per Feature To Save"
         '
         'chkExportPeakMatchingResults
         '
-        Me.chkExportPeakMatchingResults.Location = New System.Drawing.Point(43, 44)
-        Me.chkExportPeakMatchingResults.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkExportPeakMatchingResults.Location = New System.Drawing.Point(32, 36)
         Me.chkExportPeakMatchingResults.Name = "chkExportPeakMatchingResults"
-        Me.chkExportPeakMatchingResults.Size = New System.Drawing.Size(256, 21)
+        Me.chkExportPeakMatchingResults.Size = New System.Drawing.Size(192, 17)
         Me.chkExportPeakMatchingResults.TabIndex = 2
         Me.chkExportPeakMatchingResults.Text = "Export peak matching results"
         '
         'txtMinimumSLiCScore
         '
-        Me.txtMinimumSLiCScore.Location = New System.Drawing.Point(192, 128)
-        Me.txtMinimumSLiCScore.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtMinimumSLiCScore.Location = New System.Drawing.Point(144, 104)
         Me.txtMinimumSLiCScore.Name = "txtMinimumSLiCScore"
-        Me.txtMinimumSLiCScore.Size = New System.Drawing.Size(52, 22)
+        Me.txtMinimumSLiCScore.Size = New System.Drawing.Size(40, 20)
         Me.txtMinimumSLiCScore.TabIndex = 5
         Me.txtMinimumSLiCScore.Text = "0.99"
         '
         'lblMinimumSLiCScore
         '
-        Me.lblMinimumSLiCScore.Location = New System.Drawing.Point(21, 118)
-        Me.lblMinimumSLiCScore.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblMinimumSLiCScore.Location = New System.Drawing.Point(16, 96)
         Me.lblMinimumSLiCScore.Name = "lblMinimumSLiCScore"
-        Me.lblMinimumSLiCScore.Size = New System.Drawing.Size(171, 39)
+        Me.lblMinimumSLiCScore.Size = New System.Drawing.Size(128, 32)
         Me.lblMinimumSLiCScore.TabIndex = 4
         Me.lblMinimumSLiCScore.Text = "Minimum SLiC score to be considered unique"
         '
@@ -315,10 +296,9 @@ Partial Class frmMain
         '
         Me.chkUseSLiCScoreForUniqueness.Checked = True
         Me.chkUseSLiCScoreForUniqueness.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkUseSLiCScoreForUniqueness.Location = New System.Drawing.Point(21, 74)
-        Me.chkUseSLiCScoreForUniqueness.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkUseSLiCScoreForUniqueness.Location = New System.Drawing.Point(16, 60)
         Me.chkUseSLiCScoreForUniqueness.Name = "chkUseSLiCScoreForUniqueness"
-        Me.chkUseSLiCScoreForUniqueness.Size = New System.Drawing.Size(224, 39)
+        Me.chkUseSLiCScoreForUniqueness.Size = New System.Drawing.Size(168, 32)
         Me.chkUseSLiCScoreForUniqueness.TabIndex = 3
         Me.chkUseSLiCScoreForUniqueness.Text = "Use SLiC Score when gauging peptide uniqueness"
         '
@@ -331,10 +311,9 @@ Partial Class frmMain
         Me.TabPageUniquenessStats.Controls.Add(Me.lblUniquenessStatsNote)
         Me.TabPageUniquenessStats.Controls.Add(Me.cmdGenerateUniquenessStats)
         Me.TabPageUniquenessStats.Controls.Add(Me.chkAssumeInputFileIsDigested)
-        Me.TabPageUniquenessStats.Location = New System.Drawing.Point(4, 25)
-        Me.TabPageUniquenessStats.Margin = New System.Windows.Forms.Padding(4)
+        Me.TabPageUniquenessStats.Location = New System.Drawing.Point(4, 22)
         Me.TabPageUniquenessStats.Name = "TabPageUniquenessStats"
-        Me.TabPageUniquenessStats.Size = New System.Drawing.Size(931, 407)
+        Me.TabPageUniquenessStats.Size = New System.Drawing.Size(696, 328)
         Me.TabPageUniquenessStats.TabIndex = 1
         Me.TabPageUniquenessStats.Text = "Peptide Uniqueness Options"
         Me.TabPageUniquenessStats.UseVisualStyleBackColor = True
@@ -353,11 +332,9 @@ Partial Class frmMain
         Me.fraSqlServerOptions.Controls.Add(Me.txtSqlServerDatabase)
         Me.fraSqlServerOptions.Controls.Add(Me.txtSqlServerName)
         Me.fraSqlServerOptions.Controls.Add(Me.chkUseSqlServerDBToCacheData)
-        Me.fraSqlServerOptions.Location = New System.Drawing.Point(309, 236)
-        Me.fraSqlServerOptions.Margin = New System.Windows.Forms.Padding(4)
+        Me.fraSqlServerOptions.Location = New System.Drawing.Point(232, 192)
         Me.fraSqlServerOptions.Name = "fraSqlServerOptions"
-        Me.fraSqlServerOptions.Padding = New System.Windows.Forms.Padding(4)
-        Me.fraSqlServerOptions.Size = New System.Drawing.Size(501, 138)
+        Me.fraSqlServerOptions.Size = New System.Drawing.Size(376, 112)
         Me.fraSqlServerOptions.TabIndex = 4
         Me.fraSqlServerOptions.TabStop = False
         Me.fraSqlServerOptions.Text = "Sql Server Options"
@@ -367,74 +344,66 @@ Partial Class frmMain
         '
         Me.chkSqlServerUseExistingData.Checked = True
         Me.chkSqlServerUseExistingData.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkSqlServerUseExistingData.Location = New System.Drawing.Point(11, 108)
-        Me.chkSqlServerUseExistingData.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkSqlServerUseExistingData.Location = New System.Drawing.Point(8, 88)
         Me.chkSqlServerUseExistingData.Name = "chkSqlServerUseExistingData"
-        Me.chkSqlServerUseExistingData.Size = New System.Drawing.Size(192, 20)
+        Me.chkSqlServerUseExistingData.Size = New System.Drawing.Size(144, 16)
         Me.chkSqlServerUseExistingData.TabIndex = 11
         Me.chkSqlServerUseExistingData.Text = "Use Existing Data"
         '
         'chkAllowSqlServerCaching
         '
-        Me.chkAllowSqlServerCaching.Location = New System.Drawing.Point(11, 20)
-        Me.chkAllowSqlServerCaching.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkAllowSqlServerCaching.Location = New System.Drawing.Point(8, 16)
         Me.chkAllowSqlServerCaching.Name = "chkAllowSqlServerCaching"
-        Me.chkAllowSqlServerCaching.Size = New System.Drawing.Size(192, 39)
+        Me.chkAllowSqlServerCaching.Size = New System.Drawing.Size(144, 32)
         Me.chkAllowSqlServerCaching.TabIndex = 0
         Me.chkAllowSqlServerCaching.Text = "Allow data caching using Sql Server"
         '
         'lblSqlServerPassword
         '
-        Me.lblSqlServerPassword.Location = New System.Drawing.Point(352, 79)
-        Me.lblSqlServerPassword.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblSqlServerPassword.Location = New System.Drawing.Point(264, 64)
         Me.lblSqlServerPassword.Name = "lblSqlServerPassword"
-        Me.lblSqlServerPassword.Size = New System.Drawing.Size(75, 20)
+        Me.lblSqlServerPassword.Size = New System.Drawing.Size(56, 16)
         Me.lblSqlServerPassword.TabIndex = 9
         Me.lblSqlServerPassword.Text = "Password"
         '
         'lblSqlServerUsername
         '
-        Me.lblSqlServerUsername.Location = New System.Drawing.Point(245, 79)
-        Me.lblSqlServerUsername.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblSqlServerUsername.Location = New System.Drawing.Point(184, 64)
         Me.lblSqlServerUsername.Name = "lblSqlServerUsername"
-        Me.lblSqlServerUsername.Size = New System.Drawing.Size(75, 20)
+        Me.lblSqlServerUsername.Size = New System.Drawing.Size(56, 16)
         Me.lblSqlServerUsername.TabIndex = 7
         Me.lblSqlServerUsername.Text = "Username"
         '
         'txtSqlServerPassword
         '
-        Me.txtSqlServerPassword.Location = New System.Drawing.Point(352, 98)
-        Me.txtSqlServerPassword.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtSqlServerPassword.Location = New System.Drawing.Point(264, 80)
         Me.txtSqlServerPassword.Name = "txtSqlServerPassword"
         Me.txtSqlServerPassword.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
-        Me.txtSqlServerPassword.Size = New System.Drawing.Size(116, 22)
+        Me.txtSqlServerPassword.Size = New System.Drawing.Size(88, 20)
         Me.txtSqlServerPassword.TabIndex = 10
         Me.txtSqlServerPassword.Text = "pw"
         '
         'txtSqlServerUsername
         '
-        Me.txtSqlServerUsername.Location = New System.Drawing.Point(245, 98)
-        Me.txtSqlServerUsername.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtSqlServerUsername.Location = New System.Drawing.Point(184, 80)
         Me.txtSqlServerUsername.Name = "txtSqlServerUsername"
-        Me.txtSqlServerUsername.Size = New System.Drawing.Size(95, 22)
+        Me.txtSqlServerUsername.Size = New System.Drawing.Size(72, 20)
         Me.txtSqlServerUsername.TabIndex = 8
         Me.txtSqlServerUsername.Text = "user"
         '
         'lblSqlServerDatabase
         '
-        Me.lblSqlServerDatabase.Location = New System.Drawing.Point(352, 20)
-        Me.lblSqlServerDatabase.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblSqlServerDatabase.Location = New System.Drawing.Point(264, 16)
         Me.lblSqlServerDatabase.Name = "lblSqlServerDatabase"
-        Me.lblSqlServerDatabase.Size = New System.Drawing.Size(75, 20)
+        Me.lblSqlServerDatabase.Size = New System.Drawing.Size(56, 16)
         Me.lblSqlServerDatabase.TabIndex = 4
         Me.lblSqlServerDatabase.Text = "Database"
         '
         'lblSqlServerServerName
         '
-        Me.lblSqlServerServerName.Location = New System.Drawing.Point(245, 20)
-        Me.lblSqlServerServerName.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblSqlServerServerName.Location = New System.Drawing.Point(184, 16)
         Me.lblSqlServerServerName.Name = "lblSqlServerServerName"
-        Me.lblSqlServerServerName.Size = New System.Drawing.Size(75, 20)
+        Me.lblSqlServerServerName.Size = New System.Drawing.Size(56, 16)
         Me.lblSqlServerServerName.TabIndex = 2
         Me.lblSqlServerServerName.Text = "Server"
         '
@@ -442,28 +411,25 @@ Partial Class frmMain
         '
         Me.chkSqlServerUseIntegratedSecurity.Checked = True
         Me.chkSqlServerUseIntegratedSecurity.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkSqlServerUseIntegratedSecurity.Location = New System.Drawing.Point(11, 89)
-        Me.chkSqlServerUseIntegratedSecurity.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkSqlServerUseIntegratedSecurity.Location = New System.Drawing.Point(8, 72)
         Me.chkSqlServerUseIntegratedSecurity.Name = "chkSqlServerUseIntegratedSecurity"
-        Me.chkSqlServerUseIntegratedSecurity.Size = New System.Drawing.Size(192, 20)
+        Me.chkSqlServerUseIntegratedSecurity.Size = New System.Drawing.Size(144, 16)
         Me.chkSqlServerUseIntegratedSecurity.TabIndex = 6
         Me.chkSqlServerUseIntegratedSecurity.Text = "Use Integrated Security"
         '
         'txtSqlServerDatabase
         '
-        Me.txtSqlServerDatabase.Location = New System.Drawing.Point(352, 39)
-        Me.txtSqlServerDatabase.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtSqlServerDatabase.Location = New System.Drawing.Point(264, 32)
         Me.txtSqlServerDatabase.Name = "txtSqlServerDatabase"
-        Me.txtSqlServerDatabase.Size = New System.Drawing.Size(116, 22)
+        Me.txtSqlServerDatabase.Size = New System.Drawing.Size(88, 20)
         Me.txtSqlServerDatabase.TabIndex = 5
         Me.txtSqlServerDatabase.Text = "TempDB"
         '
         'txtSqlServerName
         '
-        Me.txtSqlServerName.Location = New System.Drawing.Point(245, 39)
-        Me.txtSqlServerName.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtSqlServerName.Location = New System.Drawing.Point(184, 32)
         Me.txtSqlServerName.Name = "txtSqlServerName"
-        Me.txtSqlServerName.Size = New System.Drawing.Size(95, 22)
+        Me.txtSqlServerName.Size = New System.Drawing.Size(72, 20)
         Me.txtSqlServerName.TabIndex = 3
         Me.txtSqlServerName.Text = "Monroe"
         '
@@ -471,10 +437,9 @@ Partial Class frmMain
         '
         Me.chkUseSqlServerDBToCacheData.Checked = True
         Me.chkUseSqlServerDBToCacheData.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkUseSqlServerDBToCacheData.Location = New System.Drawing.Point(11, 69)
-        Me.chkUseSqlServerDBToCacheData.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkUseSqlServerDBToCacheData.Location = New System.Drawing.Point(8, 56)
         Me.chkUseSqlServerDBToCacheData.Name = "chkUseSqlServerDBToCacheData"
-        Me.chkUseSqlServerDBToCacheData.Size = New System.Drawing.Size(192, 20)
+        Me.chkUseSqlServerDBToCacheData.Size = New System.Drawing.Size(144, 16)
         Me.chkUseSqlServerDBToCacheData.TabIndex = 1
         Me.chkUseSqlServerDBToCacheData.Text = "Enable data caching"
         '
@@ -488,39 +453,34 @@ Partial Class frmMain
         Me.fraUniquenessBinningOptions.Controls.Add(Me.lblUniquenessBinEndMass)
         Me.fraUniquenessBinningOptions.Controls.Add(Me.txtUniquenessBinStartMass)
         Me.fraUniquenessBinningOptions.Controls.Add(Me.lblUniquenessBinStartMass)
-        Me.fraUniquenessBinningOptions.Location = New System.Drawing.Point(11, 148)
-        Me.fraUniquenessBinningOptions.Margin = New System.Windows.Forms.Padding(4)
+        Me.fraUniquenessBinningOptions.Location = New System.Drawing.Point(8, 120)
         Me.fraUniquenessBinningOptions.Name = "fraUniquenessBinningOptions"
-        Me.fraUniquenessBinningOptions.Padding = New System.Windows.Forms.Padding(4)
-        Me.fraUniquenessBinningOptions.Size = New System.Drawing.Size(277, 197)
+        Me.fraUniquenessBinningOptions.Size = New System.Drawing.Size(208, 160)
         Me.fraUniquenessBinningOptions.TabIndex = 3
         Me.fraUniquenessBinningOptions.TabStop = False
         Me.fraUniquenessBinningOptions.Text = "Binning Options"
         '
         'lblPeptideUniquenessMassMode
         '
-        Me.lblPeptideUniquenessMassMode.Location = New System.Drawing.Point(21, 167)
-        Me.lblPeptideUniquenessMassMode.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblPeptideUniquenessMassMode.Location = New System.Drawing.Point(16, 136)
         Me.lblPeptideUniquenessMassMode.Name = "lblPeptideUniquenessMassMode"
-        Me.lblPeptideUniquenessMassMode.Size = New System.Drawing.Size(235, 20)
+        Me.lblPeptideUniquenessMassMode.Size = New System.Drawing.Size(176, 16)
         Me.lblPeptideUniquenessMassMode.TabIndex = 7
         Me.lblPeptideUniquenessMassMode.Text = "Using monoisotopic masses"
         '
         'txtUniquenessBinWidth
         '
-        Me.txtUniquenessBinWidth.Location = New System.Drawing.Point(107, 30)
-        Me.txtUniquenessBinWidth.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtUniquenessBinWidth.Location = New System.Drawing.Point(80, 24)
         Me.txtUniquenessBinWidth.Name = "txtUniquenessBinWidth"
-        Me.txtUniquenessBinWidth.Size = New System.Drawing.Size(52, 22)
+        Me.txtUniquenessBinWidth.Size = New System.Drawing.Size(40, 20)
         Me.txtUniquenessBinWidth.TabIndex = 1
         Me.txtUniquenessBinWidth.Text = "25"
         '
         'lblUniquenessBinWidth
         '
-        Me.lblUniquenessBinWidth.Location = New System.Drawing.Point(21, 32)
-        Me.lblUniquenessBinWidth.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblUniquenessBinWidth.Location = New System.Drawing.Point(16, 26)
         Me.lblUniquenessBinWidth.Name = "lblUniquenessBinWidth"
-        Me.lblUniquenessBinWidth.Size = New System.Drawing.Size(85, 20)
+        Me.lblUniquenessBinWidth.Size = New System.Drawing.Size(64, 16)
         Me.lblUniquenessBinWidth.TabIndex = 0
         Me.lblUniquenessBinWidth.Text = "Bin Width"
         '
@@ -528,130 +488,116 @@ Partial Class frmMain
         '
         Me.chkAutoComputeRangeForBinning.Checked = True
         Me.chkAutoComputeRangeForBinning.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkAutoComputeRangeForBinning.Location = New System.Drawing.Point(21, 69)
-        Me.chkAutoComputeRangeForBinning.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkAutoComputeRangeForBinning.Location = New System.Drawing.Point(16, 56)
         Me.chkAutoComputeRangeForBinning.Name = "chkAutoComputeRangeForBinning"
-        Me.chkAutoComputeRangeForBinning.Size = New System.Drawing.Size(245, 21)
+        Me.chkAutoComputeRangeForBinning.Size = New System.Drawing.Size(184, 17)
         Me.chkAutoComputeRangeForBinning.TabIndex = 2
         Me.chkAutoComputeRangeForBinning.Text = "Auto compute range for binning"
         '
         'txtUniquenessBinEndMass
         '
-        Me.txtUniquenessBinEndMass.Location = New System.Drawing.Point(107, 128)
-        Me.txtUniquenessBinEndMass.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtUniquenessBinEndMass.Location = New System.Drawing.Point(80, 104)
         Me.txtUniquenessBinEndMass.Name = "txtUniquenessBinEndMass"
-        Me.txtUniquenessBinEndMass.Size = New System.Drawing.Size(52, 22)
+        Me.txtUniquenessBinEndMass.Size = New System.Drawing.Size(40, 20)
         Me.txtUniquenessBinEndMass.TabIndex = 6
         Me.txtUniquenessBinEndMass.Text = "6000"
         '
         'lblUniquenessBinEndMass
         '
-        Me.lblUniquenessBinEndMass.Location = New System.Drawing.Point(21, 130)
-        Me.lblUniquenessBinEndMass.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblUniquenessBinEndMass.Location = New System.Drawing.Point(16, 106)
         Me.lblUniquenessBinEndMass.Name = "lblUniquenessBinEndMass"
-        Me.lblUniquenessBinEndMass.Size = New System.Drawing.Size(85, 20)
+        Me.lblUniquenessBinEndMass.Size = New System.Drawing.Size(64, 16)
         Me.lblUniquenessBinEndMass.TabIndex = 5
         Me.lblUniquenessBinEndMass.Text = "End Mass"
         '
         'txtUniquenessBinStartMass
         '
-        Me.txtUniquenessBinStartMass.Location = New System.Drawing.Point(107, 98)
-        Me.txtUniquenessBinStartMass.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtUniquenessBinStartMass.Location = New System.Drawing.Point(80, 80)
         Me.txtUniquenessBinStartMass.Name = "txtUniquenessBinStartMass"
-        Me.txtUniquenessBinStartMass.Size = New System.Drawing.Size(52, 22)
+        Me.txtUniquenessBinStartMass.Size = New System.Drawing.Size(40, 20)
         Me.txtUniquenessBinStartMass.TabIndex = 4
         Me.txtUniquenessBinStartMass.Text = "400"
         '
         'lblUniquenessBinStartMass
         '
-        Me.lblUniquenessBinStartMass.Location = New System.Drawing.Point(21, 101)
-        Me.lblUniquenessBinStartMass.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblUniquenessBinStartMass.Location = New System.Drawing.Point(16, 82)
         Me.lblUniquenessBinStartMass.Name = "lblUniquenessBinStartMass"
-        Me.lblUniquenessBinStartMass.Size = New System.Drawing.Size(85, 20)
+        Me.lblUniquenessBinStartMass.Size = New System.Drawing.Size(64, 16)
         Me.lblUniquenessBinStartMass.TabIndex = 3
         Me.lblUniquenessBinStartMass.Text = "Start Mass"
         '
         'lblUniquenessStatsNote
         '
-        Me.lblUniquenessStatsNote.Location = New System.Drawing.Point(11, 69)
-        Me.lblUniquenessStatsNote.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblUniquenessStatsNote.Location = New System.Drawing.Point(8, 56)
         Me.lblUniquenessStatsNote.Name = "lblUniquenessStatsNote"
-        Me.lblUniquenessStatsNote.Size = New System.Drawing.Size(267, 59)
+        Me.lblUniquenessStatsNote.Size = New System.Drawing.Size(200, 48)
         Me.lblUniquenessStatsNote.TabIndex = 1
         Me.lblUniquenessStatsNote.Text = "Note that Digestion Options and Mass Calculation Options also apply for uniquenes" &
     "s stats generation."
         '
         'cmdGenerateUniquenessStats
         '
-        Me.cmdGenerateUniquenessStats.Location = New System.Drawing.Point(309, 20)
-        Me.cmdGenerateUniquenessStats.Margin = New System.Windows.Forms.Padding(4)
+        Me.cmdGenerateUniquenessStats.Location = New System.Drawing.Point(232, 16)
         Me.cmdGenerateUniquenessStats.Name = "cmdGenerateUniquenessStats"
-        Me.cmdGenerateUniquenessStats.Size = New System.Drawing.Size(235, 30)
+        Me.cmdGenerateUniquenessStats.Size = New System.Drawing.Size(176, 24)
         Me.cmdGenerateUniquenessStats.TabIndex = 5
         Me.cmdGenerateUniquenessStats.Text = "&Generate Uniqueness Stats"
         '
         'chkAssumeInputFileIsDigested
         '
-        Me.chkAssumeInputFileIsDigested.Location = New System.Drawing.Point(11, 20)
-        Me.chkAssumeInputFileIsDigested.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkAssumeInputFileIsDigested.Location = New System.Drawing.Point(8, 16)
         Me.chkAssumeInputFileIsDigested.Name = "chkAssumeInputFileIsDigested"
-        Me.chkAssumeInputFileIsDigested.Size = New System.Drawing.Size(256, 39)
+        Me.chkAssumeInputFileIsDigested.Size = New System.Drawing.Size(192, 32)
         Me.chkAssumeInputFileIsDigested.TabIndex = 0
         Me.chkAssumeInputFileIsDigested.Text = "Assume input file is already digested (for Delimited files only)"
         '
         'txtProteinScramblingLoopCount
         '
-        Me.txtProteinScramblingLoopCount.Location = New System.Drawing.Point(416, 49)
-        Me.txtProteinScramblingLoopCount.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtProteinScramblingLoopCount.Location = New System.Drawing.Point(312, 40)
         Me.txtProteinScramblingLoopCount.MaxLength = 3
         Me.txtProteinScramblingLoopCount.Name = "txtProteinScramblingLoopCount"
-        Me.txtProteinScramblingLoopCount.Size = New System.Drawing.Size(41, 22)
+        Me.txtProteinScramblingLoopCount.Size = New System.Drawing.Size(32, 20)
         Me.txtProteinScramblingLoopCount.TabIndex = 13
         Me.txtProteinScramblingLoopCount.Text = "1"
         '
         'lblSamplingPercentageUnits
         '
-        Me.lblSamplingPercentageUnits.Location = New System.Drawing.Point(277, 52)
-        Me.lblSamplingPercentageUnits.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblSamplingPercentageUnits.Location = New System.Drawing.Point(208, 42)
         Me.lblSamplingPercentageUnits.Name = "lblSamplingPercentageUnits"
-        Me.lblSamplingPercentageUnits.Size = New System.Drawing.Size(21, 20)
+        Me.lblSamplingPercentageUnits.Size = New System.Drawing.Size(16, 16)
         Me.lblSamplingPercentageUnits.TabIndex = 4
         Me.lblSamplingPercentageUnits.Text = "%"
         '
         'txtMaxpISequenceLength
         '
-        Me.txtMaxpISequenceLength.Location = New System.Drawing.Point(224, 86)
-        Me.txtMaxpISequenceLength.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtMaxpISequenceLength.Location = New System.Drawing.Point(168, 70)
         Me.txtMaxpISequenceLength.Name = "txtMaxpISequenceLength"
-        Me.txtMaxpISequenceLength.Size = New System.Drawing.Size(52, 22)
+        Me.txtMaxpISequenceLength.Size = New System.Drawing.Size(40, 20)
         Me.txtMaxpISequenceLength.TabIndex = 4
         Me.txtMaxpISequenceLength.Text = "10"
         '
         'lblProteinReversalSamplingPercentage
         '
-        Me.lblProteinReversalSamplingPercentage.Location = New System.Drawing.Point(64, 52)
-        Me.lblProteinReversalSamplingPercentage.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblProteinReversalSamplingPercentage.Location = New System.Drawing.Point(48, 42)
         Me.lblProteinReversalSamplingPercentage.Name = "lblProteinReversalSamplingPercentage"
-        Me.lblProteinReversalSamplingPercentage.Size = New System.Drawing.Size(149, 20)
+        Me.lblProteinReversalSamplingPercentage.Size = New System.Drawing.Size(112, 16)
         Me.lblProteinReversalSamplingPercentage.TabIndex = 2
         Me.lblProteinReversalSamplingPercentage.Text = "Sampling Percentage"
         Me.lblProteinReversalSamplingPercentage.TextAlign = System.Drawing.ContentAlignment.TopRight
         '
         'lblMaxpISequenceLength
         '
-        Me.lblMaxpISequenceLength.Location = New System.Drawing.Point(43, 89)
-        Me.lblMaxpISequenceLength.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblMaxpISequenceLength.Location = New System.Drawing.Point(32, 72)
         Me.lblMaxpISequenceLength.Name = "lblMaxpISequenceLength"
-        Me.lblMaxpISequenceLength.Size = New System.Drawing.Size(192, 20)
+        Me.lblMaxpISequenceLength.Size = New System.Drawing.Size(144, 16)
         Me.lblMaxpISequenceLength.TabIndex = 3
         Me.lblMaxpISequenceLength.Text = "Sub-sequence Length"
         '
         'chkMaxpIModeEnabled
         '
-        Me.chkMaxpIModeEnabled.Location = New System.Drawing.Point(11, 59)
-        Me.chkMaxpIModeEnabled.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkMaxpIModeEnabled.Location = New System.Drawing.Point(8, 48)
         Me.chkMaxpIModeEnabled.Name = "chkMaxpIModeEnabled"
-        Me.chkMaxpIModeEnabled.Size = New System.Drawing.Size(299, 20)
+        Me.chkMaxpIModeEnabled.Size = New System.Drawing.Size(224, 16)
         Me.chkMaxpIModeEnabled.TabIndex = 2
         Me.chkMaxpIModeEnabled.Text = "Report maximum of all sub-sequences"
         '
@@ -665,21 +611,18 @@ Partial Class frmMain
         Me.frapIAndHydrophobicity.Controls.Add(Me.txtpIStats)
         Me.frapIAndHydrophobicity.Controls.Add(Me.txtSequenceForpI)
         Me.frapIAndHydrophobicity.Controls.Add(Me.lblSequenceForpI)
-        Me.frapIAndHydrophobicity.Location = New System.Drawing.Point(11, 236)
-        Me.frapIAndHydrophobicity.Margin = New System.Windows.Forms.Padding(4)
+        Me.frapIAndHydrophobicity.Location = New System.Drawing.Point(8, 108)
         Me.frapIAndHydrophobicity.Name = "frapIAndHydrophobicity"
-        Me.frapIAndHydrophobicity.Padding = New System.Windows.Forms.Padding(4)
-        Me.frapIAndHydrophobicity.Size = New System.Drawing.Size(821, 167)
+        Me.frapIAndHydrophobicity.Size = New System.Drawing.Size(616, 136)
         Me.frapIAndHydrophobicity.TabIndex = 2
         Me.frapIAndHydrophobicity.TabStop = False
         Me.frapIAndHydrophobicity.Text = "pI And Hydrophobicity"
         '
         'lblHydrophobicityMode
         '
-        Me.lblHydrophobicityMode.Location = New System.Drawing.Point(11, 30)
-        Me.lblHydrophobicityMode.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblHydrophobicityMode.Location = New System.Drawing.Point(8, 24)
         Me.lblHydrophobicityMode.Name = "lblHydrophobicityMode"
-        Me.lblHydrophobicityMode.Size = New System.Drawing.Size(160, 20)
+        Me.lblHydrophobicityMode.Size = New System.Drawing.Size(120, 16)
         Me.lblHydrophobicityMode.TabIndex = 0
         Me.lblHydrophobicityMode.Text = "Hydrophobicity Mode"
         '
@@ -687,40 +630,36 @@ Partial Class frmMain
         '
         Me.cboHydrophobicityMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cboHydrophobicityMode.DropDownWidth = 70
-        Me.cboHydrophobicityMode.Location = New System.Drawing.Point(171, 22)
-        Me.cboHydrophobicityMode.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboHydrophobicityMode.Location = New System.Drawing.Point(128, 18)
         Me.cboHydrophobicityMode.Name = "cboHydrophobicityMode"
-        Me.cboHydrophobicityMode.Size = New System.Drawing.Size(244, 24)
+        Me.cboHydrophobicityMode.Size = New System.Drawing.Size(184, 21)
         Me.cboHydrophobicityMode.TabIndex = 1
         '
         'txtpIStats
         '
         Me.txtpIStats.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
-        Me.txtpIStats.Location = New System.Drawing.Point(448, 59)
-        Me.txtpIStats.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtpIStats.Location = New System.Drawing.Point(336, 48)
         Me.txtpIStats.MaxLength = 1
         Me.txtpIStats.Multiline = True
         Me.txtpIStats.Name = "txtpIStats"
         Me.txtpIStats.ReadOnly = True
-        Me.txtpIStats.Size = New System.Drawing.Size(361, 97)
+        Me.txtpIStats.Size = New System.Drawing.Size(272, 80)
         Me.txtpIStats.TabIndex = 7
         '
         'txtSequenceForpI
         '
-        Me.txtSequenceForpI.Location = New System.Drawing.Point(533, 20)
-        Me.txtSequenceForpI.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtSequenceForpI.Location = New System.Drawing.Point(400, 16)
         Me.txtSequenceForpI.Name = "txtSequenceForpI"
-        Me.txtSequenceForpI.Size = New System.Drawing.Size(276, 22)
+        Me.txtSequenceForpI.Size = New System.Drawing.Size(208, 20)
         Me.txtSequenceForpI.TabIndex = 6
         Me.txtSequenceForpI.Text = "FKDLGEEQFK"
         '
         'lblSequenceForpI
         '
-        Me.lblSequenceForpI.Location = New System.Drawing.Point(437, 25)
-        Me.lblSequenceForpI.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblSequenceForpI.Location = New System.Drawing.Point(328, 20)
         Me.lblSequenceForpI.Name = "lblSequenceForpI"
-        Me.lblSequenceForpI.Size = New System.Drawing.Size(96, 20)
+        Me.lblSequenceForpI.Size = New System.Drawing.Size(72, 16)
         Me.lblSequenceForpI.TabIndex = 5
         Me.lblSequenceForpI.Text = "Sequence"
         '
@@ -731,11 +670,9 @@ Partial Class frmMain
         Me.fraDelimitedFileOptions.Controls.Add(Me.txtInputFileColumnDelimiter)
         Me.fraDelimitedFileOptions.Controls.Add(Me.lblInputFileColumnDelimiter)
         Me.fraDelimitedFileOptions.Controls.Add(Me.cboInputFileColumnDelimiter)
-        Me.fraDelimitedFileOptions.Location = New System.Drawing.Point(11, 118)
-        Me.fraDelimitedFileOptions.Margin = New System.Windows.Forms.Padding(4)
+        Me.fraDelimitedFileOptions.Location = New System.Drawing.Point(8, 12)
         Me.fraDelimitedFileOptions.Name = "fraDelimitedFileOptions"
-        Me.fraDelimitedFileOptions.Padding = New System.Windows.Forms.Padding(4)
-        Me.fraDelimitedFileOptions.Size = New System.Drawing.Size(661, 108)
+        Me.fraDelimitedFileOptions.Size = New System.Drawing.Size(496, 88)
         Me.fraDelimitedFileOptions.TabIndex = 1
         Me.fraDelimitedFileOptions.TabStop = False
         Me.fraDelimitedFileOptions.Text = "Delimited Input File Options"
@@ -744,37 +681,33 @@ Partial Class frmMain
         '
         Me.cboInputFileColumnOrdering.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cboInputFileColumnOrdering.DropDownWidth = 70
-        Me.cboInputFileColumnOrdering.Location = New System.Drawing.Point(117, 30)
-        Me.cboInputFileColumnOrdering.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboInputFileColumnOrdering.Location = New System.Drawing.Point(88, 24)
         Me.cboInputFileColumnOrdering.Name = "cboInputFileColumnOrdering"
-        Me.cboInputFileColumnOrdering.Size = New System.Drawing.Size(521, 24)
+        Me.cboInputFileColumnOrdering.Size = New System.Drawing.Size(392, 21)
         Me.cboInputFileColumnOrdering.TabIndex = 1
         '
         'lblInputFileColumnOrdering
         '
-        Me.lblInputFileColumnOrdering.Location = New System.Drawing.Point(11, 32)
-        Me.lblInputFileColumnOrdering.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblInputFileColumnOrdering.Location = New System.Drawing.Point(8, 26)
         Me.lblInputFileColumnOrdering.Name = "lblInputFileColumnOrdering"
-        Me.lblInputFileColumnOrdering.Size = New System.Drawing.Size(107, 20)
+        Me.lblInputFileColumnOrdering.Size = New System.Drawing.Size(80, 16)
         Me.lblInputFileColumnOrdering.TabIndex = 0
         Me.lblInputFileColumnOrdering.Text = "Column Order"
         '
         'txtInputFileColumnDelimiter
         '
-        Me.txtInputFileColumnDelimiter.Location = New System.Drawing.Point(256, 69)
-        Me.txtInputFileColumnDelimiter.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtInputFileColumnDelimiter.Location = New System.Drawing.Point(192, 56)
         Me.txtInputFileColumnDelimiter.MaxLength = 1
         Me.txtInputFileColumnDelimiter.Name = "txtInputFileColumnDelimiter"
-        Me.txtInputFileColumnDelimiter.Size = New System.Drawing.Size(41, 22)
+        Me.txtInputFileColumnDelimiter.Size = New System.Drawing.Size(32, 20)
         Me.txtInputFileColumnDelimiter.TabIndex = 4
         Me.txtInputFileColumnDelimiter.Text = ";"
         '
         'lblInputFileColumnDelimiter
         '
-        Me.lblInputFileColumnDelimiter.Location = New System.Drawing.Point(11, 71)
-        Me.lblInputFileColumnDelimiter.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblInputFileColumnDelimiter.Location = New System.Drawing.Point(8, 58)
         Me.lblInputFileColumnDelimiter.Name = "lblInputFileColumnDelimiter"
-        Me.lblInputFileColumnDelimiter.Size = New System.Drawing.Size(128, 20)
+        Me.lblInputFileColumnDelimiter.Size = New System.Drawing.Size(96, 16)
         Me.lblInputFileColumnDelimiter.TabIndex = 2
         Me.lblInputFileColumnDelimiter.Text = "Column Delimiter"
         '
@@ -782,87 +715,21 @@ Partial Class frmMain
         '
         Me.cboInputFileColumnDelimiter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.cboInputFileColumnDelimiter.DropDownWidth = 70
-        Me.cboInputFileColumnDelimiter.Location = New System.Drawing.Point(149, 69)
-        Me.cboInputFileColumnDelimiter.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboInputFileColumnDelimiter.Location = New System.Drawing.Point(112, 56)
         Me.cboInputFileColumnDelimiter.Name = "cboInputFileColumnDelimiter"
-        Me.cboInputFileColumnDelimiter.Size = New System.Drawing.Size(92, 24)
+        Me.cboInputFileColumnDelimiter.Size = New System.Drawing.Size(70, 21)
         Me.cboInputFileColumnDelimiter.TabIndex = 3
         '
         'TabPageFileFormatOptions
         '
         Me.TabPageFileFormatOptions.Controls.Add(Me.frapIAndHydrophobicity)
-        Me.TabPageFileFormatOptions.Controls.Add(Me.fraInputOptions)
         Me.TabPageFileFormatOptions.Controls.Add(Me.fraDelimitedFileOptions)
-        Me.TabPageFileFormatOptions.Location = New System.Drawing.Point(4, 25)
-        Me.TabPageFileFormatOptions.Margin = New System.Windows.Forms.Padding(4)
+        Me.TabPageFileFormatOptions.Location = New System.Drawing.Point(4, 22)
         Me.TabPageFileFormatOptions.Name = "TabPageFileFormatOptions"
-        Me.TabPageFileFormatOptions.Size = New System.Drawing.Size(931, 407)
+        Me.TabPageFileFormatOptions.Size = New System.Drawing.Size(696, 328)
         Me.TabPageFileFormatOptions.TabIndex = 2
         Me.TabPageFileFormatOptions.Text = "File Format Options"
         Me.TabPageFileFormatOptions.UseVisualStyleBackColor = True
-        '
-        'fraInputOptions
-        '
-        Me.fraInputOptions.Controls.Add(Me.txtRefEndChar)
-        Me.fraInputOptions.Controls.Add(Me.cboRefEndChar)
-        Me.fraInputOptions.Controls.Add(Me.lblRefEndChar)
-        Me.fraInputOptions.Controls.Add(Me.txtRefStartChar)
-        Me.fraInputOptions.Controls.Add(Me.lblRefStartChar)
-        Me.fraInputOptions.Location = New System.Drawing.Point(11, 10)
-        Me.fraInputOptions.Margin = New System.Windows.Forms.Padding(4)
-        Me.fraInputOptions.Name = "fraInputOptions"
-        Me.fraInputOptions.Padding = New System.Windows.Forms.Padding(4)
-        Me.fraInputOptions.Size = New System.Drawing.Size(384, 98)
-        Me.fraInputOptions.TabIndex = 0
-        Me.fraInputOptions.TabStop = False
-        Me.fraInputOptions.Text = "Fasta File Input Options"
-        '
-        'txtRefEndChar
-        '
-        Me.txtRefEndChar.Location = New System.Drawing.Point(277, 59)
-        Me.txtRefEndChar.Margin = New System.Windows.Forms.Padding(4)
-        Me.txtRefEndChar.MaxLength = 1
-        Me.txtRefEndChar.Name = "txtRefEndChar"
-        Me.txtRefEndChar.Size = New System.Drawing.Size(41, 22)
-        Me.txtRefEndChar.TabIndex = 4
-        Me.txtRefEndChar.Text = "|"
-        '
-        'cboRefEndChar
-        '
-        Me.cboRefEndChar.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboRefEndChar.Location = New System.Drawing.Point(171, 59)
-        Me.cboRefEndChar.Margin = New System.Windows.Forms.Padding(4)
-        Me.cboRefEndChar.Name = "cboRefEndChar"
-        Me.cboRefEndChar.Size = New System.Drawing.Size(92, 24)
-        Me.cboRefEndChar.TabIndex = 3
-        '
-        'lblRefEndChar
-        '
-        Me.lblRefEndChar.Location = New System.Drawing.Point(11, 62)
-        Me.lblRefEndChar.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.lblRefEndChar.Name = "lblRefEndChar"
-        Me.lblRefEndChar.Size = New System.Drawing.Size(149, 20)
-        Me.lblRefEndChar.TabIndex = 2
-        Me.lblRefEndChar.Text = "Fasta Ref End Char"
-        '
-        'txtRefStartChar
-        '
-        Me.txtRefStartChar.Location = New System.Drawing.Point(171, 30)
-        Me.txtRefStartChar.Margin = New System.Windows.Forms.Padding(4)
-        Me.txtRefStartChar.MaxLength = 1
-        Me.txtRefStartChar.Name = "txtRefStartChar"
-        Me.txtRefStartChar.Size = New System.Drawing.Size(41, 22)
-        Me.txtRefStartChar.TabIndex = 1
-        Me.txtRefStartChar.Text = ">"
-        '
-        'lblRefStartChar
-        '
-        Me.lblRefStartChar.Location = New System.Drawing.Point(11, 32)
-        Me.lblRefStartChar.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.lblRefStartChar.Name = "lblRefStartChar"
-        Me.lblRefStartChar.Size = New System.Drawing.Size(149, 20)
-        Me.lblRefStartChar.TabIndex = 0
-        Me.lblRefStartChar.Text = "Fasta Ref Start Char"
         '
         'tbsOptions
         '
@@ -871,11 +738,10 @@ Partial Class frmMain
         Me.tbsOptions.Controls.Add(Me.TabPageUniquenessStats)
         Me.tbsOptions.Controls.Add(Me.TabPagePeakMatchingThresholds)
         Me.tbsOptions.Controls.Add(Me.TabPageProgress)
-        Me.tbsOptions.Location = New System.Drawing.Point(16, 261)
-        Me.tbsOptions.Margin = New System.Windows.Forms.Padding(4)
+        Me.tbsOptions.Location = New System.Drawing.Point(12, 212)
         Me.tbsOptions.Name = "tbsOptions"
         Me.tbsOptions.SelectedIndex = 0
-        Me.tbsOptions.Size = New System.Drawing.Size(939, 436)
+        Me.tbsOptions.Size = New System.Drawing.Size(704, 354)
         Me.tbsOptions.TabIndex = 5
         '
         'TabPageParseAndDigest
@@ -884,10 +750,9 @@ Partial Class frmMain
         Me.TabPageParseAndDigest.Controls.Add(Me.fraCalculationOptions)
         Me.TabPageParseAndDigest.Controls.Add(Me.fraDigestionOptions)
         Me.TabPageParseAndDigest.Controls.Add(Me.cmdParseInputFile)
-        Me.TabPageParseAndDigest.Location = New System.Drawing.Point(4, 25)
-        Me.TabPageParseAndDigest.Margin = New System.Windows.Forms.Padding(4)
+        Me.TabPageParseAndDigest.Location = New System.Drawing.Point(4, 22)
         Me.TabPageParseAndDigest.Name = "TabPageParseAndDigest"
-        Me.TabPageParseAndDigest.Size = New System.Drawing.Size(931, 407)
+        Me.TabPageParseAndDigest.Size = New System.Drawing.Size(696, 328)
         Me.TabPageParseAndDigest.TabIndex = 0
         Me.TabPageParseAndDigest.Text = "Parse and Digest File Options"
         Me.TabPageParseAndDigest.UseVisualStyleBackColor = True
@@ -908,107 +773,95 @@ Partial Class frmMain
         Me.fraProcessingOptions.Controls.Add(Me.txtAddnlRefAccessionSepChar)
         Me.fraProcessingOptions.Controls.Add(Me.txtAddnlRefSepChar)
         Me.fraProcessingOptions.Controls.Add(Me.chkCreateFastaOutputFile)
-        Me.fraProcessingOptions.Location = New System.Drawing.Point(11, 10)
-        Me.fraProcessingOptions.Margin = New System.Windows.Forms.Padding(4)
+        Me.fraProcessingOptions.Location = New System.Drawing.Point(8, 8)
         Me.fraProcessingOptions.Name = "fraProcessingOptions"
-        Me.fraProcessingOptions.Padding = New System.Windows.Forms.Padding(4)
-        Me.fraProcessingOptions.Size = New System.Drawing.Size(480, 216)
+        Me.fraProcessingOptions.Size = New System.Drawing.Size(360, 176)
         Me.fraProcessingOptions.TabIndex = 0
         Me.fraProcessingOptions.TabStop = False
         Me.fraProcessingOptions.Text = "Processing Options"
         '
         'txtProteinReversalSamplingPercentage
         '
-        Me.txtProteinReversalSamplingPercentage.Location = New System.Drawing.Point(224, 49)
-        Me.txtProteinReversalSamplingPercentage.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtProteinReversalSamplingPercentage.Location = New System.Drawing.Point(168, 40)
         Me.txtProteinReversalSamplingPercentage.MaxLength = 3
         Me.txtProteinReversalSamplingPercentage.Name = "txtProteinReversalSamplingPercentage"
-        Me.txtProteinReversalSamplingPercentage.Size = New System.Drawing.Size(41, 22)
+        Me.txtProteinReversalSamplingPercentage.Size = New System.Drawing.Size(32, 20)
         Me.txtProteinReversalSamplingPercentage.TabIndex = 3
         Me.txtProteinReversalSamplingPercentage.Text = "100"
         '
         'lbltxtAddnlRefAccessionSepChar
         '
-        Me.lbltxtAddnlRefAccessionSepChar.Location = New System.Drawing.Point(128, 118)
-        Me.lbltxtAddnlRefAccessionSepChar.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lbltxtAddnlRefAccessionSepChar.Location = New System.Drawing.Point(96, 96)
         Me.lbltxtAddnlRefAccessionSepChar.Name = "lbltxtAddnlRefAccessionSepChar"
-        Me.lbltxtAddnlRefAccessionSepChar.Size = New System.Drawing.Size(213, 20)
+        Me.lbltxtAddnlRefAccessionSepChar.Size = New System.Drawing.Size(160, 16)
         Me.lbltxtAddnlRefAccessionSepChar.TabIndex = 8
         Me.lbltxtAddnlRefAccessionSepChar.Text = "Addnl Ref Accession Sep Char"
         Me.lbltxtAddnlRefAccessionSepChar.TextAlign = System.Drawing.ContentAlignment.TopRight
         '
         'chkLookForAddnlRefInDescription
         '
-        Me.chkLookForAddnlRefInDescription.Location = New System.Drawing.Point(21, 89)
-        Me.chkLookForAddnlRefInDescription.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkLookForAddnlRefInDescription.Location = New System.Drawing.Point(16, 72)
         Me.chkLookForAddnlRefInDescription.Name = "chkLookForAddnlRefInDescription"
-        Me.chkLookForAddnlRefInDescription.Size = New System.Drawing.Size(160, 39)
+        Me.chkLookForAddnlRefInDescription.Size = New System.Drawing.Size(120, 32)
         Me.chkLookForAddnlRefInDescription.TabIndex = 5
         Me.chkLookForAddnlRefInDescription.Text = "Look for addnl Ref in description"
         '
         'cboProteinReversalOptions
         '
         Me.cboProteinReversalOptions.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboProteinReversalOptions.Location = New System.Drawing.Point(224, 20)
-        Me.cboProteinReversalOptions.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboProteinReversalOptions.Location = New System.Drawing.Point(168, 16)
         Me.cboProteinReversalOptions.Name = "cboProteinReversalOptions"
-        Me.cboProteinReversalOptions.Size = New System.Drawing.Size(244, 24)
+        Me.cboProteinReversalOptions.Size = New System.Drawing.Size(184, 21)
         Me.cboProteinReversalOptions.TabIndex = 1
         '
         'lblProteinReversalOptions
         '
-        Me.lblProteinReversalOptions.Location = New System.Drawing.Point(21, 25)
-        Me.lblProteinReversalOptions.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblProteinReversalOptions.Location = New System.Drawing.Point(16, 20)
         Me.lblProteinReversalOptions.Name = "lblProteinReversalOptions"
-        Me.lblProteinReversalOptions.Size = New System.Drawing.Size(213, 20)
+        Me.lblProteinReversalOptions.Size = New System.Drawing.Size(160, 16)
         Me.lblProteinReversalOptions.TabIndex = 0
         Me.lblProteinReversalOptions.Text = "Protein Reversal / Scrambling"
         '
         'chkDigestProteins
         '
-        Me.chkDigestProteins.Location = New System.Drawing.Point(21, 142)
-        Me.chkDigestProteins.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkDigestProteins.Location = New System.Drawing.Point(16, 115)
         Me.chkDigestProteins.Name = "chkDigestProteins"
-        Me.chkDigestProteins.Size = New System.Drawing.Size(213, 39)
+        Me.chkDigestProteins.Size = New System.Drawing.Size(160, 32)
         Me.chkDigestProteins.TabIndex = 10
         Me.chkDigestProteins.Text = "In Silico digest of all proteins in input file"
         '
         'lblAddnlRefSepChar
         '
-        Me.lblAddnlRefSepChar.Location = New System.Drawing.Point(192, 89)
-        Me.lblAddnlRefSepChar.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblAddnlRefSepChar.Location = New System.Drawing.Point(144, 72)
         Me.lblAddnlRefSepChar.Name = "lblAddnlRefSepChar"
-        Me.lblAddnlRefSepChar.Size = New System.Drawing.Size(149, 20)
+        Me.lblAddnlRefSepChar.Size = New System.Drawing.Size(112, 16)
         Me.lblAddnlRefSepChar.TabIndex = 6
         Me.lblAddnlRefSepChar.Text = "Addnl Ref Sep Char"
         Me.lblAddnlRefSepChar.TextAlign = System.Drawing.ContentAlignment.TopRight
         '
         'txtAddnlRefAccessionSepChar
         '
-        Me.txtAddnlRefAccessionSepChar.Location = New System.Drawing.Point(352, 118)
-        Me.txtAddnlRefAccessionSepChar.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtAddnlRefAccessionSepChar.Location = New System.Drawing.Point(264, 96)
         Me.txtAddnlRefAccessionSepChar.MaxLength = 1
         Me.txtAddnlRefAccessionSepChar.Name = "txtAddnlRefAccessionSepChar"
-        Me.txtAddnlRefAccessionSepChar.Size = New System.Drawing.Size(41, 22)
+        Me.txtAddnlRefAccessionSepChar.Size = New System.Drawing.Size(32, 20)
         Me.txtAddnlRefAccessionSepChar.TabIndex = 9
         Me.txtAddnlRefAccessionSepChar.Text = ":"
         '
         'txtAddnlRefSepChar
         '
-        Me.txtAddnlRefSepChar.Location = New System.Drawing.Point(352, 89)
-        Me.txtAddnlRefSepChar.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtAddnlRefSepChar.Location = New System.Drawing.Point(264, 72)
         Me.txtAddnlRefSepChar.MaxLength = 1
         Me.txtAddnlRefSepChar.Name = "txtAddnlRefSepChar"
-        Me.txtAddnlRefSepChar.Size = New System.Drawing.Size(41, 22)
+        Me.txtAddnlRefSepChar.Size = New System.Drawing.Size(32, 20)
         Me.txtAddnlRefSepChar.TabIndex = 7
         Me.txtAddnlRefSepChar.Text = "|"
         '
         'chkCreateFastaOutputFile
         '
-        Me.chkCreateFastaOutputFile.Location = New System.Drawing.Point(256, 158)
-        Me.chkCreateFastaOutputFile.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkCreateFastaOutputFile.Location = New System.Drawing.Point(192, 128)
         Me.chkCreateFastaOutputFile.Name = "chkCreateFastaOutputFile"
-        Me.chkCreateFastaOutputFile.Size = New System.Drawing.Size(213, 20)
+        Me.chkCreateFastaOutputFile.Size = New System.Drawing.Size(160, 16)
         Me.chkCreateFastaOutputFile.TabIndex = 11
         Me.chkCreateFastaOutputFile.Text = "Create Fasta Output File"
         '
@@ -1025,30 +878,27 @@ Partial Class frmMain
         Me.fraCalculationOptions.Controls.Add(Me.chkComputepIandNET)
         Me.fraCalculationOptions.Controls.Add(Me.chkIncludeXResidues)
         Me.fraCalculationOptions.Controls.Add(Me.chkComputeProteinMass)
-        Me.fraCalculationOptions.Location = New System.Drawing.Point(501, 49)
-        Me.fraCalculationOptions.Margin = New System.Windows.Forms.Padding(4)
+        Me.fraCalculationOptions.Location = New System.Drawing.Point(376, 40)
         Me.fraCalculationOptions.Name = "fraCalculationOptions"
-        Me.fraCalculationOptions.Padding = New System.Windows.Forms.Padding(4)
-        Me.fraCalculationOptions.Size = New System.Drawing.Size(410, 185)
+        Me.fraCalculationOptions.Size = New System.Drawing.Size(308, 150)
         Me.fraCalculationOptions.TabIndex = 1
         Me.fraCalculationOptions.TabStop = False
         Me.fraCalculationOptions.Text = "Calculation Options"
         '
         'cmdNETInfo
         '
-        Me.cmdNETInfo.Location = New System.Drawing.Point(357, 107)
+        Me.cmdNETInfo.Location = New System.Drawing.Point(268, 87)
         Me.cmdNETInfo.Margin = New System.Windows.Forms.Padding(1)
         Me.cmdNETInfo.Name = "cmdNETInfo"
-        Me.cmdNETInfo.Size = New System.Drawing.Size(46, 24)
+        Me.cmdNETInfo.Size = New System.Drawing.Size(34, 20)
         Me.cmdNETInfo.TabIndex = 4
         Me.cmdNETInfo.Text = "Info"
         '
         'chkExcludeProteinDescription
         '
-        Me.chkExcludeProteinDescription.Location = New System.Drawing.Point(247, 158)
-        Me.chkExcludeProteinDescription.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkExcludeProteinDescription.Location = New System.Drawing.Point(185, 128)
         Me.chkExcludeProteinDescription.Name = "chkExcludeProteinDescription"
-        Me.chkExcludeProteinDescription.Size = New System.Drawing.Size(160, 23)
+        Me.chkExcludeProteinDescription.Size = New System.Drawing.Size(120, 19)
         Me.chkExcludeProteinDescription.TabIndex = 9
         Me.chkExcludeProteinDescription.Text = "Exclude Description"
         '
@@ -1056,10 +906,9 @@ Partial Class frmMain
         '
         Me.chkComputeSequenceHashIgnoreILDiff.Checked = True
         Me.chkComputeSequenceHashIgnoreILDiff.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkComputeSequenceHashIgnoreILDiff.Location = New System.Drawing.Point(247, 132)
-        Me.chkComputeSequenceHashIgnoreILDiff.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkComputeSequenceHashIgnoreILDiff.Location = New System.Drawing.Point(185, 107)
         Me.chkComputeSequenceHashIgnoreILDiff.Name = "chkComputeSequenceHashIgnoreILDiff"
-        Me.chkComputeSequenceHashIgnoreILDiff.Size = New System.Drawing.Size(139, 23)
+        Me.chkComputeSequenceHashIgnoreILDiff.Size = New System.Drawing.Size(104, 19)
         Me.chkComputeSequenceHashIgnoreILDiff.TabIndex = 8
         Me.chkComputeSequenceHashIgnoreILDiff.Text = "Ignore I/L Diff"
         '
@@ -1067,10 +916,9 @@ Partial Class frmMain
         '
         Me.chkTruncateProteinDescription.Checked = True
         Me.chkTruncateProteinDescription.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkTruncateProteinDescription.Location = New System.Drawing.Point(21, 158)
-        Me.chkTruncateProteinDescription.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkTruncateProteinDescription.Location = New System.Drawing.Point(16, 128)
         Me.chkTruncateProteinDescription.Name = "chkTruncateProteinDescription"
-        Me.chkTruncateProteinDescription.Size = New System.Drawing.Size(219, 23)
+        Me.chkTruncateProteinDescription.Size = New System.Drawing.Size(164, 19)
         Me.chkTruncateProteinDescription.TabIndex = 7
         Me.chkTruncateProteinDescription.Text = "Truncate long description"
         '
@@ -1078,19 +926,17 @@ Partial Class frmMain
         '
         Me.chkComputeSequenceHashValues.Checked = True
         Me.chkComputeSequenceHashValues.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkComputeSequenceHashValues.Location = New System.Drawing.Point(21, 132)
-        Me.chkComputeSequenceHashValues.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkComputeSequenceHashValues.Location = New System.Drawing.Point(16, 107)
         Me.chkComputeSequenceHashValues.Name = "chkComputeSequenceHashValues"
-        Me.chkComputeSequenceHashValues.Size = New System.Drawing.Size(218, 23)
+        Me.chkComputeSequenceHashValues.Size = New System.Drawing.Size(164, 19)
         Me.chkComputeSequenceHashValues.TabIndex = 6
         Me.chkComputeSequenceHashValues.Text = "Compute sequence hashes"
         '
         'lblMassMode
         '
-        Me.lblMassMode.Location = New System.Drawing.Point(21, 81)
-        Me.lblMassMode.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblMassMode.Location = New System.Drawing.Point(16, 66)
         Me.lblMassMode.Name = "lblMassMode"
-        Me.lblMassMode.Size = New System.Drawing.Size(85, 20)
+        Me.lblMassMode.Size = New System.Drawing.Size(64, 16)
         Me.lblMassMode.TabIndex = 5
         Me.lblMassMode.Text = "Mass type"
         Me.lblMassMode.TextAlign = System.Drawing.ContentAlignment.TopRight
@@ -1098,45 +944,40 @@ Partial Class frmMain
         'cboElementMassMode
         '
         Me.cboElementMassMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboElementMassMode.Location = New System.Drawing.Point(117, 80)
-        Me.cboElementMassMode.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboElementMassMode.Location = New System.Drawing.Point(88, 65)
         Me.cboElementMassMode.Name = "cboElementMassMode"
-        Me.cboElementMassMode.Size = New System.Drawing.Size(191, 24)
+        Me.cboElementMassMode.Size = New System.Drawing.Size(144, 21)
         Me.cboElementMassMode.TabIndex = 4
         '
         'chkExcludeProteinSequence
         '
-        Me.chkExcludeProteinSequence.Location = New System.Drawing.Point(21, 20)
-        Me.chkExcludeProteinSequence.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkExcludeProteinSequence.Location = New System.Drawing.Point(16, 16)
         Me.chkExcludeProteinSequence.Name = "chkExcludeProteinSequence"
-        Me.chkExcludeProteinSequence.Size = New System.Drawing.Size(256, 20)
+        Me.chkExcludeProteinSequence.Size = New System.Drawing.Size(192, 16)
         Me.chkExcludeProteinSequence.TabIndex = 0
         Me.chkExcludeProteinSequence.Text = "Exclude Protein Sequence"
         '
         'chkComputepIandNET
         '
-        Me.chkComputepIandNET.Location = New System.Drawing.Point(21, 109)
-        Me.chkComputepIandNET.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkComputepIandNET.Location = New System.Drawing.Point(16, 89)
         Me.chkComputepIandNET.Name = "chkComputepIandNET"
-        Me.chkComputepIandNET.Size = New System.Drawing.Size(336, 22)
+        Me.chkComputepIandNET.Size = New System.Drawing.Size(252, 18)
         Me.chkComputepIandNET.TabIndex = 3
         Me.chkComputepIandNET.Text = "Compute pI and Normalized Elution Time (NET)"
         '
         'chkIncludeXResidues
         '
-        Me.chkIncludeXResidues.Location = New System.Drawing.Point(21, 60)
-        Me.chkIncludeXResidues.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkIncludeXResidues.Location = New System.Drawing.Point(16, 49)
         Me.chkIncludeXResidues.Name = "chkIncludeXResidues"
-        Me.chkIncludeXResidues.Size = New System.Drawing.Size(288, 20)
+        Me.chkIncludeXResidues.Size = New System.Drawing.Size(216, 16)
         Me.chkIncludeXResidues.TabIndex = 2
         Me.chkIncludeXResidues.Text = "Include X Residues in Mass (113 Da)"
         '
         'chkComputeProteinMass
         '
-        Me.chkComputeProteinMass.Location = New System.Drawing.Point(21, 41)
-        Me.chkComputeProteinMass.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkComputeProteinMass.Location = New System.Drawing.Point(16, 33)
         Me.chkComputeProteinMass.Name = "chkComputeProteinMass"
-        Me.chkComputeProteinMass.Size = New System.Drawing.Size(192, 20)
+        Me.chkComputeProteinMass.Size = New System.Drawing.Size(144, 16)
         Me.chkComputeProteinMass.TabIndex = 1
         Me.chkComputeProteinMass.Text = "Compute Protein Mass"
         '
@@ -1162,66 +1003,74 @@ Partial Class frmMain
         Me.fraDigestionOptions.Controls.Add(Me.lblDigestProteinsMinimumMass)
         Me.fraDigestionOptions.Controls.Add(Me.cboCleavageRuleType)
         Me.fraDigestionOptions.Controls.Add(Me.chkIncludeDuplicateSequences)
-        Me.fraDigestionOptions.Location = New System.Drawing.Point(11, 234)
-        Me.fraDigestionOptions.Margin = New System.Windows.Forms.Padding(4)
+        Me.fraDigestionOptions.Location = New System.Drawing.Point(8, 190)
         Me.fraDigestionOptions.Name = "fraDigestionOptions"
-        Me.fraDigestionOptions.Padding = New System.Windows.Forms.Padding(4)
-        Me.fraDigestionOptions.Size = New System.Drawing.Size(900, 158)
+        Me.fraDigestionOptions.Size = New System.Drawing.Size(675, 128)
         Me.fraDigestionOptions.TabIndex = 2
         Me.fraDigestionOptions.TabStop = False
         Me.fraDigestionOptions.Text = "Digestion Options"
         '
+        'cboFragmentMassMode
+        '
+        Me.cboFragmentMassMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboFragmentMassMode.Location = New System.Drawing.Point(75, 104)
+        Me.cboFragmentMassMode.Name = "cboFragmentMassMode"
+        Me.cboFragmentMassMode.Size = New System.Drawing.Size(117, 21)
+        Me.cboFragmentMassMode.TabIndex = 19
+        '
+        'lblFragmentMassMode
+        '
+        Me.lblFragmentMassMode.Location = New System.Drawing.Point(8, 106)
+        Me.lblFragmentMassMode.Name = "lblFragmentMassMode"
+        Me.lblFragmentMassMode.Size = New System.Drawing.Size(68, 16)
+        Me.lblFragmentMassMode.TabIndex = 18
+        Me.lblFragmentMassMode.Text = "Mass Mode"
+        '
         'cboCysTreatmentMode
         '
         Me.cboCysTreatmentMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboCysTreatmentMode.Location = New System.Drawing.Point(737, 94)
-        Me.cboCysTreatmentMode.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboCysTreatmentMode.Location = New System.Drawing.Point(553, 76)
         Me.cboCysTreatmentMode.Name = "cboCysTreatmentMode"
-        Me.cboCysTreatmentMode.Size = New System.Drawing.Size(155, 24)
+        Me.cboCysTreatmentMode.Size = New System.Drawing.Size(117, 21)
         Me.cboCysTreatmentMode.TabIndex = 17
         '
         'lblCysTreatment
         '
-        Me.lblCysTreatment.Location = New System.Drawing.Point(737, 69)
-        Me.lblCysTreatment.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblCysTreatment.Location = New System.Drawing.Point(553, 56)
         Me.lblCysTreatment.Name = "lblCysTreatment"
-        Me.lblCysTreatment.Size = New System.Drawing.Size(138, 26)
+        Me.lblCysTreatment.Size = New System.Drawing.Size(104, 21)
         Me.lblCysTreatment.TabIndex = 16
         Me.lblCysTreatment.Text = "Cys treatment:"
         '
         'txtDigestProteinsMaximumpI
         '
-        Me.txtDigestProteinsMaximumpI.Location = New System.Drawing.Point(663, 98)
-        Me.txtDigestProteinsMaximumpI.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtDigestProteinsMaximumpI.Location = New System.Drawing.Point(497, 80)
         Me.txtDigestProteinsMaximumpI.Name = "txtDigestProteinsMaximumpI"
-        Me.txtDigestProteinsMaximumpI.Size = New System.Drawing.Size(52, 22)
+        Me.txtDigestProteinsMaximumpI.Size = New System.Drawing.Size(40, 20)
         Me.txtDigestProteinsMaximumpI.TabIndex = 13
         Me.txtDigestProteinsMaximumpI.Text = "14"
         '
         'lblDigestProteinsMaximumpI
         '
-        Me.lblDigestProteinsMaximumpI.Location = New System.Drawing.Point(560, 98)
-        Me.lblDigestProteinsMaximumpI.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblDigestProteinsMaximumpI.Location = New System.Drawing.Point(420, 80)
         Me.lblDigestProteinsMaximumpI.Name = "lblDigestProteinsMaximumpI"
-        Me.lblDigestProteinsMaximumpI.Size = New System.Drawing.Size(96, 20)
+        Me.lblDigestProteinsMaximumpI.Size = New System.Drawing.Size(72, 16)
         Me.lblDigestProteinsMaximumpI.TabIndex = 12
         Me.lblDigestProteinsMaximumpI.Text = "Maximum pI"
         '
         'txtDigestProteinsMinimumpI
         '
-        Me.txtDigestProteinsMinimumpI.Location = New System.Drawing.Point(663, 69)
-        Me.txtDigestProteinsMinimumpI.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtDigestProteinsMinimumpI.Location = New System.Drawing.Point(497, 56)
         Me.txtDigestProteinsMinimumpI.Name = "txtDigestProteinsMinimumpI"
-        Me.txtDigestProteinsMinimumpI.Size = New System.Drawing.Size(52, 22)
+        Me.txtDigestProteinsMinimumpI.Size = New System.Drawing.Size(40, 20)
         Me.txtDigestProteinsMinimumpI.TabIndex = 11
         Me.txtDigestProteinsMinimumpI.Text = "0"
         '
         'lblDigestProteinsMinimumpI
         '
-        Me.lblDigestProteinsMinimumpI.Location = New System.Drawing.Point(560, 69)
-        Me.lblDigestProteinsMinimumpI.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblDigestProteinsMinimumpI.Location = New System.Drawing.Point(420, 56)
         Me.lblDigestProteinsMinimumpI.Name = "lblDigestProteinsMinimumpI"
-        Me.lblDigestProteinsMinimumpI.Size = New System.Drawing.Size(96, 20)
+        Me.lblDigestProteinsMinimumpI.Size = New System.Drawing.Size(72, 16)
         Me.lblDigestProteinsMinimumpI.TabIndex = 10
         Me.lblDigestProteinsMinimumpI.Text = "Minimum pI"
         '
@@ -1229,118 +1078,105 @@ Partial Class frmMain
         '
         Me.chkGenerateUniqueIDValues.Checked = True
         Me.chkGenerateUniqueIDValues.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkGenerateUniqueIDValues.Location = New System.Drawing.Point(291, 125)
-        Me.chkGenerateUniqueIDValues.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkGenerateUniqueIDValues.Location = New System.Drawing.Point(218, 102)
         Me.chkGenerateUniqueIDValues.Name = "chkGenerateUniqueIDValues"
-        Me.chkGenerateUniqueIDValues.Size = New System.Drawing.Size(235, 20)
+        Me.chkGenerateUniqueIDValues.Size = New System.Drawing.Size(176, 16)
         Me.chkGenerateUniqueIDValues.TabIndex = 14
         Me.chkGenerateUniqueIDValues.Text = "Generate UniqueID Values"
         '
         'chkCysPeptidesOnly
         '
-        Me.chkCysPeptidesOnly.Location = New System.Drawing.Point(648, 20)
-        Me.chkCysPeptidesOnly.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkCysPeptidesOnly.Location = New System.Drawing.Point(486, 16)
         Me.chkCysPeptidesOnly.Name = "chkCysPeptidesOnly"
-        Me.chkCysPeptidesOnly.Size = New System.Drawing.Size(149, 39)
+        Me.chkCysPeptidesOnly.Size = New System.Drawing.Size(112, 32)
         Me.chkCysPeptidesOnly.TabIndex = 15
         Me.chkCysPeptidesOnly.Text = "Include cysteine peptides only"
         '
         'txtDigestProteinsMinimumResidueCount
         '
-        Me.txtDigestProteinsMinimumResidueCount.Location = New System.Drawing.Point(479, 69)
-        Me.txtDigestProteinsMinimumResidueCount.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtDigestProteinsMinimumResidueCount.Location = New System.Drawing.Point(359, 56)
         Me.txtDigestProteinsMinimumResidueCount.Name = "txtDigestProteinsMinimumResidueCount"
-        Me.txtDigestProteinsMinimumResidueCount.Size = New System.Drawing.Size(41, 22)
+        Me.txtDigestProteinsMinimumResidueCount.Size = New System.Drawing.Size(32, 20)
         Me.txtDigestProteinsMinimumResidueCount.TabIndex = 7
         Me.txtDigestProteinsMinimumResidueCount.Text = "0"
         '
         'lblDigestProteinsMinimumResidueCount
         '
-        Me.lblDigestProteinsMinimumResidueCount.Location = New System.Drawing.Point(288, 71)
-        Me.lblDigestProteinsMinimumResidueCount.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblDigestProteinsMinimumResidueCount.Location = New System.Drawing.Point(216, 58)
         Me.lblDigestProteinsMinimumResidueCount.Name = "lblDigestProteinsMinimumResidueCount"
-        Me.lblDigestProteinsMinimumResidueCount.Size = New System.Drawing.Size(181, 20)
+        Me.lblDigestProteinsMinimumResidueCount.Size = New System.Drawing.Size(136, 16)
         Me.lblDigestProteinsMinimumResidueCount.TabIndex = 6
         Me.lblDigestProteinsMinimumResidueCount.Text = "Minimum Residue Count"
         '
         'txtDigestProteinsMaximumMissedCleavages
         '
-        Me.txtDigestProteinsMaximumMissedCleavages.Location = New System.Drawing.Point(479, 98)
-        Me.txtDigestProteinsMaximumMissedCleavages.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtDigestProteinsMaximumMissedCleavages.Location = New System.Drawing.Point(359, 80)
         Me.txtDigestProteinsMaximumMissedCleavages.Name = "txtDigestProteinsMaximumMissedCleavages"
-        Me.txtDigestProteinsMaximumMissedCleavages.Size = New System.Drawing.Size(41, 22)
+        Me.txtDigestProteinsMaximumMissedCleavages.Size = New System.Drawing.Size(32, 20)
         Me.txtDigestProteinsMaximumMissedCleavages.TabIndex = 9
         Me.txtDigestProteinsMaximumMissedCleavages.Text = "3"
         '
         'lblDigestProteinsMaximumMissedCleavages
         '
-        Me.lblDigestProteinsMaximumMissedCleavages.Location = New System.Drawing.Point(288, 101)
-        Me.lblDigestProteinsMaximumMissedCleavages.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblDigestProteinsMaximumMissedCleavages.Location = New System.Drawing.Point(216, 82)
         Me.lblDigestProteinsMaximumMissedCleavages.Name = "lblDigestProteinsMaximumMissedCleavages"
-        Me.lblDigestProteinsMaximumMissedCleavages.Size = New System.Drawing.Size(181, 20)
+        Me.lblDigestProteinsMaximumMissedCleavages.Size = New System.Drawing.Size(136, 16)
         Me.lblDigestProteinsMaximumMissedCleavages.TabIndex = 8
         Me.lblDigestProteinsMaximumMissedCleavages.Text = "Max Missed Cleavages"
         '
         'txtDigestProteinsMaximumMass
         '
-        Me.txtDigestProteinsMaximumMass.Location = New System.Drawing.Point(203, 98)
-        Me.txtDigestProteinsMaximumMass.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtDigestProteinsMaximumMass.Location = New System.Drawing.Point(152, 80)
         Me.txtDigestProteinsMaximumMass.Name = "txtDigestProteinsMaximumMass"
-        Me.txtDigestProteinsMaximumMass.Size = New System.Drawing.Size(52, 22)
+        Me.txtDigestProteinsMaximumMass.Size = New System.Drawing.Size(40, 20)
         Me.txtDigestProteinsMaximumMass.TabIndex = 5
         Me.txtDigestProteinsMaximumMass.Text = "6000"
         '
         'lblDigestProteinsMaximumMass
         '
-        Me.lblDigestProteinsMaximumMass.Location = New System.Drawing.Point(11, 101)
-        Me.lblDigestProteinsMaximumMass.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblDigestProteinsMaximumMass.Location = New System.Drawing.Point(8, 82)
         Me.lblDigestProteinsMaximumMass.Name = "lblDigestProteinsMaximumMass"
-        Me.lblDigestProteinsMaximumMass.Size = New System.Drawing.Size(192, 20)
+        Me.lblDigestProteinsMaximumMass.Size = New System.Drawing.Size(144, 16)
         Me.lblDigestProteinsMaximumMass.TabIndex = 4
         Me.lblDigestProteinsMaximumMass.Text = "Maximum Fragment Mass"
         '
         'txtDigestProteinsMinimumMass
         '
-        Me.txtDigestProteinsMinimumMass.Location = New System.Drawing.Point(203, 69)
-        Me.txtDigestProteinsMinimumMass.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtDigestProteinsMinimumMass.Location = New System.Drawing.Point(152, 56)
         Me.txtDigestProteinsMinimumMass.Name = "txtDigestProteinsMinimumMass"
-        Me.txtDigestProteinsMinimumMass.Size = New System.Drawing.Size(52, 22)
+        Me.txtDigestProteinsMinimumMass.Size = New System.Drawing.Size(40, 20)
         Me.txtDigestProteinsMinimumMass.TabIndex = 3
         Me.txtDigestProteinsMinimumMass.Text = "400"
         '
         'lblDigestProteinsMinimumMass
         '
-        Me.lblDigestProteinsMinimumMass.Location = New System.Drawing.Point(11, 71)
-        Me.lblDigestProteinsMinimumMass.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblDigestProteinsMinimumMass.Location = New System.Drawing.Point(8, 58)
         Me.lblDigestProteinsMinimumMass.Name = "lblDigestProteinsMinimumMass"
-        Me.lblDigestProteinsMinimumMass.Size = New System.Drawing.Size(192, 20)
+        Me.lblDigestProteinsMinimumMass.Size = New System.Drawing.Size(144, 16)
         Me.lblDigestProteinsMinimumMass.TabIndex = 2
         Me.lblDigestProteinsMinimumMass.Text = "Minimum Fragment Mass"
         '
         'cboCleavageRuleType
         '
         Me.cboCleavageRuleType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboCleavageRuleType.Location = New System.Drawing.Point(11, 30)
-        Me.cboCleavageRuleType.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboCleavageRuleType.Location = New System.Drawing.Point(8, 24)
         Me.cboCleavageRuleType.Name = "cboCleavageRuleType"
-        Me.cboCleavageRuleType.Size = New System.Drawing.Size(383, 24)
+        Me.cboCleavageRuleType.Size = New System.Drawing.Size(288, 21)
         Me.cboCleavageRuleType.TabIndex = 0
         '
         'chkIncludeDuplicateSequences
         '
-        Me.chkIncludeDuplicateSequences.Location = New System.Drawing.Point(416, 20)
-        Me.chkIncludeDuplicateSequences.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkIncludeDuplicateSequences.Location = New System.Drawing.Point(312, 16)
         Me.chkIncludeDuplicateSequences.Name = "chkIncludeDuplicateSequences"
-        Me.chkIncludeDuplicateSequences.Size = New System.Drawing.Size(224, 39)
+        Me.chkIncludeDuplicateSequences.Size = New System.Drawing.Size(168, 32)
         Me.chkIncludeDuplicateSequences.TabIndex = 1
         Me.chkIncludeDuplicateSequences.Text = "Include duplicate sequences for given protein"
         '
         'cmdParseInputFile
         '
-        Me.cmdParseInputFile.Location = New System.Drawing.Point(512, 10)
-        Me.cmdParseInputFile.Margin = New System.Windows.Forms.Padding(4)
+        Me.cmdParseInputFile.Location = New System.Drawing.Point(384, 8)
         Me.cmdParseInputFile.Name = "cmdParseInputFile"
-        Me.cmdParseInputFile.Size = New System.Drawing.Size(149, 30)
+        Me.cmdParseInputFile.Size = New System.Drawing.Size(112, 24)
         Me.cmdParseInputFile.TabIndex = 3
         Me.cmdParseInputFile.Text = "&Parse and Digest"
         '
@@ -1354,10 +1190,9 @@ Partial Class frmMain
         Me.TabPagePeakMatchingThresholds.Controls.Add(Me.cboMassTolType)
         Me.TabPagePeakMatchingThresholds.Controls.Add(Me.lblMassTolType)
         Me.TabPagePeakMatchingThresholds.Controls.Add(Me.dgPeakMatchingThresholds)
-        Me.TabPagePeakMatchingThresholds.Location = New System.Drawing.Point(4, 25)
-        Me.TabPagePeakMatchingThresholds.Margin = New System.Windows.Forms.Padding(4)
+        Me.TabPagePeakMatchingThresholds.Location = New System.Drawing.Point(4, 22)
         Me.TabPagePeakMatchingThresholds.Name = "TabPagePeakMatchingThresholds"
-        Me.TabPagePeakMatchingThresholds.Size = New System.Drawing.Size(931, 407)
+        Me.TabPagePeakMatchingThresholds.Size = New System.Drawing.Size(696, 328)
         Me.TabPagePeakMatchingThresholds.TabIndex = 3
         Me.TabPagePeakMatchingThresholds.Text = "Peak Matching Thresholds"
         Me.TabPagePeakMatchingThresholds.UseVisualStyleBackColor = True
@@ -1366,64 +1201,57 @@ Partial Class frmMain
         '
         Me.chkAutoDefineSLiCScoreTolerances.Checked = True
         Me.chkAutoDefineSLiCScoreTolerances.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkAutoDefineSLiCScoreTolerances.Location = New System.Drawing.Point(21, 315)
-        Me.chkAutoDefineSLiCScoreTolerances.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkAutoDefineSLiCScoreTolerances.Location = New System.Drawing.Point(16, 256)
         Me.chkAutoDefineSLiCScoreTolerances.Name = "chkAutoDefineSLiCScoreTolerances"
-        Me.chkAutoDefineSLiCScoreTolerances.Size = New System.Drawing.Size(277, 20)
+        Me.chkAutoDefineSLiCScoreTolerances.Size = New System.Drawing.Size(208, 16)
         Me.chkAutoDefineSLiCScoreTolerances.TabIndex = 3
         Me.chkAutoDefineSLiCScoreTolerances.Text = "Auto Define SLiC Score Tolerances"
         '
         'cmdPastePMThresholdsList
         '
-        Me.cmdPastePMThresholdsList.Location = New System.Drawing.Point(608, 118)
-        Me.cmdPastePMThresholdsList.Margin = New System.Windows.Forms.Padding(4)
+        Me.cmdPastePMThresholdsList.Location = New System.Drawing.Point(456, 96)
         Me.cmdPastePMThresholdsList.Name = "cmdPastePMThresholdsList"
-        Me.cmdPastePMThresholdsList.Size = New System.Drawing.Size(139, 30)
+        Me.cmdPastePMThresholdsList.Size = New System.Drawing.Size(104, 24)
         Me.cmdPastePMThresholdsList.TabIndex = 6
         Me.cmdPastePMThresholdsList.Text = "Paste Values"
         '
         'cboPMPredefinedThresholds
         '
         Me.cboPMPredefinedThresholds.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboPMPredefinedThresholds.Location = New System.Drawing.Point(448, 315)
-        Me.cboPMPredefinedThresholds.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboPMPredefinedThresholds.Location = New System.Drawing.Point(336, 256)
         Me.cboPMPredefinedThresholds.Name = "cboPMPredefinedThresholds"
-        Me.cboPMPredefinedThresholds.Size = New System.Drawing.Size(351, 24)
+        Me.cboPMPredefinedThresholds.Size = New System.Drawing.Size(264, 21)
         Me.cboPMPredefinedThresholds.TabIndex = 5
         '
         'cmdPMThresholdsAutoPopulate
         '
-        Me.cmdPMThresholdsAutoPopulate.Location = New System.Drawing.Point(448, 276)
-        Me.cmdPMThresholdsAutoPopulate.Margin = New System.Windows.Forms.Padding(4)
+        Me.cmdPMThresholdsAutoPopulate.Location = New System.Drawing.Point(336, 224)
         Me.cmdPMThresholdsAutoPopulate.Name = "cmdPMThresholdsAutoPopulate"
-        Me.cmdPMThresholdsAutoPopulate.Size = New System.Drawing.Size(139, 30)
+        Me.cmdPMThresholdsAutoPopulate.Size = New System.Drawing.Size(104, 24)
         Me.cmdPMThresholdsAutoPopulate.TabIndex = 4
         Me.cmdPMThresholdsAutoPopulate.Text = "Auto-Populate"
         '
         'cmdClearPMThresholdsList
         '
-        Me.cmdClearPMThresholdsList.Location = New System.Drawing.Point(608, 158)
-        Me.cmdClearPMThresholdsList.Margin = New System.Windows.Forms.Padding(4)
+        Me.cmdClearPMThresholdsList.Location = New System.Drawing.Point(456, 128)
         Me.cmdClearPMThresholdsList.Name = "cmdClearPMThresholdsList"
-        Me.cmdClearPMThresholdsList.Size = New System.Drawing.Size(139, 30)
+        Me.cmdClearPMThresholdsList.Size = New System.Drawing.Size(104, 24)
         Me.cmdClearPMThresholdsList.TabIndex = 7
         Me.cmdClearPMThresholdsList.Text = "Clear List"
         '
         'cboMassTolType
         '
         Me.cboMassTolType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboMassTolType.Location = New System.Drawing.Point(192, 276)
-        Me.cboMassTolType.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboMassTolType.Location = New System.Drawing.Point(144, 224)
         Me.cboMassTolType.Name = "cboMassTolType"
-        Me.cboMassTolType.Size = New System.Drawing.Size(180, 24)
+        Me.cboMassTolType.Size = New System.Drawing.Size(136, 21)
         Me.cboMassTolType.TabIndex = 2
         '
         'lblMassTolType
         '
-        Me.lblMassTolType.Location = New System.Drawing.Point(21, 278)
-        Me.lblMassTolType.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblMassTolType.Location = New System.Drawing.Point(16, 226)
         Me.lblMassTolType.Name = "lblMassTolType"
-        Me.lblMassTolType.Size = New System.Drawing.Size(181, 20)
+        Me.lblMassTolType.Size = New System.Drawing.Size(136, 16)
         Me.lblMassTolType.TabIndex = 1
         Me.lblMassTolType.Text = "Mass Tolerance Type"
         '
@@ -1432,10 +1260,9 @@ Partial Class frmMain
         Me.dgPeakMatchingThresholds.CaptionText = "Peak Matching Thresholds"
         Me.dgPeakMatchingThresholds.DataMember = ""
         Me.dgPeakMatchingThresholds.HeaderForeColor = System.Drawing.SystemColors.ControlText
-        Me.dgPeakMatchingThresholds.Location = New System.Drawing.Point(21, 10)
-        Me.dgPeakMatchingThresholds.Margin = New System.Windows.Forms.Padding(4)
+        Me.dgPeakMatchingThresholds.Location = New System.Drawing.Point(16, 8)
         Me.dgPeakMatchingThresholds.Name = "dgPeakMatchingThresholds"
-        Me.dgPeakMatchingThresholds.Size = New System.Drawing.Size(565, 256)
+        Me.dgPeakMatchingThresholds.Size = New System.Drawing.Size(424, 208)
         Me.dgPeakMatchingThresholds.TabIndex = 0
         '
         'TabPageProgress
@@ -1447,50 +1274,45 @@ Partial Class frmMain
         Me.TabPageProgress.Controls.Add(Me.lblSubtaskProgressDescription)
         Me.TabPageProgress.Controls.Add(Me.lblProgressDescription)
         Me.TabPageProgress.Controls.Add(Me.cmdAbortProcessing)
-        Me.TabPageProgress.Location = New System.Drawing.Point(4, 25)
-        Me.TabPageProgress.Margin = New System.Windows.Forms.Padding(4)
+        Me.TabPageProgress.Location = New System.Drawing.Point(4, 22)
         Me.TabPageProgress.Name = "TabPageProgress"
-        Me.TabPageProgress.Size = New System.Drawing.Size(931, 407)
+        Me.TabPageProgress.Size = New System.Drawing.Size(696, 328)
         Me.TabPageProgress.TabIndex = 4
         Me.TabPageProgress.Text = "Progress"
         Me.TabPageProgress.UseVisualStyleBackColor = True
         '
         'pbarProgress
         '
-        Me.pbarProgress.Location = New System.Drawing.Point(17, 15)
-        Me.pbarProgress.Margin = New System.Windows.Forms.Padding(4)
+        Me.pbarProgress.Location = New System.Drawing.Point(13, 12)
         Me.pbarProgress.Name = "pbarProgress"
-        Me.pbarProgress.Size = New System.Drawing.Size(162, 25)
+        Me.pbarProgress.Size = New System.Drawing.Size(122, 20)
         Me.pbarProgress.TabIndex = 12
         '
         'lblErrorMessage
         '
         Me.lblErrorMessage.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.lblErrorMessage.Location = New System.Drawing.Point(183, 138)
-        Me.lblErrorMessage.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblErrorMessage.Location = New System.Drawing.Point(137, 112)
         Me.lblErrorMessage.Name = "lblErrorMessage"
-        Me.lblErrorMessage.Size = New System.Drawing.Size(687, 39)
+        Me.lblErrorMessage.Size = New System.Drawing.Size(515, 32)
         Me.lblErrorMessage.TabIndex = 11
         Me.lblErrorMessage.Text = "Error message ..."
         Me.lblErrorMessage.Visible = False
         '
         'lblSubtaskProgress
         '
-        Me.lblSubtaskProgress.Location = New System.Drawing.Point(17, 75)
-        Me.lblSubtaskProgress.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblSubtaskProgress.Location = New System.Drawing.Point(13, 61)
         Me.lblSubtaskProgress.Name = "lblSubtaskProgress"
-        Me.lblSubtaskProgress.Size = New System.Drawing.Size(157, 22)
+        Me.lblSubtaskProgress.Size = New System.Drawing.Size(118, 18)
         Me.lblSubtaskProgress.TabIndex = 8
         Me.lblSubtaskProgress.Text = "0"
         Me.lblSubtaskProgress.Visible = False
         '
         'lblProgress
         '
-        Me.lblProgress.Location = New System.Drawing.Point(17, 43)
-        Me.lblProgress.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblProgress.Location = New System.Drawing.Point(13, 35)
         Me.lblProgress.Name = "lblProgress"
-        Me.lblProgress.Size = New System.Drawing.Size(157, 22)
+        Me.lblProgress.Size = New System.Drawing.Size(118, 18)
         Me.lblProgress.TabIndex = 7
         Me.lblProgress.Text = "0"
         '
@@ -1498,10 +1320,9 @@ Partial Class frmMain
         '
         Me.lblSubtaskProgressDescription.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.lblSubtaskProgressDescription.Location = New System.Drawing.Point(187, 75)
-        Me.lblSubtaskProgressDescription.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblSubtaskProgressDescription.Location = New System.Drawing.Point(140, 61)
         Me.lblSubtaskProgressDescription.Name = "lblSubtaskProgressDescription"
-        Me.lblSubtaskProgressDescription.Size = New System.Drawing.Size(687, 39)
+        Me.lblSubtaskProgressDescription.Size = New System.Drawing.Size(515, 32)
         Me.lblSubtaskProgressDescription.TabIndex = 6
         Me.lblSubtaskProgressDescription.Text = "Subtask progress description ..."
         Me.lblSubtaskProgressDescription.Visible = False
@@ -1510,19 +1331,17 @@ Partial Class frmMain
         '
         Me.lblProgressDescription.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.lblProgressDescription.Location = New System.Drawing.Point(187, 15)
-        Me.lblProgressDescription.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblProgressDescription.Location = New System.Drawing.Point(140, 12)
         Me.lblProgressDescription.Name = "lblProgressDescription"
-        Me.lblProgressDescription.Size = New System.Drawing.Size(687, 39)
+        Me.lblProgressDescription.Size = New System.Drawing.Size(515, 32)
         Me.lblProgressDescription.TabIndex = 5
         Me.lblProgressDescription.Text = "Progress description ..."
         '
         'cmdAbortProcessing
         '
-        Me.cmdAbortProcessing.Location = New System.Drawing.Point(13, 130)
-        Me.cmdAbortProcessing.Margin = New System.Windows.Forms.Padding(4)
+        Me.cmdAbortProcessing.Location = New System.Drawing.Point(10, 106)
         Me.cmdAbortProcessing.Name = "cmdAbortProcessing"
-        Me.cmdAbortProcessing.Size = New System.Drawing.Size(161, 30)
+        Me.cmdAbortProcessing.Size = New System.Drawing.Size(121, 24)
         Me.cmdAbortProcessing.TabIndex = 4
         Me.cmdAbortProcessing.Text = "Abort Processing"
         '
@@ -1534,27 +1353,24 @@ Partial Class frmMain
         'cboInputFileFormat
         '
         Me.cboInputFileFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboInputFileFormat.Location = New System.Drawing.Point(149, 69)
-        Me.cboInputFileFormat.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboInputFileFormat.Location = New System.Drawing.Point(112, 56)
         Me.cboInputFileFormat.Name = "cboInputFileFormat"
-        Me.cboInputFileFormat.Size = New System.Drawing.Size(148, 24)
+        Me.cboInputFileFormat.Size = New System.Drawing.Size(112, 21)
         Me.cboInputFileFormat.TabIndex = 3
         '
         'lblInputFileFormat
         '
-        Me.lblInputFileFormat.Location = New System.Drawing.Point(11, 71)
-        Me.lblInputFileFormat.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblInputFileFormat.Location = New System.Drawing.Point(8, 58)
         Me.lblInputFileFormat.Name = "lblInputFileFormat"
-        Me.lblInputFileFormat.Size = New System.Drawing.Size(139, 20)
+        Me.lblInputFileFormat.Size = New System.Drawing.Size(104, 16)
         Me.lblInputFileFormat.TabIndex = 2
         Me.lblInputFileFormat.Text = "Input File Format"
         '
         'cmdSelectFile
         '
-        Me.cmdSelectFile.Location = New System.Drawing.Point(11, 30)
-        Me.cmdSelectFile.Margin = New System.Windows.Forms.Padding(4)
+        Me.cmdSelectFile.Location = New System.Drawing.Point(8, 24)
         Me.cmdSelectFile.Name = "cmdSelectFile"
-        Me.cmdSelectFile.Size = New System.Drawing.Size(107, 30)
+        Me.cmdSelectFile.Size = New System.Drawing.Size(80, 24)
         Me.cmdSelectFile.TabIndex = 0
         Me.cmdSelectFile.Text = "&Select file"
         '
@@ -1567,11 +1383,9 @@ Partial Class frmMain
         Me.fraInputFilePath.Controls.Add(Me.lblInputFileFormat)
         Me.fraInputFilePath.Controls.Add(Me.cmdSelectFile)
         Me.fraInputFilePath.Controls.Add(Me.txtProteinInputFilePath)
-        Me.fraInputFilePath.Location = New System.Drawing.Point(16, 15)
-        Me.fraInputFilePath.Margin = New System.Windows.Forms.Padding(4)
+        Me.fraInputFilePath.Location = New System.Drawing.Point(12, 12)
         Me.fraInputFilePath.Name = "fraInputFilePath"
-        Me.fraInputFilePath.Padding = New System.Windows.Forms.Padding(4)
-        Me.fraInputFilePath.Size = New System.Drawing.Size(974, 108)
+        Me.fraInputFilePath.Size = New System.Drawing.Size(730, 88)
         Me.fraInputFilePath.TabIndex = 3
         Me.fraInputFilePath.TabStop = False
         Me.fraInputFilePath.Text = "Protein Input File Path (Fasta or Tab-delimited)"
@@ -1579,10 +1393,9 @@ Partial Class frmMain
         'cmdValidateFastaFile
         '
         Me.cmdValidateFastaFile.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.cmdValidateFastaFile.Location = New System.Drawing.Point(793, 69)
-        Me.cmdValidateFastaFile.Margin = New System.Windows.Forms.Padding(4)
+        Me.cmdValidateFastaFile.Location = New System.Drawing.Point(595, 56)
         Me.cmdValidateFastaFile.Name = "cmdValidateFastaFile"
-        Me.cmdValidateFastaFile.Size = New System.Drawing.Size(160, 30)
+        Me.cmdValidateFastaFile.Size = New System.Drawing.Size(120, 24)
         Me.cmdValidateFastaFile.TabIndex = 4
         Me.cmdValidateFastaFile.Text = "&Validate Fasta File"
         '
@@ -1590,10 +1403,9 @@ Partial Class frmMain
         '
         Me.chkEnableLogging.Checked = True
         Me.chkEnableLogging.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkEnableLogging.Location = New System.Drawing.Point(563, 23)
-        Me.chkEnableLogging.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkEnableLogging.Location = New System.Drawing.Point(422, 19)
         Me.chkEnableLogging.Name = "chkEnableLogging"
-        Me.chkEnableLogging.Size = New System.Drawing.Size(149, 30)
+        Me.chkEnableLogging.Size = New System.Drawing.Size(112, 24)
         Me.chkEnableLogging.TabIndex = 4
         Me.chkEnableLogging.Text = "Enable logging"
         '
@@ -1604,10 +1416,9 @@ Partial Class frmMain
         '
         'cmdSelectOutputFile
         '
-        Me.cmdSelectOutputFile.Location = New System.Drawing.Point(11, 69)
-        Me.cmdSelectOutputFile.Margin = New System.Windows.Forms.Padding(4)
+        Me.cmdSelectOutputFile.Location = New System.Drawing.Point(8, 56)
         Me.cmdSelectOutputFile.Name = "cmdSelectOutputFile"
-        Me.cmdSelectOutputFile.Size = New System.Drawing.Size(117, 41)
+        Me.cmdSelectOutputFile.Size = New System.Drawing.Size(88, 33)
         Me.cmdSelectOutputFile.TabIndex = 5
         Me.cmdSelectOutputFile.Text = "Select / &Create File"
         '
@@ -1646,18 +1457,16 @@ Partial Class frmMain
         '
         Me.txtProteinOutputFilePath.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.txtProteinOutputFilePath.Location = New System.Drawing.Point(139, 76)
-        Me.txtProteinOutputFilePath.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtProteinOutputFilePath.Location = New System.Drawing.Point(104, 62)
         Me.txtProteinOutputFilePath.Name = "txtProteinOutputFilePath"
-        Me.txtProteinOutputFilePath.Size = New System.Drawing.Size(813, 22)
+        Me.txtProteinOutputFilePath.Size = New System.Drawing.Size(611, 20)
         Me.txtProteinOutputFilePath.TabIndex = 6
         '
         'chkIncludePrefixAndSuffixResidues
         '
-        Me.chkIncludePrefixAndSuffixResidues.Location = New System.Drawing.Point(341, 20)
-        Me.chkIncludePrefixAndSuffixResidues.Margin = New System.Windows.Forms.Padding(4)
+        Me.chkIncludePrefixAndSuffixResidues.Location = New System.Drawing.Point(256, 16)
         Me.chkIncludePrefixAndSuffixResidues.Name = "chkIncludePrefixAndSuffixResidues"
-        Me.chkIncludePrefixAndSuffixResidues.Size = New System.Drawing.Size(213, 39)
+        Me.chkIncludePrefixAndSuffixResidues.Size = New System.Drawing.Size(160, 32)
         Me.chkIncludePrefixAndSuffixResidues.TabIndex = 3
         Me.chkIncludePrefixAndSuffixResidues.Text = "Include prefix and suffix residues for the sequences"
         '
@@ -1704,29 +1513,26 @@ Partial Class frmMain
         '
         'lblOutputFileFieldDelimiter
         '
-        Me.lblOutputFileFieldDelimiter.Location = New System.Drawing.Point(11, 32)
-        Me.lblOutputFileFieldDelimiter.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.lblOutputFileFieldDelimiter.Location = New System.Drawing.Point(8, 26)
         Me.lblOutputFileFieldDelimiter.Name = "lblOutputFileFieldDelimiter"
-        Me.lblOutputFileFieldDelimiter.Size = New System.Drawing.Size(149, 22)
+        Me.lblOutputFileFieldDelimiter.Size = New System.Drawing.Size(112, 18)
         Me.lblOutputFileFieldDelimiter.TabIndex = 0
         Me.lblOutputFileFieldDelimiter.Text = "Field delimiter"
         '
         'cboOutputFileFieldDelimiter
         '
         Me.cboOutputFileFieldDelimiter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboOutputFileFieldDelimiter.Location = New System.Drawing.Point(171, 30)
-        Me.cboOutputFileFieldDelimiter.Margin = New System.Windows.Forms.Padding(4)
+        Me.cboOutputFileFieldDelimiter.Location = New System.Drawing.Point(128, 24)
         Me.cboOutputFileFieldDelimiter.Name = "cboOutputFileFieldDelimiter"
-        Me.cboOutputFileFieldDelimiter.Size = New System.Drawing.Size(92, 24)
+        Me.cboOutputFileFieldDelimiter.Size = New System.Drawing.Size(70, 21)
         Me.cboOutputFileFieldDelimiter.TabIndex = 1
         '
         'txtOutputFileFieldDelimiter
         '
-        Me.txtOutputFileFieldDelimiter.Location = New System.Drawing.Point(277, 30)
-        Me.txtOutputFileFieldDelimiter.Margin = New System.Windows.Forms.Padding(4)
+        Me.txtOutputFileFieldDelimiter.Location = New System.Drawing.Point(208, 24)
         Me.txtOutputFileFieldDelimiter.MaxLength = 1
         Me.txtOutputFileFieldDelimiter.Name = "txtOutputFileFieldDelimiter"
-        Me.txtOutputFileFieldDelimiter.Size = New System.Drawing.Size(41, 22)
+        Me.txtOutputFileFieldDelimiter.Size = New System.Drawing.Size(32, 20)
         Me.txtOutputFileFieldDelimiter.TabIndex = 2
         Me.txtOutputFileFieldDelimiter.Text = ";"
         '
@@ -1741,42 +1547,21 @@ Partial Class frmMain
         Me.fraOutputTextOptions.Controls.Add(Me.cboOutputFileFieldDelimiter)
         Me.fraOutputTextOptions.Controls.Add(Me.txtOutputFileFieldDelimiter)
         Me.fraOutputTextOptions.Controls.Add(Me.lblOutputFileFieldDelimiter)
-        Me.fraOutputTextOptions.Location = New System.Drawing.Point(16, 133)
-        Me.fraOutputTextOptions.Margin = New System.Windows.Forms.Padding(4)
+        Me.fraOutputTextOptions.Location = New System.Drawing.Point(12, 108)
         Me.fraOutputTextOptions.Name = "fraOutputTextOptions"
-        Me.fraOutputTextOptions.Padding = New System.Windows.Forms.Padding(4)
-        Me.fraOutputTextOptions.Size = New System.Drawing.Size(974, 118)
+        Me.fraOutputTextOptions.Size = New System.Drawing.Size(730, 96)
         Me.fraOutputTextOptions.TabIndex = 4
         Me.fraOutputTextOptions.TabStop = False
         Me.fraOutputTextOptions.Text = "Output Options"
         '
-        'lblFragmentMassMode
-        '
-        Me.lblFragmentMassMode.Location = New System.Drawing.Point(11, 130)
-        Me.lblFragmentMassMode.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.lblFragmentMassMode.Name = "lblFragmentMassMode"
-        Me.lblFragmentMassMode.Size = New System.Drawing.Size(90, 20)
-        Me.lblFragmentMassMode.TabIndex = 18
-        Me.lblFragmentMassMode.Text = "Mass Mode"
-        '
-        'cboFragmentMassMode
-        '
-        Me.cboFragmentMassMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboFragmentMassMode.Location = New System.Drawing.Point(100, 128)
-        Me.cboFragmentMassMode.Margin = New System.Windows.Forms.Padding(4)
-        Me.cboFragmentMassMode.Name = "cboFragmentMassMode"
-        Me.cboFragmentMassMode.Size = New System.Drawing.Size(155, 24)
-        Me.cboFragmentMassMode.TabIndex = 19
-        '
         'frmMain
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1006, 710)
+        Me.ClientSize = New System.Drawing.Size(754, 577)
         Me.Controls.Add(Me.tbsOptions)
         Me.Controls.Add(Me.fraInputFilePath)
         Me.Controls.Add(Me.fraOutputTextOptions)
-        Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Menu = Me.MainMenuControl
         Me.Name = "frmMain"
         Me.Text = "Protein Digestion Simulator"
@@ -1792,8 +1577,6 @@ Partial Class frmMain
         Me.fraDelimitedFileOptions.ResumeLayout(False)
         Me.fraDelimitedFileOptions.PerformLayout()
         Me.TabPageFileFormatOptions.ResumeLayout(False)
-        Me.fraInputOptions.ResumeLayout(False)
-        Me.fraInputOptions.PerformLayout()
         Me.tbsOptions.ResumeLayout(False)
         Me.TabPageParseAndDigest.ResumeLayout(False)
         Me.fraProcessingOptions.ResumeLayout(False)
@@ -1868,12 +1651,6 @@ Partial Class frmMain
     Friend WithEvents lblInputFileColumnDelimiter As System.Windows.Forms.Label
     Friend WithEvents cboInputFileColumnDelimiter As System.Windows.Forms.ComboBox
     Friend WithEvents TabPageFileFormatOptions As System.Windows.Forms.TabPage
-    Friend WithEvents fraInputOptions As System.Windows.Forms.GroupBox
-    Friend WithEvents txtRefEndChar As System.Windows.Forms.TextBox
-    Friend WithEvents cboRefEndChar As System.Windows.Forms.ComboBox
-    Friend WithEvents lblRefEndChar As System.Windows.Forms.Label
-    Friend WithEvents txtRefStartChar As System.Windows.Forms.TextBox
-    Friend WithEvents lblRefStartChar As System.Windows.Forms.Label
     Friend WithEvents tbsOptions As System.Windows.Forms.TabControl
     Friend WithEvents TabPageParseAndDigest As System.Windows.Forms.TabPage
     Friend WithEvents fraProcessingOptions As System.Windows.Forms.GroupBox

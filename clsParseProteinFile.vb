@@ -834,14 +834,10 @@ Public Class clsParseProteinFile
 
                     DigestionOptions.IncludePrefixAndSuffixResidues = settingsFile.GetParam(XML_SECTION_OPTIONS, "IncludePrefixAndSuffixResidues", DigestionOptions.IncludePrefixAndSuffixResidues)
 
-                    FastaFileOptions.ProteinLineStartChar = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "RefStartChar", FastaFileOptions.ProteinLineStartChar.ToString()).Chars(0)
-
                     delimiterIndex = DelimiterCharConstants.Space
                     customDelimiter = " "c
 
                     delimiterIndex = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "RefEndCharIndex", delimiterIndex)
-
-                    FastaFileOptions.ProteinLineAccessionEndChar = LookupColumnDelimiterChar(delimiterIndex, customDelimiter, FastaFileOptions.ProteinLineAccessionEndChar)
 
                     FastaFileOptions.LookForAddnlRefInDescription = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "LookForAddnlRefInDescription", FastaFileOptions.LookForAddnlRefInDescription)
 
@@ -1578,9 +1574,7 @@ Public Class clsParseProteinFile
         End If
 
         If mParsedFileIsFastaFile Then
-            Dim reader = New FastaFileReader With {
-                    .ProteinLineStartChar = FastaFileOptions.ProteinLineStartChar,
-                    .ProteinLineAccessionEndChar = FastaFileOptions.ProteinLineAccessionEndChar}
+            Dim reader = New FastaFileReader()
             proteinFileReader = reader
         Else
             Dim reader = New DelimitedProteinFileReader With {
@@ -1716,10 +1710,7 @@ Public Class clsParseProteinFile
         Dim inputProteinFound As Boolean
 
         Try
-            reader = New FastaFileReader() With {
-                .ProteinLineStartChar = FastaFileOptions.ProteinLineStartChar,
-                .ProteinLineAccessionEndChar = FastaFileOptions.ProteinLineAccessionEndChar
-            }
+            reader = New FastaFileReader()
 
             ' Attempt to open the input file
             If Not reader.OpenFile(proteinInputFilePath) Then

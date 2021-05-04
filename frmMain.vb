@@ -438,7 +438,6 @@ Public Class frmMain
         chkIncludePrefixAndSuffixResidues.Enabled = enableDigestionOptions
 
         txtOutputFileFieldDelimiter.Enabled = (cboOutputFileFieldDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Other)
-        txtRefEndChar.Enabled = (cboRefEndChar.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Other)
 
         enableDelimitedFileOptions = chkLookForAddnlRefInDescription.Checked
         txtAddnlRefSepChar.Enabled = enableDelimitedFileOptions
@@ -703,10 +702,6 @@ Public Class frmMain
                 End If
                 Me.Height = windowHeight
 
-                txtRefStartChar.Text = xmlSettings.GetParam(FASTAOptions, "RefStartChar", txtRefStartChar.Text)
-                cboRefEndChar.SelectedIndex = xmlSettings.GetParam(FASTAOptions, "RefEndCharIndex", cboRefEndChar.SelectedIndex)
-                txtRefEndChar.Text = xmlSettings.GetParam(FASTAOptions, "RefEndChar", txtRefEndChar.Text)
-
                 chkLookForAddnlRefInDescription.Checked = xmlSettings.GetParam(FASTAOptions, "LookForAddnlRefInDescription", chkLookForAddnlRefInDescription.Checked)
                 txtAddnlRefSepChar.Text = xmlSettings.GetParam(FASTAOptions, "AddnlRefSepChar", txtAddnlRefSepChar.Text)
                 txtAddnlRefAccessionSepChar.Text = xmlSettings.GetParam(FASTAOptions, "AddnlRefAccessionSepChar", txtAddnlRefAccessionSepChar.Text)
@@ -891,10 +886,6 @@ Public Class frmMain
                 xmlSettings.SetParam(OptionsSection, "WindowHeight", Me.Height)
 
                 If Not saveWindowDimensionsOnly Then
-                    xmlSettings.SetParam(FASTAOptions, "RefStartChar", txtRefStartChar.Text)
-                    xmlSettings.SetParam(FASTAOptions, "RefEndCharIndex", cboRefEndChar.SelectedIndex)
-                    xmlSettings.SetParam(FASTAOptions, "RefEndChar", txtRefEndChar.Text)
-
                     xmlSettings.SetParam(FASTAOptions, "LookForAddnlRefInDescription", chkLookForAddnlRefInDescription.Checked)
                     xmlSettings.SetParam(FASTAOptions, "AddnlRefSepChar", txtAddnlRefSepChar.Text)
                     xmlSettings.SetParam(FASTAOptions, "AddnlRefAccessionSepChar", txtAddnlRefAccessionSepChar.Text)
@@ -1107,10 +1098,6 @@ Public Class frmMain
         parseProteinFile.InputFileDelimiter = LookupColumnDelimiter(cboInputFileColumnDelimiter, txtInputFileColumnDelimiter, ControlChars.Tab)
         parseProteinFile.OutputFileDelimiter = LookupColumnDelimiter(cboOutputFileFieldDelimiter, txtOutputFileFieldDelimiter, ControlChars.Tab)
 
-        ValidateTextBox(txtRefStartChar, mDefaultFastaFileOptions.ProteinLineStartChar)
-        parseProteinFile.FastaFileOptions.ProteinLineStartChar = txtRefStartChar.Text.Chars(0)
-        parseProteinFile.FastaFileOptions.ProteinLineAccessionEndChar = LookupColumnDelimiter(cboRefEndChar, txtRefEndChar, mDefaultFastaFileOptions.ProteinLineAccessionEndChar)
-
         parseProteinFile.FastaFileOptions.LookForAddnlRefInDescription = chkLookForAddnlRefInDescription.Checked
 
         ValidateTextBox(txtAddnlRefSepChar, mDefaultFastaFileOptions.AddnlRefSepChar)
@@ -1216,9 +1203,6 @@ Public Class frmMain
         toolTipControl.SetToolTip(cboInputFileColumnDelimiter, "Character separating columns in a delimited text input file.")
         toolTipControl.SetToolTip(txtInputFileColumnDelimiter, "Custom character separating columns in a delimited text input file.")
         toolTipControl.SetToolTip(txtOutputFileFieldDelimiter, "Character separating the fields in the output file.")
-        toolTipControl.SetToolTip(txtRefStartChar, "Character at the start of each protein description line in a Fasta file.")
-        toolTipControl.SetToolTip(cboRefEndChar, "Character at the end of the protein accession name in a Fasta file.")
-        toolTipControl.SetToolTip(txtRefEndChar, "Custom character at the end of the protein accession name in a Fasta file.")
 
         toolTipControl.SetToolTip(txtAddnlRefSepChar, "Character separating additional protein accession entries in a protein's description in a Fasta file.")
         toolTipControl.SetToolTip(txtAddnlRefAccessionSepChar, "Character separating source name and accession number for additional protein accession entries in a Fasta file.")
@@ -1458,12 +1442,6 @@ Public Class frmMain
             Next
             cboOutputFileFieldDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Space
 
-            cboRefEndChar.Items.Clear()
-            For index = 0 To cboInputFileColumnDelimiter.Items.Count - 1
-                cboRefEndChar.Items.Insert(index, cboInputFileColumnDelimiter.Items(index))
-            Next
-            cboRefEndChar.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Space
-
             cboInputFileColumnOrdering.Items.Clear()
             cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.SequenceOnly, "Sequence Only")
             cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Sequence, "ProteinName and Sequence")
@@ -1592,10 +1570,6 @@ Public Class frmMain
         chkEnableLogging.Checked = False
 
         chkIncludePrefixAndSuffixResidues.Checked = False
-
-        txtRefStartChar.Text = mDefaultFastaFileOptions.ProteinLineStartChar            ' ">"
-        cboRefEndChar.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Space
-        txtRefEndChar.Text = mDefaultFastaFileOptions.ProteinLineAccessionEndChar                ' " "
 
         chkLookForAddnlRefInDescription.Checked = False
         txtAddnlRefSepChar.Text = mDefaultFastaFileOptions.AddnlRefSepChar                      ' "|"
@@ -2128,10 +2102,6 @@ Public Class frmMain
     End Sub
 
     Private Sub cboOutputFileFieldDelimiter_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboOutputFileFieldDelimiter.SelectedIndexChanged
-        EnableDisableControls()
-    End Sub
-
-    Private Sub cboRefEndChar_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboRefEndChar.SelectedIndexChanged
         EnableDisableControls()
     End Sub
 
