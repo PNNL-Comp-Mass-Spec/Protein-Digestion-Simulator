@@ -217,7 +217,7 @@ Public Class PeptideSequenceClass
 
         ' First look if sequence is in the form A.BCDEFG.Z or -.BCDEFG.Z or A.BCDEFG.-
         ' If so, then need to strip out the preceding A and Z residues since they aren't really part of the sequence
-        If sequence.Length > 1 And sequence.IndexOf(".", StringComparison.Ordinal) >= 0 Then
+        If sequence.Length > 1 AndAlso sequence.IndexOf(".", StringComparison.Ordinal) >= 0 Then
             If sequence.Chars(1) = "." AndAlso sequence.Length > 2 Then
                 prefix = sequence.Chars(0)
                 sequence = sequence.Substring(2)
@@ -313,7 +313,7 @@ Public Class PeptideSequenceClass
             sequenceStart = sequence.Chars(periodIndex1 + 1)
         End If
 
-        If periodIndex2 > periodIndex1 + 1 And periodIndex2 <= sequence.Length - 2 Then
+        If periodIndex2 > periodIndex1 + 1 AndAlso periodIndex2 <= sequence.Length - 2 Then
             suffix = sequence.Chars(periodIndex2 - 1)
             sequenceStart = sequence.Chars(periodIndex2 + 1)
         ElseIf periodIndex1 > 1 Then
@@ -561,7 +561,7 @@ Public Class PeptideSequenceClass
     ''' <returns></returns>
     Public Function GetResidue(residueNumber As Integer, Optional use3LetterCode As Boolean = False) As String
 
-        If mResidues IsNot Nothing AndAlso (residueNumber > 0 And residueNumber <= mResidues.Length) Then
+        If mResidues IsNot Nothing AndAlso (residueNumber > 0 AndAlso residueNumber <= mResidues.Length) Then
             If use3LetterCode Then
                 Return GetAminoAcidSymbolConversion(mResidues.Chars(residueNumber - 1), True)
             Else
@@ -636,7 +636,7 @@ Public Class PeptideSequenceClass
 
         If mResidues Is Nothing Then Return String.Empty
 
-        If Not use3LetterCode And Not addSpaceEvery10Residues And Not separateResiduesWithDash Then
+        If Not use3LetterCode AndAlso Not addSpaceEvery10Residues AndAlso Not separateResiduesWithDash Then
             ' Simply return the sequence, possibly with the N and C terminii
             sequence = mResidues
         Else
@@ -758,7 +758,7 @@ Public Class PeptideSequenceClass
 
         Dim peptideResiduesLength = peptideResidues.Length
 
-        If startLoc > 0 And proteinResidues.Length > 0 And peptideResiduesLength > 0 Then
+        If startLoc > 0 AndAlso proteinResidues.Length > 0 AndAlso peptideResiduesLength > 0 Then
             Dim endLoc = startLoc + peptideResiduesLength - 1
             Dim prefix As Char
             Dim suffix As Char
@@ -804,7 +804,7 @@ Public Class PeptideSequenceClass
                         If ruleResidueNumForProtein > 0 Then
                             trypticResidueNumber += 1
                         End If
-                    Loop While ruleResidueNumForProtein > 0 And ruleResidueNumForProtein + 1 < startLoc
+                    Loop While ruleResidueNumForProtein > 0 AndAlso ruleResidueNumForProtein + 1 < startLoc
                     trypticResidueNumber += 1
                 End If
 
@@ -817,7 +817,7 @@ Public Class PeptideSequenceClass
                     If ruleResidueNumForPeptide > 0 Then
                         ruleResidueMatchCount += 1
                     End If
-                Loop While ruleResidueNumForPeptide > 0 And ruleResidueNumForPeptide < peptideResiduesLength
+                Loop While ruleResidueNumForPeptide > 0 AndAlso ruleResidueNumForPeptide < peptideResiduesLength
 
                 trypticName = "t" & trypticResidueNumber.ToString()
                 If ruleResidueMatchCount > 1 Then
@@ -981,7 +981,7 @@ Public Class PeptideSequenceClass
                             If residueNumViaRecursiveSearch > 0 Then
                                 ' Found a residue further along that is a valid cleavage point
                                 cleavedResidueNum = residueNumViaRecursiveSearch
-                                If cleavedResidueNum >= 1 And cleavedResidueNum >= startResidueNum Then matchFound = True
+                                If cleavedResidueNum >= 1 AndAlso cleavedResidueNum >= startResidueNum Then matchFound = True
                             Else
                                 cleavedResidueNum = 0
                             End If
@@ -1003,7 +1003,7 @@ Public Class PeptideSequenceClass
             End If
         Next
 
-        If minCleavedResidueNum < 0 And residueFollowingSearchResidues = terminiiSymbol Then
+        If minCleavedResidueNum < 0 AndAlso residueFollowingSearchResidues = terminiiSymbol Then
             minCleavedResidueNum = searchResidues.Length + 1
         End If
 
@@ -1153,7 +1153,7 @@ Public Class PeptideSequenceClass
             End If
         Loop While currentTrypticPeptideNumber < desiredPeptideNumber
 
-        If currentTrypticPeptideNumber > 0 And prevStartLoc > 0 Then
+        If currentTrypticPeptideNumber > 0 AndAlso prevStartLoc > 0 Then
             If prevStartLoc > proteinResidues.Length Then
                 ' User requested a peptide number that is too high
                 returnResidueStart = 0
@@ -1194,7 +1194,7 @@ Public Class PeptideSequenceClass
             cleavageResidueNum = searchResidues.IndexOf(cleavageRule.CleavageResidues.Chars(charIndexInCleavageResidues), startResidueNum - 1) + 1
         End If
 
-        If cleavageResidueNum >= 1 And cleavageResidueNum >= startResidueNum Then
+        If cleavageResidueNum >= 1 AndAlso cleavageResidueNum >= startResidueNum Then
             Return True
         End If
 
@@ -1274,7 +1274,7 @@ Public Class PeptideSequenceClass
     Private Sub RemoveTrailingOH(ByRef workingSequence As String)
 
         Dim stringLength = workingSequence.Length
-        If workingSequence.Substring(stringLength - 2, 2).ToUpper() = "OH" And stringLength >= 5 Then
+        If workingSequence.Substring(stringLength - 2, 2).ToUpper() = "OH" AndAlso stringLength >= 5 Then
             ' If previous character is not a character, then remove the OH (and the character preceding)
             If Not Char.IsLetter(workingSequence.Chars(stringLength - 3)) Then
                 workingSequence = workingSequence.Substring(0, stringLength - 3)
@@ -1508,7 +1508,7 @@ Public Class PeptideSequenceClass
             Dim index = 0
             Do While index <= sequenceStrLength - 3
                 If Char.IsLetter(sequence.Chars(index)) Then
-                    If Char.IsLetter(sequence.Chars(index + 1)) And
+                    If Char.IsLetter(sequence.Chars(index + 1)) AndAlso
                        Char.IsLetter(sequence.Chars(index + 2)) Then
 
                         Dim oneLetterSymbol = GetAminoAcidSymbolConversion(sequence.Substring(index, 3), False)

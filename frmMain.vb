@@ -415,7 +415,7 @@ Public Class frmMain
         lblInputFileColumnDelimiter.Enabled = enableDelimitedFileOptions
         chkAssumeInputFileIsDigested.Enabled = enableDelimitedFileOptions
 
-        txtInputFileColumnDelimiter.Enabled = (cboInputFileColumnDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Other) And enableDelimitedFileOptions
+        txtInputFileColumnDelimiter.Enabled = (cboInputFileColumnDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Other) AndAlso enableDelimitedFileOptions
 
         enableDigestionOptions = chkDigestProteins.Checked
         If enableDigestionOptions Then
@@ -449,13 +449,13 @@ Public Class frmMain
         allowSqlServerCaching = chkAllowSqlServerCaching.Checked
         chkUseSqlServerDBToCacheData.Enabled = allowSqlServerCaching
 
-        txtSqlServerDatabase.Enabled = chkUseSqlServerDBToCacheData.Checked And allowSqlServerCaching
+        txtSqlServerDatabase.Enabled = chkUseSqlServerDBToCacheData.Checked AndAlso allowSqlServerCaching
         txtSqlServerName.Enabled = txtSqlServerDatabase.Enabled
         chkSqlServerUseIntegratedSecurity.Enabled = txtSqlServerDatabase.Enabled
 
-        chkSqlServerUseExistingData.Enabled = chkSqlServerUseIntegratedSecurity.Checked And allowSqlServerCaching
+        chkSqlServerUseExistingData.Enabled = chkSqlServerUseIntegratedSecurity.Checked AndAlso allowSqlServerCaching
 
-        txtSqlServerUsername.Enabled = chkUseSqlServerDBToCacheData.Checked And Not chkSqlServerUseIntegratedSecurity.Checked And allowSqlServerCaching
+        txtSqlServerUsername.Enabled = chkUseSqlServerDBToCacheData.Checked AndAlso Not chkSqlServerUseIntegratedSecurity.Checked AndAlso allowSqlServerCaching
         txtSqlServerPassword.Enabled = txtSqlServerUsername.Enabled
 
         If cboProteinReversalOptions.SelectedIndex <= 0 Then
@@ -476,8 +476,8 @@ Public Class frmMain
 
         txtMaxpISequenceLength.Enabled = chkMaxpIModeEnabled.Checked
 
-        txtDigestProteinsMinimumpI.Enabled = enableDigestionOptions And chkComputepIandNET.Checked
-        txtDigestProteinsMaximumpI.Enabled = enableDigestionOptions And chkComputepIandNET.Checked
+        txtDigestProteinsMinimumpI.Enabled = enableDigestionOptions AndAlso chkComputepIandNET.Checked
+        txtDigestProteinsMaximumpI.Enabled = enableDigestionOptions AndAlso chkComputepIandNET.Checked
 
     End Sub
 
@@ -813,13 +813,13 @@ Public Class frmMain
                             thresholdDetails = thresholds(index).Split(columnDelimiters)
 
                             If thresholdDetails.Length > 2 AndAlso Not autoDefineSLiCScoreThresholds Then
-                                If IsNumeric(thresholdDetails(0)) And IsNumeric(thresholdDetails(1)) And
-                                 IsNumeric(thresholdDetails(2)) And IsNumeric(thresholdDetails(3)) Then
+                                If IsNumeric(thresholdDetails(0)) AndAlso IsNumeric(thresholdDetails(1)) AndAlso
+                                 IsNumeric(thresholdDetails(2)) AndAlso IsNumeric(thresholdDetails(3)) Then
                                     AddPMThresholdRow(CDbl(thresholdDetails(0)), CDbl(thresholdDetails(1)),
                                          CDbl(thresholdDetails(2)), CDbl(thresholdDetails(3)))
                                 End If
                             ElseIf thresholdDetails.Length >= 2 Then
-                                If IsNumeric(thresholdDetails(0)) And IsNumeric(thresholdDetails(1)) Then
+                                If IsNumeric(thresholdDetails(0)) AndAlso IsNumeric(thresholdDetails(1)) Then
                                     AddPMThresholdRow(CDbl(thresholdDetails(0)), CDbl(thresholdDetails(1)))
                                 End If
                             End If
@@ -1348,7 +1348,7 @@ Public Class frmMain
                                     Dim massThreshold = Double.Parse(dataColumns(0))
                                     Dim netThreshold = Double.Parse(dataColumns(1))
 
-                                    If massThreshold >= 0 And netThreshold >= 0 Then
+                                    If massThreshold >= 0 AndAlso netThreshold >= 0 Then
                                         Dim useSLiC As Boolean
                                         If Not chkAutoDefineSLiCScoreTolerances.Checked AndAlso dataColumns.Length >= 4 Then
                                             useSLiC = True
@@ -1965,7 +1965,7 @@ Public Class frmMain
         Dim fileSizeKB = CType(inputFile.Length / 1024.0, Integer)
 
         If isFastaFile Then
-            If proteinFileParser.DigestionOptions.CleavageRuleID = clsInSilicoDigest.CleavageRuleConstants.KROneEnd Or
+            If proteinFileParser.DigestionOptions.CleavageRuleID = clsInSilicoDigest.CleavageRuleConstants.KROneEnd OrElse
                proteinFileParser.DigestionOptions.CleavageRuleID = clsInSilicoDigest.CleavageRuleConstants.NoRule Then
                 suggestEnableSqlServer = True
             ElseIf fileSizeKB > 500 Then
@@ -2017,7 +2017,7 @@ Public Class frmMain
         End If
 
         Dim proceed As Boolean
-        If suggestEnableSqlServer And Not chkUseSqlServerDBToCacheData.Checked Then
+        If suggestEnableSqlServer AndAlso Not chkUseSqlServerDBToCacheData.Checked Then
             Dim eResponse = MessageBox.Show("Warning, memory usage could be quite large.  Enable Sql Server caching using Server " & txtSqlServerName.Text & "?  If no, then will continue using memory caching.", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
             If eResponse = DialogResult.Yes Then chkUseSqlServerDBToCacheData.Checked = True
             If eResponse = DialogResult.Cancel Then
@@ -2025,7 +2025,7 @@ Public Class frmMain
             Else
                 proceed = True
             End If
-        ElseIf suggestDisableSqlServer And chkUseSqlServerDBToCacheData.Checked Then
+        ElseIf suggestDisableSqlServer AndAlso chkUseSqlServerDBToCacheData.Checked Then
             Dim eResponse = MessageBox.Show("Memory usage is expected to be minimal.  Continue caching data using Server " & txtSqlServerName.Text & "?  If no, then will switch to using memory caching.", "Note", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
             If eResponse = DialogResult.No Then chkUseSqlServerDBToCacheData.Checked = False
             If eResponse = DialogResult.Cancel Then

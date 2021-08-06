@@ -522,7 +522,7 @@ Public Class clsParseProteinFile
 
         Dim errorMessage As String
 
-        If ErrorCode = ProcessFilesErrorCodes.LocalizedError Or
+        If ErrorCode = ProcessFilesErrorCodes.LocalizedError OrElse
            ErrorCode = ProcessFilesErrorCodes.NoError Then
             Select Case mLocalErrorCode
                 Case eParseProteinFileErrorCodes.NoError
@@ -1213,7 +1213,7 @@ Public Class clsParseProteinFile
 
                 Loop While inputProteinFound
 
-                If CreateProteinOutputFile And eScramblingMode <> ProteinScramblingModeConstants.None Then
+                If CreateProteinOutputFile AndAlso eScramblingMode <> ProteinScramblingModeConstants.None Then
                     ' Write out anything remaining in the cache
 
                     Dim proteinNamePrefix As String
@@ -1276,7 +1276,7 @@ Public Class clsParseProteinFile
 
         Catch ex As Exception
             ShowErrorMessage("Error in ParseProteinFile: " & ex.Message)
-            If CreateProteinOutputFile Or CreateDigestedProteinOutputFile Then
+            If CreateProteinOutputFile OrElse CreateDigestedProteinOutputFile Then
                 SetLocalErrorCode(eParseProteinFileErrorCodes.ErrorWritingOutputFile)
                 success = False
             Else

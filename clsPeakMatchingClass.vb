@@ -112,7 +112,7 @@ Public Class clsPeakMatchingClass
                 midIndex = (firstIndex + lastIndex) \ 2            ' Note: Using Integer division
                 If midIndex < firstIndex Then midIndex = firstIndex
 
-                Do While firstIndex <= lastIndex And mFeatures(midIndex).FeatureID <> featureIDToFind
+                Do While firstIndex <= lastIndex AndAlso mFeatures(midIndex).FeatureID <> featureIDToFind
                     If featureIDToFind < mFeatures(midIndex).FeatureID Then
                         ' Search the lower half
                         lastIndex = midIndex - 1
@@ -125,7 +125,7 @@ Public Class clsPeakMatchingClass
                     If midIndex < firstIndex Then Exit Do
                 Loop
 
-                If midIndex >= firstIndex And midIndex <= lastIndex Then
+                If midIndex >= firstIndex AndAlso midIndex <= lastIndex Then
                     If mFeatures(midIndex).FeatureID = featureIDToFind Then
                         matchingRowIndex = midIndex
                     End If
@@ -218,7 +218,7 @@ Public Class clsPeakMatchingClass
 
         Public Overridable Function GetFeatureInfoByRowIndex(rowIndex As Integer, ByRef udtFeatureInfo As udtFeatureInfoType) As Boolean
 
-            If rowIndex >= 0 And rowIndex < mFeatureCount Then
+            If rowIndex >= 0 AndAlso rowIndex < mFeatureCount Then
                 udtFeatureInfo = mFeatures(rowIndex)
                 Return True
             Else
@@ -268,7 +268,7 @@ Public Class clsPeakMatchingClass
         End Function
 
         Public Overridable Function GetMassByRowIndex(rowIndex As Integer) As Double
-            If rowIndex >= 0 And rowIndex < mFeatureCount Then
+            If rowIndex >= 0 AndAlso rowIndex < mFeatureCount Then
                 Return mFeatures(rowIndex).Mass
             Else
                 Return 0
@@ -397,7 +397,7 @@ Public Class clsPeakMatchingClass
 
         Public Overloads Function GetFeatureInfoByRowIndex(rowIndex As Integer, ByRef udtFeatureInfo As udtFeatureInfoType, ByRef netStDev As Single, ByRef discriminantScore As Single) As Boolean
 
-            If rowIndex >= 0 And rowIndex < mFeatureCount Then
+            If rowIndex >= 0 AndAlso rowIndex < mFeatureCount Then
                 udtFeatureInfo = mFeatures(rowIndex)
                 netStDev = mExtendedInfo(rowIndex).NETStDev
                 discriminantScore = mExtendedInfo(rowIndex).DiscriminantScore
@@ -416,7 +416,7 @@ Public Class clsPeakMatchingClass
         End Function
 
         Public Overridable Function GetNETStDevByRowIndex(rowIndex As Integer) As Single
-            If rowIndex >= 0 And rowIndex < mFeatureCount Then
+            If rowIndex >= 0 AndAlso rowIndex < mFeatureCount Then
                 Return mExtendedInfo(rowIndex).NETStDev
             Else
                 Return 0
@@ -500,7 +500,7 @@ Public Class clsPeakMatchingClass
                 midIndex = (firstIndex + lastIndex) \ 2            ' Note: Using Integer division
                 If midIndex < firstIndex Then midIndex = firstIndex
 
-                Do While firstIndex <= lastIndex And mPMResults(midIndex).FeatureID <> featureIDToFind
+                Do While firstIndex <= lastIndex AndAlso mPMResults(midIndex).FeatureID <> featureIDToFind
                     If featureIDToFind < mPMResults(midIndex).FeatureID Then
                         ' Search the lower half
                         lastIndex = midIndex - 1
@@ -513,7 +513,7 @@ Public Class clsPeakMatchingClass
                     If midIndex < firstIndex Then Exit Do
                 Loop
 
-                If midIndex >= firstIndex And midIndex <= lastIndex Then
+                If midIndex >= firstIndex AndAlso midIndex <= lastIndex Then
                     If mPMResults(midIndex).FeatureID = featureIDToFind Then
                         matchingRowIndex = midIndex
                     End If

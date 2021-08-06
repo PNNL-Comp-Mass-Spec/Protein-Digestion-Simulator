@@ -116,7 +116,7 @@ Friend Class clsProteinInfo
             midIndex = (firstIndex + lastIndex) \ 2            ' Note: Using Integer division
             If midIndex < firstIndex Then midIndex = firstIndex
 
-            Do While firstIndex <= lastIndex And mProteins(midIndex).Name <> proteinName
+            Do While firstIndex <= lastIndex AndAlso mProteins(midIndex).Name <> proteinName
                 If proteinName < mProteins(midIndex).Name Then
                     ' Search the lower half
                     lastIndex = midIndex - 1
@@ -129,7 +129,7 @@ Friend Class clsProteinInfo
                 If midIndex < firstIndex Then Exit Do
             Loop
 
-            If midIndex >= firstIndex And midIndex <= lastIndex Then
+            If midIndex >= firstIndex AndAlso midIndex <= lastIndex Then
                 If mProteins(midIndex).Name = proteinName Then
                     matchingRowIndex = midIndex
                 End If
@@ -235,7 +235,7 @@ Friend Class clsProteinInfo
 
     Public Function GetProteinInfoByRowIndex(rowIndex As Integer, <Out> ByRef proteinID As Integer, <Out> ByRef proteinName As String) As Boolean
 
-        If rowIndex >= 0 And rowIndex < mProteinCount Then
+        If rowIndex >= 0 AndAlso rowIndex < mProteinCount Then
             proteinName = mProteins(rowIndex).Name
             proteinID = mProteins(rowIndex).ProteinID
             Return True
@@ -376,7 +376,7 @@ Friend Class clsProteinInfo
                 midIndex = (firstIndex + lastIndex) \ 2            ' Note: Using Integer division
                 If midIndex < firstIndex Then midIndex = firstIndex
 
-                Do While firstIndex <= lastIndex And mMappings(midIndex).ProteinID <> proteinIDToFind
+                Do While firstIndex <= lastIndex AndAlso mMappings(midIndex).ProteinID <> proteinIDToFind
                     If proteinIDToFind < mMappings(midIndex).ProteinID Then
                         ' Search the lower half
                         lastIndex = midIndex - 1
@@ -389,7 +389,7 @@ Friend Class clsProteinInfo
                     If midIndex < firstIndex Then Exit Do
                 Loop
 
-                If midIndex >= firstIndex And midIndex <= lastIndex Then
+                If midIndex >= firstIndex AndAlso midIndex <= lastIndex Then
                     If mMappings(midIndex).ProteinID = proteinIDToFind Then
                         matchingRowIndex = midIndex
                     End If

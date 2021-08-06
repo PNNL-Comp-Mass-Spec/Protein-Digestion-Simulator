@@ -837,7 +837,7 @@ Public Class clsProteinDigestionSimulator
 
         End If
 
-        If Not searchAborted And success Then
+        If Not searchAborted AndAlso success Then
             MyBase.LogMessage("Uniqueness Stats processing complete", MessageTypeConstants.Normal)
         End If
 
@@ -860,7 +860,7 @@ Public Class clsProteinDigestionSimulator
 
         Dim errorMessage As String
 
-        If MyBase.ErrorCode = ProcessFilesErrorCodes.LocalizedError Or
+        If MyBase.ErrorCode = ProcessFilesErrorCodes.LocalizedError OrElse
            MyBase.ErrorCode = ProcessFilesErrorCodes.NoError Then
             Select Case mLocalErrorCode
                 Case eProteinDigestionSimulatorErrorCodes.NoError
@@ -1188,7 +1188,7 @@ Public Class clsProteinDigestionSimulator
         For index = 0 To levels - 1
             If thresholds(index) Is Nothing Then
                 thresholds(index) = New clsPeakMatchingClass.clsSearchThresholds
-            ElseIf preserveData And index = levels - 1 Then
+            ElseIf preserveData AndAlso index = levels - 1 Then
                 ' Initialize this level to defaults
                 thresholds(index).ResetToDefaults()
             End If
@@ -1368,7 +1368,7 @@ Public Class clsProteinDigestionSimulator
                     newPeptide.SequenceOneLetter = delimitedFileReader.ProteinSequence
 
                     If Not delimitedFileHasMassAndNET OrElse
-                          (Math.Abs(delimitedFileReader.PeptideMass - 0) < Single.Epsilon And
+                          (Math.Abs(delimitedFileReader.PeptideMass - 0) < Single.Epsilon AndAlso
                            Math.Abs(delimitedFileReader.PeptideNET - 0) < Single.Epsilon) Then
                         AddOrUpdatePeptide(delimitedFileReader.EntryUniqueID, newPeptide.Mass, newPeptide.NET, 0, 0, delimitedFileReader.ProteinName, clsProteinInfo.eCleavageStateConstants.Unknown, String.Empty)
                     Else
@@ -1428,7 +1428,7 @@ Public Class clsProteinDigestionSimulator
             End If
             Dim nextUniqueIDForMasterSeqs = 1
 
-            If clsParseProteinFile.IsFastaFile(proteinInputFilePath) Or mProteinFileParser.AssumeFastaFile Then
+            If clsParseProteinFile.IsFastaFile(proteinInputFilePath) OrElse mProteinFileParser.AssumeFastaFile Then
                 isFastaFile = True
             Else
                 isFastaFile = False
@@ -1449,7 +1449,7 @@ Public Class clsProteinDigestionSimulator
             success = mProteinFileParser.ParseProteinFile(proteinInputFilePath, "")
 
             Dim skipMessage As String = String.Empty
-            If mProteinFileParser.InputFileLineSkipCount > 0 And Not isFastaFile Then
+            If mProteinFileParser.InputFileLineSkipCount > 0 AndAlso Not isFastaFile Then
                 skipMessage = "Note that " & mProteinFileParser.InputFileLineSkipCount.ToString() &
                               " out of " & mProteinFileParser.InputFileLinesRead.ToString() &
                               " lines were skipped in the input file because they did not match the column order" &
@@ -1470,7 +1470,7 @@ Public Class clsProteinDigestionSimulator
                     mLastErrorMessage = "Error using ParseProteinFile to read the proteins from " & Path.GetFileName(proteinInputFilePath)
                 End If
 
-                If mProteinFileParser.InputFileLineSkipCount > 0 And Not isFastaFile Then
+                If mProteinFileParser.InputFileLineSkipCount > 0 AndAlso Not isFastaFile Then
                     If mLastErrorMessage.Length > 0 Then
                         mLastErrorMessage &= ". "
                     End If
@@ -1761,7 +1761,7 @@ Public Class clsProteinDigestionSimulator
                 If featuresToIdentify.GetFeatureInfoByRowIndex(peptideIndex, udtFeatureInfo) Then
                     binIndex = MassToBinIndex(udtFeatureInfo.Mass, udtPeptideStatsBinned.Settings.MassMinimum, udtPeptideStatsBinned.Settings.MassBinSizeDa)
 
-                    If binIndex < 0 Or binIndex > udtPeptideStatsBinned.BinCount - 1 Then
+                    If binIndex < 0 OrElse binIndex > udtPeptideStatsBinned.BinCount - 1 Then
                         ' Peptide mass is out-of-range, ignore the result
                         peptideSkipCount += 1
                     Else

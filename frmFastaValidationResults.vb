@@ -307,7 +307,7 @@ Public Class frmFastaValidation
 
         txtLongProteinNameSplitChars.Enabled = enableFixedFastaOptions
         txtInvalidProteinNameCharsToRemove.Enabled = enableFixedFastaOptions
-        txtResiduesPerLineForWrap.Enabled = enableFixedFastaOptions And chkWrapLongResidueLines.Checked
+        txtResiduesPerLineForWrap.Enabled = enableFixedFastaOptions AndAlso chkWrapLongResidueLines.Checked
 
         chkSplitOutMultipleRefsInProteinName.Enabled = enableFixedFastaOptions
         chkRenameDuplicateProteins.Enabled = enableFixedFastaOptions
@@ -326,7 +326,7 @@ Public Class frmFastaValidation
 
 
         chkConsolidateDuplicateProteinSeqs.Enabled = enableFixedFastaOptions
-        chkConsolidateDupsIgnoreILDiff.Enabled = enableFixedFastaOptions And chkConsolidateDuplicateProteinSeqs.Checked
+        chkConsolidateDupsIgnoreILDiff.Enabled = enableFixedFastaOptions AndAlso chkConsolidateDuplicateProteinSeqs.Checked
 
         chkTruncateLongProteinNames.Enabled = enableFixedFastaOptions
         chkSplitOutMultipleRefsForKnownAccession.Enabled = enableFixedFastaOptions
@@ -579,7 +579,7 @@ Public Class frmFastaValidation
 
         Try
             If mErrorsDataset IsNot Nothing AndAlso mWarningsDataset IsNot Nothing Then
-                If mErrorsDataset.Tables(0).Rows.Count = 0 And mWarningsDataset.Tables(0).Rows.Count = 0 Then
+                If mErrorsDataset.Tables(0).Rows.Count = 0 AndAlso mWarningsDataset.Tables(0).Rows.Count = 0 Then
                     errorToWarningsRatio = 1
                 ElseIf mErrorsDataset.Tables(0).Rows.Count = 0 Then
                     errorToWarningsRatio = 1 / MAX_RATIO
@@ -1106,7 +1106,7 @@ Public Class frmFastaValidation
     Private Sub ErrorEventHandler(message As String, ex As Exception)
         mValidatorErrorMessage = message
 
-        If ex IsNot Nothing And Not message.Contains(ex.Message) Then
+        If ex IsNot Nothing AndAlso Not message.Contains(ex.Message) Then
             mValidateFastaFileErrors.Add(message & ": " & ex.Message)
         Else
             mValidateFastaFileErrors.Add(message)

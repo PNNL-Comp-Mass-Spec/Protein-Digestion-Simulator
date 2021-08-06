@@ -625,7 +625,7 @@ Public Class clsSearchRange
                     success = False
             End Select
 
-            If success And DataArray IsNot Nothing Then
+            If success AndAlso DataArray IsNot Nothing Then
                 If mUsePointerIndexArray Then
                     InitializePointerIndexArray(DataArray.Length)
                     Array.Sort(DataArray, mPointerIndices)
@@ -652,7 +652,7 @@ Public Class clsSearchRange
 
         ' See if user filled with data, but didn't call Finalize
         ' We'll call it for them
-        If mDataType = eDataTypeToUse.FillingIntegerType Or mDataType = eDataTypeToUse.FillingSingleType Or mDataType = eDataTypeToUse.FillingDoubleType Then
+        If mDataType = eDataTypeToUse.FillingIntegerType OrElse mDataType = eDataTypeToUse.FillingSingleType OrElse mDataType = eDataTypeToUse.FillingDoubleType Then
             Me.FinalizeDataFill()
         End If
 
@@ -701,7 +701,7 @@ Public Class clsSearchRange
 
         ' See if user filled with data, but didn't call Finalize
         ' We'll call it for them
-        If mDataType = eDataTypeToUse.FillingIntegerType Or mDataType = eDataTypeToUse.FillingSingleType Or mDataType = eDataTypeToUse.FillingDoubleType Then
+        If mDataType = eDataTypeToUse.FillingIntegerType OrElse mDataType = eDataTypeToUse.FillingSingleType OrElse mDataType = eDataTypeToUse.FillingDoubleType Then
             Me.FinalizeDataFill()
         End If
 
@@ -750,7 +750,7 @@ Public Class clsSearchRange
 
         ' See if user filled with data, but didn't call Finalize
         ' We'll call it for them
-        If mDataType = eDataTypeToUse.FillingIntegerType Or mDataType = eDataTypeToUse.FillingSingleType Or mDataType = eDataTypeToUse.FillingDoubleType Then
+        If mDataType = eDataTypeToUse.FillingIntegerType OrElse mDataType = eDataTypeToUse.FillingSingleType OrElse mDataType = eDataTypeToUse.FillingDoubleType Then
             Me.FinalizeDataFill()
         End If
 
