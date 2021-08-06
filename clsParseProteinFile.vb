@@ -25,10 +25,10 @@ Imports ProteinFileReader
 Imports ValidateFastaFile
 
 ''' <summary>
-''' This class will read a protein fasta file or delimited protein info file and parse it
+''' This class will read a protein FASTA file or delimited protein info file and parse it
 ''' to create a delimited protein list output file, and optionally an in-silico digested output file
 '''
-''' It can also create a fasta file containing reversed or scrambled sequences, and these can
+''' It can also create a FASTA file containing reversed or scrambled sequences, and these can
 ''' be based on all of the proteins in the input file, or a sampling of the proteins in the input file
 ''' </summary>
 Public Class clsParseProteinFile
@@ -128,7 +128,7 @@ Public Class clsParseProteinFile
         Public ResiduesToWrite As String
     End Structure
 
-    Private mInputFileDelimiter As Char                              ' Only used for delimited protein input files, not for fasta files
+    Private mInputFileDelimiter As Char                              ' Only used for delimited protein input files, not for FASTA files
 
     Private mInputFileProteinsProcessed As Integer
     Private mInputFileLinesRead As Integer
@@ -182,7 +182,7 @@ Public Class clsParseProteinFile
     Public Property ComputeSCXNET As Boolean
 
     ''' <summary>
-    ''' True to create a fasta output file; false for a tab-delimited text file
+    ''' True to create a FASTA output file; false for a tab-delimited text file
     ''' </summary>
     ''' <value></value>
     ''' <returns></returns>
@@ -740,13 +740,13 @@ Public Class clsParseProteinFile
         randomNumberGenerator = New Random(randomNumberSeed)
 
         If eScramblingMode = ProteinScramblingModeConstants.Reversed Then
-            ' Reversed fasta file
+            ' Reversed FASTA file
             suffix = "_reversed"
             If udtResidueCache.SamplingPercentage < 100 Then
                 suffix &= "_" & udtResidueCache.SamplingPercentage.ToString() & "pct"
             End If
         Else
-            ' Scrambled fasta file
+            ' Scrambled FASTA file
             suffix = "_scrambled_seed" & randomNumberSeed.ToString()
             If udtResidueCache.SamplingPercentage < 100 Then
                 suffix &= "_" & udtResidueCache.SamplingPercentage.ToString() & "pct"
@@ -774,7 +774,7 @@ Public Class clsParseProteinFile
         mFileNameAbbreviated = mFileNameAbbreviated.Replace(" ", "_")
 
         Try
-            ' Open the scrambled protein output fasta file (if required)
+            ' Open the scrambled protein output FASTA file (if required)
             scrambledFileWriter = New StreamWriter(scrambledFastaOutputFilePath)
             success = True
         Catch ex As Exception
@@ -1064,7 +1064,7 @@ Public Class clsParseProteinFile
                 startTime = DateTime.UtcNow
 
                 If CreateProteinOutputFile AndAlso mParsedFileIsFastaFile AndAlso allowLookForAddnlRefInDescription Then
-                    ' Need to pre-scan the fasta file to find all of the possible additional reference values
+                    ' Need to pre-scan the FASTA file to find all of the possible additional reference values
 
                     addnlRefMasterNames = New SortedSet(Of String)(StringComparer.CurrentCultureIgnoreCase)
                     PreScanProteinFileForAddnlRefsInDescription(pathInfo.ProteinInputFilePath, addnlRefMasterNames)
@@ -1259,7 +1259,7 @@ Public Class clsParseProteinFile
             If mInputFileLineSkipCount > 0 Then
                 message &= ControlChars.NewLine & "Note that " & mInputFileLineSkipCount.ToString("###,##0") & " lines were skipped in the input file due to having an unexpected format. "
                 If mParsedFileIsFastaFile Then
-                    message &= "This is an unexpected error for fasta files."
+                    message &= "This is an unexpected error for FASTA files."
                 Else
                     message &= "Make sure that " & DelimitedFileFormatCode.ToString() & " is the appropriate format for this file (see the File Format Options tab)."
                 End If
@@ -1425,12 +1425,12 @@ Public Class clsParseProteinFile
     End Sub
 
     Private Sub ParseProteinFileWriteFasta(proteinFileWriter As TextWriter, outLine As StringBuilder)
-        ' Write the entry to the output fasta file
+        ' Write the entry to the output FASTA file
 
         If mProteins(mProteinCount).Name = "ProteinName" AndAlso
            mProteins(mProteinCount).Description = "Description" AndAlso
            mProteins(mProteinCount).Sequence = "Sequence" Then
-            ' Skip this entry; it's an artifact from converting from a fasta file to a text file, then back to a fasta file
+            ' Skip this entry; it's an artifact from converting from a FASTA file to a text file, then back to a FASTA file
             Return
         End If
 
@@ -1727,7 +1727,7 @@ Public Class clsParseProteinFile
 
         Try
 
-            ResetProgress("Pre-reading Fasta file; looking for possible additional reference names")
+            ResetProgress("Pre-reading FASTA file; looking for possible additional reference names")
 
             ' Read each protein in the output file and process appropriately
             Do

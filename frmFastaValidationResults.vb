@@ -700,7 +700,7 @@ Public Class frmFastaValidation
     Private Sub ShowAboutBox()
         Dim message = New StringBuilder()
 
-        message.AppendLine("Fasta File Validation module written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2005")
+        message.AppendLine("FASTA File Validation module written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2005")
         message.AppendLine("Copyright 2018 Battelle Memorial Institute")
         message.AppendLine()
         message.AppendLine("This is version " & Application.ProductVersion & " (" & PROGRAM_DATE & ")")
@@ -869,8 +869,7 @@ Public Class frmFastaValidation
             pbarProgress.Maximum = 100
             pbarProgress.Value = 0
 
-
-            ' Analyze the fasta file; returns true if the analysis was successful (even if the file contains errors or warnings)
+            ' Analyze the FASTA file; returns true if the analysis was successful (even if the file contains errors or warnings)
             success = mValidateFastaFile.ProcessFile(FastaFilePath, String.Empty, String.Empty)
 
             cmdCancel.Enabled = False
@@ -892,7 +891,7 @@ Public Class frmFastaValidation
             End If
 
         Catch ex As Exception
-            MessageBox.Show("Error validating fasta file: " & FastaFilePath & ControlChars.NewLine & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            MessageBox.Show("Error validating FASTA file: " & FastaFilePath & ControlChars.NewLine & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
         Finally
             ShowHideObjectsDuringValidation(False)
 
@@ -1029,7 +1028,7 @@ Public Class frmFastaValidation
         mValidationTriggerTimer.Enabled = False
 
         Try
-            ' Check whether the fasta file is over 250 MB in size
+            ' Check whether the FASTA file is over 250 MB in size
             ' If it is, auto-disable the check for duplicate proteins (to avoid using too much memory)
             Dim fastaFile = New FileInfo(FastaFilePath)
             If fastaFile.Exists Then
@@ -1040,7 +1039,7 @@ Public Class frmFastaValidation
             End If
 
         Catch ex As Exception
-            MessageBox.Show("Error examining the fasta file size: " & ex.Message)
+            MessageBox.Show("Error examining the FASTA file size: " & ex.Message)
         End Try
 
     End Sub

@@ -21,8 +21,8 @@ Imports ProteinFileReader
 Imports DBUtils = PRISMDatabaseUtils.DataTableUtils
 
 ''' <summary>
-''' This class will read two fasta files and look for overlap in protein sequence between the proteins of
-''' the first fasta file and the second fasta file
+''' This class will read two FASTA files and look for overlap in protein sequence between the proteins of
+''' the first FASTA file and the second FASTA file
 ''' </summary>
 Public Class clsProteinDigestionSimulator
     Inherits FileProcessor.ProcessFilesBase
@@ -136,7 +136,7 @@ Public Class clsProteinDigestionSimulator
     '''
     ''' </summary>
     ''' <returns></returns>
-    ''' <remarks>Ignored for fasta files; they are always digested</remarks>
+    ''' <remarks>Ignored for FASTA files; they are always digested</remarks>
     Public Property DigestSequences As Boolean
 
     Public Property ElementMassMode As PeptideSequenceClass.ElementModeConstants
@@ -1251,8 +1251,8 @@ Public Class clsProteinDigestionSimulator
 
             ' Note that ProteinFileParser is exposed as public so that options can be set directly in it
 
-            If clsParseProteinFile.IsFastaFile(proteinInputFilePath) Or mProteinFileParser.AssumeFastaFile Then
-                MyBase.LogMessage("Input file format = Fasta", MessageTypeConstants.Normal)
+            If clsParseProteinFile.IsFastaFile(proteinInputFilePath) OrElse mProteinFileParser.AssumeFastaFile Then
+                MyBase.LogMessage("Input file format = FASTA", MessageTypeConstants.Normal)
                 digestionEnabled = True
             Else
                 eDelimitedFileFormatCode = mProteinFileParser.DelimitedFileFormatCode

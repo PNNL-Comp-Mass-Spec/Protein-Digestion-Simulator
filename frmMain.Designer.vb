@@ -863,7 +863,7 @@ Partial Class frmMain
         Me.chkCreateFastaOutputFile.Name = "chkCreateFastaOutputFile"
         Me.chkCreateFastaOutputFile.Size = New System.Drawing.Size(160, 16)
         Me.chkCreateFastaOutputFile.TabIndex = 11
-        Me.chkCreateFastaOutputFile.Text = "Create Fasta Output File"
+        Me.chkCreateFastaOutputFile.Text = "Create FASTA Output File"
         '
         'fraCalculationOptions
         '
@@ -1388,7 +1388,7 @@ Partial Class frmMain
         Me.fraInputFilePath.Size = New System.Drawing.Size(730, 88)
         Me.fraInputFilePath.TabIndex = 3
         Me.fraInputFilePath.TabStop = False
-        Me.fraInputFilePath.Text = "Protein Input File Path (Fasta or Tab-delimited)"
+        Me.fraInputFilePath.Text = "Protein Input File Path (FASTA or Tab-delimited)"
         '
         'cmdValidateFastaFile
         '
@@ -1397,7 +1397,7 @@ Partial Class frmMain
         Me.cmdValidateFastaFile.Name = "cmdValidateFastaFile"
         Me.cmdValidateFastaFile.Size = New System.Drawing.Size(120, 24)
         Me.cmdValidateFastaFile.TabIndex = 4
-        Me.cmdValidateFastaFile.Text = "&Validate Fasta File"
+        Me.cmdValidateFastaFile.Text = "&Validate FASTA File"
         '
         'chkEnableLogging
         '

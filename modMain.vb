@@ -20,7 +20,7 @@ Imports PRISM.FileProcessor
 Imports ProteinFileReader
 
 ''' <summary>
-''' This program can be used to read a fasta file or tab delimited file
+''' This program can be used to read a FASTA file or tab delimited file
 ''' containing protein or peptide sequences, then output the data to a tab-delimited file
 ''' It can optionally digest the input sequences using trypsin or partial trypsin rules,
 '''  and can add the predicted normalized elution time (NET) values for the peptides
@@ -279,7 +279,7 @@ Module modMain
         Try
 
             Console.WriteLine(WrapParagraph(
-              "This program can be used to read a fasta file or tab delimited file containing protein or peptide sequences, then output " &
+              "This program can be used to read a FASTA file or tab delimited file containing protein or peptide sequences, then output " &
               "the data to a tab-delimited file.  It can optionally digest the input sequences using trypsin or partial trypsin rules, " &
               "and can add the predicted normalized elution time (NET) values for the peptides.Additionally, it can calculate the " &
               "number of uniquely identifiable peptides, using only mass, or both mass and NET, with appropriate tolerances."))
@@ -291,15 +291,15 @@ Module modMain
                 "[/O:OutputDirectoryPath] [/P:ParameterFilePath] [/S:[MaxLevel]] " &
                 "[/A:AlternateOutputDirectoryPath] [/R] [/Q]"))
             Console.WriteLine()
-            Console.WriteLine(WrapParagraph("The input file path can contain the wildcard character * and should point to a fasta file or tab-delimited text file."))
+            Console.WriteLine(WrapParagraph("The input file path can contain the wildcard character * and should point to a FASTA file or tab-delimited text file."))
             Console.WriteLine()
-            Console.WriteLine(WrapParagraph("Use /F to indicate that the input file is a fasta file.  If /F is not used, the format will be assumed to be fasta only if the filename ends with .fasta or .fasta.gz"))
+            Console.WriteLine(WrapParagraph("Use /F to indicate that the input file is a FASTA file.  If /F is not used, the format will be assumed to be FASTA only if the filename ends with .fasta or .fasta.gz"))
             Console.WriteLine()
             Console.WriteLine(WrapParagraph("Use /D to indicate that an in-silico digestion of the proteins should be performed.  Digestion options must be specified in the Parameter file."))
             Console.WriteLine()
             Console.WriteLine(WrapParagraph("Use /M to indicate that protein mass should be computed."))
             Console.WriteLine()
-            Console.WriteLine(WrapParagraph("Use /AD to specify a delimiter other than the Tab character (not applicable for fasta files)."))
+            Console.WriteLine(WrapParagraph("Use /AD to specify a delimiter other than the Tab character (not applicable for FASTA files)."))
             Console.WriteLine()
             Console.WriteLine(WrapParagraph("The output directory path is optional.  If omitted, the output files will be created in the same directory as the input file."))
             Console.WriteLine()

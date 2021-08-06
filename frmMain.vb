@@ -100,7 +100,7 @@ Public Class frmMain
         Public Thresholds() As udtPeakMatchingThresholdsType
     End Structure
 
-    ' The following is used to lookup the default symbols for Fasta files, and should thus be treated as ReadOnly
+    ' The following is used to lookup the default symbols for FASTA files, and should thus be treated as ReadOnly
     Private ReadOnly mDefaultFastaFileOptions As clsParseProteinFile.FastaFileOptionsClass
 
     Private mPeakMatchingThresholdsDataset As DataSet
@@ -405,7 +405,7 @@ Public Class frmMain
         ElseIf cboInputFileFormat.SelectedIndex = InputFileFormatConstants.FastaFile OrElse
            txtProteinInputFilePath.TextLength = 0 OrElse
            sourceIsFasta Then
-            ' Fasta file (or blank)
+            ' FASTA file (or blank)
             enableDelimitedFileOptions = False
         Else
             enableDelimitedFileOptions = True
@@ -1204,8 +1204,8 @@ Public Class frmMain
         toolTipControl.SetToolTip(txtInputFileColumnDelimiter, "Custom character separating columns in a delimited text input file.")
         toolTipControl.SetToolTip(txtOutputFileFieldDelimiter, "Character separating the fields in the output file.")
 
-        toolTipControl.SetToolTip(txtAddnlRefSepChar, "Character separating additional protein accession entries in a protein's description in a Fasta file.")
-        toolTipControl.SetToolTip(txtAddnlRefAccessionSepChar, "Character separating source name and accession number for additional protein accession entries in a Fasta file.")
+        toolTipControl.SetToolTip(txtAddnlRefSepChar, "Character separating additional protein accession entries in a protein's description in a FASTA file.")
+        toolTipControl.SetToolTip(txtAddnlRefAccessionSepChar, "Character separating source name and accession number for additional protein accession entries in a FASTA file.")
 
         toolTipControl.SetToolTip(chkGenerateUniqueIDValues, "Set this to false to use less memory when digesting huge protein input files.")
         toolTipControl.SetToolTip(txtProteinReversalSamplingPercentage, "Set this to a value less than 100 to only include a portion of the residues from the input file in the output file.")
@@ -1425,7 +1425,7 @@ Public Class frmMain
         Try
             cboInputFileFormat.Items.Clear()
             cboInputFileFormat.Items.Insert(InputFileFormatConstants.AutoDetermine, "Auto-determine")
-            cboInputFileFormat.Items.Insert(InputFileFormatConstants.FastaFile, "Fasta file")
+            cboInputFileFormat.Items.Insert(InputFileFormatConstants.FastaFile, "FASTA file")
             cboInputFileFormat.Items.Insert(InputFileFormatConstants.DelimitedText, "Delimited text")
             cboInputFileFormat.SelectedIndex = InputFileFormatConstants.AutoDetermine
 
@@ -1661,7 +1661,7 @@ Public Class frmMain
             .DereferenceLinks = True,
             .Multiselect = False,
             .ValidateNames = True,
-            .Filter = "Fasta files (*.fasta)|*.fasta|Fasta files (*.fasta.gz)|*.fasta.gz|Text files (*.txt)|*.txt|All files (*.*)|*.*"
+            .Filter = "FASTA files (*.fasta)|*.fasta|FASTA files (*.fasta.gz)|*.fasta.gz|Text files (*.txt)|*.txt|All files (*.*)|*.*"
         }
 
         If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.DelimitedText Then

@@ -320,7 +320,7 @@ Partial Class frmFastaValidation
         Me.TabPageNewFastaOptions.Name = "TabPageNewFastaOptions"
         Me.TabPageNewFastaOptions.Size = New System.Drawing.Size(537, 228)
         Me.TabPageNewFastaOptions.TabIndex = 1
-        Me.TabPageNewFastaOptions.Text = "Fixed Fasta Options"
+        Me.TabPageNewFastaOptions.Text = "Fixed FASTA Options"
         '
         'txtResiduesPerLineForWrap
         '
@@ -422,7 +422,7 @@ Partial Class frmFastaValidation
         Me.chkGenerateFixedFastaFile.Name = "chkGenerateFixedFastaFile"
         Me.chkGenerateFixedFastaFile.Size = New System.Drawing.Size(145, 41)
         Me.chkGenerateFixedFastaFile.TabIndex = 0
-        Me.chkGenerateFixedFastaFile.Text = "Generate fixed Fasta file"
+        Me.chkGenerateFixedFastaFile.Text = "Generate fixed FASTA file"
         '
         'lblCustomRulesFile
         '
@@ -660,7 +660,7 @@ Partial Class frmFastaValidation
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Menu = Me.MainMenuControl
         Me.Name = "frmFastaValidation"
-        Me.Text = "Fasta File Validation"
+        Me.Text = "FASTA File Validation"
         Me.TabPageErrorOptions.ResumeLayout(False)
         Me.TabPageErrorOptions.PerformLayout()
         Me.TabPageNewFastaOptions.ResumeLayout(False)
