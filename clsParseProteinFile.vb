@@ -648,8 +648,9 @@ Public Class clsParseProteinFile
     ''' Examines the file's extension and returns true if it ends in .fasta or .fasta.gz
     ''' </summary>
     ''' <param name="filePath"></param>
+    ''' <param name="notifyErrorsWithMessageBox"></param>
     ''' <returns></returns>
-    Public Shared Function IsFastaFile(filePath As String) As Boolean
+    Public Shared Function IsFastaFile(filePath As String, Optional notifyErrorsWithMessageBox As Boolean = False) As Boolean
 
         Try
             If String.IsNullOrWhiteSpace(filePath) Then
@@ -662,7 +663,11 @@ Public Class clsParseProteinFile
                 Return False
             End If
         Catch ex As Exception
+            If notifyErrorsWithMessageBox Then
+                MessageBox.Show("Error looking for suffix .fasta or .fasta.gz: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            Else
                 ConsoleMsgUtils.ShowError("Error in IsFastaFile: " & ex.Message)
+            End If
             Return False
         End Try
 
@@ -1536,7 +1541,7 @@ Public Class clsParseProteinFile
         Dim outputFileName As String
         Dim success As Boolean
 
-        If AssumeFastaFile OrElse IsFastaFile(pathInfo.ProteinInputFilePath) Then
+        If AssumeFastaFile OrElse IsFastaFile(pathInfo.ProteinInputFilePath, True) Then
             If AssumeDelimitedFile Then
                 mParsedFileIsFastaFile = False
             Else

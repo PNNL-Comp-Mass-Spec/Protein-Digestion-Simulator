@@ -199,7 +199,7 @@ Public Class frmMain
         Dim outputFileName As String
 
         If chkCreateFastaOutputFile.Enabled AndAlso chkCreateFastaOutputFile.Checked Then
-            If clsParseProteinFile.IsFastaFile(inputFilePath) Then
+            If clsParseProteinFile.IsFastaFile(inputFilePath, True) Then
                 outputFileName = Path.GetFileNameWithoutExtension(inputFileName) & "_new.fasta"
             Else
                 outputFileName = Path.ChangeExtension(inputFileName, ".fasta")
@@ -398,7 +398,7 @@ Public Class frmMain
         Dim allowSqlServerCaching As Boolean
 
         Dim inputFilePath = GetProteinInputFilePath()
-        Dim sourceIsFasta = clsParseProteinFile.IsFastaFile(inputFilePath)
+        Dim sourceIsFasta = clsParseProteinFile.IsFastaFile(inputFilePath, True)
 
         If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.DelimitedText Then
             enableDelimitedFileOptions = True
@@ -1958,7 +1958,7 @@ Public Class frmMain
         Dim suggestEnableSqlServer = False
         Dim suggestDisableSqlServer = False
 
-        Dim isFastaFile = clsParseProteinFile.IsFastaFile(inputFilePath) Or proteinFileParser.AssumeFastaFile
+        Dim isFastaFile = clsParseProteinFile.IsFastaFile(inputFilePath, True) OrElse proteinFileParser.AssumeFastaFile
 
         ' Lookup the file size
         Dim inputFile = New FileInfo(inputFilePath)
