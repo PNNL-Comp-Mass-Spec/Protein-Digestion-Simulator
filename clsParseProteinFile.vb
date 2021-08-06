@@ -651,15 +651,20 @@ Public Class clsParseProteinFile
     ''' <returns></returns>
     Public Shared Function IsFastaFile(filePath As String) As Boolean
 
-        If String.IsNullOrWhiteSpace(filePath) Then
-            Return False
-        End If
+        Try
+            If String.IsNullOrWhiteSpace(filePath) Then
+                Return False
+            End If
 
-        If Path.GetExtension(StripExtension(filePath, ".gz")).Equals(".fasta", StringComparison.OrdinalIgnoreCase) Then
-            Return True
-        Else
+            If Path.GetExtension(StripExtension(filePath, ".gz")).Equals(".fasta", StringComparison.OrdinalIgnoreCase) Then
+                Return True
+            Else
+                Return False
+            End If
+        Catch ex As Exception
+                ConsoleMsgUtils.ShowError("Error in IsFastaFile: " & ex.Message)
             Return False
-        End If
+        End Try
 
     End Function
 
