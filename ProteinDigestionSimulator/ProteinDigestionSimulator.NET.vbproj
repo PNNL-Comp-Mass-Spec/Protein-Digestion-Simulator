@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -6,16 +6,16 @@
     <ProductVersion>
     </ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{CED15519-812E-49C5-9D38-A964EFE2201E}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <StartupObject>
-    </StartupObject>
+    <ProjectGuid>{50E90535-A587-4B20-B519-922B055580E1}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <StartupObject>ProteinDigestionSimulator.modMain</StartupObject>
     <RootNamespace>ProteinDigestionSimulator</RootNamespace>
     <AssemblyName>ProteinDigestionSimulator</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <MyType>Windows</MyType>
+    <MyType>Console</MyType>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -23,8 +23,8 @@
     <DebugType>full</DebugType>
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
-    <OutputPath>bin\DLL\</OutputPath>
-    <DocumentationFile>ProteinDigestionSimulator.NET.xml</DocumentationFile>
+    <OutputPath>bin\x86\</OutputPath>
+    <DocumentationFile>ProteinDigestionSimulator.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
     <DefineConstants>IncludePNNLNETRoutines = True</DefineConstants>
     <Prefer32Bit>false</Prefer32Bit>
@@ -35,9 +35,10 @@
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
-    <OutputPath>bin\DLL\</OutputPath>
+    <OutputPath>bin\x86\</OutputPath>
     <DocumentationFile>ProteinDigestionSimulator.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+    <DefineConstants>IncludePNNLNETRoutines = True</DefineConstants>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
@@ -56,31 +57,33 @@
     <DebugSymbols>true</DebugSymbols>
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
-    <OutputPath>bin\DLL\</OutputPath>
-    <DocumentationFile>ProteinDigestionSimulator.NET.xml</DocumentationFile>
+    <OutputPath>bin\</OutputPath>
+    <DocumentationFile>ProteinDigestionSimulator.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DefineConstants>IncludePNNLNETRoutines = True</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <DefineTrace>true</DefineTrace>
-    <OutputPath>bin\DLL\</OutputPath>
+    <OutputPath>bin\</OutputPath>
     <DocumentationFile>ProteinDigestionSimulator.xml</DocumentationFile>
     <Optimize>true</Optimize>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <DefineConstants>IncludePNNLNETRoutines = True</DefineConstants>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FlexibleFileSortUtility">
-      <HintPath>Lib\FlexibleFileSortUtility.dll</HintPath>
+      <HintPath>..\Lib\FlexibleFileSortUtility.dll</HintPath>
     </Reference>
     <Reference Include="NETPrediction">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>Lib\NETPrediction.dll</HintPath>
+      <HintPath>..\Lib\NETPrediction.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -89,7 +92,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="ValidateFastaFile">
-      <HintPath>Lib\ValidateFastaFile.dll</HintPath>
+      <HintPath>..\Lib\ValidateFastaFile.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -132,9 +135,43 @@
     <Compile Include="clsSearchRange.vb">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="frmDisclaimer.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmFastaValidationResults.Designer.vb">
+      <DependentUpon>frmFastaValidationResults.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmFastaValidationResults.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmMain.Designer.vb">
+      <DependentUpon>frmMain.vb</DependentUpon>
+    </Compile>
+    <Compile Include="frmMain.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GlobalSuppressions.vb" />
+    <Compile Include="modMain.vb">
+      <SubType>Code</SubType>
+    </Compile>
+    <EmbeddedResource Include="frmFastaValidationResults.resx">
+      <DependentUpon>frmFastaValidationResults.vb</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmMain.resx">
+      <DependentUpon>frmMain.vb</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="My Project\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="..\Readme.md">
+      <Link>Readme.md</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="PRISM-DatabaseUtils">
@@ -142,6 +179,9 @@
     </PackageReference>
     <PackageReference Include="PRISM-Library">
       <Version>2.6.28</Version>
+    </PackageReference>
+    <PackageReference Include="PRISMWin-Library">
+      <Version>1.0.15</Version>
     </PackageReference>
     <PackageReference Include="ProteinFileReader">
       <Version>2.0.6</Version>
