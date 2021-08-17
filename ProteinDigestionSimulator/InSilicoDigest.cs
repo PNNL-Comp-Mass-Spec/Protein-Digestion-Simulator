@@ -538,10 +538,10 @@ namespace ProteinDigestionSimulator
         public void InitializepICalculator()
         {
             var argpICalculator = new ComputePeptideProperties();
-            InitializepICalculator(ref argpICalculator);
+            InitializepICalculator(argpICalculator);
         }
 
-        public void InitializepICalculator(ref ComputePeptideProperties pICalculator)
+        public void InitializepICalculator(ComputePeptideProperties pICalculator)
         {
             if (mpICalculator != null)
             {

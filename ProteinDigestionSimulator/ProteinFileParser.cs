@@ -869,7 +869,7 @@ namespace ProteinDigestionSimulator
             {
                 if (mpICalculator != null)
                 {
-                    mInSilicoDigest.InitializepICalculator(ref mpICalculator);
+                    mInSilicoDigest.InitializepICalculator(mpICalculator);
                 }
             }
 

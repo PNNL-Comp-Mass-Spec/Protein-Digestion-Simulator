@@ -287,13 +287,14 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        private void AddPMThresholdRow(double massThreshold, double netThreshold, [Optional, DefaultParameterValue(false)] ref bool existingRowFound)
+        private void AddPMThresholdRow(double massThreshold, double netThreshold, out bool existingRowFound)
         {
-            AddPMThresholdRow(massThreshold, netThreshold, DEFAULT_SLIC_MASS_STDEV, DEFAULT_SLIC_NET_STDEV, ref existingRowFound);
+            AddPMThresholdRow(massThreshold, netThreshold, DEFAULT_SLIC_MASS_STDEV, DEFAULT_SLIC_NET_STDEV, out existingRowFound);
         }
 
-        private void AddPMThresholdRow(double massThreshold, double netThreshold, double slicMassStDev, double slicNETStDev, [Optional, DefaultParameterValue(false)] ref bool existingRowFound)
+        private void AddPMThresholdRow(double massThreshold, double netThreshold, double slicMassStDev, double slicNETStDev, out bool existingRowFound)
         {
+            existingRowFound = false;
             foreach (DataRow myDataRow in mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].Rows)
             {
                 if (Math.Abs(Conversions.ToDouble(myDataRow[0]) - massThreshold) < 0.000001d && Math.Abs(Conversions.ToDouble(myDataRow[1]) - netThreshold) < 0.000001d)
@@ -380,8 +381,7 @@ namespace ProteinDigestionSimulator
                 cboMassTolType.SelectedIndex = (int)predefinedThresholds.MassTolType;
                 for (index = 0; index < predefinedThresholds.Thresholds.Count; index++)
                 {
-                    bool argexistingRowFound = false;
-                    AddPMThresholdRow(predefinedThresholds.Thresholds[index].MassTolerance, predefinedThresholds.Thresholds[index].NETTolerance, existingRowFound: ref argexistingRowFound);
+                    AddPMThresholdRow(predefinedThresholds.Thresholds[index].MassTolerance, predefinedThresholds.Thresholds[index].NETTolerance, out _);
                 }
             }
         }
@@ -658,9 +658,7 @@ namespace ProteinDigestionSimulator
                         mProteinDigestionSimulator.LogFilePath = logFilePath;
                     }
 
-                    var argparseProteinFile = mProteinDigestionSimulator.mProteinFileParser;
-                    bool success = InitializeProteinFileParserGeneralOptions(ref argparseProteinFile);
-                    mProteinDigestionSimulator.mProteinFileParser = argparseProteinFile;
+                    bool success = InitializeProteinFileParserGeneralOptions(mProteinDigestionSimulator.mProteinFileParser);
                     if (!success)
                         return;
                     string outputFilePath = txtProteinOutputFilePath.Text;
@@ -691,9 +689,7 @@ namespace ProteinDigestionSimulator
                     // Check input file size and possibly warn user to enable/disable SQL Server DB Usage
                     if (chkAllowSqlServerCaching.Checked)
                     {
-                        bool localValidateSqlServerCachingOptionsForInputFile() { var argproteinFileParser = mProteinDigestionSimulator.mProteinFileParser; var ret = ValidateSqlServerCachingOptionsForInputFile(GetProteinInputFilePath(), chkAssumeInputFileIsDigested.Checked, ref argproteinFileParser); mProteinDigestionSimulator.mProteinFileParser = argproteinFileParser; return ret; }
-
-                        if (!localValidateSqlServerCachingOptionsForInputFile())
+                        if (!ValidateSqlServerCachingOptionsForInputFile(GetProteinInputFilePath(), chkAssumeInputFileIsDigested.Checked, mProteinDigestionSimulator.mProteinFileParser))
                         {
                             return;
                         }
@@ -980,16 +976,14 @@ namespace ProteinDigestionSimulator
                                 {
                                     if (Information.IsNumeric(thresholdDetails[0]) && Information.IsNumeric(thresholdDetails[1]) && Information.IsNumeric(thresholdDetails[2]) && Information.IsNumeric(thresholdDetails[3]))
                                     {
-                                        bool argexistingRowFound = false;
-                                        AddPMThresholdRow(Conversions.ToDouble(thresholdDetails[0]), Conversions.ToDouble(thresholdDetails[1]), Conversions.ToDouble(thresholdDetails[2]), Conversions.ToDouble(thresholdDetails[3]), existingRowFound: ref argexistingRowFound);
+                                        AddPMThresholdRow(Conversions.ToDouble(thresholdDetails[0]), Conversions.ToDouble(thresholdDetails[1]), Conversions.ToDouble(thresholdDetails[2]), Conversions.ToDouble(thresholdDetails[3]), out _);
                                     }
                                 }
                                 else if (thresholdDetails.Length >= 2)
                                 {
                                     if (Information.IsNumeric(thresholdDetails[0]) && Information.IsNumeric(thresholdDetails[1]))
                                     {
-                                        bool argexistingRowFound1 = false;
-                                        AddPMThresholdRow(Conversions.ToDouble(thresholdDetails[0]), Conversions.ToDouble(thresholdDetails[1]), existingRowFound: ref argexistingRowFound1);
+                                        AddPMThresholdRow(Conversions.ToDouble(thresholdDetails[0]), Conversions.ToDouble(thresholdDetails[1]), out _);
                                     }
                                 }
                             }
@@ -1228,7 +1222,7 @@ namespace ProteinDigestionSimulator
             dgPeakMatchingThresholds.Refresh();
         }
 
-        private bool InitializeProteinFileParserGeneralOptions(ref ProteinFileParser parseProteinFile)
+        private bool InitializeProteinFileParserGeneralOptions(ProteinFileParser parseProteinFile)
         {
             // Returns true if all values were valid
 
@@ -1254,12 +1248,8 @@ namespace ProteinDigestionSimulator
             parseProteinFile.InputFileDelimiter = LookupColumnDelimiter(cboInputFileColumnDelimiter, txtInputFileColumnDelimiter, ControlChars.Tab);
             parseProteinFile.OutputFileDelimiter = LookupColumnDelimiter(cboOutputFileFieldDelimiter, txtOutputFileFieldDelimiter, ControlChars.Tab);
             parseProteinFile.FastaFileOptions.LookForAddnlRefInDescription = chkLookForAddnlRefInDescription.Checked;
-            var argthisTextBox = txtAddnlRefSepChar;
-            ValidateTextBox(ref argthisTextBox, Conversions.ToString(mDefaultFastaFileOptions.AddnlRefSepChar));
-            txtAddnlRefSepChar = argthisTextBox;
-            var argthisTextBox1 = txtAddnlRefAccessionSepChar;
-            ValidateTextBox(ref argthisTextBox1, Conversions.ToString(mDefaultFastaFileOptions.AddnlRefAccessionSepChar));
-            txtAddnlRefAccessionSepChar = argthisTextBox1;
+            ValidateTextBox(txtAddnlRefSepChar, Conversions.ToString(mDefaultFastaFileOptions.AddnlRefSepChar));
+            ValidateTextBox(txtAddnlRefAccessionSepChar, Conversions.ToString(mDefaultFastaFileOptions.AddnlRefAccessionSepChar));
             parseProteinFile.FastaFileOptions.AddnlRefSepChar = txtAddnlRefSepChar.Text[0];
             parseProteinFile.FastaFileOptions.AddnlRefAccessionSepChar = txtAddnlRefAccessionSepChar.Text[0];
             parseProteinFile.ExcludeProteinSequence = chkExcludeProteinSequence.Checked;
@@ -1393,9 +1383,7 @@ namespace ProteinDigestionSimulator
                         mParseProteinFile = new ProteinFileParser();
                     }
 
-                    var argparseProteinFile = mParseProteinFile;
-                    success = InitializeProteinFileParserGeneralOptions(ref argparseProteinFile);
-                    mParseProteinFile = argparseProteinFile;
+                    success = InitializeProteinFileParserGeneralOptions(mParseProteinFile);
                     if (!success)
                         return;
                     mParseProteinFile.CreateProteinOutputFile = true;
@@ -1404,10 +1392,8 @@ namespace ProteinDigestionSimulator
                         mParseProteinFile.ProteinScramblingMode = (ProteinFileParser.ProteinScramblingModeConstants)Conversions.ToInteger(cboProteinReversalOptions.SelectedIndex);
                     }
 
-                    bool argisError = false;
-                    mParseProteinFile.ProteinScramblingSamplingPercentage = TextBoxUtils.ParseTextBoxValueInt(txtProteinReversalSamplingPercentage, "", out argisError, 100, false);
-                    bool argisError1 = false;
-                    mParseProteinFile.ProteinScramblingLoopCount = TextBoxUtils.ParseTextBoxValueInt(txtProteinScramblingLoopCount, "", out argisError1, 1, false);
+                    mParseProteinFile.ProteinScramblingSamplingPercentage = TextBoxUtils.ParseTextBoxValueInt(txtProteinReversalSamplingPercentage, "", out _, 100, false);
+                    mParseProteinFile.ProteinScramblingLoopCount = TextBoxUtils.ParseTextBoxValueInt(txtProteinScramblingLoopCount, "", out _, 1, false);
                     mParseProteinFile.CreateDigestedProteinOutputFile = chkDigestProteins.Checked;
                     mParseProteinFile.CreateFastaOutputFile = chkCreateFastaOutputFile.Checked;
                     if (cboElementMassMode.SelectedIndex >= 0)
@@ -1551,11 +1537,11 @@ namespace ProteinDigestionSimulator
                                             bool existingRowFound = false;
                                             if (useSLiC)
                                             {
-                                                AddPMThresholdRow(massThreshold, netThreshold, slicMassStDev, slicNETStDev, ref existingRowFound);
+                                                AddPMThresholdRow(massThreshold, netThreshold, slicMassStDev, slicNETStDev, out existingRowFound);
                                             }
                                             else
                                             {
-                                                AddPMThresholdRow(massThreshold, netThreshold, ref existingRowFound);
+                                                AddPMThresholdRow(massThreshold, netThreshold, out existingRowFound);
                                             }
 
                                             if (existingRowFound)
@@ -2160,7 +2146,7 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        private bool ValidateSqlServerCachingOptionsForInputFile(string inputFilePath, bool assumeDigested, ref ProteinFileParser proteinFileParser)
+        private bool ValidateSqlServerCachingOptionsForInputFile(string inputFilePath, bool assumeDigested, ProteinFileParser proteinFileParser)
         {
             // Returns True if the user OK's or updates the current Sql Server caching options
             // Returns False if the user cancels processing
@@ -2282,7 +2268,7 @@ namespace ProteinDigestionSimulator
             return proceed;
         }
 
-        private void ValidateTextBox(ref TextBox thisTextBox, string defaultText)
+        private void ValidateTextBox(TextBox thisTextBox, string defaultText)
         {
             if (thisTextBox.TextLength == 0)
             {

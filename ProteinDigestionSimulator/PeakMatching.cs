@@ -207,8 +207,7 @@ namespace ProteinDigestionSimulator
 
             protected bool ContainsFeature(int featureID)
             {
-                int argrowIndex = 0;
-                return ContainsFeature(featureID, out argrowIndex);
+                return ContainsFeature(featureID, out _);
             }
 
             protected bool ContainsFeature(int featureID, out int rowIndex)
@@ -875,7 +874,7 @@ namespace ProteinDigestionSimulator
             mAbortProcessing = true;
         }
 
-        private void ComputeSLiCScores(ref FeatureInfo featureToIdentify, ref PMFeatureMatchResults featureMatchResults, List<PeakMatchingRawMatches> rawMatches, ref PMComparisonFeatureInfo comparisonFeatures, ref SearchThresholds searchThresholds, SearchThresholds.SearchTolerances computedTolerances)
+        private void ComputeSLiCScores(ref FeatureInfo featureToIdentify, ref PMFeatureMatchResults featureMatchResults, List<PeakMatchingRawMatches> rawMatches, PMComparisonFeatureInfo comparisonFeatures, ref SearchThresholds searchThresholds, SearchThresholds.SearchTolerances computedTolerances)
         {
             int index;
             int newMatchCount;
@@ -997,7 +996,7 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        internal static bool FillRangeSearchObject(ref SearchRange rangeSearch, ref PMComparisonFeatureInfo comparisonFeatures)
+        internal static bool FillRangeSearchObject(ref SearchRange rangeSearch, PMComparisonFeatureInfo comparisonFeatures)
         {
             // Initialize the range searching class
 
@@ -1050,7 +1049,7 @@ namespace ProteinDigestionSimulator
             return success;
         }
 
-        internal bool IdentifySequences(SearchThresholds searchThresholds, ref PMFeatureInfo featuresToIdentify, ref PMComparisonFeatureInfo comparisonFeatures, ref PMFeatureMatchResults featureMatchResults, [Optional, DefaultParameterValue(null)] ref SearchRange rangeSearch)
+        internal bool IdentifySequences(SearchThresholds searchThresholds, ref PMFeatureInfo featuresToIdentify, PMComparisonFeatureInfo comparisonFeatures, out PMFeatureMatchResults featureMatchResults, [Optional, DefaultParameterValue(null)] ref SearchRange rangeSearch)
         {
             // Returns True if success, False if the search is canceled
             // Will return true even if none of the features match any of the comparison features
@@ -1074,22 +1073,15 @@ namespace ProteinDigestionSimulator
 
             bool success;
             string message;
-            if (featureMatchResults == null)
-            {
-                // if (mUseSqlServerForMatchResults)
-                //     featureMatchResults = new PMFeatureMatchResults(mSqlServerConnectionString, mTableNameFeatureMatchResults);
-                // else
-                featureMatchResults = new PMFeatureMatchResults();
-            }
-            else
-            {
-                // Clear any existing results
-                featureMatchResults.Clear();
-            }
+
+            // if (mUseSqlServerForMatchResults)
+            //     featureMatchResults = new PMFeatureMatchResults(mSqlServerConnectionString, mTableNameFeatureMatchResults);
+            // else
+            featureMatchResults = new PMFeatureMatchResults();
 
             if (rangeSearch == null || rangeSearch.DataCount != comparisonFeatures.Count)
             {
-                success = FillRangeSearchObject(ref rangeSearch, ref comparisonFeatures);
+                success = FillRangeSearchObject(ref rangeSearch, comparisonFeatures);
             }
             else
             {
@@ -1178,7 +1170,7 @@ namespace ProteinDigestionSimulator
                                 rawMatches.Capacity = rawMatches.Count;
                                 // Store the FeatureIDIndex in featureMatchResults
                                 // Compute the SLiC Scores and store the results
-                                ComputeSLiCScores(ref currentFeatureToIdentify, ref featureMatchResults, rawMatches, ref comparisonFeatures, ref searchThresholds, computedTolerances);
+                                ComputeSLiCScores(ref currentFeatureToIdentify, ref featureMatchResults, rawMatches, comparisonFeatures, ref searchThresholds, computedTolerances);
                             }
                         }
                     }

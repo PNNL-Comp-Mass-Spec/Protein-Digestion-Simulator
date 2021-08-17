@@ -483,16 +483,12 @@ namespace ProteinDigestionSimulator
 
         public FastaValidationOptions GetOptions()
         {
-            bool argisError = false;
-            bool argisError1 = false;
-            bool argisError2 = false;
-            bool argisError3 = false;
             var fastaValidationOptions = new FastaValidationOptions()
             {
-                MaximumErrorsToTrackInDetail = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "", out argisError, 10, false),
-                MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "", out argisError1, 120, false),
-                ValidProteinNameLengthMinimum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "", out argisError2, 3, false),
-                ValidProteinNameLengthMaximum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "", out argisError3, 34, false),
+                MaximumErrorsToTrackInDetail = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "", out _, 10, false),
+                MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "", out _, 120, false),
+                ValidProteinNameLengthMinimum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "", out _, 3, false),
+                ValidProteinNameLengthMaximum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "", out _, 34, false),
                 AllowAsterisksInResidues = chkAllowAsteriskInResidues.Checked,
                 CheckForDuplicateProteinNames = chkCheckForDuplicateProteinInfo.Checked,
                 LogResultsToFile = chkLogResults.Checked,
@@ -508,8 +504,7 @@ namespace ProteinDigestionSimulator
             fastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsInProteinName = chkSplitOutMultipleRefsInProteinName.Checked;
             fastaValidationOptions.FixedFastaOptions.ConsolidateDuplicateProteins = chkConsolidateDuplicateProteinSeqs.Checked;
             fastaValidationOptions.FixedFastaOptions.ConsolidateDupsIgnoreILDiff = chkConsolidateDupsIgnoreILDiff.Checked;
-            bool argisError4 = false;
-            fastaValidationOptions.FixedFastaOptions.ResiduesPerLineForWrap = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "", out argisError4, 60, false);
+            fastaValidationOptions.FixedFastaOptions.ResiduesPerLineForWrap = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "", out _, 60, false);
             fastaValidationOptions.Initialized = true;
             return fastaValidationOptions;
         }
@@ -840,19 +835,15 @@ namespace ProteinDigestionSimulator
                 // Note: the following settings will be overridden if a parameter file with these settings defined is provided to .ProcessFile()
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.WarnBlankLinesBetweenProteins, true);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.AllowAsteriskInResidues, chkAllowAsteriskInResidues.Checked);
-                bool argisError = false;
-                mValidateFastaFile.MinimumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "Minimum protein name length should be a number", out argisError, 3, false);
-                bool argisError1 = false;
-                mValidateFastaFile.MaximumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "Maximum protein name length should be a number", out argisError1, 34, false);
+                mValidateFastaFile.MinimumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "Minimum protein name length should be a number", out _, 3, false);
+                mValidateFastaFile.MaximumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "Maximum protein name length should be a number", out _, 34, false);
                 if (chkGenerateFixedFastaFile.Checked && chkWrapLongResidueLines.Checked)
                 {
-                    bool argisError2 = false;
-                    mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "Residues per line for wrapping should be a number", out argisError2, 60, false);
+                mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "Residues per line for wrapping should be a number", out _, 60, false);
                 }
                 else
                 {
-                    bool argisError3 = false;
-                    mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "Maximum residues per line should be a number", out argisError3, 120, false);
+                    mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "Maximum residues per line should be a number", out _, 120, false);
                 }
 
                 parameterFilePath = txtCustomValidationRulesFilePath.Text;
@@ -883,8 +874,7 @@ namespace ProteinDigestionSimulator
                     mValidateFastaFile.SetDefaultRules();
                 }
 
-                bool argisError4 = false;
-                mValidateFastaFile.MaximumFileErrorsToTrack = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "Max file errors or warnings should be a positive number", out argisError4, 10, false);
+                mValidateFastaFile.MaximumFileErrorsToTrack = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "Max file errors or warnings should be a positive number", out _, 10, false);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.CheckForDuplicateProteinNames, chkCheckForDuplicateProteinInfo.Checked);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.CheckForDuplicateProteinSequences, chkCheckForDuplicateProteinInfo.Checked);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.SaveBasicProteinHashInfoFile, chkSaveBasicProteinHashInfoFile.Checked);

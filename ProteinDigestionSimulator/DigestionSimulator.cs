@@ -875,9 +875,8 @@ namespace ProteinDigestionSimulator
                         // ----------------------------------------------------
 
                         LogMessage("Uniqueness Stats processing starting, Threshold Count = " + mThresholdLevels.Length.ToString(), MessageTypeConstants.Normal);
-                        bool localFillRangeSearchObject() { var argcomparisonFeatures = mComparisonPeptideInfo; var ret = PeakMatching.FillRangeSearchObject(ref rangeSearch, ref argcomparisonFeatures); mComparisonPeptideInfo = argcomparisonFeatures; return ret; }
 
-                        if (!localFillRangeSearchObject())
+                        if (!PeakMatching.FillRangeSearchObject(ref rangeSearch, mComparisonPeptideInfo))
                         {
                             success = false;
                         }
@@ -915,11 +914,8 @@ namespace ProteinDigestionSimulator
 
                                 // Perform the actual peak matching
                                 LogMessage("Threshold " + (thresholdIndex + 1).ToString() + ", IdentifySequences", MessageTypeConstants.Normal);
-                                var argcomparisonFeatures = mComparisonPeptideInfo;
-                                var argfeatureMatchResults = mPeptideMatchResults;
-                                success = mPeakMatching.IdentifySequences(mThresholdLevels[thresholdIndex], ref featuresToIdentify, ref argcomparisonFeatures, ref argfeatureMatchResults, ref rangeSearch);
-                                mComparisonPeptideInfo = argcomparisonFeatures;
-                                mPeptideMatchResults = argfeatureMatchResults;
+                                success = mPeakMatching.IdentifySequences(mThresholdLevels[thresholdIndex], ref featuresToIdentify, mComparisonPeptideInfo, out var featureMatchResults, ref rangeSearch);
+                                mPeptideMatchResults = featureMatchResults;
                                 if (!success)
                                     break;
                                 if (SavePeakMatchingResults)
