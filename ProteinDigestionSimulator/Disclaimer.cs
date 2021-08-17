@@ -25,7 +25,7 @@ namespace ProteinDigestionSimulator
         {
             if (disposing)
             {
-                if (components is object)
+                if (components != null)
                 {
                     components.Dispose();
                 }

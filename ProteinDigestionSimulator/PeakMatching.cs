@@ -165,7 +165,7 @@ namespace ProteinDigestionSimulator
             public virtual void Clear()
             {
                 mFeatureCount = 0;
-                if (mFeatures is null)
+                if (mFeatures == null)
                 {
                     mFeatures = new FeatureInfo[100000];
                 }
@@ -173,7 +173,7 @@ namespace ProteinDigestionSimulator
                 mFeaturesArrayIsSorted = false;
                 if (mUseFeatureIDHashTable)
                 {
-                    if (featureIDToRowIndex is null)
+                    if (featureIDToRowIndex == null)
                     {
                         featureIDToRowIndex = new Hashtable();
                     }
@@ -182,7 +182,7 @@ namespace ProteinDigestionSimulator
                         featureIDToRowIndex.Clear();
                     }
                 }
-                else if (featureIDToRowIndex is object)
+                else if (featureIDToRowIndex != null)
                 {
                     featureIDToRowIndex.Clear();
                     featureIDToRowIndex = null;
@@ -294,8 +294,7 @@ namespace ProteinDigestionSimulator
                     }
 
                     matchCount = 0;
-                    var loopTo = rowIndexEnd;
-                    for (index = rowIndexStart; index <= loopTo; index++)
+                    for (index = rowIndexStart; index <= rowIndexEnd; index++)
                     {
                         masses[matchCount] = mFeatures[index].Mass;
                         matchCount += 1;
@@ -429,7 +428,7 @@ namespace ProteinDigestionSimulator
             public new void Clear()
             {
                 base.Clear();
-                if (mExtendedInfo is null)
+                if (mExtendedInfo == null)
                 {
                     mExtendedInfo = new ComparisonFeatureInfoExtended[100000];
                 }
@@ -609,7 +608,7 @@ namespace ProteinDigestionSimulator
             public virtual void Clear()
             {
                 mPMResultsCount = 0;
-                if (mPMResults is null)
+                if (mPMResults == null)
                 {
                     mPMResults = new PeakMatchingResults[100000];
                 }
@@ -640,13 +639,12 @@ namespace ProteinDigestionSimulator
                     if (GetRowIndicesForFeatureID(featureID, ref indexFirst, ref indexLast))
                     {
                         matchCount = indexLast - indexFirst + 1;
-                        if (matchResults is null || matchCount > matchResults.Length)
+                        if (matchResults == null || matchCount > matchResults.Length)
                         {
                             matchResults = new PeakMatchingResult[matchCount];
                         }
 
-                        var loopTo = indexLast;
-                        for (index = indexFirst; index <= loopTo; index++)
+                        for (index = indexFirst; index <= indexLast; index++)
                             matchResults[index - indexFirst] = mPMResults[index].Details;
                         matchesFound = true;
                     }
@@ -902,8 +900,7 @@ namespace ProteinDigestionSimulator
 
             // Compute the standardized squared distance and the numerator sum
             numeratorSum = 0d;
-            var loopTo = rawMatches.Length - 1;
-            for (index = 0; index <= loopTo; index++)
+            for (index = 0; index < rawMatches.Length; index++)
             {
                 if (searchThresholds.SLiCScoreUseAMTNETStDev)
                 {
@@ -931,8 +928,7 @@ namespace ProteinDigestionSimulator
             }
 
             // Compute the match score for each match
-            var loopTo1 = rawMatches.Length - 1;
-            for (index = 0; index <= loopTo1; index++)
+            for (index = 0; index < rawMatches.Length; index++)
             {
                 if (numeratorSum > 0d)
                 {
@@ -964,8 +960,7 @@ namespace ProteinDigestionSimulator
                 if (rawMatches.Length > 1)
                 {
                     rawMatches[0].DelSLiC = rawMatches[0].SLiCScore - rawMatches[1].SLiCScore;
-                    var loopTo2 = rawMatches.Length - 1;
-                    for (index = 1; index <= loopTo2; index++)
+                    for (index = 1; index < rawMatches.Length; index++)
                         rawMatches[index].DelSLiC = 0d;
                 }
                 else
@@ -979,8 +974,7 @@ namespace ProteinDigestionSimulator
                 // When testing whether to keep the match or not, we're testing whether the match is in the ellipse bounded by MWTolAbsFinal and NETTolFinal
                 // Note that these are half-widths of the ellipse
                 newMatchCount = 0;
-                var loopTo3 = rawMatches.Length - 1;
-                for (index = 0; index <= loopTo3; index++)
+                for (index = 0; index < rawMatches.Length; index++)
                 {
                     if (TestPointInEllipse(rawMatches[index].NETErr, rawMatches[index].MassErr, computedTolerances.NETTolFinal, computedTolerances.MWTolAbsFinal))
                     {
@@ -1000,8 +994,7 @@ namespace ProteinDigestionSimulator
 
                 // Add new match results to featureMatchResults
                 // Record, at most, mMaxPeakMatchingResultsPerFeatureToSave entries
-                var loopTo4 = Math.Min(mMaxPeakMatchingResultsPerFeatureToSave, rawMatches.Length) - 1;
-                for (index = 0; index <= loopTo4; index++)
+                for (index = 0; index < Math.Min(mMaxPeakMatchingResultsPerFeatureToSave, rawMatches.Length); index++)
                 {
                     comparisonFeatures.GetFeatureInfoByRowIndex(rawMatches[index].MatchingIDIndex, ref comparisonFeatureInfo);
                     featureMatchResults.AddMatch(featureToIdentify.FeatureID, comparisonFeatureInfo.FeatureID, rawMatches[index].SLiCScore, rawMatches[index].DelSLiC, rawMatches[index].MassErr, rawMatches[index].NETErr, rawMatches.Length);
@@ -1019,7 +1012,7 @@ namespace ProteinDigestionSimulator
             bool success;
             try
             {
-                if (rangeSearch is null)
+                if (rangeSearch == null)
                 {
                     rangeSearch = new SearchRange();
                 }
@@ -1090,7 +1083,7 @@ namespace ProteinDigestionSimulator
             bool storeMatch;
             bool success;
             string message;
-            if (featureMatchResults is null)
+            if (featureMatchResults == null)
             {
                 // if (mUseSqlServerForMatchResults)
                 //     featureMatchResults = new PMFeatureMatchResults(mSqlServerConnectionString, mTableNameFeatureMatchResults);
@@ -1103,7 +1096,7 @@ namespace ProteinDigestionSimulator
                 featureMatchResults.Clear();
             }
 
-            if (rangeSearch is null || rangeSearch.DataCount != comparisonFeatures.Count)
+            if (rangeSearch == null || rangeSearch.DataCount != comparisonFeatures.Count)
             {
                 success = FillRangeSearchObject(ref rangeSearch, ref comparisonFeatures);
             }
@@ -1120,8 +1113,7 @@ namespace ProteinDigestionSimulator
                 UpdateProgress("Finding matching peptides for given search thresholds", 0f);
                 mAbortProcessing = false;
                 PostLogEntry("IdentifySequences starting, total feature count = " + featureCount.ToString(), MessageTypeConstants.Normal);
-                var loopTo = featureCount - 1;
-                for (featureIndex = 0; featureIndex <= loopTo; featureIndex++)
+                for (featureIndex = 0; featureIndex < featureCount; featureIndex++)
                 {
                     // Use rangeSearch to search for matches to each peptide in comparisonFeatures
 
@@ -1146,8 +1138,7 @@ namespace ProteinDigestionSimulator
                         {
                             rawMatchCount = 0;
                             rawMatches = new PeakMatchingRawMatches[matchInd2 - matchInd1 + 1];
-                            var loopTo1 = matchInd2;
-                            for (matchIndex = matchInd1; matchIndex <= loopTo1; matchIndex++)
+                            for (matchIndex = matchInd1; matchIndex <= matchInd2; matchIndex++)
                             {
                                 comparisonFeaturesOriginalRowIndex = rangeSearch.get_OriginalIndex(matchIndex);
                                 if (comparisonFeatures.GetFeatureInfoByRowIndex(comparisonFeaturesOriginalRowIndex, ref currentComparisonFeature))
@@ -1485,32 +1476,24 @@ namespace ProteinDigestionSimulator
                 switch (MassTolType)
                 {
                     case MassToleranceConstants.PPM:
-                        {
-                            mComputedSearchTolerances.MWTolAbsFinal = PPMToMass(mMassTolerance, referenceMass);
-                            MWTolPPMBroad = mMassTolerance;
-                            break;
-                        }
-
+                        mComputedSearchTolerances.MWTolAbsFinal = PPMToMass(mMassTolerance, referenceMass);
+                        MWTolPPMBroad = mMassTolerance;
+                        break;
                     case MassToleranceConstants.Absolute:
+                        mComputedSearchTolerances.MWTolAbsFinal = mMassTolerance;
+                        if (referenceMass > 0d)
                         {
-                            mComputedSearchTolerances.MWTolAbsFinal = mMassTolerance;
-                            if (referenceMass > 0d)
-                            {
-                                MWTolPPMBroad = MassToPPM(mMassTolerance, referenceMass);
-                            }
-                            else
-                            {
-                                MWTolPPMBroad = mSLiCScoreOptions.MassPPMStDev;
-                            }
-
-                            break;
+                            MWTolPPMBroad = MassToPPM(mMassTolerance, referenceMass);
+                        }
+                        else
+                        {
+                            MWTolPPMBroad = mSLiCScoreOptions.MassPPMStDev;
                         }
 
+                        break;
                     default:
-                        {
-                            Console.WriteLine("Programming error in DefinePeakMatchingTolerances; Unknown MassToleranceType: " + MassTolType.ToString());
-                            break;
-                        }
+                        Console.WriteLine("Programming error in DefinePeakMatchingTolerances; Unknown MassToleranceType: " + MassTolType.ToString());
+                        break;
                 }
 
                 if (MWTolPPMBroad < mSLiCScoreOptions.MassPPMStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR)
@@ -1538,23 +1521,15 @@ namespace ProteinDigestionSimulator
                     switch (MassTolType)
                     {
                         case MassToleranceConstants.Absolute:
-                            {
-                                mSLiCScoreOptions.MassPPMStDev = MassToPPM(mMassTolerance, 1000d) / STDEV_SCALING_FACTOR;
-                                break;
-                            }
-
+                            mSLiCScoreOptions.MassPPMStDev = MassToPPM(mMassTolerance, 1000d) / STDEV_SCALING_FACTOR;
+                            break;
                         case MassToleranceConstants.PPM:
-                            {
-                                mSLiCScoreOptions.MassPPMStDev = mMassTolerance / STDEV_SCALING_FACTOR;
-                                break;
-                            }
-
+                            mSLiCScoreOptions.MassPPMStDev = mMassTolerance / STDEV_SCALING_FACTOR;
+                            break;
                         default:
-                            {
-                                // Unknown type
-                                mSLiCScoreOptions.MassPPMStDev = 3d;
-                                break;
-                            }
+                            // Unknown type
+                            mSLiCScoreOptions.MassPPMStDev = 3d;
+                            break;
                     }
 
                     // Define the Net StDev using the narrow NET tolerance divided by 2 = STDEV_SCALING_FACTOR

@@ -395,8 +395,7 @@ namespace ProteinDigestionSimulator
             try
             {
                 columnCount = dvDataView.Table.Columns.Count;
-                var loopTo = columnCount - 1;
-                for (index = 0; index <= loopTo; index++)
+                for (index = 0; index < columnCount; index++)
                 {
                     if (index < columnCount - 1)
                     {
@@ -410,8 +409,7 @@ namespace ProteinDigestionSimulator
 
                 foreach (DataRow currentRow in dvDataView.Table.Rows)
                 {
-                    var loopTo1 = columnCount - 1;
-                    for (index = 0; index <= loopTo1; index++)
+                    for (index = 0; index < columnCount; index++)
                     {
                         if (index < columnCount - 1)
                         {
@@ -596,7 +594,7 @@ namespace ProteinDigestionSimulator
                 var currentRow = dsDataset.Tables[0].NewRow();
                 currentRow[COL_NAME_LINE] = item.LineNumber;
                 currentRow[COL_NAME_COLUMN] = item.ColNumber;
-                if (item.ProteinName is null || item.ProteinName.Length == 0)
+                if (item.ProteinName == null || item.ProteinName.Length == 0)
                 {
                     currentRow[COL_NAME_PROTEIN] = "N/A";
                 }
@@ -623,7 +621,7 @@ namespace ProteinDigestionSimulator
             double errorToWarningsRatio = 1d;
             try
             {
-                if (mErrorsDataset is object && mWarningsDataset is object)
+                if (mErrorsDataset != null && mWarningsDataset != null)
                 {
                     if (mErrorsDataset.Tables[0].Rows.Count == 0 && mWarningsDataset.Tables[0].Rows.Count == 0)
                     {
@@ -1006,7 +1004,7 @@ namespace ProteinDigestionSimulator
 
         private void cmdCancel_Click(object sender, EventArgs e)
         {
-            if (mValidateFastaFile is object)
+            if (mValidateFastaFile != null)
             {
                 cmdCancel.Enabled = false;
                 mValidateFastaFile.AbortProcessingNow();
@@ -1187,7 +1185,7 @@ namespace ProteinDigestionSimulator
         private void ErrorEventHandler(string message, Exception ex)
         {
             mValidatorErrorMessage = message;
-            if (ex is object && !message.Contains(ex.Message))
+            if (ex != null && !message.Contains(ex.Message))
             {
                 mValidateFastaFileErrors.Add(message + ": " + ex.Message);
             }

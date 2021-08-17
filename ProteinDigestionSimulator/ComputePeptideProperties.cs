@@ -121,7 +121,7 @@ namespace ProteinDigestionSimulator
             double runningSum = 0d;
             int residueCount = 0;
             var aaInfo = new AA();
-            for (int li = 1, loopTo = seq.Length; li <= loopTo; li++)
+            for (int li = 1; li <= seq.Length; li++)
             {
                 char residue = char.ToUpper(seq[li - 1]);
                 try
@@ -134,40 +134,23 @@ namespace ProteinDigestionSimulator
                     switch (HT)
                     {
                         case HydrophobicityTypeConstants.HW:
-                            {
-                                runningSum += aaInfo.HW;
-                                break;
-                            }
-
+                            runningSum += aaInfo.HW;
+                            break;
                         case HydrophobicityTypeConstants.KD:
-                            {
-                                runningSum += aaInfo.KD;
-                                break;
-                            }
-
+                            runningSum += aaInfo.KD;
+                            break;
                         case HydrophobicityTypeConstants.Eisenberg:
-                            {
-                                runningSum += aaInfo.Eisenberg;
-                                break;
-                            }
-
+                            runningSum += aaInfo.Eisenberg;
+                            break;
                         case HydrophobicityTypeConstants.GES:
-                            {
-                                runningSum += aaInfo.GES;
-                                break;
-                            }
-
+                            runningSum += aaInfo.GES;
+                            break;
                         case HydrophobicityTypeConstants.MeekPH7p4:
-                            {
-                                runningSum += aaInfo.MeekPH7p4;
-                                break;
-                            }
-
+                            runningSum += aaInfo.MeekPH7p4;
+                            break;
                         case HydrophobicityTypeConstants.MeekPH2p1:
-                            {
-                                runningSum += aaInfo.MeekPH2p1;
-                                break;
-                            }
+                            runningSum += aaInfo.MeekPH2p1;
+                            break;
                     }
 
                     residueCount += 1;
@@ -198,7 +181,7 @@ namespace ProteinDigestionSimulator
         {
             int li;
             int chargeState;
-            if (seq is null || seq.Length == 0)
+            if (seq == null || seq.Length == 0)
             {
                 return 0;
             }
@@ -206,59 +189,38 @@ namespace ProteinDigestionSimulator
             try
             {
                 chargeState = 0;
-                var loopTo = seq.Length;
-                for (li = 1; li <= loopTo; li++)
+                for (li = 1; li <= seq.Length; li++)
                 {
                     switch (char.ToUpper(seq[li - 1]))
                     {
                         case 'C':
-                            {
-                                if (Ck > pH)
-                                    chargeState += 1;
-                                break;
-                            }
-
+                            if (Ck > pH)
+                                chargeState += 1;
+                            break;
                         case 'D':
-                            {
-                                if (Dk > pH)
-                                    chargeState += 1;
-                                break;
-                            }
-
+                            if (Dk > pH)
+                                chargeState += 1;
+                            break;
                         case 'E':
-                            {
-                                if (Ek > pH)
-                                    chargeState += 1;
-                                break;
-                            }
-
+                            if (Ek > pH)
+                                chargeState += 1;
+                            break;
                         case 'H':
-                            {
-                                if (Hk > pH)
-                                    chargeState += 1;
-                                break;
-                            }
-
+                            if (Hk > pH)
+                                chargeState += 1;
+                            break;
                         case 'K':
-                            {
-                                if (Kk > pH)
-                                    chargeState += 1 + 1;
-                                break;
-                            }
-
+                            if (Kk > pH)
+                                chargeState += 1 + 1;
+                            break;
                         case 'R':
-                            {
-                                if (Rk > pH)
-                                    chargeState += 1;
-                                break;
-                            }
-
+                            if (Rk > pH)
+                                chargeState += 1;
+                            break;
                         case 'Y':
-                            {
-                                if (Yk > pH)
-                                    chargeState += 1;
-                                break;
-                            }
+                            if (Yk > pH)
+                                chargeState += 1;
+                            break;
                     }
                 }
 
@@ -276,7 +238,7 @@ namespace ProteinDigestionSimulator
 
         public float CalculateSequenceHydrophobicity(string seq)
         {
-            if (seq is null || seq.Length == 0)
+            if (seq == null || seq.Length == 0)
             {
                 return 0f;
             }
@@ -286,7 +248,7 @@ namespace ProteinDigestionSimulator
                 if (ReportMaximumpI && seq.Length > SequenceWidthToExamineForMaximumpI)
                 {
                     double maxHydrophobicity = 0d;
-                    for (int index = 1, loopTo = seq.Length - SequenceWidthToExamineForMaximumpI; index <= loopTo; index++)
+                    for (int index = 1; index <= seq.Length - SequenceWidthToExamineForMaximumpI; index++)
                     {
                         double segmentHydrophobicity = CalculateHydrophobicity(seq.Substring(index - 1, SequenceWidthToExamineForMaximumpI), HydrophobicityType);
                         if (segmentHydrophobicity > maxHydrophobicity)
@@ -322,7 +284,7 @@ namespace ProteinDigestionSimulator
             double value1;
             double pH;
             double delta;
-            if (seq is null || seq.Length == 0)
+            if (seq == null || seq.Length == 0)
             {
                 return 0f;
             }
@@ -336,52 +298,31 @@ namespace ProteinDigestionSimulator
                 numK = 0;
                 numR = 0;
                 numY = 0;
-                var loopTo = seq.Length;
-                for (i = 1; i <= loopTo; i++)
+                for (i = 1; i <= seq.Length; i++)
                 {
                     switch (char.ToUpper(seq[i - 1]))
                     {
                         case 'C':
-                            {
-                                numC += 1;
-                                break;
-                            }
-
+                            numC += 1;
+                            break;
                         case 'D':
-                            {
-                                numD += 1;
-                                break;
-                            }
-
+                            numD += 1;
+                            break;
                         case 'E':
-                            {
-                                numE += 1;
-                                break;
-                            }
-
+                            numE += 1;
+                            break;
                         case 'H':
-                            {
-                                numH += 1;
-                                break;
-                            }
-
+                            numH += 1;
+                            break;
                         case 'K':
-                            {
-                                numK += 1;
-                                break;
-                            }
-
+                            numK += 1;
+                            break;
                         case 'R':
-                            {
-                                numR += 1;
-                                break;
-                            }
-
+                            numR += 1;
+                            break;
                         case 'Y':
-                            {
-                                numY += 1;
-                                break;
-                            }
+                            numY += 1;
+                            break;
                     }
                 }
 

@@ -323,7 +323,7 @@ namespace ProteinDigestionSimulator
         {
             get
             {
-                if (mInSilicoDigest is null)
+                if (mInSilicoDigest == null)
                 {
                     return PeptideSequence.ElementModeConstants.IsotopicMass;
                 }
@@ -335,7 +335,7 @@ namespace ProteinDigestionSimulator
 
             set
             {
-                if (mInSilicoDigest is null)
+                if (mInSilicoDigest == null)
                 {
                     InitializeObjectVariables();
                 }
@@ -441,7 +441,7 @@ namespace ProteinDigestionSimulator
         {
             // Be sure to call InitializeObjectVariables before calling this function for the first time
             // Otherwise, mpICalculator will be nothing
-            if (mpICalculator is null)
+            if (mpICalculator == null)
             {
                 return 0f;
             }
@@ -455,7 +455,7 @@ namespace ProteinDigestionSimulator
         {
             // Be sure to call InitializeObjectVariables before calling this function for the first time
             // Otherwise, mpICalculator will be nothing
-            if (mpICalculator is null)
+            if (mpICalculator == null)
             {
                 return 0f;
             }
@@ -469,7 +469,7 @@ namespace ProteinDigestionSimulator
         {
             // Be sure to call InitializeObjectVariables before calling this function for the first time
             // Otherwise, mInSilicoDigest will be nothing
-            if (mInSilicoDigest is null)
+            if (mInSilicoDigest == null)
             {
                 return 0d;
             }
@@ -483,7 +483,7 @@ namespace ProteinDigestionSimulator
         {
             // Be sure to call InitializeObjectVariables before calling this function for the first time
             // Otherwise, mNETCalculator will be nothing
-            if (mNETCalculator is null)
+            if (mNETCalculator == null)
             {
                 return 0f;
             }
@@ -497,7 +497,7 @@ namespace ProteinDigestionSimulator
         {
             // Be sure to call InitializeObjectVariables before calling this function for the first time
             // Otherwise, mSCXNETCalculator will be nothing
-            if (mSCXNETCalculator is null)
+            if (mSCXNETCalculator == null)
             {
                 return 0f;
             }
@@ -550,7 +550,7 @@ namespace ProteinDigestionSimulator
                 if (proteinNames.Length > 0)
                 {
                     alternateNames = new AddnlRef[proteinNames.Length];
-                    for (int index = 0, loopTo = proteinNames.Length - 1; index <= loopTo; index++)
+                    for (int index = 0; index < proteinNames.Length; index++)
                     {
                         int charIndex = proteinNames[index].IndexOf(FastaFileOptions.AddnlRefAccessionSepChar);
                         if (charIndex > 0)
@@ -611,7 +611,7 @@ namespace ProteinDigestionSimulator
         {
             int lowerCount = 0;
             int upperCount = 0;
-            for (int index = 0, loopTo = proteinSequence.Length - 1; index <= loopTo; index++)
+            for (int index = 0; index < proteinSequence.Length; index++)
             {
                 if (char.IsLower(proteinSequence[index]))
                 {
@@ -647,71 +647,39 @@ namespace ProteinDigestionSimulator
                 switch (mLocalErrorCode)
                 {
                     case ParseProteinFileErrorCodes.NoError:
-                        {
-                            errorMessage = "";
-                            break;
-                        }
-
+                        errorMessage = "";
+                        break;
                     case ParseProteinFileErrorCodes.ProteinFileParsingOptionsSectionNotFound:
-                        {
-                            errorMessage = "The section " + XML_SECTION_OPTIONS + " was not found in the parameter file";
-                            break;
-                        }
-
+                        errorMessage = "The section " + XML_SECTION_OPTIONS + " was not found in the parameter file";
+                        break;
                     case ParseProteinFileErrorCodes.ErrorReadingInputFile:
-                        {
-                            errorMessage = "Error reading input file";
-                            break;
-                        }
-
+                        errorMessage = "Error reading input file";
+                        break;
                     case ParseProteinFileErrorCodes.ErrorCreatingProteinOutputFile:
-                        {
-                            errorMessage = "Error creating parsed proteins output file";
-                            break;
-                        }
-
+                        errorMessage = "Error creating parsed proteins output file";
+                        break;
                     case ParseProteinFileErrorCodes.ErrorCreatingDigestedProteinOutputFile:
-                        {
-                            errorMessage = "Error creating digested proteins output file";
-                            break;
-                        }
-
+                        errorMessage = "Error creating digested proteins output file";
+                        break;
                     case ParseProteinFileErrorCodes.ErrorCreatingScrambledProteinOutputFile:
-                        {
-                            errorMessage = "Error creating scrambled proteins output file";
-                            break;
-                        }
-
+                        errorMessage = "Error creating scrambled proteins output file";
+                        break;
                     case ParseProteinFileErrorCodes.ErrorWritingOutputFile:
-                        {
-                            errorMessage = "Error writing to one of the output files";
-                            break;
-                        }
-
+                        errorMessage = "Error writing to one of the output files";
+                        break;
                     case ParseProteinFileErrorCodes.ErrorInitializingObjectVariables:
-                        {
-                            errorMessage = "Error initializing In Silico Digester class";
-                            break;
-                        }
-
+                        errorMessage = "Error initializing In Silico Digester class";
+                        break;
                     case ParseProteinFileErrorCodes.DigestProteinSequenceError:
-                        {
-                            errorMessage = "Error in DigestProteinSequence function";
-                            break;
-                        }
-
+                        errorMessage = "Error in DigestProteinSequence function";
+                        break;
                     case ParseProteinFileErrorCodes.UnspecifiedError:
-                        {
-                            errorMessage = "Unspecified localized error";
-                            break;
-                        }
-
+                        errorMessage = "Unspecified localized error";
+                        break;
                     default:
-                        {
-                            // This shouldn't happen
-                            errorMessage = "Unknown error state";
-                            break;
-                        }
+                        // This shouldn't happen
+                        errorMessage = "Unknown error state";
+                        break;
                 }
             }
             else
@@ -898,9 +866,9 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            if (mInSilicoDigest is object)
+            if (mInSilicoDigest != null)
             {
-                if (mpICalculator is object)
+                if (mpICalculator != null)
                 {
                     mInSilicoDigest.InitializepICalculator(ref mpICalculator);
                 }
@@ -984,7 +952,7 @@ namespace ProteinDigestionSimulator
             bool cysPeptidesOnly;
             try
             {
-                if (parameterFilePath is null || parameterFilePath.Length == 0)
+                if (parameterFilePath == null || parameterFilePath.Length == 0)
                 {
                     // No parameter file specified; nothing to load
                     return true;
@@ -1069,32 +1037,21 @@ namespace ProteinDigestionSimulator
             switch (delimiterIndex)
             {
                 case (int)DelimiterCharConstants.Space:
-                    {
-                        delimiter = " ";
-                        break;
-                    }
-
+                    delimiter = " ";
+                    break;
                 case (int)DelimiterCharConstants.Tab:
-                    {
-                        delimiter = Conversions.ToString(ControlChars.Tab);
-                        break;
-                    }
-
+                    delimiter = Conversions.ToString(ControlChars.Tab);
+                    break;
                 case (int)DelimiterCharConstants.Comma:
-                    {
-                        delimiter = ",";
-                        break;
-                    }
-
+                    delimiter = ",";
+                    break;
                 default:
-                    {
-                        // Includes DelimiterCharConstants.Other
-                        delimiter = string.Copy(customDelimiter);
-                        break;
-                    }
+                    // Includes DelimiterCharConstants.Other
+                    delimiter = string.Copy(customDelimiter);
+                    break;
             }
 
-            if (delimiter is null || delimiter.Length == 0)
+            if (delimiter == null || delimiter.Length == 0)
             {
                 delimiter = string.Copy(Conversions.ToString(defaultDelimiter));
             }
@@ -1175,7 +1132,7 @@ namespace ProteinDigestionSimulator
             {
                 // Set the options for mpICalculator
                 // Note that this will also update the pICalculator object in mInSilicoDigest
-                if (mpICalculator is object)
+                if (mpICalculator != null)
                 {
                     mpICalculator.HydrophobicityType = HydrophobicityType;
                     mpICalculator.ReportMaximumpI = ReportMaximumpI;
@@ -1201,7 +1158,7 @@ namespace ProteinDigestionSimulator
                         return false;
                 }
 
-                if (mMasterSequencesHashTable is null)
+                if (mMasterSequencesHashTable == null)
                 {
                     mMasterSequencesHashTable = new Hashtable();
                 }
@@ -1239,7 +1196,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 var outLine = new StringBuilder();
-                for (int loopIndex = 1, loopTo = loopCount; loopIndex <= loopTo; loopIndex++)
+                for (int loopIndex = 1; loopIndex <= loopCount; loopIndex++)
                 {
                     // Attempt to open the input file
                     if (!proteinFileReader.OpenFile(pathInfo.ProteinInputFilePath))
@@ -1311,7 +1268,7 @@ namespace ProteinDigestionSimulator
                         outLine.Append("ProteinName" + mOutputFileDelimiter);
                         if (lookForAddnlRefInDescription)
                         {
-                            for (int index = 0, loopTo1 = addnlRefsToOutput.Length - 1; index <= loopTo1; index++)
+                            for (int index = 0; index < addnlRefsToOutput.Length; index++)
                                 outLine.Append(addnlRefsToOutput[index].RefName + mOutputFileDelimiter);
                         }
 
@@ -1412,7 +1369,7 @@ namespace ProteinDigestionSimulator
                                 }
                             }
 
-                            if (loopIndex == 1 && digestFileWriter is object)
+                            if (loopIndex == 1 && digestFileWriter != null)
                             {
                                 ParseProteinFileWriteDigested(digestFileWriter, outLine, generateUniqueSequenceID);
                             }
@@ -1465,17 +1422,17 @@ namespace ProteinDigestionSimulator
                     }
 
                     proteinFileReader.CloseFile();
-                    if (proteinFileWriter is object)
+                    if (proteinFileWriter != null)
                     {
                         proteinFileWriter.Close();
                     }
 
-                    if (digestFileWriter is object)
+                    if (digestFileWriter != null)
                     {
                         digestFileWriter.Close();
                     }
 
-                    if (scrambledFileWriter is object)
+                    if (scrambledFileWriter != null)
                     {
                         scrambledFileWriter.Close();
                     }
@@ -1526,17 +1483,17 @@ namespace ProteinDigestionSimulator
             }
             finally
             {
-                if (proteinFileWriter is object)
+                if (proteinFileWriter != null)
                 {
                     proteinFileWriter.Close();
                 }
 
-                if (digestFileWriter is object)
+                if (digestFileWriter != null)
                 {
                     digestFileWriter.Close();
                 }
 
-                if (scrambledFileWriter is object)
+                if (scrambledFileWriter != null)
                 {
                     scrambledFileWriter.Close();
                 }
@@ -1717,13 +1674,13 @@ namespace ProteinDigestionSimulator
             if (lookForAddnlRefInDescription)
             {
                 // Reset the Accession numbers in addnlRefsToOutput
-                for (int index = 0, loopTo = addnlRefsToOutput.Length - 1; index <= loopTo; index++)
+                for (int index = 0; index < addnlRefsToOutput.Length; index++)
                     addnlRefsToOutput[index].RefAccession = string.Empty;
 
                 // Update the accession numbers in addnlRefsToOutput
-                for (int index = 0, loopTo1 = mProteins[mProteinCount].AlternateNameCount - 1; index <= loopTo1; index++)
+                for (int index = 0; index < mProteins[mProteinCount].AlternateNameCount; index++)
                 {
-                    for (int compareIndex = 0, loopTo2 = addnlRefsToOutput.Length - 1; compareIndex <= loopTo2; compareIndex++)
+                    for (int compareIndex = 0; compareIndex < addnlRefsToOutput.Length; compareIndex++)
                     {
                         if ((addnlRefsToOutput[compareIndex].RefName.ToUpper() ?? "") == (mProteins[mProteinCount].AlternateNames[index].RefName.ToUpper() ?? ""))
                         {
@@ -1734,7 +1691,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 outLine.Append(mProteins[mProteinCount].Name + mOutputFileDelimiter);
-                for (int index = 0, loopTo3 = addnlRefsToOutput.Length - 1; index <= loopTo3; index++)
+                for (int index = 0; index < addnlRefsToOutput.Length; index++)
                     outLine.Append(addnlRefsToOutput[index].RefAccession + mOutputFileDelimiter);
                 if (!ExcludeProteinDescription)
                 {
@@ -2042,8 +1999,7 @@ namespace ProteinDigestionSimulator
                         protein.AlternateNameCount = ExtractAlternateProteinNamesFromDescription(ref protein.Description, ref protein.AlternateNames);
 
                         // Make sure each of the names in .AlternateNames() is in addnlRefMasterNames
-                        var loopTo = protein.AlternateNameCount - 1;
-                        for (index = 0; index <= loopTo; index++)
+                        for (index = 0; index < protein.AlternateNameCount; index++)
                         {
                             if (!addnlRefMasterNames.Contains(protein.AlternateNames[index].RefName))
                             {
@@ -2099,7 +2055,7 @@ namespace ProteinDigestionSimulator
             var sepChars = new char[] { ' ', ',', ';', ':', '_', '-', '|', '/' };
             if (maximumLength < 1)
                 maximumLength = 1;
-            if (proteinName is null)
+            if (proteinName == null)
             {
                 proteinName = string.Empty;
             }
@@ -2326,7 +2282,7 @@ namespace ProteinDigestionSimulator
 
             try
             {
-                if (inputFilePath is null || inputFilePath.Length == 0)
+                if (inputFilePath == null || inputFilePath.Length == 0)
                 {
                     ShowErrorMessage("Input file name is empty");
                     SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidInputFilePath);

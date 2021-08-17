@@ -259,12 +259,12 @@ namespace ProteinDigestionSimulator
         {
             try
             {
-                if (mParseProteinFile is object)
+                if (mParseProteinFile != null)
                 {
                     mParseProteinFile.AbortProcessingNow();
                 }
 
-                if (mProteinDigestionSimulator is object)
+                if (mProteinDigestionSimulator != null)
                 {
                     mProteinDigestionSimulator.AbortProcessingNow();
                 }
@@ -306,7 +306,7 @@ namespace ProteinDigestionSimulator
         {
             CleavageRule cleavageRule = null;
             inSilicoDigest.GetCleavageRuleById(cleavageRuleId, out cleavageRule);
-            if (cleavageRule is null)
+            if (cleavageRule == null)
                 return;
             int targetIndex = cboCleavageRuleType.Items.Count;
             cboCleavageRuleType.Items.Add(cleavageRule.Description + " (" + cleavageRule.GetDetailedRuleDescription() + ")");
@@ -366,8 +366,7 @@ namespace ProteinDigestionSimulator
             if (ClearPMThresholdsList(confirmReplaceExistingResults))
             {
                 cboMassTolType.SelectedIndex = (int)predefinedThresholds.MassTolType;
-                var loopTo = predefinedThresholds.Thresholds.Length - 1;
-                for (index = 0; index <= loopTo; index++)
+                for (index = 0; index < predefinedThresholds.Thresholds.Length; index++)
                 {
                     bool argexistingRowFound = false;
                     AddPMThresholdRow(predefinedThresholds.Thresholds[index].MassTolerance, predefinedThresholds.Thresholds[index].NETTolerance, existingRowFound: ref argexistingRowFound);
@@ -425,7 +424,7 @@ namespace ProteinDigestionSimulator
             var hydrophobicity = default(float);
             var lcNET = default(float);
             var scxNET = default(float);
-            if (pICalculator is object)
+            if (pICalculator != null)
             {
                 if (cboHydrophobicityMode.SelectedIndex >= 0)
                 {
@@ -439,13 +438,13 @@ namespace ProteinDigestionSimulator
                 // Could compute charge state: pICalculator.CalculateSequenceChargeState(sequence, pI)
             }
 
-            if (NETCalculator is object)
+            if (NETCalculator != null)
             {
                 // Compute the LC-based normalized elution time
                 lcNET = NETCalculator.GetElutionTime(sequence);
             }
 
-            if (SCXNETCalculator is object)
+            if (SCXNETCalculator != null)
             {
                 // Compute the SCX-based normalized elution time
                 scxNET = SCXNETCalculator.GetElutionTime(sequence);
@@ -507,8 +506,7 @@ namespace ProteinDigestionSimulator
             DefineDefaultPMThresholdAppendItem(ref mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.OneMassOneNET], 5d, 0.05d);
 
             // OneMassThreeNET
-            var loopTo = netValues.Length - 1;
-            for (netIndex = 0; netIndex <= loopTo; netIndex++)
+            for (netIndex = 0; netIndex < netValues.Length; netIndex++)
                 DefineDefaultPMThresholdAppendItem(ref mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.OneMassThreeNET], 5d, netValues[netIndex]);
 
             // ThreeMassOneNET
@@ -516,19 +514,16 @@ namespace ProteinDigestionSimulator
                 DefineDefaultPMThresholdAppendItem(ref mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.ThreeMassOneNET], massValues[massIndex], 0.05d);
 
             // ThreeMassThreeNET
-            var loopTo1 = netValues.Length - 1;
-            for (netIndex = 0; netIndex <= loopTo1; netIndex++)
+            for (netIndex = 0; netIndex < netValues.Length; netIndex++)
             {
                 for (massIndex = 0; massIndex <= 2; massIndex++)
                     DefineDefaultPMThresholdAppendItem(ref mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.ThreeMassThreeNET], massValues[massIndex], netValues[netIndex]);
             }
 
             // FiveMassThreeNET
-            var loopTo2 = netValues.Length - 1;
-            for (netIndex = 0; netIndex <= loopTo2; netIndex++)
+            for (netIndex = 0; netIndex < netValues.Length; netIndex++)
             {
-                var loopTo3 = massValues.Length - 1;
-                for (massIndex = 0; massIndex <= loopTo3; massIndex++)
+                for (massIndex = 0; massIndex < massValues.Length; massIndex++)
                     DefineDefaultPMThresholdAppendItem(ref mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.FiveMassThreeNET], massValues[massIndex], netValues[netIndex]);
             }
         }
@@ -964,14 +959,13 @@ namespace ProteinDigestionSimulator
 
                     valueNotPresent = false;
                     thresholdData = xmlSettings.GetParam(PMOptions, "ThresholdData", string.Empty, out valueNotPresent);
-                    if (!valueNotPresent && thresholdData is object && thresholdData.Length > 0)
+                    if (!valueNotPresent && thresholdData != null && thresholdData.Length > 0)
                     {
                         thresholds = thresholdData.Split(';');
                         if (thresholds.Length > 0)
                         {
                             ClearPMThresholdsList(false);
-                            var loopTo = thresholds.Length - 1;
-                            for (index = 0; index <= loopTo; index++)
+                            for (index = 0; index < thresholds.Length; index++)
                             {
                                 thresholdDetails = thresholds[index].Split(columnDelimiters);
                                 if (thresholdDetails.Length > 2 && !autoDefineSLiCScoreThresholds)
@@ -1386,7 +1380,7 @@ namespace ProteinDigestionSimulator
             {
                 try
                 {
-                    if (mParseProteinFile is null)
+                    if (mParseProteinFile == null)
                     {
                         mParseProteinFile = new ProteinFileParser();
                     }
@@ -1489,7 +1483,7 @@ namespace ProteinDigestionSimulator
 
             // Examine the clipboard contents
             var clipboardObject = Clipboard.GetDataObject();
-            if (clipboardObject is object)
+            if (clipboardObject != null)
             {
                 if (clipboardObject.GetDataPresent(DataFormats.StringFormat, true))
                 {
@@ -1508,9 +1502,9 @@ namespace ProteinDigestionSimulator
 
                         int rowsAlreadyPresent = 0;
                         int rowsSkipped = 0;
-                        for (int lineIndex = 0, loopTo = dataLines.Length - 1; lineIndex <= loopTo; lineIndex++)
+                        for (int lineIndex = 0; lineIndex < dataLines.Length; lineIndex++)
                         {
-                            if (dataLines[lineIndex] is object && dataLines[lineIndex].Length > 0)
+                            if (dataLines[lineIndex] != null && dataLines[lineIndex].Length > 0)
                             {
                                 var dataColumns = dataLines[lineIndex].Split(columnDelimiters, 5);
                                 if (dataColumns.Length >= 2)
@@ -1626,7 +1620,7 @@ namespace ProteinDigestionSimulator
                 cboInputFileColumnDelimiter.Items.Insert((int)ProteinFileParser.DelimiterCharConstants.Other, "Other");
                 cboInputFileColumnDelimiter.SelectedIndex = (int)ProteinFileParser.DelimiterCharConstants.Tab;
                 cboOutputFileFieldDelimiter.Items.Clear();
-                for (int index = 0, loopTo = cboInputFileColumnDelimiter.Items.Count - 1; index <= loopTo; index++)
+                for (int index = 0; index < cboInputFileColumnDelimiter.Items.Count; index++)
                     cboOutputFileFieldDelimiter.Items.Insert(index, cboInputFileColumnDelimiter.Items[index]);
                 cboOutputFileFieldDelimiter.SelectedIndex = (int)ProteinFileParser.DelimiterCharConstants.Space;
                 cboInputFileColumnOrdering.Items.Clear();
@@ -2099,7 +2093,7 @@ namespace ProteinDigestionSimulator
             try
             {
                 // Make sure an existing file has been chosen
-                if (fastaFilePath is null || fastaFilePath.Length == 0)
+                if (fastaFilePath == null || fastaFilePath.Length == 0)
                     return;
                 if (!File.Exists(fastaFilePath))
                 {
@@ -2107,7 +2101,7 @@ namespace ProteinDigestionSimulator
                 }
                 else
                 {
-                    if (mFastaValidation is null)
+                    if (mFastaValidation == null)
                     {
                         mFastaValidation = new FastaValidation(fastaFilePath);
                     }
@@ -2118,7 +2112,7 @@ namespace ProteinDigestionSimulator
 
                     try
                     {
-                        if (mCustomValidationRulesFilePath is object && mCustomValidationRulesFilePath.Length > 0)
+                        if (mCustomValidationRulesFilePath != null && mCustomValidationRulesFilePath.Length > 0)
                         {
                             if (File.Exists(mCustomValidationRulesFilePath))
                             {
@@ -2151,7 +2145,7 @@ namespace ProteinDigestionSimulator
             }
             finally
             {
-                if (mFastaValidation is object)
+                if (mFastaValidation != null)
                 {
                     mCustomValidationRulesFilePath = mFastaValidation.CustomRulesFilePath;
                 }

@@ -115,7 +115,7 @@ namespace ProteinDigestionSimulator
         {
             get
             {
-                if (mPeptideSequence is null)
+                if (mPeptideSequence == null)
                 {
                     return PeptideSequence.ElementModeConstants.IsotopicMass;
                 }
@@ -127,7 +127,7 @@ namespace ProteinDigestionSimulator
 
             set
             {
-                if (mPeptideSequence is null)
+                if (mPeptideSequence == null)
                 {
                     mPeptideSequence = new PeptideSequence();
                 }
@@ -354,13 +354,13 @@ namespace ProteinDigestionSimulator
                     maxFragmentMass = digestionOptions.MaxFragmentMass;
                 }
 
-                for (int trypticIndex = 0, loopTo = trypticFragCacheCount - 1; trypticIndex <= loopTo; trypticIndex++)
+                for (int trypticIndex = 0; trypticIndex < trypticFragCacheCount; trypticIndex++)
                 {
                     string peptideSequenceBase = string.Empty;
                     string peptideSequence = string.Empty;
                     int residueStartLoc = trypticFragStartLocations[trypticIndex];
                     int residueEndLoc;
-                    for (int index = 0, loopTo1 = digestionOptions.MaxMissedCleavages; index <= loopTo1; index++)
+                    for (int index = 0; index <= digestionOptions.MaxMissedCleavages; index++)
                     {
                         if (trypticIndex + index >= trypticFragCacheCount)
                         {
@@ -382,7 +382,7 @@ namespace ProteinDigestionSimulator
                                 residueLengthStart = 1;
                             }
 
-                            for (int residueLength = residueLengthStart, loopTo2 = trypticFragCache[trypticIndex + index].Length; residueLength <= loopTo2; residueLength++)
+                            for (int residueLength = residueLengthStart; residueLength <= trypticFragCache[trypticIndex + index].Length; residueLength++)
                             {
                                 if (index > 0)
                                 {
@@ -427,7 +427,7 @@ namespace ProteinDigestionSimulator
                     {
                         string peptideSequenceBase = string.Empty;
                         int residueEndLoc = trypticFragEndLocations[trypticIndex];
-                        for (int index = 0, loopTo3 = digestionOptions.MaxMissedCleavages; index <= loopTo3; index++)
+                        for (int index = 0; index <= digestionOptions.MaxMissedCleavages; index++)
                         {
                             if (trypticIndex - index < 0)
                             {
@@ -445,7 +445,7 @@ namespace ProteinDigestionSimulator
                             }
 
                             // We can limit the following for loop to the peptide length - 1 since those peptides using the full peptide will have already been added above
-                            for (int residueLength = residueLengthStart, loopTo4 = trypticFragCache[trypticIndex - index].Length - 1; residueLength <= loopTo4; residueLength++)
+                            for (int residueLength = residueLengthStart; residueLength < trypticFragCache[trypticIndex - index].Length; residueLength++)
                             {
                                 int residueStartLoc;
                                 if (index > 0)
@@ -543,7 +543,7 @@ namespace ProteinDigestionSimulator
 
         public void InitializepICalculator(ref ComputePeptideProperties pICalculator)
         {
-            if (mpICalculator is object)
+            if (mpICalculator != null)
             {
                 if (ReferenceEquals(mpICalculator, pICalculator))
                 {
@@ -561,7 +561,7 @@ namespace ProteinDigestionSimulator
 
         public void InitializepICalculator(ComputePeptideProperties.HydrophobicityTypeConstants hydrophobicityType, bool reportMaximumpI, int sequenceWidthToExamineForMaximumpI)
         {
-            if (mpICalculator is null)
+            if (mpICalculator == null)
             {
                 mpICalculator = new ComputePeptideProperties();
             }
@@ -676,7 +676,7 @@ namespace ProteinDigestionSimulator
             try
             {
                 string errorMessage;
-                if (functionName is object && functionName.Length > 0)
+                if (functionName != null && functionName.Length > 0)
                 {
                     errorMessage = "Error in " + functionName + ": " + ex.Message;
                 }
@@ -738,7 +738,7 @@ namespace ProteinDigestionSimulator
 
             public PeptideSequenceWithNET()
             {
-                if (NETPredictor is null)
+                if (NETPredictor == null)
                 {
                     NETPredictor = new NETPrediction.ElutionTimePredictionKangas();
                 }
@@ -818,7 +818,7 @@ namespace ProteinDigestionSimulator
 
                 set
                 {
-                    if (value is object && value.Length > 0)
+                    if (value != null && value.Length > 0)
                     {
                         mPrefixResidue = Conversions.ToString(value[0]);
                     }
@@ -871,7 +871,7 @@ namespace ProteinDigestionSimulator
 
                 set
                 {
-                    if (value is object && value.Length > 0)
+                    if (value != null && value.Length > 0)
                     {
                         mSuffixResidue = Conversions.ToString(value[0]);
                     }

@@ -196,7 +196,7 @@ namespace ProteinDigestionSimulator
         public virtual void Clear()
         {
             mProteinCount = 0;
-            if (mProteins is null)
+            if (mProteins == null)
             {
                 mProteins = new ProteinEntry[100000];
             }
@@ -205,7 +205,7 @@ namespace ProteinDigestionSimulator
             mMaxProteinIDUsed = 0;
             if (mUseProteinNameHashTable)
             {
-                if (mProteinNameToRowIndex is null)
+                if (mProteinNameToRowIndex == null)
                 {
                     mProteinNameToRowIndex = new Hashtable();
                 }
@@ -214,7 +214,7 @@ namespace ProteinDigestionSimulator
                     mProteinNameToRowIndex.Clear();
                 }
             }
-            else if (mProteinNameToRowIndex is object)
+            else if (mProteinNameToRowIndex != null)
             {
                 mProteinNameToRowIndex.Clear();
                 mProteinNameToRowIndex = null;
@@ -251,8 +251,7 @@ namespace ProteinDigestionSimulator
             bool matchFound = false;
             int index;
             proteinName = string.Empty;
-            var loopTo = mProteinCount - 1;
-            for (index = 0; index <= loopTo; index++)
+            for (index = 0; index < mProteinCount; index++)
             {
                 if (mProteins[index].ProteinID == proteinID)
                 {
@@ -500,7 +499,7 @@ namespace ProteinDigestionSimulator
             public virtual void Clear()
             {
                 mMappingCount = 0;
-                if (mMappings is null)
+                if (mMappings == null)
                 {
                     mMappings = new ProteinToPeptideMappingEntry[100000];
                 }
@@ -518,8 +517,7 @@ namespace ProteinDigestionSimulator
                 var indexLast = default(int);
                 if (GetRowIndicesForProteinID(proteinID, ref indexFirst, ref indexLast))
                 {
-                    var loopTo = indexLast;
-                    for (index = indexFirst; index <= loopTo; index++)
+                    for (index = indexFirst; index <= indexLast; index++)
                     {
                         if (mMappings[index].PeptideID == peptideID)
                         {
@@ -551,8 +549,7 @@ namespace ProteinDigestionSimulator
                 if (GetRowIndicesForProteinID(proteinID, ref indexFirst, ref indexLast))
                 {
                     matchingIDs = new int[indexLast - indexFirst + 1];
-                    var loopTo = indexLast;
-                    for (index = indexFirst; index <= loopTo; index++)
+                    for (index = indexFirst; index <= indexLast; index++)
                         matchingIDs[index - indexFirst] = mMappings[index].PeptideID;
                 }
                 else
@@ -572,7 +569,7 @@ namespace ProteinDigestionSimulator
                 int matchCount;
                 matchingIDs = new int[ARRAY_ALLOCATION_CHUNK];
                 matchCount = 0;
-                for (int index = 0, loopTo = mMappingCount - 1; index <= loopTo; index++)
+                for (int index = 0; index < mMappingCount; index++)
                 {
                     if (mMappings[index].PeptideID == peptideID)
                     {

@@ -55,7 +55,7 @@ namespace ProteinDigestionSimulator
             ReversedCleavageDirection = reversedCleavage;
             AllowPartialCleavage = allowPartial;
             AdditionalCleavageRules = new List<CleavageRule>();
-            if (additionalRules is null || additionalRules.Count == 0)
+            if (additionalRules == null || additionalRules.Count == 0)
             {
                 return;
             }

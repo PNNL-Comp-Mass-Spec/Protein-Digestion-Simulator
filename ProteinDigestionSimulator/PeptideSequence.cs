@@ -288,7 +288,7 @@ namespace ProteinDigestionSimulator
             // First, make sure the sequence is in the form A.BCDEFG.H or A.BCDEFG or BCDEFG.H
             // If it isn't, then we can't check it (we'll return true)
 
-            if (cleavageRule.CleavageResidues is null || cleavageRule.CleavageResidues.Length == 0)
+            if (cleavageRule.CleavageResidues == null || cleavageRule.CleavageResidues.Length == 0)
             {
                 // No rules
                 return true;
@@ -481,7 +481,7 @@ namespace ProteinDigestionSimulator
             double formulaMass = 0d;
             int lastElementIndex = -1;
             string multiplier = string.Empty;
-            for (int index = 0, loopTo = formula.Length - 1; index <= loopTo; index++)
+            for (int index = 0; index < formula.Length; index++)
             {
                 if (char.IsNumber(formula[index]))
                 {
@@ -610,7 +610,7 @@ namespace ProteinDigestionSimulator
         /// <returns></returns>
         public string GetResidue(int residueNumber, bool use3LetterCode = false)
         {
-            if (mResidues is object && residueNumber > 0 && residueNumber <= mResidues.Length)
+            if (mResidues != null && residueNumber > 0 && residueNumber <= mResidues.Length)
             {
                 if (use3LetterCode)
                 {
@@ -629,7 +629,7 @@ namespace ProteinDigestionSimulator
 
         public int GetResidueCount()
         {
-            if (mResidues is null)
+            if (mResidues == null)
             {
                 return 0;
             }
@@ -648,7 +648,7 @@ namespace ProteinDigestionSimulator
         public int GetResidueCountSpecificResidue(string residueSymbol, bool use3LetterCode = false)
         {
             char searchResidue1Letter;
-            if (mResidues is null || mResidues.Length == 0)
+            if (mResidues == null || mResidues.Length == 0)
                 return 0;
             try
             {
@@ -696,7 +696,7 @@ namespace ProteinDigestionSimulator
         {
             string sequence;
             string dashAdd = string.Empty;
-            if (mResidues is null)
+            if (mResidues == null)
                 return string.Empty;
             if (!use3LetterCode && !addSpaceEvery10Residues && !separateResiduesWithDash)
             {
@@ -711,7 +711,7 @@ namespace ProteinDigestionSimulator
                     dashAdd = string.Empty;
                 sequence = string.Empty;
                 int lastIndex = mResidues.Length - 1;
-                for (int index = 0, loopTo = lastIndex; index <= loopTo; index++)
+                for (int index = 0; index <= lastIndex; index++)
                 {
                     if (use3LetterCode)
                     {
@@ -1018,7 +1018,7 @@ namespace ProteinDigestionSimulator
 
             int exceptionSuffixResidueCount = cleavageRule.ExceptionResidues.Length;
             int minCleavedResidueNum = -1;
-            for (int charIndexInCleavageResidues = 0, loopTo = cleavageRule.CleavageResidues.Length - 1; charIndexInCleavageResidues <= loopTo; charIndexInCleavageResidues++)
+            for (int charIndexInCleavageResidues = 0; charIndexInCleavageResidues < cleavageRule.CleavageResidues.Length; charIndexInCleavageResidues++)
             {
                 int cleavedResidueNum;
                 bool matchFound = FindNextCleavageResidue(cleavageRule, charIndexInCleavageResidues, searchResidues, startResidueNum, out cleavedResidueNum);
@@ -1134,7 +1134,7 @@ namespace ProteinDigestionSimulator
             int proteinResiduesLength;
             if (searchStartLoc < 1)
                 searchStartLoc = 1;
-            if (proteinResidues is null)
+            if (proteinResidues == null)
             {
                 proteinResiduesLength = 0;
             }
@@ -1454,28 +1454,17 @@ namespace ProteinDigestionSimulator
             switch (cTerminusGroup)
             {
                 case CTerminusGroupConstants.Hydroxyl:
-                    {
-                        errorCode = SetCTerminus("OH", followingResidue, use3LetterCode);
-                        break;
-                    }
-
+                    errorCode = SetCTerminus("OH", followingResidue, use3LetterCode);
+                    break;
                 case CTerminusGroupConstants.Amide:
-                    {
-                        errorCode = SetCTerminus("NH2", followingResidue, use3LetterCode);
-                        break;
-                    }
-
+                    errorCode = SetCTerminus("NH2", followingResidue, use3LetterCode);
+                    break;
                 case CTerminusGroupConstants.None:
-                    {
-                        errorCode = SetCTerminus(string.Empty, followingResidue, use3LetterCode);
-                        break;
-                    }
-
+                    errorCode = SetCTerminus(string.Empty, followingResidue, use3LetterCode);
+                    break;
                 default:
-                    {
-                        errorCode = 1;
-                        break;
-                    }
+                    errorCode = 1;
+                    break;
             }
 
             return errorCode;
@@ -1541,52 +1530,30 @@ namespace ProteinDigestionSimulator
             switch (nTerminusGroup)
             {
                 case NTerminusGroupConstants.Hydrogen:
-                    {
-                        errorCode = SetNTerminus("H", precedingResidue, use3LetterCode);
-                        break;
-                    }
-
+                    errorCode = SetNTerminus("H", precedingResidue, use3LetterCode);
+                    break;
                 case NTerminusGroupConstants.HydrogenPlusProton:
-                    {
-                        errorCode = SetNTerminus("HH", precedingResidue, use3LetterCode);
-                        break;
-                    }
-
+                    errorCode = SetNTerminus("HH", precedingResidue, use3LetterCode);
+                    break;
                 case NTerminusGroupConstants.Acetyl:
-                    {
-                        errorCode = SetNTerminus("C2OH3", precedingResidue, use3LetterCode);
-                        break;
-                    }
-
+                    errorCode = SetNTerminus("C2OH3", precedingResidue, use3LetterCode);
+                    break;
                 case NTerminusGroupConstants.PyroGlu:
-                    {
-                        errorCode = SetNTerminus("C5O2NH6", precedingResidue, use3LetterCode);
-                        break;
-                    }
+                    errorCode = SetNTerminus("C5O2NH6", precedingResidue, use3LetterCode);
+                    break;
                 // ReSharper disable once StringLiteralTypo
                 case NTerminusGroupConstants.Carbamyl:
-                    {
-                        errorCode = SetNTerminus("CONH2", precedingResidue, use3LetterCode);
-                        break;
-                    }
-
+                    errorCode = SetNTerminus("CONH2", precedingResidue, use3LetterCode);
+                    break;
                 case NTerminusGroupConstants.PTC:
-                    {
-                        errorCode = SetNTerminus("C7H6NS", precedingResidue, use3LetterCode);
-                        break;
-                    }
-
+                    errorCode = SetNTerminus("C7H6NS", precedingResidue, use3LetterCode);
+                    break;
                 case NTerminusGroupConstants.None:
-                    {
-                        errorCode = SetNTerminus("", precedingResidue, use3LetterCode);
-                        break;
-                    }
-
+                    errorCode = SetNTerminus("", precedingResidue, use3LetterCode);
+                    break;
                 default:
-                    {
-                        errorCode = 1;
-                        break;
-                    }
+                    errorCode = 1;
+                    break;
             }
 
             return errorCode;
@@ -1634,7 +1601,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 // Now parse the string of 1 letter characters
-                for (int index = 0, loopTo = sequenceStrLength - 1; index <= loopTo; index++)
+                for (int index = 0; index < sequenceStrLength; index++)
                 {
                     if (char.IsLetter(sequence[index]))
                     {
@@ -1743,7 +1710,7 @@ namespace ProteinDigestionSimulator
                     runningTotal -= mHydrogenMass;
                 }
 
-                for (int index = 0, loopTo = mResidues.Length - 1; index <= loopTo; index++)
+                for (int index = 0; index < mResidues.Length; index++)
                 {
                     try
                     {
@@ -1754,16 +1721,11 @@ namespace ProteinDigestionSimulator
                             switch (CysTreatmentMode)
                             {
                                 case CysTreatmentModeConstants.Iodoacetamide:
-                                    {
-                                        runningTotal += mIodoacetamideMass;
-                                        break;
-                                    }
-
+                                    runningTotal += mIodoacetamideMass;
+                                    break;
                                 case CysTreatmentModeConstants.IodoaceticAcid:
-                                    {
-                                        runningTotal += mIodoaceticAcidMass;
-                                        break;
-                                    }
+                                    runningTotal += mIodoaceticAcidMass;
+                                    break;
                             }
                         }
                     }
@@ -1821,7 +1783,7 @@ namespace ProteinDigestionSimulator
 
         private void InitializeSharedData()
         {
-            if (ElementMasses is null)
+            if (ElementMasses == null)
             {
                 ElementMasses = new Dictionary<char, double>();
             }
@@ -1851,7 +1813,7 @@ namespace ProteinDigestionSimulator
                 ElementMasses.Add('P', 30.973761d);
             }
 
-            if (AminoAcidMasses is null)
+            if (AminoAcidMasses == null)
             {
                 AminoAcidMasses = new Dictionary<char, double>();
             }
@@ -1860,7 +1822,7 @@ namespace ProteinDigestionSimulator
                 AminoAcidMasses.Clear();
             }
 
-            if (AminoAcidSymbols is null)
+            if (AminoAcidSymbols == null)
             {
                 AminoAcidSymbols = new Dictionary<char, string>();
             }
