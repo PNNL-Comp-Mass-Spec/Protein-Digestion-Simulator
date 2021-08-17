@@ -14,11 +14,11 @@ Option Strict On
 ' Copyright 2018 Battelle Memorial Institute
 
 ''' <summary>
-''' This class will compute the pI and hydrophobicity for a peptide or protein sequence
+''' This class will compute the pI (isoelectric point) and hydrophobicity for a peptide or protein sequence
 ''' Code originally written by Gordon Anderson for the application ICR-2LS
 ''' Ported to VB.NET by Matthew Monroe in August 2005
 ''' </summary>
-Public Class clspICalculation
+Public Class ComputePeptideProperties
 
     ' Ignore Spelling: MaximumpI, hydrophobicity, hydrophilicity
     ' Ignore Spelling: Mant, Hopp, Kyte, Eisenberg, Engleman, al
@@ -40,7 +40,7 @@ Public Class clspICalculation
     '''        Intrinsic Amino Acid Side-Chain Hydrophilicity/Hydrophobicity Coefficients Determined
     '''        by Reversed-Phase High-Performance Liquid Chromatography of Model Peptides
     ''' </remarks>
-    Public Enum eHydrophobicityTypeConstants As Integer
+    Public Enum HydrophobicityTypeConstants As Integer
         HW = 0                  ' Hopp and Woods, values available at references 1 and 2
         KD = 1                  ' Kyte and Doolittle, values available t references 1 and 2
         Eisenberg = 2           ' Eisenberg, values available t references 1 and 2
@@ -77,7 +77,7 @@ Public Class clspICalculation
     ''' Hydrophobicity type
     ''' </summary>
     ''' <returns></returns>
-    Public Property HydrophobicityType As eHydrophobicityTypeConstants
+    Public Property HydrophobicityType As HydrophobicityTypeConstants
 
     ''' <summary>
     ''' When true, examine the protein residues in chunks of SequenceWidthToExamineForMaximumpI,
@@ -110,7 +110,7 @@ Public Class clspICalculation
 
     End Function
 
-    Private Function CalculateHydrophobicity(seq As String, HT As eHydrophobicityTypeConstants) As Double
+    Private Function CalculateHydrophobicity(seq As String, HT As HydrophobicityTypeConstants) As Double
         Dim runningSum As Double = 0
         Dim residueCount = 0
 
@@ -125,17 +125,17 @@ Public Class clspICalculation
                 End If
 
                 Select Case HT
-                    Case eHydrophobicityTypeConstants.HW
+                    Case HydrophobicityTypeConstants.HW
                         runningSum += aaInfo.HW
-                    Case eHydrophobicityTypeConstants.KD
+                    Case HydrophobicityTypeConstants.KD
                         runningSum += aaInfo.KD
-                    Case eHydrophobicityTypeConstants.Eisenberg
+                    Case HydrophobicityTypeConstants.Eisenberg
                         runningSum += aaInfo.Eisenberg
-                    Case eHydrophobicityTypeConstants.GES
+                    Case HydrophobicityTypeConstants.GES
                         runningSum += aaInfo.GES
-                    Case eHydrophobicityTypeConstants.MeekPH7p4
+                    Case HydrophobicityTypeConstants.MeekPH7p4
                         runningSum += aaInfo.MeekPH7p4
-                    Case eHydrophobicityTypeConstants.MeekPH2p1
+                    Case HydrophobicityTypeConstants.MeekPH2p1
                         runningSum += aaInfo.MeekPH2p1
                 End Select
 
@@ -305,7 +305,7 @@ Public Class clspICalculation
 
     Private Sub InitializeLocalVariables()
 
-        HydrophobicityType = eHydrophobicityTypeConstants.HW
+        HydrophobicityType = HydrophobicityTypeConstants.HW
         ReportMaximumpI = False
         SequenceWidthToExamineForMaximumpI = 10
 

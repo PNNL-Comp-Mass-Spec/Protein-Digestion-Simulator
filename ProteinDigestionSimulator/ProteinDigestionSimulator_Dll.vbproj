@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -104,34 +104,16 @@
     <Import Include="System.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyInfo.vb">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="clsCalculatepI.vb">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="clsCleavageRule.vb" />
-    <Compile Include="clsInSilicoDigest.vb">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="clsParseProteinFile.vb">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="clsPeakMatchingClass.vb">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="clsPeptideSequenceClass.vb">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="clsProteinDigestionSimulator.vb">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="clsProteinInfoClass.vb">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="clsSearchRange.vb">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="AssemblyInfo.vb" />
+    <Compile Include="CleavageRule.vb" />
+    <Compile Include="ComputePeptideProperties.vb" />
+    <Compile Include="DigestionSimulator.vb" />
+    <Compile Include="InSilicoDigest.vb" />
+    <Compile Include="PeakMatching.vb" />
+    <Compile Include="PeptideSequence.vb" />
+    <Compile Include="ProteinCollection.vb" />
+    <Compile Include="ProteinFileParser.vb" />
+    <Compile Include="SearchRange.vb" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="My Project\" />

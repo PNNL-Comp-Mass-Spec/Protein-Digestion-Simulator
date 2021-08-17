@@ -7,7 +7,7 @@ Imports PRISMWin
 Imports ValidateFastaFile
 Imports DBUtils = PRISMDatabaseUtils.DataTableUtils
 
-Public Class frmFastaValidation
+Public Class FastaValidation
 
     ' Ignore Spelling: validator, dt, ds, chk
 
@@ -39,7 +39,7 @@ Public Class frmFastaValidation
     Private Const COL_NAME_DESCRIPTION As String = "Description"
     Private Const COL_NAME_CONTEXT As String = "Context"
 
-    Public Structure udtFastaValidationOptionsType
+    Public Structure FastaValidationOptions
         Public Initialized As Boolean
 
         Public MaximumErrorsToTrackInDetail As Integer
@@ -52,10 +52,10 @@ Public Class frmFastaValidation
         Public LogResultsToFile As Boolean
         Public SaveHashInfoFile As Boolean
 
-        Public FixedFastaOptions As udtFixedFastaOptionsType
+        Public FixedFastaOptions As FixedFastaOptions
     End Structure
 
-    Public Structure udtFixedFastaOptionsType
+    Public Structure FixedFastaOptions
         Public GenerateFixedFasta As Boolean
         Public TruncateLongProteinName As Boolean
         Public RenameProteinWithDuplicateNames As Boolean
@@ -437,9 +437,9 @@ Public Class frmFastaValidation
 
     End Function
 
-    Public Function GetOptions() As udtFastaValidationOptionsType
+    Public Function GetOptions() As FastaValidationOptions
 
-        Dim udtFastaValidationOptions = New udtFastaValidationOptionsType With {
+        Dim fastaValidationOptions = New FastaValidationOptions With {
             .MaximumErrorsToTrackInDetail = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "", False, 10, False),
             .MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "", False, 120, False),
             .ValidProteinNameLengthMinimum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "", False, 3, False),
@@ -450,21 +450,21 @@ Public Class frmFastaValidation
             .SaveHashInfoFile = chkSaveBasicProteinHashInfoFile.Checked
         }
 
-        udtFastaValidationOptions.FixedFastaOptions.GenerateFixedFasta = chkGenerateFixedFastaFile.Checked
-        udtFastaValidationOptions.FixedFastaOptions.TruncateLongProteinName = chkTruncateLongProteinNames.Checked
-        udtFastaValidationOptions.FixedFastaOptions.RenameProteinWithDuplicateNames = chkRenameDuplicateProteins.Checked
-        udtFastaValidationOptions.FixedFastaOptions.KeepDuplicateNamedProteins = chkKeepDuplicateNamedProteins.Checked
-        udtFastaValidationOptions.FixedFastaOptions.WrapLongResidueLines = chkWrapLongResidueLines.Checked
-        udtFastaValidationOptions.FixedFastaOptions.RemoveInvalidResidues = chkRemoveInvalidResidues.Checked
-        udtFastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsForKnownAccession = chkSplitOutMultipleRefsForKnownAccession.Checked
-        udtFastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsInProteinName = chkSplitOutMultipleRefsInProteinName.Checked
-        udtFastaValidationOptions.FixedFastaOptions.ConsolidateDuplicateProteins = chkConsolidateDuplicateProteinSeqs.Checked
-        udtFastaValidationOptions.FixedFastaOptions.ConsolidateDupsIgnoreILDiff = chkConsolidateDupsIgnoreILDiff.Checked
-        udtFastaValidationOptions.FixedFastaOptions.ResiduesPerLineForWrap = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "", False, 60, False)
+        fastaValidationOptions.FixedFastaOptions.GenerateFixedFasta = chkGenerateFixedFastaFile.Checked
+        fastaValidationOptions.FixedFastaOptions.TruncateLongProteinName = chkTruncateLongProteinNames.Checked
+        fastaValidationOptions.FixedFastaOptions.RenameProteinWithDuplicateNames = chkRenameDuplicateProteins.Checked
+        fastaValidationOptions.FixedFastaOptions.KeepDuplicateNamedProteins = chkKeepDuplicateNamedProteins.Checked
+        fastaValidationOptions.FixedFastaOptions.WrapLongResidueLines = chkWrapLongResidueLines.Checked
+        fastaValidationOptions.FixedFastaOptions.RemoveInvalidResidues = chkRemoveInvalidResidues.Checked
+        fastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsForKnownAccession = chkSplitOutMultipleRefsForKnownAccession.Checked
+        fastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsInProteinName = chkSplitOutMultipleRefsInProteinName.Checked
+        fastaValidationOptions.FixedFastaOptions.ConsolidateDuplicateProteins = chkConsolidateDuplicateProteinSeqs.Checked
+        fastaValidationOptions.FixedFastaOptions.ConsolidateDupsIgnoreILDiff = chkConsolidateDupsIgnoreILDiff.Checked
+        fastaValidationOptions.FixedFastaOptions.ResiduesPerLineForWrap = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "", False, 60, False)
 
-        udtFastaValidationOptions.Initialized = True
+        fastaValidationOptions.Initialized = True
 
-        Return udtFastaValidationOptions
+        Return fastaValidationOptions
 
     End Function
 
@@ -739,30 +739,30 @@ Public Class frmFastaValidation
 
     End Sub
 
-    Public Sub SetOptions(udtFastaValidationOptions As udtFastaValidationOptionsType)
+    Public Sub SetOptions(fastaValidationOptions As FastaValidationOptions)
 
-        txtMaxFileErrorsToTrack.Text = udtFastaValidationOptions.MaximumErrorsToTrackInDetail.ToString()
-        txtMaximumResiduesPerLine.Text = udtFastaValidationOptions.MaximumResiduesPerLine.ToString()
+        txtMaxFileErrorsToTrack.Text = fastaValidationOptions.MaximumErrorsToTrackInDetail.ToString()
+        txtMaximumResiduesPerLine.Text = fastaValidationOptions.MaximumResiduesPerLine.ToString()
 
-        txtProteinNameLengthMinimum.Text = udtFastaValidationOptions.ValidProteinNameLengthMinimum.ToString()
-        txtProteinNameLengthMaximum.Text = udtFastaValidationOptions.ValidProteinNameLengthMaximum.ToString()
+        txtProteinNameLengthMinimum.Text = fastaValidationOptions.ValidProteinNameLengthMinimum.ToString()
+        txtProteinNameLengthMaximum.Text = fastaValidationOptions.ValidProteinNameLengthMaximum.ToString()
 
-        chkAllowAsteriskInResidues.Checked = udtFastaValidationOptions.AllowAsterisksInResidues
-        chkCheckForDuplicateProteinInfo.Checked = udtFastaValidationOptions.CheckForDuplicateProteinNames
-        chkLogResults.Checked = udtFastaValidationOptions.LogResultsToFile
-        chkSaveBasicProteinHashInfoFile.Checked = udtFastaValidationOptions.SaveHashInfoFile
+        chkAllowAsteriskInResidues.Checked = fastaValidationOptions.AllowAsterisksInResidues
+        chkCheckForDuplicateProteinInfo.Checked = fastaValidationOptions.CheckForDuplicateProteinNames
+        chkLogResults.Checked = fastaValidationOptions.LogResultsToFile
+        chkSaveBasicProteinHashInfoFile.Checked = fastaValidationOptions.SaveHashInfoFile
 
-        chkGenerateFixedFastaFile.Checked = udtFastaValidationOptions.FixedFastaOptions.GenerateFixedFasta
-        chkTruncateLongProteinNames.Checked = udtFastaValidationOptions.FixedFastaOptions.TruncateLongProteinName
-        chkRenameDuplicateProteins.Checked = udtFastaValidationOptions.FixedFastaOptions.RenameProteinWithDuplicateNames
-        chkKeepDuplicateNamedProteins.Checked = udtFastaValidationOptions.FixedFastaOptions.KeepDuplicateNamedProteins
-        chkWrapLongResidueLines.Checked = udtFastaValidationOptions.FixedFastaOptions.WrapLongResidueLines
-        chkRemoveInvalidResidues.Checked = udtFastaValidationOptions.FixedFastaOptions.RemoveInvalidResidues
-        chkSplitOutMultipleRefsForKnownAccession.Checked = udtFastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsForKnownAccession
-        chkSplitOutMultipleRefsInProteinName.Checked = udtFastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsInProteinName
-        chkConsolidateDuplicateProteinSeqs.Checked = udtFastaValidationOptions.FixedFastaOptions.ConsolidateDuplicateProteins
-        chkConsolidateDupsIgnoreILDiff.Checked = udtFastaValidationOptions.FixedFastaOptions.ConsolidateDupsIgnoreILDiff
-        txtResiduesPerLineForWrap.Text = udtFastaValidationOptions.FixedFastaOptions.ResiduesPerLineForWrap.ToString()
+        chkGenerateFixedFastaFile.Checked = fastaValidationOptions.FixedFastaOptions.GenerateFixedFasta
+        chkTruncateLongProteinNames.Checked = fastaValidationOptions.FixedFastaOptions.TruncateLongProteinName
+        chkRenameDuplicateProteins.Checked = fastaValidationOptions.FixedFastaOptions.RenameProteinWithDuplicateNames
+        chkKeepDuplicateNamedProteins.Checked = fastaValidationOptions.FixedFastaOptions.KeepDuplicateNamedProteins
+        chkWrapLongResidueLines.Checked = fastaValidationOptions.FixedFastaOptions.WrapLongResidueLines
+        chkRemoveInvalidResidues.Checked = fastaValidationOptions.FixedFastaOptions.RemoveInvalidResidues
+        chkSplitOutMultipleRefsForKnownAccession.Checked = fastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsForKnownAccession
+        chkSplitOutMultipleRefsInProteinName.Checked = fastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsInProteinName
+        chkConsolidateDuplicateProteinSeqs.Checked = fastaValidationOptions.FixedFastaOptions.ConsolidateDuplicateProteins
+        chkConsolidateDupsIgnoreILDiff.Checked = fastaValidationOptions.FixedFastaOptions.ConsolidateDupsIgnoreILDiff
+        txtResiduesPerLineForWrap.Text = fastaValidationOptions.FixedFastaOptions.ResiduesPerLineForWrap.ToString()
 
         Application.DoEvents()
 
@@ -1096,11 +1096,11 @@ Public Class frmFastaValidation
 
 #Region "Event Handlers"
 
-    Private Overloads Sub RegisterEvents(oClass As IEventNotifier)
-        AddHandler oClass.StatusEvent, AddressOf MessageEventHandler
-        AddHandler oClass.ErrorEvent, AddressOf ErrorEventHandler
-        AddHandler oClass.ProgressUpdate, AddressOf ProgressUpdateHandler
-        AddHandler oClass.WarningEvent, AddressOf WarningEventHandler
+    Private Overloads Sub RegisterEvents(obj As IEventNotifier)
+        AddHandler obj.StatusEvent, AddressOf MessageEventHandler
+        AddHandler obj.ErrorEvent, AddressOf ErrorEventHandler
+        AddHandler obj.ProgressUpdate, AddressOf ProgressUpdateHandler
+        AddHandler obj.WarningEvent, AddressOf WarningEventHandler
     End Sub
 
     Private Sub ErrorEventHandler(message As String, ex As Exception)

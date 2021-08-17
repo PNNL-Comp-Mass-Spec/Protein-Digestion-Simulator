@@ -1,5 +1,5 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class frmFastaValidation
+Partial Class FastaValidation
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
@@ -659,7 +659,7 @@ Partial Class frmFastaValidation
         Me.Controls.Add(Me.cmdCancel)
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Menu = Me.MainMenuControl
-        Me.Name = "frmFastaValidation"
+        Me.Name = "FastaValidation"
         Me.Text = "FASTA File Validation"
         Me.TabPageErrorOptions.ResumeLayout(False)
         Me.TabPageErrorOptions.PerformLayout()

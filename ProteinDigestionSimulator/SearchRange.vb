@@ -20,13 +20,13 @@ Option Strict On
 '''
 ''' To prevent this behavior, and save memory by not populating mPointerIndices, set mUsePointerIndexArray = False
 ''' </summary>
-Public Class clsSearchRange
+Public Class SearchRange
 
     Public Sub New()
         InitializeLocalVariables()
     End Sub
 
-    Private Enum eDataTypeToUse
+    Private Enum DataTypeToUse
         NoDataPresent = 0
         IntegerType = 1
         SingleType = 2
@@ -36,7 +36,7 @@ Public Class clsSearchRange
         FillingDoubleType = 6
     End Enum
 
-    Private mDataType As eDataTypeToUse
+    Private mDataType As DataTypeToUse
 
     Private mDataInt() As Integer
     Private mDataSingle() As Single
@@ -52,13 +52,13 @@ Public Class clsSearchRange
     Public ReadOnly Property DataCount As Integer
         Get
             Select Case mDataType
-                Case eDataTypeToUse.IntegerType, eDataTypeToUse.FillingIntegerType
+                Case DataTypeToUse.IntegerType, DataTypeToUse.FillingIntegerType
                     Return mDataInt.Length
-                Case eDataTypeToUse.SingleType, eDataTypeToUse.FillingSingleType
+                Case DataTypeToUse.SingleType, DataTypeToUse.FillingSingleType
                     Return mDataSingle.Length
-                Case eDataTypeToUse.DoubleType, eDataTypeToUse.FillingDoubleType
+                Case DataTypeToUse.DoubleType, DataTypeToUse.FillingDoubleType
                     Return mDataDouble.Length
-                Case eDataTypeToUse.NoDataPresent
+                Case DataTypeToUse.NoDataPresent
                     Return 0
                 Case Else
                     Console.WriteLine("Unknown data type encountered: " & mDataType.ToString())
@@ -255,18 +255,18 @@ Public Class clsSearchRange
     End Sub
 
     Private Sub ClearUnusedData()
-        If mDataType <> eDataTypeToUse.IntegerType Then ReDim mDataInt(-1)
-        If mDataType <> eDataTypeToUse.SingleType Then ReDim mDataSingle(-1)
-        If mDataType <> eDataTypeToUse.DoubleType Then ReDim mDataDouble(-1)
+        If mDataType <> DataTypeToUse.IntegerType Then ReDim mDataInt(-1)
+        If mDataType <> DataTypeToUse.SingleType Then ReDim mDataSingle(-1)
+        If mDataType <> DataTypeToUse.DoubleType Then ReDim mDataDouble(-1)
 
-        If mDataType = eDataTypeToUse.NoDataPresent Then
+        If mDataType = DataTypeToUse.NoDataPresent Then
             ReDim mPointerIndices(-1)
             mPointerArrayIsValid = False
         End If
     End Sub
 
     Public Sub ClearData()
-        mDataType = eDataTypeToUse.NoDataPresent
+        mDataType = DataTypeToUse.NoDataPresent
         ClearUnusedData()
     End Sub
 
@@ -276,10 +276,10 @@ Public Class clsSearchRange
         '  or call FillWithDataAddBlock() repeatedly with each block of data points
         ' When done, call FinalizeDataFill
 
-        mDataType = eDataTypeToUse.NoDataPresent
+        mDataType = DataTypeToUse.NoDataPresent
         ClearUnusedData()
 
-        mDataType = eDataTypeToUse.FillingIntegerType
+        mDataType = DataTypeToUse.FillingIntegerType
         ReDim mDataInt(expectedDataCount - 1)
 
         mPointByPointFillCount = 0
@@ -292,10 +292,10 @@ Public Class clsSearchRange
         '  or call FillWithDataAddBlock() repeatedly with each block of data points
         ' When done, call FinalizeDataFill
 
-        mDataType = eDataTypeToUse.NoDataPresent
+        mDataType = DataTypeToUse.NoDataPresent
         ClearUnusedData()
 
-        mDataType = eDataTypeToUse.FillingSingleType
+        mDataType = DataTypeToUse.FillingSingleType
         ReDim mDataSingle(dataCountToReserve - 1)
 
     End Sub
@@ -306,10 +306,10 @@ Public Class clsSearchRange
         '  or call FillWithDataAddBlock() repeatedly with each block of data points
         ' When done, call FinalizeDataFill
 
-        mDataType = eDataTypeToUse.NoDataPresent
+        mDataType = DataTypeToUse.NoDataPresent
         ClearUnusedData()
 
-        mDataType = eDataTypeToUse.FillingDoubleType
+        mDataType = DataTypeToUse.FillingDoubleType
         ReDim mDataDouble(dataCountToReserve - 1)
 
     End Sub
@@ -334,7 +334,7 @@ Public Class clsSearchRange
                     mPointerArrayIsValid = False
                 End If
 
-                mDataType = eDataTypeToUse.IntegerType
+                mDataType = DataTypeToUse.IntegerType
                 success = True
             End If
         Catch ex As Exception
@@ -344,7 +344,7 @@ Public Class clsSearchRange
         If success Then
             ClearUnusedData()
         Else
-            mDataType = eDataTypeToUse.NoDataPresent
+            mDataType = DataTypeToUse.NoDataPresent
         End If
         Return success
 
@@ -370,7 +370,7 @@ Public Class clsSearchRange
                     mPointerArrayIsValid = False
                 End If
 
-                mDataType = eDataTypeToUse.SingleType
+                mDataType = DataTypeToUse.SingleType
                 success = True
             End If
         Catch ex As Exception
@@ -380,7 +380,7 @@ Public Class clsSearchRange
         If success Then
             ClearUnusedData()
         Else
-            mDataType = eDataTypeToUse.NoDataPresent
+            mDataType = DataTypeToUse.NoDataPresent
         End If
         Return success
 
@@ -406,7 +406,7 @@ Public Class clsSearchRange
                     mPointerArrayIsValid = False
                 End If
 
-                mDataType = eDataTypeToUse.DoubleType
+                mDataType = DataTypeToUse.DoubleType
                 success = True
             End If
         Catch ex As Exception
@@ -416,7 +416,7 @@ Public Class clsSearchRange
         If success Then
             ClearUnusedData()
         Else
-            mDataType = eDataTypeToUse.NoDataPresent
+            mDataType = DataTypeToUse.NoDataPresent
         End If
         Return success
 
@@ -495,11 +495,11 @@ Public Class clsSearchRange
         Dim success As Boolean
 
         Try
-            If mDataType <> eDataTypeToUse.FillingIntegerType Then
+            If mDataType <> DataTypeToUse.FillingIntegerType Then
                 Select Case mDataType
-                    Case eDataTypeToUse.FillingSingleType
+                    Case DataTypeToUse.FillingSingleType
                         success = FillWithDataAddPoint(CSng(valueToAdd))
-                    Case eDataTypeToUse.FillingDoubleType
+                    Case DataTypeToUse.FillingDoubleType
                         success = FillWithDataAddPoint(CDbl(valueToAdd))
                     Case Else
                         success = False
@@ -526,11 +526,11 @@ Public Class clsSearchRange
         Dim success As Boolean
 
         Try
-            If mDataType <> eDataTypeToUse.FillingSingleType Then
+            If mDataType <> DataTypeToUse.FillingSingleType Then
                 Select Case mDataType
-                    Case eDataTypeToUse.FillingIntegerType
+                    Case DataTypeToUse.FillingIntegerType
                         success = FillWithDataAddPoint(CInt(valueToAdd))
-                    Case eDataTypeToUse.FillingDoubleType
+                    Case DataTypeToUse.FillingDoubleType
                         success = FillWithDataAddPoint(CDbl(valueToAdd))
                     Case Else
                         success = False
@@ -557,11 +557,11 @@ Public Class clsSearchRange
         Dim success As Boolean
 
         Try
-            If mDataType <> eDataTypeToUse.FillingDoubleType Then
+            If mDataType <> DataTypeToUse.FillingDoubleType Then
                 Select Case mDataType
-                    Case eDataTypeToUse.FillingIntegerType
+                    Case DataTypeToUse.FillingIntegerType
                         success = FillWithDataAddPoint(CInt(valueToAdd))
-                    Case eDataTypeToUse.FillingSingleType
+                    Case DataTypeToUse.FillingSingleType
                         success = FillWithDataAddPoint(CSng(valueToAdd))
                     Case Else
                         success = False
@@ -593,8 +593,8 @@ Public Class clsSearchRange
         Try
             success = True
             Select Case mDataType
-                Case eDataTypeToUse.FillingIntegerType
-                    mDataType = eDataTypeToUse.IntegerType
+                Case DataTypeToUse.FillingIntegerType
+                    mDataType = DataTypeToUse.IntegerType
 
                     ' Shrink mDataInt if necessary
                     If mDataInt.Length > mPointByPointFillCount Then
@@ -602,8 +602,8 @@ Public Class clsSearchRange
                     End If
 
                     DataArray = mDataInt
-                Case eDataTypeToUse.FillingSingleType
-                    mDataType = eDataTypeToUse.SingleType
+                Case DataTypeToUse.FillingSingleType
+                    mDataType = DataTypeToUse.SingleType
 
                     ' Shrink mDataSingle if necessary
                     If mDataSingle.Length > mPointByPointFillCount Then
@@ -611,8 +611,8 @@ Public Class clsSearchRange
                     End If
 
                     DataArray = mDataSingle
-                Case eDataTypeToUse.FillingDoubleType
-                    mDataType = eDataTypeToUse.DoubleType
+                Case DataTypeToUse.FillingDoubleType
+                    mDataType = DataTypeToUse.DoubleType
 
                     ' Shrink mDataDouble if necessary
                     If mDataDouble.Length > mPointByPointFillCount Then
@@ -652,15 +652,15 @@ Public Class clsSearchRange
 
         ' See if user filled with data, but didn't call Finalize
         ' We'll call it for them
-        If mDataType = eDataTypeToUse.FillingIntegerType OrElse mDataType = eDataTypeToUse.FillingSingleType OrElse mDataType = eDataTypeToUse.FillingDoubleType Then
+        If mDataType = DataTypeToUse.FillingIntegerType OrElse mDataType = DataTypeToUse.FillingSingleType OrElse mDataType = DataTypeToUse.FillingDoubleType Then
             Me.FinalizeDataFill()
         End If
 
-        If mDataType <> eDataTypeToUse.IntegerType Then
+        If mDataType <> DataTypeToUse.IntegerType Then
             Select Case mDataType
-                Case eDataTypeToUse.SingleType
+                Case DataTypeToUse.SingleType
                     matchFound = FindValueRange(CSng(searchValue), CSng(toleranceHalfWidth), matchIndexStart, matchIndexEnd)
-                Case eDataTypeToUse.DoubleType
+                Case DataTypeToUse.DoubleType
                     matchFound = FindValueRange(CDbl(searchValue), CDbl(toleranceHalfWidth), matchIndexStart, matchIndexEnd)
                 Case Else
                     matchFound = False
@@ -701,15 +701,15 @@ Public Class clsSearchRange
 
         ' See if user filled with data, but didn't call Finalize
         ' We'll call it for them
-        If mDataType = eDataTypeToUse.FillingIntegerType OrElse mDataType = eDataTypeToUse.FillingSingleType OrElse mDataType = eDataTypeToUse.FillingDoubleType Then
+        If mDataType = DataTypeToUse.FillingIntegerType OrElse mDataType = DataTypeToUse.FillingSingleType OrElse mDataType = DataTypeToUse.FillingDoubleType Then
             Me.FinalizeDataFill()
         End If
 
-        If mDataType <> eDataTypeToUse.DoubleType Then
+        If mDataType <> DataTypeToUse.DoubleType Then
             Select Case mDataType
-                Case eDataTypeToUse.IntegerType
+                Case DataTypeToUse.IntegerType
                     matchFound = FindValueRange(CInt(searchValue), CInt(toleranceHalfWidth), matchIndexStart, matchIndexEnd)
-                Case eDataTypeToUse.SingleType
+                Case DataTypeToUse.SingleType
                     matchFound = FindValueRange(CSng(searchValue), CSng(toleranceHalfWidth), matchIndexStart, matchIndexEnd)
                 Case Else
                     matchFound = False
@@ -750,15 +750,15 @@ Public Class clsSearchRange
 
         ' See if user filled with data, but didn't call Finalize
         ' We'll call it for them
-        If mDataType = eDataTypeToUse.FillingIntegerType OrElse mDataType = eDataTypeToUse.FillingSingleType OrElse mDataType = eDataTypeToUse.FillingDoubleType Then
+        If mDataType = DataTypeToUse.FillingIntegerType OrElse mDataType = DataTypeToUse.FillingSingleType OrElse mDataType = DataTypeToUse.FillingDoubleType Then
             Me.FinalizeDataFill()
         End If
 
-        If mDataType <> eDataTypeToUse.SingleType Then
+        If mDataType <> DataTypeToUse.SingleType Then
             Select Case mDataType
-                Case eDataTypeToUse.IntegerType
+                Case DataTypeToUse.IntegerType
                     matchFound = FindValueRange(CInt(searchValue), CInt(toleranceHalfWidth), matchIndexStart, matchIndexEnd)
-                Case eDataTypeToUse.DoubleType
+                Case DataTypeToUse.DoubleType
                     matchFound = FindValueRange(CDbl(searchValue), CDbl(toleranceHalfWidth), matchIndexStart, matchIndexEnd)
                 Case Else
                     matchFound = False
@@ -800,15 +800,15 @@ Public Class clsSearchRange
 
     Public Function GetValueByIndex(index As Integer) As Double
         Try
-            If mDataType = eDataTypeToUse.NoDataPresent Then
+            If mDataType = DataTypeToUse.NoDataPresent Then
                 Return 0
             Else
                 Select Case mDataType
-                    Case eDataTypeToUse.IntegerType, eDataTypeToUse.FillingIntegerType
+                    Case DataTypeToUse.IntegerType, DataTypeToUse.FillingIntegerType
                         Return mDataInt(index)
-                    Case eDataTypeToUse.SingleType, eDataTypeToUse.FillingSingleType
+                    Case DataTypeToUse.SingleType, DataTypeToUse.FillingSingleType
                         Return mDataSingle(index)
-                    Case eDataTypeToUse.DoubleType, eDataTypeToUse.FillingDoubleType
+                    Case DataTypeToUse.DoubleType, DataTypeToUse.FillingDoubleType
                         Return mDataDouble(index)
                 End Select
             End If
@@ -838,18 +838,18 @@ Public Class clsSearchRange
     Public Function GetValueByOriginalIndex(indexOriginal As Integer) As Double
         Dim index As Integer
 
-        If Not mPointerArrayIsValid OrElse mDataType = eDataTypeToUse.NoDataPresent Then
+        If Not mPointerArrayIsValid OrElse mDataType = DataTypeToUse.NoDataPresent Then
             Return 0
         Else
             Try
                 index = Array.IndexOf(mPointerIndices, indexOriginal)
                 If index >= 0 Then
                     Select Case mDataType
-                        Case eDataTypeToUse.IntegerType
+                        Case DataTypeToUse.IntegerType
                             Return mDataInt(mPointerIndices(index))
-                        Case eDataTypeToUse.SingleType
+                        Case DataTypeToUse.SingleType
                             Return mDataSingle(mPointerIndices(index))
-                        Case eDataTypeToUse.DoubleType
+                        Case DataTypeToUse.DoubleType
                             Return mDataDouble(mPointerIndices(index))
                     End Select
                 Else
@@ -871,7 +871,7 @@ Public Class clsSearchRange
     End Function
 
     Private Sub InitializeLocalVariables()
-        mDataType = eDataTypeToUse.NoDataPresent
+        mDataType = DataTypeToUse.NoDataPresent
         ClearUnusedData()
 
         mUsePointerIndexArray = True

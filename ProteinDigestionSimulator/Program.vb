@@ -29,7 +29,7 @@ Imports ProteinFileReader
 '''
 ''' Example command line: /I:Yeast_2003-01-06.fasta /debug /d /p:ProteinDigestionSettings.xml
 ''' </summary>
-Module modMain
+Module Program
 
     ' Ignore Spelling: silico
 
@@ -62,7 +62,7 @@ Module modMain
 
     Private mShowDebugPrompts As Boolean
 
-    Private mParseProteinFile As clsParseProteinFile
+    Private mParseProteinFile As ProteinFileParser
     Private mLastProgressReportTime As DateTime
     Private mLastProgressReportValue As Integer
 
@@ -107,12 +107,12 @@ Module modMain
                 Return -1
             End If
 
-            mParseProteinFile = New clsParseProteinFile() With {
+            mParseProteinFile = New ProteinFileParser() With {
                     .ShowDebugPrompts = mShowDebugPrompts
                 }
 
-            AddHandler mParseProteinFile.ProgressUpdate, AddressOf ProcessingClass_ProgressChanged
-            AddHandler mParseProteinFile.ProgressReset, AddressOf ProcessingClass_ProgressReset
+            AddHandler mParseProteinFile.ProgressUpdate, AddressOf Processing_ProgressChanged
+            AddHandler mParseProteinFile.ProgressReset, AddressOf Processing_ProgressReset
 
             ' Note: the following settings will be overridden if mParameterFilePath points to a valid parameter file that has these settings defined
             mParseProteinFile.AssumeFastaFile = mAssumeFastaFile
@@ -152,7 +152,7 @@ Module modMain
 
 
         Catch ex As Exception
-            ShowErrorMessage("Error occurred in modMain->Main", ex)
+            ShowErrorMessage("Error occurred in Program->Main", ex)
             returnCode = -1
         End Try
 
@@ -261,7 +261,7 @@ Module modMain
             Application.EnableVisualStyles()
             Application.DoEvents()
 
-            Dim formMain = New frmMain()
+            Dim formMain = New Main()
             formMain.ShowDialog()
 
         Catch ex As Exception
@@ -317,7 +317,7 @@ Module modMain
             Console.WriteLine("E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov")
             Console.WriteLine("Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/")
             Console.WriteLine()
-            Console.WriteLine(WrapParagraph(frmDisclaimer.GetKangasPetritisDisclaimerText(False)))
+            Console.WriteLine(WrapParagraph(Disclaimer.GetKangasPetritisDisclaimerText(False)))
 
             Thread.Sleep(2000)
 
@@ -341,7 +341,7 @@ Module modMain
         End Try
     End Sub
 
-    Private Sub ProcessingClass_ProgressChanged(taskDescription As String, percentComplete As Single)
+    Private Sub Processing_ProgressChanged(taskDescription As String, percentComplete As Single)
         Const PERCENT_REPORT_INTERVAL = 25
         Const PROGRESS_DOT_INTERVAL_MSEC = 250
 
@@ -360,7 +360,7 @@ Module modMain
         End If
     End Sub
 
-    Private Sub ProcessingClass_ProgressReset()
+    Private Sub Processing_ProgressReset()
         mLastProgressReportTime = DateTime.UtcNow
         mLastProgressReportValue = 0
     End Sub

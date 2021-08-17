@@ -4,16 +4,16 @@ Imports System.Runtime.InteropServices
 
 ''' <summary>
 ''' This class can be used to perform an in-silico digest of an amino acid sequence
-''' Utilizes PeptideInfoClass
+''' Utilizes PeptideSequenceWithNET
 ''' </summary>
-Public Class clsInSilicoDigest
+Public Class InSilicoDigest
 
     ' Ignore Spelling: silico, Ile, Leu, Tryptics, frag, terminii
     ' Ignore Spelling: Chymotrypsin, Glu, Lys, Arg, Proteinase, Thermolysin, isoelectric, alkylated
 
     Public Sub New()
-        mPeptideSequence = New PeptideSequenceClass With {
-            .ElementMode = PeptideSequenceClass.ElementModeConstants.IsotopicMass
+        mPeptideSequence = New PeptideSequence With {
+            .ElementMode = PeptideSequence.ElementModeConstants.IsotopicMass
         }
 
         InitializeCleavageRules()
@@ -60,14 +60,14 @@ Public Class clsInSilicoDigest
         MH = 1
     End Enum
 
-    Private ReadOnly mCleavageRules As Dictionary(Of CleavageRuleConstants, clsCleavageRule) = New Dictionary(Of CleavageRuleConstants, clsCleavageRule)
+    Private ReadOnly mCleavageRules As Dictionary(Of CleavageRuleConstants, CleavageRule) = New Dictionary(Of CleavageRuleConstants, CleavageRule)
 
     ''' <summary>
     ''' General purpose object for computing mass and calling cleavage and digestion functions
     ''' </summary>
-    Private mPeptideSequence As PeptideSequenceClass
+    Private mPeptideSequence As PeptideSequence
 
-    Private mpICalculator As clspICalculation
+    Private mpICalculator As ComputePeptideProperties
 
     Public Event ErrorEvent(message As String)
 
@@ -93,23 +93,23 @@ Public Class clsInSilicoDigest
         End Get
     End Property
 
-    Public ReadOnly Property CleavageRules As IReadOnlyDictionary(Of CleavageRuleConstants, clsCleavageRule)
+    Public ReadOnly Property CleavageRules As IReadOnlyDictionary(Of CleavageRuleConstants, CleavageRule)
         Get
             Return mCleavageRules
         End Get
     End Property
 
-    Public Property ElementMassMode As PeptideSequenceClass.ElementModeConstants
+    Public Property ElementMassMode As PeptideSequence.ElementModeConstants
         Get
             If mPeptideSequence Is Nothing Then
-                Return PeptideSequenceClass.ElementModeConstants.IsotopicMass
+                Return PeptideSequence.ElementModeConstants.IsotopicMass
             Else
                 Return mPeptideSequence.ElementMode
             End If
         End Get
         Set
             If mPeptideSequence Is Nothing Then
-                mPeptideSequence = New PeptideSequenceClass()
+                mPeptideSequence = New PeptideSequence()
             End If
             mPeptideSequence.ElementMode = Value
         End Set
@@ -138,9 +138,9 @@ Public Class clsInSilicoDigest
         exceptionResidues As String,
         reversedCleavageDirection As Boolean,
         Optional allowPartialCleavage As Boolean = False,
-        Optional additionalCleavageRules As IReadOnlyCollection(Of clsCleavageRule) = Nothing) As clsCleavageRule
+        Optional additionalCleavageRules As IReadOnlyCollection(Of CleavageRule) = Nothing) As CleavageRule
 
-        Dim cleavageRule = New clsCleavageRule(
+        Dim cleavageRule = New CleavageRule(
             description,
             cleavageResidues,
             exceptionResidues,
@@ -166,7 +166,7 @@ Public Class clsInSilicoDigest
     ''' See method InitializeCleavageRules for a list of the rules</remarks>
     Public Function CheckSequenceAgainstCleavageRule(sequence As String, ruleId As CleavageRuleConstants, <Out> Optional ByRef ruleMatchCount As Integer = 0) As Boolean
 
-        Dim cleavageRule As clsCleavageRule = Nothing
+        Dim cleavageRule As CleavageRule = Nothing
         If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
             If ruleId = CleavageRuleConstants.NoRule Then
                 ' No cleavage rule; no point in checking
@@ -244,8 +244,8 @@ Public Class clsInSilicoDigest
     End Function
 
     Public Function DigestSequence(proteinSequence As String,
-                                   <Out> ByRef peptideFragments As List(Of PeptideInfoClass),
-                                   digestionOptions As DigestionOptionsClass,
+                                   <Out> ByRef peptideFragments As List(Of PeptideSequenceWithNET),
+                                   digestionOptions As DigestionOptions,
                                    filterByIsoelectricPoint As Boolean) As Integer
 
         Return DigestSequence(proteinSequence, peptideFragments, digestionOptions, filterByIsoelectricPoint, "")
@@ -263,8 +263,8 @@ Public Class clsInSilicoDigest
     ''' <param name="proteinName"></param>
     ''' <returns>The number of peptides in peptideFragments</returns>
     Public Function DigestSequence(proteinSequence As String,
-                                   <Out> ByRef peptideFragments As List(Of PeptideInfoClass),
-                                   digestionOptions As DigestionOptionsClass,
+                                   <Out> ByRef peptideFragments As List(Of PeptideSequenceWithNET),
+                                   digestionOptions As DigestionOptions,
                                    filterByIsoelectricPoint As Boolean,
                                    proteinName As String) As Integer
 
@@ -274,7 +274,7 @@ Public Class clsInSilicoDigest
         Dim trypticFragStartLocations() As Integer            ' 0-based array, parallel to trypticFragmentCache()
         Dim trypticFragEndLocations() As Integer              ' 0-based array, parallel to trypticFragmentCache()
 
-        peptideFragments = New List(Of PeptideInfoClass)()
+        peptideFragments = New List(Of PeptideSequenceWithNET)()
 
         If String.IsNullOrWhiteSpace(proteinSequence) Then
             Return 0
@@ -284,7 +284,7 @@ Public Class clsInSilicoDigest
 
         Try
 
-            Dim cleavageRule As clsCleavageRule = Nothing
+            Dim cleavageRule As CleavageRule = Nothing
 
             Dim success = GetCleavageRuleById(digestionOptions.CleavageRuleID, cleavageRule)
             If Not success Then
@@ -338,8 +338,8 @@ Public Class clsInSilicoDigest
 
             If digestionOptions.FragmentMassMode = FragmentMassConstants.MH Then
                 ' Adjust the thresholds down by the charge carrier mass (which is easier than computing the M+H mass of every peptide)
-                minFragmentMass = digestionOptions.MinFragmentMass - PeptideSequenceClass.ChargeCarrierMass
-                maxFragmentMass = digestionOptions.MaxFragmentMass - PeptideSequenceClass.ChargeCarrierMass
+                minFragmentMass = digestionOptions.MinFragmentMass - PeptideSequence.ChargeCarrierMass
+                maxFragmentMass = digestionOptions.MaxFragmentMass - PeptideSequence.ChargeCarrierMass
             Else
                 minFragmentMass = digestionOptions.MinFragmentMass
                 maxFragmentMass = digestionOptions.MaxFragmentMass
@@ -470,7 +470,7 @@ Public Class clsInSilicoDigest
 
     End Function
 
-    Public Function GetCleavageRuleById(ruleId As CleavageRuleConstants, <Out> ByRef cleavageRule As clsCleavageRule) As Boolean
+    Public Function GetCleavageRuleById(ruleId As CleavageRuleConstants, <Out> ByRef cleavageRule As CleavageRule) As Boolean
         If mCleavageRules.TryGetValue(ruleId, cleavageRule) Then
             Return True
         Else
@@ -617,7 +617,7 @@ Public Class clsInSilicoDigest
             String.Empty,
             False)
 
-        Dim additionalRuleLysC = New List(Of clsCleavageRule) From {
+        Dim additionalRuleLysC = New List(Of CleavageRule) From {
                 cleavageRuleLysC
                 }
 
@@ -635,7 +635,7 @@ Public Class clsInSilicoDigest
                                                String.Empty,
                                                True)
 
-        Dim additionalRuleThermolysin = New List(Of clsCleavageRule) From {
+        Dim additionalRuleThermolysin = New List(Of CleavageRule) From {
                 cleavageRuleThermolysin
                 }
 
@@ -652,10 +652,10 @@ Public Class clsInSilicoDigest
     End Sub
 
     Public Sub InitializepICalculator()
-        Me.InitializepICalculator(New clspICalculation)
+        Me.InitializepICalculator(New ComputePeptideProperties)
     End Sub
 
-    Public Sub InitializepICalculator(ByRef pICalculator As clspICalculation)
+    Public Sub InitializepICalculator(ByRef pICalculator As ComputePeptideProperties)
         If mpICalculator IsNot Nothing Then
             If mpICalculator Is pICalculator Then
                 ' Classes are the same instance of the object; no need to update anything
@@ -669,15 +669,15 @@ Public Class clsInSilicoDigest
     End Sub
 
     Public Sub InitializepICalculator(
-        eHydrophobicityType As clspICalculation.eHydrophobicityTypeConstants,
+        hydrophobicityType As ComputePeptideProperties.HydrophobicityTypeConstants,
         reportMaximumpI As Boolean,
         sequenceWidthToExamineForMaximumpI As Integer)
 
         If mpICalculator Is Nothing Then
-            mpICalculator = New clspICalculation()
+            mpICalculator = New ComputePeptideProperties()
         End If
 
-        mpICalculator.HydrophobicityType = eHydrophobicityType
+        mpICalculator.HydrophobicityType = hydrophobicityType
         mpICalculator.ReportMaximumpI = reportMaximumpI
         mpICalculator.SequenceWidthToExamineForMaximumpI = sequenceWidthToExamineForMaximumpI
     End Sub
@@ -691,8 +691,8 @@ Public Class clsInSilicoDigest
         ByRef proteinSequence As String,
         proteinSequenceLength As Integer,
         fragmentsUniqueList As ISet(Of String),
-        peptideFragments As ICollection(Of PeptideInfoClass),
-        digestionOptions As DigestionOptionsClass,
+        peptideFragments As ICollection(Of PeptideSequenceWithNET),
+        digestionOptions As DigestionOptions,
         filterByIsoelectricPoint As Boolean,
         minFragmentMass As Double,
         maxFragmentMass As Double)
@@ -717,7 +717,7 @@ Public Class clsInSilicoDigest
 
         If Not addFragment Then Return
 
-        Dim peptideFragment = New PeptideInfoClass() With {
+        Dim peptideFragment = New PeptideSequenceWithNET() With {
             .AutoComputeNET = False,
             .CysTreatmentMode = digestionOptions.CysTreatmentMode
         }
@@ -750,13 +750,13 @@ Public Class clsInSilicoDigest
             Dim suffix As String
 
             If residueStartLoc <= 1 Then
-                prefix = PeptideInfoClass.PROTEIN_TERMINUS_SYMBOL
+                prefix = PeptideSequenceWithNET.PROTEIN_TERMINUS_SYMBOL
             Else
                 prefix = proteinSequence.Substring(residueStartLoc - 2, 1)
             End If
 
             If residueEndLoc >= proteinSequenceLength Then
-                suffix = PeptideInfoClass.PROTEIN_TERMINUS_SYMBOL
+                suffix = PeptideSequenceWithNET.PROTEIN_TERMINUS_SYMBOL
             Else
                 suffix = proteinSequence.Substring(residueEndLoc, 1)
             End If
@@ -764,8 +764,8 @@ Public Class clsInSilicoDigest
             peptideFragment.PrefixResidue = prefix
             peptideFragment.SuffixResidue = suffix
         Else
-            peptideFragment.PrefixResidue = PeptideInfoClass.PROTEIN_TERMINUS_SYMBOL
-            peptideFragment.SuffixResidue = PeptideInfoClass.PROTEIN_TERMINUS_SYMBOL
+            peptideFragment.PrefixResidue = PeptideSequenceWithNET.PROTEIN_TERMINUS_SYMBOL
+            peptideFragment.SuffixResidue = PeptideSequenceWithNET.PROTEIN_TERMINUS_SYMBOL
         End If
 
 
@@ -833,10 +833,10 @@ Public Class clsInSilicoDigest
 
     End Sub
 
-    Public Class PeptideInfoClass
-        Inherits PeptideSequenceClass
+    Public Class PeptideSequenceWithNET
+        Inherits PeptideSequence
 
-        ' Adds NET computation to the PeptideSequenceClass
+        ' Adds NET computation to the PeptideSequence
 
         Public Sub New()
 
@@ -860,7 +860,7 @@ Public Class clsInSilicoDigest
         Public Const PROTEIN_TERMINUS_SYMBOL As String = "-"
 
         ' The following is declared Shared so that it is only initialized once per program execution
-        ' All objects of type PeptideInfoClass will use the same instance of this object
+        ' All objects of type PeptideSequenceWithNET will use the same instance of this object
         Private Shared NETPredictor As NETPrediction.iPeptideElutionTime
 
         ''' <summary>
@@ -963,23 +963,23 @@ Public Class clsInSilicoDigest
         ''' Define the peptide sequence
         ''' </summary>
         ''' <param name="sequence"></param>
-        ''' <param name="eNTerminus"></param>
-        ''' <param name="eCTerminus"></param>
+        ''' <param name="nTerminus"></param>
+        ''' <param name="cTerminus"></param>
         ''' <param name="is3LetterCode"></param>
         ''' <param name="oneLetterCheckForPrefixAndSuffixResidues"></param>
         ''' <param name="threeLetterCheckForPrefixHandSuffixOH"></param>
         ''' <returns></returns>
         Public Overrides Function SetSequence(
           sequence As String,
-          Optional eNTerminus As NTerminusGroupConstants = NTerminusGroupConstants.Hydrogen,
-          Optional eCTerminus As CTerminusGroupConstants = CTerminusGroupConstants.Hydroxyl,
+          Optional nTerminus As NTerminusGroupConstants = NTerminusGroupConstants.Hydrogen,
+          Optional cTerminus As CTerminusGroupConstants = CTerminusGroupConstants.Hydroxyl,
           Optional is3LetterCode As Boolean = False,
           Optional oneLetterCheckForPrefixAndSuffixResidues As Boolean = True,
           Optional threeLetterCheckForPrefixHandSuffixOH As Boolean = True) As Integer
 
             Dim returnVal As Integer
 
-            returnVal = MyBase.SetSequence(sequence, eNTerminus, eCTerminus, is3LetterCode, oneLetterCheckForPrefixAndSuffixResidues, threeLetterCheckForPrefixHandSuffixOH)
+            returnVal = MyBase.SetSequence(sequence, nTerminus, cTerminus, is3LetterCode, oneLetterCheckForPrefixAndSuffixResidues, threeLetterCheckForPrefixHandSuffixOH)
             If mAutoComputeNET Then UpdateNET()
 
             Return returnVal
@@ -1016,7 +1016,7 @@ Public Class clsInSilicoDigest
 
     End Class
 
-    Public Class DigestionOptionsClass
+    Public Class DigestionOptions
 
         ''' <summary>
         ''' Constructor
@@ -1026,7 +1026,7 @@ Public Class clsInSilicoDigest
             CleavageRuleID = CleavageRuleConstants.ConventionalTrypsin
             mMinFragmentResidueCount = 4
 
-            CysTreatmentMode = PeptideSequenceClass.CysTreatmentModeConstants.Untreated
+            CysTreatmentMode = PeptideSequence.CysTreatmentModeConstants.Untreated
 
             FragmentMassMode = FragmentMassConstants.Monoisotopic
 
@@ -1064,7 +1064,7 @@ Public Class clsInSilicoDigest
 
         Public Property CleavageRuleID As CleavageRuleConstants
 
-        Public Property CysTreatmentMode As PeptideSequenceClass.CysTreatmentModeConstants
+        Public Property CysTreatmentMode As PeptideSequence.CysTreatmentModeConstants
 
         Public Property FragmentMassMode As FragmentMassConstants
 

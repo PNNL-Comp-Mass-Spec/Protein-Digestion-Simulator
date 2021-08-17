@@ -2,15 +2,15 @@ Option Strict On
 
 Imports System.Runtime.InteropServices
 
-Friend Class clsProteinInfo
-    Public Enum eCleavageStateConstants
+Friend Class ProteinCollection
+    Public Enum CleavageStateConstants
         None = 0
         [Partial] = 1
         Full = 2
         Unknown = -1
     End Enum
 
-    Protected Structure udtProteinInfoType
+    Protected Structure ProteinEntry
         Public Name As String
         Public ProteinID As Integer
     End Structure
@@ -18,12 +18,12 @@ Friend Class clsProteinInfo
     Protected Const MEMORY_RESERVE_CHUNK As Integer = 100000
 
     Protected mProteinCount As Integer
-    Protected mProteins() As udtProteinInfoType
+    Protected mProteins() As ProteinEntry
     Protected mProteinArrayIsSorted As Boolean
 
     Protected mMaxProteinIDUsed As Integer
 
-    Protected WithEvents mProteinToPeptideMapping As clsProteinToPeptideMappingInfo
+    Protected WithEvents mProteinToPeptideMapping As ProteinToPeptideMappingInfo
 
     Protected mUseProteinNameHashTable As Boolean
     Protected mProteinNameToRowIndex As Hashtable
@@ -34,7 +34,7 @@ Friend Class clsProteinInfo
     Public Sub New()
         mUseProteinNameHashTable = True                       ' Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
         Me.Clear()
-        mProteinToPeptideMapping = New clsProteinToPeptideMappingInfo
+        mProteinToPeptideMapping = New ProteinToPeptideMappingInfo
     End Sub
 
     Public Function Add(proteinName As String, ByRef newProteinID As Integer) As Boolean
@@ -84,19 +84,19 @@ Friend Class clsProteinInfo
     End Function
 
     Public Function AddProteinToPeptideMapping(proteinID As Integer, peptideID As Integer) As Boolean
-        Return AddProteinToPeptideMapping(proteinID, peptideID, eCleavageStateConstants.Unknown)
+        Return AddProteinToPeptideMapping(proteinID, peptideID, CleavageStateConstants.Unknown)
     End Function
 
-    Public Function AddProteinToPeptideMapping(proteinID As Integer, peptideID As Integer, eCleavageState As eCleavageStateConstants) As Boolean
-        Return mProteinToPeptideMapping.AddProteinToPeptideMapping(proteinID, peptideID, eCleavageState)
+    Public Function AddProteinToPeptideMapping(proteinID As Integer, peptideID As Integer, cleavageState As CleavageStateConstants) As Boolean
+        Return mProteinToPeptideMapping.AddProteinToPeptideMapping(proteinID, peptideID, cleavageState)
     End Function
 
     Public Function AddProteinToPeptideMapping(proteinName As String, peptideID As Integer) As Boolean
-        Return AddProteinToPeptideMapping(proteinName, peptideID, eCleavageStateConstants.Unknown)
+        Return AddProteinToPeptideMapping(proteinName, peptideID, CleavageStateConstants.Unknown)
     End Function
 
-    Public Function AddProteinToPeptideMapping(proteinName As String, peptideID As Integer, eCleavageState As eCleavageStateConstants) As Boolean
-        Return mProteinToPeptideMapping.AddProteinToPeptideMapping(Me, proteinName, peptideID, eCleavageState)
+    Public Function AddProteinToPeptideMapping(proteinName As String, peptideID As Integer, cleavageState As CleavageStateConstants) As Boolean
+        Return mProteinToPeptideMapping.AddProteinToPeptideMapping(Me, proteinName, peptideID, cleavageState)
     End Function
 
     Private Function BinarySearchFindProtein(proteinName As String) As Integer
@@ -252,7 +252,7 @@ Friend Class clsProteinInfo
         If Not mProteinArrayIsSorted OrElse forceSort Then
             RaiseEvent SortingList()
             Try
-                Dim comparer As New ProteinInfoComparerClass
+                Dim comparer As New ProteinEntryComparer
                 Array.Sort(mProteins, 0, mProteinCount, comparer)
             Catch
                 Throw
@@ -278,10 +278,10 @@ Friend Class clsProteinInfo
         RaiseEvent SortingMappings()
     End Sub
 
-    Private Class ProteinInfoComparerClass
-        Implements IComparer(Of udtProteinInfoType)
+    Private Class ProteinEntryComparer
+        Implements IComparer(Of ProteinEntry)
 
-        Public Function Compare(x As udtProteinInfoType, y As udtProteinInfoType) As Integer Implements IComparer(Of udtProteinInfoType).Compare
+        Public Function Compare(x As ProteinEntry, y As ProteinEntry) As Integer Implements IComparer(Of ProteinEntry).Compare
 
             ' Sort by Protein Name, ascending
 
@@ -297,17 +297,17 @@ Friend Class clsProteinInfo
 
     End Class
 
-    Protected Class clsProteinToPeptideMappingInfo
+    Protected Class ProteinToPeptideMappingInfo
 
-        Public Structure udtProteinToPeptideMappingType
+        Public Structure ProteinToPeptideMappingEntry
             Public ProteinID As Integer
             Public PeptideID As Integer
-            Public CleavageState As eCleavageStateConstants
+            Public CleavageState As CleavageStateConstants
         End Structure
 
         Protected Const MEMORY_RESERVE_CHUNK As Integer = 100000
         Protected mMappingCount As Integer
-        Protected mMappings() As udtProteinToPeptideMappingType
+        Protected mMappings() As ProteinToPeptideMappingEntry
         Protected mMappingArrayIsSorted As Boolean
 
         Public Event SortingList()
@@ -317,10 +317,10 @@ Friend Class clsProteinInfo
         End Sub
 
         Public Function AddProteinToPeptideMapping(proteinID As Integer, peptideID As Integer) As Boolean
-            Return AddProteinToPeptideMapping(proteinID, peptideID, eCleavageStateConstants.Unknown)
+            Return AddProteinToPeptideMapping(proteinID, peptideID, CleavageStateConstants.Unknown)
         End Function
 
-        Public Function AddProteinToPeptideMapping(proteinID As Integer, peptideID As Integer, eCleavageState As eCleavageStateConstants) As Boolean
+        Public Function AddProteinToPeptideMapping(proteinID As Integer, peptideID As Integer, cleavageState As CleavageStateConstants) As Boolean
 
             ' Add the mapping
             If mMappingCount >= mMappings.Length Then
@@ -330,7 +330,7 @@ Friend Class clsProteinInfo
 
             mMappings(mMappingCount).ProteinID = proteinID
             mMappings(mMappingCount).PeptideID = peptideID
-            mMappings(mMappingCount).CleavageState = eCleavageState
+            mMappings(mMappingCount).CleavageState = cleavageState
 
             mMappingCount += 1
             mMappingArrayIsSorted = False
@@ -340,11 +340,11 @@ Friend Class clsProteinInfo
 
         End Function
 
-        Public Function AddProteinToPeptideMapping(proteinInfo As clsProteinInfo, proteinName As String, peptideID As Integer) As Boolean
-            Return AddProteinToPeptideMapping(proteinInfo, proteinName, peptideID, eCleavageStateConstants.Unknown)
+        Public Function AddProteinToPeptideMapping(proteinInfo As ProteinCollection, proteinName As String, peptideID As Integer) As Boolean
+            Return AddProteinToPeptideMapping(proteinInfo, proteinName, peptideID, CleavageStateConstants.Unknown)
         End Function
 
-        Public Function AddProteinToPeptideMapping(proteinInfo As clsProteinInfo, proteinName As String, peptideID As Integer, eCleavageState As eCleavageStateConstants) As Boolean
+        Public Function AddProteinToPeptideMapping(proteinInfo As ProteinCollection, proteinName As String, peptideID As Integer, cleavageState As CleavageStateConstants) As Boolean
             Dim proteinID As Integer
 
             If Not proteinInfo.GetProteinIDByProteinName(proteinName, proteinID) Then
@@ -354,7 +354,7 @@ Friend Class clsProteinInfo
                 End If
             End If
 
-            Return AddProteinToPeptideMapping(proteinID, peptideID, eCleavageState)
+            Return AddProteinToPeptideMapping(proteinID, peptideID, cleavageState)
 
         End Function
 
@@ -546,7 +546,7 @@ Friend Class clsProteinInfo
             If Not mMappingArrayIsSorted OrElse forceSort Then
                 RaiseEvent SortingList()
                 Try
-                    Dim comparer As New ProteinToPeptideMappingsComparerClass
+                    Dim comparer As New ProteinToPeptideMappingsComparer
                     Array.Sort(mMappings, 0, mMappingCount, comparer)
                 Catch
                     Throw
@@ -559,10 +559,10 @@ Friend Class clsProteinInfo
 
         End Function
 
-        Private Class ProteinToPeptideMappingsComparerClass
-            Implements IComparer(Of udtProteinToPeptideMappingType)
+        Private Class ProteinToPeptideMappingsComparer
+            Implements IComparer(Of ProteinToPeptideMappingEntry)
 
-            Public Function Compare(x As udtProteinToPeptideMappingType, y As udtProteinToPeptideMappingType) As Integer Implements IComparer(Of udtProteinToPeptideMappingType).Compare
+            Public Function Compare(x As ProteinToPeptideMappingEntry, y As ProteinToPeptideMappingEntry) As Integer Implements IComparer(Of ProteinToPeptideMappingEntry).Compare
 
                 ' Sort by ProteinID, then by PeptideID
 

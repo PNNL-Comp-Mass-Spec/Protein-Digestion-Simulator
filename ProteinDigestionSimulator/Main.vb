@@ -23,7 +23,7 @@ Imports PRISMWin
 Imports ProteinFileReader
 Imports DBUtils = PRISMDatabaseUtils.DataTableUtils
 
-Public Class frmMain
+Public Class Main
 
     ' Ignore Spelling: al, cbo, chk, combobox, ComputepI, const, CrLf, Cys, Da, diff, Eisenberg, Engleman
     ' Ignore Spelling: frm, gauging, Hopp, Hydrophobicity, Iodoacetamide, Iodoacetic, Kangas, Kostas, Kyte
@@ -37,15 +37,15 @@ Public Class frmMain
 
         ' Add any initialization after the InitializeComponent() call.
 
-        mDefaultFastaFileOptions = New clsParseProteinFile.FastaFileOptionsClass() With {
+        mDefaultFastaFileOptions = New ProteinFileParser.FastaFileParseOptions() With {
             .ReadonlyClass = True
             }
 
-        pICalculator = New clspICalculation()
+        pICalculator = New ComputePeptideProperties()
         NETCalculator = New ElutionTimePredictionKangas()
         SCXNETCalculator = New SCXElutionTimePredictionKangas()
 
-        mCleavageRuleComboboxIndexToType = New Dictionary(Of Integer, clsInSilicoDigest.CleavageRuleConstants)
+        mCleavageRuleComboboxIndexToType = New Dictionary(Of Integer, InSilicoDigest.CleavageRuleConstants)
 
         InitializeControls()
     End Sub
@@ -90,26 +90,26 @@ Public Class frmMain
         FiveMassThreeNET = 4
     End Enum
 
-    Private Structure udtPeakMatchingThresholdsType
+    Private Structure PeakMatchingThresholds
         Public MassTolerance As Double
         Public NETTolerance As Double
     End Structure
 
-    Private Structure udtPredefinedPMThresholdsType
-        Public MassTolType As clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants
-        Public Thresholds() As udtPeakMatchingThresholdsType
+    Private Structure PredefinedPMThresholds
+        Public MassTolType As PeakMatching.SearchThresholds.MassToleranceConstants
+        Public Thresholds() As PeakMatchingThresholds
     End Structure
 
     ' The following is used to lookup the default symbols for FASTA files, and should thus be treated as ReadOnly
-    Private ReadOnly mDefaultFastaFileOptions As clsParseProteinFile.FastaFileOptionsClass
+    Private ReadOnly mDefaultFastaFileOptions As ProteinFileParser.FastaFileParseOptions
 
     Private mPeakMatchingThresholdsDataset As DataSet
-    Private mPredefinedPMThresholds() As udtPredefinedPMThresholdsType
+    Private mPredefinedPMThresholds() As PredefinedPMThresholds
 
     Private mWorking As Boolean
     Private mCustomValidationRulesFilePath As String
 
-    Private ReadOnly pICalculator As clspICalculation
+    Private ReadOnly pICalculator As ComputePeptideProperties
 
     Private ReadOnly NETCalculator As ElutionTimePredictionKangas
 
@@ -118,17 +118,17 @@ Public Class frmMain
     ''' <summary>
     ''' Keys in this dictionary are the index in combobox cboCleavageRuleType, values are the cleavage rule enum for that index
     ''' </summary>
-    Private ReadOnly mCleavageRuleComboboxIndexToType As Dictionary(Of Integer, clsInSilicoDigest.CleavageRuleConstants)
+    Private ReadOnly mCleavageRuleComboboxIndexToType As Dictionary(Of Integer, InSilicoDigest.CleavageRuleConstants)
 
     Private mTabPageIndexSaved As Integer = 0
 
-    Private mFastaValidationOptions As frmFastaValidation.udtFastaValidationOptionsType
+    Private mFastaValidationOptions As FastaValidation.FastaValidationOptions
 
-    Private WithEvents mParseProteinFile As clsParseProteinFile
+    Private WithEvents mParseProteinFile As ProteinFileParser
 
-    Private WithEvents mProteinDigestionSimulator As clsProteinDigestionSimulator
+    Private WithEvents mProteinDigestionSimulator As DigestionSimulator
 
-    Private WithEvents mFastaValidation As frmFastaValidation
+    Private WithEvents mFastaValidation As FastaValidation
 
 
     Private Sub AbortProcessingNow()
@@ -169,9 +169,9 @@ Public Class frmMain
         End If
     End Sub
 
-    Private Sub AppendEnzymeToCleavageRuleCombobox(inSilicoDigest As clsInSilicoDigest, cleavageRuleId As clsInSilicoDigest.CleavageRuleConstants)
+    Private Sub AppendEnzymeToCleavageRuleCombobox(inSilicoDigest As InSilicoDigest, cleavageRuleId As InSilicoDigest.CleavageRuleConstants)
 
-        Dim cleavageRule As clsCleavageRule = Nothing
+        Dim cleavageRule As CleavageRule = Nothing
         inSilicoDigest.GetCleavageRuleById(cleavageRuleId, cleavageRule)
 
         If cleavageRule Is Nothing Then Return
@@ -194,12 +194,12 @@ Public Class frmMain
 
     Private Function AutoDefineOutputFileWork(inputFilePath As String) As String
 
-        Dim inputFileName = clsParseProteinFile.StripExtension(Path.GetFileName(inputFilePath), ".gz")
+        Dim inputFileName = ProteinFileParser.StripExtension(Path.GetFileName(inputFilePath), ".gz")
 
         Dim outputFileName As String
 
         If chkCreateFastaOutputFile.Enabled AndAlso chkCreateFastaOutputFile.Checked Then
-            If clsParseProteinFile.IsFastaFile(inputFilePath, True) Then
+            If ProteinFileParser.IsFastaFile(inputFilePath, True) Then
                 outputFileName = Path.GetFileNameWithoutExtension(inputFileName) & "_new.fasta"
             Else
                 outputFileName = Path.ChangeExtension(inputFileName, ".fasta")
@@ -220,25 +220,25 @@ Public Class frmMain
 
     End Function
 
-    Private Sub AutoPopulatePMThresholds(udtPredefinedThresholds As udtPredefinedPMThresholdsType, confirmReplaceExistingResults As Boolean)
+    Private Sub AutoPopulatePMThresholds(predefinedThresholds As PredefinedPMThresholds, confirmReplaceExistingResults As Boolean)
 
         Dim index As Integer
 
         If ClearPMThresholdsList(confirmReplaceExistingResults) Then
-            cboMassTolType.SelectedIndex = udtPredefinedThresholds.MassTolType
+            cboMassTolType.SelectedIndex = predefinedThresholds.MassTolType
 
-            For index = 0 To udtPredefinedThresholds.Thresholds.Length - 1
-                AddPMThresholdRow(udtPredefinedThresholds.Thresholds(index).MassTolerance, udtPredefinedThresholds.Thresholds(index).NETTolerance)
+            For index = 0 To predefinedThresholds.Thresholds.Length - 1
+                AddPMThresholdRow(predefinedThresholds.Thresholds(index).MassTolerance, predefinedThresholds.Thresholds(index).NETTolerance)
             Next index
 
         End If
 
     End Sub
 
-    Private Sub AutoPopulatePMThresholdsByID(ePredefinedPMThreshold As PredefinedPMThresholdsConstants, confirmReplaceExistingResults As Boolean)
+    Private Sub AutoPopulatePMThresholdsByID(predefinedPMThreshold As PredefinedPMThresholdsConstants, confirmReplaceExistingResults As Boolean)
 
         Try
-            AutoPopulatePMThresholds(mPredefinedPMThresholds(ePredefinedPMThreshold), confirmReplaceExistingResults)
+            AutoPopulatePMThresholds(mPredefinedPMThresholds(predefinedPMThreshold), confirmReplaceExistingResults)
         Catch ex As Exception
             ShowErrorMessage("Error calling AutoPopulatePMThresholds in AutoPopulatePMThresholdsByID: " & ex.Message, "Error")
         End Try
@@ -249,16 +249,16 @@ Public Class frmMain
         ' Returns true if the PM_THRESHOLDS_DATA_TABLE is empty or if it was cleared
         ' Returns false if the user is queried about clearing and they do not click Yes
 
-        Dim eResult As DialogResult
+        Dim result As DialogResult
         Dim success As Boolean
 
         success = False
         If mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE).Rows.Count > 0 Then
             If confirmReplaceExistingResults Then
-                eResult = MessageBox.Show("Are you sure you want to clear the thresholds?", "Clear Thresholds", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+                result = MessageBox.Show("Are you sure you want to clear the thresholds?", "Clear Thresholds", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
             End If
 
-            If eResult = DialogResult.Yes OrElse Not confirmReplaceExistingResults Then
+            If result = DialogResult.Yes OrElse Not confirmReplaceExistingResults Then
                 mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE).Rows.Clear()
                 success = True
             End If
@@ -281,7 +281,7 @@ Public Class frmMain
 
         If pICalculator IsNot Nothing Then
             If cboHydrophobicityMode.SelectedIndex >= 0 Then
-                pICalculator.HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, clspICalculation.eHydrophobicityTypeConstants)
+                pICalculator.HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, ComputePeptideProperties.HydrophobicityTypeConstants)
             End If
 
             pICalculator.ReportMaximumpI = chkMaxpIModeEnabled.Checked
@@ -338,7 +338,7 @@ Public Class frmMain
 
         ' All of the predefined thresholds have mass tolerances in units of PPM
         For index = 0 To PREDEFINED_PM_THRESHOLDS_COUNT - 1
-            mPredefinedPMThresholds(index).MassTolType = clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.PPM
+            mPredefinedPMThresholds(index).MassTolType = PeakMatching.SearchThresholds.MassToleranceConstants.PPM
             ReDim mPredefinedPMThresholds(index).Thresholds(-1)
         Next index
 
@@ -383,13 +383,13 @@ Public Class frmMain
 
     End Sub
 
-    Private Sub DefineDefaultPMThresholdAppendItem(ByRef udtPMThreshold As udtPredefinedPMThresholdsType, massTolerance As Double, netTolerance As Double)
+    Private Sub DefineDefaultPMThresholdAppendItem(ByRef pmThreshold As PredefinedPMThresholds, massTolerance As Double, netTolerance As Double)
 
-        Dim newIndex = udtPMThreshold.Thresholds.Length
-        ReDim Preserve udtPMThreshold.Thresholds(newIndex)
+        Dim newIndex = pmThreshold.Thresholds.Length
+        ReDim Preserve pmThreshold.Thresholds(newIndex)
 
-        udtPMThreshold.Thresholds(newIndex).MassTolerance = massTolerance
-        udtPMThreshold.Thresholds(newIndex).NETTolerance = netTolerance
+        pmThreshold.Thresholds(newIndex).MassTolerance = massTolerance
+        pmThreshold.Thresholds(newIndex).NETTolerance = netTolerance
     End Sub
 
     Private Sub EnableDisableControls()
@@ -398,7 +398,7 @@ Public Class frmMain
         Dim allowSqlServerCaching As Boolean
 
         Dim inputFilePath = GetProteinInputFilePath()
-        Dim sourceIsFasta = clsParseProteinFile.IsFastaFile(inputFilePath, True)
+        Dim sourceIsFasta = ProteinFileParser.IsFastaFile(inputFilePath, True)
 
         If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.DelimitedText Then
             enableDelimitedFileOptions = True
@@ -415,7 +415,7 @@ Public Class frmMain
         lblInputFileColumnDelimiter.Enabled = enableDelimitedFileOptions
         chkAssumeInputFileIsDigested.Enabled = enableDelimitedFileOptions
 
-        txtInputFileColumnDelimiter.Enabled = (cboInputFileColumnDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Other) AndAlso enableDelimitedFileOptions
+        txtInputFileColumnDelimiter.Enabled = (cboInputFileColumnDelimiter.SelectedIndex = ProteinFileParser.DelimiterCharConstants.Other) AndAlso enableDelimitedFileOptions
 
         enableDigestionOptions = chkDigestProteins.Checked
         If enableDigestionOptions Then
@@ -437,7 +437,7 @@ Public Class frmMain
         fraDigestionOptions.Enabled = enableDigestionOptions
         chkIncludePrefixAndSuffixResidues.Enabled = enableDigestionOptions
 
-        txtOutputFileFieldDelimiter.Enabled = (cboOutputFileFieldDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Other)
+        txtOutputFileFieldDelimiter.Enabled = (cboOutputFileFieldDelimiter.SelectedIndex = ProteinFileParser.DelimiterCharConstants.Other)
 
         enableDelimitedFileOptions = chkLookForAddnlRefInDescription.Checked
         txtAddnlRefSepChar.Enabled = enableDelimitedFileOptions
@@ -495,7 +495,7 @@ Public Class frmMain
                     Exit Try
                 End If
 
-                mProteinDigestionSimulator = New clsProteinDigestionSimulator()
+                mProteinDigestionSimulator = New DigestionSimulator()
                 If chkEnableLogging.Checked Then
                     mProteinDigestionSimulator.LogMessagesToFile = True
 
@@ -533,18 +533,18 @@ Public Class frmMain
                     End If
                 End If
 
-                Dim eMassToleranceType As clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants
+                Dim massToleranceType As PeakMatching.SearchThresholds.MassToleranceConstants
                 If cboMassTolType.SelectedIndex >= 0 Then
-                    eMassToleranceType = CType(cboMassTolType.SelectedIndex, clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants)
+                    massToleranceType = CType(cboMassTolType.SelectedIndex, PeakMatching.SearchThresholds.MassToleranceConstants)
                 End If
                 Dim autoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked
 
                 Dim clearExisting = True
                 For Each myDataRow As DataRow In mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE).Rows
                     If autoDefineSLiCScoreThresholds Then
-                        mProteinDigestionSimulator.AddSearchThresholdLevel(eMassToleranceType, CDbl(myDataRow.Item(0)), CDbl(myDataRow.Item(1)), clearExisting)
+                        mProteinDigestionSimulator.AddSearchThresholdLevel(massToleranceType, CDbl(myDataRow.Item(0)), CDbl(myDataRow.Item(1)), clearExisting)
                     Else
-                        mProteinDigestionSimulator.AddSearchThresholdLevel(eMassToleranceType, CDbl(myDataRow.Item(0)), CDbl(myDataRow.Item(1)), False, CDbl(myDataRow.Item(2)), CDbl(myDataRow.Item(3)), True, clearExisting)
+                        mProteinDigestionSimulator.AddSearchThresholdLevel(massToleranceType, CDbl(myDataRow.Item(0)), CDbl(myDataRow.Item(1)), False, CDbl(myDataRow.Item(2)), CDbl(myDataRow.Item(3)), True, clearExisting)
                     End If
 
                     clearExisting = False
@@ -553,7 +553,7 @@ Public Class frmMain
                 mProteinDigestionSimulator.DigestSequences = Not chkAssumeInputFileIsDigested.Checked
                 mProteinDigestionSimulator.CysPeptidesOnly = chkCysPeptidesOnly.Checked
                 If cboElementMassMode.SelectedIndex >= 0 Then
-                    mProteinDigestionSimulator.ElementMassMode = CType(cboElementMassMode.SelectedIndex, PeptideSequenceClass.ElementModeConstants)
+                    mProteinDigestionSimulator.ElementMassMode = CType(cboElementMassMode.SelectedIndex, PeptideSequence.ElementModeConstants)
                 End If
 
                 mProteinDigestionSimulator.AutoDetermineMassRangeForBinning = chkAutoComputeRangeForBinning.Checked
@@ -621,13 +621,13 @@ Public Class frmMain
         Return txtProteinInputFilePath.Text.Trim({""""c, " "c})
     End Function
 
-    Private Function GetSelectedCleavageRule() As clsInSilicoDigest.CleavageRuleConstants
+    Private Function GetSelectedCleavageRule() As InSilicoDigest.CleavageRuleConstants
 
         Dim selectedIndex = cboCleavageRuleType.SelectedIndex
-        Dim selectedCleavageRule = clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
+        Dim selectedCleavageRule = InSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
 
         If selectedIndex < 0 OrElse Not mCleavageRuleComboboxIndexToType.TryGetValue(selectedIndex, selectedCleavageRule) Then
-            Return clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
+            Return InSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
         End If
 
         Return selectedCleavageRule
@@ -640,12 +640,12 @@ Public Class frmMain
 
     Private Sub IniFileLoadOptions()
 
-        Const OptionsSection As String = clsParseProteinFile.XML_SECTION_OPTIONS
-        Const FASTAOptions As String = clsParseProteinFile.XML_SECTION_FASTA_OPTIONS
-        Const ProcessingOptions As String = clsParseProteinFile.XML_SECTION_PROCESSING_OPTIONS
-        Const DigestionOptions As String = clsParseProteinFile.XML_SECTION_DIGESTION_OPTIONS
-        Const UniquenessStatsOptions As String = clsParseProteinFile.XML_SECTION_UNIQUENESS_STATS_OPTIONS
-        Const PMOptions As String = clsProteinDigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS
+        Const OptionsSection As String = ProteinFileParser.XML_SECTION_OPTIONS
+        Const FASTAOptions As String = ProteinFileParser.XML_SECTION_FASTA_OPTIONS
+        Const ProcessingOptions As String = ProteinFileParser.XML_SECTION_PROCESSING_OPTIONS
+        Const DigestionOptions As String = ProteinFileParser.XML_SECTION_DIGESTION_OPTIONS
+        Const UniquenessStatsOptions As String = ProteinFileParser.XML_SECTION_UNIQUENESS_STATS_OPTIONS
+        Const PMOptions As String = DigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS
 
         Const MAX_AUTO_WINDOW_HEIGHT = 775
 
@@ -741,7 +741,7 @@ Public Class frmMain
                     If legacyCleavageRuleIndexSetting >= 0 Then
 
                         Try
-                            Dim cleavageRule = CType(legacyCleavageRuleIndexSetting, clsInSilicoDigest.CleavageRuleConstants)
+                            Dim cleavageRule = CType(legacyCleavageRuleIndexSetting, InSilicoDigest.CleavageRuleConstants)
                             SetSelectedCleavageRule(cleavageRule)
                         Catch ex As Exception
                             ' Ignore errors here
@@ -839,12 +839,12 @@ Public Class frmMain
 
     Private Sub IniFileSaveOptions(showFilePath As Boolean, Optional saveWindowDimensionsOnly As Boolean = False)
 
-        Const OptionsSection As String = clsParseProteinFile.XML_SECTION_OPTIONS
-        Const FASTAOptions As String = clsParseProteinFile.XML_SECTION_FASTA_OPTIONS
-        Const ProcessingOptions As String = clsParseProteinFile.XML_SECTION_PROCESSING_OPTIONS
-        Const DigestionOptions As String = clsParseProteinFile.XML_SECTION_DIGESTION_OPTIONS
-        Const UniquenessStatsOptions As String = clsParseProteinFile.XML_SECTION_UNIQUENESS_STATS_OPTIONS
-        Const PMOptions As String = clsProteinDigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS
+        Const OptionsSection As String = ProteinFileParser.XML_SECTION_OPTIONS
+        Const FASTAOptions As String = ProteinFileParser.XML_SECTION_FASTA_OPTIONS
+        Const ProcessingOptions As String = ProteinFileParser.XML_SECTION_PROCESSING_OPTIONS
+        Const DigestionOptions As String = ProteinFileParser.XML_SECTION_DIGESTION_OPTIONS
+        Const UniquenessStatsOptions As String = ProteinFileParser.XML_SECTION_UNIQUENESS_STATS_OPTIONS
+        Const PMOptions As String = DigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS
 
         Dim xmlSettings As New XmlSettingsFileAccessor()
         Dim settingsFilePath = GetSettingsFilePath()
@@ -1078,7 +1078,7 @@ Public Class frmMain
 
     End Sub
 
-    Private Function InitializeProteinFileParserGeneralOptions(ByRef parseProteinFile As clsParseProteinFile) As Boolean
+    Private Function InitializeProteinFileParserGeneralOptions(ByRef parseProteinFile As ProteinFileParser) As Boolean
         ' Returns true if all values were valid
 
         Dim invalidValue As Boolean
@@ -1118,7 +1118,7 @@ Public Class frmMain
         parseProteinFile.ExcludeProteinDescription = chkExcludeProteinDescription.Checked
 
         If cboHydrophobicityMode.SelectedIndex >= 0 Then
-            parseProteinFile.HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, clspICalculation.eHydrophobicityTypeConstants)
+            parseProteinFile.HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, ComputePeptideProperties.HydrophobicityTypeConstants)
         End If
 
         parseProteinFile.ReportMaximumpI = chkMaxpIModeEnabled.Checked
@@ -1153,11 +1153,11 @@ Public Class frmMain
         If invalidValue Then Return False
 
         If cboCysTreatmentMode.SelectedIndex >= 0 Then
-            parseProteinFile.DigestionOptions.CysTreatmentMode = CType(cboCysTreatmentMode.SelectedIndex, PeptideSequenceClass.CysTreatmentModeConstants)
+            parseProteinFile.DigestionOptions.CysTreatmentMode = CType(cboCysTreatmentMode.SelectedIndex, PeptideSequence.CysTreatmentModeConstants)
         End If
 
         If cboFragmentMassMode.SelectedIndex >= 0 Then
-            parseProteinFile.DigestionOptions.FragmentMassMode = CType(cboFragmentMassMode.SelectedIndex, clsInSilicoDigest.FragmentMassConstants)
+            parseProteinFile.DigestionOptions.FragmentMassMode = CType(cboFragmentMassMode.SelectedIndex, InSilicoDigest.FragmentMassConstants)
         End If
 
         parseProteinFile.DigestionOptions.RemoveDuplicateSequences = Not chkIncludeDuplicateSequences.Checked
@@ -1173,7 +1173,7 @@ Public Class frmMain
 
     Private Function LookupColumnDelimiter(delimiterCombobox As ListControl, delimiterTextBox As Control, defaultDelimiter As Char) As Char
         Try
-            Return clsParseProteinFile.LookupColumnDelimiterChar(delimiterCombobox.SelectedIndex, delimiterTextBox.Text, defaultDelimiter)
+            Return ProteinFileParser.LookupColumnDelimiterChar(delimiterCombobox.SelectedIndex, delimiterTextBox.Text, defaultDelimiter)
         Catch ex As Exception
             Return ControlChars.Tab
         End Try
@@ -1229,7 +1229,7 @@ Public Class frmMain
         If Not mWorking AndAlso ConfirmFilePaths() Then
             Try
                 If mParseProteinFile Is Nothing Then
-                    mParseProteinFile = New clsParseProteinFile
+                    mParseProteinFile = New ProteinFileParser
                 End If
 
                 success = InitializeProteinFileParserGeneralOptions(mParseProteinFile)
@@ -1238,7 +1238,7 @@ Public Class frmMain
                 mParseProteinFile.CreateProteinOutputFile = True
 
                 If cboProteinReversalOptions.SelectedIndex >= 0 Then
-                    mParseProteinFile.ProteinScramblingMode = CType(cboProteinReversalOptions.SelectedIndex, clsParseProteinFile.ProteinScramblingModeConstants)
+                    mParseProteinFile.ProteinScramblingMode = CType(cboProteinReversalOptions.SelectedIndex, ProteinFileParser.ProteinScramblingModeConstants)
                 End If
 
                 mParseProteinFile.ProteinScramblingSamplingPercentage = TextBoxUtils.ParseTextBoxValueInt(txtProteinReversalSamplingPercentage, "", False, 100, False)
@@ -1247,7 +1247,7 @@ Public Class frmMain
                 mParseProteinFile.CreateFastaOutputFile = chkCreateFastaOutputFile.Checked
 
                 If cboElementMassMode.SelectedIndex >= 0 Then
-                    mParseProteinFile.ElementMassMode = CType(cboElementMassMode.SelectedIndex, PeptideSequenceClass.ElementModeConstants)
+                    mParseProteinFile.ElementMassMode = CType(cboElementMassMode.SelectedIndex, PeptideSequence.ElementModeConstants)
                 End If
 
                 Cursor.Current = Cursors.WaitCursor
@@ -1430,17 +1430,17 @@ Public Class frmMain
             cboInputFileFormat.SelectedIndex = InputFileFormatConstants.AutoDetermine
 
             cboInputFileColumnDelimiter.Items.Clear()
-            cboInputFileColumnDelimiter.Items.Insert(clsParseProteinFile.DelimiterCharConstants.Space, "Space")
-            cboInputFileColumnDelimiter.Items.Insert(clsParseProteinFile.DelimiterCharConstants.Tab, "Tab")
-            cboInputFileColumnDelimiter.Items.Insert(clsParseProteinFile.DelimiterCharConstants.Comma, "Comma")
-            cboInputFileColumnDelimiter.Items.Insert(clsParseProteinFile.DelimiterCharConstants.Other, "Other")
-            cboInputFileColumnDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Tab
+            cboInputFileColumnDelimiter.Items.Insert(ProteinFileParser.DelimiterCharConstants.Space, "Space")
+            cboInputFileColumnDelimiter.Items.Insert(ProteinFileParser.DelimiterCharConstants.Tab, "Tab")
+            cboInputFileColumnDelimiter.Items.Insert(ProteinFileParser.DelimiterCharConstants.Comma, "Comma")
+            cboInputFileColumnDelimiter.Items.Insert(ProteinFileParser.DelimiterCharConstants.Other, "Other")
+            cboInputFileColumnDelimiter.SelectedIndex = ProteinFileParser.DelimiterCharConstants.Tab
 
             cboOutputFileFieldDelimiter.Items.Clear()
             For index = 0 To cboInputFileColumnDelimiter.Items.Count - 1
                 cboOutputFileFieldDelimiter.Items.Insert(index, cboInputFileColumnDelimiter.Items(index))
             Next
-            cboOutputFileFieldDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Space
+            cboOutputFileFieldDelimiter.SelectedIndex = ProteinFileParser.DelimiterCharConstants.Space
 
             cboInputFileColumnOrdering.Items.Clear()
             cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.SequenceOnly, "Sequence Only")
@@ -1455,33 +1455,33 @@ Public Class frmMain
             cboInputFileColumnOrdering.SelectedIndex = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence
 
             cboElementMassMode.Items.Clear()
-            cboElementMassMode.Items.Insert(PeptideSequenceClass.ElementModeConstants.AverageMass, "Average")
-            cboElementMassMode.Items.Insert(PeptideSequenceClass.ElementModeConstants.IsotopicMass, "Monoisotopic")
-            cboElementMassMode.SelectedIndex = PeptideSequenceClass.ElementModeConstants.IsotopicMass
+            cboElementMassMode.Items.Insert(PeptideSequence.ElementModeConstants.AverageMass, "Average")
+            cboElementMassMode.Items.Insert(PeptideSequence.ElementModeConstants.IsotopicMass, "Monoisotopic")
+            cboElementMassMode.SelectedIndex = PeptideSequence.ElementModeConstants.IsotopicMass
 
             cboProteinReversalOptions.Items.Clear()
-            cboProteinReversalOptions.Items.Insert(clsParseProteinFile.ProteinScramblingModeConstants.None, "Normal output")
-            cboProteinReversalOptions.Items.Insert(clsParseProteinFile.ProteinScramblingModeConstants.Reversed, "Reverse ORF sequences")
-            cboProteinReversalOptions.Items.Insert(clsParseProteinFile.ProteinScramblingModeConstants.Randomized, "Randomized ORF sequences")
-            cboProteinReversalOptions.SelectedIndex = clsParseProteinFile.ProteinScramblingModeConstants.None
+            cboProteinReversalOptions.Items.Insert(ProteinFileParser.ProteinScramblingModeConstants.None, "Normal output")
+            cboProteinReversalOptions.Items.Insert(ProteinFileParser.ProteinScramblingModeConstants.Reversed, "Reverse ORF sequences")
+            cboProteinReversalOptions.Items.Insert(ProteinFileParser.ProteinScramblingModeConstants.Randomized, "Randomized ORF sequences")
+            cboProteinReversalOptions.SelectedIndex = ProteinFileParser.ProteinScramblingModeConstants.None
 
-            Dim inSilicoDigest = New clsInSilicoDigest()
+            Dim inSilicoDigest = New InSilicoDigest()
             cboCleavageRuleType.Items.Clear()
             mCleavageRuleComboboxIndexToType.Clear()
 
             ' Add Trypsin rules first
-            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, clsInSilicoDigest.CleavageRuleConstants.NoRule)
-            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin)
-            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, clsInSilicoDigest.CleavageRuleConstants.TrypsinWithoutProlineException)
-            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, clsInSilicoDigest.CleavageRuleConstants.KROneEnd)
-            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, clsInSilicoDigest.CleavageRuleConstants.TrypsinPlusFVLEY)
-            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, clsInSilicoDigest.CleavageRuleConstants.TrypsinPlusLysC)
-            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, clsInSilicoDigest.CleavageRuleConstants.TrypsinPlusThermolysin)
+            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.NoRule)
+            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.ConventionalTrypsin)
+            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.TrypsinWithoutProlineException)
+            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.KROneEnd)
+            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.TrypsinPlusFVLEY)
+            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.TrypsinPlusLysC)
+            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.TrypsinPlusThermolysin)
 
             ' Add the remaining enzymes based on the description, but skip CleavageRuleConstants.EricPartialTrypsin
 
             ' Keys in this dictionary are cleavage rule enums, values are the rule description
-            Dim additionalRulesToAppend = New Dictionary(Of clsInSilicoDigest.CleavageRuleConstants, String)
+            Dim additionalRulesToAppend = New Dictionary(Of InSilicoDigest.CleavageRuleConstants, String)
 
             For Each cleavageRule In inSilicoDigest.CleavageRules
                 Dim cleavageRuleId = cleavageRule.Key
@@ -1491,18 +1491,18 @@ Public Class frmMain
             Next
 
             For Each ruleToAdd In (From item In additionalRulesToAppend Order By item.Value Select item.Key)
-                If ruleToAdd = clsInSilicoDigest.CleavageRuleConstants.EricPartialTrypsin Then Continue For
+                If ruleToAdd = InSilicoDigest.CleavageRuleConstants.EricPartialTrypsin Then Continue For
 
                 AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, ruleToAdd)
             Next
 
             ' Select the fully tryptic enzyme rule
-            SetSelectedCleavageRule(clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin)
+            SetSelectedCleavageRule(InSilicoDigest.CleavageRuleConstants.ConventionalTrypsin)
 
             cboMassTolType.Items.Clear()
-            cboMassTolType.Items.Insert(clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.PPM, "PPM")
-            cboMassTolType.Items.Insert(clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.Absolute, "Absolute (Da)")
-            cboMassTolType.SelectedIndex = clsPeakMatchingClass.clsSearchThresholds.MassToleranceConstants.PPM
+            cboMassTolType.Items.Insert(PeakMatching.SearchThresholds.MassToleranceConstants.PPM, "PPM")
+            cboMassTolType.Items.Insert(PeakMatching.SearchThresholds.MassToleranceConstants.Absolute, "Absolute (Da)")
+            cboMassTolType.SelectedIndex = PeakMatching.SearchThresholds.MassToleranceConstants.PPM
 
             cboPMPredefinedThresholds.Items.Clear()
             cboPMPredefinedThresholds.Items.Insert(PredefinedPMThresholdsConstants.OneMassOneNET, "5 ppm; 0.05 " & NET_UNITS)
@@ -1513,24 +1513,24 @@ Public Class frmMain
             cboPMPredefinedThresholds.SelectedIndex = PredefinedPMThresholdsConstants.OneMassOneNET
 
             cboHydrophobicityMode.Items.Clear()
-            cboHydrophobicityMode.Items.Insert(clspICalculation.eHydrophobicityTypeConstants.HW, "Hopp and Woods")
-            cboHydrophobicityMode.Items.Insert(clspICalculation.eHydrophobicityTypeConstants.KD, "Kyte and Doolittle")
-            cboHydrophobicityMode.Items.Insert(clspICalculation.eHydrophobicityTypeConstants.Eisenberg, "Eisenberg")
-            cboHydrophobicityMode.Items.Insert(clspICalculation.eHydrophobicityTypeConstants.GES, "Engleman et. al.")
-            cboHydrophobicityMode.Items.Insert(clspICalculation.eHydrophobicityTypeConstants.MeekPH7p4, "Meek pH 7.4")
-            cboHydrophobicityMode.Items.Insert(clspICalculation.eHydrophobicityTypeConstants.MeekPH2p1, "Meek pH 2.1")
-            cboHydrophobicityMode.SelectedIndex = clspICalculation.eHydrophobicityTypeConstants.HW
+            cboHydrophobicityMode.Items.Insert(ComputePeptideProperties.HydrophobicityTypeConstants.HW, "Hopp and Woods")
+            cboHydrophobicityMode.Items.Insert(ComputePeptideProperties.HydrophobicityTypeConstants.KD, "Kyte and Doolittle")
+            cboHydrophobicityMode.Items.Insert(ComputePeptideProperties.HydrophobicityTypeConstants.Eisenberg, "Eisenberg")
+            cboHydrophobicityMode.Items.Insert(ComputePeptideProperties.HydrophobicityTypeConstants.GES, "Engleman et. al.")
+            cboHydrophobicityMode.Items.Insert(ComputePeptideProperties.HydrophobicityTypeConstants.MeekPH7p4, "Meek pH 7.4")
+            cboHydrophobicityMode.Items.Insert(ComputePeptideProperties.HydrophobicityTypeConstants.MeekPH2p1, "Meek pH 2.1")
+            cboHydrophobicityMode.SelectedIndex = ComputePeptideProperties.HydrophobicityTypeConstants.HW
 
             cboCysTreatmentMode.Items.Clear()
-            cboCysTreatmentMode.Items.Insert(PeptideSequenceClass.CysTreatmentModeConstants.Untreated, "Untreated")
-            cboCysTreatmentMode.Items.Insert(PeptideSequenceClass.CysTreatmentModeConstants.Iodoacetamide, "Iodoacetamide (+57.02)")
-            cboCysTreatmentMode.Items.Insert(PeptideSequenceClass.CysTreatmentModeConstants.IodoaceticAcid, "Iodoacetic Acid (+58.01)")
-            cboCysTreatmentMode.SelectedIndex = PeptideSequenceClass.CysTreatmentModeConstants.Untreated
+            cboCysTreatmentMode.Items.Insert(PeptideSequence.CysTreatmentModeConstants.Untreated, "Untreated")
+            cboCysTreatmentMode.Items.Insert(PeptideSequence.CysTreatmentModeConstants.Iodoacetamide, "Iodoacetamide (+57.02)")
+            cboCysTreatmentMode.Items.Insert(PeptideSequence.CysTreatmentModeConstants.IodoaceticAcid, "Iodoacetic Acid (+58.01)")
+            cboCysTreatmentMode.SelectedIndex = PeptideSequence.CysTreatmentModeConstants.Untreated
 
             cboFragmentMassMode.Items.Clear()
-            cboFragmentMassMode.Items.Insert(clsInSilicoDigest.FragmentMassConstants.Monoisotopic, "Monoisotopic")
-            cboFragmentMassMode.Items.Insert(clsInSilicoDigest.FragmentMassConstants.MH, "M+H")
-            cboFragmentMassMode.SelectedIndex = clsInSilicoDigest.FragmentMassConstants.Monoisotopic
+            cboFragmentMassMode.Items.Insert(InSilicoDigest.FragmentMassConstants.Monoisotopic, "Monoisotopic")
+            cboFragmentMassMode.Items.Insert(InSilicoDigest.FragmentMassConstants.MH, "M+H")
+            cboFragmentMassMode.SelectedIndex = InSilicoDigest.FragmentMassConstants.Monoisotopic
 
         Catch ex As Exception
             ShowErrorMessage("Error initializing the combo boxes: " & ex.Message)
@@ -1553,18 +1553,18 @@ Public Class frmMain
     End Sub
 
     Private Sub ResetToDefaults(confirm As Boolean)
-        Dim eResponse As DialogResult
+        Dim response As DialogResult
 
         If confirm Then
-            eResponse = MessageBox.Show("Are you sure you want to reset all settings to their default values?", "Reset to Defaults", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
-            If eResponse <> DialogResult.Yes Then Exit Sub
+            response = MessageBox.Show("Are you sure you want to reset all settings to their default values?", "Reset to Defaults", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
+            If response <> DialogResult.Yes Then Exit Sub
         End If
 
         cboInputFileFormat.SelectedIndex = InputFileFormatConstants.AutoDetermine
-        cboInputFileColumnDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Tab
+        cboInputFileColumnDelimiter.SelectedIndex = ProteinFileParser.DelimiterCharConstants.Tab
         txtInputFileColumnDelimiter.Text = ";"c
 
-        cboOutputFileFieldDelimiter.SelectedIndex = clsParseProteinFile.DelimiterCharConstants.Tab
+        cboOutputFileFieldDelimiter.SelectedIndex = ProteinFileParser.DelimiterCharConstants.Tab
         txtOutputFileFieldDelimiter.Text = ";"c
 
         chkEnableLogging.Checked = False
@@ -1577,7 +1577,7 @@ Public Class frmMain
 
         chkExcludeProteinSequence.Checked = False
         chkComputeProteinMass.Checked = False
-        cboElementMassMode.SelectedIndex = PeptideSequenceClass.ElementModeConstants.IsotopicMass
+        cboElementMassMode.SelectedIndex = PeptideSequence.ElementModeConstants.IsotopicMass
 
         chkComputepIandNET.Checked = False
         chkIncludeXResidues.Checked = False
@@ -1587,16 +1587,16 @@ Public Class frmMain
         chkTruncateProteinDescription.Checked = True
         chkExcludeProteinDescription.Checked = False
 
-        cboHydrophobicityMode.SelectedIndex = clspICalculation.eHydrophobicityTypeConstants.HW
+        cboHydrophobicityMode.SelectedIndex = ComputePeptideProperties.HydrophobicityTypeConstants.HW
         chkMaxpIModeEnabled.Checked = False
         txtMaxpISequenceLength.Text = "10"
 
         chkDigestProteins.Checked = False
-        cboProteinReversalOptions.SelectedIndex = clsParseProteinFile.ProteinScramblingModeConstants.None
+        cboProteinReversalOptions.SelectedIndex = ProteinFileParser.ProteinScramblingModeConstants.None
         txtProteinReversalSamplingPercentage.Text = "100"
         txtProteinScramblingLoopCount.Text = "1"
 
-        SetSelectedCleavageRule(clsInSilicoDigest.CleavageRuleConstants.ConventionalTrypsin)
+        SetSelectedCleavageRule(InSilicoDigest.CleavageRuleConstants.ConventionalTrypsin)
 
         chkIncludeDuplicateSequences.Checked = False
         chkCysPeptidesOnly.Checked = False
@@ -1728,7 +1728,7 @@ Public Class frmMain
     End Sub
 
     Private Sub SetSelectedCleavageRule(cleavageRuleName As String)
-        Dim cleavageRule As clsInSilicoDigest.CleavageRuleConstants
+        Dim cleavageRule As InSilicoDigest.CleavageRuleConstants
 
         If [Enum].TryParse(cleavageRuleName, True, cleavageRule) Then
             SetSelectedCleavageRule(cleavageRule)
@@ -1736,7 +1736,7 @@ Public Class frmMain
 
     End Sub
 
-    Private Sub SetSelectedCleavageRule(cleavageRule As clsInSilicoDigest.CleavageRuleConstants)
+    Private Sub SetSelectedCleavageRule(cleavageRule As InSilicoDigest.CleavageRuleConstants)
 
         Dim query = From item In mCleavageRuleComboboxIndexToType
                     Where item.Value = cleavageRule
@@ -1759,7 +1759,7 @@ Public Class frmMain
         message.AppendLine("E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov")
         message.AppendLine("Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/")
         message.AppendLine()
-        message.AppendLine(frmDisclaimer.GetKangasPetritisDisclaimerText())
+        message.AppendLine(Disclaimer.GetKangasPetritisDisclaimerText())
         message.AppendLine()
         message.AppendLine("Licensed under the 2-Clause BSD License; https://opensource.org/licenses/BSD-2-Clause")
         message.AppendLine()
@@ -1866,7 +1866,7 @@ Public Class frmMain
                 Exit Sub
             End Try
 
-            Dim splashForm As New frmDisclaimer
+            Dim splashForm As New Disclaimer
             splashForm.ShowDialog()
 
         End If
@@ -1892,7 +1892,7 @@ Public Class frmMain
     End Sub
 
     Private Sub UpdatePeptideUniquenessMassMode()
-        If cboElementMassMode.SelectedIndex = PeptideSequenceClass.ElementModeConstants.AverageMass Then
+        If cboElementMassMode.SelectedIndex = PeptideSequence.ElementModeConstants.AverageMass Then
             lblPeptideUniquenessMassMode.Text = "Using average masses"
         Else
             lblPeptideUniquenessMassMode.Text = "Using monoisotopic masses"
@@ -1909,7 +1909,7 @@ Public Class frmMain
                 ShowErrorMessage("File not found: " & fastaFilePath, "Error")
             Else
                 If mFastaValidation Is Nothing Then
-                    mFastaValidation = New frmFastaValidation(fastaFilePath)
+                    mFastaValidation = New FastaValidation(fastaFilePath)
                 Else
                     mFastaValidation.SetNewFastaFile(fastaFilePath)
                 End If
@@ -1946,7 +1946,7 @@ Public Class frmMain
 
     End Sub
 
-    Private Function ValidateSqlServerCachingOptionsForInputFile(inputFilePath As String, assumeDigested As Boolean, ByRef proteinFileParser As clsParseProteinFile) As Boolean
+    Private Function ValidateSqlServerCachingOptionsForInputFile(inputFilePath As String, assumeDigested As Boolean, ByRef proteinFileParser As ProteinFileParser) As Boolean
         ' Returns True if the user OK's or updates the current Sql Server caching options
         ' Returns False if the user cancels processing
         ' Assumes that inputFilePath exists, and thus does not have a Try-Catch block
@@ -1958,15 +1958,15 @@ Public Class frmMain
         Dim suggestEnableSqlServer = False
         Dim suggestDisableSqlServer = False
 
-        Dim isFastaFile = clsParseProteinFile.IsFastaFile(inputFilePath, True) OrElse proteinFileParser.AssumeFastaFile
+        Dim isFastaFile = ProteinFileParser.IsFastaFile(inputFilePath, True) OrElse proteinFileParser.AssumeFastaFile
 
         ' Lookup the file size
         Dim inputFile = New FileInfo(inputFilePath)
         Dim fileSizeKB = CType(inputFile.Length / 1024.0, Integer)
 
         If isFastaFile Then
-            If proteinFileParser.DigestionOptions.CleavageRuleID = clsInSilicoDigest.CleavageRuleConstants.KROneEnd OrElse
-               proteinFileParser.DigestionOptions.CleavageRuleID = clsInSilicoDigest.CleavageRuleConstants.NoRule Then
+            If proteinFileParser.DigestionOptions.CleavageRuleID = InSilicoDigest.CleavageRuleConstants.KROneEnd OrElse
+               proteinFileParser.DigestionOptions.CleavageRuleID = InSilicoDigest.CleavageRuleConstants.NoRule Then
                 suggestEnableSqlServer = True
             ElseIf fileSizeKB > 500 Then
                 suggestEnableSqlServer = True
@@ -2018,17 +2018,17 @@ Public Class frmMain
 
         Dim proceed As Boolean
         If suggestEnableSqlServer AndAlso Not chkUseSqlServerDBToCacheData.Checked Then
-            Dim eResponse = MessageBox.Show("Warning, memory usage could be quite large.  Enable Sql Server caching using Server " & txtSqlServerName.Text & "?  If no, then will continue using memory caching.", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
-            If eResponse = DialogResult.Yes Then chkUseSqlServerDBToCacheData.Checked = True
-            If eResponse = DialogResult.Cancel Then
+            Dim response = MessageBox.Show("Warning, memory usage could be quite large.  Enable Sql Server caching using Server " & txtSqlServerName.Text & "?  If no, then will continue using memory caching.", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
+            If response = DialogResult.Yes Then chkUseSqlServerDBToCacheData.Checked = True
+            If response = DialogResult.Cancel Then
                 proceed = False
             Else
                 proceed = True
             End If
         ElseIf suggestDisableSqlServer AndAlso chkUseSqlServerDBToCacheData.Checked Then
-            Dim eResponse = MessageBox.Show("Memory usage is expected to be minimal.  Continue caching data using Server " & txtSqlServerName.Text & "?  If no, then will switch to using memory caching.", "Note", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
-            If eResponse = DialogResult.No Then chkUseSqlServerDBToCacheData.Checked = False
-            If eResponse = DialogResult.Cancel Then
+            Dim response = MessageBox.Show("Memory usage is expected to be minimal.  Continue caching data using Server " & txtSqlServerName.Text & "?  If no, then will switch to using memory caching.", "Note", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
+            If response = DialogResult.No Then chkUseSqlServerDBToCacheData.Checked = False
+            If response = DialogResult.Cancel Then
                 proceed = False
             Else
                 proceed = True

@@ -1,6 +1,6 @@
 ﻿Imports System.Text
 
-Public Class clsCleavageRule
+Public Class CleavageRule
 
     ''' <summary>
     ''' Cleavage rule description
@@ -34,7 +34,7 @@ Public Class clsCleavageRule
     ''' Additional cleavage rules to also consider when checking for cleavage points in a peptide
     ''' </summary>
     ''' <returns></returns>
-    Public ReadOnly Property AdditionalCleavageRules As List(Of clsCleavageRule)
+    Public ReadOnly Property AdditionalCleavageRules As List(Of CleavageRule)
 
     ''' <summary>
     ''' Constructor
@@ -50,7 +50,7 @@ Public Class clsCleavageRule
         exceptionResidueList As String,
         reversedCleavage As Boolean,
         Optional allowPartial As Boolean = False,
-        Optional additionalRules As IReadOnlyCollection(Of clsCleavageRule) = Nothing)
+        Optional additionalRules As IReadOnlyCollection(Of CleavageRule) = Nothing)
 
         Description = ruleDescription
         CleavageResidues = cleavageResidueList
@@ -58,7 +58,7 @@ Public Class clsCleavageRule
         ReversedCleavageDirection = reversedCleavage
         AllowPartialCleavage = allowPartial
 
-        AdditionalCleavageRules = New List(Of clsCleavageRule)
+        AdditionalCleavageRules = New List(Of CleavageRule)
 
         If additionalRules Is Nothing OrElse additionalRules.Count = 0 Then
             Exit Sub

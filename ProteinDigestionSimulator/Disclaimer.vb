@@ -1,6 +1,6 @@
 Option Strict On
 
-Public Class frmDisclaimer
+Public Class Disclaimer
     Inherits System.Windows.Forms.Form
 
 #Region " Windows Form Designer generated code "

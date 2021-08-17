@@ -6,7 +6,7 @@ Imports System.Runtime.InteropServices
 ''' This class can be used to calculate the mass of an amino acid sequence (peptide or protein)
 ''' The protein must be in one letter abbreviation format
 ''' </summary>
-Public Class PeptideSequenceClass
+Public Class PeptideSequence
 
     ''' <summary>
     ''' Constructor
@@ -58,7 +58,7 @@ Public Class PeptideSequenceClass
         IsotopicMass = 1
     End Enum
 
-    Private Structure udtTerminusType
+    Private Structure TerminusInfo
         Public Formula As String
         Public Mass As Double
         Public MassElementMode As ElementModeConstants
@@ -111,19 +111,19 @@ Public Class PeptideSequenceClass
     ''' <remarks>Auto-updated when mCurrentElementMode is updated</remarks>
     Private Shared mIodoaceticAcidMass As Double
 
-    Private Shared mTrypticCleavageRule As clsCleavageRule
+    Private Shared mTrypticCleavageRule As CleavageRule
 
     Private mResidues As String
 
     ''' <summary>
     ''' Formula on the N-Terminus
     ''' </summary>
-    Private mNTerminus As udtTerminusType
+    Private mNTerminus As TerminusInfo
 
     ''' <summary>
     ''' Formula on the C-Terminus
     ''' </summary>
-    Private mCTerminus As udtTerminusType
+    Private mCTerminus As TerminusInfo
 
     Private mTotalMass As Double
     Private mTotalMassElementMode As ElementModeConstants
@@ -255,7 +255,7 @@ Public Class PeptideSequenceClass
     ''' <remarks>Returns True if sequence doesn't contain any periods, and thus, can't be examined</remarks>
     Public Function CheckSequenceAgainstCleavageRule(
         sequence As String,
-        cleavageRule As clsCleavageRule,
+        cleavageRule As CleavageRule,
         <Out> ByRef ruleMatchCount As Integer,
         Optional separationChar As String = ".",
         Optional terminiiSymbol As Char = TERMINII_SYMBOL,
@@ -490,7 +490,7 @@ Public Class PeptideSequenceClass
         Optional addSpaceEvery10Residues As Boolean = False,
         Optional separateResiduesWithDash As Boolean = False) As String
 
-        Dim peptide As New PeptideSequenceClass()
+        Dim peptide As New PeptideSequence()
         Dim prefix As String = String.Empty
         Dim suffix As String = String.Empty
 
@@ -698,7 +698,7 @@ Public Class PeptideSequenceClass
     Public Function GetTrypticName(
         proteinResidues As String,
         peptideResidues As String,
-        cleavageRule As clsCleavageRule,
+        cleavageRule As CleavageRule,
         <Out> Optional ByRef returnResidueStart As Integer = 0,
         <Out> Optional ByRef returnResidueEnd As Integer = 0,
         Optional icr2LSCompatible As Boolean = False,
@@ -863,7 +863,7 @@ Public Class PeptideSequenceClass
     Public Function GetTrypticNameMultipleMatches(
         proteinResidues As String,
         peptideResidues As String,
-        cleavageRule As clsCleavageRule,
+        cleavageRule As CleavageRule,
         <Out> Optional ByRef returnMatchCount As Integer = 1,
         <Out> Optional ByRef returnResidueStart As Integer = 0,
         <Out> Optional ByRef returnResidueEnd As Integer = 0,
@@ -924,7 +924,7 @@ Public Class PeptideSequenceClass
       searchResidues As String,
       residueFollowingSearchResidues As String,
       startResidueNum As Integer,
-      cleavageRule As clsCleavageRule,
+      cleavageRule As CleavageRule,
       Optional terminiiSymbol As Char = TERMINII_SYMBOL) As Integer
 
 
@@ -1048,7 +1048,7 @@ Public Class PeptideSequenceClass
     Public Function GetTrypticPeptideNext(
         proteinResidues As String,
         searchStartLoc As Integer,
-        cleavageRule As clsCleavageRule,
+        cleavageRule As CleavageRule,
         <Out> ByRef returnResidueStart As Integer,
         <Out> ByRef returnResidueEnd As Integer,
         Optional terminiiSymbol As Char = TERMINII_SYMBOL) As String
@@ -1106,7 +1106,7 @@ Public Class PeptideSequenceClass
     Public Function GetTrypticPeptideByFragmentNumber(
         proteinResidues As String,
         desiredPeptideNumber As Integer,
-        cleavageRule As clsCleavageRule,
+        cleavageRule As CleavageRule,
         <Out> Optional ByRef returnResidueStart As Integer = 0,
         <Out> Optional ByRef returnResidueEnd As Integer = 0,
         Optional terminiiSymbol As Char = TERMINII_SYMBOL,
@@ -1180,7 +1180,7 @@ Public Class PeptideSequenceClass
     End Function
 
     Private Function FindNextCleavageResidue(
-      cleavageRule As clsCleavageRule,
+      cleavageRule As CleavageRule,
       charIndexInCleavageResidues As Integer,
       searchResidues As String,
       startResidueNum As Integer,
@@ -1203,7 +1203,7 @@ Public Class PeptideSequenceClass
     End Function
 
     Private Function IsMatchToExceptionResidue(
-      cleavageRule As clsCleavageRule,
+      cleavageRule As CleavageRule,
       searchResidues As String,
       residueFollowingSearchResidues As String,
       cleavedResidueIndex As Integer,
@@ -1297,7 +1297,7 @@ Public Class PeptideSequenceClass
 
     End Sub
 
-    Private Function ResiduesMatchCleavageRule(testResidue As Char, exceptionResidue As Char, cleavageRule As clsCleavageRule) As Boolean
+    Private Function ResiduesMatchCleavageRule(testResidue As Char, exceptionResidue As Char, cleavageRule As CleavageRule) As Boolean
 
         If CheckSequenceAgainstCleavageRuleMatchTestResidue(testResidue, cleavageRule.CleavageResidues) Then
             ' Match found
@@ -1351,15 +1351,15 @@ Public Class PeptideSequenceClass
     ''' <summary>
     ''' Define the C-terminus using an enum in CTerminusGroupConstants
     ''' </summary>
-    ''' <param name="eCTerminusGroup"></param>
+    ''' <param name="cTerminusGroup"></param>
     ''' <param name="followingResidue"></param>
     ''' <param name="use3LetterCode"></param>
     ''' <returns>0 if success; 1 if error</returns>
-    Public Function SetCTerminusGroup(eCTerminusGroup As CTerminusGroupConstants, Optional followingResidue As String = "", Optional use3LetterCode As Boolean = False) As Integer
+    Public Function SetCTerminusGroup(cTerminusGroup As CTerminusGroupConstants, Optional followingResidue As String = "", Optional use3LetterCode As Boolean = False) As Integer
 
         Dim errorCode As Integer
 
-        Select Case eCTerminusGroup
+        Select Case cTerminusGroup
             Case CTerminusGroupConstants.Hydroxyl : errorCode = SetCTerminus("OH", followingResidue, use3LetterCode)
             Case CTerminusGroupConstants.Amide : errorCode = SetCTerminus("NH2", followingResidue, use3LetterCode)
             Case CTerminusGroupConstants.None : errorCode = SetCTerminus(String.Empty, followingResidue, use3LetterCode)
@@ -1415,15 +1415,15 @@ Public Class PeptideSequenceClass
     ''' <summary>
     ''' Define the N-terminus using an enum in NTerminusGroupConstants
     ''' </summary>
-    ''' <param name="eNTerminusGroup"></param>
+    ''' <param name="nTerminusGroup"></param>
     ''' <param name="precedingResidue"></param>
     ''' <param name="use3LetterCode"></param>
     ''' <returns>0 if success; 1 if error</returns>
-    Public Function SetNTerminusGroup(eNTerminusGroup As NTerminusGroupConstants, Optional precedingResidue As String = "", Optional use3LetterCode As Boolean = False) As Integer
+    Public Function SetNTerminusGroup(nTerminusGroup As NTerminusGroupConstants, Optional precedingResidue As String = "", Optional use3LetterCode As Boolean = False) As Integer
 
         Dim errorCode As Integer
 
-        Select Case eNTerminusGroup
+        Select Case nTerminusGroup
             Case NTerminusGroupConstants.Hydrogen : errorCode = SetNTerminus("H", precedingResidue, use3LetterCode)
             Case NTerminusGroupConstants.HydrogenPlusProton : errorCode = SetNTerminus("HH", precedingResidue, use3LetterCode)
             Case NTerminusGroupConstants.Acetyl : errorCode = SetNTerminus("C2OH3", precedingResidue, use3LetterCode)
@@ -1443,8 +1443,8 @@ Public Class PeptideSequenceClass
     ''' Define the peptide sequence
     ''' </summary>
     ''' <param name="sequence">Peptide or protein amino acid symbols</param>
-    ''' <param name="eNTerminus">N-terminus type</param>
-    ''' <param name="eCTerminus">C-terminus type</param>
+    ''' <param name="nTerminus">N-terminus type</param>
+    ''' <param name="cTerminus">C-terminus type</param>
     ''' <param name="is3LetterCode">When true, sequence uses 3 letter amino acid symbols</param>
     ''' <param name="oneLetterCheckForPrefixAndSuffixResidues">
     ''' When true, if the sequence has prefix and suffix letters, they are removed
@@ -1461,8 +1461,8 @@ Public Class PeptideSequenceClass
     ''' <remarks>Calls UpdateSequenceMass</remarks>
     Public Overridable Function SetSequence(
       sequence As String,
-      Optional eNTerminus As NTerminusGroupConstants = NTerminusGroupConstants.Hydrogen,
-      Optional eCTerminus As CTerminusGroupConstants = CTerminusGroupConstants.Hydroxyl,
+      Optional nTerminus As NTerminusGroupConstants = NTerminusGroupConstants.Hydrogen,
+      Optional cTerminus As CTerminusGroupConstants = CTerminusGroupConstants.Hydroxyl,
       Optional is3LetterCode As Boolean = False,
       Optional oneLetterCheckForPrefixAndSuffixResidues As Boolean = True,
       Optional threeLetterCheckForPrefixHandSuffixOH As Boolean = True) As Integer
@@ -1535,8 +1535,8 @@ Public Class PeptideSequenceClass
         ' By calling SetNTerminus and SetCTerminus, the UpdateSequenceMass() Sub will also be called
         ' We don't want to compute the mass yet
         mDelayUpdateResidueMass = True
-        SetNTerminusGroup(eNTerminus)
-        SetCTerminusGroup(eCTerminus)
+        SetNTerminusGroup(nTerminus)
+        SetCTerminusGroup(cTerminus)
 
         mDelayUpdateResidueMass = False
         UpdateSequenceMass()
@@ -1715,7 +1715,7 @@ Public Class PeptideSequenceClass
 
         UpdateStandardMasses()
 
-        mTrypticCleavageRule = New clsCleavageRule("Fully Tryptic", TRYPTIC_RULE_RESIDUES, TRYPTIC_EXCEPTION_RESIDUES, False)
+        mTrypticCleavageRule = New CleavageRule("Fully Tryptic", TRYPTIC_RULE_RESIDUES, TRYPTIC_EXCEPTION_RESIDUES, False)
 
     End Sub
 

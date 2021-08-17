@@ -2,7 +2,7 @@ Option Strict On
 
 Imports System.Runtime.InteropServices
 
-Public Class clsPeakMatchingClass
+Public Class PeakMatching
 
     ' Ignore Spelling: Da, Sql, tol
 
@@ -22,14 +22,14 @@ Public Class clsPeakMatchingClass
         Health = 3
     End Enum
 
-    Public Structure udtFeatureInfoType
+    Public Structure FeatureInfo
         Public FeatureID As Int32                                   ' Each feature should have a unique ID
         Public FeatureName As String                                ' Optional
         Public Mass As Double
         Public NET As Single
     End Structure
 
-    Private Structure udtPeakMatchingRawMatchesType
+    Private Structure PeakMatchingRawMatches
         Public MatchingIDIndex As Integer               ' Pointer into comparison features (RowIndex in PMComparisonFeatureInfo)
         Public StandardizedSquaredDistance As Double
         Public SLiCScoreNumerator As Double
@@ -39,16 +39,16 @@ Public Class clsPeakMatchingClass
         Public NETErr As Double                         ' Observed difference (error) between comparison NET and feature NET
     End Structure
 
-    Private Structure udtSearchModeOptionsType
+    Private Structure SearchModeOptions
         Public UseMaxSearchDistanceMultiplierAndSLiCScore As Boolean
         Public UseEllipseSearchRegion As Boolean        ' Only valid if UseMaxSearchDistanceMultiplierAndSLiCScore = False; if both UseMaxSearchDistanceMultiplierAndSLiCScore = False and UseEllipseSearchRegion = False, then uses a rectangle for peak matching
     End Structure
 
-    Friend Class PMFeatureInfoClass
+    Friend Class PMFeatureInfo
 
         Protected Const MEMORY_RESERVE_CHUNK As Integer = 100000
         Protected mFeatureCount As Integer
-        Protected mFeatures() As udtFeatureInfoType
+        Protected mFeatures() As FeatureInfo
         Protected mFeaturesArrayIsSorted As Boolean
 
         Protected mUseFeatureIDHashTable As Boolean
@@ -61,8 +61,8 @@ Public Class clsPeakMatchingClass
             Me.Clear()
         End Sub
 
-        Public Overridable Function Add(ByRef udtFeatureInfo As udtFeatureInfoType) As Boolean
-            Return Add(udtFeatureInfo.FeatureID, udtFeatureInfo.FeatureName, udtFeatureInfo.Mass, udtFeatureInfo.NET)
+        Public Overridable Function Add(ByRef featureInfo As FeatureInfo) As Boolean
+            Return Add(featureInfo.FeatureID, featureInfo.FeatureName, featureInfo.Mass, featureInfo.NET)
         End Function
 
         Public Overridable Function Add(featureID As Integer, peptideName As String, peptideMass As Double, peptideNET As Single) As Boolean
@@ -195,7 +195,7 @@ Public Class clsPeakMatchingClass
             End Get
         End Property
 
-        Public Overridable Function GetFeatureInfoByFeatureID(featureID As Integer, ByRef udtFeatureInfo As udtFeatureInfoType) As Boolean
+        Public Overridable Function GetFeatureInfoByFeatureID(featureID As Integer, ByRef featureInfo As FeatureInfo) As Boolean
             ' Return the feature info for featureID
 
 
@@ -204,28 +204,28 @@ Public Class clsPeakMatchingClass
             Dim matchFound = Me.ContainsFeature(featureID, rowIndex)
 
             If matchFound Then
-                udtFeatureInfo = mFeatures(rowIndex)
+                featureInfo = mFeatures(rowIndex)
                 Return True
             Else
-                udtFeatureInfo.FeatureID = 0
-                udtFeatureInfo.FeatureName = String.Empty
-                udtFeatureInfo.Mass = 0
-                udtFeatureInfo.NET = 0
+                featureInfo.FeatureID = 0
+                featureInfo.FeatureName = String.Empty
+                featureInfo.Mass = 0
+                featureInfo.NET = 0
 
                 Return False
             End If
         End Function
 
-        Public Overridable Function GetFeatureInfoByRowIndex(rowIndex As Integer, ByRef udtFeatureInfo As udtFeatureInfoType) As Boolean
+        Public Overridable Function GetFeatureInfoByRowIndex(rowIndex As Integer, ByRef featureInfo As FeatureInfo) As Boolean
 
             If rowIndex >= 0 AndAlso rowIndex < mFeatureCount Then
-                udtFeatureInfo = mFeatures(rowIndex)
+                featureInfo = mFeatures(rowIndex)
                 Return True
             Else
-                udtFeatureInfo.FeatureID = 0
-                udtFeatureInfo.FeatureName = String.Empty
-                udtFeatureInfo.Mass = 0
-                udtFeatureInfo.NET = 0
+                featureInfo.FeatureID = 0
+                featureInfo.FeatureName = String.Empty
+                featureInfo.Mass = 0
+                featureInfo.NET = 0
 
                 Return False
             End If
@@ -280,7 +280,7 @@ Public Class clsPeakMatchingClass
             If Not mFeaturesArrayIsSorted OrElse forceSort Then
                 RaiseEvent SortingList()
                 Try
-                    Dim comparer As New FeatureInfoComparerClass
+                    Dim comparer As New FeatureInfoComparer
                     Array.Sort(mFeatures, 0, mFeatureCount, comparer)
                 Catch ex As Exception
                     Throw
@@ -302,10 +302,10 @@ Public Class clsPeakMatchingClass
             End Set
         End Property
 
-        Private Class FeatureInfoComparerClass
-            Implements IComparer(Of udtFeatureInfoType)
+        Private Class FeatureInfoComparer
+            Implements IComparer(Of FeatureInfo)
 
-            Public Function Compare(x As udtFeatureInfoType, y As udtFeatureInfoType) As Integer Implements IComparer(Of udtFeatureInfoType).Compare
+            Public Function Compare(x As FeatureInfo, y As FeatureInfo) As Integer Implements IComparer(Of FeatureInfo).Compare
 
                 ' Sort by Feature ID, ascending
 
@@ -322,22 +322,22 @@ Public Class clsPeakMatchingClass
         End Class
     End Class
 
-    Friend Class PMComparisonFeatureInfoClass
-        Inherits PMFeatureInfoClass
+    Friend Class PMComparisonFeatureInfo
+        Inherits PMFeatureInfo
 
-        Protected Structure udtComparisonFeatureInfoExtendedType
+        Protected Structure ComparisonFeatureInfoExtended
             Public NETStDev As Single
             Public DiscriminantScore As Single
         End Structure
 
-        Protected mExtendedInfo() As udtComparisonFeatureInfoExtendedType
+        Protected mExtendedInfo() As ComparisonFeatureInfoExtended
 
         Public Sub New()
             Me.Clear()
         End Sub
 
-        Public Overloads Function Add(ByRef udtFeatureInfo As udtFeatureInfoType, peptideNETStDev As Single, peptideDiscriminantScore As Single) As Boolean
-            Return Add(udtFeatureInfo.FeatureID, udtFeatureInfo.FeatureName, udtFeatureInfo.Mass, udtFeatureInfo.NET, peptideNETStDev, peptideDiscriminantScore)
+        Public Overloads Function Add(ByRef featureInfo As FeatureInfo, peptideNETStDev As Single, peptideDiscriminantScore As Single) As Boolean
+            Return Add(featureInfo.FeatureID, featureInfo.FeatureName, featureInfo.Mass, featureInfo.NET, peptideNETStDev, peptideDiscriminantScore)
         End Function
 
         Public Overloads Function Add(featureID As Integer, peptideName As String, peptideMass As Double, peptideNET As Single, peptideNETStDev As Single, peptideDiscriminantScore As Single) As Boolean
@@ -371,7 +371,7 @@ Public Class clsPeakMatchingClass
 
         End Sub
 
-        Public Overloads Function GetFeatureInfoByFeatureID(featureID As Integer, ByRef udtFeatureInfo As udtFeatureInfoType, ByRef netStDev As Single, ByRef discriminantScore As Single) As Boolean
+        Public Overloads Function GetFeatureInfoByFeatureID(featureID As Integer, ByRef featureInfo As FeatureInfo, ByRef netStDev As Single, ByRef discriminantScore As Single) As Boolean
             ' Return the feature info for featureID
 
             Dim rowIndex As Integer
@@ -379,15 +379,15 @@ Public Class clsPeakMatchingClass
             Dim matchFound = Me.ContainsFeature(featureID, rowIndex)
 
             If matchFound Then
-                udtFeatureInfo = mFeatures(rowIndex)
+                featureInfo = mFeatures(rowIndex)
                 netStDev = mExtendedInfo(rowIndex).NETStDev
                 discriminantScore = mExtendedInfo(rowIndex).DiscriminantScore
                 Return True
             Else
-                udtFeatureInfo.FeatureID = 0
-                udtFeatureInfo.FeatureName = String.Empty
-                udtFeatureInfo.Mass = 0
-                udtFeatureInfo.NET = 0
+                featureInfo.FeatureID = 0
+                featureInfo.FeatureName = String.Empty
+                featureInfo.Mass = 0
+                featureInfo.NET = 0
                 netStDev = 0
                 discriminantScore = 0
 
@@ -395,18 +395,18 @@ Public Class clsPeakMatchingClass
             End If
         End Function
 
-        Public Overloads Function GetFeatureInfoByRowIndex(rowIndex As Integer, ByRef udtFeatureInfo As udtFeatureInfoType, ByRef netStDev As Single, ByRef discriminantScore As Single) As Boolean
+        Public Overloads Function GetFeatureInfoByRowIndex(rowIndex As Integer, ByRef featureInfo As FeatureInfo, ByRef netStDev As Single, ByRef discriminantScore As Single) As Boolean
 
             If rowIndex >= 0 AndAlso rowIndex < mFeatureCount Then
-                udtFeatureInfo = mFeatures(rowIndex)
+                featureInfo = mFeatures(rowIndex)
                 netStDev = mExtendedInfo(rowIndex).NETStDev
                 discriminantScore = mExtendedInfo(rowIndex).DiscriminantScore
                 Return True
             Else
-                udtFeatureInfo.FeatureID = 0
-                udtFeatureInfo.FeatureName = String.Empty
-                udtFeatureInfo.Mass = 0
-                udtFeatureInfo.NET = 0
+                featureInfo.FeatureID = 0
+                featureInfo.FeatureName = String.Empty
+                featureInfo.Mass = 0
+                featureInfo.NET = 0
                 netStDev = 0
                 discriminantScore = 0
 
@@ -425,9 +425,9 @@ Public Class clsPeakMatchingClass
 
     End Class
 
-    Friend Class PMFeatureMatchResultsClass
+    Friend Class PMFeatureMatchResults
 
-        Public Structure udtPeakMatchingResultType
+        Public Structure PeakMatchingResult
             Public MatchingID As Integer                ' ID of the comparison feature (this is the real ID, and not a RowIndex)
             Public SLiCScore As Double                  ' SLiC Score (Spatially Localized Confidence score)
             Public DelSLiC As Double                    ' Similar to DelCN, difference in SLiC score between top match and match with score value one less than this score
@@ -436,14 +436,14 @@ Public Class clsPeakMatchingClass
             Public MultiAMTHitCount As Integer          ' The number of Unique mass tag hits for each UMC; only applies to AMT's
         End Structure
 
-        Protected Structure udtPeakMatchingResultsType
+        Protected Structure PeakMatchingResults
             Public FeatureID As Integer
-            Public Details As udtPeakMatchingResultType
+            Public Details As PeakMatchingResult
         End Structure
 
         Protected Const MEMORY_RESERVE_CHUNK As Integer = 100000
         Protected mPMResultsCount As Integer
-        Protected mPMResults() As udtPeakMatchingResultsType
+        Protected mPMResults() As PeakMatchingResults
         Protected mPMResultsIsSorted As Boolean
 
         Public Event SortingList()
@@ -452,7 +452,7 @@ Public Class clsPeakMatchingClass
             Me.Clear()
         End Sub
 
-        Public Function AddMatch(featureID As Integer, ByRef matchResultInfo As udtPeakMatchingResultType) As Boolean
+        Public Function AddMatch(featureID As Integer, ByRef matchResultInfo As PeakMatchingResult) As Boolean
             Return AddMatch(featureID, matchResultInfo.MatchingID,
                             matchResultInfo.SLiCScore, matchResultInfo.DelSLiC,
                             matchResultInfo.MassErr, matchResultInfo.NETErr,
@@ -543,7 +543,7 @@ Public Class clsPeakMatchingClass
             End Get
         End Property
 
-        Public Function GetMatchInfoByFeatureID(featureID As Integer, ByRef matchResults() As udtPeakMatchingResultType, ByRef matchCount As Integer) As Boolean
+        Public Function GetMatchInfoByFeatureID(featureID As Integer, ByRef matchResults() As PeakMatchingResult, ByRef matchCount As Integer) As Boolean
             ' Returns all of the matches for the given feature ID row index
             ' Returns false if the feature has no matches
             ' Note that this function never shrinks matchResults; it only expands it if needed
@@ -578,7 +578,7 @@ Public Class clsPeakMatchingClass
 
         End Function
 
-        Public Function GetMatchInfoByRowIndex(rowIndex As Integer, ByRef featureID As Integer, ByRef matchResultInfo As udtPeakMatchingResultType) As Boolean
+        Public Function GetMatchInfoByRowIndex(rowIndex As Integer, ByRef featureID As Integer, ByRef matchResultInfo As PeakMatchingResult) As Boolean
             ' Populates featureID and matchResultInfo with the peak matching results for the given row index
 
             Dim matchFound = False
@@ -649,7 +649,7 @@ Public Class clsPeakMatchingClass
             If Not mPMResultsIsSorted OrElse forceSort Then
                 RaiseEvent SortingList()
                 Try
-                    Dim comparer As New PeakMatchingResultsComparerClass
+                    Dim comparer As New PeakMatchingResultsComparer
                     Array.Sort(mPMResults, 0, mPMResultsCount, comparer)
                 Catch ex As Exception
                     Throw
@@ -662,10 +662,10 @@ Public Class clsPeakMatchingClass
 
         End Function
 
-        Private Class PeakMatchingResultsComparerClass
-            Implements IComparer(Of udtPeakMatchingResultsType)
+        Private Class PeakMatchingResultsComparer
+            Implements IComparer(Of PeakMatchingResults)
 
-            Public Function Compare(x As udtPeakMatchingResultsType, y As udtPeakMatchingResultsType) As Integer Implements IComparer(Of udtPeakMatchingResultsType).Compare
+            Public Function Compare(x As PeakMatchingResults, y As PeakMatchingResults) As Integer Implements IComparer(Of PeakMatchingResults).Compare
 
                 ' Sort by .SLiCScore descending, and by MatchingIDIndexOriginal ascending
 
@@ -689,7 +689,7 @@ Public Class clsPeakMatchingClass
     End Class
 
     Private mMaxPeakMatchingResultsPerFeatureToSave As Integer
-    Private mSearchModeOptions As udtSearchModeOptionsType
+    Private mSearchModeOptions As SearchModeOptions
 
     Private mProgressDescription As String
     Private mProgressPercent As Single
@@ -778,7 +778,7 @@ Public Class clsPeakMatchingClass
         mAbortProcessing = True
     End Sub
 
-    Private Sub ComputeSLiCScores(ByRef udtFeatureToIdentify As udtFeatureInfoType, ByRef featureMatchResults As PMFeatureMatchResultsClass, ByRef rawMatches() As udtPeakMatchingRawMatchesType, ByRef comparisonFeatures As PMComparisonFeatureInfoClass, ByRef searchThresholds As clsSearchThresholds, udtComputedTolerances As clsSearchThresholds.udtSearchTolerancesType)
+    Private Sub ComputeSLiCScores(ByRef featureToIdentify As FeatureInfo, ByRef featureMatchResults As PMFeatureMatchResults, ByRef rawMatches() As PeakMatchingRawMatches, ByRef comparisonFeatures As PMComparisonFeatureInfo, ByRef searchThresholds As SearchThresholds, computedTolerances As SearchThresholds.SearchTolerances)
 
         Dim index As Integer
         Dim newMatchCount As Integer
@@ -789,7 +789,7 @@ Public Class clsPeakMatchingClass
         Dim netStDevCombined As Double
         Dim numeratorSum As Double
 
-        Dim udtComparisonFeatureInfo = New udtFeatureInfoType()
+        Dim comparisonFeatureInfo = New FeatureInfo()
 
         Dim message As String
 
@@ -798,7 +798,7 @@ Public Class clsPeakMatchingClass
         massStDevPPM = searchThresholds.SLiCScoreMassPPMStDev
         If massStDevPPM <= 0 Then massStDevPPM = 3
 
-        massStDevAbs = searchThresholds.PPMToMass(massStDevPPM, udtFeatureToIdentify.Mass)
+        massStDevAbs = searchThresholds.PPMToMass(massStDevPPM, featureToIdentify.Mass)
         If massStDevAbs <= 0 Then
             message = "Assertion failed in ComputeSLiCScores; massStDevAbs is <= 0, which isn't allowed; will assume 0.003"
             Console.WriteLine(message)
@@ -846,8 +846,8 @@ Public Class clsPeakMatchingClass
 
         If rawMatches.Length > 1 Then
             ' Sort by SLiCScore descending
-            Dim iPeakMatchingRawMatchesComparerClass As New PeakMatchingRawMatchesComparerClass
-            Array.Sort(rawMatches, iPeakMatchingRawMatchesComparerClass)
+            Dim iPeakMatchingRawMatchesComparer As New PeakMatchingRawMatchesComparer
+            Array.Sort(rawMatches, iPeakMatchingRawMatchesComparer)
         End If
 
         If rawMatches.Length > 0 Then
@@ -877,7 +877,7 @@ Public Class clsPeakMatchingClass
             ' Note that these are half-widths of the ellipse
             newMatchCount = 0
             For index = 0 To rawMatches.Length - 1
-                If TestPointInEllipse(rawMatches(index).NETErr, rawMatches(index).MassErr, udtComputedTolerances.NETTolFinal, udtComputedTolerances.MWTolAbsFinal) Then
+                If TestPointInEllipse(rawMatches(index).NETErr, rawMatches(index).MassErr, computedTolerances.NETTolFinal, computedTolerances.MWTolAbsFinal) Then
                     rawMatches(newMatchCount) = rawMatches(index)
                     newMatchCount += 1
                 End If
@@ -892,8 +892,8 @@ Public Class clsPeakMatchingClass
             ' Add new match results to featureMatchResults
             ' Record, at most, mMaxPeakMatchingResultsPerFeatureToSave entries
             For index = 0 To CInt(Math.Min(mMaxPeakMatchingResultsPerFeatureToSave, rawMatches.Length)) - 1
-                comparisonFeatures.GetFeatureInfoByRowIndex(rawMatches(index).MatchingIDIndex, udtComparisonFeatureInfo)
-                featureMatchResults.AddMatch(udtFeatureToIdentify.FeatureID, udtComparisonFeatureInfo.FeatureID,
+                comparisonFeatures.GetFeatureInfoByRowIndex(rawMatches(index).MatchingIDIndex, comparisonFeatureInfo)
+                featureMatchResults.AddMatch(featureToIdentify.FeatureID, comparisonFeatureInfo.FeatureID,
                                              rawMatches(index).SLiCScore, rawMatches(index).DelSLiC,
                                              rawMatches(index).MassErr, rawMatches(index).NETErr,
                                              rawMatches.Length)
@@ -902,7 +902,7 @@ Public Class clsPeakMatchingClass
 
     End Sub
 
-    Friend Shared Function FillRangeSearchObject(ByRef rangeSearch As clsSearchRange, ByRef comparisonFeatures As PMComparisonFeatureInfoClass) As Boolean
+    Friend Shared Function FillRangeSearchObject(ByRef rangeSearch As SearchRange, ByRef comparisonFeatures As PMComparisonFeatureInfo) As Boolean
         ' Initialize the range searching class
 
         Const LOAD_BLOCK_SIZE = 50000
@@ -912,7 +912,7 @@ Public Class clsPeakMatchingClass
 
         Try
             If rangeSearch Is Nothing Then
-                rangeSearch = New clsSearchRange
+                rangeSearch = New SearchRange
             Else
                 rangeSearch.ClearData()
             End If
@@ -946,7 +946,7 @@ Public Class clsPeakMatchingClass
 
     End Function
 
-    Friend Function IdentifySequences(searchThresholds As clsSearchThresholds, ByRef featuresToIdentify As PMFeatureInfoClass, ByRef comparisonFeatures As PMComparisonFeatureInfoClass, ByRef featureMatchResults As PMFeatureMatchResultsClass, Optional ByRef rangeSearch As clsSearchRange = Nothing) As Boolean
+    Friend Function IdentifySequences(searchThresholds As SearchThresholds, ByRef featuresToIdentify As PMFeatureInfo, ByRef comparisonFeatures As PMComparisonFeatureInfo, ByRef featureMatchResults As PMFeatureMatchResults, Optional ByRef rangeSearch As SearchRange = Nothing) As Boolean
         ' Returns True if success, False if the search is canceled
         ' Will return true even if none of the features match any of the comparison features
         '
@@ -961,18 +961,18 @@ Public Class clsPeakMatchingClass
         Dim matchIndex As Integer
         Dim comparisonFeaturesOriginalRowIndex As Integer
 
-        Dim currentFeatureToIdentify = New udtFeatureInfoType()
-        Dim currentComparisonFeature = New udtFeatureInfoType()
+        Dim currentFeatureToIdentify = New FeatureInfo()
+        Dim currentComparisonFeature = New FeatureInfo()
 
         Dim massTol As Double, netTol As Double
         Dim netDiff As Double
 
         Dim matchInd1, matchInd2 As Integer
-        Dim udtComputedTolerances As clsSearchThresholds.udtSearchTolerancesType
+        Dim computedTolerances As SearchThresholds.SearchTolerances
 
         ' The following hold the matches using the broad search tolerances (if .UseMaxSearchDistanceMultiplierAndSLiCScore = True, otherwise, simply holds the matches)
         Dim rawMatchCount As Integer
-        Dim rawMatches() As udtPeakMatchingRawMatchesType    ' Pointers into comparisonFeatures; list of peptides that match within both mass and NET tolerance
+        Dim rawMatches() As PeakMatchingRawMatches    ' Pointers into comparisonFeatures; list of peptides that match within both mass and NET tolerance
 
         Dim storeMatch As Boolean
         Dim success As Boolean
@@ -981,9 +981,9 @@ Public Class clsPeakMatchingClass
 
         If featureMatchResults Is Nothing Then
             ''If mUseSqlServerForMatchResults Then
-            ''    featureMatchResults = New PMFeatureMatchResultsClass(mSqlServerConnectionString, mTableNameFeatureMatchResults)
+            ''    featureMatchResults = New PMFeatureMatchResults(mSqlServerConnectionString, mTableNameFeatureMatchResults)
             ''Else
-            featureMatchResults = New PMFeatureMatchResultsClass
+            featureMatchResults = New PMFeatureMatchResults
             ''End If
         Else
             ' Clear any existing results
@@ -1011,14 +1011,14 @@ Public Class clsPeakMatchingClass
 
                 If featuresToIdentify.GetFeatureInfoByRowIndex(featureIndex, currentFeatureToIdentify) Then
                     ' By Calling .ComputedSearchTolerances() with a mass, the tolerances will be auto re-computed
-                    udtComputedTolerances = searchThresholds.ComputedSearchTolerances(currentFeatureToIdentify.Mass)
+                    computedTolerances = searchThresholds.ComputedSearchTolerances(currentFeatureToIdentify.Mass)
 
                     If mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore Then
-                        massTol = udtComputedTolerances.MWTolAbsBroad
-                        netTol = udtComputedTolerances.NETTolBroad
+                        massTol = computedTolerances.MWTolAbsBroad
+                        netTol = computedTolerances.NETTolBroad
                     Else
-                        massTol = udtComputedTolerances.MWTolAbsFinal
-                        netTol = udtComputedTolerances.NETTolFinal
+                        massTol = computedTolerances.MWTolAbsFinal
+                        netTol = computedTolerances.NETTolFinal
                     End If
 
                     matchInd1 = 0
@@ -1039,7 +1039,7 @@ Public Class clsPeakMatchingClass
                                         ' Store this match
                                         storeMatch = True
                                     Else
-                                        ' The match is within a rectangle defined by udtComputedTolerances.MWTolAbsBroad and udtComputedTolerances.NETTolBroad
+                                        ' The match is within a rectangle defined by computedTolerances.MWTolAbsBroad and computedTolerances.NETTolBroad
                                         If mSearchModeOptions.UseEllipseSearchRegion Then
                                             ' Only keep the match if it's within the ellipse defined by the search tolerances
                                             ' Note that the search tolerances we send to TestPointInEllipse should be half-widths (i.e. tolerance +- comparison value), not full widths
@@ -1071,7 +1071,7 @@ Public Class clsPeakMatchingClass
                             End If
 
                             ' Compute the SLiC Scores and store the results
-                            ComputeSLiCScores(currentFeatureToIdentify, featureMatchResults, rawMatches, comparisonFeatures, searchThresholds, udtComputedTolerances)
+                            ComputeSLiCScores(currentFeatureToIdentify, featureMatchResults, rawMatches, comparisonFeatures, searchThresholds, computedTolerances)
                         End If
 
                     End If
@@ -1113,7 +1113,7 @@ Public Class clsPeakMatchingClass
         ''mUseSqlServerDBToCacheData = False
         ''mUseSqlServerForMatchResults = False
         ''mSqlServerConnectionString = SharedADONetFunctions.DEFAULT_CONNECTION_STRING_NO_PROVIDER
-        ''mTableNameFeatureMatchResults = PMFeatureMatchResultsClass.DEFAULT_FEATURE_MATCH_RESULTS_TABLE_NAME
+        ''mTableNameFeatureMatchResults = PMFeatureMatchResults.DEFAULT_FEATURE_MATCH_RESULTS_TABLE_NAME
     End Sub
 
     Private Sub PostLogEntry(message As String, EntryType As MessageTypeConstants)
@@ -1162,10 +1162,10 @@ Public Class clsPeakMatchingClass
 
 #Region "Peak Matching Raw Matches Sorting Class"
 
-    Private Class PeakMatchingRawMatchesComparerClass
-        Implements IComparer(Of udtPeakMatchingRawMatchesType)
+    Private Class PeakMatchingRawMatchesComparer
+        Implements IComparer(Of PeakMatchingRawMatches)
 
-        Public Function Compare(x As udtPeakMatchingRawMatchesType, y As udtPeakMatchingRawMatchesType) As Integer Implements IComparer(Of udtPeakMatchingRawMatchesType).Compare
+        Public Function Compare(x As PeakMatchingRawMatches, y As PeakMatchingRawMatches) As Integer Implements IComparer(Of PeakMatchingRawMatches).Compare
 
             ' Sort by .SLiCScore descending, and by MatchingIDIndexOriginal Ascending
 
@@ -1189,7 +1189,7 @@ Public Class clsPeakMatchingClass
 
 #End Region
 
-    Public Class clsSearchThresholds
+    Public Class SearchThresholds
 
         Public Sub New()
             InitializeLocalVariables()
@@ -1201,7 +1201,7 @@ Public Class clsPeakMatchingClass
         End Enum
 
         ' The following defines how the SLiC scores (aka match scores) are computed
-        Private Structure udtSLiCScoreOptionsType
+        Private Structure SLiCScoreOptions
             Public MassPPMStDev As Double                  ' Default 3
             Public NETStDev As Double                      ' Default 0.025
             Public UseAMTNETStDev As Boolean
@@ -1209,7 +1209,7 @@ Public Class clsPeakMatchingClass
         End Structure
 
         ' Note that all of these tolerances are half-widths, i.e. tolerance +- comparison value
-        Public Structure udtSearchTolerancesType
+        Public Structure SearchTolerances
             Public MWTolAbsBroad As Double
             Public MWTolAbsFinal As Double
 
@@ -1221,20 +1221,20 @@ Public Class clsPeakMatchingClass
         Private mNETTolerance As Double           ' NET search tolerance, +- this value
         Private mSLiCScoreMaxSearchDistanceMultiplier As Single
 
-        Private mSLiCScoreOptions As udtSLiCScoreOptionsType
+        Private mSLiCScoreOptions As SLiCScoreOptions
 
         ' ReSharper disable once FieldCanBeMadeReadOnly.Local
-        Private mComputedSearchTolerances As udtSearchTolerancesType = New udtSearchTolerancesType()
+        Private mComputedSearchTolerances As SearchTolerances = New SearchTolerances()
 
         Public Property AutoDefineSLiCScoreThresholds As Boolean
 
-        Public ReadOnly Property ComputedSearchTolerances As udtSearchTolerancesType
+        Public ReadOnly Property ComputedSearchTolerances As SearchTolerances
             Get
                 Return mComputedSearchTolerances
             End Get
         End Property
 
-        Public ReadOnly Property ComputedSearchTolerances(referenceMass As Double) As udtSearchTolerancesType
+        Public ReadOnly Property ComputedSearchTolerances(referenceMass As Double) As SearchTolerances
             Get
                 DefinePeakMatchingTolerances(referenceMass)
                 Return mComputedSearchTolerances
