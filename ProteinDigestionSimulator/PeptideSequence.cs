@@ -68,15 +68,23 @@ namespace ProteinDigestionSimulator
             IsotopicMass = 1
         }
 
-        private struct TerminusInfo
+        private class TerminusInfo
         {
-            public string Formula;
-            public double Mass;
-            public ElementModeConstants MassElementMode;
+            public string Formula { get; set; }
+            public double Mass { get; set; }
+            public ElementModeConstants MassElementMode { get; set; }
+
+            /// <summary>
+            /// If the peptide sequence is part of a protein, the user can record the final residue of the previous peptide sequence here
+            /// </summary>
             // ReSharper disable once NotAccessedField.Local
-            public string PrecedingResidue;      // If the peptide sequence is part of a protein, the user can record the final residue of the previous peptide sequence here
-                                                 // ReSharper disable once NotAccessedField.Local
-            public string FollowingResidue;      // If the peptide sequence is part of a protein, the user can record the first residue of the next peptide sequence here
+            public string PrecedingResidue { get; set; }
+
+            /// <summary>
+            /// If the peptide sequence is part of a protein, the user can record the first residue of the next peptide sequence here
+            /// </summary>
+            // ReSharper disable once NotAccessedField.Local
+            public string FollowingResidue { get; set; }
         }
 
         // Variables shared across all instances of this class
@@ -126,12 +134,12 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Formula on the N-Terminus
         /// </summary>
-        private TerminusInfo mNTerminus;
+        private readonly TerminusInfo mNTerminus = new TerminusInfo();
 
         /// <summary>
         /// Formula on the C-Terminus
         /// </summary>
-        private TerminusInfo mCTerminus;
+        private readonly TerminusInfo mCTerminus = new TerminusInfo();
         private double mTotalMass;
         private ElementModeConstants mTotalMassElementMode;
         private bool mDelayUpdateResidueMass;

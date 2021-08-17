@@ -16,10 +16,16 @@ namespace ProteinDigestionSimulator
             Unknown = -1
         }
 
-        protected struct ProteinEntry
+        protected class ProteinEntry
         {
-            public string Name;
-            public int ProteinID;
+            public string Name { get; }
+            public int ProteinID { get; }
+
+            public ProteinEntry(string name, int proteinId)
+            {
+                Name = name;
+                ProteinID = proteinId;
+            }
         }
 
         protected const int MEMORY_RESERVE_CHUNK = 100000;
@@ -105,8 +111,7 @@ namespace ProteinDigestionSimulator
                     proteinID = mMaxProteinIDUsed + 1;
                 }
 
-                mProteins[mProteinCount].Name = proteinName;
-                mProteins[mProteinCount].ProteinID = proteinID;
+                mProteins[mProteinCount] = new ProteinEntry(proteinName, proteinID);
                 if (mUseProteinNameHashTable)
                 {
                     mProteinNameToRowIndex.Add(proteinName, mProteinCount);
@@ -378,11 +383,18 @@ namespace ProteinDigestionSimulator
 
         protected class ProteinToPeptideMappingInfo
         {
-            public struct ProteinToPeptideMappingEntry
+            public class ProteinToPeptideMappingEntry
             {
-                public int ProteinID;
-                public int PeptideID;
-                public CleavageStateConstants CleavageState;
+                public readonly int ProteinID;
+                public readonly int PeptideID;
+                public readonly CleavageStateConstants CleavageState;
+
+                public ProteinToPeptideMappingEntry(int proteinId, int peptideId, CleavageStateConstants cleavageState)
+                {
+                    ProteinID = proteinId;
+                    PeptideID = peptideId;
+                    CleavageState = cleavageState;
+                }
             }
 
             protected const int MEMORY_RESERVE_CHUNK = 100000;
@@ -413,9 +425,7 @@ namespace ProteinDigestionSimulator
                     // ReDim Preserve mMappings(mMappings.Length + MEMORY_RESERVE_CHUNK - 1)
                 }
 
-                mMappings[mMappingCount].ProteinID = proteinID;
-                mMappings[mMappingCount].PeptideID = peptideID;
-                mMappings[mMappingCount].CleavageState = cleavageState;
+                mMappings[mMappingCount] = new ProteinToPeptideMappingEntry(proteinID, peptideID, cleavageState);
                 mMappingCount += 1;
                 mMappingArrayIsSorted = false;
 

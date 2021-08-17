@@ -133,16 +133,28 @@ namespace ProteinDigestionSimulator
             FiveMassThreeNET = 4
         }
 
-        private struct PeakMatchingThresholds
+        private readonly struct PeakMatchingThresholds
         {
-            public double MassTolerance;
-            public double NETTolerance;
+            public double MassTolerance { get; }
+            public double NETTolerance { get; }
+
+            public PeakMatchingThresholds(double massTolerance, double netTolerance)
+            {
+                MassTolerance = massTolerance;
+                NETTolerance = netTolerance;
+            }
         }
 
-        private struct PredefinedPMThresholds
+        private class PredefinedPMThresholds
         {
-            public PeakMatching.SearchThresholds.MassToleranceConstants MassTolType;
-            public PeakMatchingThresholds[] Thresholds;
+            public PeakMatching.SearchThresholds.MassToleranceConstants MassTolType { get; }
+            public List<PeakMatchingThresholds> Thresholds { get; }
+
+            public PredefinedPMThresholds(PeakMatching.SearchThresholds.MassToleranceConstants massTolType)
+            {
+                MassTolType = massTolType;
+                Thresholds = new List<PeakMatchingThresholds>();
+            }
         }
 
         // The following is used to lookup the default symbols for FASTA files, and should thus be treated as ReadOnly
@@ -366,7 +378,7 @@ namespace ProteinDigestionSimulator
             if (ClearPMThresholdsList(confirmReplaceExistingResults))
             {
                 cboMassTolType.SelectedIndex = (int)predefinedThresholds.MassTolType;
-                for (index = 0; index < predefinedThresholds.Thresholds.Length; index++)
+                for (index = 0; index < predefinedThresholds.Thresholds.Count; index++)
                 {
                     bool argexistingRowFound = false;
                     AddPMThresholdRow(predefinedThresholds.Thresholds[index].MassTolerance, predefinedThresholds.Thresholds[index].NETTolerance, existingRowFound: ref argexistingRowFound);
@@ -487,8 +499,7 @@ namespace ProteinDigestionSimulator
             // All of the predefined thresholds have mass tolerances in units of PPM
             for (index = 0; index <= PREDEFINED_PM_THRESHOLDS_COUNT - 1; index++)
             {
-                mPredefinedPMThresholds[index].MassTolType = PeakMatching.SearchThresholds.MassToleranceConstants.PPM;
-                mPredefinedPMThresholds[index].Thresholds = new PeakMatchingThresholds[0];
+                mPredefinedPMThresholds[index] = new PredefinedPMThresholds(PeakMatching.SearchThresholds.MassToleranceConstants.PPM);
             }
 
             netValues = new double[3];
@@ -503,37 +514,34 @@ namespace ProteinDigestionSimulator
             massValues[4] = 50d;
 
             // OneMassOneNET
-            DefineDefaultPMThresholdAppendItem(ref mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.OneMassOneNET], 5d, 0.05d);
+            DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.OneMassOneNET], 5d, 0.05d);
 
             // OneMassThreeNET
             for (netIndex = 0; netIndex < netValues.Length; netIndex++)
-                DefineDefaultPMThresholdAppendItem(ref mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.OneMassThreeNET], 5d, netValues[netIndex]);
+                DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.OneMassThreeNET], 5d, netValues[netIndex]);
 
             // ThreeMassOneNET
             for (massIndex = 0; massIndex <= 2; massIndex++)
-                DefineDefaultPMThresholdAppendItem(ref mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.ThreeMassOneNET], massValues[massIndex], 0.05d);
+                DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.ThreeMassOneNET], massValues[massIndex], 0.05d);
 
             // ThreeMassThreeNET
             for (netIndex = 0; netIndex < netValues.Length; netIndex++)
             {
                 for (massIndex = 0; massIndex <= 2; massIndex++)
-                    DefineDefaultPMThresholdAppendItem(ref mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.ThreeMassThreeNET], massValues[massIndex], netValues[netIndex]);
+                    DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.ThreeMassThreeNET], massValues[massIndex], netValues[netIndex]);
             }
 
             // FiveMassThreeNET
             for (netIndex = 0; netIndex < netValues.Length; netIndex++)
             {
                 for (massIndex = 0; massIndex < massValues.Length; massIndex++)
-                    DefineDefaultPMThresholdAppendItem(ref mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.FiveMassThreeNET], massValues[massIndex], netValues[netIndex]);
+                    DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.FiveMassThreeNET], massValues[massIndex], netValues[netIndex]);
             }
         }
 
-        private void DefineDefaultPMThresholdAppendItem(ref PredefinedPMThresholds pmThreshold, double massTolerance, double netTolerance)
+        private void DefineDefaultPMThresholdAppendItem(PredefinedPMThresholds pmThreshold, double massTolerance, double netTolerance)
         {
-            int newIndex = pmThreshold.Thresholds.Length;
-            Array.Resize(ref pmThreshold.Thresholds, newIndex + 1);
-            pmThreshold.Thresholds[newIndex].MassTolerance = massTolerance;
-            pmThreshold.Thresholds[newIndex].NETTolerance = netTolerance;
+            pmThreshold.Thresholds.Add(new PeakMatchingThresholds(massTolerance, netTolerance));
         }
 
         private void EnableDisableControls()

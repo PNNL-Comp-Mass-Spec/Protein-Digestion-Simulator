@@ -66,16 +66,30 @@ namespace ProteinDigestionSimulator
         private const double NH2k = 7.3d;      // 8.56
         private const double COOHk = 3.9d;     // 3.56
 
-        private struct AA
+        private readonly struct AA
         {
+            /// <summary>
+            /// One letter abbreviation for the amino acid
+            /// </summary>
             // ReSharper disable once NotAccessedField.Local
-            public string Symbol;              // One letter abbreviation for the amino acid
-            public double HW;
-            public double KD;
-            public double Eisenberg;
-            public double GES;
-            public double MeekPH7p4;
-            public double MeekPH2p1;
+            public string Symbol { get; }
+            public double HW { get; }
+            public double KD { get; }
+            public double Eisenberg { get; }
+            public double GES { get; }
+            public double MeekPH7p4 { get; }
+            public double MeekPH2p1 { get; }
+
+            public AA(string symbol, double hw, double kd, double eisenberg, double ges, double meekPH7p4, double meekPH2p1)
+            {
+                Symbol = symbol;
+                HW = hw;
+                KD = kd;
+                Eisenberg = eisenberg;
+                GES = ges;
+                MeekPH7p4 = meekPH7p4;
+                MeekPH2p1 = meekPH2p1;
+            }
         }
 
         private readonly Dictionary<char, AA> mAminoAcids;
@@ -359,17 +373,7 @@ namespace ProteinDigestionSimulator
 
         private void AddAminoAcid(char oneLetterSymbol, double hw, double kd, double eisenberg, double ges, double meekPH7p4, double meekPH2p1)
         {
-            var aaInfo = new AA()
-            {
-                Symbol = Conversions.ToString(oneLetterSymbol),
-                HW = hw,
-                KD = kd,
-                Eisenberg = eisenberg,
-                GES = ges,
-                MeekPH7p4 = meekPH7p4,
-                MeekPH2p1 = meekPH2p1
-            };
-            mAminoAcids.Add(oneLetterSymbol, aaInfo);
+            mAminoAcids.Add(oneLetterSymbol, new AA(oneLetterSymbol.ToString(), hw, kd, eisenberg, ges, meekPH7p4, meekPH2p1));
         }
 
         private void InitializeLocalVariables()

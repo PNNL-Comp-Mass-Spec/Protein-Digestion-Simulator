@@ -58,33 +58,33 @@ namespace ProteinDigestionSimulator
         private const string COL_NAME_DESCRIPTION = "Description";
         private const string COL_NAME_CONTEXT = "Context";
 
-        public struct FastaValidationOptions
+        public class FastaValidationOptions
         {
-            public bool Initialized;
-            public int MaximumErrorsToTrackInDetail;
-            public int MaximumResiduesPerLine;
-            public int ValidProteinNameLengthMinimum;
-            public int ValidProteinNameLengthMaximum;
-            public bool AllowAsterisksInResidues;
-            public bool CheckForDuplicateProteinNames;
-            public bool LogResultsToFile;
-            public bool SaveHashInfoFile;
-            public FixedFastaOptions FixedFastaOptions;
+            public bool Initialized { get; set; }
+            public int MaximumErrorsToTrackInDetail { get; set; }
+            public int MaximumResiduesPerLine { get; set; }
+            public int ValidProteinNameLengthMinimum { get; set; }
+            public int ValidProteinNameLengthMaximum { get; set; }
+            public bool AllowAsterisksInResidues { get; set; }
+            public bool CheckForDuplicateProteinNames { get; set; }
+            public bool LogResultsToFile { get; set; }
+            public bool SaveHashInfoFile { get; set; }
+            public FixedFastaOptions FixedFastaOptions { get; } = new FixedFastaOptions();
         }
 
-        public struct FixedFastaOptions
+        public class FixedFastaOptions
         {
-            public bool GenerateFixedFasta;
-            public bool TruncateLongProteinName;
-            public bool RenameProteinWithDuplicateNames;
-            public bool KeepDuplicateNamedProteins;
-            public bool WrapLongResidueLines;
-            public int ResiduesPerLineForWrap;
-            public bool RemoveInvalidResidues;
-            public bool SplitOutMultipleRefsForKnownAccession;
-            public bool SplitOutMultipleRefsInProteinName;
-            public bool ConsolidateDuplicateProteins;
-            public bool ConsolidateDupsIgnoreILDiff;
+            public bool GenerateFixedFasta { get; set; }
+            public bool TruncateLongProteinName { get; set; }
+            public bool RenameProteinWithDuplicateNames { get; set; }
+            public bool KeepDuplicateNamedProteins { get; set; }
+            public bool WrapLongResidueLines { get; set; }
+            public int ResiduesPerLineForWrap { get; set; }
+            public bool RemoveInvalidResidues { get; set; }
+            public bool SplitOutMultipleRefsForKnownAccession { get; set; }
+            public bool SplitOutMultipleRefsInProteinName { get; set; }
+            public bool ConsolidateDuplicateProteins { get; set; }
+            public bool ConsolidateDupsIgnoreILDiff { get; set; }
         }
 
         private DataSet mErrorsDataset;

@@ -58,30 +58,61 @@ namespace ProteinDigestionSimulator
             UnspecifiedError = -1
         }
 
-        private struct SingleBinStats
+        private class SingleBinStats
         {
-            public double MassBinStart;               // Mass is >= this value
-            public double MassBinEnd;                 // Mass is < this value
-            public int UniqueResultIDCount;
-            public int NonUniqueResultIDCount;
-            public int[] ResultIDCountDistribution;
-            public float PercentUnique;              // UniqueResultIDs().length / (UniqueResultIDs().length + NonUniqueResultIDs().length)
+            public double MassBinStart { get; }               // Mass is >= this value
+            public double MassBinEnd { get; }                 // Mass is < this value
+            public int UniqueResultIDCount { get; set; }
+            public int NonUniqueResultIDCount { get; set; }
+            public int[] ResultIDCountDistribution { get; set; }
+            public float PercentUnique { get; set; }              // UniqueResultIDs().length / (UniqueResultIDs().length + NonUniqueResultIDs().length)
+
+            public SingleBinStats(double massBinStart, double massBinEnd)
+            {
+                MassBinStart = massBinStart;
+                MassBinEnd = massBinEnd;
+                PercentUnique = 0f;
+                UniqueResultIDCount = 0;
+                NonUniqueResultIDCount = 0;
+                ResultIDCountDistribution = new int[1];
+            }
         }
 
-        private struct MassBinningOptions
+        private class MassBinningOptions
         {
-            public bool AutoDetermineMassRange;
-            public float MassBinSizeDa;
-            public float MassMinimum;    // This is ignored if AutoDetermineMassRange = True
-            public float MassMaximum;    // This is ignored if AutoDetermineMassRange = True
-            public float MinimumSLiCScore;
+            public bool AutoDetermineMassRange { get; set; }
+            public float MassBinSizeDa { get; set; }
+            public float MassMinimum { get; set; }    // This is ignored if AutoDetermineMassRange = True
+            public float MassMaximum { get; set; }    // This is ignored if AutoDetermineMassRange = True
+            public float MinimumSLiCScore { get; set; }
+
+            public MassBinningOptions()
+            {
+                AutoDetermineMassRange = true;
+                MassBinSizeDa = 25f;
+                MassMinimum = 400f;
+                MassMaximum = 6000f;
+                MinimumSLiCScore = 0.99f;
+            }
+
+            public MassBinningOptions Clone()
+            {
+                return (MassBinningOptions) MemberwiseClone();
+            }
         }
 
-        private struct BinnedPeptideCountStats
+        private class BinnedPeptideCountStats
         {
-            public MassBinningOptions Settings;
-            public int BinCount;
-            public SingleBinStats[] Bins;
+            public MassBinningOptions Settings { get; set; }
+            public int BinCount { get; set; }
+            public SingleBinStats[] Bins { get; set; }
+
+            public BinnedPeptideCountStats(MassBinningOptions settings)
+            {
+                Settings = settings;
+                BinCount = 0;
+                Bins = new SingleBinStats[0];
+            }
         }
 
         /// <summary>
@@ -116,7 +147,7 @@ namespace ProteinDigestionSimulator
 
         private char mOutputFileDelimiter;
         private int mMaxPeakMatchingResultsPerFeatureToSave;
-        private MassBinningOptions mPeptideUniquenessBinningSettings;
+        private readonly MassBinningOptions mPeptideUniquenessBinningSettings = new MassBinningOptions();
         private ErrorCodes mLocalErrorCode;
         private string mLastErrorMessage;
         private PeakMatching _mPeakMatching;
@@ -550,7 +581,7 @@ namespace ProteinDigestionSimulator
             pmResultsWriter.WriteLine(lineOut);
         }
 
-        private bool ExportPeptideUniquenessResults(int thresholdIndex, ref BinnedPeptideCountStats binResults, TextWriter peptideUniquenessWriter)
+        private bool ExportPeptideUniquenessResults(int thresholdIndex, BinnedPeptideCountStats binResults, TextWriter peptideUniquenessWriter)
         {
             string lineOut;
             int binIndex;
@@ -1070,19 +1101,24 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        private void InitializeBinnedStats(ref BinnedPeptideCountStats statsBinned, int binCount)
+        private void InitializeBinnedStats(BinnedPeptideCountStats statsBinned, int binCount)
         {
             int binIndex;
             statsBinned.BinCount = binCount;
             statsBinned.Bins = new SingleBinStats[statsBinned.BinCount];
             for (binIndex = 0; binIndex < statsBinned.BinCount; binIndex++)
             {
-                statsBinned.Bins[binIndex].MassBinStart = statsBinned.Settings.MassMinimum + statsBinned.Settings.MassBinSizeDa * binIndex;
-                statsBinned.Bins[binIndex].MassBinEnd = statsBinned.Settings.MassMinimum + statsBinned.Settings.MassBinSizeDa * (binIndex + 1);
-                statsBinned.Bins[binIndex].PercentUnique = 0f;
-                statsBinned.Bins[binIndex].UniqueResultIDCount = 0;
-                statsBinned.Bins[binIndex].NonUniqueResultIDCount = 0;
-                statsBinned.Bins[binIndex].ResultIDCountDistribution = new int[Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave) + 1];
+                var stats = new SingleBinStats(
+                    statsBinned.Settings.MassMinimum + statsBinned.Settings.MassBinSizeDa * binIndex,
+                    statsBinned.Settings.MassMinimum + statsBinned.Settings.MassBinSizeDa * (binIndex + 1))
+                {
+                    PercentUnique = 0f,
+                    UniqueResultIDCount = 0,
+                    NonUniqueResultIDCount = 0,
+                    ResultIDCountDistribution = new int[Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave) + 1]
+                };
+
+                statsBinned.Bins[binIndex] = stats;
             }
         }
 
@@ -1672,7 +1708,7 @@ namespace ProteinDigestionSimulator
                 for (matchIndex = 0; matchIndex < peptideMatchResults.Count; matchIndex++)
                 {
                     peptideMatchResults.GetMatchInfoByRowIndex(matchIndex, ref currentFeatureID, ref matchResultInfo);
-                    featuresToIdentify.GetFeatureInfoByFeatureID(currentFeatureID, ref featureInfo);
+                    featuresToIdentify.GetFeatureInfoByFeatureID(currentFeatureID, out featureInfo);
                     featureMass = (float)featureInfo.Mass;
                     if (featureMass > peptideStatsBinned.Settings.MassMaximum)
                     {
@@ -1843,12 +1879,11 @@ namespace ProteinDigestionSimulator
             int peptideSkipCount;
             int total;
             int maxMatchCount;
-            var peptideStatsBinned = new BinnedPeptideCountStats();
             bool success;
             try
             {
                 // Copy the binning settings
-                peptideStatsBinned.Settings = mPeptideUniquenessBinningSettings;
+                var peptideStatsBinned = new BinnedPeptideCountStats(mPeptideUniquenessBinningSettings.Clone());
 
                 // Define the minimum and maximum mass ranges, plus the number of bins required
                 InitializeBinningRanges(thresholds, featuresToIdentify, peptideMatchResults, peptideStatsBinned);
@@ -1863,7 +1898,7 @@ namespace ProteinDigestionSimulator
                 maxMatchCount = Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave);
 
                 // Reserve memory for the bins, store the bin ranges for each bin, and reset the ResultIDs arrays
-                InitializeBinnedStats(ref peptideStatsBinned, peptideStatsBinned.BinCount);
+                InitializeBinnedStats(peptideStatsBinned, peptideStatsBinned.BinCount);
 
                 // ToDo: When using Sql Server, switch this to use a SP that performs the same function as this For Loop, sorting the results in a table in the DB, but using Bulk Update queries
 
@@ -1871,7 +1906,7 @@ namespace ProteinDigestionSimulator
                 peptideSkipCount = 0;
                 for (peptideIndex = 0; peptideIndex < featuresToIdentifyCount; peptideIndex++)
                 {
-                    if (featuresToIdentify.GetFeatureInfoByRowIndex(peptideIndex, ref featureInfo))
+                    if (featuresToIdentify.GetFeatureInfoByRowIndex(peptideIndex, out featureInfo))
                     {
                         binIndex = MassToBinIndex(featureInfo.Mass, peptideStatsBinned.Settings.MassMinimum, peptideStatsBinned.Settings.MassBinSizeDa);
                         if (binIndex < 0 || binIndex > peptideStatsBinned.BinCount - 1)
@@ -1941,7 +1976,7 @@ namespace ProteinDigestionSimulator
                     SummarizeResultsByPeptideWriteHeaders(peptideUniquenessWriter, CreateSeparateOutputFileForEachThreshold);
                 }
 
-                success = ExportPeptideUniquenessResults(thresholdIndex, ref peptideStatsBinned, peptideUniquenessWriter);
+                success = ExportPeptideUniquenessResults(thresholdIndex, peptideStatsBinned, peptideUniquenessWriter);
                 if (CreateSeparateOutputFileForEachThreshold)
                 {
                     peptideUniquenessWriter.Close();
@@ -2008,7 +2043,7 @@ namespace ProteinDigestionSimulator
                 LogMessage("SummarizeResultsByProtein starting, total feature count = " + featuresToIdentifyCount.ToString(), MessageTypeConstants.Normal);
                 for (peptideIndex = 0; peptideIndex < featuresToIdentifyCount; peptideIndex++)
                 {
-                    if (featuresToIdentify.GetFeatureInfoByRowIndex(peptideIndex, ref featureInfo))
+                    if (featuresToIdentify.GetFeatureInfoByRowIndex(peptideIndex, out featureInfo))
                     {
                         if (FeatureContainsUniqueMatch(featureInfo, peptideMatchResults, ref matchCount, UseSLiCScoreForUniqueness, mPeptideUniquenessBinningSettings.MinimumSLiCScore))
                         {
