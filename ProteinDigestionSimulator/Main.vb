@@ -2047,8 +2047,6 @@ Public Class Main
         End If
     End Sub
 
-#Region "Control Handlers"
-
     Private Sub cboElementMassMode_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboElementMassMode.SelectedIndexChanged
         UpdatePeptideUniquenessMassMode()
     End Sub
@@ -2251,9 +2249,6 @@ Public Class Main
         TextBoxUtils.TextBoxKeyPressHandler(txtUniquenessBinEndMass, e, True)
     End Sub
 
-#End Region
-
-#Region "Menu Handlers"
     Private Sub mnuFileSelectInputFile_Click(sender As Object, e As EventArgs) Handles mnuFileSelectInputFile.Click
         SelectInputFile()
     End Sub
@@ -2289,10 +2284,6 @@ Public Class Main
     Private Sub mnuHelpAboutElutionTime_Click(sender As Object, e As EventArgs) Handles mnuHelpAboutElutionTime.Click
         ShowElutionTimeInfo()
     End Sub
-
-#End Region
-
-#Region "Event Handlers"
 
     Private Sub FastaValidation_FastaValidationStarted() Handles mFastaValidation.FastaValidationStarted
         mFastaValidationOptions = mFastaValidation.GetOptions()
@@ -2364,5 +2355,4 @@ Public Class Main
         Application.DoEvents()
     End Sub
 
-#End Region
 End Class

@@ -929,8 +929,6 @@ Public Class FastaValidation
 
     End Sub
 
-#Region "Control Handlers"
-
     Private Sub chkGenerateFixedFastaFile_CheckedChanged(sender As Object, e As EventArgs) Handles chkGenerateFixedFastaFile.CheckedChanged
         EnableDisableControls()
     End Sub
@@ -1044,10 +1042,6 @@ Public Class FastaValidation
 
     End Sub
 
-#End Region
-
-#Region "Menu Handlers"
-
     Private Sub mnuFileExit_Click(sender As Object, e As EventArgs) Handles mnuFileExit.Click
         Me.Close()
     End Sub
@@ -1092,10 +1086,6 @@ Public Class FastaValidation
         ShowAboutBox()
     End Sub
 
-#End Region
-
-#Region "Event Handlers"
-
     Private Overloads Sub RegisterEvents(obj As IEventNotifier)
         AddHandler obj.StatusEvent, AddressOf MessageEventHandler
         AddHandler obj.ErrorEvent, AddressOf ErrorEventHandler
@@ -1131,7 +1121,5 @@ Public Class FastaValidation
     Private Sub WarningEventHandler(message As String)
         mValidateFastaFileWarnings.Add(message)
     End Sub
-
-#End Region
 
 End Class

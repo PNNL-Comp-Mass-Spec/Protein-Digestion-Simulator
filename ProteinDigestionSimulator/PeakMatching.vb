@@ -1160,8 +1160,6 @@ Public Class PeakMatching
         RaiseEvent ProgressContinues()
     End Sub
 
-#Region "Peak Matching Raw Matches Sorting Class"
-
     Private Class PeakMatchingRawMatchesComparer
         Implements IComparer(Of PeakMatchingRawMatches)
 
@@ -1186,8 +1184,6 @@ Public Class PeakMatching
         End Function
 
     End Class
-
-#End Region
 
     Public Class SearchThresholds
 
