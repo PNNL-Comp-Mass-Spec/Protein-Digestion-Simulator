@@ -1,2358 +1,2668 @@
-﻿Option Strict On
+﻿using System;
+using System.Collections.Generic;
 
-' -------------------------------------------------------------------------------
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004
-'
-' E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
-' Website: https://omics.pnl.gov/ or https://www.pnnl.gov/sysbio/ or https://panomics.pnnl.gov/
-' -------------------------------------------------------------------------------
-'
-' Licensed under the 2-Clause BSD License; you may not use this file except
-' in compliance with the License.  You may obtain a copy of the License at
-' https://opensource.org/licenses/BSD-2-Clause
-'
-' Copyright 2018 Battelle Memorial Institute
+// -------------------------------------------------------------------------------
+// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004
+//
+// E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
+// Website: https://omics.pnl.gov/ or https://www.pnnl.gov/sysbio/ or https://panomics.pnnl.gov/
+// -------------------------------------------------------------------------------
+//
+// Licensed under the 2-Clause BSD License; you may not use this file except
+// in compliance with the License.  You may obtain a copy of the License at
+// https://opensource.org/licenses/BSD-2-Clause
+//
+// Copyright 2018 Battelle Memorial Institute
 
-Imports System.ComponentModel
-Imports System.IO
-Imports System.Text
-Imports NETPrediction
-Imports PRISM
-Imports PRISM.FileProcessor
-Imports PRISMWin
-Imports ProteinFileReader
-Imports DBUtils = PRISMDatabaseUtils.DataTableUtils
+using System.ComponentModel;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Windows.Forms;
+using Microsoft.VisualBasic;
+using Microsoft.VisualBasic.CompilerServices;
+using NETPrediction;
+using PRISM;
+using PRISM.FileProcessor;
+using DBUtils = PRISMDatabaseUtils.DataTableUtils;
+using PRISMWin;
+using ProteinFileReader;
 
-Public Class Main
+namespace ProteinDigestionSimulator
+{
+    public partial class Main
+    {
+        // Ignore Spelling: al, cbo, chk, combobox, ComputepI, const, CrLf, Cys, Da, diff, Eisenberg, Engleman
+        // Ignore Spelling: frm, gauging, Hopp, Hydrophobicity, Iodoacetamide, Iodoacetic, Kangas, Kostas, Kyte
+        // Ignore Spelling: MaximumpI, MaxpI, MinimumpI, Petritis, Sep, Sql, tryptic
 
-    ' Ignore Spelling: al, cbo, chk, combobox, ComputepI, const, CrLf, Cys, Da, diff, Eisenberg, Engleman
-    ' Ignore Spelling: frm, gauging, Hopp, Hydrophobicity, Iodoacetamide, Iodoacetic, Kangas, Kostas, Kyte
-    ' Ignore Spelling: MaximumpI, MaxpI, MinimumpI, Petritis, Sep, Sql, tryptic
+        public Main() : base()
+        {
+            // This call is required by the Windows Form Designer.
+            InitializeComponent();
 
-    Public Sub New()
-        MyBase.New()
+            // Add any initialization after the InitializeComponent() call.
 
-        ' This call is required by the Windows Form Designer.
-        InitializeComponent()
+            mDefaultFastaFileOptions = new ProteinFileParser.FastaFileParseOptions() { ReadonlyClass = true };
+            pICalculator = new ComputePeptideProperties();
+            NETCalculator = new ElutionTimePredictionKangas();
+            SCXNETCalculator = new SCXElutionTimePredictionKangas();
+            mCleavageRuleComboboxIndexToType = new Dictionary<int, InSilicoDigest.CleavageRuleConstants>();
+            InitializeControls();
+            _txtProteinInputFilePath.Name = "txtProteinInputFilePath";
+            _txtMaxPeakMatchingResultsPerFeatureToSave.Name = "txtMaxPeakMatchingResultsPerFeatureToSave";
+            _txtMinimumSLiCScore.Name = "txtMinimumSLiCScore";
+            _chkUseSLiCScoreForUniqueness.Name = "chkUseSLiCScoreForUniqueness";
+            _chkAllowSqlServerCaching.Name = "chkAllowSqlServerCaching";
+            _chkSqlServerUseIntegratedSecurity.Name = "chkSqlServerUseIntegratedSecurity";
+            _chkUseSqlServerDBToCacheData.Name = "chkUseSqlServerDBToCacheData";
+            _txtUniquenessBinWidth.Name = "txtUniquenessBinWidth";
+            _chkAutoComputeRangeForBinning.Name = "chkAutoComputeRangeForBinning";
+            _txtUniquenessBinEndMass.Name = "txtUniquenessBinEndMass";
+            _txtUniquenessBinStartMass.Name = "txtUniquenessBinStartMass";
+            _cmdGenerateUniquenessStats.Name = "cmdGenerateUniquenessStats";
+            _txtProteinScramblingLoopCount.Name = "txtProteinScramblingLoopCount";
+            _txtMaxpISequenceLength.Name = "txtMaxpISequenceLength";
+            _chkMaxpIModeEnabled.Name = "chkMaxpIModeEnabled";
+            _cboHydrophobicityMode.Name = "cboHydrophobicityMode";
+            _txtSequenceForpI.Name = "txtSequenceForpI";
+            _cboInputFileColumnDelimiter.Name = "cboInputFileColumnDelimiter";
+            _txtProteinReversalSamplingPercentage.Name = "txtProteinReversalSamplingPercentage";
+            _chkLookForAddnlRefInDescription.Name = "chkLookForAddnlRefInDescription";
+            _cboProteinReversalOptions.Name = "cboProteinReversalOptions";
+            _chkDigestProteins.Name = "chkDigestProteins";
+            _chkCreateFastaOutputFile.Name = "chkCreateFastaOutputFile";
+            _cmdNETInfo.Name = "cmdNETInfo";
+            _chkComputeSequenceHashValues.Name = "chkComputeSequenceHashValues";
+            _cboElementMassMode.Name = "cboElementMassMode";
+            _chkComputepIandNET.Name = "chkComputepIandNET";
+            _txtDigestProteinsMinimumResidueCount.Name = "txtDigestProteinsMinimumResidueCount";
+            _txtDigestProteinsMaximumMissedCleavages.Name = "txtDigestProteinsMaximumMissedCleavages";
+            _txtDigestProteinsMaximumMass.Name = "txtDigestProteinsMaximumMass";
+            _txtDigestProteinsMinimumMass.Name = "txtDigestProteinsMinimumMass";
+            _cmdParseInputFile.Name = "cmdParseInputFile";
+            _chkAutoDefineSLiCScoreTolerances.Name = "chkAutoDefineSLiCScoreTolerances";
+            _cmdPastePMThresholdsList.Name = "cmdPastePMThresholdsList";
+            _cmdPMThresholdsAutoPopulate.Name = "cmdPMThresholdsAutoPopulate";
+            _cmdClearPMThresholdsList.Name = "cmdClearPMThresholdsList";
+            _cmdAbortProcessing.Name = "cmdAbortProcessing";
+            _cboInputFileFormat.Name = "cboInputFileFormat";
+            _cmdSelectFile.Name = "cmdSelectFile";
+            _cmdValidateFastaFile.Name = "cmdValidateFastaFile";
+            _cmdSelectOutputFile.Name = "cmdSelectOutputFile";
+            _cboOutputFileFieldDelimiter.Name = "cboOutputFileFieldDelimiter";
+        }
 
-        ' Add any initialization after the InitializeComponent() call.
+        private const string XML_SETTINGS_FILE_NAME = "ProteinDigestionSimulatorOptions.xml";
+        private const string OUTPUT_FILE_SUFFIX = "_output.txt";                         // Note that this const starts with an underscore
+        private const string PEAK_MATCHING_STATS_FILE_SUFFIX = "_PeakMatching.txt";      // Note that this const starts with an underscore
+        private const string PM_THRESHOLDS_DATA_TABLE = "PeakMatchingThresholds";
+        private const string COL_NAME_MASS_TOLERANCE = "MassTolerance";
+        private const string COL_NAME_NET_TOLERANCE = "NETTolerance";
+        private const string COL_NAME_SLIC_MASS_STDEV = "SLiCMassStDev";
+        private const string COL_NAME_SLIC_NET_STDEV = "SLiCNETStDev";
+        private const string COL_NAME_PM_THRESHOLD_ROW_ID = "PMThresholdRowID";
+        private const double DEFAULT_SLIC_MASS_STDEV = 3d;
+        private const double DEFAULT_SLIC_NET_STDEV = 0.025d;
+        private const int PROGRESS_TAB_INDEX = 4;
 
-        mDefaultFastaFileOptions = New ProteinFileParser.FastaFileParseOptions() With {
-            .ReadonlyClass = True
+        /// <summary>
+        /// Input file format constants
+        /// </summary>
+        private enum InputFileFormatConstants
+        {
+            AutoDetermine = 0,
+            FastaFile = 1,
+            DelimitedText = 2
+        }
+
+        private const int PREDEFINED_PM_THRESHOLDS_COUNT = 5;
+
+        /// <summary>
+        /// Predefined peak matching threshold constants
+        /// </summary>
+        private enum PredefinedPMThresholdsConstants
+        {
+            OneMassOneNET = 0,
+            OneMassThreeNET = 1,
+            ThreeMassOneNET = 2,
+            ThreeMassThreeNET = 3,
+            FiveMassThreeNET = 4
+        }
+
+        private struct PeakMatchingThresholds
+        {
+            public double MassTolerance;
+            public double NETTolerance;
+        }
+
+        private struct PredefinedPMThresholds
+        {
+            public PeakMatching.SearchThresholds.MassToleranceConstants MassTolType;
+            public PeakMatchingThresholds[] Thresholds;
+        }
+
+        // The following is used to lookup the default symbols for FASTA files, and should thus be treated as ReadOnly
+        private readonly ProteinFileParser.FastaFileParseOptions mDefaultFastaFileOptions;
+        private DataSet mPeakMatchingThresholdsDataset;
+        private PredefinedPMThresholds[] mPredefinedPMThresholds;
+        private bool mWorking;
+        private string mCustomValidationRulesFilePath;
+        private readonly ComputePeptideProperties pICalculator;
+        private readonly ElutionTimePredictionKangas NETCalculator;
+        private readonly SCXElutionTimePredictionKangas SCXNETCalculator;
+
+        /// <summary>
+        /// Keys in this dictionary are the index in combobox cboCleavageRuleType, values are the cleavage rule enum for that index
+        /// </summary>
+        private readonly Dictionary<int, InSilicoDigest.CleavageRuleConstants> mCleavageRuleComboboxIndexToType;
+        private int mTabPageIndexSaved = 0;
+        private FastaValidation.FastaValidationOptions mFastaValidationOptions;
+        private ProteinFileParser _mParseProteinFile;
+
+        private ProteinFileParser mParseProteinFile
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _mParseProteinFile;
             }
 
-        pICalculator = New ComputePeptideProperties()
-        NETCalculator = New ElutionTimePredictionKangas()
-        SCXNETCalculator = New SCXElutionTimePredictionKangas()
-
-        mCleavageRuleComboboxIndexToType = New Dictionary(Of Integer, InSilicoDigest.CleavageRuleConstants)
-
-        InitializeControls()
-    End Sub
-
-    Private Const XML_SETTINGS_FILE_NAME As String = "ProteinDigestionSimulatorOptions.xml"
-
-    Private Const OUTPUT_FILE_SUFFIX As String = "_output.txt"                         ' Note that this const starts with an underscore
-    Private Const PEAK_MATCHING_STATS_FILE_SUFFIX As String = "_PeakMatching.txt"      ' Note that this const starts with an underscore
-
-    Private Const PM_THRESHOLDS_DATA_TABLE As String = "PeakMatchingThresholds"
-
-    Private Const COL_NAME_MASS_TOLERANCE As String = "MassTolerance"
-    Private Const COL_NAME_NET_TOLERANCE As String = "NETTolerance"
-    Private Const COL_NAME_SLIC_MASS_STDEV As String = "SLiCMassStDev"
-    Private Const COL_NAME_SLIC_NET_STDEV As String = "SLiCNETStDev"
-    Private Const COL_NAME_PM_THRESHOLD_ROW_ID As String = "PMThresholdRowID"
-
-    Private Const DEFAULT_SLIC_MASS_STDEV As Double = 3
-    Private Const DEFAULT_SLIC_NET_STDEV As Double = 0.025
-
-    Private Const PROGRESS_TAB_INDEX As Integer = 4
-
-    ''' <summary>
-    ''' Input file format constants
-    ''' </summary>
-    Private Enum InputFileFormatConstants
-        AutoDetermine = 0
-        FastaFile = 1
-        DelimitedText = 2
-    End Enum
-
-    Private Const PREDEFINED_PM_THRESHOLDS_COUNT As Integer = 5
-
-    ''' <summary>
-    ''' Predefined peak matching threshold constants
-    ''' </summary>
-    Private Enum PredefinedPMThresholdsConstants
-        OneMassOneNET = 0
-        OneMassThreeNET = 1
-        ThreeMassOneNET = 2
-        ThreeMassThreeNET = 3
-        FiveMassThreeNET = 4
-    End Enum
-
-    Private Structure PeakMatchingThresholds
-        Public MassTolerance As Double
-        Public NETTolerance As Double
-    End Structure
-
-    Private Structure PredefinedPMThresholds
-        Public MassTolType As PeakMatching.SearchThresholds.MassToleranceConstants
-        Public Thresholds() As PeakMatchingThresholds
-    End Structure
-
-    ' The following is used to lookup the default symbols for FASTA files, and should thus be treated as ReadOnly
-    Private ReadOnly mDefaultFastaFileOptions As ProteinFileParser.FastaFileParseOptions
-
-    Private mPeakMatchingThresholdsDataset As DataSet
-    Private mPredefinedPMThresholds() As PredefinedPMThresholds
-
-    Private mWorking As Boolean
-    Private mCustomValidationRulesFilePath As String
-
-    Private ReadOnly pICalculator As ComputePeptideProperties
-
-    Private ReadOnly NETCalculator As ElutionTimePredictionKangas
-
-    Private ReadOnly SCXNETCalculator As SCXElutionTimePredictionKangas
-
-    ''' <summary>
-    ''' Keys in this dictionary are the index in combobox cboCleavageRuleType, values are the cleavage rule enum for that index
-    ''' </summary>
-    Private ReadOnly mCleavageRuleComboboxIndexToType As Dictionary(Of Integer, InSilicoDigest.CleavageRuleConstants)
-
-    Private mTabPageIndexSaved As Integer = 0
-
-    Private mFastaValidationOptions As FastaValidation.FastaValidationOptions
-
-    Private WithEvents mParseProteinFile As ProteinFileParser
-
-    Private WithEvents mProteinDigestionSimulator As DigestionSimulator
-
-    Private WithEvents mFastaValidation As FastaValidation
-
-
-    Private Sub AbortProcessingNow()
-        Try
-            If mParseProteinFile IsNot Nothing Then
-                mParseProteinFile.AbortProcessingNow()
-            End If
-
-            If mProteinDigestionSimulator IsNot Nothing Then
-                mProteinDigestionSimulator.AbortProcessingNow()
-            End If
-        Catch ex As Exception
-            ' Ignore errors here
-        End Try
-    End Sub
-
-    Private Sub AddPMThresholdRow(massThreshold As Double, netThreshold As Double, Optional ByRef existingRowFound As Boolean = False)
-        AddPMThresholdRow(massThreshold, netThreshold, DEFAULT_SLIC_MASS_STDEV, DEFAULT_SLIC_NET_STDEV, existingRowFound)
-    End Sub
-
-    Private Sub AddPMThresholdRow(massThreshold As Double, netThreshold As Double, slicMassStDev As Double, slicNETStDev As Double, Optional ByRef existingRowFound As Boolean = False)
-
-        For Each myDataRow As DataRow In mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE).Rows
-            If Math.Abs(CDbl(myDataRow.Item(0)) - massThreshold) < 0.000001 AndAlso
-                       Math.Abs(CDbl(myDataRow.Item(1)) - netThreshold) < 0.000001 Then
-                existingRowFound = True
-                Exit For
-            End If
-        Next myDataRow
-
-        If Not existingRowFound Then
-            Dim myDataRow As DataRow = mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE).NewRow()
-            myDataRow(0) = massThreshold
-            myDataRow(1) = netThreshold
-            myDataRow(2) = slicMassStDev
-            myDataRow(3) = slicNETStDev
-            mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE).Rows.Add(myDataRow)
-        End If
-    End Sub
-
-    Private Sub AppendEnzymeToCleavageRuleCombobox(inSilicoDigest As InSilicoDigest, cleavageRuleId As InSilicoDigest.CleavageRuleConstants)
-
-        Dim cleavageRule As CleavageRule = Nothing
-        inSilicoDigest.GetCleavageRuleById(cleavageRuleId, cleavageRule)
-
-        If cleavageRule Is Nothing Then Return
-
-        Dim targetIndex = cboCleavageRuleType.Items.Count
-        cboCleavageRuleType.Items.Add(cleavageRule.Description & " (" & cleavageRule.GetDetailedRuleDescription() & ")")
-
-        mCleavageRuleComboboxIndexToType.Add(targetIndex, cleavageRuleId)
-    End Sub
-
-    Private Sub AutoDefineOutputFile()
-        Try
-            If txtProteinInputFilePath.Text.Length > 0 Then
-                txtProteinOutputFilePath.Text = AutoDefineOutputFileWork(GetProteinInputFilePath())
-            End If
-        Catch ex As Exception
-            ' Leave the TextBox unchanged
-        End Try
-    End Sub
-
-    Private Function AutoDefineOutputFileWork(inputFilePath As String) As String
-
-        Dim inputFileName = ProteinFileParser.StripExtension(Path.GetFileName(inputFilePath), ".gz")
-
-        Dim outputFileName As String
-
-        If chkCreateFastaOutputFile.Enabled AndAlso chkCreateFastaOutputFile.Checked Then
-            If ProteinFileParser.IsFastaFile(inputFilePath, True) Then
-                outputFileName = Path.GetFileNameWithoutExtension(inputFileName) & "_new.fasta"
-            Else
-                outputFileName = Path.ChangeExtension(inputFileName, ".fasta")
-            End If
-        Else
-            If Path.GetExtension(inputFileName).ToLower = ".txt" Then
-                outputFileName = Path.GetFileNameWithoutExtension(inputFileName) & "_output.txt"
-            Else
-                outputFileName = Path.ChangeExtension(inputFileName, ".txt")
-            End If
-        End If
-
-        If Not String.Equals(inputFilePath, txtProteinInputFilePath.Text) Then
-            txtProteinInputFilePath.Text = inputFilePath
-        End If
-
-        Return Path.Combine(Path.GetDirectoryName(inputFilePath), outputFileName)
-
-    End Function
-
-    Private Sub AutoPopulatePMThresholds(predefinedThresholds As PredefinedPMThresholds, confirmReplaceExistingResults As Boolean)
-
-        Dim index As Integer
-
-        If ClearPMThresholdsList(confirmReplaceExistingResults) Then
-            cboMassTolType.SelectedIndex = predefinedThresholds.MassTolType
-
-            For index = 0 To predefinedThresholds.Thresholds.Length - 1
-                AddPMThresholdRow(predefinedThresholds.Thresholds(index).MassTolerance, predefinedThresholds.Thresholds(index).NETTolerance)
-            Next index
-
-        End If
-
-    End Sub
-
-    Private Sub AutoPopulatePMThresholdsByID(predefinedPMThreshold As PredefinedPMThresholdsConstants, confirmReplaceExistingResults As Boolean)
-
-        Try
-            AutoPopulatePMThresholds(mPredefinedPMThresholds(predefinedPMThreshold), confirmReplaceExistingResults)
-        Catch ex As Exception
-            ShowErrorMessage("Error calling AutoPopulatePMThresholds in AutoPopulatePMThresholdsByID: " & ex.Message, "Error")
-        End Try
-
-    End Sub
-
-    Private Function ClearPMThresholdsList(confirmReplaceExistingResults As Boolean) As Boolean
-        ' Returns true if the PM_THRESHOLDS_DATA_TABLE is empty or if it was cleared
-        ' Returns false if the user is queried about clearing and they do not click Yes
-
-        Dim result As DialogResult
-        Dim success As Boolean
-
-        success = False
-        If mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE).Rows.Count > 0 Then
-            If confirmReplaceExistingResults Then
-                result = MessageBox.Show("Are you sure you want to clear the thresholds?", "Clear Thresholds", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
-            End If
-
-            If result = DialogResult.Yes OrElse Not confirmReplaceExistingResults Then
-                mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE).Rows.Clear()
-                success = True
-            End If
-        Else
-            success = True
-        End If
-
-        Return success
-    End Function
-
-    Private Sub ComputeSequencepI()
-
-        If txtSequenceForpI.TextLength = 0 Then Exit Sub
-
-        Dim sequence = txtSequenceForpI.Text
-        Dim pI As Single
-        Dim hydrophobicity As Single
-        Dim lcNET As Single
-        Dim scxNET As Single
-
-        If pICalculator IsNot Nothing Then
-            If cboHydrophobicityMode.SelectedIndex >= 0 Then
-                pICalculator.HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, ComputePeptideProperties.HydrophobicityTypeConstants)
-            End If
-
-            pICalculator.ReportMaximumpI = chkMaxpIModeEnabled.Checked
-            pICalculator.SequenceWidthToExamineForMaximumpI = LookupMaxpISequenceLength()
-
-
-            pI = pICalculator.CalculateSequencepI(sequence)
-            hydrophobicity = pICalculator.CalculateSequenceHydrophobicity(sequence)
-            ' Could compute charge state: pICalculator.CalculateSequenceChargeState(sequence, pI)
-        End If
-
-        If NETCalculator IsNot Nothing Then
-            ' Compute the LC-based normalized elution time
-            lcNET = NETCalculator.GetElutionTime(sequence)
-        End If
-
-        If SCXNETCalculator IsNot Nothing Then
-            ' Compute the SCX-based normalized elution time
-            scxNET = SCXNETCalculator.GetElutionTime(sequence)
-        End If
-
-        Dim message = "pI = " & pI.ToString() & ControlChars.NewLine &
-                      "Hydrophobicity = " & hydrophobicity.ToString() & ControlChars.NewLine &
-                      "Predicted LC NET = " & lcNET.ToString("0.000") & ControlChars.NewLine &
-                      "Predicted SCX NET = " & scxNET.ToString("0.000")
-        ' "Predicted charge state = " & ControlChars.NewLine & charge.ToString() & " at pH = " & pI.ToString()
-
-        txtpIStats.Text = message
-    End Sub
-
-    Private Function ConfirmFilePaths() As Boolean
-        If txtProteinInputFilePath.TextLength = 0 Then
-            ShowErrorMessage("Please define an input file path", "Missing Value")
-            txtProteinInputFilePath.Focus()
-            Return False
-        ElseIf txtProteinOutputFilePath.TextLength = 0 Then
-            ShowErrorMessage("Please define an output file path", "Missing Value")
-            txtProteinOutputFilePath.Focus()
-            Return False
-        Else
-            Return True
-        End If
-    End Function
-
-    Private Sub DefineDefaultPMThresholds()
-
-        Dim index As Integer
-        Dim massIndex, netIndex As Integer
-
-        Dim netValues() As Double
-        Dim massValues() As Double
-
-        ReDim mPredefinedPMThresholds(PREDEFINED_PM_THRESHOLDS_COUNT - 1)
-
-        ' All of the predefined thresholds have mass tolerances in units of PPM
-        For index = 0 To PREDEFINED_PM_THRESHOLDS_COUNT - 1
-            mPredefinedPMThresholds(index).MassTolType = PeakMatching.SearchThresholds.MassToleranceConstants.PPM
-            ReDim mPredefinedPMThresholds(index).Thresholds(-1)
-        Next index
-
-        ReDim netValues(2)
-        netValues(0) = 0.01
-        netValues(1) = 0.05
-        netValues(2) = 100
-
-        ReDim massValues(4)
-        massValues(0) = 0.5
-        massValues(1) = 1
-        massValues(2) = 5
-        massValues(3) = 10
-        massValues(4) = 50
-
-        ' OneMassOneNET
-        DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(PredefinedPMThresholdsConstants.OneMassOneNET), 5, 0.05)
-
-        ' OneMassThreeNET
-        For netIndex = 0 To netValues.Length - 1
-            DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(PredefinedPMThresholdsConstants.OneMassThreeNET), 5, netValues(netIndex))
-        Next netIndex
-
-        ' ThreeMassOneNET
-        For massIndex = 0 To 2
-            DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(PredefinedPMThresholdsConstants.ThreeMassOneNET), massValues(massIndex), 0.05)
-        Next massIndex
-
-        ' ThreeMassThreeNET
-        For netIndex = 0 To netValues.Length - 1
-            For massIndex = 0 To 2
-                DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(PredefinedPMThresholdsConstants.ThreeMassThreeNET), massValues(massIndex), netValues(netIndex))
-            Next massIndex
-        Next netIndex
-
-        ' FiveMassThreeNET
-        For netIndex = 0 To netValues.Length - 1
-            For massIndex = 0 To massValues.Length - 1
-                DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds(PredefinedPMThresholdsConstants.FiveMassThreeNET), massValues(massIndex), netValues(netIndex))
-            Next massIndex
-        Next netIndex
-
-    End Sub
-
-    Private Sub DefineDefaultPMThresholdAppendItem(ByRef pmThreshold As PredefinedPMThresholds, massTolerance As Double, netTolerance As Double)
-
-        Dim newIndex = pmThreshold.Thresholds.Length
-        ReDim Preserve pmThreshold.Thresholds(newIndex)
-
-        pmThreshold.Thresholds(newIndex).MassTolerance = massTolerance
-        pmThreshold.Thresholds(newIndex).NETTolerance = netTolerance
-    End Sub
-
-    Private Sub EnableDisableControls()
-        Dim enableDelimitedFileOptions As Boolean
-        Dim enableDigestionOptions As Boolean
-        Dim allowSqlServerCaching As Boolean
-
-        Dim inputFilePath = GetProteinInputFilePath()
-        Dim sourceIsFasta = ProteinFileParser.IsFastaFile(inputFilePath, True)
-
-        If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.DelimitedText Then
-            enableDelimitedFileOptions = True
-        ElseIf cboInputFileFormat.SelectedIndex = InputFileFormatConstants.FastaFile OrElse
-           txtProteinInputFilePath.TextLength = 0 OrElse
-           sourceIsFasta Then
-            ' FASTA file (or blank)
-            enableDelimitedFileOptions = False
-        Else
-            enableDelimitedFileOptions = True
-        End If
-
-        cboInputFileColumnDelimiter.Enabled = enableDelimitedFileOptions
-        lblInputFileColumnDelimiter.Enabled = enableDelimitedFileOptions
-        chkAssumeInputFileIsDigested.Enabled = enableDelimitedFileOptions
-
-        txtInputFileColumnDelimiter.Enabled = (cboInputFileColumnDelimiter.SelectedIndex = ProteinFileParser.DelimiterCharConstants.Other) AndAlso enableDelimitedFileOptions
-
-        enableDigestionOptions = chkDigestProteins.Checked
-        If enableDigestionOptions Then
-            cmdParseInputFile.Text = "&Parse and Digest"
-        Else
-            cmdParseInputFile.Text = "&Parse File"
-        End If
-
-        If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.FastaFile OrElse sourceIsFasta Then
-            cmdValidateFastaFile.Enabled = True
-        Else
-            cmdValidateFastaFile.Enabled = False
-        End If
-
-        chkCreateFastaOutputFile.Enabled = Not enableDigestionOptions
-
-        chkComputeSequenceHashIgnoreILDiff.Enabled = chkComputeSequenceHashValues.Checked
-
-        fraDigestionOptions.Enabled = enableDigestionOptions
-        chkIncludePrefixAndSuffixResidues.Enabled = enableDigestionOptions
-
-        txtOutputFileFieldDelimiter.Enabled = (cboOutputFileFieldDelimiter.SelectedIndex = ProteinFileParser.DelimiterCharConstants.Other)
-
-        enableDelimitedFileOptions = chkLookForAddnlRefInDescription.Checked
-        txtAddnlRefSepChar.Enabled = enableDelimitedFileOptions
-        txtAddnlRefAccessionSepChar.Enabled = enableDelimitedFileOptions
-
-        txtUniquenessBinStartMass.Enabled = Not chkAutoComputeRangeForBinning.Checked
-        txtUniquenessBinEndMass.Enabled = txtUniquenessBinStartMass.Enabled
-
-        allowSqlServerCaching = chkAllowSqlServerCaching.Checked
-        chkUseSqlServerDBToCacheData.Enabled = allowSqlServerCaching
-
-        txtSqlServerDatabase.Enabled = chkUseSqlServerDBToCacheData.Checked AndAlso allowSqlServerCaching
-        txtSqlServerName.Enabled = txtSqlServerDatabase.Enabled
-        chkSqlServerUseIntegratedSecurity.Enabled = txtSqlServerDatabase.Enabled
-
-        chkSqlServerUseExistingData.Enabled = chkSqlServerUseIntegratedSecurity.Checked AndAlso allowSqlServerCaching
-
-        txtSqlServerUsername.Enabled = chkUseSqlServerDBToCacheData.Checked AndAlso Not chkSqlServerUseIntegratedSecurity.Checked AndAlso allowSqlServerCaching
-        txtSqlServerPassword.Enabled = txtSqlServerUsername.Enabled
-
-        If cboProteinReversalOptions.SelectedIndex <= 0 Then
-            txtProteinReversalSamplingPercentage.Enabled = False
-        Else
-            txtProteinReversalSamplingPercentage.Enabled = True
-        End If
-
-        If cboProteinReversalOptions.SelectedIndex = 2 Then
-            txtProteinScramblingLoopCount.Enabled = True
-        Else
-            txtProteinScramblingLoopCount.Enabled = False
-        End If
-
-        txtMinimumSLiCScore.Enabled = chkUseSLiCScoreForUniqueness.Checked
-        optUseEllipseSearchRegion.Enabled = Not chkUseSLiCScoreForUniqueness.Checked
-        optUseRectangleSearchRegion.Enabled = optUseEllipseSearchRegion.Enabled
-
-        txtMaxpISequenceLength.Enabled = chkMaxpIModeEnabled.Checked
-
-        txtDigestProteinsMinimumpI.Enabled = enableDigestionOptions AndAlso chkComputepIandNET.Checked
-        txtDigestProteinsMaximumpI.Enabled = enableDigestionOptions AndAlso chkComputepIandNET.Checked
-
-    End Sub
-
-    Private Function FormatPercentComplete(percentComplete As Single) As String
-        Return percentComplete.ToString("0.0") & "% complete"
-    End Function
-
-    Private Sub GenerateUniquenessStats()
-
-        If Not mWorking AndAlso ConfirmFilePaths() Then
-            Try
-
-                If mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE).Rows.Count = 0 Then
-                    ShowErrorMessage("Please define one or more peak matching thresholds before proceeding.", "Error")
-                    Exit Try
-                End If
-
-                mProteinDigestionSimulator = New DigestionSimulator()
-                If chkEnableLogging.Checked Then
-                    mProteinDigestionSimulator.LogMessagesToFile = True
-
-                    Dim appFolderPath = ProcessFilesOrDirectoriesBase.GetAppDataDirectoryPath("ProteinDigestionSimulator")
-                    Dim logFilePath = Path.Combine(appFolderPath, "ProteinDigestionSimulatorLog.txt")
-                    mProteinDigestionSimulator.LogFilePath = logFilePath
-                End If
-
-                Dim success = InitializeProteinFileParserGeneralOptions(mProteinDigestionSimulator.mProteinFileParser)
-                If Not success Then Exit Try
-
-                Dim outputFilePath = txtProteinOutputFilePath.Text
-
-                If Not Path.IsPathRooted(outputFilePath) Then
-                    outputFilePath = Path.Combine(GetMyDocsFolderPath(), outputFilePath)
-                End If
-
-                If Directory.Exists(outputFilePath) Then
-                    ' outputFilePath points to a folder and not a file
-                    outputFilePath = Path.Combine(outputFilePath, Path.GetFileNameWithoutExtension(GetProteinInputFilePath()) & PEAK_MATCHING_STATS_FILE_SUFFIX)
-                Else
-                    ' Replace _output.txt" in outputFilePath with PEAK_MATCHING_STATS_FILE_SUFFIX
-                    Dim charIndex = outputFilePath.IndexOf(OUTPUT_FILE_SUFFIX, StringComparison.OrdinalIgnoreCase)
-                    If charIndex > 0 Then
-                        outputFilePath = outputFilePath.Substring(0, charIndex) & PEAK_MATCHING_STATS_FILE_SUFFIX
-                    Else
-                        outputFilePath = Path.Combine(Path.GetDirectoryName(outputFilePath), Path.GetFileNameWithoutExtension(outputFilePath) & PEAK_MATCHING_STATS_FILE_SUFFIX)
-                    End If
-                End If
-
-                ' Check input file size and possibly warn user to enable/disable SQL Server DB Usage
-                If chkAllowSqlServerCaching.Checked Then
-                    If Not ValidateSqlServerCachingOptionsForInputFile(GetProteinInputFilePath(), chkAssumeInputFileIsDigested.Checked, mProteinDigestionSimulator.mProteinFileParser) Then
-                        Exit Try
-                    End If
-                End If
-
-                Dim massToleranceType As PeakMatching.SearchThresholds.MassToleranceConstants
-                If cboMassTolType.SelectedIndex >= 0 Then
-                    massToleranceType = CType(cboMassTolType.SelectedIndex, PeakMatching.SearchThresholds.MassToleranceConstants)
-                End If
-                Dim autoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked
-
-                Dim clearExisting = True
-                For Each myDataRow As DataRow In mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE).Rows
-                    If autoDefineSLiCScoreThresholds Then
-                        mProteinDigestionSimulator.AddSearchThresholdLevel(massToleranceType, CDbl(myDataRow.Item(0)), CDbl(myDataRow.Item(1)), clearExisting)
-                    Else
-                        mProteinDigestionSimulator.AddSearchThresholdLevel(massToleranceType, CDbl(myDataRow.Item(0)), CDbl(myDataRow.Item(1)), False, CDbl(myDataRow.Item(2)), CDbl(myDataRow.Item(3)), True, clearExisting)
-                    End If
-
-                    clearExisting = False
-                Next myDataRow
-
-                mProteinDigestionSimulator.DigestSequences = Not chkAssumeInputFileIsDigested.Checked
-                mProteinDigestionSimulator.CysPeptidesOnly = chkCysPeptidesOnly.Checked
-                If cboElementMassMode.SelectedIndex >= 0 Then
-                    mProteinDigestionSimulator.ElementMassMode = CType(cboElementMassMode.SelectedIndex, PeptideSequence.ElementModeConstants)
-                End If
-
-                mProteinDigestionSimulator.AutoDetermineMassRangeForBinning = chkAutoComputeRangeForBinning.Checked
-
-                Dim invalidValue As Boolean
-                mProteinDigestionSimulator.PeptideUniquenessMassBinSizeForBinning = ParseTextBoxValueInt(txtUniquenessBinWidth, lblUniquenessBinWidth.Text & " must be an integer value", invalidValue)
-                If invalidValue Then Exit Try
-
-                If Not mProteinDigestionSimulator.AutoDetermineMassRangeForBinning Then
-                    Dim binStartMass = ParseTextBoxValueInt(txtUniquenessBinStartMass, "Uniqueness binning start mass must be an integer value", invalidValue)
-                    If invalidValue Then Exit Try
-
-                    Dim binEndMass = ParseTextBoxValueInt(txtUniquenessBinEndMass, "Uniqueness binning end mass must be an integer value", invalidValue)
-                    If invalidValue Then Exit Try
-
-                    If Not mProteinDigestionSimulator.SetPeptideUniquenessMassRangeForBinning(binStartMass, binEndMass) Then
-                        mProteinDigestionSimulator.AutoDetermineMassRangeForBinning = True
-                    End If
-                End If
-
-                mProteinDigestionSimulator.MinimumSLiCScoreToBeConsideredUnique = ParseTextBoxValueSng(txtMinimumSLiCScore, lblMinimumSLiCScore.Text & " must be a value", invalidValue)
-                If invalidValue Then Exit Try
-
-                mProteinDigestionSimulator.MaxPeakMatchingResultsPerFeatureToSave = ParseTextBoxValueInt(txtMaxPeakMatchingResultsPerFeatureToSave, lblMaxPeakMatchingResultsPerFeatureToSave.Text & " must be an integer value", invalidValue)
-                If invalidValue Then Exit Try
-
-                mProteinDigestionSimulator.SavePeakMatchingResults = chkExportPeakMatchingResults.Checked
-                mProteinDigestionSimulator.UseSLiCScoreForUniqueness = chkUseSLiCScoreForUniqueness.Checked
-                mProteinDigestionSimulator.UseEllipseSearchRegion = optUseEllipseSearchRegion.Checked             ' Only applicable if mProteinDigestionSimulator.UseSLiCScoreForUniqueness = True
-
-                Cursor.Current = Cursors.WaitCursor
-                mWorking = True
-                cmdGenerateUniquenessStats.Enabled = False
-
-                ResetProgress()
-                SwitchToProgressTab()
-
-                success = mProteinDigestionSimulator.GenerateUniquenessStats(GetProteinInputFilePath(), Path.GetDirectoryName(outputFilePath), Path.GetFileNameWithoutExtension(outputFilePath))
-
-                Cursor.Current = Cursors.Default
-
-                If success Then
-                    MessageBox.Show("Uniqueness stats calculation complete ", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                    SwitchFromProgressTab()
-                Else
-                    ShowErrorMessage("Unable to Generate Uniqueness Stats: " & mProteinDigestionSimulator.GetErrorMessage, "Error")
-                End If
-
-            Catch ex As Exception
-                ShowErrorMessage("Error in frmMain->GenerateUniquenessStats: " & ex.Message, "Error")
-            Finally
-                mWorking = False
-                cmdGenerateUniquenessStats.Enabled = True
-                mProteinDigestionSimulator = Nothing
-            End Try
-        End If
-
-    End Sub
-
-    Private Function GetMyDocsFolderPath() As String
-        Return Environment.GetFolderPath(Environment.SpecialFolder.Personal)
-    End Function
-
-    Private Function GetProteinInputFilePath() As String
-        Return txtProteinInputFilePath.Text.Trim({""""c, " "c})
-    End Function
-
-    Private Function GetSelectedCleavageRule() As InSilicoDigest.CleavageRuleConstants
-
-        Dim selectedIndex = cboCleavageRuleType.SelectedIndex
-        Dim selectedCleavageRule = InSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
-
-        If selectedIndex < 0 OrElse Not mCleavageRuleComboboxIndexToType.TryGetValue(selectedIndex, selectedCleavageRule) Then
-            Return InSilicoDigest.CleavageRuleConstants.ConventionalTrypsin
-        End If
-
-        Return selectedCleavageRule
-
-    End Function
-
-    Private Function GetSettingsFilePath() As String
-        Return ProcessFilesOrDirectoriesBase.GetSettingsFilePathLocal("ProteinDigestionSimulator", XML_SETTINGS_FILE_NAME)
-    End Function
-
-    Private Sub IniFileLoadOptions()
-
-        Const OptionsSection As String = ProteinFileParser.XML_SECTION_OPTIONS
-        Const FASTAOptions As String = ProteinFileParser.XML_SECTION_FASTA_OPTIONS
-        Const ProcessingOptions As String = ProteinFileParser.XML_SECTION_PROCESSING_OPTIONS
-        Const DigestionOptions As String = ProteinFileParser.XML_SECTION_DIGESTION_OPTIONS
-        Const UniquenessStatsOptions As String = ProteinFileParser.XML_SECTION_UNIQUENESS_STATS_OPTIONS
-        Const PMOptions As String = DigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS
-
-        Const MAX_AUTO_WINDOW_HEIGHT = 775
-
-        Dim xmlSettings As New XmlSettingsFileAccessor()
-
-        Dim autoDefineSLiCScoreThresholds As Boolean
-        Dim valueNotPresent As Boolean
-        Dim radioButtonChecked As Boolean
-
-        Dim index As Integer
-        Dim windowHeight As Integer
-
-        Dim thresholdData As String
-        Dim thresholds() As String
-        Dim thresholdDetails() As String
-
-        Dim columnDelimiters = New Char() {ControlChars.Tab, ","c}
-
-        ResetToDefaults(False)
-        Dim settingsFilePath = GetSettingsFilePath()
-
-        Try
-
-            ' Pass False to .LoadSettings() here to turn off case sensitive matching
-            xmlSettings.LoadSettings(settingsFilePath, False)
-            ProcessFilesOrDirectoriesBase.CreateSettingsFileIfMissing(settingsFilePath)
-
-            If Not File.Exists(settingsFilePath) Then
-                ShowErrorMessage("Parameter file not Found: " & settingsFilePath)
-                Exit Sub
-            End If
-
-            Try
-                txtProteinInputFilePath.Text = xmlSettings.GetParam(OptionsSection, "InputFilePath", GetProteinInputFilePath())
-
-                cboInputFileFormat.SelectedIndex = xmlSettings.GetParam(OptionsSection, "InputFileFormatIndex", cboInputFileFormat.SelectedIndex)
-                cboInputFileColumnDelimiter.SelectedIndex = xmlSettings.GetParam(OptionsSection, "InputFileColumnDelimiterIndex", cboInputFileColumnDelimiter.SelectedIndex)
-                txtInputFileColumnDelimiter.Text = xmlSettings.GetParam(OptionsSection, "InputFileColumnDelimiter", txtInputFileColumnDelimiter.Text)
-
-                cboInputFileColumnOrdering.SelectedIndex = xmlSettings.GetParam(OptionsSection, "InputFileColumnOrdering", cboInputFileColumnOrdering.SelectedIndex)
-
-                cboOutputFileFieldDelimiter.SelectedIndex = xmlSettings.GetParam(OptionsSection, "OutputFileFieldDelimiterIndex", cboOutputFileFieldDelimiter.SelectedIndex)
-                txtOutputFileFieldDelimiter.Text = xmlSettings.GetParam(OptionsSection, "OutputFileFieldDelimiter", txtOutputFileFieldDelimiter.Text)
-
-                chkIncludePrefixAndSuffixResidues.Checked = xmlSettings.GetParam(OptionsSection, "IncludePrefixAndSuffixResidues", chkIncludePrefixAndSuffixResidues.Checked)
-                chkEnableLogging.Checked = xmlSettings.GetParam(OptionsSection, "EnableLogging", chkEnableLogging.Checked)
-
-                mCustomValidationRulesFilePath = xmlSettings.GetParam(OptionsSection, "CustomValidationRulesFilePath", String.Empty)
-
-                Me.Width = xmlSettings.GetParam(OptionsSection, "WindowWidth", Me.Width)
-                windowHeight = xmlSettings.GetParam(OptionsSection, "WindowHeight", Me.Height)
-                If windowHeight > MAX_AUTO_WINDOW_HEIGHT Then
-                    windowHeight = MAX_AUTO_WINDOW_HEIGHT
-                End If
-                Me.Height = windowHeight
-
-                chkLookForAddnlRefInDescription.Checked = xmlSettings.GetParam(FASTAOptions, "LookForAddnlRefInDescription", chkLookForAddnlRefInDescription.Checked)
-                txtAddnlRefSepChar.Text = xmlSettings.GetParam(FASTAOptions, "AddnlRefSepChar", txtAddnlRefSepChar.Text)
-                txtAddnlRefAccessionSepChar.Text = xmlSettings.GetParam(FASTAOptions, "AddnlRefAccessionSepChar", txtAddnlRefAccessionSepChar.Text)
-
-                chkExcludeProteinSequence.Checked = xmlSettings.GetParam(ProcessingOptions, "ExcludeProteinSequence", chkExcludeProteinSequence.Checked)
-                chkComputeProteinMass.Checked = xmlSettings.GetParam(ProcessingOptions, "ComputeProteinMass", chkComputeProteinMass.Checked)
-                cboElementMassMode.SelectedIndex = xmlSettings.GetParam(ProcessingOptions, "ElementMassMode", cboElementMassMode.SelectedIndex)
-
-                ' In the GUI, chkComputepI controls computing pI, NET, and SCX
-                ' Running from the command line, you can toggle those options separately using "ComputepI" and "ComputeSCX"
-                chkComputepIandNET.Checked = xmlSettings.GetParam(ProcessingOptions, "ComputepI", chkComputepIandNET.Checked)
-                chkIncludeXResidues.Checked = xmlSettings.GetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
-
-                chkComputeSequenceHashValues.Checked = xmlSettings.GetParam(ProcessingOptions, "ComputeSequenceHashValues", chkComputeSequenceHashValues.Checked)
-                chkComputeSequenceHashIgnoreILDiff.Checked = xmlSettings.GetParam(ProcessingOptions, "ComputeSequenceHashIgnoreILDiff", chkComputeSequenceHashIgnoreILDiff.Checked)
-                chkTruncateProteinDescription.Checked = xmlSettings.GetParam(ProcessingOptions, "TruncateProteinDescription", chkTruncateProteinDescription.Checked)
-                chkExcludeProteinDescription.Checked = xmlSettings.GetParam(ProcessingOptions, "ExcludeProteinDescription", chkExcludeProteinDescription.Checked)
-
-                chkDigestProteins.Checked = xmlSettings.GetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked)
-                cboProteinReversalOptions.SelectedIndex = xmlSettings.GetParam(ProcessingOptions, "ProteinReversalIndex", cboProteinReversalOptions.SelectedIndex)
-                txtProteinScramblingLoopCount.Text = xmlSettings.GetParam(ProcessingOptions, "ProteinScramblingLoopCount", txtProteinScramblingLoopCount.Text)
-
-                Try
-                    cboHydrophobicityMode.SelectedIndex = xmlSettings.GetParam(ProcessingOptions, "HydrophobicityMode", cboHydrophobicityMode.SelectedIndex)
-                Catch ex As Exception
-                    ' Ignore errors setting the selected index
-                End Try
-                chkMaxpIModeEnabled.Checked = xmlSettings.GetParam(ProcessingOptions, "MaxpIModeEnabled", chkMaxpIModeEnabled.Checked)
-                txtMaxpISequenceLength.Text = xmlSettings.GetParam(ProcessingOptions, "MaxpISequenceLength", LookupMaxpISequenceLength).ToString()
-
-                Dim cleavageRuleName = xmlSettings.GetParam(DigestionOptions, "CleavageRuleName", String.Empty)
-
-                If Not String.IsNullOrWhiteSpace(cleavageRuleName) Then
-                    SetSelectedCleavageRule(cleavageRuleName)
-                Else
-                    Dim legacyCleavageRuleIndexSetting = xmlSettings.GetParam(DigestionOptions, "CleavageRuleTypeIndex", -1)
-                    If legacyCleavageRuleIndexSetting >= 0 Then
-
-                        Try
-                            Dim cleavageRule = CType(legacyCleavageRuleIndexSetting, InSilicoDigest.CleavageRuleConstants)
-                            SetSelectedCleavageRule(cleavageRule)
-                        Catch ex As Exception
-                            ' Ignore errors here
-                        End Try
-                    End If
-                End If
-
-                chkIncludeDuplicateSequences.Checked = xmlSettings.GetParam(DigestionOptions, "IncludeDuplicateSequences", chkIncludeDuplicateSequences.Checked)
-                chkCysPeptidesOnly.Checked = xmlSettings.GetParam(DigestionOptions, "CysPeptidesOnly", chkCysPeptidesOnly.Checked)
-
-                txtDigestProteinsMinimumMass.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMinimumMass", txtDigestProteinsMinimumMass.Text)
-                txtDigestProteinsMaximumMass.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMaximumMass", txtDigestProteinsMaximumMass.Text)
-                txtDigestProteinsMinimumResidueCount.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMinimumResidueCount", txtDigestProteinsMinimumResidueCount.Text)
-                txtDigestProteinsMaximumMissedCleavages.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMaximumMissedCleavages", txtDigestProteinsMaximumMissedCleavages.Text)
-
-                txtDigestProteinsMinimumpI.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMinimumpI", txtDigestProteinsMinimumpI.Text)
-                txtDigestProteinsMaximumpI.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMaximumpI", txtDigestProteinsMaximumpI.Text)
-
-                cboFragmentMassMode.SelectedIndex = xmlSettings.GetParam(DigestionOptions, "FragmentMassModeIndex", cboFragmentMassMode.SelectedIndex)
-                cboCysTreatmentMode.SelectedIndex = xmlSettings.GetParam(DigestionOptions, "CysTreatmentModeIndex", cboCysTreatmentMode.SelectedIndex)
-
-                ' Load Uniqueness Options
-                chkAssumeInputFileIsDigested.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "AssumeInputFileIsDigested", chkAssumeInputFileIsDigested.Checked)
-
-                txtUniquenessBinWidth.Text = xmlSettings.GetParam(UniquenessStatsOptions, "UniquenessBinWidth", txtUniquenessBinWidth.Text)
-                chkAutoComputeRangeForBinning.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "AutoComputeRangeForBinning", chkAutoComputeRangeForBinning.Checked)
-                txtUniquenessBinStartMass.Text = xmlSettings.GetParam(UniquenessStatsOptions, "UniquenessBinStartMass", txtUniquenessBinStartMass.Text)
-                txtUniquenessBinEndMass.Text = xmlSettings.GetParam(UniquenessStatsOptions, "UniquenessBinEndMass", txtUniquenessBinEndMass.Text)
-
-                txtMaxPeakMatchingResultsPerFeatureToSave.Text = xmlSettings.GetParam(UniquenessStatsOptions, "MaxPeakMatchingResultsPerFeatureToSave", txtMaxPeakMatchingResultsPerFeatureToSave.Text)
-                chkUseSLiCScoreForUniqueness.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "UseSLiCScoreForUniqueness", chkUseSLiCScoreForUniqueness.Checked)
-                txtMinimumSLiCScore.Text = xmlSettings.GetParam(UniquenessStatsOptions, "MinimumSLiCScore", txtMinimumSLiCScore.Text)
-                radioButtonChecked = xmlSettings.GetParam(UniquenessStatsOptions, "UseEllipseSearchRegion", True)
-                If radioButtonChecked Then
-                    optUseEllipseSearchRegion.Checked = radioButtonChecked
-                Else
-                    optUseRectangleSearchRegion.Checked = radioButtonChecked
-                End If
-
-                ''chkAllowSqlServerCaching.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "AllowSqlServerCaching", chkAllowSqlServerCaching.Checked)
-                ''chkUseSqlServerDBToCacheData.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "UseSqlServerDBToCacheData", chkUseSqlServerDBToCacheData.Checked)
-                ''txtSqlServerName.Text = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerName", txtSqlServerName.Text)
-                ''txtSqlServerDatabase.Text = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerDatabase", txtSqlServerDatabase.Text)
-                ''chkSqlServerUseIntegratedSecurity.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerUseIntegratedSecurity", chkSqlServerUseIntegratedSecurity.Checked)
-
-                ''chkSqlServerUseExistingData.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerUseExistingData", chkSqlServerUseExistingData.Checked)
-
-                ''txtSqlServerUsername.Text = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerUsername", txtSqlServerUsername.Text)
-                ''txtSqlServerPassword.Text = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerPassword", txtSqlServerPassword.Text)
-
-                ' Load the peak matching thresholds
-                cboMassTolType.SelectedIndex = xmlSettings.GetParam(PMOptions, "MassToleranceType", cboMassTolType.SelectedIndex)
-                chkAutoDefineSLiCScoreTolerances.Checked = xmlSettings.GetParam(PMOptions, "AutoDefineSLiCScoreThresholds", chkAutoDefineSLiCScoreTolerances.Checked)
-                autoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked
-
-                ' See if any peak matching data is present
-                ' If it is, clear the table and load it; if not, leave the table unchanged
-
-                valueNotPresent = False
-                thresholdData = xmlSettings.GetParam(PMOptions, "ThresholdData", String.Empty, valueNotPresent)
-
-                If Not valueNotPresent AndAlso thresholdData IsNot Nothing AndAlso thresholdData.Length > 0 Then
-                    thresholds = thresholdData.Split(";"c)
-
-                    If thresholds.Length > 0 Then
-                        ClearPMThresholdsList(False)
-
-                        For index = 0 To thresholds.Length - 1
-                            thresholdDetails = thresholds(index).Split(columnDelimiters)
-
-                            If thresholdDetails.Length > 2 AndAlso Not autoDefineSLiCScoreThresholds Then
-                                If IsNumeric(thresholdDetails(0)) AndAlso IsNumeric(thresholdDetails(1)) AndAlso
-                                 IsNumeric(thresholdDetails(2)) AndAlso IsNumeric(thresholdDetails(3)) Then
-                                    AddPMThresholdRow(CDbl(thresholdDetails(0)), CDbl(thresholdDetails(1)),
-                                         CDbl(thresholdDetails(2)), CDbl(thresholdDetails(3)))
-                                End If
-                            ElseIf thresholdDetails.Length >= 2 Then
-                                If IsNumeric(thresholdDetails(0)) AndAlso IsNumeric(thresholdDetails(1)) Then
-                                    AddPMThresholdRow(CDbl(thresholdDetails(0)), CDbl(thresholdDetails(1)))
-                                End If
-                            End If
-                        Next index
-                    End If
-                End If
-
-            Catch ex As Exception
-                ShowErrorMessage("Invalid parameter in settings file: " & Path.GetFileName(settingsFilePath), "Error")
-            End Try
-
-        Catch ex As Exception
-            ShowErrorMessage("Error loading settings from file: " & settingsFilePath, "Error")
-        End Try
-
-    End Sub
-
-    Private Sub IniFileSaveOptions(showFilePath As Boolean, Optional saveWindowDimensionsOnly As Boolean = False)
-
-        Const OptionsSection As String = ProteinFileParser.XML_SECTION_OPTIONS
-        Const FASTAOptions As String = ProteinFileParser.XML_SECTION_FASTA_OPTIONS
-        Const ProcessingOptions As String = ProteinFileParser.XML_SECTION_PROCESSING_OPTIONS
-        Const DigestionOptions As String = ProteinFileParser.XML_SECTION_DIGESTION_OPTIONS
-        Const UniquenessStatsOptions As String = ProteinFileParser.XML_SECTION_UNIQUENESS_STATS_OPTIONS
-        Const PMOptions As String = DigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS
-
-        Dim xmlSettings As New XmlSettingsFileAccessor()
-        Dim settingsFilePath = GetSettingsFilePath()
-
-        Try
-            Dim settingsFile = New FileInfo(settingsFilePath)
-            If Not settingsFile.Exists Then
-                saveWindowDimensionsOnly = False
-            End If
-        Catch
-            'Ignore errors here
-        End Try
-
-        Try
-
-            ' Pass True to .LoadSettings() to turn on case sensitive matching
-            xmlSettings.LoadSettings(settingsFilePath, True)
-
-            Try
-                If Not saveWindowDimensionsOnly Then
-                    xmlSettings.SetParam(OptionsSection, "InputFilePath", GetProteinInputFilePath())
-                    xmlSettings.SetParam(OptionsSection, "InputFileFormatIndex", cboInputFileFormat.SelectedIndex)
-                    xmlSettings.SetParam(OptionsSection, "InputFileColumnDelimiterIndex", cboInputFileColumnDelimiter.SelectedIndex)
-                    xmlSettings.SetParam(OptionsSection, "InputFileColumnDelimiter", txtInputFileColumnDelimiter.Text)
-
-                    xmlSettings.SetParam(OptionsSection, "InputFileColumnOrdering", cboInputFileColumnOrdering.SelectedIndex)
-
-
-                    xmlSettings.SetParam(OptionsSection, "OutputFileFieldDelimiterIndex", cboOutputFileFieldDelimiter.SelectedIndex)
-                    xmlSettings.SetParam(OptionsSection, "OutputFileFieldDelimiter", txtOutputFileFieldDelimiter.Text)
-
-                    xmlSettings.SetParam(OptionsSection, "IncludePrefixAndSuffixResidues", chkIncludePrefixAndSuffixResidues.Checked)
-                    xmlSettings.SetParam(OptionsSection, "EnableLogging", chkEnableLogging.Checked)
-
-                    xmlSettings.SetParam(OptionsSection, "CustomValidationRulesFilePath", mCustomValidationRulesFilePath)
-                End If
-
-                xmlSettings.SetParam(OptionsSection, "WindowWidth", Me.Width)
-                xmlSettings.SetParam(OptionsSection, "WindowHeight", Me.Height)
-
-                If Not saveWindowDimensionsOnly Then
-                    xmlSettings.SetParam(FASTAOptions, "LookForAddnlRefInDescription", chkLookForAddnlRefInDescription.Checked)
-                    xmlSettings.SetParam(FASTAOptions, "AddnlRefSepChar", txtAddnlRefSepChar.Text)
-                    xmlSettings.SetParam(FASTAOptions, "AddnlRefAccessionSepChar", txtAddnlRefAccessionSepChar.Text)
-
-                    xmlSettings.SetParam(ProcessingOptions, "ExcludeProteinSequence", chkExcludeProteinSequence.Checked)
-                    xmlSettings.SetParam(ProcessingOptions, "ComputeProteinMass", chkComputeProteinMass.Checked)
-                    xmlSettings.SetParam(ProcessingOptions, "ComputepI", chkComputepIandNET.Checked)
-                    xmlSettings.SetParam(ProcessingOptions, "ComputeNET", chkComputepIandNET.Checked)
-                    xmlSettings.SetParam(ProcessingOptions, "ComputeSCX", chkComputepIandNET.Checked)
-
-                    xmlSettings.SetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked)
-
-                    xmlSettings.SetParam(ProcessingOptions, "ComputeSequenceHashValues", chkComputeSequenceHashValues.Checked)
-                    xmlSettings.SetParam(ProcessingOptions, "ComputeSequenceHashIgnoreILDiff", chkComputeSequenceHashIgnoreILDiff.Checked)
-                    xmlSettings.SetParam(ProcessingOptions, "TruncateProteinDescription", chkTruncateProteinDescription.Checked)
-                    xmlSettings.SetParam(ProcessingOptions, "ExcludeProteinDescription", chkExcludeProteinDescription.Checked)
-
-                    xmlSettings.SetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked)
-                    xmlSettings.SetParam(ProcessingOptions, "ProteinReversalIndex", cboProteinReversalOptions.SelectedIndex)
-                    xmlSettings.SetParam(ProcessingOptions, "ProteinScramblingLoopCount", txtProteinScramblingLoopCount.Text)
-                    xmlSettings.SetParam(ProcessingOptions, "ElementMassMode", cboElementMassMode.SelectedIndex)
-
-                    xmlSettings.SetParam(ProcessingOptions, "HydrophobicityMode", cboHydrophobicityMode.SelectedIndex)
-                    xmlSettings.SetParam(ProcessingOptions, "MaxpIModeEnabled", chkMaxpIModeEnabled.Checked)
-                    xmlSettings.SetParam(ProcessingOptions, "MaxpISequenceLength", LookupMaxpISequenceLength())
-
-                    xmlSettings.SetParam(DigestionOptions, "CleavageRuleName", GetSelectedCleavageRule().ToString())
-
-                    xmlSettings.SetParam(DigestionOptions, "IncludeDuplicateSequences", chkIncludeDuplicateSequences.Checked)
-                    xmlSettings.SetParam(DigestionOptions, "CysPeptidesOnly", chkCysPeptidesOnly.Checked)
-
-                    xmlSettings.SetParam(DigestionOptions, "DigestProteinsMinimumMass", txtDigestProteinsMinimumMass.Text)
-                    xmlSettings.SetParam(DigestionOptions, "DigestProteinsMaximumMass", txtDigestProteinsMaximumMass.Text)
-                    xmlSettings.SetParam(DigestionOptions, "DigestProteinsMinimumResidueCount", txtDigestProteinsMinimumResidueCount.Text)
-                    xmlSettings.SetParam(DigestionOptions, "DigestProteinsMaximumMissedCleavages", txtDigestProteinsMaximumMissedCleavages.Text)
-
-                    xmlSettings.SetParam(DigestionOptions, "DigestProteinsMinimumpI", txtDigestProteinsMinimumpI.Text)
-                    xmlSettings.SetParam(DigestionOptions, "DigestProteinsMaximumpI", txtDigestProteinsMaximumpI.Text)
-
-                    xmlSettings.SetParam(DigestionOptions, "FragmentMassModeIndex", cboFragmentMassMode.SelectedIndex)
-                    xmlSettings.SetParam(DigestionOptions, "CysTreatmentModeIndex", cboCysTreatmentMode.SelectedIndex)
-
-                    ' Load Uniqueness Options
-                    xmlSettings.SetParam(UniquenessStatsOptions, "AssumeInputFileIsDigested", chkAssumeInputFileIsDigested.Checked)
-
-                    xmlSettings.SetParam(UniquenessStatsOptions, "UniquenessBinWidth", txtUniquenessBinWidth.Text)
-                    xmlSettings.SetParam(UniquenessStatsOptions, "AutoComputeRangeForBinning", chkAutoComputeRangeForBinning.Checked)
-                    xmlSettings.SetParam(UniquenessStatsOptions, "UniquenessBinStartMass", txtUniquenessBinStartMass.Text)
-                    xmlSettings.SetParam(UniquenessStatsOptions, "UniquenessBinEndMass", txtUniquenessBinEndMass.Text)
-
-                    xmlSettings.SetParam(UniquenessStatsOptions, "MaxPeakMatchingResultsPerFeatureToSave", txtMaxPeakMatchingResultsPerFeatureToSave.Text)
-                    xmlSettings.SetParam(UniquenessStatsOptions, "UseSLiCScoreForUniqueness", chkUseSLiCScoreForUniqueness.Checked)
-                    xmlSettings.SetParam(UniquenessStatsOptions, "MinimumSLiCScore", txtMinimumSLiCScore.Text)
-                    xmlSettings.SetParam(UniquenessStatsOptions, "UseEllipseSearchRegion", optUseEllipseSearchRegion.Checked)
-
-                    ''xmlSettings.SetParam(UniquenessStatsOptions, "AllowSqlServerCaching", chkAllowSqlServerCaching.Checked)
-                    ''xmlSettings.SetParam(UniquenessStatsOptions, "UseSqlServerDBToCacheData", chkUseSqlServerDBToCacheData.Checked)
-                    ''xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerName", txtSqlServerName.Text)
-                    ''xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerDatabase", txtSqlServerDatabase.Text)
-                    ''xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerUseIntegratedSecurity", chkSqlServerUseIntegratedSecurity.Checked)
-                    ''xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerUseExistingData", chkSqlServerUseExistingData.Checked)
-                    ''xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerUsername", txtSqlServerUsername.Text)
-                    ''xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerPassword", txtSqlServerPassword.Text)
-
-                    ' Save the peak matching thresholds
-                    xmlSettings.SetParam(PMOptions, "MassToleranceType", cboMassTolType.SelectedIndex.ToString())
-
-                    Dim autoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked
-                    xmlSettings.SetParam(PMOptions, "AutoDefineSLiCScoreThresholds", autoDefineSLiCScoreThresholds.ToString())
-
-                    Dim thresholdData = String.Empty
-                    For Each myDataRow As DataRow In mPeakMatchingThresholdsDataset.Tables(PM_THRESHOLDS_DATA_TABLE).Rows
-                        If thresholdData.Length > 0 Then thresholdData &= "; "
-                        If autoDefineSLiCScoreThresholds Then
-                            thresholdData &= CStr(myDataRow.Item(0)) & "," & CStr(myDataRow.Item(1))
-                        Else
-                            thresholdData &= CStr(myDataRow.Item(0)) & "," & CStr(myDataRow.Item(1)) & "," & CStr(myDataRow.Item(2)) & "," & CStr(myDataRow.Item(3))
-                        End If
-                    Next myDataRow
-                    xmlSettings.SetParam(PMOptions, "ThresholdData", thresholdData)
-                End If
-            Catch ex As Exception
-                ShowErrorMessage("Error storing parameter in settings file: " & Path.GetFileName(settingsFilePath), "Error")
-            End Try
-
-            xmlSettings.SaveSettings()
-
-            If showFilePath Then
-                MessageBox.Show("Saved settings to file " & settingsFilePath, "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            End If
-
-        Catch ex As Exception
-            ShowErrorMessage("Error saving settings to file: " & settingsFilePath, "Error")
-        End Try
-
-    End Sub
-
-    Private Sub InitializeControls()
-        DefineDefaultPMThresholds()
-
-        Me.Text = "Protein Digestion Simulator"
-        lblUniquenessCalculationsNote.Text = "The Protein Digestion Simulator uses an elution time prediction algorithm " &
-                                             "developed by Lars Kangas and Kostas Petritis. See Help->About Elution Time Prediction for more info. " &
-                                             "Note that you can provide custom time values for peptides by separately " &
-                                             "generating a tab or comma delimited text file with information corresponding " &
-                                             "to one of the options in the 'Column Order' list on the 'File Format' option tab, " &
-                                             "then checking 'Assume Input file is Already Digested' on this tab."
-
-        PopulateComboBoxes()
-        InitializePeakMatchingDataGrid()
-
-        IniFileLoadOptions()
-        SetToolTips()
-
-        ShowSplashScreen()
-
-        EnableDisableControls()
-
-        ResetProgress()
-    End Sub
-
-    Private Sub InitializePeakMatchingDataGrid()
-
-
-        ' Make the Peak Matching Thresholds DATA_TABLE
-        Dim pmThresholds = New DataTable(PM_THRESHOLDS_DATA_TABLE)
-
-        ' Add the columns to the data table
-        DBUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_MASS_TOLERANCE)
-        DBUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_NET_TOLERANCE)
-        DBUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_SLIC_MASS_STDEV, DEFAULT_SLIC_MASS_STDEV)
-        DBUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_SLIC_NET_STDEV, DEFAULT_SLIC_NET_STDEV)
-        DBUtils.AppendColumnIntegerToTable(pmThresholds, COL_NAME_PM_THRESHOLD_ROW_ID, 0, True, True)
-
-        Dim PrimaryKeyColumn = New DataColumn() {pmThresholds.Columns(COL_NAME_PM_THRESHOLD_ROW_ID)}
-        pmThresholds.PrimaryKey = PrimaryKeyColumn
-
-        ' Instantiate the dataset
-        mPeakMatchingThresholdsDataset = New DataSet(PM_THRESHOLDS_DATA_TABLE)
-
-        ' Add the new System.Data.DataTable to the DataSet.
-        mPeakMatchingThresholdsDataset.Tables.Add(pmThresholds)
-
-        ' Bind the DataSet to the DataGrid
-        dgPeakMatchingThresholds.DataSource = mPeakMatchingThresholdsDataset
-        dgPeakMatchingThresholds.DataMember = PM_THRESHOLDS_DATA_TABLE
-
-        ' Update the grid's table style
-        UpdateDataGridTableStyle()
-
-        ' Populate the table
-        AutoPopulatePMThresholdsByID(PredefinedPMThresholdsConstants.OneMassOneNET, False)
-
-    End Sub
-
-    Private Sub UpdateDataGridTableStyle()
-        Dim tsPMThresholdsTableStyle As DataGridTableStyle
-
-        ' Define the PM Thresholds table style
-        ' Setting the MappingName of the table style to PM_THRESHOLDS_DATA_TABLE will cause this style to be used with that table
-        tsPMThresholdsTableStyle = New DataGridTableStyle With {
-            .MappingName = PM_THRESHOLDS_DATA_TABLE,
-            .AllowSorting = True,
-            .ColumnHeadersVisible = True,
-            .RowHeadersVisible = True,
-            .ReadOnly = False
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_mParseProteinFile != null)
+                {
+                    _mParseProteinFile.ErrorEvent -= ParseProteinFile_ErrorEvent;
+                    _mParseProteinFile.ProgressUpdate -= ParseProteinFile_ProgressChanged;
+                    _mParseProteinFile.ProgressComplete -= ParseProteinFile_ProgressComplete;
+                    _mParseProteinFile.ProgressReset -= ParseProteinFile_ProgressReset;
+                    _mParseProteinFile.SubtaskProgressChanged -= ParseProteinFile_SubtaskProgressChanged;
+                }
+
+                _mParseProteinFile = value;
+                if (_mParseProteinFile != null)
+                {
+                    _mParseProteinFile.ErrorEvent += ParseProteinFile_ErrorEvent;
+                    _mParseProteinFile.ProgressUpdate += ParseProteinFile_ProgressChanged;
+                    _mParseProteinFile.ProgressComplete += ParseProteinFile_ProgressComplete;
+                    _mParseProteinFile.ProgressReset += ParseProteinFile_ProgressReset;
+                    _mParseProteinFile.SubtaskProgressChanged += ParseProteinFile_SubtaskProgressChanged;
+                }
+            }
         }
 
-        DataGridUtils.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_MASS_TOLERANCE, "Mass Tolerance", 90)
-        DataGridUtils.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_NET_TOLERANCE, "NET Tolerance", 90)
-
-        If chkAutoDefineSLiCScoreTolerances.Checked Then
-            dgPeakMatchingThresholds.Width = 250
-        Else
-            dgPeakMatchingThresholds.Width = 425
-            DataGridUtils.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_SLIC_MASS_STDEV, "SLiC Mass StDev", 90)
-            DataGridUtils.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_SLIC_NET_STDEV, "SLiC NET StDev", 90)
-        End If
-
-        cmdPastePMThresholdsList.Left = dgPeakMatchingThresholds.Left + dgPeakMatchingThresholds.Width + 15
-        cmdClearPMThresholdsList.Left = cmdPastePMThresholdsList.Left
-
-        dgPeakMatchingThresholds.TableStyles.Clear()
-
-        If Not dgPeakMatchingThresholds.TableStyles.Contains(tsPMThresholdsTableStyle) Then
-            dgPeakMatchingThresholds.TableStyles.Add(tsPMThresholdsTableStyle)
-        End If
-
-        dgPeakMatchingThresholds.Refresh()
-
-    End Sub
-
-    Private Function InitializeProteinFileParserGeneralOptions(ByRef parseProteinFile As ProteinFileParser) As Boolean
-        ' Returns true if all values were valid
-
-        Dim invalidValue As Boolean
-
-        If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.FastaFile Then
-            parseProteinFile.AssumeFastaFile = True
-        ElseIf cboInputFileFormat.SelectedIndex = InputFileFormatConstants.DelimitedText Then
-            parseProteinFile.AssumeDelimitedFile = True
-        Else
-            parseProteinFile.AssumeFastaFile = False
-        End If
-
-        If cboInputFileColumnOrdering.SelectedIndex >= 0 Then
-            parseProteinFile.DelimitedFileFormatCode = CType(cboInputFileColumnOrdering.SelectedIndex, DelimitedProteinFileReader.ProteinFileFormatCode)
-        End If
-
-        parseProteinFile.InputFileDelimiter = LookupColumnDelimiter(cboInputFileColumnDelimiter, txtInputFileColumnDelimiter, ControlChars.Tab)
-        parseProteinFile.OutputFileDelimiter = LookupColumnDelimiter(cboOutputFileFieldDelimiter, txtOutputFileFieldDelimiter, ControlChars.Tab)
-
-        parseProteinFile.FastaFileOptions.LookForAddnlRefInDescription = chkLookForAddnlRefInDescription.Checked
-
-        ValidateTextBox(txtAddnlRefSepChar, mDefaultFastaFileOptions.AddnlRefSepChar)
-        ValidateTextBox(txtAddnlRefAccessionSepChar, mDefaultFastaFileOptions.AddnlRefAccessionSepChar)
-
-        parseProteinFile.FastaFileOptions.AddnlRefSepChar = txtAddnlRefSepChar.Text.Chars(0)
-        parseProteinFile.FastaFileOptions.AddnlRefAccessionSepChar = txtAddnlRefAccessionSepChar.Text.Chars(0)
-
-        parseProteinFile.ExcludeProteinSequence = chkExcludeProteinSequence.Checked
-        parseProteinFile.ComputeProteinMass = chkComputeProteinMass.Checked
-        parseProteinFile.ComputepI = chkComputepIandNET.Checked
-        parseProteinFile.ComputeNET = chkComputepIandNET.Checked
-        parseProteinFile.ComputeSCXNET = chkComputepIandNET.Checked
-
-        parseProteinFile.ComputeSequenceHashValues = chkComputeSequenceHashValues.Checked
-        parseProteinFile.ComputeSequenceHashIgnoreILDiff = chkComputeSequenceHashIgnoreILDiff.Checked
-        parseProteinFile.TruncateProteinDescription = chkTruncateProteinDescription.Checked
-        parseProteinFile.ExcludeProteinDescription = chkExcludeProteinDescription.Checked
-
-        If cboHydrophobicityMode.SelectedIndex >= 0 Then
-            parseProteinFile.HydrophobicityType = CType(cboHydrophobicityMode.SelectedIndex, ComputePeptideProperties.HydrophobicityTypeConstants)
-        End If
-
-        parseProteinFile.ReportMaximumpI = chkMaxpIModeEnabled.Checked
-        parseProteinFile.SequenceWidthToExamineForMaximumpI = LookupMaxpISequenceLength()
-
-        parseProteinFile.IncludeXResiduesInMass = chkIncludeXResidues.Checked
-
-        parseProteinFile.GenerateUniqueIDValuesForPeptides = chkGenerateUniqueIDValues.Checked
-
-        If cboCleavageRuleType.SelectedIndex >= 0 Then
-            parseProteinFile.DigestionOptions.CleavageRuleID = GetSelectedCleavageRule()
-        End If
-
-        parseProteinFile.DigestionOptions.IncludePrefixAndSuffixResidues = chkIncludePrefixAndSuffixResidues.Checked
-
-        parseProteinFile.DigestionOptions.MinFragmentMass = ParseTextBoxValueInt(txtDigestProteinsMinimumMass, lblDigestProteinsMinimumMass.Text & " must be an integer value", invalidValue)
-        If invalidValue Then Return False
-
-        parseProteinFile.DigestionOptions.MaxFragmentMass = ParseTextBoxValueInt(txtDigestProteinsMaximumMass, lblDigestProteinsMaximumMass.Text & " must be an integer value", invalidValue)
-        If invalidValue Then Return False
-
-        parseProteinFile.DigestionOptions.MaxMissedCleavages = ParseTextBoxValueInt(txtDigestProteinsMaximumMissedCleavages, lblDigestProteinsMaximumMissedCleavages.Text & " must be an integer value", invalidValue)
-        If invalidValue Then Return False
-
-        parseProteinFile.DigestionOptions.MinFragmentResidueCount = ParseTextBoxValueInt(txtDigestProteinsMinimumResidueCount, lblDigestProteinsMinimumResidueCount.Text & " must be an integer value", invalidValue)
-        If invalidValue Then Return False
-
-        parseProteinFile.DigestionOptions.MinIsoelectricPoint = ParseTextBoxValueSng(txtDigestProteinsMinimumpI, lblDigestProteinsMinimumpI.Text & " must be a decimal value", invalidValue)
-        If invalidValue Then Return False
-
-        parseProteinFile.DigestionOptions.MaxIsoelectricPoint = ParseTextBoxValueSng(txtDigestProteinsMaximumpI, lblDigestProteinsMaximumpI.Text & " must be a decimal value", invalidValue)
-        If invalidValue Then Return False
-
-        If cboCysTreatmentMode.SelectedIndex >= 0 Then
-            parseProteinFile.DigestionOptions.CysTreatmentMode = CType(cboCysTreatmentMode.SelectedIndex, PeptideSequence.CysTreatmentModeConstants)
-        End If
-
-        If cboFragmentMassMode.SelectedIndex >= 0 Then
-            parseProteinFile.DigestionOptions.FragmentMassMode = CType(cboFragmentMassMode.SelectedIndex, InSilicoDigest.FragmentMassConstants)
-        End If
-
-        parseProteinFile.DigestionOptions.RemoveDuplicateSequences = Not chkIncludeDuplicateSequences.Checked
-        If chkCysPeptidesOnly.Checked Then
-            parseProteinFile.DigestionOptions.AminoAcidResidueFilterChars = New Char() {"C"c}
-        Else
-            parseProteinFile.DigestionOptions.AminoAcidResidueFilterChars = New Char() {}
-        End If
-
-        Return True
-
-    End Function
-
-    Private Function LookupColumnDelimiter(delimiterCombobox As ListControl, delimiterTextBox As Control, defaultDelimiter As Char) As Char
-        Try
-            Return ProteinFileParser.LookupColumnDelimiterChar(delimiterCombobox.SelectedIndex, delimiterTextBox.Text, defaultDelimiter)
-        Catch ex As Exception
-            Return ControlChars.Tab
-        End Try
-    End Function
-
-    Private Function LookupMaxpISequenceLength() As Integer
-        Dim invalidValue As Boolean
-        Dim length As Integer
-
-        Try
-            length = TextBoxUtils.ParseTextBoxValueInt(txtMaxpISequenceLength, String.Empty, invalidValue, 10)
-            If invalidValue Then
-                txtMaxpISequenceLength.Text = length.ToString()
-            End If
-        Catch ex As Exception
-            length = 10
-        End Try
-
-        If length < 1 Then length = 1
-        Return length
-    End Function
-
-    Private Sub SetToolTips()
-        Dim toolTipControl As New ToolTip()
-
-        toolTipControl.SetToolTip(cmdParseInputFile, "Parse proteins in input file to create output file(s).")
-        toolTipControl.SetToolTip(cboInputFileColumnDelimiter, "Character separating columns in a delimited text input file.")
-        toolTipControl.SetToolTip(txtInputFileColumnDelimiter, "Custom character separating columns in a delimited text input file.")
-        toolTipControl.SetToolTip(txtOutputFileFieldDelimiter, "Character separating the fields in the output file.")
-
-        toolTipControl.SetToolTip(txtAddnlRefSepChar, "Character separating additional protein accession entries in a protein's description in a FASTA file.")
-        toolTipControl.SetToolTip(txtAddnlRefAccessionSepChar, "Character separating source name and accession number for additional protein accession entries in a FASTA file.")
-
-        toolTipControl.SetToolTip(chkGenerateUniqueIDValues, "Set this to false to use less memory when digesting huge protein input files.")
-        toolTipControl.SetToolTip(txtProteinReversalSamplingPercentage, "Set this to a value less than 100 to only include a portion of the residues from the input file in the output file.")
-        toolTipControl.SetToolTip(txtProteinScramblingLoopCount, "Set this to a value greater than 1 to create multiple scrambled versions of the input file.")
-
-        toolTipControl.SetToolTip(optUseEllipseSearchRegion, "This setting only takes effect if 'Use SLiC Score when gauging uniqueness' is false.")
-        toolTipControl.SetToolTip(optUseRectangleSearchRegion, "This setting only takes effect if 'Use SLiC Score when gauging uniqueness' is false.")
-
-        toolTipControl.SetToolTip(lblPeptideUniquenessMassMode, "Current mass mode; to change go to the 'Parse and Digest File Options' tab")
-
-        toolTipControl.SetToolTip(chkExcludeProteinSequence, "Enabling this setting will prevent protein sequences from being written to the output file; useful when processing extremely large files.")
-        toolTipControl.SetToolTip(chkTruncateProteinDescription, "Truncate description (if over 7995 chars)")
-
-        toolTipControl.SetToolTip(chkEnableLogging, "Logs status and error messages to file ProteinDigestionSimulatorLog*.txt in the program directory.")
-
-    End Sub
-
-    Private Sub ParseProteinInputFile()
-        Dim success As Boolean
-
-        If Not mWorking AndAlso ConfirmFilePaths() Then
-            Try
-                If mParseProteinFile Is Nothing Then
-                    mParseProteinFile = New ProteinFileParser
-                End If
-
-                success = InitializeProteinFileParserGeneralOptions(mParseProteinFile)
-                If Not success Then Exit Try
-
-                mParseProteinFile.CreateProteinOutputFile = True
-
-                If cboProteinReversalOptions.SelectedIndex >= 0 Then
-                    mParseProteinFile.ProteinScramblingMode = CType(cboProteinReversalOptions.SelectedIndex, ProteinFileParser.ProteinScramblingModeConstants)
-                End If
-
-                mParseProteinFile.ProteinScramblingSamplingPercentage = TextBoxUtils.ParseTextBoxValueInt(txtProteinReversalSamplingPercentage, "", False, 100, False)
-                mParseProteinFile.ProteinScramblingLoopCount = TextBoxUtils.ParseTextBoxValueInt(txtProteinScramblingLoopCount, "", False, 1, False)
-                mParseProteinFile.CreateDigestedProteinOutputFile = chkDigestProteins.Checked
-                mParseProteinFile.CreateFastaOutputFile = chkCreateFastaOutputFile.Checked
-
-                If cboElementMassMode.SelectedIndex >= 0 Then
-                    mParseProteinFile.ElementMassMode = CType(cboElementMassMode.SelectedIndex, PeptideSequence.ElementModeConstants)
-                End If
-
-                Cursor.Current = Cursors.WaitCursor
-                mWorking = True
-                cmdParseInputFile.Enabled = False
-
-                ResetProgress()
-                SwitchToProgressTab()
-
-                Dim outputFolderPath As String = String.Empty
-                Dim outputFileNameBaseOverride As String = String.Empty
-
-                If txtProteinOutputFilePath.TextLength > 0 Then
-                    outputFolderPath = Path.GetDirectoryName(txtProteinOutputFilePath.Text)
-                    outputFileNameBaseOverride = Path.GetFileNameWithoutExtension(txtProteinOutputFilePath.Text)
-                End If
-
-                success = mParseProteinFile.ParseProteinFile(GetProteinInputFilePath(), outputFolderPath, outputFileNameBaseOverride)
-
-                Cursor.Current = Cursors.Default
-
-                If success Then
-                    MessageBox.Show(mParseProteinFile.ProcessingSummary, "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
-                    SwitchFromProgressTab()
-                Else
-                    ShowErrorMessage("Error parsing protein file: " & mParseProteinFile.GetErrorMessage(), "Error")
-                End If
-
-            Catch ex As Exception
-                ShowErrorMessage("Error in frmMain->ParseProteinInputFile: " & ex.Message, "Error")
-            Finally
-                mWorking = False
-                cmdParseInputFile.Enabled = True
-                mParseProteinFile.CloseLogFileNow()
-                mParseProteinFile = Nothing
-            End Try
-        End If
-
-    End Sub
-
-    Private Function ParseTextBoxValueInt(thisTextBox As Control, messageIfError As String, ByRef invalidValue As Boolean, Optional valueIfError As Integer = 0) As Integer
-
-        invalidValue = False
-
-        Try
-            Return Integer.Parse(thisTextBox.Text)
-        Catch ex As Exception
-            ShowErrorMessage(messageIfError, "Error")
-            invalidValue = True
-            Return valueIfError
-        End Try
-
-    End Function
-
-    Private Function ParseTextBoxValueSng(thisTextBox As Control, messageIfError As String, ByRef invalidValue As Boolean, Optional valueIfError As Single = 0) As Single
-
-        invalidValue = False
-
-        Try
-            Return Single.Parse(thisTextBox.Text)
-        Catch ex As Exception
-            ShowErrorMessage(messageIfError, "Error")
-            invalidValue = True
-            Return valueIfError
-        End Try
-
-    End Function
-
-    Private Sub PastePMThresholdsValues(clearList As Boolean)
-
-        Dim lineDelimiters = New Char() {ControlChars.Cr, ControlChars.Lf}
-        Dim columnDelimiters = New Char() {ControlChars.Tab, ","c}
-
-        ' Examine the clipboard contents
-        Dim clipboardObject = Clipboard.GetDataObject()
-
-        If clipboardObject IsNot Nothing Then
-            If clipboardObject.GetDataPresent(DataFormats.StringFormat, True) Then
-                Dim clipboardData = CType(clipboardObject.GetData(DataFormats.StringFormat, True), String)
-
-                ' Split clipboardData on carriage return or line feed characters
-                ' Lines that end in CrLf will give two separate lines; one with the text, and one blank; that's OK
-                Dim dataLines = clipboardData.Split(lineDelimiters, 1000)
-
-                If dataLines.Length > 0 Then
-                    If clearList Then
-                        If Not ClearPMThresholdsList(True) Then Return
-                    End If
-
-                    Dim rowsAlreadyPresent = 0
-                    Dim rowsSkipped = 0
-
-                    For lineIndex = 0 To dataLines.Length - 1
-                        If dataLines(lineIndex) IsNot Nothing AndAlso dataLines(lineIndex).Length > 0 Then
-                            Dim dataColumns = dataLines(lineIndex).Split(columnDelimiters, 5)
-                            If dataColumns.Length >= 2 Then
-                                Try
-                                    Dim massThreshold = Double.Parse(dataColumns(0))
-                                    Dim netThreshold = Double.Parse(dataColumns(1))
-
-                                    If massThreshold >= 0 AndAlso netThreshold >= 0 Then
-                                        Dim useSLiC As Boolean
-                                        If Not chkAutoDefineSLiCScoreTolerances.Checked AndAlso dataColumns.Length >= 4 Then
-                                            useSLiC = True
-                                        Else
-                                            useSLiC = False
-                                        End If
-
-                                        Dim slicMassStDev As Double
-                                        Dim slicNETStDev As Double
-
-                                        If useSLiC Then
-                                            Try
-                                                slicMassStDev = Double.Parse(dataColumns(2))
-                                                slicNETStDev = Double.Parse(dataColumns(3))
-                                            Catch ex As Exception
-                                                useSLiC = False
-                                            End Try
-                                        End If
-
-                                        Dim existingRowFound = False
-                                        If useSLiC Then
-                                            AddPMThresholdRow(massThreshold, netThreshold, slicMassStDev, slicNETStDev, existingRowFound)
-                                        Else
-                                            AddPMThresholdRow(massThreshold, netThreshold, existingRowFound)
-                                        End If
-
-                                        If existingRowFound Then
-                                            rowsAlreadyPresent += 1
-                                        End If
-                                    End If
-
-                                Catch ex As Exception
-                                    ' Skip this row
-                                    rowsSkipped += 1
-                                End Try
-                            Else
-                                rowsSkipped += 1
-                            End If
-                        End If
-                    Next lineIndex
-
-                    If rowsAlreadyPresent > 0 Then
-                        Dim errorMessage As String
-                        If rowsAlreadyPresent = 1 Then
-                            errorMessage = "1 row of thresholds was"
-                        Else
-                            errorMessage = rowsAlreadyPresent.ToString() & " rows of thresholds were"
-                        End If
-
-                        ShowErrorMessage(errorMessage & " already present in the table; duplicate rows are not allowed.", "Warning")
-                    End If
-
-                    If rowsSkipped > 0 Then
-                        Dim errorMessage As String
-                        If rowsSkipped = 1 Then
-                            errorMessage = "1 row was skipped because it"
-                        Else
-                            errorMessage = rowsSkipped.ToString() & " rows were skipped because they"
-                        End If
-
-                        ShowErrorMessage(errorMessage & " didn't contain two columns of numeric data.", "Warning")
-                    End If
-
-                End If
-            End If
-
-        End If
-    End Sub
-
-    Private Sub PopulateComboBoxes()
-
-        Const NET_UNITS = "NET"
-
-        Try
-            cboInputFileFormat.Items.Clear()
-            cboInputFileFormat.Items.Insert(InputFileFormatConstants.AutoDetermine, "Auto-determine")
-            cboInputFileFormat.Items.Insert(InputFileFormatConstants.FastaFile, "FASTA file")
-            cboInputFileFormat.Items.Insert(InputFileFormatConstants.DelimitedText, "Delimited text")
-            cboInputFileFormat.SelectedIndex = InputFileFormatConstants.AutoDetermine
-
-            cboInputFileColumnDelimiter.Items.Clear()
-            cboInputFileColumnDelimiter.Items.Insert(ProteinFileParser.DelimiterCharConstants.Space, "Space")
-            cboInputFileColumnDelimiter.Items.Insert(ProteinFileParser.DelimiterCharConstants.Tab, "Tab")
-            cboInputFileColumnDelimiter.Items.Insert(ProteinFileParser.DelimiterCharConstants.Comma, "Comma")
-            cboInputFileColumnDelimiter.Items.Insert(ProteinFileParser.DelimiterCharConstants.Other, "Other")
-            cboInputFileColumnDelimiter.SelectedIndex = ProteinFileParser.DelimiterCharConstants.Tab
-
-            cboOutputFileFieldDelimiter.Items.Clear()
-            For index = 0 To cboInputFileColumnDelimiter.Items.Count - 1
-                cboOutputFileFieldDelimiter.Items.Insert(index, cboInputFileColumnDelimiter.Items(index))
-            Next
-            cboOutputFileFieldDelimiter.SelectedIndex = ProteinFileParser.DelimiterCharConstants.Space
-
-            cboInputFileColumnOrdering.Items.Clear()
-            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.SequenceOnly, "Sequence Only")
-            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Sequence, "ProteinName and Sequence")
-            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence, "ProteinName, Description, Sequence")
-            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.UniqueID_Sequence, "UniqueID and Seq")
-            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID, "ProteinName, Seq, UniqueID")
-            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET, "ProteinName, Seq, UniqueID, Mass, NET")
-            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore, "ProteinName, Seq, UniqueID, Mass, NET, NETStDev, DiscriminantScore")
-            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.UniqueID_Sequence_Mass_NET, "UniqueID, Seq, Mass, NET")
-            cboInputFileColumnOrdering.Items.Insert(DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Hash_Sequence, "ProteinName, Description, Hash, Sequence")
-            cboInputFileColumnOrdering.SelectedIndex = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence
-
-            cboElementMassMode.Items.Clear()
-            cboElementMassMode.Items.Insert(PeptideSequence.ElementModeConstants.AverageMass, "Average")
-            cboElementMassMode.Items.Insert(PeptideSequence.ElementModeConstants.IsotopicMass, "Monoisotopic")
-            cboElementMassMode.SelectedIndex = PeptideSequence.ElementModeConstants.IsotopicMass
-
-            cboProteinReversalOptions.Items.Clear()
-            cboProteinReversalOptions.Items.Insert(ProteinFileParser.ProteinScramblingModeConstants.None, "Normal output")
-            cboProteinReversalOptions.Items.Insert(ProteinFileParser.ProteinScramblingModeConstants.Reversed, "Reverse ORF sequences")
-            cboProteinReversalOptions.Items.Insert(ProteinFileParser.ProteinScramblingModeConstants.Randomized, "Randomized ORF sequences")
-            cboProteinReversalOptions.SelectedIndex = ProteinFileParser.ProteinScramblingModeConstants.None
-
-            Dim inSilicoDigest = New InSilicoDigest()
-            cboCleavageRuleType.Items.Clear()
-            mCleavageRuleComboboxIndexToType.Clear()
-
-            ' Add Trypsin rules first
-            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.NoRule)
-            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.ConventionalTrypsin)
-            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.TrypsinWithoutProlineException)
-            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.KROneEnd)
-            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.TrypsinPlusFVLEY)
-            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.TrypsinPlusLysC)
-            AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.TrypsinPlusThermolysin)
-
-            ' Add the remaining enzymes based on the description, but skip CleavageRuleConstants.EricPartialTrypsin
-
-            ' Keys in this dictionary are cleavage rule enums, values are the rule description
-            Dim additionalRulesToAppend = New Dictionary(Of InSilicoDigest.CleavageRuleConstants, String)
-
-            For Each cleavageRule In inSilicoDigest.CleavageRules
-                Dim cleavageRuleId = cleavageRule.Key
-                If mCleavageRuleComboboxIndexToType.ContainsValue(cleavageRuleId) Then Continue For
-
-                additionalRulesToAppend.Add(cleavageRuleId, cleavageRule.Value.Description)
-            Next
-
-            For Each ruleToAdd In (From item In additionalRulesToAppend Order By item.Value Select item.Key)
-                If ruleToAdd = InSilicoDigest.CleavageRuleConstants.EricPartialTrypsin Then Continue For
-
-                AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, ruleToAdd)
-            Next
-
-            ' Select the fully tryptic enzyme rule
-            SetSelectedCleavageRule(InSilicoDigest.CleavageRuleConstants.ConventionalTrypsin)
-
-            cboMassTolType.Items.Clear()
-            cboMassTolType.Items.Insert(PeakMatching.SearchThresholds.MassToleranceConstants.PPM, "PPM")
-            cboMassTolType.Items.Insert(PeakMatching.SearchThresholds.MassToleranceConstants.Absolute, "Absolute (Da)")
-            cboMassTolType.SelectedIndex = PeakMatching.SearchThresholds.MassToleranceConstants.PPM
-
-            cboPMPredefinedThresholds.Items.Clear()
-            cboPMPredefinedThresholds.Items.Insert(PredefinedPMThresholdsConstants.OneMassOneNET, "5 ppm; 0.05 " & NET_UNITS)
-            cboPMPredefinedThresholds.Items.Insert(PredefinedPMThresholdsConstants.OneMassThreeNET, "5 ppm; 0.01, 0.05, 100 " & NET_UNITS)
-            cboPMPredefinedThresholds.Items.Insert(PredefinedPMThresholdsConstants.ThreeMassOneNET, "0.5, 1, & 5 ppm; 0.05 " & NET_UNITS)
-            cboPMPredefinedThresholds.Items.Insert(PredefinedPMThresholdsConstants.ThreeMassThreeNET, "0.5, 1, 5 ppm; 0.01, 0.05, & 100 " & NET_UNITS)
-            cboPMPredefinedThresholds.Items.Insert(PredefinedPMThresholdsConstants.FiveMassThreeNET, "0.5, 1, 5, 10, & 50 ppm; 0.01, 0.05, & 100 " & NET_UNITS)
-            cboPMPredefinedThresholds.SelectedIndex = PredefinedPMThresholdsConstants.OneMassOneNET
-
-            cboHydrophobicityMode.Items.Clear()
-            cboHydrophobicityMode.Items.Insert(ComputePeptideProperties.HydrophobicityTypeConstants.HW, "Hopp and Woods")
-            cboHydrophobicityMode.Items.Insert(ComputePeptideProperties.HydrophobicityTypeConstants.KD, "Kyte and Doolittle")
-            cboHydrophobicityMode.Items.Insert(ComputePeptideProperties.HydrophobicityTypeConstants.Eisenberg, "Eisenberg")
-            cboHydrophobicityMode.Items.Insert(ComputePeptideProperties.HydrophobicityTypeConstants.GES, "Engleman et. al.")
-            cboHydrophobicityMode.Items.Insert(ComputePeptideProperties.HydrophobicityTypeConstants.MeekPH7p4, "Meek pH 7.4")
-            cboHydrophobicityMode.Items.Insert(ComputePeptideProperties.HydrophobicityTypeConstants.MeekPH2p1, "Meek pH 2.1")
-            cboHydrophobicityMode.SelectedIndex = ComputePeptideProperties.HydrophobicityTypeConstants.HW
-
-            cboCysTreatmentMode.Items.Clear()
-            cboCysTreatmentMode.Items.Insert(PeptideSequence.CysTreatmentModeConstants.Untreated, "Untreated")
-            cboCysTreatmentMode.Items.Insert(PeptideSequence.CysTreatmentModeConstants.Iodoacetamide, "Iodoacetamide (+57.02)")
-            cboCysTreatmentMode.Items.Insert(PeptideSequence.CysTreatmentModeConstants.IodoaceticAcid, "Iodoacetic Acid (+58.01)")
-            cboCysTreatmentMode.SelectedIndex = PeptideSequence.CysTreatmentModeConstants.Untreated
-
-            cboFragmentMassMode.Items.Clear()
-            cboFragmentMassMode.Items.Insert(InSilicoDigest.FragmentMassConstants.Monoisotopic, "Monoisotopic")
-            cboFragmentMassMode.Items.Insert(InSilicoDigest.FragmentMassConstants.MH, "M+H")
-            cboFragmentMassMode.SelectedIndex = InSilicoDigest.FragmentMassConstants.Monoisotopic
-
-        Catch ex As Exception
-            ShowErrorMessage("Error initializing the combo boxes: " & ex.Message)
-        End Try
-
-    End Sub
-
-    Private Sub ResetProgress()
-        lblProgressDescription.Text = String.Empty
-        lblProgress.Text = FormatPercentComplete(0)
-        pbarProgress.Value = 0
-        pbarProgress.Visible = True
-
-        lblSubtaskProgressDescription.Text = String.Empty
-        lblSubtaskProgress.Text = FormatPercentComplete(0)
-
-        lblErrorMessage.Text = String.Empty
-
-        Application.DoEvents()
-    End Sub
-
-    Private Sub ResetToDefaults(confirm As Boolean)
-        Dim response As DialogResult
-
-        If confirm Then
-            response = MessageBox.Show("Are you sure you want to reset all settings to their default values?", "Reset to Defaults", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
-            If response <> DialogResult.Yes Then Exit Sub
-        End If
-
-        cboInputFileFormat.SelectedIndex = InputFileFormatConstants.AutoDetermine
-        cboInputFileColumnDelimiter.SelectedIndex = ProteinFileParser.DelimiterCharConstants.Tab
-        txtInputFileColumnDelimiter.Text = ";"c
-
-        cboOutputFileFieldDelimiter.SelectedIndex = ProteinFileParser.DelimiterCharConstants.Tab
-        txtOutputFileFieldDelimiter.Text = ";"c
-
-        chkEnableLogging.Checked = False
-
-        chkIncludePrefixAndSuffixResidues.Checked = False
-
-        chkLookForAddnlRefInDescription.Checked = False
-        txtAddnlRefSepChar.Text = mDefaultFastaFileOptions.AddnlRefSepChar                      ' "|"
-        txtAddnlRefAccessionSepChar.Text = mDefaultFastaFileOptions.AddnlRefAccessionSepChar    ' ":"
-
-        chkExcludeProteinSequence.Checked = False
-        chkComputeProteinMass.Checked = False
-        cboElementMassMode.SelectedIndex = PeptideSequence.ElementModeConstants.IsotopicMass
-
-        chkComputepIandNET.Checked = False
-        chkIncludeXResidues.Checked = False
-
-        chkComputeSequenceHashValues.Checked = True
-        chkComputeSequenceHashIgnoreILDiff.Checked = True
-        chkTruncateProteinDescription.Checked = True
-        chkExcludeProteinDescription.Checked = False
-
-        cboHydrophobicityMode.SelectedIndex = ComputePeptideProperties.HydrophobicityTypeConstants.HW
-        chkMaxpIModeEnabled.Checked = False
-        txtMaxpISequenceLength.Text = "10"
-
-        chkDigestProteins.Checked = False
-        cboProteinReversalOptions.SelectedIndex = ProteinFileParser.ProteinScramblingModeConstants.None
-        txtProteinReversalSamplingPercentage.Text = "100"
-        txtProteinScramblingLoopCount.Text = "1"
-
-        SetSelectedCleavageRule(InSilicoDigest.CleavageRuleConstants.ConventionalTrypsin)
-
-        chkIncludeDuplicateSequences.Checked = False
-        chkCysPeptidesOnly.Checked = False
-        chkGenerateUniqueIDValues.Checked = True
-
-        txtDigestProteinsMinimumMass.Text = "400"
-        txtDigestProteinsMaximumMass.Text = "6000"
-        txtDigestProteinsMinimumResidueCount.Text = "0"
-        txtDigestProteinsMaximumMissedCleavages.Text = "3"
-
-        txtDigestProteinsMinimumpI.Text = "0"
-        txtDigestProteinsMaximumpI.Text = "14"
-
-        ' Load Uniqueness Options
-        chkAssumeInputFileIsDigested.Checked = True
-
-        txtUniquenessBinWidth.Text = "25"
-        chkAutoComputeRangeForBinning.Checked = True
-        txtUniquenessBinStartMass.Text = "400"
-        txtUniquenessBinEndMass.Text = "4000"
-
-        txtMaxPeakMatchingResultsPerFeatureToSave.Text = "3"
-        chkUseSLiCScoreForUniqueness.Checked = True
-        txtMinimumSLiCScore.Text = "0.95"
-        optUseEllipseSearchRegion.Checked = True
-
-        chkUseSqlServerDBToCacheData.Checked = False
-        txtSqlServerName.Text = SystemInformation.ComputerName
-        txtSqlServerDatabase.Text = "TempDB"
-        chkSqlServerUseIntegratedSecurity.Checked = True
-        chkSqlServerUseExistingData.Checked = False
-
-        txtSqlServerUsername.Text = "user"
-        txtSqlServerPassword.Text = String.Empty
-
-        Me.Width = 960
-        Me.Height = 780
-
-        mCustomValidationRulesFilePath = String.Empty
-
-        Dim settingsFilePath = GetSettingsFilePath()
-        ProcessFilesOrDirectoriesBase.CreateSettingsFileIfMissing(settingsFilePath)
-
-    End Sub
-
-    Private Sub SelectInputFile()
-
-        Dim currentExtension = String.Empty
-        If txtProteinInputFilePath.TextLength > 0 Then
-            Try
-                currentExtension = Path.GetExtension(GetProteinInputFilePath())
-            Catch ex As Exception
-                ' Ignore errors here
-            End Try
-        End If
-
-        Dim openFile As New OpenFileDialog() With {
-            .AddExtension = True,
-            .CheckFileExists = False,
-            .CheckPathExists = True,
-            .DefaultExt = ".txt",
-            .DereferenceLinks = True,
-            .Multiselect = False,
-            .ValidateNames = True,
-            .Filter = "FASTA files (*.fasta)|*.fasta|FASTA files (*.fasta.gz)|*.fasta.gz|Text files (*.txt)|*.txt|All files (*.*)|*.*"
+        private DigestionSimulator _mProteinDigestionSimulator;
+
+        private DigestionSimulator mProteinDigestionSimulator
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _mProteinDigestionSimulator;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_mProteinDigestionSimulator != null)
+                {
+                    _mProteinDigestionSimulator.ErrorEvent -= ProteinDigestionSimulator_ErrorEvent;
+                    _mProteinDigestionSimulator.ProgressUpdate -= ProteinDigestionSimulator_ProgressChanged;
+                    _mProteinDigestionSimulator.ProgressComplete -= ProteinDigestionSimulator_ProgressComplete;
+                    _mProteinDigestionSimulator.ProgressReset -= ProteinDigestionSimulator_ProgressReset;
+                    _mProteinDigestionSimulator.SubtaskProgressChanged -= ProteinDigestionSimulator_SubtaskProgressChanged;
+                }
+
+                _mProteinDigestionSimulator = value;
+                if (_mProteinDigestionSimulator != null)
+                {
+                    _mProteinDigestionSimulator.ErrorEvent += ProteinDigestionSimulator_ErrorEvent;
+                    _mProteinDigestionSimulator.ProgressUpdate += ProteinDigestionSimulator_ProgressChanged;
+                    _mProteinDigestionSimulator.ProgressComplete += ProteinDigestionSimulator_ProgressComplete;
+                    _mProteinDigestionSimulator.ProgressReset += ProteinDigestionSimulator_ProgressReset;
+                    _mProteinDigestionSimulator.SubtaskProgressChanged += ProteinDigestionSimulator_SubtaskProgressChanged;
+                }
+            }
         }
 
-        If cboInputFileFormat.SelectedIndex = InputFileFormatConstants.DelimitedText Then
-            openFile.FilterIndex = 3
-        ElseIf currentExtension.ToLower() = ".txt" Then
-            openFile.FilterIndex = 3
-        ElseIf currentExtension.ToLower() = ".gz" Then
-            openFile.FilterIndex = 2
-        Else
-            openFile.FilterIndex = 1
-        End If
+        private FastaValidation _mFastaValidation;
 
-        If Len(GetProteinInputFilePath().Length) > 0 Then
-            Try
-                openFile.InitialDirectory = Directory.GetParent(GetProteinInputFilePath()).FullName
-            Catch
-                openFile.InitialDirectory = GetMyDocsFolderPath()
-            End Try
-        Else
-            openFile.InitialDirectory = GetMyDocsFolderPath()
-        End If
+        private FastaValidation mFastaValidation
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _mFastaValidation;
+            }
 
-        openFile.Title = "Select input file"
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_mFastaValidation != null)
+                {
+                    _mFastaValidation.FastaValidationStarted -= FastaValidation_FastaValidationStarted;
+                }
 
-        openFile.ShowDialog()
-        If openFile.FileName.Length > 0 Then
-            txtProteinInputFilePath.Text = openFile.FileName
-        End If
-
-    End Sub
-
-    Private Sub SelectOutputFile()
-
-        Dim saveFile As New SaveFileDialog() With {
-            .AddExtension = True,
-            .CheckFileExists = False,
-            .CheckPathExists = True,
-            .CreatePrompt = False,
-            .DefaultExt = ".txt",
-            .DereferenceLinks = True,
-            .OverwritePrompt = True,
-            .ValidateNames = True,
-            .Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
-            .FilterIndex = 1
+                _mFastaValidation = value;
+                if (_mFastaValidation != null)
+                {
+                    _mFastaValidation.FastaValidationStarted += FastaValidation_FastaValidationStarted;
+                }
+            }
         }
 
-        If Len(txtProteinOutputFilePath.Text.Length) > 0 Then
-            Try
-                saveFile.InitialDirectory = Directory.GetParent(txtProteinOutputFilePath.Text).ToString()
-            Catch
-                saveFile.InitialDirectory = GetMyDocsFolderPath()
-            End Try
-        Else
-            saveFile.InitialDirectory = GetMyDocsFolderPath()
-        End If
-
-        saveFile.Title = "Select/Create output file"
-
-        saveFile.ShowDialog()
-        If saveFile.FileName.Length > 0 Then
-            txtProteinOutputFilePath.Text = saveFile.FileName
-        End If
-
-    End Sub
-
-    Private Sub SetSelectedCleavageRule(cleavageRuleName As String)
-        Dim cleavageRule As InSilicoDigest.CleavageRuleConstants
-
-        If [Enum].TryParse(cleavageRuleName, True, cleavageRule) Then
-            SetSelectedCleavageRule(cleavageRule)
-        End If
-
-    End Sub
-
-    Private Sub SetSelectedCleavageRule(cleavageRule As InSilicoDigest.CleavageRuleConstants)
-
-        Dim query = From item In mCleavageRuleComboboxIndexToType
-                    Where item.Value = cleavageRule
-                    Select item.Key
-
-        For Each item In query.Take(1)
-            cboCleavageRuleType.SelectedIndex = item
-        Next
-
-    End Sub
-
-    Private Sub ShowAboutBox()
-        Dim message = New StringBuilder()
-
-        message.AppendLine("Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004")
-        message.AppendLine("Copyright 2018 Battelle Memorial Institute")
-        message.AppendLine()
-        message.AppendLine("This is version " & Application.ProductVersion & " (" & PROGRAM_DATE & ")")
-        message.AppendLine()
-        message.AppendLine("E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov")
-        message.AppendLine("Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/")
-        message.AppendLine()
-        message.AppendLine(Disclaimer.GetKangasPetritisDisclaimerText())
-        message.AppendLine()
-        message.AppendLine("Licensed under the 2-Clause BSD License; https://opensource.org/licenses/BSD-2-Clause")
-        message.AppendLine()
-        message.Append("This software is provided by the copyright holders and contributors ""as is"" and ")
-        message.Append("any express or implied warranties, including, but not limited to, the implied ")
-        message.Append("warranties of merchantability and fitness for a particular purpose are ")
-        message.Append("disclaimed. In no event shall the copyright holder or contributors be liable ")
-        message.Append("for any direct, indirect, incidental, special, exemplary, or consequential ")
-        message.Append("damages (including, but not limited to, procurement of substitute goods or ")
-        message.Append("services; loss of use, data, or profits; or business interruption) however ")
-        message.Append("caused and on any theory of liability, whether in contract, strict liability, ")
-        message.Append("or tort (including negligence or otherwise) arising in any way out of the use ")
-        message.Append("of this software, even if advised of the possibility of such damage.")
-
-        MessageBox.Show(message.ToString(), "About", MessageBoxButtons.OK, MessageBoxIcon.Information)
-
-    End Sub
-
-    Private Sub ShowElutionTimeInfo()
-        MessageBox.Show(NETCalculator.ProgramDescription, "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
-    End Sub
-
-    Private Sub ShowErrorMessage(message As String)
-        ShowErrorMessage(message, "Error")
-    End Sub
-
-    Private Sub ShowErrorMessage(message As String, caption As String)
-        Dim messageIcon As MessageBoxIcon
-
-        If caption.ToLower().Contains("error") Then
-            messageIcon = MessageBoxIcon.Exclamation
-        Else
-            messageIcon = MessageBoxIcon.Information
-        End If
-
-        MessageBox.Show(message, caption, MessageBoxButtons.OK, messageIcon)
-    End Sub
-
-    Private Sub ShowSplashScreen()
-
-        ' See if the user has been shown the splash screen sometime in the last 6 months (SPLASH_INTERVAL_DAYS)
-        ' Keep track of the last splash screen display date using the registry
-        ' The data is stored in key HKEY_CURRENT_USER\Software\VB and VBA Program Settings\PNNL_ProteinDigestionSimulator\Options
-        '
-        ' If the current user cannot update the registry due to permissions errors, then we will not show
-        ' the splash screen (so that they don't end up seeing the splash every time the program runs)
-
-        Const APP_NAME_IN_REGISTRY = "PNNL_ProteinDigestionSimulator"
-        Const REG_SECTION_OPTIONS = "Options"
-        Const REG_KEY_SPLASH_DATE = "SplashDate"
-        Const DEFAULT_DATE = #1/1/2000#
-
-        Const SPLASH_INTERVAL_DAYS = 182
-
-        Dim lastSplashDateText As String
-        Dim lastSplashDate = DEFAULT_DATE
-        Dim currentDateTime = DateTime.Now()
-
-        Try
-            lastSplashDateText = GetSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASH_DATE, "")
-        Catch ex As Exception
-            ' Error looking up the last splash date; don't continue
-            Exit Sub
-        End Try
-
-        If Not String.IsNullOrWhiteSpace(lastSplashDateText) Then
-            Try
-                ' Convert the text to a date
-                lastSplashDate = DateTime.Parse(lastSplashDateText)
-            Catch ex As Exception
-                ' Conversion failed
-                lastSplashDateText = String.Empty
-                lastSplashDate = DEFAULT_DATE
-            End Try
-        End If
-
-        If String.IsNullOrWhiteSpace(lastSplashDateText) Then
-            ' Entry isn't present (or it is present, but isn't the correct format)
-            ' Try to add it
-            Try
-                SaveSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASH_DATE, lastSplashDate.ToShortDateString())
-            Catch ex As Exception
-                ' Error adding the splash date; don't continue
-                Exit Sub
-            End Try
-        End If
-
-        If currentDateTime.Subtract(lastSplashDate).TotalDays >= SPLASH_INTERVAL_DAYS Then
-            Try
-                lastSplashDate = currentDateTime
-                SaveSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASH_DATE, lastSplashDate.ToShortDateString())
-
-                ' Now make sure the setting actually saved
-                lastSplashDateText = GetSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASH_DATE, "")
-                lastSplashDate = DateTime.Parse(lastSplashDateText)
-
-                If lastSplashDate.ToShortDateString() <> currentDateTime.ToShortDateString() Then
-                    ' Error saving/retrieving date; don't continue
-                    Exit Sub
-                End If
-
-            Catch ex As Exception
-                ' Error saving the new splash date; don't continue
-                Exit Sub
-            End Try
-
-            Dim splashForm As New Disclaimer
-            splashForm.ShowDialog()
-
-        End If
-
-    End Sub
-
-    Private Sub SwitchToProgressTab()
-
-        mTabPageIndexSaved = tbsOptions.SelectedIndex
-
-        tbsOptions.SelectedIndex = PROGRESS_TAB_INDEX
-        Application.DoEvents()
-
-    End Sub
-
-    Private Sub SwitchFromProgressTab()
-        ' Wait 500 msec, then switch from the progress tab back to the tab that was visible before we started, but only if the current tab is the progress tab
-
-        If tbsOptions.SelectedIndex = PROGRESS_TAB_INDEX Then
-            tbsOptions.SelectedIndex = mTabPageIndexSaved
-            Application.DoEvents()
-        End If
-    End Sub
-
-    Private Sub UpdatePeptideUniquenessMassMode()
-        If cboElementMassMode.SelectedIndex = PeptideSequence.ElementModeConstants.AverageMass Then
-            lblPeptideUniquenessMassMode.Text = "Using average masses"
-        Else
-            lblPeptideUniquenessMassMode.Text = "Using monoisotopic masses"
-        End If
-    End Sub
-
-    Private Sub ValidateFastaFile(fastaFilePath As String)
-
-        Try
-            ' Make sure an existing file has been chosen
-            If fastaFilePath Is Nothing OrElse fastaFilePath.Length = 0 Then Exit Try
-
-            If Not File.Exists(fastaFilePath) Then
-                ShowErrorMessage("File not found: " & fastaFilePath, "Error")
-            Else
-                If mFastaValidation Is Nothing Then
-                    mFastaValidation = New FastaValidation(fastaFilePath)
-                Else
-                    mFastaValidation.SetNewFastaFile(fastaFilePath)
-                End If
-
-                Try
-                    If mCustomValidationRulesFilePath IsNot Nothing AndAlso mCustomValidationRulesFilePath.Length > 0 Then
-                        If File.Exists(mCustomValidationRulesFilePath) Then
-                            mFastaValidation.CustomRulesFilePath = mCustomValidationRulesFilePath
-                        Else
-                            mCustomValidationRulesFilePath = String.Empty
-                        End If
-                    End If
-                Catch ex As Exception
-                    ShowErrorMessage("Error trying to validate or set the custom validation rules file path: " & mCustomValidationRulesFilePath & "; " & ex.Message, "Error")
-                End Try
-
-                If mFastaValidationOptions.Initialized Then
-                    mFastaValidation.SetOptions(mFastaValidationOptions)
-                End If
-
-                mFastaValidation.ShowDialog()
-
-                ' Note that mFastaValidation.GetOptions() will be called when event FastaValidationStarted fires
-
-            End If
-
-        Catch ex As Exception
-            ShowErrorMessage("Error occurred in frmFastaValidation: " & ex.Message, "Error")
-        Finally
-            If mFastaValidation IsNot Nothing Then
-                mCustomValidationRulesFilePath = mFastaValidation.CustomRulesFilePath
-            End If
-        End Try
-
-    End Sub
-
-    Private Function ValidateSqlServerCachingOptionsForInputFile(inputFilePath As String, assumeDigested As Boolean, ByRef proteinFileParser As ProteinFileParser) As Boolean
-        ' Returns True if the user OK's or updates the current Sql Server caching options
-        ' Returns False if the user cancels processing
-        ' Assumes that inputFilePath exists, and thus does not have a Try-Catch block
-
-        Const SAMPLING_LINE_COUNT = 10000
-
-        Dim totalLineCount As Integer
-
-        Dim suggestEnableSqlServer = False
-        Dim suggestDisableSqlServer = False
-
-        Dim isFastaFile = ProteinFileParser.IsFastaFile(inputFilePath, True) OrElse proteinFileParser.AssumeFastaFile
-
-        ' Lookup the file size
-        Dim inputFile = New FileInfo(inputFilePath)
-        Dim fileSizeKB = CType(inputFile.Length / 1024.0, Integer)
-
-        If isFastaFile Then
-            If proteinFileParser.DigestionOptions.CleavageRuleID = InSilicoDigest.CleavageRuleConstants.KROneEnd OrElse
-               proteinFileParser.DigestionOptions.CleavageRuleID = InSilicoDigest.CleavageRuleConstants.NoRule Then
-                suggestEnableSqlServer = True
-            ElseIf fileSizeKB > 500 Then
-                suggestEnableSqlServer = True
-            ElseIf fileSizeKB <= 500 Then
-                suggestDisableSqlServer = True
-            End If
-        Else
-            ' Assume a delimited text file
-            ' Estimate the total line count by reading the first SAMPLING_LINE_COUNT lines
-            Try
-                Using reader = New StreamReader(inputFilePath)
-
-                    Dim bytesRead = 0
-                    Dim lineCount = 0
-                    Do While Not reader.EndOfStream AndAlso lineCount < SAMPLING_LINE_COUNT
-                        Dim dataLine = reader.ReadLine()
-                        lineCount += 1
-                        bytesRead += dataLine.Length + 2
-                    Loop
-
-                    If lineCount < SAMPLING_LINE_COUNT OrElse bytesRead = 0 Then
-                        totalLineCount = lineCount
-                    Else
-                        totalLineCount = CInt(lineCount * fileSizeKB / (bytesRead / 1024))
-                    End If
-                End Using
-
-            Catch ex As Exception
-                ' Error reading input file
-                suggestEnableSqlServer = False
-                suggestDisableSqlServer = False
-            End Try
-
-            If assumeDigested Then
-                If totalLineCount > 50000 Then
-                    suggestEnableSqlServer = True
-                ElseIf totalLineCount <= 50000 Then
-                    suggestDisableSqlServer = True
-                End If
-            Else
-                If totalLineCount > 1000 Then
-                    suggestEnableSqlServer = True
-                ElseIf totalLineCount <= 1000 Then
-                    suggestDisableSqlServer = True
-                End If
-
-            End If
-        End If
-
-        Dim proceed As Boolean
-        If suggestEnableSqlServer AndAlso Not chkUseSqlServerDBToCacheData.Checked Then
-            Dim response = MessageBox.Show("Warning, memory usage could be quite large.  Enable Sql Server caching using Server " & txtSqlServerName.Text & "?  If no, then will continue using memory caching.", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1)
-            If response = DialogResult.Yes Then chkUseSqlServerDBToCacheData.Checked = True
-            If response = DialogResult.Cancel Then
-                proceed = False
-            Else
-                proceed = True
-            End If
-        ElseIf suggestDisableSqlServer AndAlso chkUseSqlServerDBToCacheData.Checked Then
-            Dim response = MessageBox.Show("Memory usage is expected to be minimal.  Continue caching data using Server " & txtSqlServerName.Text & "?  If no, then will switch to using memory caching.", "Note", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
-            If response = DialogResult.No Then chkUseSqlServerDBToCacheData.Checked = False
-            If response = DialogResult.Cancel Then
-                proceed = False
-            Else
-                proceed = True
-            End If
-        Else
-            proceed = True
-        End If
-
-        Return proceed
-
-    End Function
-
-    Private Sub ValidateTextBox(ByRef thisTextBox As TextBox, defaultText As String)
-        If thisTextBox.TextLength = 0 Then
-            thisTextBox.Text = defaultText
-        End If
-    End Sub
-
-    Private Sub cboElementMassMode_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboElementMassMode.SelectedIndexChanged
-        UpdatePeptideUniquenessMassMode()
-    End Sub
-
-    Private Sub cboHydrophobicityMode_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboHydrophobicityMode.SelectedIndexChanged
-        ComputeSequencepI()
-    End Sub
-    Private Sub cboInputFileColumnDelimiter_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboInputFileColumnDelimiter.SelectedIndexChanged
-        EnableDisableControls()
-    End Sub
-
-    Private Sub cboInputFileFormat_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboInputFileFormat.SelectedIndexChanged
-        EnableDisableControls()
-    End Sub
-
-    Private Sub cboProteinReversalOptions_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboProteinReversalOptions.SelectedIndexChanged
-        EnableDisableControls()
-    End Sub
-
-    Private Sub chkAllowSqlServerCaching_CheckedChanged(sender As Object, e As EventArgs) Handles chkAllowSqlServerCaching.CheckedChanged
-        EnableDisableControls()
-    End Sub
-
-    Private Sub chkAutoDefineSLiCScoreTolerances_CheckedChanged(sender As Object, e As EventArgs) Handles chkAutoDefineSLiCScoreTolerances.CheckedChanged
-        UpdateDataGridTableStyle()
-    End Sub
-
-    Private Sub chkComputepI_CheckedChanged(sender As Object, e As EventArgs) Handles chkComputepIandNET.CheckedChanged
-        EnableDisableControls()
-    End Sub
-
-    Private Sub chkComputeSequenceHashValues_CheckedChanged(sender As Object, e As EventArgs) Handles chkComputeSequenceHashValues.CheckedChanged
-        EnableDisableControls()
-    End Sub
-
-    Private Sub chkDigestProteins_CheckedChanged(sender As Object, e As EventArgs) Handles chkDigestProteins.CheckedChanged
-        EnableDisableControls()
-        AutoDefineOutputFile()
-    End Sub
-
-    Private Sub chkUseSLiCScoreForUniqueness_CheckedChanged(sender As Object, e As EventArgs) Handles chkUseSLiCScoreForUniqueness.CheckedChanged
-        EnableDisableControls()
-    End Sub
-
-    Private Sub chkUseSqlServerDBToCacheData_CheckedChanged(sender As Object, e As EventArgs) Handles chkUseSqlServerDBToCacheData.CheckedChanged
-        EnableDisableControls()
-    End Sub
-
-    Private Sub chkSqlServerUseIntegratedSecurity_CheckedChanged(sender As Object, e As EventArgs) Handles chkSqlServerUseIntegratedSecurity.CheckedChanged
-        EnableDisableControls()
-    End Sub
-
-    Private Sub cboOutputFileFieldDelimiter_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboOutputFileFieldDelimiter.SelectedIndexChanged
-        EnableDisableControls()
-    End Sub
-
-    Private Sub chkAutoComputeRangeForBinning_CheckedChanged(sender As Object, e As EventArgs) Handles chkAutoComputeRangeForBinning.CheckedChanged
-        EnableDisableControls()
-    End Sub
-
-    Private Sub cmdAbortProcessing_Click(sender As Object, e As EventArgs) Handles cmdAbortProcessing.Click
-        AbortProcessingNow()
-    End Sub
-
-    Private Sub cmdClearPMThresholdsList_Click(sender As Object, e As EventArgs) Handles cmdClearPMThresholdsList.Click
-        ClearPMThresholdsList(True)
-    End Sub
-
-    Private Sub chkCreateFastaOutputFile_CheckedChanged(sender As Object, e As EventArgs) Handles chkCreateFastaOutputFile.CheckedChanged
-        AutoDefineOutputFile()
-    End Sub
-
-    Private Sub chkLookForAddnlRefInDescription_CheckedChanged(sender As Object, e As EventArgs) Handles chkLookForAddnlRefInDescription.CheckedChanged
-        EnableDisableControls()
-    End Sub
-
-    Private Sub chkMaxpIModeEnabled_CheckedChanged(sender As Object, e As EventArgs) Handles chkMaxpIModeEnabled.CheckedChanged
-        EnableDisableControls()
-        ComputeSequencepI()
-    End Sub
-
-    Private Sub cmdGenerateUniquenessStats_Click(sender As Object, e As EventArgs) Handles cmdGenerateUniquenessStats.Click
-        GenerateUniquenessStats()
-    End Sub
-
-    Private Sub cmdNETInfo_Click(sender As Object, e As EventArgs) Handles cmdNETInfo.Click
-        ShowElutionTimeInfo()
-    End Sub
-
-    Private Sub cmdParseInputFile_Click(sender As Object, e As EventArgs) Handles cmdParseInputFile.Click
-        ParseProteinInputFile()
-    End Sub
-
-    Private Sub cmdPastePMThresholdsList_Click(sender As Object, e As EventArgs) Handles cmdPastePMThresholdsList.Click
-        PastePMThresholdsValues(False)
-    End Sub
-
-    Private Sub cmdPMThresholdsAutoPopulate_Click(sender As Object, e As EventArgs) Handles cmdPMThresholdsAutoPopulate.Click
-        If cboPMPredefinedThresholds.SelectedIndex >= 0 Then
-            AutoPopulatePMThresholdsByID(CType(cboPMPredefinedThresholds.SelectedIndex, PredefinedPMThresholdsConstants), True)
-        End If
-    End Sub
-
-    Private Sub cmdSelectFile_Click(sender As Object, e As EventArgs) Handles cmdSelectFile.Click
-        SelectInputFile()
-    End Sub
-
-    Private Sub cmdSelectOutputFile_Click(sender As Object, e As EventArgs) Handles cmdSelectOutputFile.Click
-        SelectOutputFile()
-    End Sub
-
-    Private Sub cmdValidateFastaFile_Click(sender As Object, e As EventArgs) Handles cmdValidateFastaFile.Click
-        ValidateFastaFile(GetProteinInputFilePath())
-    End Sub
-
-    Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        ' Note that InitializeControls() is called in Sub New()
-    End Sub
-
-    Private Sub frmMain_Closing(sender As Object, e As CancelEventArgs) Handles MyBase.Closing
-        IniFileSaveOptions(False, True)
-    End Sub
-
-    Private Sub txtDigestProteinsMinimumMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMinimumMass.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMinimumMass, e, True)
-    End Sub
-
-    Private Sub txtDigestProteinsMaximumMissedCleavages_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMaximumMissedCleavages.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMaximumMissedCleavages, e, True)
-    End Sub
-
-    Private Sub txtDigestProteinsMinimumResidueCount_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMinimumResidueCount.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMinimumResidueCount, e, True)
-    End Sub
-
-    Private Sub txtDigestProteinsMaximumMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtDigestProteinsMaximumMass.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMaximumMass, e, True)
-    End Sub
-
-    Private Sub txtMaxPeakMatchingResultsPerFeatureToSave_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtMaxPeakMatchingResultsPerFeatureToSave.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtMaxPeakMatchingResultsPerFeatureToSave, e, True)
-    End Sub
-
-    Private Sub txtMaxPeakMatchingResultsPerFeatureToSave_Validating(sender As Object, e As CancelEventArgs) Handles txtMaxPeakMatchingResultsPerFeatureToSave.Validating
-        If txtMaxPeakMatchingResultsPerFeatureToSave.Text.Trim = "0" Then txtMaxPeakMatchingResultsPerFeatureToSave.Text = "1"
-        TextBoxUtils.ValidateTextBoxInt(txtMaxPeakMatchingResultsPerFeatureToSave, 1, 100, 3)
-    End Sub
-
-    Private Sub txtMaxpISequenceLength_KeyDown(sender As Object, e As KeyEventArgs) Handles txtMaxpISequenceLength.KeyDown
-        If e.KeyCode = Keys.Enter AndAlso chkMaxpIModeEnabled.Checked Then ComputeSequencepI()
-    End Sub
-
-    Private Sub txtMaxpISequenceLength_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtMaxpISequenceLength.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtMaxpISequenceLength, e, True, False)
-    End Sub
-
-    Private Sub txtMaxpISequenceLength_Validating(sender As Object, e As CancelEventArgs) Handles txtMaxpISequenceLength.Validating
-        TextBoxUtils.ValidateTextBoxInt(txtMaxpISequenceLength, 1, 10000, 10)
-    End Sub
-
-    Private Sub txtMaxpISequenceLength_Validated(sender As Object, e As EventArgs) Handles txtMaxpISequenceLength.Validated
-        ComputeSequencepI()
-    End Sub
-
-    Private Sub txtMinimumSLiCScore_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtMinimumSLiCScore.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtMinimumSLiCScore, e, True, True)
-    End Sub
-
-    Private Sub txtMinimumSLiCScore_Validating(sender As Object, e As CancelEventArgs) Handles txtMinimumSLiCScore.Validating
-        TextBoxUtils.ValidateTextBoxFloat(txtMinimumSLiCScore, 0, 1, 0.95)
-    End Sub
-
-    Private Sub txtProteinInputFilePath_TextChanged(sender As Object, e As EventArgs) Handles txtProteinInputFilePath.TextChanged
-        EnableDisableControls()
-        AutoDefineOutputFile()
-    End Sub
-
-    Private Sub txtProteinReversalSamplingPercentage_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtProteinReversalSamplingPercentage.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtProteinReversalSamplingPercentage, e, True)
-    End Sub
-
-    Private Sub txtProteinScramblingLoopCount_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtProteinScramblingLoopCount.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtProteinScramblingLoopCount, e, True)
-    End Sub
-
-    ' ReSharper disable once IdentifierTypo
-    Private Sub txtSequenceForpI_TextChanged(sender As Object, e As EventArgs) Handles txtSequenceForpI.TextChanged
-        ComputeSequencepI()
-    End Sub
-
-    Private Sub txtUniquenessBinWidth_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtUniquenessBinWidth.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtUniquenessBinWidth, e, True)
-    End Sub
-
-    Private Sub txtUniquenessBinStartMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtUniquenessBinStartMass.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtUniquenessBinStartMass, e, True)
-    End Sub
-
-    Private Sub txtUniquenessBinEndMass_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtUniquenessBinEndMass.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtUniquenessBinEndMass, e, True)
-    End Sub
-
-    Private Sub mnuFileSelectInputFile_Click(sender As Object, e As EventArgs) Handles mnuFileSelectInputFile.Click
-        SelectInputFile()
-    End Sub
-
-    Private Sub mnuFileSelectOutputFile_Click(sender As Object, e As EventArgs) Handles mnuFileSelectOutputFile.Click
-        SelectOutputFile()
-    End Sub
-
-    Private Sub mnuFileSaveDefaultOptions_Click(sender As Object, e As EventArgs) Handles mnuFileSaveDefaultOptions.Click
-        IniFileSaveOptions(True)
-    End Sub
-
-    Private Sub mnuFileExit_Click(sender As Object, e As EventArgs) Handles mnuFileExit.Click
-        Me.Close()
-    End Sub
-
-    Private Sub mnuEditMakeUniquenessStats_Click(sender As Object, e As EventArgs) Handles mnuEditMakeUniquenessStats.Click
-        GenerateUniquenessStats()
-    End Sub
-
-    Private Sub mnuEditParseFile_Click(sender As Object, e As EventArgs) Handles mnuEditParseFile.Click
-        ParseProteinInputFile()
-    End Sub
-
-    Private Sub mnuEditResetOptions_Click(sender As Object, e As EventArgs) Handles mnuEditResetOptions.Click
-        ResetToDefaults(True)
-    End Sub
-
-    Private Sub mnuHelpAbout_Click(sender As Object, e As EventArgs) Handles mnuHelpAbout.Click
-        ShowAboutBox()
-    End Sub
-
-    Private Sub mnuHelpAboutElutionTime_Click(sender As Object, e As EventArgs) Handles mnuHelpAboutElutionTime.Click
-        ShowElutionTimeInfo()
-    End Sub
-
-    Private Sub FastaValidation_FastaValidationStarted() Handles mFastaValidation.FastaValidationStarted
-        mFastaValidationOptions = mFastaValidation.GetOptions()
-    End Sub
-
-    Private Sub ParseProteinFile_ErrorEvent(message As String, ex As Exception) Handles mParseProteinFile.ErrorEvent
-        lblErrorMessage.Text = "Error in mParseProteinFile: " & message
-        Application.DoEvents()
-    End Sub
-
-    Private Sub ParseProteinFile_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mParseProteinFile.ProgressUpdate
-        lblProgressDescription.Text = taskDescription
-        lblProgress.Text = FormatPercentComplete(percentComplete)
-        pbarProgress.Value = CInt(percentComplete)
-        Application.DoEvents()
-    End Sub
-
-    Private Sub ParseProteinFile_ProgressComplete() Handles mParseProteinFile.ProgressComplete
-        lblProgressDescription.Text = "Processing complete"
-        lblProgress.Text = FormatPercentComplete(100)
-        pbarProgress.Value = 100
-
-        lblSubtaskProgress.Text = ""
-        lblSubtaskProgressDescription.Text = ""
-
-        Application.DoEvents()
-    End Sub
-
-    Private Sub ParseProteinFile_ProgressReset() Handles mParseProteinFile.ProgressReset
-        ResetProgress()
-    End Sub
-
-    Private Sub ParseProteinFile_SubtaskProgressChanged(taskDescription As String, percentComplete As Single) Handles mParseProteinFile.SubtaskProgressChanged
-        lblSubtaskProgressDescription.Text = taskDescription
-        lblSubtaskProgress.Text = FormatPercentComplete(percentComplete)
-        Application.DoEvents()
-    End Sub
-
-    Private Sub ProteinDigestionSimulator_ErrorEvent(message As String, ex As Exception) Handles mProteinDigestionSimulator.ErrorEvent
-        lblErrorMessage.Text = "Error in mProteinDigestionSimulator: " & message
-        Application.DoEvents()
-    End Sub
-
-    Private Sub ProteinDigestionSimulator_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mProteinDigestionSimulator.ProgressUpdate
-        lblProgressDescription.Text = taskDescription
-        lblProgress.Text = FormatPercentComplete(percentComplete)
-        pbarProgress.Value = CInt(percentComplete)
-        Application.DoEvents()
-    End Sub
-
-    Private Sub ProteinDigestionSimulator_ProgressComplete() Handles mProteinDigestionSimulator.ProgressComplete
-        lblProgressDescription.Text = "Processing complete"
-        lblProgress.Text = FormatPercentComplete(100)
-        pbarProgress.Value = 100
-
-        lblSubtaskProgress.Text = ""
-        lblSubtaskProgressDescription.Text = ""
-
-        Application.DoEvents()
-    End Sub
-
-    Private Sub ProteinDigestionSimulator_ProgressReset() Handles mProteinDigestionSimulator.ProgressReset
-        ResetProgress()
-    End Sub
-
-    Private Sub ProteinDigestionSimulator_SubtaskProgressChanged(taskDescription As String, percentComplete As Single) Handles mProteinDigestionSimulator.SubtaskProgressChanged
-        lblSubtaskProgressDescription.Text = taskDescription
-        lblSubtaskProgress.Text = FormatPercentComplete(percentComplete)
-        Application.DoEvents()
-    End Sub
-
-End Class
+        private void AbortProcessingNow()
+        {
+            try
+            {
+                if (mParseProteinFile is object)
+                {
+                    mParseProteinFile.AbortProcessingNow();
+                }
+
+                if (mProteinDigestionSimulator is object)
+                {
+                    mProteinDigestionSimulator.AbortProcessingNow();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Ignore errors here
+            }
+        }
+
+        private void AddPMThresholdRow(double massThreshold, double netThreshold, [Optional, DefaultParameterValue(false)] ref bool existingRowFound)
+        {
+            AddPMThresholdRow(massThreshold, netThreshold, DEFAULT_SLIC_MASS_STDEV, DEFAULT_SLIC_NET_STDEV, ref existingRowFound);
+        }
+
+        private void AddPMThresholdRow(double massThreshold, double netThreshold, double slicMassStDev, double slicNETStDev, [Optional, DefaultParameterValue(false)] ref bool existingRowFound)
+        {
+            foreach (DataRow myDataRow in mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].Rows)
+            {
+                if (Math.Abs(Conversions.ToDouble(myDataRow[0]) - massThreshold) < 0.000001d && Math.Abs(Conversions.ToDouble(myDataRow[1]) - netThreshold) < 0.000001d)
+                {
+                    existingRowFound = true;
+                    break;
+                }
+            }
+
+            if (!existingRowFound)
+            {
+                var myDataRow = mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].NewRow();
+                myDataRow[0] = massThreshold;
+                myDataRow[1] = netThreshold;
+                myDataRow[2] = slicMassStDev;
+                myDataRow[3] = slicNETStDev;
+                mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].Rows.Add(myDataRow);
+            }
+        }
+
+        private void AppendEnzymeToCleavageRuleCombobox(InSilicoDigest inSilicoDigest, InSilicoDigest.CleavageRuleConstants cleavageRuleId)
+        {
+            CleavageRule cleavageRule = null;
+            inSilicoDigest.GetCleavageRuleById(cleavageRuleId, out cleavageRule);
+            if (cleavageRule is null)
+                return;
+            int targetIndex = cboCleavageRuleType.Items.Count;
+            cboCleavageRuleType.Items.Add(cleavageRule.Description + " (" + cleavageRule.GetDetailedRuleDescription() + ")");
+            mCleavageRuleComboboxIndexToType.Add(targetIndex, cleavageRuleId);
+        }
+
+        private void AutoDefineOutputFile()
+        {
+            try
+            {
+                if (txtProteinInputFilePath.Text.Length > 0)
+                {
+                    txtProteinOutputFilePath.Text = AutoDefineOutputFileWork(GetProteinInputFilePath());
+                }
+            }
+            catch (Exception ex)
+            {
+                // Leave the TextBox unchanged
+            }
+        }
+
+        private string AutoDefineOutputFileWork(string inputFilePath)
+        {
+            string inputFileName = ProteinFileParser.StripExtension(Path.GetFileName(inputFilePath), ".gz");
+            string outputFileName;
+            if (chkCreateFastaOutputFile.Enabled && chkCreateFastaOutputFile.Checked)
+            {
+                if (ProteinFileParser.IsFastaFile(inputFilePath, true))
+                {
+                    outputFileName = Path.GetFileNameWithoutExtension(inputFileName) + "_new.fasta";
+                }
+                else
+                {
+                    outputFileName = Path.ChangeExtension(inputFileName, ".fasta");
+                }
+            }
+            else if (Path.GetExtension(inputFileName).ToLower() == ".txt")
+            {
+                outputFileName = Path.GetFileNameWithoutExtension(inputFileName) + "_output.txt";
+            }
+            else
+            {
+                outputFileName = Path.ChangeExtension(inputFileName, ".txt");
+            }
+
+            if (!string.Equals(inputFilePath, txtProteinInputFilePath.Text))
+            {
+                txtProteinInputFilePath.Text = inputFilePath;
+            }
+
+            return Path.Combine(Path.GetDirectoryName(inputFilePath), outputFileName);
+        }
+
+        private void AutoPopulatePMThresholds(PredefinedPMThresholds predefinedThresholds, bool confirmReplaceExistingResults)
+        {
+            int index;
+            if (ClearPMThresholdsList(confirmReplaceExistingResults))
+            {
+                cboMassTolType.SelectedIndex = (int)predefinedThresholds.MassTolType;
+                var loopTo = predefinedThresholds.Thresholds.Length - 1;
+                for (index = 0; index <= loopTo; index++)
+                {
+                    bool argexistingRowFound = false;
+                    AddPMThresholdRow(predefinedThresholds.Thresholds[index].MassTolerance, predefinedThresholds.Thresholds[index].NETTolerance, existingRowFound: ref argexistingRowFound);
+                }
+            }
+        }
+
+        private void AutoPopulatePMThresholdsByID(PredefinedPMThresholdsConstants predefinedPMThreshold, bool confirmReplaceExistingResults)
+        {
+            try
+            {
+                AutoPopulatePMThresholds(mPredefinedPMThresholds[(int)predefinedPMThreshold], confirmReplaceExistingResults);
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Error calling AutoPopulatePMThresholds in AutoPopulatePMThresholdsByID: " + ex.Message, "Error");
+            }
+        }
+
+        private bool ClearPMThresholdsList(bool confirmReplaceExistingResults)
+        {
+            // Returns true if the PM_THRESHOLDS_DATA_TABLE is empty or if it was cleared
+            // Returns false if the user is queried about clearing and they do not click Yes
+
+            var result = default(DialogResult);
+            bool success;
+            success = false;
+            if (mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].Rows.Count > 0)
+            {
+                if (confirmReplaceExistingResults)
+                {
+                    result = MessageBox.Show("Are you sure you want to clear the thresholds?", "Clear Thresholds", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                }
+
+                if (result == DialogResult.Yes || !confirmReplaceExistingResults)
+                {
+                    mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].Rows.Clear();
+                    success = true;
+                }
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        private void ComputeSequencepI()
+        {
+            if (txtSequenceForpI.TextLength == 0)
+                return;
+            string sequence = txtSequenceForpI.Text;
+            var pI = default(float);
+            var hydrophobicity = default(float);
+            var lcNET = default(float);
+            var scxNET = default(float);
+            if (pICalculator is object)
+            {
+                if (cboHydrophobicityMode.SelectedIndex >= 0)
+                {
+                    pICalculator.HydrophobicityType = (ComputePeptideProperties.HydrophobicityTypeConstants)Conversions.ToInteger(cboHydrophobicityMode.SelectedIndex);
+                }
+
+                pICalculator.ReportMaximumpI = chkMaxpIModeEnabled.Checked;
+                pICalculator.SequenceWidthToExamineForMaximumpI = LookupMaxpISequenceLength();
+                pI = pICalculator.CalculateSequencepI(sequence);
+                hydrophobicity = pICalculator.CalculateSequenceHydrophobicity(sequence);
+                // Could compute charge state: pICalculator.CalculateSequenceChargeState(sequence, pI)
+            }
+
+            if (NETCalculator is object)
+            {
+                // Compute the LC-based normalized elution time
+                lcNET = NETCalculator.GetElutionTime(sequence);
+            }
+
+            if (SCXNETCalculator is object)
+            {
+                // Compute the SCX-based normalized elution time
+                scxNET = SCXNETCalculator.GetElutionTime(sequence);
+            }
+
+            string message = "pI = " + pI.ToString() + ControlChars.NewLine + "Hydrophobicity = " + hydrophobicity.ToString() + ControlChars.NewLine + "Predicted LC NET = " + lcNET.ToString("0.000") + ControlChars.NewLine + "Predicted SCX NET = " + scxNET.ToString("0.000");
+            // "Predicted charge state = " & ControlChars.NewLine & charge.ToString() & " at pH = " & pI.ToString()
+
+            txtpIStats.Text = message;
+        }
+
+        private bool ConfirmFilePaths()
+        {
+            if (txtProteinInputFilePath.TextLength == 0)
+            {
+                ShowErrorMessage("Please define an input file path", "Missing Value");
+                txtProteinInputFilePath.Focus();
+                return false;
+            }
+            else if (txtProteinOutputFilePath.TextLength == 0)
+            {
+                ShowErrorMessage("Please define an output file path", "Missing Value");
+                txtProteinOutputFilePath.Focus();
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        private void DefineDefaultPMThresholds()
+        {
+            int index;
+            int massIndex, netIndex;
+            double[] netValues;
+            double[] massValues;
+            mPredefinedPMThresholds = new PredefinedPMThresholds[5];
+
+            // All of the predefined thresholds have mass tolerances in units of PPM
+            for (index = 0; index <= PREDEFINED_PM_THRESHOLDS_COUNT - 1; index++)
+            {
+                mPredefinedPMThresholds[index].MassTolType = PeakMatching.SearchThresholds.MassToleranceConstants.PPM;
+                mPredefinedPMThresholds[index].Thresholds = new PeakMatchingThresholds[0];
+            }
+
+            netValues = new double[3];
+            netValues[0] = 0.01d;
+            netValues[1] = 0.05d;
+            netValues[2] = 100d;
+            massValues = new double[5];
+            massValues[0] = 0.5d;
+            massValues[1] = 1d;
+            massValues[2] = 5d;
+            massValues[3] = 10d;
+            massValues[4] = 50d;
+
+            // OneMassOneNET
+            DefineDefaultPMThresholdAppendItem(ref mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.OneMassOneNET], 5d, 0.05d);
+
+            // OneMassThreeNET
+            var loopTo = netValues.Length - 1;
+            for (netIndex = 0; netIndex <= loopTo; netIndex++)
+                DefineDefaultPMThresholdAppendItem(ref mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.OneMassThreeNET], 5d, netValues[netIndex]);
+
+            // ThreeMassOneNET
+            for (massIndex = 0; massIndex <= 2; massIndex++)
+                DefineDefaultPMThresholdAppendItem(ref mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.ThreeMassOneNET], massValues[massIndex], 0.05d);
+
+            // ThreeMassThreeNET
+            var loopTo1 = netValues.Length - 1;
+            for (netIndex = 0; netIndex <= loopTo1; netIndex++)
+            {
+                for (massIndex = 0; massIndex <= 2; massIndex++)
+                    DefineDefaultPMThresholdAppendItem(ref mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.ThreeMassThreeNET], massValues[massIndex], netValues[netIndex]);
+            }
+
+            // FiveMassThreeNET
+            var loopTo2 = netValues.Length - 1;
+            for (netIndex = 0; netIndex <= loopTo2; netIndex++)
+            {
+                var loopTo3 = massValues.Length - 1;
+                for (massIndex = 0; massIndex <= loopTo3; massIndex++)
+                    DefineDefaultPMThresholdAppendItem(ref mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.FiveMassThreeNET], massValues[massIndex], netValues[netIndex]);
+            }
+        }
+
+        private void DefineDefaultPMThresholdAppendItem(ref PredefinedPMThresholds pmThreshold, double massTolerance, double netTolerance)
+        {
+            int newIndex = pmThreshold.Thresholds.Length;
+            Array.Resize(ref pmThreshold.Thresholds, newIndex + 1);
+            pmThreshold.Thresholds[newIndex].MassTolerance = massTolerance;
+            pmThreshold.Thresholds[newIndex].NETTolerance = netTolerance;
+        }
+
+        private void EnableDisableControls()
+        {
+            bool enableDelimitedFileOptions;
+            bool enableDigestionOptions;
+            bool allowSqlServerCaching;
+            string inputFilePath = GetProteinInputFilePath();
+            bool sourceIsFasta = ProteinFileParser.IsFastaFile(inputFilePath, true);
+            if (cboInputFileFormat.SelectedIndex == (int)InputFileFormatConstants.DelimitedText)
+            {
+                enableDelimitedFileOptions = true;
+            }
+            else if (cboInputFileFormat.SelectedIndex == (int)InputFileFormatConstants.FastaFile || txtProteinInputFilePath.TextLength == 0 || sourceIsFasta)
+            {
+                // FASTA file (or blank)
+                enableDelimitedFileOptions = false;
+            }
+            else
+            {
+                enableDelimitedFileOptions = true;
+            }
+
+            cboInputFileColumnDelimiter.Enabled = enableDelimitedFileOptions;
+            lblInputFileColumnDelimiter.Enabled = enableDelimitedFileOptions;
+            chkAssumeInputFileIsDigested.Enabled = enableDelimitedFileOptions;
+            txtInputFileColumnDelimiter.Enabled = cboInputFileColumnDelimiter.SelectedIndex == (int)ProteinFileParser.DelimiterCharConstants.Other && enableDelimitedFileOptions;
+            enableDigestionOptions = chkDigestProteins.Checked;
+            if (enableDigestionOptions)
+            {
+                cmdParseInputFile.Text = "&Parse and Digest";
+            }
+            else
+            {
+                cmdParseInputFile.Text = "&Parse File";
+            }
+
+            if (cboInputFileFormat.SelectedIndex == (int)InputFileFormatConstants.FastaFile || sourceIsFasta)
+            {
+                cmdValidateFastaFile.Enabled = true;
+            }
+            else
+            {
+                cmdValidateFastaFile.Enabled = false;
+            }
+
+            chkCreateFastaOutputFile.Enabled = !enableDigestionOptions;
+            chkComputeSequenceHashIgnoreILDiff.Enabled = chkComputeSequenceHashValues.Checked;
+            fraDigestionOptions.Enabled = enableDigestionOptions;
+            chkIncludePrefixAndSuffixResidues.Enabled = enableDigestionOptions;
+            txtOutputFileFieldDelimiter.Enabled = cboOutputFileFieldDelimiter.SelectedIndex == (int)ProteinFileParser.DelimiterCharConstants.Other;
+            enableDelimitedFileOptions = chkLookForAddnlRefInDescription.Checked;
+            txtAddnlRefSepChar.Enabled = enableDelimitedFileOptions;
+            txtAddnlRefAccessionSepChar.Enabled = enableDelimitedFileOptions;
+            txtUniquenessBinStartMass.Enabled = !chkAutoComputeRangeForBinning.Checked;
+            txtUniquenessBinEndMass.Enabled = txtUniquenessBinStartMass.Enabled;
+            allowSqlServerCaching = chkAllowSqlServerCaching.Checked;
+            chkUseSqlServerDBToCacheData.Enabled = allowSqlServerCaching;
+            txtSqlServerDatabase.Enabled = chkUseSqlServerDBToCacheData.Checked && allowSqlServerCaching;
+            txtSqlServerName.Enabled = txtSqlServerDatabase.Enabled;
+            chkSqlServerUseIntegratedSecurity.Enabled = txtSqlServerDatabase.Enabled;
+            chkSqlServerUseExistingData.Enabled = chkSqlServerUseIntegratedSecurity.Checked && allowSqlServerCaching;
+            txtSqlServerUsername.Enabled = chkUseSqlServerDBToCacheData.Checked && !chkSqlServerUseIntegratedSecurity.Checked && allowSqlServerCaching;
+            txtSqlServerPassword.Enabled = txtSqlServerUsername.Enabled;
+            if (cboProteinReversalOptions.SelectedIndex <= 0)
+            {
+                txtProteinReversalSamplingPercentage.Enabled = false;
+            }
+            else
+            {
+                txtProteinReversalSamplingPercentage.Enabled = true;
+            }
+
+            if (cboProteinReversalOptions.SelectedIndex == 2)
+            {
+                txtProteinScramblingLoopCount.Enabled = true;
+            }
+            else
+            {
+                txtProteinScramblingLoopCount.Enabled = false;
+            }
+
+            txtMinimumSLiCScore.Enabled = chkUseSLiCScoreForUniqueness.Checked;
+            optUseEllipseSearchRegion.Enabled = !chkUseSLiCScoreForUniqueness.Checked;
+            optUseRectangleSearchRegion.Enabled = optUseEllipseSearchRegion.Enabled;
+            txtMaxpISequenceLength.Enabled = chkMaxpIModeEnabled.Checked;
+            txtDigestProteinsMinimumpI.Enabled = enableDigestionOptions && chkComputepIandNET.Checked;
+            txtDigestProteinsMaximumpI.Enabled = enableDigestionOptions && chkComputepIandNET.Checked;
+        }
+
+        private string FormatPercentComplete(float percentComplete)
+        {
+            return percentComplete.ToString("0.0") + "% complete";
+        }
+
+        private void GenerateUniquenessStats()
+        {
+            if (!mWorking && ConfirmFilePaths())
+            {
+                try
+                {
+                    if (mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].Rows.Count == 0)
+                    {
+                        ShowErrorMessage("Please define one or more peak matching thresholds before proceeding.", "Error");
+                        return;
+                    }
+
+                    mProteinDigestionSimulator = new DigestionSimulator();
+                    if (chkEnableLogging.Checked)
+                    {
+                        mProteinDigestionSimulator.LogMessagesToFile = true;
+                        string appFolderPath = ProcessFilesOrDirectoriesBase.GetAppDataDirectoryPath("ProteinDigestionSimulator");
+                        string logFilePath = Path.Combine(appFolderPath, "ProteinDigestionSimulatorLog.txt");
+                        mProteinDigestionSimulator.LogFilePath = logFilePath;
+                    }
+
+                    var argparseProteinFile = mProteinDigestionSimulator.mProteinFileParser;
+                    bool success = InitializeProteinFileParserGeneralOptions(ref argparseProteinFile);
+                    mProteinDigestionSimulator.mProteinFileParser = argparseProteinFile;
+                    if (!success)
+                        return;
+                    string outputFilePath = txtProteinOutputFilePath.Text;
+                    if (!Path.IsPathRooted(outputFilePath))
+                    {
+                        outputFilePath = Path.Combine(GetMyDocsFolderPath(), outputFilePath);
+                    }
+
+                    if (Directory.Exists(outputFilePath))
+                    {
+                        // outputFilePath points to a folder and not a file
+                        outputFilePath = Path.Combine(outputFilePath, Path.GetFileNameWithoutExtension(GetProteinInputFilePath()) + PEAK_MATCHING_STATS_FILE_SUFFIX);
+                    }
+                    else
+                    {
+                        // Replace _output.txt" in outputFilePath with PEAK_MATCHING_STATS_FILE_SUFFIX
+                        int charIndex = outputFilePath.IndexOf(OUTPUT_FILE_SUFFIX, StringComparison.OrdinalIgnoreCase);
+                        if (charIndex > 0)
+                        {
+                            outputFilePath = outputFilePath.Substring(0, charIndex) + PEAK_MATCHING_STATS_FILE_SUFFIX;
+                        }
+                        else
+                        {
+                            outputFilePath = Path.Combine(Path.GetDirectoryName(outputFilePath), Path.GetFileNameWithoutExtension(outputFilePath) + PEAK_MATCHING_STATS_FILE_SUFFIX);
+                        }
+                    }
+
+                    // Check input file size and possibly warn user to enable/disable SQL Server DB Usage
+                    if (chkAllowSqlServerCaching.Checked)
+                    {
+                        bool localValidateSqlServerCachingOptionsForInputFile() { var argproteinFileParser = mProteinDigestionSimulator.mProteinFileParser; var ret = ValidateSqlServerCachingOptionsForInputFile(GetProteinInputFilePath(), chkAssumeInputFileIsDigested.Checked, ref argproteinFileParser); mProteinDigestionSimulator.mProteinFileParser = argproteinFileParser; return ret; }
+
+                        if (!localValidateSqlServerCachingOptionsForInputFile())
+                        {
+                            return;
+                        }
+                    }
+
+                    var massToleranceType = default(PeakMatching.SearchThresholds.MassToleranceConstants);
+                    if (cboMassTolType.SelectedIndex >= 0)
+                    {
+                        massToleranceType = (PeakMatching.SearchThresholds.MassToleranceConstants)Conversions.ToInteger(cboMassTolType.SelectedIndex);
+                    }
+
+                    bool autoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked;
+                    bool clearExisting = true;
+                    foreach (DataRow myDataRow in mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].Rows)
+                    {
+                        if (autoDefineSLiCScoreThresholds)
+                        {
+                            mProteinDigestionSimulator.AddSearchThresholdLevel(massToleranceType, Conversions.ToDouble(myDataRow[0]), Conversions.ToDouble(myDataRow[1]), clearExisting);
+                        }
+                        else
+                        {
+                            mProteinDigestionSimulator.AddSearchThresholdLevel(massToleranceType, Conversions.ToDouble(myDataRow[0]), Conversions.ToDouble(myDataRow[1]), false, Conversions.ToDouble(myDataRow[2]), Conversions.ToDouble(myDataRow[3]), true, clearExisting);
+                        }
+
+                        clearExisting = false;
+                    }
+
+                    mProteinDigestionSimulator.DigestSequences = !chkAssumeInputFileIsDigested.Checked;
+                    mProteinDigestionSimulator.CysPeptidesOnly = chkCysPeptidesOnly.Checked;
+                    if (cboElementMassMode.SelectedIndex >= 0)
+                    {
+                        mProteinDigestionSimulator.ElementMassMode = (PeptideSequence.ElementModeConstants)Conversions.ToInteger(cboElementMassMode.SelectedIndex);
+                    }
+
+                    mProteinDigestionSimulator.AutoDetermineMassRangeForBinning = chkAutoComputeRangeForBinning.Checked;
+                    var invalidValue = default(bool);
+                    mProteinDigestionSimulator.PeptideUniquenessMassBinSizeForBinning = ParseTextBoxValueInt(txtUniquenessBinWidth, lblUniquenessBinWidth.Text + " must be an integer value", ref invalidValue);
+                    if (invalidValue)
+                        return;
+                    if (!mProteinDigestionSimulator.AutoDetermineMassRangeForBinning)
+                    {
+                        int binStartMass = ParseTextBoxValueInt(txtUniquenessBinStartMass, "Uniqueness binning start mass must be an integer value", ref invalidValue);
+                        if (invalidValue)
+                            return;
+                        int binEndMass = ParseTextBoxValueInt(txtUniquenessBinEndMass, "Uniqueness binning end mass must be an integer value", ref invalidValue);
+                        if (invalidValue)
+                            return;
+                        if (!mProteinDigestionSimulator.SetPeptideUniquenessMassRangeForBinning(binStartMass, binEndMass))
+                        {
+                            mProteinDigestionSimulator.AutoDetermineMassRangeForBinning = true;
+                        }
+                    }
+
+                    mProteinDigestionSimulator.MinimumSLiCScoreToBeConsideredUnique = ParseTextBoxValueSng(txtMinimumSLiCScore, lblMinimumSLiCScore.Text + " must be a value", ref invalidValue);
+                    if (invalidValue)
+                        return;
+                    mProteinDigestionSimulator.MaxPeakMatchingResultsPerFeatureToSave = ParseTextBoxValueInt(txtMaxPeakMatchingResultsPerFeatureToSave, lblMaxPeakMatchingResultsPerFeatureToSave.Text + " must be an integer value", ref invalidValue);
+                    if (invalidValue)
+                        return;
+                    mProteinDigestionSimulator.SavePeakMatchingResults = chkExportPeakMatchingResults.Checked;
+                    mProteinDigestionSimulator.UseSLiCScoreForUniqueness = chkUseSLiCScoreForUniqueness.Checked;
+                    mProteinDigestionSimulator.UseEllipseSearchRegion = optUseEllipseSearchRegion.Checked;             // Only applicable if mProteinDigestionSimulator.UseSLiCScoreForUniqueness = True
+                    Cursor.Current = Cursors.WaitCursor;
+                    mWorking = true;
+                    cmdGenerateUniquenessStats.Enabled = false;
+                    ResetProgress();
+                    SwitchToProgressTab();
+                    success = mProteinDigestionSimulator.GenerateUniquenessStats(GetProteinInputFilePath(), Path.GetDirectoryName(outputFilePath), Path.GetFileNameWithoutExtension(outputFilePath));
+                    Cursor.Current = Cursors.Default;
+                    if (success)
+                    {
+                        MessageBox.Show("Uniqueness stats calculation complete ", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        SwitchFromProgressTab();
+                    }
+                    else
+                    {
+                        ShowErrorMessage("Unable to Generate Uniqueness Stats: " + mProteinDigestionSimulator.GetErrorMessage(), "Error");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ShowErrorMessage("Error in frmMain->GenerateUniquenessStats: " + ex.Message, "Error");
+                }
+                finally
+                {
+                    mWorking = false;
+                    cmdGenerateUniquenessStats.Enabled = true;
+                    mProteinDigestionSimulator = null;
+                }
+            }
+        }
+
+        private string GetMyDocsFolderPath()
+        {
+            return Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+        }
+
+        private string GetProteinInputFilePath()
+        {
+            return txtProteinInputFilePath.Text.Trim(new[] { '"', ' ' });
+        }
+
+        private InSilicoDigest.CleavageRuleConstants GetSelectedCleavageRule()
+        {
+            int selectedIndex = cboCleavageRuleType.SelectedIndex;
+            var selectedCleavageRule = InSilicoDigest.CleavageRuleConstants.ConventionalTrypsin;
+            if (selectedIndex < 0 || !mCleavageRuleComboboxIndexToType.TryGetValue(selectedIndex, out selectedCleavageRule))
+            {
+                return InSilicoDigest.CleavageRuleConstants.ConventionalTrypsin;
+            }
+
+            return selectedCleavageRule;
+        }
+
+        private string GetSettingsFilePath()
+        {
+            return ProcessFilesOrDirectoriesBase.GetSettingsFilePathLocal("ProteinDigestionSimulator", XML_SETTINGS_FILE_NAME);
+        }
+
+        private void IniFileLoadOptions()
+        {
+            const string OptionsSection = ProteinFileParser.XML_SECTION_OPTIONS;
+            const string FASTAOptions = ProteinFileParser.XML_SECTION_FASTA_OPTIONS;
+            const string ProcessingOptions = ProteinFileParser.XML_SECTION_PROCESSING_OPTIONS;
+            const string DigestionOptions = ProteinFileParser.XML_SECTION_DIGESTION_OPTIONS;
+            const string UniquenessStatsOptions = ProteinFileParser.XML_SECTION_UNIQUENESS_STATS_OPTIONS;
+            const string PMOptions = DigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS;
+            const int MAX_AUTO_WINDOW_HEIGHT = 775;
+            var xmlSettings = new XmlSettingsFileAccessor();
+            bool autoDefineSLiCScoreThresholds;
+            bool valueNotPresent;
+            bool radioButtonChecked;
+            int index;
+            int windowHeight;
+            string thresholdData;
+            string[] thresholds;
+            string[] thresholdDetails;
+            var columnDelimiters = new char[] { ControlChars.Tab, ',' };
+            ResetToDefaults(false);
+            string settingsFilePath = GetSettingsFilePath();
+            try
+            {
+                // Pass False to .LoadSettings() here to turn off case sensitive matching
+                xmlSettings.LoadSettings(settingsFilePath, false);
+                ProcessFilesOrDirectoriesBase.CreateSettingsFileIfMissing(settingsFilePath);
+                if (!File.Exists(settingsFilePath))
+                {
+                    ShowErrorMessage("Parameter file not Found: " + settingsFilePath);
+                    return;
+                }
+
+                try
+                {
+                    txtProteinInputFilePath.Text = xmlSettings.GetParam(OptionsSection, "InputFilePath", GetProteinInputFilePath());
+                    cboInputFileFormat.SelectedIndex = xmlSettings.GetParam(OptionsSection, "InputFileFormatIndex", cboInputFileFormat.SelectedIndex);
+                    cboInputFileColumnDelimiter.SelectedIndex = xmlSettings.GetParam(OptionsSection, "InputFileColumnDelimiterIndex", cboInputFileColumnDelimiter.SelectedIndex);
+                    txtInputFileColumnDelimiter.Text = xmlSettings.GetParam(OptionsSection, "InputFileColumnDelimiter", txtInputFileColumnDelimiter.Text);
+                    cboInputFileColumnOrdering.SelectedIndex = xmlSettings.GetParam(OptionsSection, "InputFileColumnOrdering", cboInputFileColumnOrdering.SelectedIndex);
+                    cboOutputFileFieldDelimiter.SelectedIndex = xmlSettings.GetParam(OptionsSection, "OutputFileFieldDelimiterIndex", cboOutputFileFieldDelimiter.SelectedIndex);
+                    txtOutputFileFieldDelimiter.Text = xmlSettings.GetParam(OptionsSection, "OutputFileFieldDelimiter", txtOutputFileFieldDelimiter.Text);
+                    chkIncludePrefixAndSuffixResidues.Checked = xmlSettings.GetParam(OptionsSection, "IncludePrefixAndSuffixResidues", chkIncludePrefixAndSuffixResidues.Checked);
+                    chkEnableLogging.Checked = xmlSettings.GetParam(OptionsSection, "EnableLogging", chkEnableLogging.Checked);
+                    mCustomValidationRulesFilePath = xmlSettings.GetParam(OptionsSection, "CustomValidationRulesFilePath", string.Empty);
+                    Width = xmlSettings.GetParam(OptionsSection, "WindowWidth", Width);
+                    windowHeight = xmlSettings.GetParam(OptionsSection, "WindowHeight", Height);
+                    if (windowHeight > MAX_AUTO_WINDOW_HEIGHT)
+                    {
+                        windowHeight = MAX_AUTO_WINDOW_HEIGHT;
+                    }
+
+                    Height = windowHeight;
+                    chkLookForAddnlRefInDescription.Checked = xmlSettings.GetParam(FASTAOptions, "LookForAddnlRefInDescription", chkLookForAddnlRefInDescription.Checked);
+                    txtAddnlRefSepChar.Text = xmlSettings.GetParam(FASTAOptions, "AddnlRefSepChar", txtAddnlRefSepChar.Text);
+                    txtAddnlRefAccessionSepChar.Text = xmlSettings.GetParam(FASTAOptions, "AddnlRefAccessionSepChar", txtAddnlRefAccessionSepChar.Text);
+                    chkExcludeProteinSequence.Checked = xmlSettings.GetParam(ProcessingOptions, "ExcludeProteinSequence", chkExcludeProteinSequence.Checked);
+                    chkComputeProteinMass.Checked = xmlSettings.GetParam(ProcessingOptions, "ComputeProteinMass", chkComputeProteinMass.Checked);
+                    cboElementMassMode.SelectedIndex = xmlSettings.GetParam(ProcessingOptions, "ElementMassMode", cboElementMassMode.SelectedIndex);
+
+                    // In the GUI, chkComputepI controls computing pI, NET, and SCX
+                    // Running from the command line, you can toggle those options separately using "ComputepI" and "ComputeSCX"
+                    chkComputepIandNET.Checked = xmlSettings.GetParam(ProcessingOptions, "ComputepI", chkComputepIandNET.Checked);
+                    chkIncludeXResidues.Checked = xmlSettings.GetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked);
+                    chkComputeSequenceHashValues.Checked = xmlSettings.GetParam(ProcessingOptions, "ComputeSequenceHashValues", chkComputeSequenceHashValues.Checked);
+                    chkComputeSequenceHashIgnoreILDiff.Checked = xmlSettings.GetParam(ProcessingOptions, "ComputeSequenceHashIgnoreILDiff", chkComputeSequenceHashIgnoreILDiff.Checked);
+                    chkTruncateProteinDescription.Checked = xmlSettings.GetParam(ProcessingOptions, "TruncateProteinDescription", chkTruncateProteinDescription.Checked);
+                    chkExcludeProteinDescription.Checked = xmlSettings.GetParam(ProcessingOptions, "ExcludeProteinDescription", chkExcludeProteinDescription.Checked);
+                    chkDigestProteins.Checked = xmlSettings.GetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked);
+                    cboProteinReversalOptions.SelectedIndex = xmlSettings.GetParam(ProcessingOptions, "ProteinReversalIndex", cboProteinReversalOptions.SelectedIndex);
+                    txtProteinScramblingLoopCount.Text = xmlSettings.GetParam(ProcessingOptions, "ProteinScramblingLoopCount", txtProteinScramblingLoopCount.Text);
+                    try
+                    {
+                        cboHydrophobicityMode.SelectedIndex = xmlSettings.GetParam(ProcessingOptions, "HydrophobicityMode", cboHydrophobicityMode.SelectedIndex);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Ignore errors setting the selected index
+                    }
+
+                    chkMaxpIModeEnabled.Checked = xmlSettings.GetParam(ProcessingOptions, "MaxpIModeEnabled", chkMaxpIModeEnabled.Checked);
+                    txtMaxpISequenceLength.Text = xmlSettings.GetParam(ProcessingOptions, "MaxpISequenceLength", LookupMaxpISequenceLength()).ToString();
+                    string cleavageRuleName = xmlSettings.GetParam(DigestionOptions, "CleavageRuleName", string.Empty);
+                    if (!string.IsNullOrWhiteSpace(cleavageRuleName))
+                    {
+                        SetSelectedCleavageRule(cleavageRuleName);
+                    }
+                    else
+                    {
+                        int legacyCleavageRuleIndexSetting = xmlSettings.GetParam(DigestionOptions, "CleavageRuleTypeIndex", -1);
+                        if (legacyCleavageRuleIndexSetting >= 0)
+                        {
+                            try
+                            {
+                                InSilicoDigest.CleavageRuleConstants cleavageRule = (InSilicoDigest.CleavageRuleConstants)Conversions.ToInteger(legacyCleavageRuleIndexSetting);
+                                SetSelectedCleavageRule(cleavageRule);
+                            }
+                            catch (Exception ex)
+                            {
+                                // Ignore errors here
+                            }
+                        }
+                    }
+
+                    chkIncludeDuplicateSequences.Checked = xmlSettings.GetParam(DigestionOptions, "IncludeDuplicateSequences", chkIncludeDuplicateSequences.Checked);
+                    chkCysPeptidesOnly.Checked = xmlSettings.GetParam(DigestionOptions, "CysPeptidesOnly", chkCysPeptidesOnly.Checked);
+                    txtDigestProteinsMinimumMass.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMinimumMass", txtDigestProteinsMinimumMass.Text);
+                    txtDigestProteinsMaximumMass.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMaximumMass", txtDigestProteinsMaximumMass.Text);
+                    txtDigestProteinsMinimumResidueCount.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMinimumResidueCount", txtDigestProteinsMinimumResidueCount.Text);
+                    txtDigestProteinsMaximumMissedCleavages.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMaximumMissedCleavages", txtDigestProteinsMaximumMissedCleavages.Text);
+                    txtDigestProteinsMinimumpI.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMinimumpI", txtDigestProteinsMinimumpI.Text);
+                    txtDigestProteinsMaximumpI.Text = xmlSettings.GetParam(DigestionOptions, "DigestProteinsMaximumpI", txtDigestProteinsMaximumpI.Text);
+                    cboFragmentMassMode.SelectedIndex = xmlSettings.GetParam(DigestionOptions, "FragmentMassModeIndex", cboFragmentMassMode.SelectedIndex);
+                    cboCysTreatmentMode.SelectedIndex = xmlSettings.GetParam(DigestionOptions, "CysTreatmentModeIndex", cboCysTreatmentMode.SelectedIndex);
+
+                    // Load Uniqueness Options
+                    chkAssumeInputFileIsDigested.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "AssumeInputFileIsDigested", chkAssumeInputFileIsDigested.Checked);
+                    txtUniquenessBinWidth.Text = xmlSettings.GetParam(UniquenessStatsOptions, "UniquenessBinWidth", txtUniquenessBinWidth.Text);
+                    chkAutoComputeRangeForBinning.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "AutoComputeRangeForBinning", chkAutoComputeRangeForBinning.Checked);
+                    txtUniquenessBinStartMass.Text = xmlSettings.GetParam(UniquenessStatsOptions, "UniquenessBinStartMass", txtUniquenessBinStartMass.Text);
+                    txtUniquenessBinEndMass.Text = xmlSettings.GetParam(UniquenessStatsOptions, "UniquenessBinEndMass", txtUniquenessBinEndMass.Text);
+                    txtMaxPeakMatchingResultsPerFeatureToSave.Text = xmlSettings.GetParam(UniquenessStatsOptions, "MaxPeakMatchingResultsPerFeatureToSave", txtMaxPeakMatchingResultsPerFeatureToSave.Text);
+                    chkUseSLiCScoreForUniqueness.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "UseSLiCScoreForUniqueness", chkUseSLiCScoreForUniqueness.Checked);
+                    txtMinimumSLiCScore.Text = xmlSettings.GetParam(UniquenessStatsOptions, "MinimumSLiCScore", txtMinimumSLiCScore.Text);
+                    radioButtonChecked = xmlSettings.GetParam(UniquenessStatsOptions, "UseEllipseSearchRegion", true);
+                    if (radioButtonChecked)
+                    {
+                        optUseEllipseSearchRegion.Checked = radioButtonChecked;
+                    }
+                    else
+                    {
+                        optUseRectangleSearchRegion.Checked = radioButtonChecked;
+                    }
+
+                    // chkAllowSqlServerCaching.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "AllowSqlServerCaching", chkAllowSqlServerCaching.Checked);
+                    // chkUseSqlServerDBToCacheData.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "UseSqlServerDBToCacheData", chkUseSqlServerDBToCacheData.Checked);
+                    // txtSqlServerName.Text = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerName", txtSqlServerName.Text);
+                    // txtSqlServerDatabase.Text = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerDatabase", txtSqlServerDatabase.Text);
+                    // chkSqlServerUseIntegratedSecurity.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerUseIntegratedSecurity", chkSqlServerUseIntegratedSecurity.Checked);
+
+                    // chkSqlServerUseExistingData.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerUseExistingData", chkSqlServerUseExistingData.Checked);
+
+                    // txtSqlServerUsername.Text = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerUsername", txtSqlServerUsername.Text);
+                    // txtSqlServerPassword.Text = xmlSettings.GetParam(UniquenessStatsOptions, "SqlServerPassword", txtSqlServerPassword.Text);
+
+                    // Load the peak matching thresholds
+                    cboMassTolType.SelectedIndex = xmlSettings.GetParam(PMOptions, "MassToleranceType", cboMassTolType.SelectedIndex);
+                    chkAutoDefineSLiCScoreTolerances.Checked = xmlSettings.GetParam(PMOptions, "AutoDefineSLiCScoreThresholds", chkAutoDefineSLiCScoreTolerances.Checked);
+                    autoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked;
+
+                    // See if any peak matching data is present
+                    // If it is, clear the table and load it; if not, leave the table unchanged
+
+                    valueNotPresent = false;
+                    thresholdData = xmlSettings.GetParam(PMOptions, "ThresholdData", string.Empty, out valueNotPresent);
+                    if (!valueNotPresent && thresholdData is object && thresholdData.Length > 0)
+                    {
+                        thresholds = thresholdData.Split(';');
+                        if (thresholds.Length > 0)
+                        {
+                            ClearPMThresholdsList(false);
+                            var loopTo = thresholds.Length - 1;
+                            for (index = 0; index <= loopTo; index++)
+                            {
+                                thresholdDetails = thresholds[index].Split(columnDelimiters);
+                                if (thresholdDetails.Length > 2 && !autoDefineSLiCScoreThresholds)
+                                {
+                                    if (Information.IsNumeric(thresholdDetails[0]) && Information.IsNumeric(thresholdDetails[1]) && Information.IsNumeric(thresholdDetails[2]) && Information.IsNumeric(thresholdDetails[3]))
+                                    {
+                                        bool argexistingRowFound = false;
+                                        AddPMThresholdRow(Conversions.ToDouble(thresholdDetails[0]), Conversions.ToDouble(thresholdDetails[1]), Conversions.ToDouble(thresholdDetails[2]), Conversions.ToDouble(thresholdDetails[3]), existingRowFound: ref argexistingRowFound);
+                                    }
+                                }
+                                else if (thresholdDetails.Length >= 2)
+                                {
+                                    if (Information.IsNumeric(thresholdDetails[0]) && Information.IsNumeric(thresholdDetails[1]))
+                                    {
+                                        bool argexistingRowFound1 = false;
+                                        AddPMThresholdRow(Conversions.ToDouble(thresholdDetails[0]), Conversions.ToDouble(thresholdDetails[1]), existingRowFound: ref argexistingRowFound1);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ShowErrorMessage("Invalid parameter in settings file: " + Path.GetFileName(settingsFilePath), "Error");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Error loading settings from file: " + settingsFilePath, "Error");
+            }
+        }
+
+        private void IniFileSaveOptions(bool showFilePath, bool saveWindowDimensionsOnly = false)
+        {
+            const string OptionsSection = ProteinFileParser.XML_SECTION_OPTIONS;
+            const string FASTAOptions = ProteinFileParser.XML_SECTION_FASTA_OPTIONS;
+            const string ProcessingOptions = ProteinFileParser.XML_SECTION_PROCESSING_OPTIONS;
+            const string DigestionOptions = ProteinFileParser.XML_SECTION_DIGESTION_OPTIONS;
+            const string UniquenessStatsOptions = ProteinFileParser.XML_SECTION_UNIQUENESS_STATS_OPTIONS;
+            const string PMOptions = DigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS;
+            var xmlSettings = new XmlSettingsFileAccessor();
+            string settingsFilePath = GetSettingsFilePath();
+            try
+            {
+                var settingsFile = new FileInfo(settingsFilePath);
+                if (!settingsFile.Exists)
+                {
+                    saveWindowDimensionsOnly = false;
+                }
+            }
+            catch
+            {
+                // Ignore errors here
+            }
+
+            try
+            {
+                // Pass True to .LoadSettings() to turn on case sensitive matching
+                xmlSettings.LoadSettings(settingsFilePath, true);
+                try
+                {
+                    if (!saveWindowDimensionsOnly)
+                    {
+                        xmlSettings.SetParam(OptionsSection, "InputFilePath", GetProteinInputFilePath());
+                        xmlSettings.SetParam(OptionsSection, "InputFileFormatIndex", cboInputFileFormat.SelectedIndex);
+                        xmlSettings.SetParam(OptionsSection, "InputFileColumnDelimiterIndex", cboInputFileColumnDelimiter.SelectedIndex);
+                        xmlSettings.SetParam(OptionsSection, "InputFileColumnDelimiter", txtInputFileColumnDelimiter.Text);
+                        xmlSettings.SetParam(OptionsSection, "InputFileColumnOrdering", cboInputFileColumnOrdering.SelectedIndex);
+                        xmlSettings.SetParam(OptionsSection, "OutputFileFieldDelimiterIndex", cboOutputFileFieldDelimiter.SelectedIndex);
+                        xmlSettings.SetParam(OptionsSection, "OutputFileFieldDelimiter", txtOutputFileFieldDelimiter.Text);
+                        xmlSettings.SetParam(OptionsSection, "IncludePrefixAndSuffixResidues", chkIncludePrefixAndSuffixResidues.Checked);
+                        xmlSettings.SetParam(OptionsSection, "EnableLogging", chkEnableLogging.Checked);
+                        xmlSettings.SetParam(OptionsSection, "CustomValidationRulesFilePath", mCustomValidationRulesFilePath);
+                    }
+
+                    xmlSettings.SetParam(OptionsSection, "WindowWidth", Width);
+                    xmlSettings.SetParam(OptionsSection, "WindowHeight", Height);
+                    if (!saveWindowDimensionsOnly)
+                    {
+                        xmlSettings.SetParam(FASTAOptions, "LookForAddnlRefInDescription", chkLookForAddnlRefInDescription.Checked);
+                        xmlSettings.SetParam(FASTAOptions, "AddnlRefSepChar", txtAddnlRefSepChar.Text);
+                        xmlSettings.SetParam(FASTAOptions, "AddnlRefAccessionSepChar", txtAddnlRefAccessionSepChar.Text);
+                        xmlSettings.SetParam(ProcessingOptions, "ExcludeProteinSequence", chkExcludeProteinSequence.Checked);
+                        xmlSettings.SetParam(ProcessingOptions, "ComputeProteinMass", chkComputeProteinMass.Checked);
+                        xmlSettings.SetParam(ProcessingOptions, "ComputepI", chkComputepIandNET.Checked);
+                        xmlSettings.SetParam(ProcessingOptions, "ComputeNET", chkComputepIandNET.Checked);
+                        xmlSettings.SetParam(ProcessingOptions, "ComputeSCX", chkComputepIandNET.Checked);
+                        xmlSettings.SetParam(ProcessingOptions, "IncludeXResidues", chkIncludeXResidues.Checked);
+                        xmlSettings.SetParam(ProcessingOptions, "ComputeSequenceHashValues", chkComputeSequenceHashValues.Checked);
+                        xmlSettings.SetParam(ProcessingOptions, "ComputeSequenceHashIgnoreILDiff", chkComputeSequenceHashIgnoreILDiff.Checked);
+                        xmlSettings.SetParam(ProcessingOptions, "TruncateProteinDescription", chkTruncateProteinDescription.Checked);
+                        xmlSettings.SetParam(ProcessingOptions, "ExcludeProteinDescription", chkExcludeProteinDescription.Checked);
+                        xmlSettings.SetParam(ProcessingOptions, "DigestProteins", chkDigestProteins.Checked);
+                        xmlSettings.SetParam(ProcessingOptions, "ProteinReversalIndex", cboProteinReversalOptions.SelectedIndex);
+                        xmlSettings.SetParam(ProcessingOptions, "ProteinScramblingLoopCount", txtProteinScramblingLoopCount.Text);
+                        xmlSettings.SetParam(ProcessingOptions, "ElementMassMode", cboElementMassMode.SelectedIndex);
+                        xmlSettings.SetParam(ProcessingOptions, "HydrophobicityMode", cboHydrophobicityMode.SelectedIndex);
+                        xmlSettings.SetParam(ProcessingOptions, "MaxpIModeEnabled", chkMaxpIModeEnabled.Checked);
+                        xmlSettings.SetParam(ProcessingOptions, "MaxpISequenceLength", LookupMaxpISequenceLength());
+                        xmlSettings.SetParam(DigestionOptions, "CleavageRuleName", GetSelectedCleavageRule().ToString());
+                        xmlSettings.SetParam(DigestionOptions, "IncludeDuplicateSequences", chkIncludeDuplicateSequences.Checked);
+                        xmlSettings.SetParam(DigestionOptions, "CysPeptidesOnly", chkCysPeptidesOnly.Checked);
+                        xmlSettings.SetParam(DigestionOptions, "DigestProteinsMinimumMass", txtDigestProteinsMinimumMass.Text);
+                        xmlSettings.SetParam(DigestionOptions, "DigestProteinsMaximumMass", txtDigestProteinsMaximumMass.Text);
+                        xmlSettings.SetParam(DigestionOptions, "DigestProteinsMinimumResidueCount", txtDigestProteinsMinimumResidueCount.Text);
+                        xmlSettings.SetParam(DigestionOptions, "DigestProteinsMaximumMissedCleavages", txtDigestProteinsMaximumMissedCleavages.Text);
+                        xmlSettings.SetParam(DigestionOptions, "DigestProteinsMinimumpI", txtDigestProteinsMinimumpI.Text);
+                        xmlSettings.SetParam(DigestionOptions, "DigestProteinsMaximumpI", txtDigestProteinsMaximumpI.Text);
+                        xmlSettings.SetParam(DigestionOptions, "FragmentMassModeIndex", cboFragmentMassMode.SelectedIndex);
+                        xmlSettings.SetParam(DigestionOptions, "CysTreatmentModeIndex", cboCysTreatmentMode.SelectedIndex);
+
+                        // Load Uniqueness Options
+                        xmlSettings.SetParam(UniquenessStatsOptions, "AssumeInputFileIsDigested", chkAssumeInputFileIsDigested.Checked);
+                        xmlSettings.SetParam(UniquenessStatsOptions, "UniquenessBinWidth", txtUniquenessBinWidth.Text);
+                        xmlSettings.SetParam(UniquenessStatsOptions, "AutoComputeRangeForBinning", chkAutoComputeRangeForBinning.Checked);
+                        xmlSettings.SetParam(UniquenessStatsOptions, "UniquenessBinStartMass", txtUniquenessBinStartMass.Text);
+                        xmlSettings.SetParam(UniquenessStatsOptions, "UniquenessBinEndMass", txtUniquenessBinEndMass.Text);
+                        xmlSettings.SetParam(UniquenessStatsOptions, "MaxPeakMatchingResultsPerFeatureToSave", txtMaxPeakMatchingResultsPerFeatureToSave.Text);
+                        xmlSettings.SetParam(UniquenessStatsOptions, "UseSLiCScoreForUniqueness", chkUseSLiCScoreForUniqueness.Checked);
+                        xmlSettings.SetParam(UniquenessStatsOptions, "MinimumSLiCScore", txtMinimumSLiCScore.Text);
+                        xmlSettings.SetParam(UniquenessStatsOptions, "UseEllipseSearchRegion", optUseEllipseSearchRegion.Checked);
+
+                        // xmlSettings.SetParam(UniquenessStatsOptions, "AllowSqlServerCaching", chkAllowSqlServerCaching.Checked);
+                        // xmlSettings.SetParam(UniquenessStatsOptions, "UseSqlServerDBToCacheData", chkUseSqlServerDBToCacheData.Checked);
+                        // xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerName", txtSqlServerName.Text);
+                        // xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerDatabase", txtSqlServerDatabase.Text);
+                        // xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerUseIntegratedSecurity", chkSqlServerUseIntegratedSecurity.Checked);
+                        // xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerUseExistingData", chkSqlServerUseExistingData.Checked);
+                        // xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerUsername", txtSqlServerUsername.Text);
+                        // xmlSettings.SetParam(UniquenessStatsOptions, "SqlServerPassword", txtSqlServerPassword.Text);
+
+                        // Save the peak matching thresholds
+                        xmlSettings.SetParam(PMOptions, "MassToleranceType", cboMassTolType.SelectedIndex.ToString());
+                        bool autoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked;
+                        xmlSettings.SetParam(PMOptions, "AutoDefineSLiCScoreThresholds", autoDefineSLiCScoreThresholds.ToString());
+                        string thresholdData = string.Empty;
+                        foreach (DataRow myDataRow in mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].Rows)
+                        {
+                            if (thresholdData.Length > 0)
+                                thresholdData += "; ";
+                            if (autoDefineSLiCScoreThresholds)
+                            {
+                                thresholdData += Conversions.ToString(myDataRow[0]) + "," + Conversions.ToString(myDataRow[1]);
+                            }
+                            else
+                            {
+                                thresholdData += Conversions.ToString(myDataRow[0]) + "," + Conversions.ToString(myDataRow[1]) + "," + Conversions.ToString(myDataRow[2]) + "," + Conversions.ToString(myDataRow[3]);
+                            }
+                        }
+
+                        xmlSettings.SetParam(PMOptions, "ThresholdData", thresholdData);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ShowErrorMessage("Error storing parameter in settings file: " + Path.GetFileName(settingsFilePath), "Error");
+                }
+
+                xmlSettings.SaveSettings();
+                if (showFilePath)
+                {
+                    MessageBox.Show("Saved settings to file " + settingsFilePath, "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Error saving settings to file: " + settingsFilePath, "Error");
+            }
+        }
+
+        private void InitializeControls()
+        {
+            DefineDefaultPMThresholds();
+            Text = "Protein Digestion Simulator";
+            lblUniquenessCalculationsNote.Text = "The Protein Digestion Simulator uses an elution time prediction algorithm " + "developed by Lars Kangas and Kostas Petritis. See Help->About Elution Time Prediction for more info. " + "Note that you can provide custom time values for peptides by separately " + "generating a tab or comma delimited text file with information corresponding " + "to one of the options in the 'Column Order' list on the 'File Format' option tab, " + "then checking 'Assume Input file is Already Digested' on this tab.";
+            PopulateComboBoxes();
+            InitializePeakMatchingDataGrid();
+            IniFileLoadOptions();
+            SetToolTips();
+            ShowSplashScreen();
+            EnableDisableControls();
+            ResetProgress();
+        }
+
+        private void InitializePeakMatchingDataGrid()
+        {
+            // Make the Peak Matching Thresholds DATA_TABLE
+            var pmThresholds = new DataTable(PM_THRESHOLDS_DATA_TABLE);
+
+            // Add the columns to the data table
+            DBUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_MASS_TOLERANCE);
+            DBUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_NET_TOLERANCE);
+            DBUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_SLIC_MASS_STDEV, DEFAULT_SLIC_MASS_STDEV);
+            DBUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_SLIC_NET_STDEV, DEFAULT_SLIC_NET_STDEV);
+            DBUtils.AppendColumnIntegerToTable(pmThresholds, COL_NAME_PM_THRESHOLD_ROW_ID, 0, true, true);
+            var PrimaryKeyColumn = new DataColumn[] { pmThresholds.Columns[COL_NAME_PM_THRESHOLD_ROW_ID] };
+            pmThresholds.PrimaryKey = PrimaryKeyColumn;
+
+            // Instantiate the dataset
+            mPeakMatchingThresholdsDataset = new DataSet(PM_THRESHOLDS_DATA_TABLE);
+
+            // Add the new System.Data.DataTable to the DataSet.
+            mPeakMatchingThresholdsDataset.Tables.Add(pmThresholds);
+
+            // Bind the DataSet to the DataGrid
+            dgPeakMatchingThresholds.DataSource = mPeakMatchingThresholdsDataset;
+            dgPeakMatchingThresholds.DataMember = PM_THRESHOLDS_DATA_TABLE;
+
+            // Update the grid's table style
+            UpdateDataGridTableStyle();
+
+            // Populate the table
+            AutoPopulatePMThresholdsByID(PredefinedPMThresholdsConstants.OneMassOneNET, false);
+        }
+
+        private void UpdateDataGridTableStyle()
+        {
+            DataGridTableStyle tsPMThresholdsTableStyle;
+
+            // Define the PM Thresholds table style
+            // Setting the MappingName of the table style to PM_THRESHOLDS_DATA_TABLE will cause this style to be used with that table
+            tsPMThresholdsTableStyle = new DataGridTableStyle()
+            {
+                MappingName = PM_THRESHOLDS_DATA_TABLE,
+                AllowSorting = true,
+                ColumnHeadersVisible = true,
+                RowHeadersVisible = true,
+                ReadOnly = false
+            };
+            DataGridUtils.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_MASS_TOLERANCE, "Mass Tolerance", 90);
+            DataGridUtils.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_NET_TOLERANCE, "NET Tolerance", 90);
+            if (chkAutoDefineSLiCScoreTolerances.Checked)
+            {
+                dgPeakMatchingThresholds.Width = 250;
+            }
+            else
+            {
+                dgPeakMatchingThresholds.Width = 425;
+                DataGridUtils.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_SLIC_MASS_STDEV, "SLiC Mass StDev", 90);
+                DataGridUtils.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_SLIC_NET_STDEV, "SLiC NET StDev", 90);
+            }
+
+            cmdPastePMThresholdsList.Left = dgPeakMatchingThresholds.Left + dgPeakMatchingThresholds.Width + 15;
+            cmdClearPMThresholdsList.Left = cmdPastePMThresholdsList.Left;
+            dgPeakMatchingThresholds.TableStyles.Clear();
+            if (!dgPeakMatchingThresholds.TableStyles.Contains(tsPMThresholdsTableStyle))
+            {
+                dgPeakMatchingThresholds.TableStyles.Add(tsPMThresholdsTableStyle);
+            }
+
+            dgPeakMatchingThresholds.Refresh();
+        }
+
+        private bool InitializeProteinFileParserGeneralOptions(ref ProteinFileParser parseProteinFile)
+        {
+            // Returns true if all values were valid
+
+            var invalidValue = default(bool);
+            if (cboInputFileFormat.SelectedIndex == (int)InputFileFormatConstants.FastaFile)
+            {
+                parseProteinFile.AssumeFastaFile = true;
+            }
+            else if (cboInputFileFormat.SelectedIndex == (int)InputFileFormatConstants.DelimitedText)
+            {
+                parseProteinFile.AssumeDelimitedFile = true;
+            }
+            else
+            {
+                parseProteinFile.AssumeFastaFile = false;
+            }
+
+            if (cboInputFileColumnOrdering.SelectedIndex >= 0)
+            {
+                parseProteinFile.DelimitedFileFormatCode = (DelimitedProteinFileReader.ProteinFileFormatCode)Conversions.ToInteger(cboInputFileColumnOrdering.SelectedIndex);
+            }
+
+            parseProteinFile.InputFileDelimiter = LookupColumnDelimiter(cboInputFileColumnDelimiter, txtInputFileColumnDelimiter, ControlChars.Tab);
+            parseProteinFile.OutputFileDelimiter = LookupColumnDelimiter(cboOutputFileFieldDelimiter, txtOutputFileFieldDelimiter, ControlChars.Tab);
+            parseProteinFile.FastaFileOptions.LookForAddnlRefInDescription = chkLookForAddnlRefInDescription.Checked;
+            var argthisTextBox = txtAddnlRefSepChar;
+            ValidateTextBox(ref argthisTextBox, Conversions.ToString(mDefaultFastaFileOptions.AddnlRefSepChar));
+            txtAddnlRefSepChar = argthisTextBox;
+            var argthisTextBox1 = txtAddnlRefAccessionSepChar;
+            ValidateTextBox(ref argthisTextBox1, Conversions.ToString(mDefaultFastaFileOptions.AddnlRefAccessionSepChar));
+            txtAddnlRefAccessionSepChar = argthisTextBox1;
+            parseProteinFile.FastaFileOptions.AddnlRefSepChar = txtAddnlRefSepChar.Text[0];
+            parseProteinFile.FastaFileOptions.AddnlRefAccessionSepChar = txtAddnlRefAccessionSepChar.Text[0];
+            parseProteinFile.ExcludeProteinSequence = chkExcludeProteinSequence.Checked;
+            parseProteinFile.ComputeProteinMass = chkComputeProteinMass.Checked;
+            parseProteinFile.ComputepI = chkComputepIandNET.Checked;
+            parseProteinFile.ComputeNET = chkComputepIandNET.Checked;
+            parseProteinFile.ComputeSCXNET = chkComputepIandNET.Checked;
+            parseProteinFile.ComputeSequenceHashValues = chkComputeSequenceHashValues.Checked;
+            parseProteinFile.ComputeSequenceHashIgnoreILDiff = chkComputeSequenceHashIgnoreILDiff.Checked;
+            parseProteinFile.TruncateProteinDescription = chkTruncateProteinDescription.Checked;
+            parseProteinFile.ExcludeProteinDescription = chkExcludeProteinDescription.Checked;
+            if (cboHydrophobicityMode.SelectedIndex >= 0)
+            {
+                parseProteinFile.HydrophobicityType = (ComputePeptideProperties.HydrophobicityTypeConstants)Conversions.ToInteger(cboHydrophobicityMode.SelectedIndex);
+            }
+
+            parseProteinFile.ReportMaximumpI = chkMaxpIModeEnabled.Checked;
+            parseProteinFile.SequenceWidthToExamineForMaximumpI = LookupMaxpISequenceLength();
+            parseProteinFile.IncludeXResiduesInMass = chkIncludeXResidues.Checked;
+            parseProteinFile.GenerateUniqueIDValuesForPeptides = chkGenerateUniqueIDValues.Checked;
+            if (cboCleavageRuleType.SelectedIndex >= 0)
+            {
+                parseProteinFile.DigestionOptions.CleavageRuleID = GetSelectedCleavageRule();
+            }
+
+            parseProteinFile.DigestionOptions.IncludePrefixAndSuffixResidues = chkIncludePrefixAndSuffixResidues.Checked;
+            parseProteinFile.DigestionOptions.MinFragmentMass = ParseTextBoxValueInt(txtDigestProteinsMinimumMass, lblDigestProteinsMinimumMass.Text + " must be an integer value", ref invalidValue);
+            if (invalidValue)
+                return false;
+            parseProteinFile.DigestionOptions.MaxFragmentMass = ParseTextBoxValueInt(txtDigestProteinsMaximumMass, lblDigestProteinsMaximumMass.Text + " must be an integer value", ref invalidValue);
+            if (invalidValue)
+                return false;
+            parseProteinFile.DigestionOptions.MaxMissedCleavages = ParseTextBoxValueInt(txtDigestProteinsMaximumMissedCleavages, lblDigestProteinsMaximumMissedCleavages.Text + " must be an integer value", ref invalidValue);
+            if (invalidValue)
+                return false;
+            parseProteinFile.DigestionOptions.MinFragmentResidueCount = ParseTextBoxValueInt(txtDigestProteinsMinimumResidueCount, lblDigestProteinsMinimumResidueCount.Text + " must be an integer value", ref invalidValue);
+            if (invalidValue)
+                return false;
+            parseProteinFile.DigestionOptions.MinIsoelectricPoint = ParseTextBoxValueSng(txtDigestProteinsMinimumpI, lblDigestProteinsMinimumpI.Text + " must be a decimal value", ref invalidValue);
+            if (invalidValue)
+                return false;
+            parseProteinFile.DigestionOptions.MaxIsoelectricPoint = ParseTextBoxValueSng(txtDigestProteinsMaximumpI, lblDigestProteinsMaximumpI.Text + " must be a decimal value", ref invalidValue);
+            if (invalidValue)
+                return false;
+            if (cboCysTreatmentMode.SelectedIndex >= 0)
+            {
+                parseProteinFile.DigestionOptions.CysTreatmentMode = (PeptideSequence.CysTreatmentModeConstants)Conversions.ToInteger(cboCysTreatmentMode.SelectedIndex);
+            }
+
+            if (cboFragmentMassMode.SelectedIndex >= 0)
+            {
+                parseProteinFile.DigestionOptions.FragmentMassMode = (InSilicoDigest.FragmentMassConstants)Conversions.ToInteger(cboFragmentMassMode.SelectedIndex);
+            }
+
+            parseProteinFile.DigestionOptions.RemoveDuplicateSequences = !chkIncludeDuplicateSequences.Checked;
+            if (chkCysPeptidesOnly.Checked)
+            {
+                parseProteinFile.DigestionOptions.AminoAcidResidueFilterChars = new char[] { 'C' };
+            }
+            else
+            {
+                parseProteinFile.DigestionOptions.AminoAcidResidueFilterChars = new char[] { };
+            }
+
+            return true;
+        }
+
+        private char LookupColumnDelimiter(ListControl delimiterCombobox, Control delimiterTextBox, char defaultDelimiter)
+        {
+            try
+            {
+                return ProteinFileParser.LookupColumnDelimiterChar(delimiterCombobox.SelectedIndex, delimiterTextBox.Text, defaultDelimiter);
+            }
+            catch (Exception ex)
+            {
+                return ControlChars.Tab;
+            }
+        }
+
+        private int LookupMaxpISequenceLength()
+        {
+            bool invalidValue;
+            int length;
+            try
+            {
+                length = TextBoxUtils.ParseTextBoxValueInt(txtMaxpISequenceLength, string.Empty, out invalidValue, 10);
+                if (invalidValue)
+                {
+                    txtMaxpISequenceLength.Text = length.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                length = 10;
+            }
+
+            if (length < 1)
+                length = 1;
+            return length;
+        }
+
+        private void SetToolTips()
+        {
+            var toolTipControl = new ToolTip();
+            toolTipControl.SetToolTip(cmdParseInputFile, "Parse proteins in input file to create output file(s).");
+            toolTipControl.SetToolTip(cboInputFileColumnDelimiter, "Character separating columns in a delimited text input file.");
+            toolTipControl.SetToolTip(txtInputFileColumnDelimiter, "Custom character separating columns in a delimited text input file.");
+            toolTipControl.SetToolTip(txtOutputFileFieldDelimiter, "Character separating the fields in the output file.");
+            toolTipControl.SetToolTip(txtAddnlRefSepChar, "Character separating additional protein accession entries in a protein's description in a FASTA file.");
+            toolTipControl.SetToolTip(txtAddnlRefAccessionSepChar, "Character separating source name and accession number for additional protein accession entries in a FASTA file.");
+            toolTipControl.SetToolTip(chkGenerateUniqueIDValues, "Set this to false to use less memory when digesting huge protein input files.");
+            toolTipControl.SetToolTip(txtProteinReversalSamplingPercentage, "Set this to a value less than 100 to only include a portion of the residues from the input file in the output file.");
+            toolTipControl.SetToolTip(txtProteinScramblingLoopCount, "Set this to a value greater than 1 to create multiple scrambled versions of the input file.");
+            toolTipControl.SetToolTip(optUseEllipseSearchRegion, "This setting only takes effect if 'Use SLiC Score when gauging uniqueness' is false.");
+            toolTipControl.SetToolTip(optUseRectangleSearchRegion, "This setting only takes effect if 'Use SLiC Score when gauging uniqueness' is false.");
+            toolTipControl.SetToolTip(lblPeptideUniquenessMassMode, "Current mass mode; to change go to the 'Parse and Digest File Options' tab");
+            toolTipControl.SetToolTip(chkExcludeProteinSequence, "Enabling this setting will prevent protein sequences from being written to the output file; useful when processing extremely large files.");
+            toolTipControl.SetToolTip(chkTruncateProteinDescription, "Truncate description (if over 7995 chars)");
+            toolTipControl.SetToolTip(chkEnableLogging, "Logs status and error messages to file ProteinDigestionSimulatorLog*.txt in the program directory.");
+        }
+
+        private void ParseProteinInputFile()
+        {
+            bool success;
+            if (!mWorking && ConfirmFilePaths())
+            {
+                try
+                {
+                    if (mParseProteinFile is null)
+                    {
+                        mParseProteinFile = new ProteinFileParser();
+                    }
+
+                    var argparseProteinFile = mParseProteinFile;
+                    success = InitializeProteinFileParserGeneralOptions(ref argparseProteinFile);
+                    mParseProteinFile = argparseProteinFile;
+                    if (!success)
+                        return;
+                    mParseProteinFile.CreateProteinOutputFile = true;
+                    if (cboProteinReversalOptions.SelectedIndex >= 0)
+                    {
+                        mParseProteinFile.ProteinScramblingMode = (ProteinFileParser.ProteinScramblingModeConstants)Conversions.ToInteger(cboProteinReversalOptions.SelectedIndex);
+                    }
+
+                    bool argisError = false;
+                    mParseProteinFile.ProteinScramblingSamplingPercentage = TextBoxUtils.ParseTextBoxValueInt(txtProteinReversalSamplingPercentage, "", out argisError, 100, false);
+                    bool argisError1 = false;
+                    mParseProteinFile.ProteinScramblingLoopCount = TextBoxUtils.ParseTextBoxValueInt(txtProteinScramblingLoopCount, "", out argisError1, 1, false);
+                    mParseProteinFile.CreateDigestedProteinOutputFile = chkDigestProteins.Checked;
+                    mParseProteinFile.CreateFastaOutputFile = chkCreateFastaOutputFile.Checked;
+                    if (cboElementMassMode.SelectedIndex >= 0)
+                    {
+                        mParseProteinFile.ElementMassMode = (PeptideSequence.ElementModeConstants)Conversions.ToInteger(cboElementMassMode.SelectedIndex);
+                    }
+
+                    Cursor.Current = Cursors.WaitCursor;
+                    mWorking = true;
+                    cmdParseInputFile.Enabled = false;
+                    ResetProgress();
+                    SwitchToProgressTab();
+                    string outputFolderPath = string.Empty;
+                    string outputFileNameBaseOverride = string.Empty;
+                    if (txtProteinOutputFilePath.TextLength > 0)
+                    {
+                        outputFolderPath = Path.GetDirectoryName(txtProteinOutputFilePath.Text);
+                        outputFileNameBaseOverride = Path.GetFileNameWithoutExtension(txtProteinOutputFilePath.Text);
+                    }
+
+                    success = mParseProteinFile.ParseProteinFile(GetProteinInputFilePath(), outputFolderPath, outputFileNameBaseOverride);
+                    Cursor.Current = Cursors.Default;
+                    if (success)
+                    {
+                        MessageBox.Show(mParseProteinFile.ProcessingSummary, "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        SwitchFromProgressTab();
+                    }
+                    else
+                    {
+                        ShowErrorMessage("Error parsing protein file: " + mParseProteinFile.GetErrorMessage(), "Error");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ShowErrorMessage("Error in frmMain->ParseProteinInputFile: " + ex.Message, "Error");
+                }
+                finally
+                {
+                    mWorking = false;
+                    cmdParseInputFile.Enabled = true;
+                    mParseProteinFile.CloseLogFileNow();
+                    mParseProteinFile = null;
+                }
+            }
+        }
+
+        private int ParseTextBoxValueInt(Control thisTextBox, string messageIfError, ref bool invalidValue, int valueIfError = 0)
+        {
+            invalidValue = false;
+            try
+            {
+                return int.Parse(thisTextBox.Text);
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage(messageIfError, "Error");
+                invalidValue = true;
+                return valueIfError;
+            }
+        }
+
+        private float ParseTextBoxValueSng(Control thisTextBox, string messageIfError, ref bool invalidValue, float valueIfError = 0f)
+        {
+            invalidValue = false;
+            try
+            {
+                return float.Parse(thisTextBox.Text);
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage(messageIfError, "Error");
+                invalidValue = true;
+                return valueIfError;
+            }
+        }
+
+        private void PastePMThresholdsValues(bool clearList)
+        {
+            var lineDelimiters = new char[] { ControlChars.Cr, ControlChars.Lf };
+            var columnDelimiters = new char[] { ControlChars.Tab, ',' };
+
+            // Examine the clipboard contents
+            var clipboardObject = Clipboard.GetDataObject();
+            if (clipboardObject is object)
+            {
+                if (clipboardObject.GetDataPresent(DataFormats.StringFormat, true))
+                {
+                    string clipboardData = Conversions.ToString(clipboardObject.GetData(DataFormats.StringFormat, true));
+
+                    // Split clipboardData on carriage return or line feed characters
+                    // Lines that end in CrLf will give two separate lines; one with the text, and one blank; that's OK
+                    var dataLines = clipboardData.Split(lineDelimiters, 1000);
+                    if (dataLines.Length > 0)
+                    {
+                        if (clearList)
+                        {
+                            if (!ClearPMThresholdsList(true))
+                                return;
+                        }
+
+                        int rowsAlreadyPresent = 0;
+                        int rowsSkipped = 0;
+                        for (int lineIndex = 0, loopTo = dataLines.Length - 1; lineIndex <= loopTo; lineIndex++)
+                        {
+                            if (dataLines[lineIndex] is object && dataLines[lineIndex].Length > 0)
+                            {
+                                var dataColumns = dataLines[lineIndex].Split(columnDelimiters, 5);
+                                if (dataColumns.Length >= 2)
+                                {
+                                    try
+                                    {
+                                        double massThreshold = double.Parse(dataColumns[0]);
+                                        double netThreshold = double.Parse(dataColumns[1]);
+                                        if (massThreshold >= 0d && netThreshold >= 0d)
+                                        {
+                                            bool useSLiC;
+                                            if (!chkAutoDefineSLiCScoreTolerances.Checked && dataColumns.Length >= 4)
+                                            {
+                                                useSLiC = true;
+                                            }
+                                            else
+                                            {
+                                                useSLiC = false;
+                                            }
+
+                                            var slicMassStDev = default(double);
+                                            var slicNETStDev = default(double);
+                                            if (useSLiC)
+                                            {
+                                                try
+                                                {
+                                                    slicMassStDev = double.Parse(dataColumns[2]);
+                                                    slicNETStDev = double.Parse(dataColumns[3]);
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    useSLiC = false;
+                                                }
+                                            }
+
+                                            bool existingRowFound = false;
+                                            if (useSLiC)
+                                            {
+                                                AddPMThresholdRow(massThreshold, netThreshold, slicMassStDev, slicNETStDev, ref existingRowFound);
+                                            }
+                                            else
+                                            {
+                                                AddPMThresholdRow(massThreshold, netThreshold, ref existingRowFound);
+                                            }
+
+                                            if (existingRowFound)
+                                            {
+                                                rowsAlreadyPresent += 1;
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        // Skip this row
+                                        rowsSkipped += 1;
+                                    }
+                                }
+                                else
+                                {
+                                    rowsSkipped += 1;
+                                }
+                            }
+                        }
+
+                        if (rowsAlreadyPresent > 0)
+                        {
+                            string errorMessage;
+                            if (rowsAlreadyPresent == 1)
+                            {
+                                errorMessage = "1 row of thresholds was";
+                            }
+                            else
+                            {
+                                errorMessage = rowsAlreadyPresent.ToString() + " rows of thresholds were";
+                            }
+
+                            ShowErrorMessage(errorMessage + " already present in the table; duplicate rows are not allowed.", "Warning");
+                        }
+
+                        if (rowsSkipped > 0)
+                        {
+                            string errorMessage;
+                            if (rowsSkipped == 1)
+                            {
+                                errorMessage = "1 row was skipped because it";
+                            }
+                            else
+                            {
+                                errorMessage = rowsSkipped.ToString() + " rows were skipped because they";
+                            }
+
+                            ShowErrorMessage(errorMessage + " didn't contain two columns of numeric data.", "Warning");
+                        }
+                    }
+                }
+            }
+        }
+
+        private void PopulateComboBoxes()
+        {
+            const string NET_UNITS = "NET";
+            try
+            {
+                cboInputFileFormat.Items.Clear();
+                cboInputFileFormat.Items.Insert((int)InputFileFormatConstants.AutoDetermine, "Auto-determine");
+                cboInputFileFormat.Items.Insert((int)InputFileFormatConstants.FastaFile, "FASTA file");
+                cboInputFileFormat.Items.Insert((int)InputFileFormatConstants.DelimitedText, "Delimited text");
+                cboInputFileFormat.SelectedIndex = (int)InputFileFormatConstants.AutoDetermine;
+                cboInputFileColumnDelimiter.Items.Clear();
+                cboInputFileColumnDelimiter.Items.Insert((int)ProteinFileParser.DelimiterCharConstants.Space, "Space");
+                cboInputFileColumnDelimiter.Items.Insert((int)ProteinFileParser.DelimiterCharConstants.Tab, "Tab");
+                cboInputFileColumnDelimiter.Items.Insert((int)ProteinFileParser.DelimiterCharConstants.Comma, "Comma");
+                cboInputFileColumnDelimiter.Items.Insert((int)ProteinFileParser.DelimiterCharConstants.Other, "Other");
+                cboInputFileColumnDelimiter.SelectedIndex = (int)ProteinFileParser.DelimiterCharConstants.Tab;
+                cboOutputFileFieldDelimiter.Items.Clear();
+                for (int index = 0, loopTo = cboInputFileColumnDelimiter.Items.Count - 1; index <= loopTo; index++)
+                    cboOutputFileFieldDelimiter.Items.Insert(index, cboInputFileColumnDelimiter.Items[index]);
+                cboOutputFileFieldDelimiter.SelectedIndex = (int)ProteinFileParser.DelimiterCharConstants.Space;
+                cboInputFileColumnOrdering.Items.Clear();
+                cboInputFileColumnOrdering.Items.Insert((int)DelimitedProteinFileReader.ProteinFileFormatCode.SequenceOnly, "Sequence Only");
+                cboInputFileColumnOrdering.Items.Insert((int)DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Sequence, "ProteinName and Sequence");
+                cboInputFileColumnOrdering.Items.Insert((int)DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence, "ProteinName, Description, Sequence");
+                cboInputFileColumnOrdering.Items.Insert((int)DelimitedProteinFileReader.ProteinFileFormatCode.UniqueID_Sequence, "UniqueID and Seq");
+                cboInputFileColumnOrdering.Items.Insert((int)DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID, "ProteinName, Seq, UniqueID");
+                cboInputFileColumnOrdering.Items.Insert((int)DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET, "ProteinName, Seq, UniqueID, Mass, NET");
+                cboInputFileColumnOrdering.Items.Insert((int)DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore, "ProteinName, Seq, UniqueID, Mass, NET, NETStDev, DiscriminantScore");
+                cboInputFileColumnOrdering.Items.Insert((int)DelimitedProteinFileReader.ProteinFileFormatCode.UniqueID_Sequence_Mass_NET, "UniqueID, Seq, Mass, NET");
+                cboInputFileColumnOrdering.Items.Insert((int)DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Hash_Sequence, "ProteinName, Description, Hash, Sequence");
+                cboInputFileColumnOrdering.SelectedIndex = (int)DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence;
+                cboElementMassMode.Items.Clear();
+                cboElementMassMode.Items.Insert((int)PeptideSequence.ElementModeConstants.AverageMass, "Average");
+                cboElementMassMode.Items.Insert((int)PeptideSequence.ElementModeConstants.IsotopicMass, "Monoisotopic");
+                cboElementMassMode.SelectedIndex = (int)PeptideSequence.ElementModeConstants.IsotopicMass;
+                cboProteinReversalOptions.Items.Clear();
+                cboProteinReversalOptions.Items.Insert((int)ProteinFileParser.ProteinScramblingModeConstants.None, "Normal output");
+                cboProteinReversalOptions.Items.Insert((int)ProteinFileParser.ProteinScramblingModeConstants.Reversed, "Reverse ORF sequences");
+                cboProteinReversalOptions.Items.Insert((int)ProteinFileParser.ProteinScramblingModeConstants.Randomized, "Randomized ORF sequences");
+                cboProteinReversalOptions.SelectedIndex = (int)ProteinFileParser.ProteinScramblingModeConstants.None;
+                var inSilicoDigest = new InSilicoDigest();
+                cboCleavageRuleType.Items.Clear();
+                mCleavageRuleComboboxIndexToType.Clear();
+
+                // Add Trypsin rules first
+                AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.NoRule);
+                AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.ConventionalTrypsin);
+                AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.TrypsinWithoutProlineException);
+                AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.KROneEnd);
+                AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.TrypsinPlusFVLEY);
+                AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.TrypsinPlusLysC);
+                AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, InSilicoDigest.CleavageRuleConstants.TrypsinPlusThermolysin);
+
+                // Add the remaining enzymes based on the description, but skip CleavageRuleConstants.EricPartialTrypsin
+
+                // Keys in this dictionary are cleavage rule enums, values are the rule description
+                var additionalRulesToAppend = new Dictionary<InSilicoDigest.CleavageRuleConstants, string>();
+                foreach (var cleavageRule in inSilicoDigest.CleavageRules)
+                {
+                    var cleavageRuleId = cleavageRule.Key;
+                    if (mCleavageRuleComboboxIndexToType.ContainsValue(cleavageRuleId))
+                        continue;
+                    additionalRulesToAppend.Add(cleavageRuleId, cleavageRule.Value.Description);
+                }
+
+                foreach (var ruleToAdd in from item in additionalRulesToAppend
+                                          orderby item.Value
+                                          select item.Key)
+                {
+                    if (ruleToAdd == InSilicoDigest.CleavageRuleConstants.EricPartialTrypsin)
+                        continue;
+                    AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, ruleToAdd);
+                }
+
+                // Select the fully tryptic enzyme rule
+                SetSelectedCleavageRule(InSilicoDigest.CleavageRuleConstants.ConventionalTrypsin);
+                cboMassTolType.Items.Clear();
+                cboMassTolType.Items.Insert((int)PeakMatching.SearchThresholds.MassToleranceConstants.PPM, "PPM");
+                cboMassTolType.Items.Insert((int)PeakMatching.SearchThresholds.MassToleranceConstants.Absolute, "Absolute (Da)");
+                cboMassTolType.SelectedIndex = (int)PeakMatching.SearchThresholds.MassToleranceConstants.PPM;
+                cboPMPredefinedThresholds.Items.Clear();
+                cboPMPredefinedThresholds.Items.Insert((int)PredefinedPMThresholdsConstants.OneMassOneNET, "5 ppm; 0.05 " + NET_UNITS);
+                cboPMPredefinedThresholds.Items.Insert((int)PredefinedPMThresholdsConstants.OneMassThreeNET, "5 ppm; 0.01, 0.05, 100 " + NET_UNITS);
+                cboPMPredefinedThresholds.Items.Insert((int)PredefinedPMThresholdsConstants.ThreeMassOneNET, "0.5, 1, & 5 ppm; 0.05 " + NET_UNITS);
+                cboPMPredefinedThresholds.Items.Insert((int)PredefinedPMThresholdsConstants.ThreeMassThreeNET, "0.5, 1, 5 ppm; 0.01, 0.05, & 100 " + NET_UNITS);
+                cboPMPredefinedThresholds.Items.Insert((int)PredefinedPMThresholdsConstants.FiveMassThreeNET, "0.5, 1, 5, 10, & 50 ppm; 0.01, 0.05, & 100 " + NET_UNITS);
+                cboPMPredefinedThresholds.SelectedIndex = (int)PredefinedPMThresholdsConstants.OneMassOneNET;
+                cboHydrophobicityMode.Items.Clear();
+                cboHydrophobicityMode.Items.Insert((int)ComputePeptideProperties.HydrophobicityTypeConstants.HW, "Hopp and Woods");
+                cboHydrophobicityMode.Items.Insert((int)ComputePeptideProperties.HydrophobicityTypeConstants.KD, "Kyte and Doolittle");
+                cboHydrophobicityMode.Items.Insert((int)ComputePeptideProperties.HydrophobicityTypeConstants.Eisenberg, "Eisenberg");
+                cboHydrophobicityMode.Items.Insert((int)ComputePeptideProperties.HydrophobicityTypeConstants.GES, "Engleman et. al.");
+                cboHydrophobicityMode.Items.Insert((int)ComputePeptideProperties.HydrophobicityTypeConstants.MeekPH7p4, "Meek pH 7.4");
+                cboHydrophobicityMode.Items.Insert((int)ComputePeptideProperties.HydrophobicityTypeConstants.MeekPH2p1, "Meek pH 2.1");
+                cboHydrophobicityMode.SelectedIndex = (int)ComputePeptideProperties.HydrophobicityTypeConstants.HW;
+                cboCysTreatmentMode.Items.Clear();
+                cboCysTreatmentMode.Items.Insert((int)PeptideSequence.CysTreatmentModeConstants.Untreated, "Untreated");
+                cboCysTreatmentMode.Items.Insert((int)PeptideSequence.CysTreatmentModeConstants.Iodoacetamide, "Iodoacetamide (+57.02)");
+                cboCysTreatmentMode.Items.Insert((int)PeptideSequence.CysTreatmentModeConstants.IodoaceticAcid, "Iodoacetic Acid (+58.01)");
+                cboCysTreatmentMode.SelectedIndex = (int)PeptideSequence.CysTreatmentModeConstants.Untreated;
+                cboFragmentMassMode.Items.Clear();
+                cboFragmentMassMode.Items.Insert((int)InSilicoDigest.FragmentMassConstants.Monoisotopic, "Monoisotopic");
+                cboFragmentMassMode.Items.Insert((int)InSilicoDigest.FragmentMassConstants.MH, "M+H");
+                cboFragmentMassMode.SelectedIndex = (int)InSilicoDigest.FragmentMassConstants.Monoisotopic;
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Error initializing the combo boxes: " + ex.Message);
+            }
+        }
+
+        private void ResetProgress()
+        {
+            lblProgressDescription.Text = string.Empty;
+            lblProgress.Text = FormatPercentComplete(0f);
+            pbarProgress.Value = 0;
+            pbarProgress.Visible = true;
+            lblSubtaskProgressDescription.Text = string.Empty;
+            lblSubtaskProgress.Text = FormatPercentComplete(0f);
+            lblErrorMessage.Text = string.Empty;
+            Application.DoEvents();
+        }
+
+        private void ResetToDefaults(bool confirm)
+        {
+            DialogResult response;
+            if (confirm)
+            {
+                response = MessageBox.Show("Are you sure you want to reset all settings to their default values?", "Reset to Defaults", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                if (response != DialogResult.Yes)
+                    return;
+            }
+
+            cboInputFileFormat.SelectedIndex = (int)InputFileFormatConstants.AutoDetermine;
+            cboInputFileColumnDelimiter.SelectedIndex = (int)ProteinFileParser.DelimiterCharConstants.Tab;
+            txtInputFileColumnDelimiter.Text = Conversions.ToString(';');
+            cboOutputFileFieldDelimiter.SelectedIndex = (int)ProteinFileParser.DelimiterCharConstants.Tab;
+            txtOutputFileFieldDelimiter.Text = Conversions.ToString(';');
+            chkEnableLogging.Checked = false;
+            chkIncludePrefixAndSuffixResidues.Checked = false;
+            chkLookForAddnlRefInDescription.Checked = false;
+            txtAddnlRefSepChar.Text = Conversions.ToString(mDefaultFastaFileOptions.AddnlRefSepChar);                      // "|"
+            txtAddnlRefAccessionSepChar.Text = Conversions.ToString(mDefaultFastaFileOptions.AddnlRefAccessionSepChar);    // ":"
+            chkExcludeProteinSequence.Checked = false;
+            chkComputeProteinMass.Checked = false;
+            cboElementMassMode.SelectedIndex = (int)PeptideSequence.ElementModeConstants.IsotopicMass;
+            chkComputepIandNET.Checked = false;
+            chkIncludeXResidues.Checked = false;
+            chkComputeSequenceHashValues.Checked = true;
+            chkComputeSequenceHashIgnoreILDiff.Checked = true;
+            chkTruncateProteinDescription.Checked = true;
+            chkExcludeProteinDescription.Checked = false;
+            cboHydrophobicityMode.SelectedIndex = (int)ComputePeptideProperties.HydrophobicityTypeConstants.HW;
+            chkMaxpIModeEnabled.Checked = false;
+            txtMaxpISequenceLength.Text = "10";
+            chkDigestProteins.Checked = false;
+            cboProteinReversalOptions.SelectedIndex = (int)ProteinFileParser.ProteinScramblingModeConstants.None;
+            txtProteinReversalSamplingPercentage.Text = "100";
+            txtProteinScramblingLoopCount.Text = "1";
+            SetSelectedCleavageRule(InSilicoDigest.CleavageRuleConstants.ConventionalTrypsin);
+            chkIncludeDuplicateSequences.Checked = false;
+            chkCysPeptidesOnly.Checked = false;
+            chkGenerateUniqueIDValues.Checked = true;
+            txtDigestProteinsMinimumMass.Text = "400";
+            txtDigestProteinsMaximumMass.Text = "6000";
+            txtDigestProteinsMinimumResidueCount.Text = "0";
+            txtDigestProteinsMaximumMissedCleavages.Text = "3";
+            txtDigestProteinsMinimumpI.Text = "0";
+            txtDigestProteinsMaximumpI.Text = "14";
+
+            // Load Uniqueness Options
+            chkAssumeInputFileIsDigested.Checked = true;
+            txtUniquenessBinWidth.Text = "25";
+            chkAutoComputeRangeForBinning.Checked = true;
+            txtUniquenessBinStartMass.Text = "400";
+            txtUniquenessBinEndMass.Text = "4000";
+            txtMaxPeakMatchingResultsPerFeatureToSave.Text = "3";
+            chkUseSLiCScoreForUniqueness.Checked = true;
+            txtMinimumSLiCScore.Text = "0.95";
+            optUseEllipseSearchRegion.Checked = true;
+            chkUseSqlServerDBToCacheData.Checked = false;
+            txtSqlServerName.Text = SystemInformation.ComputerName;
+            txtSqlServerDatabase.Text = "TempDB";
+            chkSqlServerUseIntegratedSecurity.Checked = true;
+            chkSqlServerUseExistingData.Checked = false;
+            txtSqlServerUsername.Text = "user";
+            txtSqlServerPassword.Text = string.Empty;
+            Width = 960;
+            Height = 780;
+            mCustomValidationRulesFilePath = string.Empty;
+            string settingsFilePath = GetSettingsFilePath();
+            ProcessFilesOrDirectoriesBase.CreateSettingsFileIfMissing(settingsFilePath);
+        }
+
+        private void SelectInputFile()
+        {
+            string currentExtension = string.Empty;
+            if (txtProteinInputFilePath.TextLength > 0)
+            {
+                try
+                {
+                    currentExtension = Path.GetExtension(GetProteinInputFilePath());
+                }
+                catch (Exception ex)
+                {
+                    // Ignore errors here
+                }
+            }
+
+            var openFile = new OpenFileDialog()
+            {
+                AddExtension = true,
+                CheckFileExists = false,
+                CheckPathExists = true,
+                DefaultExt = ".txt",
+                DereferenceLinks = true,
+                Multiselect = false,
+                ValidateNames = true,
+                Filter = "FASTA files (*.fasta)|*.fasta|FASTA files (*.fasta.gz)|*.fasta.gz|Text files (*.txt)|*.txt|All files (*.*)|*.*"
+            };
+            if (cboInputFileFormat.SelectedIndex == (int)InputFileFormatConstants.DelimitedText)
+            {
+                openFile.FilterIndex = 3;
+            }
+            else if (currentExtension.ToLower() == ".txt")
+            {
+                openFile.FilterIndex = 3;
+            }
+            else if (currentExtension.ToLower() == ".gz")
+            {
+                openFile.FilterIndex = 2;
+            }
+            else
+            {
+                openFile.FilterIndex = 1;
+            }
+
+            if (Strings.Len(GetProteinInputFilePath().Length) > 0)
+            {
+                try
+                {
+                    openFile.InitialDirectory = Directory.GetParent(GetProteinInputFilePath()).FullName;
+                }
+                catch
+                {
+                    openFile.InitialDirectory = GetMyDocsFolderPath();
+                }
+            }
+            else
+            {
+                openFile.InitialDirectory = GetMyDocsFolderPath();
+            }
+
+            openFile.Title = "Select input file";
+            openFile.ShowDialog();
+            if (openFile.FileName.Length > 0)
+            {
+                txtProteinInputFilePath.Text = openFile.FileName;
+            }
+        }
+
+        private void SelectOutputFile()
+        {
+            var saveFile = new SaveFileDialog()
+            {
+                AddExtension = true,
+                CheckFileExists = false,
+                CheckPathExists = true,
+                CreatePrompt = false,
+                DefaultExt = ".txt",
+                DereferenceLinks = true,
+                OverwritePrompt = true,
+                ValidateNames = true,
+                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
+                FilterIndex = 1
+            };
+            if (Strings.Len(txtProteinOutputFilePath.Text.Length) > 0)
+            {
+                try
+                {
+                    saveFile.InitialDirectory = Directory.GetParent(txtProteinOutputFilePath.Text).ToString();
+                }
+                catch
+                {
+                    saveFile.InitialDirectory = GetMyDocsFolderPath();
+                }
+            }
+            else
+            {
+                saveFile.InitialDirectory = GetMyDocsFolderPath();
+            }
+
+            saveFile.Title = "Select/Create output file";
+            saveFile.ShowDialog();
+            if (saveFile.FileName.Length > 0)
+            {
+                txtProteinOutputFilePath.Text = saveFile.FileName;
+            }
+        }
+
+        private void SetSelectedCleavageRule(string cleavageRuleName)
+        {
+            InSilicoDigest.CleavageRuleConstants cleavageRule;
+            if (Enum.TryParse(cleavageRuleName, true, out cleavageRule))
+            {
+                SetSelectedCleavageRule(cleavageRule);
+            }
+        }
+
+        private void SetSelectedCleavageRule(InSilicoDigest.CleavageRuleConstants cleavageRule)
+        {
+            var query = from item in mCleavageRuleComboboxIndexToType
+                        where item.Value == cleavageRule
+                        select item.Key;
+            foreach (var item in query.Take(1))
+                cboCleavageRuleType.SelectedIndex = item;
+        }
+
+        private void ShowAboutBox()
+        {
+            var message = new StringBuilder();
+            message.AppendLine("Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004");
+            message.AppendLine("Copyright 2018 Battelle Memorial Institute");
+            message.AppendLine();
+            message.AppendLine("This is version " + Application.ProductVersion + " (" + Program.PROGRAM_DATE + ")");
+            message.AppendLine();
+            message.AppendLine("E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov");
+            message.AppendLine("Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/");
+            message.AppendLine();
+            message.AppendLine(Disclaimer.GetKangasPetritisDisclaimerText());
+            message.AppendLine();
+            message.AppendLine("Licensed under the 2-Clause BSD License; https://opensource.org/licenses/BSD-2-Clause");
+            message.AppendLine();
+            message.Append("This software is provided by the copyright holders and contributors \"as is\" and ");
+            message.Append("any express or implied warranties, including, but not limited to, the implied ");
+            message.Append("warranties of merchantability and fitness for a particular purpose are ");
+            message.Append("disclaimed. In no event shall the copyright holder or contributors be liable ");
+            message.Append("for any direct, indirect, incidental, special, exemplary, or consequential ");
+            message.Append("damages (including, but not limited to, procurement of substitute goods or ");
+            message.Append("services; loss of use, data, or profits; or business interruption) however ");
+            message.Append("caused and on any theory of liability, whether in contract, strict liability, ");
+            message.Append("or tort (including negligence or otherwise) arising in any way out of the use ");
+            message.Append("of this software, even if advised of the possibility of such damage.");
+            MessageBox.Show(message.ToString(), "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void ShowElutionTimeInfo()
+        {
+            MessageBox.Show(NETCalculator.ProgramDescription, "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void ShowErrorMessage(string message)
+        {
+            ShowErrorMessage(message, "Error");
+        }
+
+        private void ShowErrorMessage(string message, string caption)
+        {
+            MessageBoxIcon messageIcon;
+            if (caption.ToLower().Contains("error"))
+            {
+                messageIcon = MessageBoxIcon.Exclamation;
+            }
+            else
+            {
+                messageIcon = MessageBoxIcon.Information;
+            }
+
+            MessageBox.Show(message, caption, MessageBoxButtons.OK, messageIcon);
+        }
+
+        private void ShowSplashScreen()
+        {
+            // See if the user has been shown the splash screen sometime in the last 6 months (SPLASH_INTERVAL_DAYS)
+            // Keep track of the last splash screen display date using the registry
+            // The data is stored in key HKEY_CURRENT_USER\Software\VB and VBA Program Settings\PNNL_ProteinDigestionSimulator\Options
+            //
+            // If the current user cannot update the registry due to permissions errors, then we will not show
+            // the splash screen (so that they don't end up seeing the splash every time the program runs)
+
+            const string APP_NAME_IN_REGISTRY = "PNNL_ProteinDigestionSimulator";
+            const string REG_SECTION_OPTIONS = "Options";
+            const string REG_KEY_SPLASH_DATE = "SplashDate";
+            DateTime DEFAULT_DATE = DateTime.Parse("2000-01-01");
+            const int SPLASH_INTERVAL_DAYS = 182;
+            string lastSplashDateText;
+            var lastSplashDate = DEFAULT_DATE;
+            var currentDateTime = DateTime.Now;
+            try
+            {
+                lastSplashDateText = Interaction.GetSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASH_DATE, "");
+            }
+            catch (Exception ex)
+            {
+                // Error looking up the last splash date; don't continue
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(lastSplashDateText))
+            {
+                try
+                {
+                    // Convert the text to a date
+                    lastSplashDate = DateTime.Parse(lastSplashDateText);
+                }
+                catch (Exception ex)
+                {
+                    // Conversion failed
+                    lastSplashDateText = string.Empty;
+                    lastSplashDate = DEFAULT_DATE;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(lastSplashDateText))
+            {
+                // Entry isn't present (or it is present, but isn't the correct format)
+                // Try to add it
+                try
+                {
+                    Interaction.SaveSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASH_DATE, lastSplashDate.ToShortDateString());
+                }
+                catch (Exception ex)
+                {
+                    // Error adding the splash date; don't continue
+                    return;
+                }
+            }
+
+            if (currentDateTime.Subtract(lastSplashDate).TotalDays >= SPLASH_INTERVAL_DAYS)
+            {
+                try
+                {
+                    lastSplashDate = currentDateTime;
+                    Interaction.SaveSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASH_DATE, lastSplashDate.ToShortDateString());
+
+                    // Now make sure the setting actually saved
+                    lastSplashDateText = Interaction.GetSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASH_DATE, "");
+                    lastSplashDate = DateTime.Parse(lastSplashDateText);
+                    if ((lastSplashDate.ToShortDateString() ?? "") != (currentDateTime.ToShortDateString() ?? ""))
+                    {
+                        // Error saving/retrieving date; don't continue
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Error saving the new splash date; don't continue
+                    return;
+                }
+
+                var splashForm = new Disclaimer();
+                splashForm.ShowDialog();
+            }
+        }
+
+        private void SwitchToProgressTab()
+        {
+            mTabPageIndexSaved = tbsOptions.SelectedIndex;
+            tbsOptions.SelectedIndex = PROGRESS_TAB_INDEX;
+            Application.DoEvents();
+        }
+
+        private void SwitchFromProgressTab()
+        {
+            // Wait 500 msec, then switch from the progress tab back to the tab that was visible before we started, but only if the current tab is the progress tab
+
+            if (tbsOptions.SelectedIndex == PROGRESS_TAB_INDEX)
+            {
+                tbsOptions.SelectedIndex = mTabPageIndexSaved;
+                Application.DoEvents();
+            }
+        }
+
+        private void UpdatePeptideUniquenessMassMode()
+        {
+            if (cboElementMassMode.SelectedIndex == (int)PeptideSequence.ElementModeConstants.AverageMass)
+            {
+                lblPeptideUniquenessMassMode.Text = "Using average masses";
+            }
+            else
+            {
+                lblPeptideUniquenessMassMode.Text = "Using monoisotopic masses";
+            }
+        }
+
+        private void ValidateFastaFile(string fastaFilePath)
+        {
+            try
+            {
+                // Make sure an existing file has been chosen
+                if (fastaFilePath is null || fastaFilePath.Length == 0)
+                    return;
+                if (!File.Exists(fastaFilePath))
+                {
+                    ShowErrorMessage("File not found: " + fastaFilePath, "Error");
+                }
+                else
+                {
+                    if (mFastaValidation is null)
+                    {
+                        mFastaValidation = new FastaValidation(fastaFilePath);
+                    }
+                    else
+                    {
+                        mFastaValidation.SetNewFastaFile(fastaFilePath);
+                    }
+
+                    try
+                    {
+                        if (mCustomValidationRulesFilePath is object && mCustomValidationRulesFilePath.Length > 0)
+                        {
+                            if (File.Exists(mCustomValidationRulesFilePath))
+                            {
+                                mFastaValidation.CustomRulesFilePath = mCustomValidationRulesFilePath;
+                            }
+                            else
+                            {
+                                mCustomValidationRulesFilePath = string.Empty;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ShowErrorMessage("Error trying to validate or set the custom validation rules file path: " + mCustomValidationRulesFilePath + "; " + ex.Message, "Error");
+                    }
+
+                    if (mFastaValidationOptions.Initialized)
+                    {
+                        mFastaValidation.SetOptions(mFastaValidationOptions);
+                    }
+
+                    mFastaValidation.ShowDialog();
+
+                    // Note that mFastaValidation.GetOptions() will be called when event FastaValidationStarted fires
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Error occurred in frmFastaValidation: " + ex.Message, "Error");
+            }
+            finally
+            {
+                if (mFastaValidation is object)
+                {
+                    mCustomValidationRulesFilePath = mFastaValidation.CustomRulesFilePath;
+                }
+            }
+        }
+
+        private bool ValidateSqlServerCachingOptionsForInputFile(string inputFilePath, bool assumeDigested, ref ProteinFileParser proteinFileParser)
+        {
+            // Returns True if the user OK's or updates the current Sql Server caching options
+            // Returns False if the user cancels processing
+            // Assumes that inputFilePath exists, and thus does not have a Try-Catch block
+
+            const int SAMPLING_LINE_COUNT = 10000;
+            var totalLineCount = default(int);
+            bool suggestEnableSqlServer = false;
+            bool suggestDisableSqlServer = false;
+            bool isFastaFile = ProteinFileParser.IsFastaFile(inputFilePath, true) || proteinFileParser.AssumeFastaFile;
+
+            // Lookup the file size
+            var inputFile = new FileInfo(inputFilePath);
+            int fileSizeKB = Conversions.ToInteger(inputFile.Length / 1024.0d);
+            if (isFastaFile)
+            {
+                if (proteinFileParser.DigestionOptions.CleavageRuleID == InSilicoDigest.CleavageRuleConstants.KROneEnd || proteinFileParser.DigestionOptions.CleavageRuleID == InSilicoDigest.CleavageRuleConstants.NoRule)
+                {
+                    suggestEnableSqlServer = true;
+                }
+                else if (fileSizeKB > 500)
+                {
+                    suggestEnableSqlServer = true;
+                }
+                else if (fileSizeKB <= 500)
+                {
+                    suggestDisableSqlServer = true;
+                }
+            }
+            else
+            {
+                // Assume a delimited text file
+                // Estimate the total line count by reading the first SAMPLING_LINE_COUNT lines
+                try
+                {
+                    using (var reader = new StreamReader(inputFilePath))
+                    {
+                        int bytesRead = 0;
+                        int lineCount = 0;
+                        while (!reader.EndOfStream && lineCount < SAMPLING_LINE_COUNT)
+                        {
+                            string dataLine = reader.ReadLine();
+                            lineCount += 1;
+                            bytesRead += dataLine.Length + 2;
+                        }
+
+                        if (lineCount < SAMPLING_LINE_COUNT || bytesRead == 0)
+                        {
+                            totalLineCount = lineCount;
+                        }
+                        else
+                        {
+                            totalLineCount = (int)Math.Round(lineCount * fileSizeKB / (bytesRead / 1024d));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Error reading input file
+                    suggestEnableSqlServer = false;
+                    suggestDisableSqlServer = false;
+                }
+
+                if (assumeDigested)
+                {
+                    if (totalLineCount > 50000)
+                    {
+                        suggestEnableSqlServer = true;
+                    }
+                    else if (totalLineCount <= 50000)
+                    {
+                        suggestDisableSqlServer = true;
+                    }
+                }
+                else if (totalLineCount > 1000)
+                {
+                    suggestEnableSqlServer = true;
+                }
+                else if (totalLineCount <= 1000)
+                {
+                    suggestDisableSqlServer = true;
+                }
+            }
+
+            bool proceed;
+            if (suggestEnableSqlServer && !chkUseSqlServerDBToCacheData.Checked)
+            {
+                var response = MessageBox.Show("Warning, memory usage could be quite large.  Enable Sql Server caching using Server " + txtSqlServerName.Text + "?  If no, then will continue using memory caching.", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                if (response == DialogResult.Yes)
+                    chkUseSqlServerDBToCacheData.Checked = true;
+                if (response == DialogResult.Cancel)
+                {
+                    proceed = false;
+                }
+                else
+                {
+                    proceed = true;
+                }
+            }
+            else if (suggestDisableSqlServer && chkUseSqlServerDBToCacheData.Checked)
+            {
+                var response = MessageBox.Show("Memory usage is expected to be minimal.  Continue caching data using Server " + txtSqlServerName.Text + "?  If no, then will switch to using memory caching.", "Note", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                if (response == DialogResult.No)
+                    chkUseSqlServerDBToCacheData.Checked = false;
+                if (response == DialogResult.Cancel)
+                {
+                    proceed = false;
+                }
+                else
+                {
+                    proceed = true;
+                }
+            }
+            else
+            {
+                proceed = true;
+            }
+
+            return proceed;
+        }
+
+        private void ValidateTextBox(ref TextBox thisTextBox, string defaultText)
+        {
+            if (thisTextBox.TextLength == 0)
+            {
+                thisTextBox.Text = defaultText;
+            }
+        }
+
+        private void cboElementMassMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdatePeptideUniquenessMassMode();
+        }
+
+        private void cboHydrophobicityMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ComputeSequencepI();
+        }
+
+        private void cboInputFileColumnDelimiter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void cboInputFileFormat_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void cboProteinReversalOptions_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void chkAllowSqlServerCaching_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void chkAutoDefineSLiCScoreTolerances_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateDataGridTableStyle();
+        }
+
+        private void chkComputepI_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void chkComputeSequenceHashValues_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void chkDigestProteins_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+            AutoDefineOutputFile();
+        }
+
+        private void chkUseSLiCScoreForUniqueness_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void chkUseSqlServerDBToCacheData_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void chkSqlServerUseIntegratedSecurity_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void cboOutputFileFieldDelimiter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void chkAutoComputeRangeForBinning_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void cmdAbortProcessing_Click(object sender, EventArgs e)
+        {
+            AbortProcessingNow();
+        }
+
+        private void cmdClearPMThresholdsList_Click(object sender, EventArgs e)
+        {
+            ClearPMThresholdsList(true);
+        }
+
+        private void chkCreateFastaOutputFile_CheckedChanged(object sender, EventArgs e)
+        {
+            AutoDefineOutputFile();
+        }
+
+        private void chkLookForAddnlRefInDescription_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void chkMaxpIModeEnabled_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+            ComputeSequencepI();
+        }
+
+        private void cmdGenerateUniquenessStats_Click(object sender, EventArgs e)
+        {
+            GenerateUniquenessStats();
+        }
+
+        private void cmdNETInfo_Click(object sender, EventArgs e)
+        {
+            ShowElutionTimeInfo();
+        }
+
+        private void cmdParseInputFile_Click(object sender, EventArgs e)
+        {
+            ParseProteinInputFile();
+        }
+
+        private void cmdPastePMThresholdsList_Click(object sender, EventArgs e)
+        {
+            PastePMThresholdsValues(false);
+        }
+
+        private void cmdPMThresholdsAutoPopulate_Click(object sender, EventArgs e)
+        {
+            if (cboPMPredefinedThresholds.SelectedIndex >= 0)
+            {
+                AutoPopulatePMThresholdsByID((PredefinedPMThresholdsConstants)Conversions.ToInteger(cboPMPredefinedThresholds.SelectedIndex), true);
+            }
+        }
+
+        private void cmdSelectFile_Click(object sender, EventArgs e)
+        {
+            SelectInputFile();
+        }
+
+        private void cmdSelectOutputFile_Click(object sender, EventArgs e)
+        {
+            SelectOutputFile();
+        }
+
+        private void cmdValidateFastaFile_Click(object sender, EventArgs e)
+        {
+            ValidateFastaFile(GetProteinInputFilePath());
+        }
+
+        private void frmMain_Load(object sender, EventArgs e)
+        {
+            // Note that InitializeControls() is called in Sub New()
+        }
+
+        private void frmMain_Closing(object sender, CancelEventArgs e)
+        {
+            IniFileSaveOptions(false, true);
+        }
+
+        private void txtDigestProteinsMinimumMass_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMinimumMass, e, true);
+        }
+
+        private void txtDigestProteinsMaximumMissedCleavages_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMaximumMissedCleavages, e, true);
+        }
+
+        private void txtDigestProteinsMinimumResidueCount_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMinimumResidueCount, e, true);
+        }
+
+        private void txtDigestProteinsMaximumMass_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtDigestProteinsMaximumMass, e, true);
+        }
+
+        private void txtMaxPeakMatchingResultsPerFeatureToSave_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtMaxPeakMatchingResultsPerFeatureToSave, e, true);
+        }
+
+        private void txtMaxPeakMatchingResultsPerFeatureToSave_Validating(object sender, CancelEventArgs e)
+        {
+            if (txtMaxPeakMatchingResultsPerFeatureToSave.Text.Trim() == "0")
+                txtMaxPeakMatchingResultsPerFeatureToSave.Text = "1";
+            TextBoxUtils.ValidateTextBoxInt(txtMaxPeakMatchingResultsPerFeatureToSave, 1, 100, 3);
+        }
+
+        private void txtMaxpISequenceLength_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter && chkMaxpIModeEnabled.Checked)
+                ComputeSequencepI();
+        }
+
+        private void txtMaxpISequenceLength_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtMaxpISequenceLength, e, true, false);
+        }
+
+        private void txtMaxpISequenceLength_Validating(object sender, CancelEventArgs e)
+        {
+            TextBoxUtils.ValidateTextBoxInt(txtMaxpISequenceLength, 1, 10000, 10);
+        }
+
+        private void txtMaxpISequenceLength_Validated(object sender, EventArgs e)
+        {
+            ComputeSequencepI();
+        }
+
+        private void txtMinimumSLiCScore_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtMinimumSLiCScore, e, true, true);
+        }
+
+        private void txtMinimumSLiCScore_Validating(object sender, CancelEventArgs e)
+        {
+            TextBoxUtils.ValidateTextBoxFloat(txtMinimumSLiCScore, 0f, 1f, 0.95f);
+        }
+
+        private void txtProteinInputFilePath_TextChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+            AutoDefineOutputFile();
+        }
+
+        private void txtProteinReversalSamplingPercentage_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtProteinReversalSamplingPercentage, e, true);
+        }
+
+        private void txtProteinScramblingLoopCount_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtProteinScramblingLoopCount, e, true);
+        }
+
+        // ReSharper disable once IdentifierTypo
+        private void txtSequenceForpI_TextChanged(object sender, EventArgs e)
+        {
+            ComputeSequencepI();
+        }
+
+        private void txtUniquenessBinWidth_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtUniquenessBinWidth, e, true);
+        }
+
+        private void txtUniquenessBinStartMass_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtUniquenessBinStartMass, e, true);
+        }
+
+        private void txtUniquenessBinEndMass_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtUniquenessBinEndMass, e, true);
+        }
+
+        private void mnuFileSelectInputFile_Click(object sender, EventArgs e)
+        {
+            SelectInputFile();
+        }
+
+        private void mnuFileSelectOutputFile_Click(object sender, EventArgs e)
+        {
+            SelectOutputFile();
+        }
+
+        private void mnuFileSaveDefaultOptions_Click(object sender, EventArgs e)
+        {
+            IniFileSaveOptions(true);
+        }
+
+        private void mnuFileExit_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void mnuEditMakeUniquenessStats_Click(object sender, EventArgs e)
+        {
+            GenerateUniquenessStats();
+        }
+
+        private void mnuEditParseFile_Click(object sender, EventArgs e)
+        {
+            ParseProteinInputFile();
+        }
+
+        private void mnuEditResetOptions_Click(object sender, EventArgs e)
+        {
+            ResetToDefaults(true);
+        }
+
+        private void mnuHelpAbout_Click(object sender, EventArgs e)
+        {
+            ShowAboutBox();
+        }
+
+        private void mnuHelpAboutElutionTime_Click(object sender, EventArgs e)
+        {
+            ShowElutionTimeInfo();
+        }
+
+        private void FastaValidation_FastaValidationStarted()
+        {
+            mFastaValidationOptions = mFastaValidation.GetOptions();
+        }
+
+        private void ParseProteinFile_ErrorEvent(string message, Exception ex)
+        {
+            lblErrorMessage.Text = "Error in mParseProteinFile: " + message;
+            Application.DoEvents();
+        }
+
+        private void ParseProteinFile_ProgressChanged(string taskDescription, float percentComplete)
+        {
+            lblProgressDescription.Text = taskDescription;
+            lblProgress.Text = FormatPercentComplete(percentComplete);
+            pbarProgress.Value = (int)Math.Round(percentComplete);
+            Application.DoEvents();
+        }
+
+        private void ParseProteinFile_ProgressComplete()
+        {
+            lblProgressDescription.Text = "Processing complete";
+            lblProgress.Text = FormatPercentComplete(100f);
+            pbarProgress.Value = 100;
+            lblSubtaskProgress.Text = "";
+            lblSubtaskProgressDescription.Text = "";
+            Application.DoEvents();
+        }
+
+        private void ParseProteinFile_ProgressReset()
+        {
+            ResetProgress();
+        }
+
+        private void ParseProteinFile_SubtaskProgressChanged(string taskDescription, float percentComplete)
+        {
+            lblSubtaskProgressDescription.Text = taskDescription;
+            lblSubtaskProgress.Text = FormatPercentComplete(percentComplete);
+            Application.DoEvents();
+        }
+
+        private void ProteinDigestionSimulator_ErrorEvent(string message, Exception ex)
+        {
+            lblErrorMessage.Text = "Error in mProteinDigestionSimulator: " + message;
+            Application.DoEvents();
+        }
+
+        private void ProteinDigestionSimulator_ProgressChanged(string taskDescription, float percentComplete)
+        {
+            lblProgressDescription.Text = taskDescription;
+            lblProgress.Text = FormatPercentComplete(percentComplete);
+            pbarProgress.Value = (int)Math.Round(percentComplete);
+            Application.DoEvents();
+        }
+
+        private void ProteinDigestionSimulator_ProgressComplete()
+        {
+            lblProgressDescription.Text = "Processing complete";
+            lblProgress.Text = FormatPercentComplete(100f);
+            pbarProgress.Value = 100;
+            lblSubtaskProgress.Text = "";
+            lblSubtaskProgressDescription.Text = "";
+            Application.DoEvents();
+        }
+
+        private void ProteinDigestionSimulator_ProgressReset()
+        {
+            ResetProgress();
+        }
+
+        private void ProteinDigestionSimulator_SubtaskProgressChanged(string taskDescription, float percentComplete)
+        {
+            lblSubtaskProgressDescription.Text = taskDescription;
+            lblSubtaskProgress.Text = FormatPercentComplete(percentComplete);
+            Application.DoEvents();
+        }
+    }
+}

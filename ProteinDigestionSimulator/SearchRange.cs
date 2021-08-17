@@ -1,899 +1,1201 @@
-﻿Option Strict On
-
-' -------------------------------------------------------------------------------
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2003
-'
-' E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
-' Website: https://omics.pnl.gov/ or https://www.pnnl.gov/sysbio/ or https://panomics.pnnl.gov/
-' -------------------------------------------------------------------------------
-'
-' Licensed under the 2-Clause BSD License; you may not use this file except
-' in compliance with the License.  You may obtain a copy of the License at
-' https://opensource.org/licenses/BSD-2-Clause
-'
-' Copyright 2018 Battelle Memorial Institute
-
-''' <summary>
-''' This class can be used to search a list of values for a given value, plus or minus a given tolerance
-''' The input list need not be sorted, since mPointerIndices() will be populated when the data is loaded,
-''' after which the data array will be sorted
-'''
-''' To prevent this behavior, and save memory by not populating mPointerIndices, set mUsePointerIndexArray = False
-''' </summary>
-Public Class SearchRange
-
-    Public Sub New()
-        InitializeLocalVariables()
-    End Sub
-
-    Private Enum DataTypeToUse
-        NoDataPresent = 0
-        IntegerType = 1
-        SingleType = 2
-        DoubleType = 3
-        FillingIntegerType = 4
-        FillingSingleType = 5
-        FillingDoubleType = 6
-    End Enum
-
-    Private mDataType As DataTypeToUse
-
-    Private mDataInt() As Integer
-    Private mDataSingle() As Single
-    Private mDataDouble() As Double
-
-    Private mPointByPointFillCount As Integer
-
-    Private mPointerIndices() As Integer        ' Pointers to the original index of the data point in the source array
-
-    Private mPointerArrayIsValid As Boolean
-    Private mUsePointerIndexArray As Boolean    ' Set this to false to conserve memory usage
-
-    Public ReadOnly Property DataCount As Integer
-        Get
-            Select Case mDataType
-                Case DataTypeToUse.IntegerType, DataTypeToUse.FillingIntegerType
-                    Return mDataInt.Length
-                Case DataTypeToUse.SingleType, DataTypeToUse.FillingSingleType
-                    Return mDataSingle.Length
-                Case DataTypeToUse.DoubleType, DataTypeToUse.FillingDoubleType
-                    Return mDataDouble.Length
-                Case DataTypeToUse.NoDataPresent
-                    Return 0
-                Case Else
-                    Console.WriteLine("Unknown data type encountered: " & mDataType.ToString())
-                    Return 0
-            End Select
-        End Get
-    End Property
-
-    Public ReadOnly Property OriginalIndex(index As Integer) As Integer
-        Get
-            If mPointerArrayIsValid Then
-                Try
-                    If index < mPointerIndices.Length Then
-                        Return mPointerIndices(index)
-                    Else
-                        Return -1
-                    End If
-                Catch ex As Exception
-                    Return -1
-                End Try
-            Else
-                Return -1
-            End If
-        End Get
-    End Property
-
-    ' ReSharper disable once UnusedMember.Global
-    Public Property UsePointerIndexArray As Boolean
-        Get
-            Return mUsePointerIndexArray
-        End Get
-        Set
-            mUsePointerIndexArray = Value
-        End Set
-    End Property
-
-    Private Sub BinarySearchRangeInt(searchValue As Integer, toleranceHalfWidth As Integer, ByRef matchIndexStart As Integer, ByRef matchIndexEnd As Integer)
-        ' Recursive search function
-
-        Dim indexMidpoint As Integer
-        Dim leftDone As Boolean
-        Dim rightDone As Boolean
-        Dim leftIndex As Integer
-        Dim rightIndex As Integer
-
-        indexMidpoint = (matchIndexStart + matchIndexEnd) \ 2
-        If indexMidpoint = matchIndexStart Then
-            ' Min and Max are next to each other
-            If Math.Abs(searchValue - mDataInt(matchIndexStart)) > toleranceHalfWidth Then matchIndexStart = matchIndexEnd
-            If Math.Abs(searchValue - mDataInt(matchIndexEnd)) > toleranceHalfWidth Then matchIndexEnd = indexMidpoint
-            Exit Sub
-        End If
-
-        If mDataInt(indexMidpoint) > searchValue + toleranceHalfWidth Then
-            ' Out of range on the right
-            matchIndexEnd = indexMidpoint
-            BinarySearchRangeInt(searchValue, toleranceHalfWidth, matchIndexStart, matchIndexEnd)
-        ElseIf mDataInt(indexMidpoint) < searchValue - toleranceHalfWidth Then
-            ' Out of range on the left
-            matchIndexStart = indexMidpoint
-            BinarySearchRangeInt(searchValue, toleranceHalfWidth, matchIndexStart, matchIndexEnd)
-        Else
-            ' Inside range; figure out the borders
-            leftIndex = indexMidpoint
-            Do
-                leftIndex -= 1
-                If leftIndex < matchIndexStart Then
-                    leftDone = True
-                Else
-                    If Math.Abs(searchValue - mDataInt(leftIndex)) > toleranceHalfWidth Then leftDone = True
-                End If
-            Loop While Not leftDone
-            rightIndex = indexMidpoint
-
-            Do
-                rightIndex += 1
-                If rightIndex > matchIndexEnd Then
-                    rightDone = True
-                Else
-                    If Math.Abs(searchValue - mDataInt(rightIndex)) > toleranceHalfWidth Then rightDone = True
-                End If
-            Loop While Not rightDone
-
-            matchIndexStart = leftIndex + 1
-            matchIndexEnd = rightIndex - 1
-        End If
-
-    End Sub
-
-    Private Sub BinarySearchRangeSng(searchValue As Single, toleranceHalfWidth As Single, ByRef matchIndexStart As Integer, ByRef matchIndexEnd As Integer)
-        ' Recursive search function
-
-        Dim indexMidpoint As Integer
-        Dim leftDone As Boolean
-        Dim rightDone As Boolean
-        Dim leftIndex As Integer
-        Dim rightIndex As Integer
-
-        indexMidpoint = (matchIndexStart + matchIndexEnd) \ 2
-        If indexMidpoint = matchIndexStart Then
-            ' Min and Max are next to each other
-            If Math.Abs(searchValue - mDataSingle(matchIndexStart)) > toleranceHalfWidth Then matchIndexStart = matchIndexEnd
-            If Math.Abs(searchValue - mDataSingle(matchIndexEnd)) > toleranceHalfWidth Then matchIndexEnd = indexMidpoint
-            Exit Sub
-        End If
-
-        If mDataSingle(indexMidpoint) > searchValue + toleranceHalfWidth Then
-            ' Out of range on the right
-            matchIndexEnd = indexMidpoint
-            BinarySearchRangeSng(searchValue, toleranceHalfWidth, matchIndexStart, matchIndexEnd)
-        ElseIf mDataSingle(indexMidpoint) < searchValue - toleranceHalfWidth Then
-            ' Out of range on the left
-            matchIndexStart = indexMidpoint
-            BinarySearchRangeSng(searchValue, toleranceHalfWidth, matchIndexStart, matchIndexEnd)
-        Else
-            ' Inside range; figure out the borders
-            leftIndex = indexMidpoint
-            Do
-                leftIndex -= 1
-                If leftIndex < matchIndexStart Then
-                    leftDone = True
-                Else
-                    If Math.Abs(searchValue - mDataSingle(leftIndex)) > toleranceHalfWidth Then leftDone = True
-                End If
-            Loop While Not leftDone
-            rightIndex = indexMidpoint
-
-            Do
-                rightIndex += 1
-                If rightIndex > matchIndexEnd Then
-                    rightDone = True
-                Else
-                    If Math.Abs(searchValue - mDataSingle(rightIndex)) > toleranceHalfWidth Then rightDone = True
-                End If
-            Loop While Not rightDone
-
-            matchIndexStart = leftIndex + 1
-            matchIndexEnd = rightIndex - 1
-        End If
-
-    End Sub
-
-    Private Sub BinarySearchRangeDbl(searchValue As Double, toleranceHalfWidth As Double, ByRef matchIndexStart As Integer, ByRef matchIndexEnd As Integer)
-        ' Recursive search function
-
-        Dim indexMidpoint As Integer
-        Dim leftDone As Boolean
-        Dim rightDone As Boolean
-        Dim leftIndex As Integer
-        Dim rightIndex As Integer
-
-        indexMidpoint = (matchIndexStart + matchIndexEnd) \ 2
-        If indexMidpoint = matchIndexStart Then
-            ' Min and Max are next to each other
-            If Math.Abs(searchValue - mDataDouble(matchIndexStart)) > toleranceHalfWidth Then matchIndexStart = matchIndexEnd
-            If Math.Abs(searchValue - mDataDouble(matchIndexEnd)) > toleranceHalfWidth Then matchIndexEnd = indexMidpoint
-            Exit Sub
-        End If
-
-        If mDataDouble(indexMidpoint) > searchValue + toleranceHalfWidth Then
-            ' Out of range on the right
-            matchIndexEnd = indexMidpoint
-            BinarySearchRangeDbl(searchValue, toleranceHalfWidth, matchIndexStart, matchIndexEnd)
-        ElseIf mDataDouble(indexMidpoint) < searchValue - toleranceHalfWidth Then
-            ' Out of range on the left
-            matchIndexStart = indexMidpoint
-            BinarySearchRangeDbl(searchValue, toleranceHalfWidth, matchIndexStart, matchIndexEnd)
-        Else
-            ' Inside range; figure out the borders
-            leftIndex = indexMidpoint
-            Do
-                leftIndex -= 1
-                If leftIndex < matchIndexStart Then
-                    leftDone = True
-                Else
-                    If Math.Abs(searchValue - mDataDouble(leftIndex)) > toleranceHalfWidth Then leftDone = True
-                End If
-            Loop While Not leftDone
-            rightIndex = indexMidpoint
-
-            Do
-                rightIndex += 1
-                If rightIndex > matchIndexEnd Then
-                    rightDone = True
-                Else
-                    If Math.Abs(searchValue - mDataDouble(rightIndex)) > toleranceHalfWidth Then rightDone = True
-                End If
-            Loop While Not rightDone
-
-            matchIndexStart = leftIndex + 1
-            matchIndexEnd = rightIndex - 1
-        End If
-
-    End Sub
-
-    Private Sub ClearUnusedData()
-        If mDataType <> DataTypeToUse.IntegerType Then ReDim mDataInt(-1)
-        If mDataType <> DataTypeToUse.SingleType Then ReDim mDataSingle(-1)
-        If mDataType <> DataTypeToUse.DoubleType Then ReDim mDataDouble(-1)
-
-        If mDataType = DataTypeToUse.NoDataPresent Then
-            ReDim mPointerIndices(-1)
-            mPointerArrayIsValid = False
-        End If
-    End Sub
-
-    Public Sub ClearData()
-        mDataType = DataTypeToUse.NoDataPresent
-        ClearUnusedData()
-    End Sub
-
-    Public Sub InitializeDataFillInteger(expectedDataCount As Integer)
-        ' Call this sub to initialize the data arrays, which will allow you to
-        '  then call FillWithDataAddPoint() repeatedly for each data point
-        '  or call FillWithDataAddBlock() repeatedly with each block of data points
-        ' When done, call FinalizeDataFill
-
-        mDataType = DataTypeToUse.NoDataPresent
-        ClearUnusedData()
-
-        mDataType = DataTypeToUse.FillingIntegerType
-        ReDim mDataInt(expectedDataCount - 1)
-
-        mPointByPointFillCount = 0
-
-    End Sub
-
-    Public Sub InitializeDataFillSingle(dataCountToReserve As Integer)
-        ' Call this sub to initialize the data arrays, which will allow you to
-        '  then call FillWithDataAddPoint() repeatedly for each data point
-        '  or call FillWithDataAddBlock() repeatedly with each block of data points
-        ' When done, call FinalizeDataFill
-
-        mDataType = DataTypeToUse.NoDataPresent
-        ClearUnusedData()
-
-        mDataType = DataTypeToUse.FillingSingleType
-        ReDim mDataSingle(dataCountToReserve - 1)
-
-    End Sub
-
-    Public Sub InitializeDataFillDouble(dataCountToReserve As Integer)
-        ' Call this sub to initialize the data arrays, which will allow you to
-        '  then call FillWithDataAddPoint() repeatedly for each data point
-        '  or call FillWithDataAddBlock() repeatedly with each block of data points
-        ' When done, call FinalizeDataFill
-
-        mDataType = DataTypeToUse.NoDataPresent
-        ClearUnusedData()
-
-        mDataType = DataTypeToUse.FillingDoubleType
-        ReDim mDataDouble(dataCountToReserve - 1)
-
-    End Sub
-
-    Public Function FillWithData(ByRef values() As Integer) As Boolean
-
-        Dim success As Boolean
-
-        Try
-            If values Is Nothing OrElse values.Length = 0 Then
-                success = False
-            Else
-                ReDim mDataInt(values.Length - 1)
-                values.CopyTo(mDataInt, 0)
-
-                If mUsePointerIndexArray Then
-                    InitializePointerIndexArray(mDataInt.Length)
-                    Array.Sort(mDataInt, mPointerIndices)
-                Else
-                    Array.Sort(mDataInt)
-                    ReDim mPointerIndices(-1)
-                    mPointerArrayIsValid = False
-                End If
-
-                mDataType = DataTypeToUse.IntegerType
-                success = True
-            End If
-        Catch ex As Exception
-            success = False
-        End Try
-
-        If success Then
-            ClearUnusedData()
-        Else
-            mDataType = DataTypeToUse.NoDataPresent
-        End If
-        Return success
-
-    End Function
-
-    Public Function FillWithData(ByRef values() As Single) As Boolean
-
-        Dim success As Boolean
-
-        Try
-            If values Is Nothing OrElse values.Length = 0 Then
-                success = False
-            Else
-                ReDim mDataSingle(values.Length - 1)
-                values.CopyTo(mDataSingle, 0)
-
-                If mUsePointerIndexArray Then
-                    InitializePointerIndexArray(mDataSingle.Length)
-                    Array.Sort(mDataSingle, mPointerIndices)
-                Else
-                    Array.Sort(mDataSingle)
-                    ReDim mPointerIndices(-1)
-                    mPointerArrayIsValid = False
-                End If
-
-                mDataType = DataTypeToUse.SingleType
-                success = True
-            End If
-        Catch ex As Exception
-            success = False
-        End Try
-
-        If success Then
-            ClearUnusedData()
-        Else
-            mDataType = DataTypeToUse.NoDataPresent
-        End If
-        Return success
-
-    End Function
-
-    Public Function FillWithData(ByRef values() As Double) As Boolean
-
-        Dim success As Boolean
-
-        Try
-            If values Is Nothing OrElse values.Length = 0 Then
-                success = False
-            Else
-                ReDim mDataDouble(values.Length - 1)
-                values.CopyTo(mDataDouble, 0)
-
-                If mUsePointerIndexArray Then
-                    InitializePointerIndexArray(mDataDouble.Length)
-                    Array.Sort(mDataDouble, mPointerIndices)
-                Else
-                    Array.Sort(mDataDouble)
-                    ReDim mPointerIndices(-1)
-                    mPointerArrayIsValid = False
-                End If
-
-                mDataType = DataTypeToUse.DoubleType
-                success = True
-            End If
-        Catch ex As Exception
-            success = False
-        End Try
-
-        If success Then
-            ClearUnusedData()
-        Else
-            mDataType = DataTypeToUse.NoDataPresent
-        End If
-        Return success
-
-    End Function
-
-    Public Function FillWithDataAddBlock(valuesToAdd() As Integer) As Boolean
-
-        Dim success As Boolean
-
-        Try
-
-            If mDataInt.Length <= mPointByPointFillCount + valuesToAdd.Length - 1 Then
-                ReDim Preserve mDataInt(CInt(mDataInt.Length + valuesToAdd.Length) - 1)
-            End If
-
-            Array.Copy(valuesToAdd, 0, mDataInt, mPointByPointFillCount - 1, valuesToAdd.Length)
-            mPointByPointFillCount += valuesToAdd.Length
-
-            'For index = 0 To valuesToAdd.Length - 1
-            '    mDataInt(mPointByPointFillCount) = valuesToAdd(index)
-            '    mPointByPointFillCount += 1
-            'Next index
-
-        Catch ex As Exception
-            success = False
-        End Try
-
-        Return success
-
-    End Function
-
-    Public Function FillWithDataAddBlock(valuesToAdd() As Single) As Boolean
-
-        Dim success As Boolean
-
-        Try
-
-            If mDataSingle.Length <= mPointByPointFillCount + valuesToAdd.Length - 1 Then
-                ReDim Preserve mDataSingle(CInt(mDataSingle.Length + valuesToAdd.Length) - 1)
-            End If
-
-            Array.Copy(valuesToAdd, 0, mDataSingle, mPointByPointFillCount - 1, valuesToAdd.Length)
-            mPointByPointFillCount += valuesToAdd.Length
-
-        Catch ex As Exception
-            success = False
-        End Try
-
-        Return success
-
-    End Function
-
-    Public Function FillWithDataAddBlock(valuesToAdd() As Double) As Boolean
-
-        Dim success As Boolean
-
-        Try
-
-            If mDataDouble.Length <= mPointByPointFillCount + valuesToAdd.Length - 1 Then
-                ReDim Preserve mDataDouble(CInt(mDataDouble.Length + valuesToAdd.Length) - 1)
-            End If
-
-            Array.Copy(valuesToAdd, 0, mDataDouble, mPointByPointFillCount, valuesToAdd.Length)
-            mPointByPointFillCount += valuesToAdd.Length
-
-        Catch ex As Exception
-            success = False
-        End Try
-
-        Return success
-
-    End Function
-
-    Public Function FillWithDataAddPoint(valueToAdd As Integer) As Boolean
-
-        Dim success As Boolean
-
-        Try
-            If mDataType <> DataTypeToUse.FillingIntegerType Then
-                Select Case mDataType
-                    Case DataTypeToUse.FillingSingleType
-                        success = FillWithDataAddPoint(CSng(valueToAdd))
-                    Case DataTypeToUse.FillingDoubleType
-                        success = FillWithDataAddPoint(CDbl(valueToAdd))
-                    Case Else
-                        success = False
-                End Select
-            Else
-                If mDataInt.Length <= mPointByPointFillCount Then
-                    ReDim Preserve mDataInt(CInt(mDataInt.Length * 1.1) - 1)
-                End If
-
-                mDataInt(mPointByPointFillCount) = valueToAdd
-                mPointByPointFillCount += 1
-            End If
-
-        Catch ex As Exception
-            success = False
-        End Try
-
-        Return success
-
-    End Function
-
-    Public Function FillWithDataAddPoint(valueToAdd As Single) As Boolean
-
-        Dim success As Boolean
-
-        Try
-            If mDataType <> DataTypeToUse.FillingSingleType Then
-                Select Case mDataType
-                    Case DataTypeToUse.FillingIntegerType
-                        success = FillWithDataAddPoint(CInt(valueToAdd))
-                    Case DataTypeToUse.FillingDoubleType
-                        success = FillWithDataAddPoint(CDbl(valueToAdd))
-                    Case Else
-                        success = False
-                End Select
-            Else
-                If mDataSingle.Length <= mPointByPointFillCount Then
-                    ReDim Preserve mDataSingle(CInt(mDataSingle.Length * 1.1) - 1)
-                End If
-
-                mDataSingle(mPointByPointFillCount) = valueToAdd
-                mPointByPointFillCount += 1
-            End If
-
-        Catch ex As Exception
-            success = False
-        End Try
-
-        Return success
-
-    End Function
-
-    Public Function FillWithDataAddPoint(valueToAdd As Double) As Boolean
-
-        Dim success As Boolean
-
-        Try
-            If mDataType <> DataTypeToUse.FillingDoubleType Then
-                Select Case mDataType
-                    Case DataTypeToUse.FillingIntegerType
-                        success = FillWithDataAddPoint(CInt(valueToAdd))
-                    Case DataTypeToUse.FillingSingleType
-                        success = FillWithDataAddPoint(CSng(valueToAdd))
-                    Case Else
-                        success = False
-                End Select
-            Else
-                If mDataDouble.Length <= mPointByPointFillCount Then
-                    ReDim Preserve mDataDouble(CInt(mDataDouble.Length * 1.1) - 1)
-                End If
-
-                mDataDouble(mPointByPointFillCount) = valueToAdd
-                mPointByPointFillCount += 1
-            End If
-
-        Catch ex As Exception
-            success = False
-        End Try
-
-        Return success
-
-    End Function
-
-    Public Function FinalizeDataFill() As Boolean
-        ' Finalizes point-by-point data filling
-        ' Call this after calling FillWithDataAddPoint with each point
-
-        Dim DataArray As Array = Nothing
-        Dim success As Boolean
-
-        Try
-            success = True
-            Select Case mDataType
-                Case DataTypeToUse.FillingIntegerType
-                    mDataType = DataTypeToUse.IntegerType
-
-                    ' Shrink mDataInt if necessary
-                    If mDataInt.Length > mPointByPointFillCount Then
-                        ReDim Preserve mDataInt(mPointByPointFillCount - 1)
-                    End If
-
-                    DataArray = mDataInt
-                Case DataTypeToUse.FillingSingleType
-                    mDataType = DataTypeToUse.SingleType
-
-                    ' Shrink mDataSingle if necessary
-                    If mDataSingle.Length > mPointByPointFillCount Then
-                        ReDim Preserve mDataSingle(mPointByPointFillCount - 1)
-                    End If
-
-                    DataArray = mDataSingle
-                Case DataTypeToUse.FillingDoubleType
-                    mDataType = DataTypeToUse.DoubleType
-
-                    ' Shrink mDataDouble if necessary
-                    If mDataDouble.Length > mPointByPointFillCount Then
-                        ReDim Preserve mDataDouble(mPointByPointFillCount - 1)
-                    End If
-
-                    DataArray = mDataDouble
-                Case Else
-                    ' Not filling
-                    success = False
-            End Select
-
-            If success AndAlso DataArray IsNot Nothing Then
-                If mUsePointerIndexArray Then
-                    InitializePointerIndexArray(DataArray.Length)
-                    Array.Sort(DataArray, mPointerIndices)
-                Else
-                    Array.Sort(DataArray)
-                    ReDim mPointerIndices(-1)
-                    mPointerArrayIsValid = False
-                End If
-            End If
-        Catch ex As Exception
-            success = False
-        End Try
-
-        Return success
-
-    End Function
-
-    Public Function FindValueRange(searchValue As Integer, toleranceHalfWidth As Integer, Optional ByRef matchIndexStart As Integer = 0, Optional ByRef matchIndexEnd As Integer = 0) As Boolean
-        ' Searches the loaded data for searchValue with a tolerance of +-tolerance
-        ' Returns True if a match is found; in addition, populates matchIndexStart and matchIndexEnd
-        ' Otherwise, returns false
-
-        Dim matchFound As Boolean
-
-        ' See if user filled with data, but didn't call Finalize
-        ' We'll call it for them
-        If mDataType = DataTypeToUse.FillingIntegerType OrElse mDataType = DataTypeToUse.FillingSingleType OrElse mDataType = DataTypeToUse.FillingDoubleType Then
-            Me.FinalizeDataFill()
-        End If
-
-        If mDataType <> DataTypeToUse.IntegerType Then
-            Select Case mDataType
-                Case DataTypeToUse.SingleType
-                    matchFound = FindValueRange(CSng(searchValue), CSng(toleranceHalfWidth), matchIndexStart, matchIndexEnd)
-                Case DataTypeToUse.DoubleType
-                    matchFound = FindValueRange(CDbl(searchValue), CDbl(toleranceHalfWidth), matchIndexStart, matchIndexEnd)
-                Case Else
-                    matchFound = False
-            End Select
-        Else
-            matchIndexStart = 0
-            matchIndexEnd = mDataInt.Length - 1
-
-            If mDataInt.Length = 0 Then
-                matchIndexEnd = -1
-            ElseIf mDataInt.Length = 1 Then
-                If Math.Abs(searchValue - mDataInt(0)) > toleranceHalfWidth Then
-                    ' Only one data point, and it is not within tolerance
-                    matchIndexEnd = -1
-                End If
-            Else
-                BinarySearchRangeInt(searchValue, toleranceHalfWidth, matchIndexStart, matchIndexEnd)
-            End If
-
-            If matchIndexStart > matchIndexEnd Then
-                matchIndexStart = -1
-                matchIndexEnd = -1
-                matchFound = False
-            Else
-                matchFound = True
-            End If
-        End If
-
-        Return matchFound
-    End Function
-
-    Public Function FindValueRange(searchValue As Double, toleranceHalfWidth As Double, Optional ByRef matchIndexStart As Integer = 0, Optional ByRef matchIndexEnd As Integer = 0) As Boolean
-        ' Searches the loaded data for searchValue with a tolerance of +-tolerance
-        ' Returns True if a match is found; in addition, populates matchIndexStart and matchIndexEnd
-        ' Otherwise, returns false
-
-        Dim matchFound As Boolean
-
-        ' See if user filled with data, but didn't call Finalize
-        ' We'll call it for them
-        If mDataType = DataTypeToUse.FillingIntegerType OrElse mDataType = DataTypeToUse.FillingSingleType OrElse mDataType = DataTypeToUse.FillingDoubleType Then
-            Me.FinalizeDataFill()
-        End If
-
-        If mDataType <> DataTypeToUse.DoubleType Then
-            Select Case mDataType
-                Case DataTypeToUse.IntegerType
-                    matchFound = FindValueRange(CInt(searchValue), CInt(toleranceHalfWidth), matchIndexStart, matchIndexEnd)
-                Case DataTypeToUse.SingleType
-                    matchFound = FindValueRange(CSng(searchValue), CSng(toleranceHalfWidth), matchIndexStart, matchIndexEnd)
-                Case Else
-                    matchFound = False
-            End Select
-        Else
-            matchIndexStart = 0
-            matchIndexEnd = mDataDouble.Length - 1
-
-            If mDataDouble.Length = 0 Then
-                matchIndexEnd = -1
-            ElseIf mDataDouble.Length = 1 Then
-                If Math.Abs(searchValue - mDataDouble(0)) > toleranceHalfWidth Then
-                    ' Only one data point, and it is not within tolerance
-                    matchIndexEnd = -1
-                End If
-            Else
-                BinarySearchRangeDbl(searchValue, toleranceHalfWidth, matchIndexStart, matchIndexEnd)
-            End If
-
-            If matchIndexStart > matchIndexEnd Then
-                matchIndexStart = -1
-                matchIndexEnd = -1
-                matchFound = False
-            Else
-                matchFound = True
-            End If
-        End If
-
-        Return matchFound
-    End Function
-
-    Public Function FindValueRange(searchValue As Single, toleranceHalfWidth As Single, Optional ByRef matchIndexStart As Integer = 0, Optional ByRef matchIndexEnd As Integer = 0) As Boolean
-        ' Searches the loaded data for searchValue with a tolerance of +-tolerance
-        ' Returns True if a match is found; in addition, populates matchIndexStart and matchIndexEnd
-        ' Otherwise, returns false
-
-        Dim matchFound As Boolean
-
-        ' See if user filled with data, but didn't call Finalize
-        ' We'll call it for them
-        If mDataType = DataTypeToUse.FillingIntegerType OrElse mDataType = DataTypeToUse.FillingSingleType OrElse mDataType = DataTypeToUse.FillingDoubleType Then
-            Me.FinalizeDataFill()
-        End If
-
-        If mDataType <> DataTypeToUse.SingleType Then
-            Select Case mDataType
-                Case DataTypeToUse.IntegerType
-                    matchFound = FindValueRange(CInt(searchValue), CInt(toleranceHalfWidth), matchIndexStart, matchIndexEnd)
-                Case DataTypeToUse.DoubleType
-                    matchFound = FindValueRange(CDbl(searchValue), CDbl(toleranceHalfWidth), matchIndexStart, matchIndexEnd)
-                Case Else
-                    matchFound = False
-            End Select
-        Else
-            matchIndexStart = 0
-            matchIndexEnd = mDataSingle.Length - 1
-
-            If mDataSingle.Length = 0 Then
-                matchIndexEnd = -1
-            ElseIf mDataSingle.Length = 1 Then
-                If Math.Abs(searchValue - mDataSingle(0)) > toleranceHalfWidth Then
-                    ' Only one data point, and it is not within tolerance
-                    matchIndexEnd = -1
-                End If
-            Else
-                BinarySearchRangeSng(searchValue, toleranceHalfWidth, matchIndexStart, matchIndexEnd)
-            End If
-
-            If matchIndexStart > matchIndexEnd Then
-                matchIndexStart = -1
-                matchIndexEnd = -1
-                matchFound = False
-            Else
-                matchFound = True
-            End If
-        End If
-
-        Return matchFound
-    End Function
-
-    Public Function GetValueByIndexInt(index As Integer) As Integer
-        Try
-            Return CInt(GetValueByIndex(index))
-        Catch ex As Exception
-            Return 0
-        End Try
-    End Function
-
-    Public Function GetValueByIndex(index As Integer) As Double
-        Try
-            If mDataType = DataTypeToUse.NoDataPresent Then
-                Return 0
-            Else
-                Select Case mDataType
-                    Case DataTypeToUse.IntegerType, DataTypeToUse.FillingIntegerType
-                        Return mDataInt(index)
-                    Case DataTypeToUse.SingleType, DataTypeToUse.FillingSingleType
-                        Return mDataSingle(index)
-                    Case DataTypeToUse.DoubleType, DataTypeToUse.FillingDoubleType
-                        Return mDataDouble(index)
-                End Select
-            End If
-        Catch ex As Exception
-            ' index is probably out of range
-            Return 0
-        End Try
-        Return 0
-    End Function
-
-    Public Function GetValueByIndexSng(index As Integer) As Single
-        Try
-            Return CSng(GetValueByIndex(index))
-        Catch ex As Exception
-            Return 0
-        End Try
-    End Function
-
-    Public Function GetValueByOriginalIndexInt(index As Integer) As Integer
-        Try
-            Return CInt(GetValueByOriginalIndex(index))
-        Catch ex As Exception
-            Return 0
-        End Try
-    End Function
-
-    Public Function GetValueByOriginalIndex(indexOriginal As Integer) As Double
-        Dim index As Integer
-
-        If Not mPointerArrayIsValid OrElse mDataType = DataTypeToUse.NoDataPresent Then
-            Return 0
-        Else
-            Try
-                index = Array.IndexOf(mPointerIndices, indexOriginal)
-                If index >= 0 Then
-                    Select Case mDataType
-                        Case DataTypeToUse.IntegerType
-                            Return mDataInt(mPointerIndices(index))
-                        Case DataTypeToUse.SingleType
-                            Return mDataSingle(mPointerIndices(index))
-                        Case DataTypeToUse.DoubleType
-                            Return mDataDouble(mPointerIndices(index))
-                    End Select
-                Else
-                    Return 0
-                End If
-            Catch ex As Exception
-                Return 0
-            End Try
-        End If
-        Return 0
-    End Function
-
-    Public Function GetValueByOriginalIndexSng(index As Integer) As Single
-        Try
-            Return CSng(GetValueByOriginalIndex(index))
-        Catch ex As Exception
-            Return 0
-        End Try
-    End Function
-
-    Private Sub InitializeLocalVariables()
-        mDataType = DataTypeToUse.NoDataPresent
-        ClearUnusedData()
-
-        mUsePointerIndexArray = True
-        InitializePointerIndexArray(0)
-
-    End Sub
-
-    Private Sub InitializePointerIndexArray(length As Integer)
-        Dim index As Integer
-
-        If length < 0 Then length = 0
-        ReDim mPointerIndices(length - 1)
-
-        For index = 0 To length - 1
-            mPointerIndices(index) = index
-        Next index
-
-        If length > 0 Then
-            mPointerArrayIsValid = True
-        Else
-            mPointerArrayIsValid = False
-        End If
-    End Sub
-
-End Class
+﻿using System;
+using System.Runtime.InteropServices;
+
+namespace ProteinDigestionSimulator
+{
+    // -------------------------------------------------------------------------------
+    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2003
+    // 
+    // E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
+    // Website: https://omics.pnl.gov/ or https://www.pnnl.gov/sysbio/ or https://panomics.pnnl.gov/
+    // -------------------------------------------------------------------------------
+    // 
+    // Licensed under the 2-Clause BSD License; you may not use this file except
+    // in compliance with the License.  You may obtain a copy of the License at
+    // https://opensource.org/licenses/BSD-2-Clause
+    // 
+    // Copyright 2018 Battelle Memorial Institute
+
+    /// <summary>
+    /// This class can be used to search a list of values for a given value, plus or minus a given tolerance
+    /// The input list need not be sorted, since mPointerIndices() will be populated when the data is loaded,
+    /// after which the data array will be sorted
+    /// 
+    /// To prevent this behavior, and save memory by not populating mPointerIndices, set mUsePointerIndexArray = False
+    /// </summary>
+    public class SearchRange
+    {
+        public SearchRange()
+        {
+            InitializeLocalVariables();
+        }
+
+        private enum DataTypeToUse
+        {
+            NoDataPresent = 0,
+            IntegerType = 1,
+            SingleType = 2,
+            DoubleType = 3,
+            FillingIntegerType = 4,
+            FillingSingleType = 5,
+            FillingDoubleType = 6
+        }
+
+        private DataTypeToUse mDataType;
+        private int[] mDataInt;
+        private float[] mDataSingle;
+        private double[] mDataDouble;
+        private int mPointByPointFillCount;
+        private int[] mPointerIndices;        // Pointers to the original index of the data point in the source array
+        private bool mPointerArrayIsValid;
+        private bool mUsePointerIndexArray;    // Set this to false to conserve memory usage
+
+        public int DataCount
+        {
+            get
+            {
+                switch (mDataType)
+                {
+                    case DataTypeToUse.IntegerType:
+                    case DataTypeToUse.FillingIntegerType:
+                        {
+                            return mDataInt.Length;
+                        }
+
+                    case DataTypeToUse.SingleType:
+                    case DataTypeToUse.FillingSingleType:
+                        {
+                            return mDataSingle.Length;
+                        }
+
+                    case DataTypeToUse.DoubleType:
+                    case DataTypeToUse.FillingDoubleType:
+                        {
+                            return mDataDouble.Length;
+                        }
+
+                    case DataTypeToUse.NoDataPresent:
+                        {
+                            return 0;
+                        }
+
+                    default:
+                        {
+                            Console.WriteLine("Unknown data type encountered: " + mDataType.ToString());
+                            return 0;
+                        }
+                }
+            }
+        }
+
+        public int get_OriginalIndex(int index)
+        {
+            if (mPointerArrayIsValid)
+            {
+                try
+                {
+                    if (index < mPointerIndices.Length)
+                    {
+                        return mPointerIndices[index];
+                    }
+                    else
+                    {
+                        return -1;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return -1;
+                }
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+        // ReSharper disable once UnusedMember.Global
+        public bool UsePointerIndexArray
+        {
+            get
+            {
+                return mUsePointerIndexArray;
+            }
+
+            set
+            {
+                mUsePointerIndexArray = value;
+            }
+        }
+
+        private void BinarySearchRangeInt(int searchValue, int toleranceHalfWidth, ref int matchIndexStart, ref int matchIndexEnd)
+        {
+            // Recursive search function
+
+            int indexMidpoint;
+            var leftDone = default(bool);
+            var rightDone = default(bool);
+            int leftIndex;
+            int rightIndex;
+            indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
+            if (indexMidpoint == matchIndexStart)
+            {
+                // Min and Max are next to each other
+                if (Math.Abs(searchValue - mDataInt[matchIndexStart]) > toleranceHalfWidth)
+                    matchIndexStart = matchIndexEnd;
+                if (Math.Abs(searchValue - mDataInt[matchIndexEnd]) > toleranceHalfWidth)
+                    matchIndexEnd = indexMidpoint;
+                return;
+            }
+
+            if (mDataInt[indexMidpoint] > searchValue + toleranceHalfWidth)
+            {
+                // Out of range on the right
+                matchIndexEnd = indexMidpoint;
+                BinarySearchRangeInt(searchValue, toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
+            }
+            else if (mDataInt[indexMidpoint] < searchValue - toleranceHalfWidth)
+            {
+                // Out of range on the left
+                matchIndexStart = indexMidpoint;
+                BinarySearchRangeInt(searchValue, toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
+            }
+            else
+            {
+                // Inside range; figure out the borders
+                leftIndex = indexMidpoint;
+                do
+                {
+                    leftIndex -= 1;
+                    if (leftIndex < matchIndexStart)
+                    {
+                        leftDone = true;
+                    }
+                    else if (Math.Abs(searchValue - mDataInt[leftIndex]) > toleranceHalfWidth)
+                        leftDone = true;
+                }
+                while (!leftDone);
+                rightIndex = indexMidpoint;
+                do
+                {
+                    rightIndex += 1;
+                    if (rightIndex > matchIndexEnd)
+                    {
+                        rightDone = true;
+                    }
+                    else if (Math.Abs(searchValue - mDataInt[rightIndex]) > toleranceHalfWidth)
+                        rightDone = true;
+                }
+                while (!rightDone);
+                matchIndexStart = leftIndex + 1;
+                matchIndexEnd = rightIndex - 1;
+            }
+        }
+
+        private void BinarySearchRangeSng(float searchValue, float toleranceHalfWidth, ref int matchIndexStart, ref int matchIndexEnd)
+        {
+            // Recursive search function
+
+            int indexMidpoint;
+            var leftDone = default(bool);
+            var rightDone = default(bool);
+            int leftIndex;
+            int rightIndex;
+            indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
+            if (indexMidpoint == matchIndexStart)
+            {
+                // Min and Max are next to each other
+                if (Math.Abs(searchValue - mDataSingle[matchIndexStart]) > toleranceHalfWidth)
+                    matchIndexStart = matchIndexEnd;
+                if (Math.Abs(searchValue - mDataSingle[matchIndexEnd]) > toleranceHalfWidth)
+                    matchIndexEnd = indexMidpoint;
+                return;
+            }
+
+            if (mDataSingle[indexMidpoint] > searchValue + toleranceHalfWidth)
+            {
+                // Out of range on the right
+                matchIndexEnd = indexMidpoint;
+                BinarySearchRangeSng(searchValue, toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
+            }
+            else if (mDataSingle[indexMidpoint] < searchValue - toleranceHalfWidth)
+            {
+                // Out of range on the left
+                matchIndexStart = indexMidpoint;
+                BinarySearchRangeSng(searchValue, toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
+            }
+            else
+            {
+                // Inside range; figure out the borders
+                leftIndex = indexMidpoint;
+                do
+                {
+                    leftIndex -= 1;
+                    if (leftIndex < matchIndexStart)
+                    {
+                        leftDone = true;
+                    }
+                    else if (Math.Abs(searchValue - mDataSingle[leftIndex]) > toleranceHalfWidth)
+                        leftDone = true;
+                }
+                while (!leftDone);
+                rightIndex = indexMidpoint;
+                do
+                {
+                    rightIndex += 1;
+                    if (rightIndex > matchIndexEnd)
+                    {
+                        rightDone = true;
+                    }
+                    else if (Math.Abs(searchValue - mDataSingle[rightIndex]) > toleranceHalfWidth)
+                        rightDone = true;
+                }
+                while (!rightDone);
+                matchIndexStart = leftIndex + 1;
+                matchIndexEnd = rightIndex - 1;
+            }
+        }
+
+        private void BinarySearchRangeDbl(double searchValue, double toleranceHalfWidth, ref int matchIndexStart, ref int matchIndexEnd)
+        {
+            // Recursive search function
+
+            int indexMidpoint;
+            var leftDone = default(bool);
+            var rightDone = default(bool);
+            int leftIndex;
+            int rightIndex;
+            indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
+            if (indexMidpoint == matchIndexStart)
+            {
+                // Min and Max are next to each other
+                if (Math.Abs(searchValue - mDataDouble[matchIndexStart]) > toleranceHalfWidth)
+                    matchIndexStart = matchIndexEnd;
+                if (Math.Abs(searchValue - mDataDouble[matchIndexEnd]) > toleranceHalfWidth)
+                    matchIndexEnd = indexMidpoint;
+                return;
+            }
+
+            if (mDataDouble[indexMidpoint] > searchValue + toleranceHalfWidth)
+            {
+                // Out of range on the right
+                matchIndexEnd = indexMidpoint;
+                BinarySearchRangeDbl(searchValue, toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
+            }
+            else if (mDataDouble[indexMidpoint] < searchValue - toleranceHalfWidth)
+            {
+                // Out of range on the left
+                matchIndexStart = indexMidpoint;
+                BinarySearchRangeDbl(searchValue, toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
+            }
+            else
+            {
+                // Inside range; figure out the borders
+                leftIndex = indexMidpoint;
+                do
+                {
+                    leftIndex -= 1;
+                    if (leftIndex < matchIndexStart)
+                    {
+                        leftDone = true;
+                    }
+                    else if (Math.Abs(searchValue - mDataDouble[leftIndex]) > toleranceHalfWidth)
+                        leftDone = true;
+                }
+                while (!leftDone);
+                rightIndex = indexMidpoint;
+                do
+                {
+                    rightIndex += 1;
+                    if (rightIndex > matchIndexEnd)
+                    {
+                        rightDone = true;
+                    }
+                    else if (Math.Abs(searchValue - mDataDouble[rightIndex]) > toleranceHalfWidth)
+                        rightDone = true;
+                }
+                while (!rightDone);
+                matchIndexStart = leftIndex + 1;
+                matchIndexEnd = rightIndex - 1;
+            }
+        }
+
+        private void ClearUnusedData()
+        {
+            if (mDataType != DataTypeToUse.IntegerType)
+                mDataInt = new int[0];
+            if (mDataType != DataTypeToUse.SingleType)
+                mDataSingle = new float[0];
+            if (mDataType != DataTypeToUse.DoubleType)
+                mDataDouble = new double[0];
+            if (mDataType == DataTypeToUse.NoDataPresent)
+            {
+                mPointerIndices = new int[0];
+                mPointerArrayIsValid = false;
+            }
+        }
+
+        public void ClearData()
+        {
+            mDataType = DataTypeToUse.NoDataPresent;
+            ClearUnusedData();
+        }
+
+        public void InitializeDataFillInteger(int expectedDataCount)
+        {
+            // Call this sub to initialize the data arrays, which will allow you to
+            // then call FillWithDataAddPoint() repeatedly for each data point
+            // or call FillWithDataAddBlock() repeatedly with each block of data points
+            // When done, call FinalizeDataFill
+
+            mDataType = DataTypeToUse.NoDataPresent;
+            ClearUnusedData();
+            mDataType = DataTypeToUse.FillingIntegerType;
+            mDataInt = new int[expectedDataCount];
+            mPointByPointFillCount = 0;
+        }
+
+        public void InitializeDataFillSingle(int dataCountToReserve)
+        {
+            // Call this sub to initialize the data arrays, which will allow you to
+            // then call FillWithDataAddPoint() repeatedly for each data point
+            // or call FillWithDataAddBlock() repeatedly with each block of data points
+            // When done, call FinalizeDataFill
+
+            mDataType = DataTypeToUse.NoDataPresent;
+            ClearUnusedData();
+            mDataType = DataTypeToUse.FillingSingleType;
+            mDataSingle = new float[dataCountToReserve];
+        }
+
+        public void InitializeDataFillDouble(int dataCountToReserve)
+        {
+            // Call this sub to initialize the data arrays, which will allow you to
+            // then call FillWithDataAddPoint() repeatedly for each data point
+            // or call FillWithDataAddBlock() repeatedly with each block of data points
+            // When done, call FinalizeDataFill
+
+            mDataType = DataTypeToUse.NoDataPresent;
+            ClearUnusedData();
+            mDataType = DataTypeToUse.FillingDoubleType;
+            mDataDouble = new double[dataCountToReserve];
+        }
+
+        public bool FillWithData(ref int[] values)
+        {
+            bool success;
+            try
+            {
+                if (values is null || values.Length == 0)
+                {
+                    success = false;
+                }
+                else
+                {
+                    mDataInt = new int[values.Length];
+                    values.CopyTo(mDataInt, 0);
+                    if (mUsePointerIndexArray)
+                    {
+                        InitializePointerIndexArray(mDataInt.Length);
+                        Array.Sort(mDataInt, mPointerIndices);
+                    }
+                    else
+                    {
+                        Array.Sort(mDataInt);
+                        mPointerIndices = new int[0];
+                        mPointerArrayIsValid = false;
+                    }
+
+                    mDataType = DataTypeToUse.IntegerType;
+                    success = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                success = false;
+            }
+
+            if (success)
+            {
+                ClearUnusedData();
+            }
+            else
+            {
+                mDataType = DataTypeToUse.NoDataPresent;
+            }
+
+            return success;
+        }
+
+        public bool FillWithData(ref float[] values)
+        {
+            bool success;
+            try
+            {
+                if (values is null || values.Length == 0)
+                {
+                    success = false;
+                }
+                else
+                {
+                    mDataSingle = new float[values.Length];
+                    values.CopyTo(mDataSingle, 0);
+                    if (mUsePointerIndexArray)
+                    {
+                        InitializePointerIndexArray(mDataSingle.Length);
+                        Array.Sort(mDataSingle, mPointerIndices);
+                    }
+                    else
+                    {
+                        Array.Sort(mDataSingle);
+                        mPointerIndices = new int[0];
+                        mPointerArrayIsValid = false;
+                    }
+
+                    mDataType = DataTypeToUse.SingleType;
+                    success = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                success = false;
+            }
+
+            if (success)
+            {
+                ClearUnusedData();
+            }
+            else
+            {
+                mDataType = DataTypeToUse.NoDataPresent;
+            }
+
+            return success;
+        }
+
+        public bool FillWithData(ref double[] values)
+        {
+            bool success;
+            try
+            {
+                if (values is null || values.Length == 0)
+                {
+                    success = false;
+                }
+                else
+                {
+                    mDataDouble = new double[values.Length];
+                    values.CopyTo(mDataDouble, 0);
+                    if (mUsePointerIndexArray)
+                    {
+                        InitializePointerIndexArray(mDataDouble.Length);
+                        Array.Sort(mDataDouble, mPointerIndices);
+                    }
+                    else
+                    {
+                        Array.Sort(mDataDouble);
+                        mPointerIndices = new int[0];
+                        mPointerArrayIsValid = false;
+                    }
+
+                    mDataType = DataTypeToUse.DoubleType;
+                    success = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                success = false;
+            }
+
+            if (success)
+            {
+                ClearUnusedData();
+            }
+            else
+            {
+                mDataType = DataTypeToUse.NoDataPresent;
+            }
+
+            return success;
+        }
+
+        public bool FillWithDataAddBlock(int[] valuesToAdd)
+        {
+            var success = default(bool);
+            try
+            {
+                if (mDataInt.Length <= mPointByPointFillCount + valuesToAdd.Length - 1)
+                {
+                    Array.Resize(ref mDataInt, mDataInt.Length + valuesToAdd.Length);
+                }
+
+                Array.Copy(valuesToAdd, 0, mDataInt, mPointByPointFillCount - 1, valuesToAdd.Length);
+                mPointByPointFillCount += valuesToAdd.Length;
+            }
+
+            // For index = 0 To valuesToAdd.Length - 1
+            // mDataInt(mPointByPointFillCount) = valuesToAdd(index)
+            // mPointByPointFillCount += 1
+            // Next index
+
+            catch (Exception ex)
+            {
+                success = false;
+            }
+
+            return success;
+        }
+
+        public bool FillWithDataAddBlock(float[] valuesToAdd)
+        {
+            var success = default(bool);
+            try
+            {
+                if (mDataSingle.Length <= mPointByPointFillCount + valuesToAdd.Length - 1)
+                {
+                    Array.Resize(ref mDataSingle, mDataSingle.Length + valuesToAdd.Length);
+                }
+
+                Array.Copy(valuesToAdd, 0, mDataSingle, mPointByPointFillCount - 1, valuesToAdd.Length);
+                mPointByPointFillCount += valuesToAdd.Length;
+            }
+            catch (Exception ex)
+            {
+                success = false;
+            }
+
+            return success;
+        }
+
+        public bool FillWithDataAddBlock(double[] valuesToAdd)
+        {
+            var success = default(bool);
+            try
+            {
+                if (mDataDouble.Length <= mPointByPointFillCount + valuesToAdd.Length - 1)
+                {
+                    Array.Resize(ref mDataDouble, mDataDouble.Length + valuesToAdd.Length);
+                }
+
+                Array.Copy(valuesToAdd, 0, mDataDouble, mPointByPointFillCount, valuesToAdd.Length);
+                mPointByPointFillCount += valuesToAdd.Length;
+            }
+            catch (Exception ex)
+            {
+                success = false;
+            }
+
+            return success;
+        }
+
+        public bool FillWithDataAddPoint(int valueToAdd)
+        {
+            var success = default(bool);
+            try
+            {
+                if (mDataType != DataTypeToUse.FillingIntegerType)
+                {
+                    switch (mDataType)
+                    {
+                        case DataTypeToUse.FillingSingleType:
+                            {
+                                success = FillWithDataAddPoint((float)valueToAdd);
+                                break;
+                            }
+
+                        case DataTypeToUse.FillingDoubleType:
+                            {
+                                success = FillWithDataAddPoint((double)valueToAdd);
+                                break;
+                            }
+
+                        default:
+                            {
+                                success = false;
+                                break;
+                            }
+                    }
+                }
+                else
+                {
+                    if (mDataInt.Length <= mPointByPointFillCount)
+                    {
+                        Array.Resize(ref mDataInt, (int)Math.Round(mDataInt.Length * 1.1d));
+                    }
+
+                    mDataInt[mPointByPointFillCount] = valueToAdd;
+                    mPointByPointFillCount += 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                success = false;
+            }
+
+            return success;
+        }
+
+        public bool FillWithDataAddPoint(float valueToAdd)
+        {
+            var success = default(bool);
+            try
+            {
+                if (mDataType != DataTypeToUse.FillingSingleType)
+                {
+                    switch (mDataType)
+                    {
+                        case DataTypeToUse.FillingIntegerType:
+                            {
+                                success = FillWithDataAddPoint((int)Math.Round(valueToAdd));
+                                break;
+                            }
+
+                        case DataTypeToUse.FillingDoubleType:
+                            {
+                                success = FillWithDataAddPoint((double)valueToAdd);
+                                break;
+                            }
+
+                        default:
+                            {
+                                success = false;
+                                break;
+                            }
+                    }
+                }
+                else
+                {
+                    if (mDataSingle.Length <= mPointByPointFillCount)
+                    {
+                        Array.Resize(ref mDataSingle, (int)Math.Round(mDataSingle.Length * 1.1d));
+                    }
+
+                    mDataSingle[mPointByPointFillCount] = valueToAdd;
+                    mPointByPointFillCount += 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                success = false;
+            }
+
+            return success;
+        }
+
+        public bool FillWithDataAddPoint(double valueToAdd)
+        {
+            var success = default(bool);
+            try
+            {
+                if (mDataType != DataTypeToUse.FillingDoubleType)
+                {
+                    switch (mDataType)
+                    {
+                        case DataTypeToUse.FillingIntegerType:
+                            {
+                                success = FillWithDataAddPoint((int)Math.Round(valueToAdd));
+                                break;
+                            }
+
+                        case DataTypeToUse.FillingSingleType:
+                            {
+                                success = FillWithDataAddPoint((float)valueToAdd);
+                                break;
+                            }
+
+                        default:
+                            {
+                                success = false;
+                                break;
+                            }
+                    }
+                }
+                else
+                {
+                    if (mDataDouble.Length <= mPointByPointFillCount)
+                    {
+                        Array.Resize(ref mDataDouble, (int)Math.Round(mDataDouble.Length * 1.1d));
+                    }
+
+                    mDataDouble[mPointByPointFillCount] = valueToAdd;
+                    mPointByPointFillCount += 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                success = false;
+            }
+
+            return success;
+        }
+
+        public bool FinalizeDataFill()
+        {
+            // Finalizes point-by-point data filling
+            // Call this after calling FillWithDataAddPoint with each point
+
+            Array DataArray = null;
+            bool success;
+            try
+            {
+                success = true;
+                switch (mDataType)
+                {
+                    case DataTypeToUse.FillingIntegerType:
+                        {
+                            mDataType = DataTypeToUse.IntegerType;
+
+                            // Shrink mDataInt if necessary
+                            if (mDataInt.Length > mPointByPointFillCount)
+                            {
+                                Array.Resize(ref mDataInt, mPointByPointFillCount);
+                            }
+
+                            DataArray = mDataInt;
+                            break;
+                        }
+
+                    case DataTypeToUse.FillingSingleType:
+                        {
+                            mDataType = DataTypeToUse.SingleType;
+
+                            // Shrink mDataSingle if necessary
+                            if (mDataSingle.Length > mPointByPointFillCount)
+                            {
+                                Array.Resize(ref mDataSingle, mPointByPointFillCount);
+                            }
+
+                            DataArray = mDataSingle;
+                            break;
+                        }
+
+                    case DataTypeToUse.FillingDoubleType:
+                        {
+                            mDataType = DataTypeToUse.DoubleType;
+
+                            // Shrink mDataDouble if necessary
+                            if (mDataDouble.Length > mPointByPointFillCount)
+                            {
+                                Array.Resize(ref mDataDouble, mPointByPointFillCount);
+                            }
+
+                            DataArray = mDataDouble;
+                            break;
+                        }
+
+                    default:
+                        {
+                            // Not filling
+                            success = false;
+                            break;
+                        }
+                }
+
+                if (success && DataArray is object)
+                {
+                    if (mUsePointerIndexArray)
+                    {
+                        InitializePointerIndexArray(DataArray.Length);
+                        Array.Sort(DataArray, mPointerIndices);
+                    }
+                    else
+                    {
+                        Array.Sort(DataArray);
+                        mPointerIndices = new int[0];
+                        mPointerArrayIsValid = false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                success = false;
+            }
+
+            return success;
+        }
+
+        public bool FindValueRange(int searchValue, int toleranceHalfWidth, [Optional, DefaultParameterValue(0)] ref int matchIndexStart, [Optional, DefaultParameterValue(0)] ref int matchIndexEnd)
+        {
+            // Searches the loaded data for searchValue with a tolerance of +-tolerance
+            // Returns True if a match is found; in addition, populates matchIndexStart and matchIndexEnd
+            // Otherwise, returns false
+
+            bool matchFound;
+
+            // See if user filled with data, but didn't call Finalize
+            // We'll call it for them
+            if (mDataType == DataTypeToUse.FillingIntegerType || mDataType == DataTypeToUse.FillingSingleType || mDataType == DataTypeToUse.FillingDoubleType)
+            {
+                FinalizeDataFill();
+            }
+
+            if (mDataType != DataTypeToUse.IntegerType)
+            {
+                switch (mDataType)
+                {
+                    case DataTypeToUse.SingleType:
+                        {
+                            matchFound = FindValueRange(searchValue, (float)toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
+                            break;
+                        }
+
+                    case DataTypeToUse.DoubleType:
+                        {
+                            matchFound = FindValueRange(searchValue, (double)toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
+                            break;
+                        }
+
+                    default:
+                        {
+                            matchFound = false;
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                matchIndexStart = 0;
+                matchIndexEnd = mDataInt.Length - 1;
+                if (mDataInt.Length == 0)
+                {
+                    matchIndexEnd = -1;
+                }
+                else if (mDataInt.Length == 1)
+                {
+                    if (Math.Abs(searchValue - mDataInt[0]) > toleranceHalfWidth)
+                    {
+                        // Only one data point, and it is not within tolerance
+                        matchIndexEnd = -1;
+                    }
+                }
+                else
+                {
+                    BinarySearchRangeInt(searchValue, toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
+                }
+
+                if (matchIndexStart > matchIndexEnd)
+                {
+                    matchIndexStart = -1;
+                    matchIndexEnd = -1;
+                    matchFound = false;
+                }
+                else
+                {
+                    matchFound = true;
+                }
+            }
+
+            return matchFound;
+        }
+
+        public bool FindValueRange(double searchValue, double toleranceHalfWidth, [Optional, DefaultParameterValue(0)] ref int matchIndexStart, [Optional, DefaultParameterValue(0)] ref int matchIndexEnd)
+        {
+            // Searches the loaded data for searchValue with a tolerance of +-tolerance
+            // Returns True if a match is found; in addition, populates matchIndexStart and matchIndexEnd
+            // Otherwise, returns false
+
+            bool matchFound;
+
+            // See if user filled with data, but didn't call Finalize
+            // We'll call it for them
+            if (mDataType == DataTypeToUse.FillingIntegerType || mDataType == DataTypeToUse.FillingSingleType || mDataType == DataTypeToUse.FillingDoubleType)
+            {
+                FinalizeDataFill();
+            }
+
+            if (mDataType != DataTypeToUse.DoubleType)
+            {
+                switch (mDataType)
+                {
+                    case DataTypeToUse.IntegerType:
+                        {
+                            matchFound = FindValueRange((int)Math.Round(searchValue), (int)Math.Round(toleranceHalfWidth), ref matchIndexStart, ref matchIndexEnd);
+                            break;
+                        }
+
+                    case DataTypeToUse.SingleType:
+                        {
+                            matchFound = FindValueRange((float)searchValue, (float)toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
+                            break;
+                        }
+
+                    default:
+                        {
+                            matchFound = false;
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                matchIndexStart = 0;
+                matchIndexEnd = mDataDouble.Length - 1;
+                if (mDataDouble.Length == 0)
+                {
+                    matchIndexEnd = -1;
+                }
+                else if (mDataDouble.Length == 1)
+                {
+                    if (Math.Abs(searchValue - mDataDouble[0]) > toleranceHalfWidth)
+                    {
+                        // Only one data point, and it is not within tolerance
+                        matchIndexEnd = -1;
+                    }
+                }
+                else
+                {
+                    BinarySearchRangeDbl(searchValue, toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
+                }
+
+                if (matchIndexStart > matchIndexEnd)
+                {
+                    matchIndexStart = -1;
+                    matchIndexEnd = -1;
+                    matchFound = false;
+                }
+                else
+                {
+                    matchFound = true;
+                }
+            }
+
+            return matchFound;
+        }
+
+        public bool FindValueRange(float searchValue, float toleranceHalfWidth, [Optional, DefaultParameterValue(0)] ref int matchIndexStart, [Optional, DefaultParameterValue(0)] ref int matchIndexEnd)
+        {
+            // Searches the loaded data for searchValue with a tolerance of +-tolerance
+            // Returns True if a match is found; in addition, populates matchIndexStart and matchIndexEnd
+            // Otherwise, returns false
+
+            bool matchFound;
+
+            // See if user filled with data, but didn't call Finalize
+            // We'll call it for them
+            if (mDataType == DataTypeToUse.FillingIntegerType || mDataType == DataTypeToUse.FillingSingleType || mDataType == DataTypeToUse.FillingDoubleType)
+            {
+                FinalizeDataFill();
+            }
+
+            if (mDataType != DataTypeToUse.SingleType)
+            {
+                switch (mDataType)
+                {
+                    case DataTypeToUse.IntegerType:
+                        {
+                            matchFound = FindValueRange((int)Math.Round(searchValue), (int)Math.Round(toleranceHalfWidth), ref matchIndexStart, ref matchIndexEnd);
+                            break;
+                        }
+
+                    case DataTypeToUse.DoubleType:
+                        {
+                            matchFound = FindValueRange(searchValue, (double)toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
+                            break;
+                        }
+
+                    default:
+                        {
+                            matchFound = false;
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                matchIndexStart = 0;
+                matchIndexEnd = mDataSingle.Length - 1;
+                if (mDataSingle.Length == 0)
+                {
+                    matchIndexEnd = -1;
+                }
+                else if (mDataSingle.Length == 1)
+                {
+                    if (Math.Abs(searchValue - mDataSingle[0]) > toleranceHalfWidth)
+                    {
+                        // Only one data point, and it is not within tolerance
+                        matchIndexEnd = -1;
+                    }
+                }
+                else
+                {
+                    BinarySearchRangeSng(searchValue, toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
+                }
+
+                if (matchIndexStart > matchIndexEnd)
+                {
+                    matchIndexStart = -1;
+                    matchIndexEnd = -1;
+                    matchFound = false;
+                }
+                else
+                {
+                    matchFound = true;
+                }
+            }
+
+            return matchFound;
+        }
+
+        public int GetValueByIndexInt(int index)
+        {
+            try
+            {
+                return (int)Math.Round(GetValueByIndex(index));
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+        }
+
+        public double GetValueByIndex(int index)
+        {
+            try
+            {
+                if (mDataType == DataTypeToUse.NoDataPresent)
+                {
+                    return 0d;
+                }
+                else
+                {
+                    switch (mDataType)
+                    {
+                        case DataTypeToUse.IntegerType:
+                        case DataTypeToUse.FillingIntegerType:
+                            {
+                                return mDataInt[index];
+                            }
+
+                        case DataTypeToUse.SingleType:
+                        case DataTypeToUse.FillingSingleType:
+                            {
+                                return mDataSingle[index];
+                            }
+
+                        case DataTypeToUse.DoubleType:
+                        case DataTypeToUse.FillingDoubleType:
+                            {
+                                return mDataDouble[index];
+                            }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // index is probably out of range
+                return 0d;
+            }
+
+            return 0d;
+        }
+
+        public float GetValueByIndexSng(int index)
+        {
+            try
+            {
+                return (float)GetValueByIndex(index);
+            }
+            catch (Exception ex)
+            {
+                return 0f;
+            }
+        }
+
+        public int GetValueByOriginalIndexInt(int index)
+        {
+            try
+            {
+                return (int)Math.Round(GetValueByOriginalIndex(index));
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+        }
+
+        public double GetValueByOriginalIndex(int indexOriginal)
+        {
+            int index;
+            if (!mPointerArrayIsValid || mDataType == DataTypeToUse.NoDataPresent)
+            {
+                return 0d;
+            }
+            else
+            {
+                try
+                {
+                    index = Array.IndexOf(mPointerIndices, indexOriginal);
+                    if (index >= 0)
+                    {
+                        switch (mDataType)
+                        {
+                            case DataTypeToUse.IntegerType:
+                                {
+                                    return mDataInt[mPointerIndices[index]];
+                                }
+
+                            case DataTypeToUse.SingleType:
+                                {
+                                    return mDataSingle[mPointerIndices[index]];
+                                }
+
+                            case DataTypeToUse.DoubleType:
+                                {
+                                    return mDataDouble[mPointerIndices[index]];
+                                }
+                        }
+                    }
+                    else
+                    {
+                        return 0d;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return 0d;
+                }
+            }
+
+            return 0d;
+        }
+
+        public float GetValueByOriginalIndexSng(int index)
+        {
+            try
+            {
+                return (float)GetValueByOriginalIndex(index);
+            }
+            catch (Exception ex)
+            {
+                return 0f;
+            }
+        }
+
+        private void InitializeLocalVariables()
+        {
+            mDataType = DataTypeToUse.NoDataPresent;
+            ClearUnusedData();
+            mUsePointerIndexArray = true;
+            InitializePointerIndexArray(0);
+        }
+
+        private void InitializePointerIndexArray(int length)
+        {
+            int index;
+            if (length < 0)
+                length = 0;
+            mPointerIndices = new int[length];
+            var loopTo = length - 1;
+            for (index = 0; index <= loopTo; index++)
+                mPointerIndices[index] = index;
+            if (length > 0)
+            {
+                mPointerArrayIsValid = true;
+            }
+            else
+            {
+                mPointerArrayIsValid = false;
+            }
+        }
+    }
+}

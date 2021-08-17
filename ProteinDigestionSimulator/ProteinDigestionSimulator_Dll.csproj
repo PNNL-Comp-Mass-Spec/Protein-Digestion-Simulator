@@ -34,6 +34,7 @@
     <DocumentationFile>bin\DLL\Release\ProteinDigestionSimulator.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />

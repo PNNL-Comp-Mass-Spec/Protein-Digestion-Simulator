@@ -1,344 +1,467 @@
-﻿Option Strict On
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.VisualBasic.CompilerServices;
 
-' -------------------------------------------------------------------------------
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2005
-'
-' E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
-' Website: https://omics.pnl.gov/ or https://www.pnnl.gov/sysbio/ or https://panomics.pnnl.gov/
-' -------------------------------------------------------------------------------
-'
-' Licensed under the 2-Clause BSD License; you may not use this file except
-' in compliance with the License.  You may obtain a copy of the License at
-' https://opensource.org/licenses/BSD-2-Clause
-'
-' Copyright 2018 Battelle Memorial Institute
+namespace ProteinDigestionSimulator
+{
+    // -------------------------------------------------------------------------------
+    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2005
+    //
+    // E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
+    // Website: https://omics.pnl.gov/ or https://www.pnnl.gov/sysbio/ or https://panomics.pnnl.gov/
+    // -------------------------------------------------------------------------------
+    //
+    // Licensed under the 2-Clause BSD License; you may not use this file except
+    // in compliance with the License.  You may obtain a copy of the License at
+    // https://opensource.org/licenses/BSD-2-Clause
+    //
+    // Copyright 2018 Battelle Memorial Institute
 
-''' <summary>
-''' This class will compute the pI (isoelectric point) and hydrophobicity for a peptide or protein sequence
-''' Code originally written by Gordon Anderson for the application ICR-2LS
-''' Ported to VB.NET by Matthew Monroe in August 2005
-''' </summary>
-Public Class ComputePeptideProperties
+    /// <summary>
+    /// This class will compute the pI (isoelectric point) and hydrophobicity for a peptide or protein sequence
+    /// Code originally written by Gordon Anderson for the application ICR-2LS
+    /// Ported to VB.NET by Matthew Monroe in August 2005
+    /// </summary>
+    public class ComputePeptideProperties
+    {
+        // Ignore Spelling: MaximumpI, hydrophobicity, hydrophilicity
+        // Ignore Spelling: Mant, Hopp, Kyte, Eisenberg, Engleman, al
 
-    ' Ignore Spelling: MaximumpI, hydrophobicity, hydrophilicity
-    ' Ignore Spelling: Mant, Hopp, Kyte, Eisenberg, Engleman, al
-
-    Public Sub New()
-        mAminoAcids = New Dictionary(Of Char, AA)
-        InitializeLocalVariables()
-    End Sub
-
-    ''' <summary>
-    ''' Hydrophobicity values for each amino acid
-    ''' </summary>
-    ''' <remarks>
-    ''' Originally from ICR-2LS
-    ''' Values confirmed via various resources:
-    ''' Ref 1: http://resources.qiagenbioinformatics.com/manuals/clcgenomicsworkbench/650/Hydrophobicity_scales.html
-    ''' Ref 2: https://web.expasy.org/protscale/
-    ''' Ref 3: Manuscript by Mant and Hodges at https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2792893/
-    '''        Intrinsic Amino Acid Side-Chain Hydrophilicity/Hydrophobicity Coefficients Determined
-    '''        by Reversed-Phase High-Performance Liquid Chromatography of Model Peptides
-    ''' </remarks>
-    Public Enum HydrophobicityTypeConstants As Integer
-        HW = 0                  ' Hopp and Woods, values available at references 1 and 2
-        KD = 1                  ' Kyte and Doolittle, values available t references 1 and 2
-        Eisenberg = 2           ' Eisenberg, values available t references 1 and 2
-        GES = 3                 ' Engleman et. al., values available at reference 1
-        MeekPH7p4 = 4           ' Meek, pH 7.4; column 14 in table 3 of reference 3
-        MeekPH2p1 = 5           ' Meek, pH 2.1; column 3  in table 3 of reference 3
-    End Enum
-
-    ' Dissociation constants                ' Alternate values
-    Private Const Ck As Double = 9.3        ' 8.3
-    Private Const Dk As Double = 4.5        ' 3.91
-    Private Const Ek As Double = 4.6        ' 4.25
-    Private Const Hk As Double = 6.2        ' 6.5
-    Private Const Kk As Double = 10.4       ' 10.79
-    Private Const Rk As Double = 12         ' 12.5
-    Private Const Yk As Double = 9.7        ' 10.95
-    Private Const NH2k As Double = 7.3      ' 8.56
-    Private Const COOHk As Double = 3.9     ' 3.56
-
-    Private Structure AA
-        ' ReSharper disable once NotAccessedField.Local
-        Public Symbol As String              ' One letter abbreviation for the amino acid
-        Public HW As Double
-        Public KD As Double
-        Public Eisenberg As Double
-        Public GES As Double
-        Public MeekPH7p4 As Double
-        Public MeekPH2p1 As Double
-    End Structure
-
-    Private ReadOnly mAminoAcids As Dictionary(Of Char, AA)
-
-    ''' <summary>
-    ''' Hydrophobicity type
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property HydrophobicityType As HydrophobicityTypeConstants
-
-    ''' <summary>
-    ''' When true, examine the protein residues in chunks of SequenceWidthToExamineForMaximumpI,
-    ''' compute the pI for each chunk, then report the largest pI
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property ReportMaximumpI As Boolean
-
-    ''' <summary>
-    ''' Number of residues to use for computation of pI when ReportMaximumpI is true
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property SequenceWidthToExamineForMaximumpI As Integer
-
-    Private Function CalculateCharge(pH As Double, numC As Integer, numD As Integer, numE As Integer, numH As Integer, numK As Integer, numR As Integer, numY As Integer) As Double
-        Dim value As Double
-
-        value = 0
-        value += CalculateNp(pH, Ck, numC)
-        value += CalculateNp(pH, Dk, numD)
-        value += CalculateNp(pH, Ek, numE)
-        value += CalculateNp(pH, Hk, numH)
-        value += CalculateNp(pH, Kk, numK)
-        value += CalculateNp(pH, Rk, numR)
-        value += CalculateNp(pH, Yk, numY)
-        value += CalculateNp(pH, NH2k, 1)
-        value += CalculateNp(pH, COOHk, 1)
-        value -= (numC + numD + numE + numY + 1)
-        Return Value
-
-    End Function
-
-    Private Function CalculateHydrophobicity(seq As String, HT As HydrophobicityTypeConstants) As Double
-        Dim runningSum As Double = 0
-        Dim residueCount = 0
-
-        Dim aaInfo = New AA()
-
-        For li = 1 To seq.Length
-            Dim residue = Char.ToUpper(seq.Chars(li - 1))
-
-            Try
-                If Not mAminoAcids.TryGetValue(residue, aaInfo) Then
-                    Continue For
-                End If
-
-                Select Case HT
-                    Case HydrophobicityTypeConstants.HW
-                        runningSum += aaInfo.HW
-                    Case HydrophobicityTypeConstants.KD
-                        runningSum += aaInfo.KD
-                    Case HydrophobicityTypeConstants.Eisenberg
-                        runningSum += aaInfo.Eisenberg
-                    Case HydrophobicityTypeConstants.GES
-                        runningSum += aaInfo.GES
-                    Case HydrophobicityTypeConstants.MeekPH7p4
-                        runningSum += aaInfo.MeekPH7p4
-                    Case HydrophobicityTypeConstants.MeekPH2p1
-                        runningSum += aaInfo.MeekPH2p1
-                End Select
-
-                residueCount += 1
-
-            Catch ex As Exception
-                ' Residue is not present so ignore it
-            End Try
-
-        Next li
-
-        If residueCount > 0 Then
-            Return runningSum / residueCount
-        Else
-            Return 0
-        End If
-
-    End Function
-
-    Private Function CalculateNp(pH As Double, k As Double, n As Integer) As Double
-        Return n * (10 ^ (-pH) / (10 ^ (-pH) + 10 ^ (-k)))
-    End Function
-
-    ' ReSharper disable once UnusedMember.Global
-    Public Function CalculateSequenceChargeState(seq As String, pH As Double) As Integer
-        Dim li As Integer
-        Dim chargeState As Integer
-
-        If seq Is Nothing OrElse seq.Length = 0 Then
-            Return 0
-        End If
-
-        Try
-            chargeState = 0
-            For li = 1 To seq.Length
-                Select Case Char.ToUpper(seq.Chars(li - 1))
-                    Case "C"c
-                        If Ck > pH Then chargeState += 1
-                    Case "D"c
-                        If Dk > pH Then chargeState += 1
-                    Case "E"c
-                        If Ek > pH Then chargeState += 1
-                    Case "H"c
-                        If Hk > pH Then chargeState += 1
-                    Case "K"c
-                        If Kk > pH Then chargeState += 1 + 1
-                    Case "R"c
-                        If Rk > pH Then chargeState += 1
-                    Case "Y"c
-                        If Yk > pH Then chargeState += 1
-                End Select
-            Next li
-
-            If chargeState = 0 Then chargeState = 1
-        Catch ex As Exception
-            ' Error occurred
-            chargeState = 1
-        End Try
-
-        Return chargeState
-
-    End Function
-
-    Public Function CalculateSequenceHydrophobicity(seq As String) As Single
-
-        If seq Is Nothing OrElse seq.Length = 0 Then
-            Return 0
-        End If
-
-        Try
-            If ReportMaximumpI AndAlso seq.Length > SequenceWidthToExamineForMaximumpI Then
-                Dim maxHydrophobicity As Double = 0
-                For index = 1 To seq.Length - SequenceWidthToExamineForMaximumpI
-                    Dim segmentHydrophobicity = CalculateHydrophobicity(seq.Substring(index - 1, SequenceWidthToExamineForMaximumpI), HydrophobicityType)
-                    If segmentHydrophobicity > maxHydrophobicity Then maxHydrophobicity = segmentHydrophobicity
-                Next
-                Return CSng(maxHydrophobicity)
-
-            Else
-                Dim hydrophobicity = CalculateHydrophobicity(seq, HydrophobicityType)
-                Return CSng(hydrophobicity)
-            End If
-        Catch ex As Exception
-            ' Error occurred
-            Return 0
-        End Try
-
-    End Function
-
-    Public Function CalculateSequencepI(seq As String) As Single
-        Dim i As Integer
-        Dim numC As Integer, numD As Integer, numE As Integer
-        Dim numH As Integer, numK As Integer, numR As Integer
-        Dim numY As Integer
-        Dim Value As Double, value1 As Double, pH As Double
-        Dim delta As Double
-
-        If seq Is Nothing OrElse seq.Length = 0 Then
-            Return 0
-        End If
-
-        Try
-            numC = 0
-            numD = 0
-            numE = 0
-            numH = 0
-            numK = 0
-            numR = 0
-            numY = 0
-            For i = 1 To seq.Length
-                Select Case (Char.ToUpper(seq.Chars(i - 1)))
-                    Case "C"c
-                        numC += 1
-                    Case "D"c
-                        numD += 1
-                    Case "E"c
-                        numE += 1
-                    Case "H"c
-                        numH += 1
-                    Case "K"c
-                        numK += 1
-                    Case "R"c
-                        numR += 1
-                    Case "Y"c
-                        numY += 1
-                End Select
-            Next
-            pH = 1
-            delta = 1
-            Value = CalculateCharge(pH, numC, numD, numE, numH, numK, numR, numY) + 1
-            Do
-                value1 = CalculateCharge(pH, numC, numD, numE, numH, numK, numR, numY)
-                If Math.Abs(value1) <= Math.Abs(Value) Then
-                    Value = value1
-                    pH += delta
-                Else
-                    delta /= (-10)
-                    Value = value1
-                    pH += delta
-                    If Math.Abs(delta) < 0.01 Then Exit Do
-                End If
-            Loop
-        Catch ex As Exception
-            ' Error occurred
-            pH = 0
-        End Try
-
-        Return CSng(pH)
-
-    End Function
-
-    Private Sub AddAminoAcid(oneLetterSymbol As Char, hw As Double, kd As Double, eisenberg As Double, ges As Double, meekPH7p4 As Double, meekPH2p1 As Double)
-
-        Dim aaInfo = New AA With {
-            .Symbol = oneLetterSymbol,
-            .HW = hw,
-            .KD = kd,
-            .Eisenberg = eisenberg,
-            .GES = ges,
-            .MeekPH7p4 = meekPH7p4,
-            .MeekPH2p1 = meekPH2p1
+        public ComputePeptideProperties()
+        {
+            mAminoAcids = new Dictionary<char, AA>();
+            InitializeLocalVariables();
         }
 
-        mAminoAcids.Add(oneLetterSymbol, aaInfo)
+        /// <summary>
+        /// Hydrophobicity values for each amino acid
+        /// </summary>
+        /// <remarks>
+        /// Originally from ICR-2LS
+        /// Values confirmed via various resources:
+        /// Ref 1: http://resources.qiagenbioinformatics.com/manuals/clcgenomicsworkbench/650/Hydrophobicity_scales.html
+        /// Ref 2: https://web.expasy.org/protscale/
+        /// Ref 3: Manuscript by Mant and Hodges at https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2792893/
+        ///        Intrinsic Amino Acid Side-Chain Hydrophilicity/Hydrophobicity Coefficients Determined
+        ///        by Reversed-Phase High-Performance Liquid Chromatography of Model Peptides
+        /// </remarks>
+        public enum HydrophobicityTypeConstants : int
+        {
+            HW = 0,                  // Hopp and Woods, values available at references 1 and 2
+            KD = 1,                  // Kyte and Doolittle, values available t references 1 and 2
+            Eisenberg = 2,           // Eisenberg, values available t references 1 and 2
+            GES = 3,                 // Engleman et. al., values available at reference 1
+            MeekPH7p4 = 4,           // Meek, pH 7.4; column 14 in table 3 of reference 3
+            MeekPH2p1 = 5           // Meek, pH 2.1; column 3  in table 3 of reference 3
+        }
 
-    End Sub
+        // Dissociation constants                ' Alternate values
+        private const double Ck = 9.3d;        // 8.3
+        private const double Dk = 4.5d;        // 3.91
+        private const double Ek = 4.6d;        // 4.25
+        private const double Hk = 6.2d;        // 6.5
+        private const double Kk = 10.4d;       // 10.79
+        private const double Rk = 12d;         // 12.5
+        private const double Yk = 9.7d;        // 10.95
+        private const double NH2k = 7.3d;      // 8.56
+        private const double COOHk = 3.9d;     // 3.56
 
-    Private Sub InitializeLocalVariables()
+        private struct AA
+        {
+            // ReSharper disable once NotAccessedField.Local
+            public string Symbol;              // One letter abbreviation for the amino acid
+            public double HW;
+            public double KD;
+            public double Eisenberg;
+            public double GES;
+            public double MeekPH7p4;
+            public double MeekPH2p1;
+        }
 
-        HydrophobicityType = HydrophobicityTypeConstants.HW
-        ReportMaximumpI = False
-        SequenceWidthToExamineForMaximumpI = 10
+        private readonly Dictionary<char, AA> mAminoAcids;
 
-        LoadAminoAcids()
+        /// <summary>
+        /// Hydrophobicity type
+        /// </summary>
+        /// <returns></returns>
+        public HydrophobicityTypeConstants HydrophobicityType { get; set; }
 
-    End Sub
+        /// <summary>
+        /// When true, examine the protein residues in chunks of SequenceWidthToExamineForMaximumpI,
+        /// compute the pI for each chunk, then report the largest pI
+        /// </summary>
+        /// <returns></returns>
+        public bool ReportMaximumpI { get; set; }
 
-    Private Sub LoadAminoAcids()
+        /// <summary>
+        /// Number of residues to use for computation of pI when ReportMaximumpI is true
+        /// </summary>
+        /// <returns></returns>
+        public int SequenceWidthToExamineForMaximumpI { get; set; }
 
-        mAminoAcids.Clear()
+        private double CalculateCharge(double pH, int numC, int numD, int numE, int numH, int numK, int numR, int numY)
+        {
+            double value;
+            value = 0d;
+            value += CalculateNp(pH, Ck, numC);
+            value += CalculateNp(pH, Dk, numD);
+            value += CalculateNp(pH, Ek, numE);
+            value += CalculateNp(pH, Hk, numH);
+            value += CalculateNp(pH, Kk, numK);
+            value += CalculateNp(pH, Rk, numR);
+            value += CalculateNp(pH, Yk, numY);
+            value += CalculateNp(pH, NH2k, 1);
+            value += CalculateNp(pH, COOHk, 1);
+            value -= numC + numD + numE + numY + 1;
+            return value;
+        }
 
-        AddAminoAcid("A"c, -0.5, 1.8, 0.25, -1.6, 0.5, -0.1)
-        AddAminoAcid("C"c, -1, 2.5, 0.04, -2, -6.8, -2.2)
-        AddAminoAcid("D"c, 3, -3.5, -0.72, 9.2, -8.2, -2.8)
-        AddAminoAcid("E"c, 3, -3.5, -0.62, 8.2, -16.9, -7.5)
-        AddAminoAcid("F"c, -2.5, 2.8, 0.61, -3.7, 13.2, 13.9)
-        AddAminoAcid("G"c, 0, -0.4, 0.16, -1, 0, -0.5)
-        AddAminoAcid("H"c, -0.5, -3.2, -0.4, 3, -3.5, 0.8)
-        AddAminoAcid("I"c, -1.8, 4.5, 0.73, -3.1, 13.9, 11.8)
-        AddAminoAcid("K"c, 3, -3.9, -1.1, 8.8, 0.1, -3.2)
-        AddAminoAcid("L"c, -1.8, 3.8, 0.53, -2.8, 8.8, 10)
-        AddAminoAcid("M"c, -1.3, 1.9, 0.26, -3.4, 4.8, 7.1)
-        AddAminoAcid("N"c, 0.2, -3.5, -0.64, 4.8, 0.8, -1.6)
-        AddAminoAcid("P"c, 0, -1.6, -0.07, 0.2, 6.1, 8)
-        AddAminoAcid("Q"c, 0.2, -3.5, -0.85, -4.1, -4.8, -2.5)
-        AddAminoAcid("R"c, 3, -4.5, -1.8, 12.3, 0.8, -4.5)
-        AddAminoAcid("S"c, 0.3, -0.8, -0.26, -0.6, 1.2, -3.7)
-        AddAminoAcid("T"c, -0.4, -0.7, -0.18, -1.2, 2.7, 1.5)
-        AddAminoAcid("V"c, -1.5, 4.2, 0.54, -2.6, 2.1, 3.3)
-        AddAminoAcid("W"c, -3.4, -0.9, 0.37, -1.9, 14.9, 18.1)
-        AddAminoAcid("Y"c, -2.3, -1.3, 0.02, 0.7, 6.1, 8.2)
+        private double CalculateHydrophobicity(string seq, HydrophobicityTypeConstants HT)
+        {
+            double runningSum = 0d;
+            int residueCount = 0;
+            var aaInfo = new AA();
+            for (int li = 1, loopTo = seq.Length; li <= loopTo; li++)
+            {
+                char residue = char.ToUpper(seq[li - 1]);
+                try
+                {
+                    if (!mAminoAcids.TryGetValue(residue, out aaInfo))
+                    {
+                        continue;
+                    }
 
-    End Sub
+                    switch (HT)
+                    {
+                        case HydrophobicityTypeConstants.HW:
+                            {
+                                runningSum += aaInfo.HW;
+                                break;
+                            }
 
+                        case HydrophobicityTypeConstants.KD:
+                            {
+                                runningSum += aaInfo.KD;
+                                break;
+                            }
 
-End Class
+                        case HydrophobicityTypeConstants.Eisenberg:
+                            {
+                                runningSum += aaInfo.Eisenberg;
+                                break;
+                            }
+
+                        case HydrophobicityTypeConstants.GES:
+                            {
+                                runningSum += aaInfo.GES;
+                                break;
+                            }
+
+                        case HydrophobicityTypeConstants.MeekPH7p4:
+                            {
+                                runningSum += aaInfo.MeekPH7p4;
+                                break;
+                            }
+
+                        case HydrophobicityTypeConstants.MeekPH2p1:
+                            {
+                                runningSum += aaInfo.MeekPH2p1;
+                                break;
+                            }
+                    }
+
+                    residueCount += 1;
+                }
+                catch (Exception ex)
+                {
+                    // Residue is not present so ignore it
+                }
+            }
+
+            if (residueCount > 0)
+            {
+                return runningSum / residueCount;
+            }
+            else
+            {
+                return 0d;
+            }
+        }
+
+        private double CalculateNp(double pH, double k, int n)
+        {
+            return n * (Math.Pow(10d, -pH) / (Math.Pow(10d, -pH) + Math.Pow(10d, -k)));
+        }
+
+        // ReSharper disable once UnusedMember.Global
+        public int CalculateSequenceChargeState(string seq, double pH)
+        {
+            int li;
+            int chargeState;
+            if (seq is null || seq.Length == 0)
+            {
+                return 0;
+            }
+
+            try
+            {
+                chargeState = 0;
+                var loopTo = seq.Length;
+                for (li = 1; li <= loopTo; li++)
+                {
+                    switch (char.ToUpper(seq[li - 1]))
+                    {
+                        case 'C':
+                            {
+                                if (Ck > pH)
+                                    chargeState += 1;
+                                break;
+                            }
+
+                        case 'D':
+                            {
+                                if (Dk > pH)
+                                    chargeState += 1;
+                                break;
+                            }
+
+                        case 'E':
+                            {
+                                if (Ek > pH)
+                                    chargeState += 1;
+                                break;
+                            }
+
+                        case 'H':
+                            {
+                                if (Hk > pH)
+                                    chargeState += 1;
+                                break;
+                            }
+
+                        case 'K':
+                            {
+                                if (Kk > pH)
+                                    chargeState += 1 + 1;
+                                break;
+                            }
+
+                        case 'R':
+                            {
+                                if (Rk > pH)
+                                    chargeState += 1;
+                                break;
+                            }
+
+                        case 'Y':
+                            {
+                                if (Yk > pH)
+                                    chargeState += 1;
+                                break;
+                            }
+                    }
+                }
+
+                if (chargeState == 0)
+                    chargeState = 1;
+            }
+            catch (Exception ex)
+            {
+                // Error occurred
+                chargeState = 1;
+            }
+
+            return chargeState;
+        }
+
+        public float CalculateSequenceHydrophobicity(string seq)
+        {
+            if (seq is null || seq.Length == 0)
+            {
+                return 0f;
+            }
+
+            try
+            {
+                if (ReportMaximumpI && seq.Length > SequenceWidthToExamineForMaximumpI)
+                {
+                    double maxHydrophobicity = 0d;
+                    for (int index = 1, loopTo = seq.Length - SequenceWidthToExamineForMaximumpI; index <= loopTo; index++)
+                    {
+                        double segmentHydrophobicity = CalculateHydrophobicity(seq.Substring(index - 1, SequenceWidthToExamineForMaximumpI), HydrophobicityType);
+                        if (segmentHydrophobicity > maxHydrophobicity)
+                            maxHydrophobicity = segmentHydrophobicity;
+                    }
+
+                    return (float)maxHydrophobicity;
+                }
+                else
+                {
+                    double hydrophobicity = CalculateHydrophobicity(seq, HydrophobicityType);
+                    return (float)hydrophobicity;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Error occurred
+                return 0f;
+            }
+        }
+
+        public float CalculateSequencepI(string seq)
+        {
+            int i;
+            int numC;
+            int numD;
+            int numE;
+            int numH;
+            int numK;
+            int numR;
+            int numY;
+            double Value;
+            double value1;
+            double pH;
+            double delta;
+            if (seq is null || seq.Length == 0)
+            {
+                return 0f;
+            }
+
+            try
+            {
+                numC = 0;
+                numD = 0;
+                numE = 0;
+                numH = 0;
+                numK = 0;
+                numR = 0;
+                numY = 0;
+                var loopTo = seq.Length;
+                for (i = 1; i <= loopTo; i++)
+                {
+                    switch (char.ToUpper(seq[i - 1]))
+                    {
+                        case 'C':
+                            {
+                                numC += 1;
+                                break;
+                            }
+
+                        case 'D':
+                            {
+                                numD += 1;
+                                break;
+                            }
+
+                        case 'E':
+                            {
+                                numE += 1;
+                                break;
+                            }
+
+                        case 'H':
+                            {
+                                numH += 1;
+                                break;
+                            }
+
+                        case 'K':
+                            {
+                                numK += 1;
+                                break;
+                            }
+
+                        case 'R':
+                            {
+                                numR += 1;
+                                break;
+                            }
+
+                        case 'Y':
+                            {
+                                numY += 1;
+                                break;
+                            }
+                    }
+                }
+
+                pH = 1d;
+                delta = 1d;
+                Value = CalculateCharge(pH, numC, numD, numE, numH, numK, numR, numY) + 1d;
+                do
+                {
+                    value1 = CalculateCharge(pH, numC, numD, numE, numH, numK, numR, numY);
+                    if (Math.Abs(value1) <= Math.Abs(Value))
+                    {
+                        Value = value1;
+                        pH += delta;
+                    }
+                    else
+                    {
+                        delta /= -10;
+                        Value = value1;
+                        pH += delta;
+                        if (Math.Abs(delta) < 0.01d)
+                            break;
+                    }
+                }
+                while (true);
+            }
+            catch (Exception ex)
+            {
+                // Error occurred
+                pH = 0d;
+            }
+
+            return (float)pH;
+        }
+
+        private void AddAminoAcid(char oneLetterSymbol, double hw, double kd, double eisenberg, double ges, double meekPH7p4, double meekPH2p1)
+        {
+            var aaInfo = new AA()
+            {
+                Symbol = Conversions.ToString(oneLetterSymbol),
+                HW = hw,
+                KD = kd,
+                Eisenberg = eisenberg,
+                GES = ges,
+                MeekPH7p4 = meekPH7p4,
+                MeekPH2p1 = meekPH2p1
+            };
+            mAminoAcids.Add(oneLetterSymbol, aaInfo);
+        }
+
+        private void InitializeLocalVariables()
+        {
+            HydrophobicityType = HydrophobicityTypeConstants.HW;
+            ReportMaximumpI = false;
+            SequenceWidthToExamineForMaximumpI = 10;
+            LoadAminoAcids();
+        }
+
+        private void LoadAminoAcids()
+        {
+            mAminoAcids.Clear();
+            AddAminoAcid('A', -0.5d, 1.8d, 0.25d, -1.6d, 0.5d, -0.1d);
+            AddAminoAcid('C', -1, 2.5d, 0.04d, -2, -6.8d, -2.2d);
+            AddAminoAcid('D', 3d, -3.5d, -0.72d, 9.2d, -8.2d, -2.8d);
+            AddAminoAcid('E', 3d, -3.5d, -0.62d, 8.2d, -16.9d, -7.5d);
+            AddAminoAcid('F', -2.5d, 2.8d, 0.61d, -3.7d, 13.2d, 13.9d);
+            AddAminoAcid('G', 0d, -0.4d, 0.16d, -1, 0d, -0.5d);
+            AddAminoAcid('H', -0.5d, -3.2d, -0.4d, 3d, -3.5d, 0.8d);
+            AddAminoAcid('I', -1.8d, 4.5d, 0.73d, -3.1d, 13.9d, 11.8d);
+            AddAminoAcid('K', 3d, -3.9d, -1.1d, 8.8d, 0.1d, -3.2d);
+            AddAminoAcid('L', -1.8d, 3.8d, 0.53d, -2.8d, 8.8d, 10d);
+            AddAminoAcid('M', -1.3d, 1.9d, 0.26d, -3.4d, 4.8d, 7.1d);
+            AddAminoAcid('N', 0.2d, -3.5d, -0.64d, 4.8d, 0.8d, -1.6d);
+            AddAminoAcid('P', 0d, -1.6d, -0.07d, 0.2d, 6.1d, 8d);
+            AddAminoAcid('Q', 0.2d, -3.5d, -0.85d, -4.1d, -4.8d, -2.5d);
+            AddAminoAcid('R', 3d, -4.5d, -1.8d, 12.3d, 0.8d, -4.5d);
+            AddAminoAcid('S', 0.3d, -0.8d, -0.26d, -0.6d, 1.2d, -3.7d);
+            AddAminoAcid('T', -0.4d, -0.7d, -0.18d, -1.2d, 2.7d, 1.5d);
+            AddAminoAcid('V', -1.5d, 4.2d, 0.54d, -2.6d, 2.1d, 3.3d);
+            AddAminoAcid('W', -3.4d, -0.9d, 0.37d, -1.9d, 14.9d, 18.1d);
+            AddAminoAcid('Y', -2.3d, -1.3d, 0.02d, 0.7d, 6.1d, 8.2d);
+        }
+    }
+}

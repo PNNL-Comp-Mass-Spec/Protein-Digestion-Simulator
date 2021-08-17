@@ -1,2205 +1,2571 @@
-﻿Option Strict On
-
-' -------------------------------------------------------------------------------
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004
-'
-' E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
-' Website: https://omics.pnl.gov/ or https://www.pnnl.gov/sysbio/ or https://panomics.pnnl.gov/
-' -------------------------------------------------------------------------------
-'
-' Licensed under the 2-Clause BSD License; you may not use this file except
-' in compliance with the License.  You may obtain a copy of the License at
-' https://opensource.org/licenses/BSD-2-Clause
-'
-' Copyright 2018 Battelle Memorial Institute
-
-Imports System.IO
-Imports System.Reflection
-Imports System.Runtime.InteropServices
-Imports System.Text
-Imports System.Threading
-Imports NETPrediction
-Imports PRISM
-Imports PRISM.FileProcessor
-Imports ProteinFileReader
-Imports ValidateFastaFile
-
-''' <summary>
-''' This class will read a protein FASTA file or delimited protein info file and parse it
-''' to create a delimited protein list output file, and optionally an in-silico digested output file
-'''
-''' It can also create a FASTA file containing reversed or scrambled sequences, and these can
-''' be based on all of the proteins in the input file, or a sampling of the proteins in the input file
-''' </summary>
-Public Class ProteinFileParser
-    Inherits ProcessFilesBase
-
-    ' Ignore Spelling: ComputepI, Cys, gi, hydrophobicity, Ile, Leu, pre, SepChar, silico, varchar
-
-    Public Sub New()
-        mFileDate = "August 6, 2021"
-        InitializeLocalVariables()
-    End Sub
-
-    Public Const XML_SECTION_OPTIONS As String = "ProteinDigestionSimulatorOptions"
-    Public Const XML_SECTION_FASTA_OPTIONS As String = "FastaInputOptions"
-    Public Const XML_SECTION_PROCESSING_OPTIONS As String = "ProcessingOptions"
-    Public Const XML_SECTION_DIGESTION_OPTIONS As String = "DigestionOptions"
-    Public Const XML_SECTION_UNIQUENESS_STATS_OPTIONS As String = "UniquenessStatsOptions"
-
-    Private Const PROTEIN_CACHE_MEMORY_RESERVE_COUNT As Integer = 500
-
-    Private Const SCRAMBLING_CACHE_LENGTH As Integer = 4000
-    Private Const PROTEIN_PREFIX_SCRAMBLED As String = "Random_"
-    Private Const PROTEIN_PREFIX_REVERSED As String = "XXX."
-
-    Private Const MAXIMUM_PROTEIN_NAME_LENGTH As Integer = 512
-
-    Private Const MAX_ABBREVIATED_FILENAME_LENGTH As Integer = 15
-
-    ' The value of 7995 is chosen because the maximum varchar() value in SQL Server is varchar(8000)
-    ' and we want to prevent truncation errors when importing protein names and descriptions into SQL Server
-    Private Const MAX_PROTEIN_DESCRIPTION_LENGTH As Integer = FastaValidator.MAX_PROTEIN_DESCRIPTION_LENGTH
-
-    ' Error codes specialized for this class
-    Public Enum ParseProteinFileErrorCodes
-        NoError = 0
-        ProteinFileParsingOptionsSectionNotFound = 1
-        ErrorReadingInputFile = 2
-        ErrorCreatingProteinOutputFile = 4
-        ErrorCreatingDigestedProteinOutputFile = 8
-        ErrorCreatingScrambledProteinOutputFile = 16
-        ErrorWritingOutputFile = 32
-        ErrorInitializingObjectVariables = 64
-        DigestProteinSequenceError = 128
-        UnspecifiedError = -1
-    End Enum
-
-    Public Enum ProteinScramblingModeConstants
-        None = 0
-        Reversed = 1
-        Randomized = 2
-    End Enum
-
-    ''' <summary>
-    ''' Column delimiter to use when processing TSV or CSV files
-    ''' </summary>
-    ''' <remarks>The GUI uses this enum</remarks>
-    Public Enum DelimiterCharConstants
-        Space = 0
-        Tab = 1
-        Comma = 2
-        ' ReSharper disable once UnusedMember.Global
-        Other = 3
-    End Enum
-
-    Public Structure AddnlRef
-        Public RefName As String                'e.g. in gi:12334  the RefName is "gi" and the RefAccession is "1234"
-        Public RefAccession As String
-    End Structure
-
-    Public Structure ProteinInfo
-        Public Name As String
-        Public AlternateNameCount As Integer
-        Public AlternateNames() As AddnlRef
-        Public Description As String
-        Public Sequence As String
-        Public SequenceHash As String                   ' Only populated if ComputeSequenceHashValues=true
-        Public Mass As Double
-        Public pI As Single
-        Public Hydrophobicity As Single
-        Public ProteinNET As Single
-        Public ProteinSCXNET As Single
-    End Structure
-
-    Private Structure FilePathInfo
-        Public ProteinInputFilePath As String
-        Public OutputFileNameBaseOverride As String
-        Public OutputFolderPath As String
-        Public ProteinOutputFilePath As String
-        Public DigestedProteinOutputFilePath As String
-    End Structure
-
-    Private Structure ScramblingResidueCache
-        Public Cache As String                          ' Cache of residues parsed; when this reaches 4000 characters, then a portion of this text is appended to ResiduesToWrite
-        Public CacheLength As Integer
-        Public SamplingPercentage As Integer
-        Public OutputCount As Integer
-        Public ResiduesToWrite As String
-    End Structure
-
-    Private mInputFileDelimiter As Char                              ' Only used for delimited protein input files, not for FASTA files
-
-    Private mInputFileProteinsProcessed As Integer
-    Private mInputFileLinesRead As Integer
-    Private mInputFileLineSkipCount As Integer
-
-    Private mOutputFileDelimiter As Char
-
-    Private mSequenceWidthToExamineForMaximumpI As Integer
-
-    Public DigestionOptions As InSilicoDigest.DigestionOptions
-
-    Public FastaFileOptions As FastaFileParseOptions
-    Private mObjectVariablesLoaded As Boolean
-    Private WithEvents mInSilicoDigest As InSilicoDigest
-    Private mpICalculator As ComputePeptideProperties
-
-    Private WithEvents mNETCalculator As ElutionTimePredictionKangas
-    Private WithEvents mSCXNETCalculator As SCXElutionTimePredictionKangas
-
-    Private mProteinCount As Integer
-    Private mProteins() As ProteinInfo
-    Private mParsedFileIsFastaFile As Boolean
-
-    Private mFileNameAbbreviated As String
-
-    Private mMasterSequencesHashTable As Hashtable
-    Private mNextUniqueIDForMasterSeqs As Integer
-
-    Private mLocalErrorCode As ParseProteinFileErrorCodes
-
-    Private mSubtaskProgressStepDescription As String = String.Empty
-    Private mSubtaskProgressPercentComplete As Single = 0
-
-    ' PercentComplete ranges from 0 to 100, but can contain decimal percentage values
-    Public Event SubtaskProgressChanged(taskDescription As String, percentComplete As Single)
-
-    Public Property AssumeDelimitedFile As Boolean
-
-    Public Property AssumeFastaFile As Boolean
-
-    Public Property ComputeNET As Boolean
-
-    Public Property ComputepI As Boolean
-
-    Public Property ComputeProteinMass As Boolean
-
-    Public Property ComputeSequenceHashValues As Boolean
-
-    Public Property ComputeSequenceHashIgnoreILDiff As Boolean
-
-    Public Property ComputeSCXNET As Boolean
-
-    ''' <summary>
-    ''' True to create a FASTA output file; false for a tab-delimited text file
-    ''' </summary>
-    ''' <value></value>
-    ''' <returns></returns>
-    ''' <remarks>Only valid if mCreateDigestedProteinOutputFile is False</remarks>
-    Public Property CreateFastaOutputFile As Boolean
-
-    ''' <summary>
-    ''' When True, then writes the proteins to a file; When false, then caches the results in memory
-    ''' </summary>
-    ''' <value></value>
-    ''' <returns></returns>
-    ''' <remarks>Use DigestProteinSequence to obtained digested peptides instead of proteins</remarks>
-    Public Property CreateProteinOutputFile As Boolean
-
-    ''' <summary>
-    ''' True to in-silico digest the proteins
-    ''' </summary>
-    ''' <value></value>
-    ''' <returns></returns>
-    ''' <remarks>Only valid if CreateProteinOutputFile is True</remarks>
-    Public Property CreateDigestedProteinOutputFile As Boolean
-
-    ''' <summary>
-    ''' When true, do not include protein description in the output file
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property ExcludeProteinDescription As Boolean
-
-    ''' <summary>
-    ''' When true, do not include protein sequence in the output file
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property ExcludeProteinSequence As Boolean
-
-    ''' <summary>
-    ''' When true, assign UniqueID values to the digested peptides (requires more memory)
-    ''' </summary>
-    ''' <value></value>
-    ''' <returns></returns>
-    ''' <remarks>Only valid if CreateDigestedProteinOutputFile is True</remarks>
-    Public Property GenerateUniqueIDValuesForPeptides As Boolean
-
-    ''' <summary>
-    ''' When true, include X residues when computing protein mass (using the mass of Ile/Leu)
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property IncludeXResiduesInMass As Boolean
-
-    ''' <summary>
-    ''' Summary of the result of processing
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property ProcessingSummary As String
-
-    ''' <summary>
-    ''' When true, report the maximum pI
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property ReportMaximumpI As Boolean
-
-    Public Property ShowDebugPrompts As Boolean
-
-    Public Property TruncateProteinDescription As Boolean
-
-    Public Property DelimitedFileFormatCode As DelimitedProteinFileReader.ProteinFileFormatCode
-
-    Public Property ElementMassMode As PeptideSequence.ElementModeConstants
-        Get
-            If mInSilicoDigest Is Nothing Then
-                Return PeptideSequence.ElementModeConstants.IsotopicMass
-            Else
-                Return mInSilicoDigest.ElementMassMode
-            End If
-        End Get
-        Set
-            If mInSilicoDigest Is Nothing Then
-                InitializeObjectVariables()
-            End If
-            mInSilicoDigest.ElementMassMode = Value
-        End Set
-    End Property
-
-    Public Property HydrophobicityType As ComputePeptideProperties.HydrophobicityTypeConstants
-
-    Public Property InputFileDelimiter As Char
-        Get
-            Return mInputFileDelimiter
-        End Get
-        Set
-            If Not Value = Nothing Then
-                mInputFileDelimiter = Value
-            End If
-        End Set
-    End Property
-
-    Public ReadOnly Property InputFileProteinsProcessed As Integer
-        Get
-            Return mInputFileProteinsProcessed
-        End Get
-    End Property
-
-    Public ReadOnly Property InputFileLinesRead As Integer
-        Get
-            Return mInputFileLinesRead
-        End Get
-    End Property
-
-    Public ReadOnly Property InputFileLineSkipCount As Integer
-        Get
-            Return mInputFileLineSkipCount
-        End Get
-    End Property
-
-    Public ReadOnly Property LocalErrorCode As ParseProteinFileErrorCodes
-        Get
-            Return mLocalErrorCode
-        End Get
-    End Property
-
-    Public Property OutputFileDelimiter As Char
-        Get
-            Return mOutputFileDelimiter
-        End Get
-        Set
-            If Not Value = Nothing Then
-                mOutputFileDelimiter = Value
-            End If
-        End Set
-    End Property
-
-    Public ReadOnly Property ParsedFileIsFastaFile As Boolean
-        Get
-            Return mParsedFileIsFastaFile
-        End Get
-    End Property
-
-    Public Property ProteinScramblingLoopCount As Integer
-
-    Public Property ProteinScramblingMode As ProteinScramblingModeConstants
-
-    Public Property ProteinScramblingSamplingPercentage As Integer
-
-    Public Property SequenceWidthToExamineForMaximumpI As Integer
-        Get
-            Return mSequenceWidthToExamineForMaximumpI
-        End Get
-        Set
-            If Value < 1 Then mSequenceWidthToExamineForMaximumpI = 1
-            mSequenceWidthToExamineForMaximumpI = Value
-        End Set
-    End Property
-
-    Private Function ComputeSequenceHydrophobicity(peptideSequence As String) As Single
-
-        ' Be sure to call InitializeObjectVariables before calling this function for the first time
-        ' Otherwise, mpICalculator will be nothing
-        If mpICalculator Is Nothing Then
-            Return 0
-        Else
-            Return mpICalculator.CalculateSequenceHydrophobicity(peptideSequence)
-        End If
-
-    End Function
-
-    Private Function ComputeSequencepI(peptideSequence As String) As Single
-
-        ' Be sure to call InitializeObjectVariables before calling this function for the first time
-        ' Otherwise, mpICalculator will be nothing
-        If mpICalculator Is Nothing Then
-            Return 0
-        Else
-            Return mpICalculator.CalculateSequencepI(peptideSequence)
-        End If
-
-    End Function
-
-    Private Function ComputeSequenceMass(peptideSequence As String) As Double
-
-        ' Be sure to call InitializeObjectVariables before calling this function for the first time
-        ' Otherwise, mInSilicoDigest will be nothing
-        If mInSilicoDigest Is Nothing Then
-            Return 0
-        Else
-            Return mInSilicoDigest.ComputeSequenceMass(peptideSequence, IncludeXResiduesInMass)
-        End If
-
-    End Function
-
-    Private Function ComputeSequenceNET(peptideSequence As String) As Single
-
-        ' Be sure to call InitializeObjectVariables before calling this function for the first time
-        ' Otherwise, mNETCalculator will be nothing
-        If mNETCalculator Is Nothing Then
-            Return 0
-        Else
-            Return mNETCalculator.GetElutionTime(peptideSequence)
-        End If
-
-    End Function
-
-    Private Function ComputeSequenceSCXNET(peptideSequence As String) As Single
-
-        ' Be sure to call InitializeObjectVariables before calling this function for the first time
-        ' Otherwise, mSCXNETCalculator will be nothing
-        If mSCXNETCalculator Is Nothing Then
-            Return 0
-        Else
-            Return mSCXNETCalculator.GetElutionTime(peptideSequence)
-        End If
-
-    End Function
-
-    ''' <summary>
-    ''' Digest the protein sequence using the given cleavage options
-    ''' </summary>
-    ''' <param name="peptideSequence"></param>
-    ''' <param name="peptideFragments"></param>
-    ''' <param name="options"></param>
-    ''' <param name="proteinName"></param>
-    ''' <returns>The number of digested peptides in peptideFragments</returns>
-    Public Function DigestProteinSequence(
-        peptideSequence As String,
-        <Out> ByRef peptideFragments As List(Of InSilicoDigest.PeptideSequenceWithNET),
-        options As InSilicoDigest.DigestionOptions,
-        Optional proteinName As String = "") As Integer
-
-        ' Make sure the object variables are initialized
-        If Not InitializeObjectVariables() Then
-            peptideFragments = New List(Of InSilicoDigest.PeptideSequenceWithNET)()
-            Return 0
-        End If
-
-        Try
-            Dim peptideCount = mInSilicoDigest.DigestSequence(peptideSequence, peptideFragments, options, ComputepI, proteinName)
-            Return peptideCount
-        Catch ex As Exception
-            SetLocalErrorCode(ParseProteinFileErrorCodes.DigestProteinSequenceError)
-            peptideFragments = New List(Of InSilicoDigest.PeptideSequenceWithNET)()
-            Return 0
-        End Try
-
-    End Function
-
-    Private Function ExtractAlternateProteinNamesFromDescription(ByRef description As String, ByRef alternateNames() As AddnlRef) As Integer
-        ' Searches in description for additional protein Ref names
-        ' description is passed ByRef since the additional protein references will be removed from it
-
-        Dim alternateNameCount = 0
-        ReDim alternateNames(0)
-
-        Try
-            Dim proteinNames = description.Split(FastaFileOptions.AddnlRefSepChar)
-
-            If proteinNames.Length > 0 Then
-                ReDim alternateNames(proteinNames.Length - 1)
-
-                For index = 0 To proteinNames.Length - 1
-                    Dim charIndex = proteinNames(index).IndexOf(FastaFileOptions.AddnlRefAccessionSepChar)
-
-                    If charIndex > 0 Then
-                        If index = proteinNames.Length - 1 Then
-                            ' Need to find the next space after charIndex and truncate proteinNames() at that location
-                            Dim spaceIndex = proteinNames(index).IndexOf(" "c, charIndex)
-                            If spaceIndex >= 0 Then
-                                proteinNames(index) = proteinNames(index).Substring(0, spaceIndex)
-                            End If
-                        End If
-
-                        If charIndex >= proteinNames(index).Length - 1 Then
-                            ' No accession after the colon; invalid entry so discard this entry and stop parsing
-                            ReDim Preserve alternateNames(index - 1)
-                            Exit For
-                        End If
-
-                        alternateNames(index).RefName = proteinNames(index).Substring(0, charIndex)
-                        alternateNames(index).RefAccession = proteinNames(index).Substring(charIndex + 1)
-                        alternateNameCount += 1
-
-                        charIndex = description.IndexOf(proteinNames(index), StringComparison.Ordinal)
-                        If charIndex >= 0 Then
-                            If charIndex + proteinNames(index).Length + 1 < description.Length Then
-                                description = description.Substring(charIndex + proteinNames(index).Length + 1)
-                            Else
-                                description = String.Empty
-                            End If
-                        Else
-                            ShowErrorMessage("This code in ExtractAlternateProteinNamesFromDescription should never be reached")
-                        End If
-                    Else
-                        Exit For
-                    End If
-                Next index
-
-            End If
-
-        Catch ex As Exception
-            ShowErrorMessage("Error parsing out additional Ref Names from the Protein Description: " & ex.Message)
-        End Try
-
-        Return alternateNameCount
-
-    End Function
-
-    Private Function FractionLowercase(proteinSequence As String) As Double
-        Dim lowerCount = 0
-        Dim upperCount = 0
-
-        For index = 0 To proteinSequence.Length - 1
-            If Char.IsLower(proteinSequence.Chars(index)) Then
-                lowerCount += 1
-            ElseIf Char.IsUpper(proteinSequence.Chars(index)) Then
-                upperCount += 1
-            End If
-        Next
-
-        If lowerCount + upperCount = 0 Then
-            Return 0
-        End If
-
-        Return lowerCount / (lowerCount + upperCount)
-
-    End Function
-
-    Public Overrides Function GetDefaultExtensionsToParse() As IList(Of String)
-        Dim extensionsToParse = New List(Of String) From {
-                ".fasta",
-                ".fasta.gz",
-                ".txt"
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+
+// -------------------------------------------------------------------------------
+// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004
+//
+// E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
+// Website: https://omics.pnl.gov/ or https://www.pnnl.gov/sysbio/ or https://panomics.pnnl.gov/
+// -------------------------------------------------------------------------------
+//
+// Licensed under the 2-Clause BSD License; you may not use this file except
+// in compliance with the License.  You may obtain a copy of the License at
+// https://opensource.org/licenses/BSD-2-Clause
+//
+// Copyright 2018 Battelle Memorial Institute
+
+using System.IO;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
+using Microsoft.VisualBasic;
+using Microsoft.VisualBasic.CompilerServices;
+using NETPrediction;
+using PRISM;
+using PRISM.FileProcessor;
+using ProteinFileReader;
+using ValidateFastaFile;
+
+namespace ProteinDigestionSimulator
+{
+    /// <summary>
+    /// This class will read a protein FASTA file or delimited protein info file and parse it
+    /// to create a delimited protein list output file, and optionally an in-silico digested output file
+    ///
+    /// It can also create a FASTA file containing reversed or scrambled sequences, and these can
+    /// be based on all of the proteins in the input file, or a sampling of the proteins in the input file
+    /// </summary>
+    public class ProteinFileParser : ProcessFilesBase
+    {
+        // Ignore Spelling: ComputepI, Cys, gi, hydrophobicity, Ile, Leu, pre, SepChar, silico, varchar
+
+        public ProteinFileParser()
+        {
+            mFileDate = "August 6, 2021";
+            InitializeLocalVariables();
+        }
+
+        public const string XML_SECTION_OPTIONS = "ProteinDigestionSimulatorOptions";
+        public const string XML_SECTION_FASTA_OPTIONS = "FastaInputOptions";
+        public const string XML_SECTION_PROCESSING_OPTIONS = "ProcessingOptions";
+        public const string XML_SECTION_DIGESTION_OPTIONS = "DigestionOptions";
+        public const string XML_SECTION_UNIQUENESS_STATS_OPTIONS = "UniquenessStatsOptions";
+        private const int PROTEIN_CACHE_MEMORY_RESERVE_COUNT = 500;
+        private const int SCRAMBLING_CACHE_LENGTH = 4000;
+        private const string PROTEIN_PREFIX_SCRAMBLED = "Random_";
+        private const string PROTEIN_PREFIX_REVERSED = "XXX.";
+        private const int MAXIMUM_PROTEIN_NAME_LENGTH = 512;
+        private const int MAX_ABBREVIATED_FILENAME_LENGTH = 15;
+
+        // The value of 7995 is chosen because the maximum varchar() value in SQL Server is varchar(8000)
+        // and we want to prevent truncation errors when importing protein names and descriptions into SQL Server
+        private const int MAX_PROTEIN_DESCRIPTION_LENGTH = FastaValidator.MAX_PROTEIN_DESCRIPTION_LENGTH;
+
+        // Error codes specialized for this class
+        public enum ParseProteinFileErrorCodes
+        {
+            NoError = 0,
+            ProteinFileParsingOptionsSectionNotFound = 1,
+            ErrorReadingInputFile = 2,
+            ErrorCreatingProteinOutputFile = 4,
+            ErrorCreatingDigestedProteinOutputFile = 8,
+            ErrorCreatingScrambledProteinOutputFile = 16,
+            ErrorWritingOutputFile = 32,
+            ErrorInitializingObjectVariables = 64,
+            DigestProteinSequenceError = 128,
+            UnspecifiedError = -1
+        }
+
+        public enum ProteinScramblingModeConstants
+        {
+            None = 0,
+            Reversed = 1,
+            Randomized = 2
+        }
+
+        /// <summary>
+        /// Column delimiter to use when processing TSV or CSV files
+        /// </summary>
+        /// <remarks>The GUI uses this enum</remarks>
+        public enum DelimiterCharConstants
+        {
+            Space = 0,
+            Tab = 1,
+            Comma = 2,
+            // ReSharper disable once UnusedMember.Global
+            Other = 3
+        }
+
+        public struct AddnlRef
+        {
+            public string RefName;                // e.g. in gi:12334  the RefName is "gi" and the RefAccession is "1234"
+            public string RefAccession;
+        }
+
+        public struct ProteinInfo
+        {
+            public string Name;
+            public int AlternateNameCount;
+            public AddnlRef[] AlternateNames;
+            public string Description;
+            public string Sequence;
+            public string SequenceHash;                   // Only populated if ComputeSequenceHashValues=true
+            public double Mass;
+            public float pI;
+            public float Hydrophobicity;
+            public float ProteinNET;
+            public float ProteinSCXNET;
+        }
+
+        private struct FilePathInfo
+        {
+            public string ProteinInputFilePath;
+            public string OutputFileNameBaseOverride;
+            public string OutputFolderPath;
+            public string ProteinOutputFilePath;
+            public string DigestedProteinOutputFilePath;
+        }
+
+        private struct ScramblingResidueCache
+        {
+            public string Cache;                          // Cache of residues parsed; when this reaches 4000 characters, then a portion of this text is appended to ResiduesToWrite
+            public int CacheLength;
+            public int SamplingPercentage;
+            public int OutputCount;
+            public string ResiduesToWrite;
+        }
+
+        private char mInputFileDelimiter;                              // Only used for delimited protein input files, not for FASTA files
+        private int mInputFileProteinsProcessed;
+        private int mInputFileLinesRead;
+        private int mInputFileLineSkipCount;
+        private char mOutputFileDelimiter;
+        private int mSequenceWidthToExamineForMaximumpI;
+        public InSilicoDigest.DigestionOptions DigestionOptions;
+        public FastaFileParseOptions FastaFileOptions;
+        private bool mObjectVariablesLoaded;
+        private InSilicoDigest _mInSilicoDigest;
+
+        private InSilicoDigest mInSilicoDigest
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _mInSilicoDigest;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_mInSilicoDigest != null)
+                {
+                    _mInSilicoDigest.ErrorEvent -= InSilicoDigest_ErrorEvent;
+                    _mInSilicoDigest.ProgressChanged -= InSilicoDigest_ProgressChanged;
+                    _mInSilicoDigest.ProgressReset -= InSilicoDigest_ProgressReset;
                 }
 
-        Return extensionsToParse
-
-    End Function
-
-    Public Overrides Function GetErrorMessage() As String
-        ' Returns "" if no error
-
-        Dim errorMessage As String
-
-        If ErrorCode = ProcessFilesErrorCodes.LocalizedError OrElse
-           ErrorCode = ProcessFilesErrorCodes.NoError Then
-            Select Case mLocalErrorCode
-                Case ParseProteinFileErrorCodes.NoError
-                    errorMessage = ""
-                Case ParseProteinFileErrorCodes.ProteinFileParsingOptionsSectionNotFound
-                    errorMessage = "The section " & XML_SECTION_OPTIONS & " was not found in the parameter file"
-
-                Case ParseProteinFileErrorCodes.ErrorReadingInputFile
-                    errorMessage = "Error reading input file"
-                Case ParseProteinFileErrorCodes.ErrorCreatingProteinOutputFile
-                    errorMessage = "Error creating parsed proteins output file"
-                Case ParseProteinFileErrorCodes.ErrorCreatingDigestedProteinOutputFile
-                    errorMessage = "Error creating digested proteins output file"
-                Case ParseProteinFileErrorCodes.ErrorCreatingScrambledProteinOutputFile
-                    errorMessage = "Error creating scrambled proteins output file"
-
-                Case ParseProteinFileErrorCodes.ErrorWritingOutputFile
-                    errorMessage = "Error writing to one of the output files"
-
-                Case ParseProteinFileErrorCodes.ErrorInitializingObjectVariables
-                    errorMessage = "Error initializing In Silico Digester class"
-
-                Case ParseProteinFileErrorCodes.DigestProteinSequenceError
-                    errorMessage = "Error in DigestProteinSequence function"
-                Case ParseProteinFileErrorCodes.UnspecifiedError
-                    errorMessage = "Unspecified localized error"
-                Case Else
-                    ' This shouldn't happen
-                    errorMessage = "Unknown error state"
-            End Select
-        Else
-            errorMessage = GetBaseClassErrorMessage()
-        End If
-
-        Return errorMessage
-
-    End Function
-
-    Public Function GetProteinCountCached() As Integer
-        Return mProteinCount
-    End Function
-
-    Public Function GetCachedProtein(index As Integer) As ProteinInfo
-        If index < mProteinCount Then
-            Return mProteins(index)
-        Else
-            Return Nothing
-        End If
-    End Function
-
-    ''' <summary>
-    '''
-    ''' </summary>
-    ''' <param name="index"></param>
-    ''' <param name="digestedPeptides"></param>
-    ''' <param name="options"></param>
-    ''' <returns>The number of peptides in digestedPeptides</returns>
-    Public Function GetDigestedPeptidesForCachedProtein(
-        index As Integer,
-        <Out> ByRef digestedPeptides As List(Of InSilicoDigest.PeptideSequenceWithNET),
-        options As InSilicoDigest.DigestionOptions) As Integer
-
-        If index < mProteinCount Then
-            Return DigestProteinSequence(mProteins(index).Sequence, digestedPeptides, options, mProteins(index).Name)
-        Else
-            digestedPeptides = New List(Of InSilicoDigest.PeptideSequenceWithNET)()
-            Return 0
-        End If
-
-    End Function
-
-    Private Sub InitializeLocalVariables()
-        mLocalErrorCode = ParseProteinFileErrorCodes.NoError
-        ShowDebugPrompts = False
-
-        AssumeDelimitedFile = False
-        AssumeFastaFile = False
-        mInputFileDelimiter = ControlChars.Tab
-        DelimitedFileFormatCode = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence
-
-        mInputFileProteinsProcessed = 0
-        mInputFileLinesRead = 0
-        mInputFileLineSkipCount = 0
-
-        mOutputFileDelimiter = ControlChars.Tab
-        ExcludeProteinSequence = False
-        ComputeProteinMass = True
-        ComputepI = True
-        ComputeNET = True
-        ComputeSCXNET = True
-
-        ComputeSequenceHashValues = False
-        ComputeSequenceHashIgnoreILDiff = True
-        TruncateProteinDescription = True
-
-        IncludeXResiduesInMass = False
-        ProteinScramblingMode = ProteinScramblingModeConstants.None
-        ProteinScramblingSamplingPercentage = 100
-        ProteinScramblingLoopCount = 1
-
-        CreateFastaOutputFile = False
-        CreateProteinOutputFile = False
-        CreateDigestedProteinOutputFile = False
-        GenerateUniqueIDValuesForPeptides = True
-
-        DigestionOptions = New InSilicoDigest.DigestionOptions
-        FastaFileOptions = New FastaFileParseOptions
-
-        ProcessingSummary = String.Empty
-
-        mProteinCount = 0
-        ReDim mProteins(0)
-
-        mFileNameAbbreviated = String.Empty
-
-        HydrophobicityType = ComputePeptideProperties.HydrophobicityTypeConstants.HW
-        ReportMaximumpI = False
-        mSequenceWidthToExamineForMaximumpI = 10
-
-    End Sub
-
-    ''' <summary>
-    ''' Examines the file's extension and returns true if it ends in .fasta or .fasta.gz
-    ''' </summary>
-    ''' <param name="filePath"></param>
-    ''' <param name="notifyErrorsWithMessageBox"></param>
-    ''' <returns></returns>
-    Public Shared Function IsFastaFile(filePath As String, Optional notifyErrorsWithMessageBox As Boolean = False) As Boolean
-
-        Try
-            If String.IsNullOrWhiteSpace(filePath) Then
-                Return False
-            End If
-
-            If Path.GetExtension(StripExtension(filePath, ".gz")).Equals(".fasta", StringComparison.OrdinalIgnoreCase) Then
-                Return True
-            Else
-                Return False
-            End If
-        Catch ex As Exception
-            If notifyErrorsWithMessageBox Then
-                MessageBox.Show("Error looking for suffix .fasta or .fasta.gz: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-            Else
-                ConsoleMsgUtils.ShowError("Error in IsFastaFile: " & ex.Message)
-            End If
-            Return False
-        End Try
-
-    End Function
-
-    Private Function InitializeObjectVariables() As Boolean
-
-        Dim errorMessage As String = String.Empty
-
-        If Not mObjectVariablesLoaded Then
-            ' Need to initialize the object variables
-
-            Try
-                mInSilicoDigest = New InSilicoDigest
-            Catch ex As Exception
-                errorMessage = "Error initializing InSilicoDigest class"
-                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables)
-            End Try
-
-            Try
-                mpICalculator = New ComputePeptideProperties
-            Catch ex As Exception
-                errorMessage = "Error initializing pI Calculation class"
-                ShowErrorMessage(errorMessage)
-                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables)
-            End Try
-
-            Try
-                mNETCalculator = New ElutionTimePredictionKangas()
-            Catch ex As Exception
-                errorMessage = "Error initializing LC NET Calculation class"
-                ShowErrorMessage(errorMessage)
-                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables)
-            End Try
-
-            Try
-                mSCXNETCalculator = New SCXElutionTimePredictionKangas()
-            Catch ex As Exception
-                errorMessage = "Error initializing SCX NET Calculation class"
-                ShowErrorMessage(errorMessage)
-                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables)
-            End Try
-
-            If errorMessage.Length > 0 Then
-                ShowErrorMessage(errorMessage)
-                mObjectVariablesLoaded = False
-            Else
-                mObjectVariablesLoaded = True
-            End If
-        End If
-
-        If mInSilicoDigest IsNot Nothing Then
-            If mpICalculator IsNot Nothing Then
-                mInSilicoDigest.InitializepICalculator(mpICalculator)
-            End If
-        End If
-
-        Return mObjectVariablesLoaded
-
-    End Function
-
-    Private Function InitializeScrambledOutput(
-      pathInfo As FilePathInfo,
-      residueCache As ScramblingResidueCache,
-      scramblingMode As ProteinScramblingModeConstants,
-      <Out> ByRef scrambledFileWriter As StreamWriter,
-      <Out> ByRef randomNumberGenerator As Random) As Boolean
-
-
-        Dim success As Boolean
-        Dim randomNumberSeed As Integer
-        Dim suffix As String
-        Dim scrambledFastaOutputFilePath As String
-
-
-        ' Wait to allow the timer to advance.
-        Thread.Sleep(1)
-        randomNumberSeed = Environment.TickCount
-
-        randomNumberGenerator = New Random(randomNumberSeed)
-
-        If scramblingMode = ProteinScramblingModeConstants.Reversed Then
-            ' Reversed FASTA file
-            suffix = "_reversed"
-            If residueCache.SamplingPercentage < 100 Then
-                suffix &= "_" & residueCache.SamplingPercentage.ToString() & "pct"
-            End If
-        Else
-            ' Scrambled FASTA file
-            suffix = "_scrambled_seed" & randomNumberSeed.ToString()
-            If residueCache.SamplingPercentage < 100 Then
-                suffix &= "_" & residueCache.SamplingPercentage.ToString() & "pct"
-            End If
-        End If
-        scrambledFastaOutputFilePath = Path.Combine(pathInfo.OutputFolderPath, Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath) & suffix & ".fasta")
-
-        ' Define the abbreviated name of the input file; used in the protein names
-        mFileNameAbbreviated = Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath)
-        If mFileNameAbbreviated.Length > MAX_ABBREVIATED_FILENAME_LENGTH Then
-            mFileNameAbbreviated = mFileNameAbbreviated.Substring(0, MAX_ABBREVIATED_FILENAME_LENGTH)
-
-            If mFileNameAbbreviated.Substring(mFileNameAbbreviated.Length - 1, 1) = "_" Then
-                mFileNameAbbreviated = mFileNameAbbreviated.Substring(0, mFileNameAbbreviated.Length - 1)
-            Else
-                If mFileNameAbbreviated.LastIndexOf("-"c) > MAX_ABBREVIATED_FILENAME_LENGTH / 3 Then
-                    mFileNameAbbreviated = mFileNameAbbreviated.Substring(0, mFileNameAbbreviated.LastIndexOf("-"c))
-                ElseIf mFileNameAbbreviated.LastIndexOf("_"c) > MAX_ABBREVIATED_FILENAME_LENGTH / 3 Then
-                    mFileNameAbbreviated = mFileNameAbbreviated.Substring(0, mFileNameAbbreviated.LastIndexOf("_"c))
-                End If
-            End If
-        End If
-
-        ' Make sure there aren't any spaces in the abbreviated filename
-        mFileNameAbbreviated = mFileNameAbbreviated.Replace(" ", "_")
-
-        Try
-            ' Open the scrambled protein output FASTA file (if required)
-            scrambledFileWriter = New StreamWriter(scrambledFastaOutputFilePath)
-            success = True
-        Catch ex As Exception
-            SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorCreatingScrambledProteinOutputFile)
-            success = False
-            scrambledFileWriter = Nothing
-        End Try
-
-        Return success
-
-    End Function
-
-    Public Function LoadParameterFileSettings(parameterFilePath As String) As Boolean
-
-        Dim settingsFile As New XmlSettingsFileAccessor()
-
-        Dim cysPeptidesOnly As Boolean
-
-        Try
-
-            If parameterFilePath Is Nothing OrElse parameterFilePath.Length = 0 Then
-                ' No parameter file specified; nothing to load
-                Return True
-            End If
-
-            If Not File.Exists(parameterFilePath) Then
-                ' See if parameterFilePath points to a file in the same directory as the application
-                parameterFilePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Path.GetFileName(parameterFilePath))
-                If Not File.Exists(parameterFilePath) Then
-                    SetBaseClassErrorCode(ProcessFilesErrorCodes.ParameterFileNotFound)
-                    Return False
-                End If
-            End If
-
-            ' Pass False to .LoadSettings() here to turn off case sensitive matching
-            If settingsFile.LoadSettings(parameterFilePath, False) Then
-                If Not settingsFile.SectionPresent(XML_SECTION_OPTIONS) Then
-                    ShowErrorMessage("The node '<section name=""" & XML_SECTION_OPTIONS & """> was not found in the parameter file: " & parameterFilePath)
-                    SetLocalErrorCode(ParseProteinFileErrorCodes.ProteinFileParsingOptionsSectionNotFound)
-                    Return False
-                Else
-                    ' ComparisonFastaFile = settingsFile.GetParam(XML_SECTION_OPTIONS, "ComparisonFastaFile", ComparisonFastaFile)
-
-                    Dim inputFileColumnDelimiterIndex = settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiterIndex", DelimiterCharConstants.Tab)
-                    Dim customInputFileColumnDelimiter = settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiter", ControlChars.Tab)
-
-                    InputFileDelimiter = LookupColumnDelimiterChar(inputFileColumnDelimiterIndex, customInputFileColumnDelimiter, InputFileDelimiter)
-
-                    DelimitedFileFormatCode = CType(settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnOrdering", DelimitedFileFormatCode), DelimitedProteinFileReader.ProteinFileFormatCode)
-
-                    Dim outputFileFieldDelimiterIndex = settingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimiterIndex", DelimiterCharConstants.Tab)
-                    Dim outputFileFieldDelimiter = settingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimiter", ControlChars.Tab)
-
-                    OutputFileDelimiter = LookupColumnDelimiterChar(outputFileFieldDelimiterIndex, outputFileFieldDelimiter, OutputFileDelimiter)
-
-                    DigestionOptions.IncludePrefixAndSuffixResidues = settingsFile.GetParam(XML_SECTION_OPTIONS, "IncludePrefixAndSuffixResidues", DigestionOptions.IncludePrefixAndSuffixResidues)
-
-                    FastaFileOptions.LookForAddnlRefInDescription = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "LookForAddnlRefInDescription", FastaFileOptions.LookForAddnlRefInDescription)
-
-                    FastaFileOptions.AddnlRefSepChar = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "AddnlRefSepChar", FastaFileOptions.AddnlRefSepChar.ToString()).Chars(0)
-                    FastaFileOptions.AddnlRefAccessionSepChar = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "AddnlRefAccessionSepChar", FastaFileOptions.AddnlRefAccessionSepChar.ToString()).Chars(0)
-
-                    ExcludeProteinSequence = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ExcludeProteinSequence", ExcludeProteinSequence)
-                    ComputeProteinMass = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeProteinMass", ComputeProteinMass)
-                    IncludeXResiduesInMass = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "IncludeXResidues", IncludeXResiduesInMass)
-                    ElementMassMode = CType(settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ElementMassMode", ElementMassMode), PeptideSequence.ElementModeConstants)
-
-                    ComputepI = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputepI", ComputepI)
-                    ComputeNET = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeNET", ComputeNET)
-                    ComputeSCXNET = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeSCX", ComputeSCXNET)
-
-                    CreateDigestedProteinOutputFile = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "DigestProteins", CreateDigestedProteinOutputFile)
-                    ProteinScramblingMode = CType(settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinReversalIndex", ProteinScramblingMode), ProteinScramblingModeConstants)
-                    ProteinScramblingLoopCount = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinScramblingLoopCount", ProteinScramblingLoopCount)
-
-                    DigestionOptions.CleavageRuleID = CType(settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CleavageRuleTypeIndex", DigestionOptions.CleavageRuleID), InSilicoDigest.CleavageRuleConstants)
-                    DigestionOptions.RemoveDuplicateSequences = Not settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "IncludeDuplicateSequences", Not DigestionOptions.RemoveDuplicateSequences)
-
-                    cysPeptidesOnly = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CysPeptidesOnly", False)
-                    If cysPeptidesOnly Then
-                        DigestionOptions.AminoAcidResidueFilterChars = New Char() {"C"c}
-                    Else
-                        DigestionOptions.AminoAcidResidueFilterChars = New Char() {}
-                    End If
-
-                    DigestionOptions.MinFragmentMass = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMinimumMass", DigestionOptions.MinFragmentMass)
-                    DigestionOptions.MaxFragmentMass = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMaximumMass", DigestionOptions.MaxFragmentMass)
-                    DigestionOptions.MinFragmentResidueCount = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMinimumResidueCount", DigestionOptions.MinFragmentResidueCount)
-                    DigestionOptions.MaxMissedCleavages = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMaximumMissedCleavages", DigestionOptions.MaxMissedCleavages)
-
-                End If
-            End If
-
-        Catch ex As Exception
-            ShowErrorMessage("Error in LoadParameterFileSettings: " & ex.Message)
-            Return False
-        End Try
-
-        Return True
-
-    End Function
-
-    Public Shared Function LookupColumnDelimiterChar(delimiterIndex As Integer, customDelimiter As String, defaultDelimiter As Char) As Char
-
-        Dim delimiter As String
-
-        Select Case delimiterIndex
-            Case DelimiterCharConstants.Space
-                delimiter = " "
-            Case DelimiterCharConstants.Tab
-                delimiter = ControlChars.Tab
-            Case DelimiterCharConstants.Comma
-                delimiter = ","
-            Case Else
-                ' Includes DelimiterCharConstants.Other
-                delimiter = String.Copy(customDelimiter)
-        End Select
-
-        If delimiter Is Nothing OrElse delimiter.Length = 0 Then
-            delimiter = String.Copy(defaultDelimiter)
-        End If
-
-        Try
-            Return delimiter.Chars(0)
-        Catch ex As Exception
-            Return ControlChars.Tab
-        End Try
-
-    End Function
-
-    Public Function ParseProteinFile(proteinInputFilePath As String, outputFolderPath As String) As Boolean
-        Return ParseProteinFile(proteinInputFilePath, outputFolderPath, String.Empty)
-    End Function
-
-    ''' <summary>
-    ''' Process the protein FASTA file or tab-delimited text file
-    ''' </summary>
-    ''' <param name="proteinInputFilePath"></param>
-    ''' <param name="outputFolderPath"></param>
-    ''' <param name="outputFileNameBaseOverride">Name for the protein output filename (auto-defined if empty)</param>
-    ''' <returns></returns>
-    Public Function ParseProteinFile(
-      proteinInputFilePath As String,
-      outputFolderPath As String,
-      outputFileNameBaseOverride As String) As Boolean
-
-        Dim proteinFileReader As ProteinFileReaderBaseClass = Nothing
-
-        Dim proteinFileWriter As StreamWriter = Nothing
-        Dim digestFileWriter As StreamWriter = Nothing
-        Dim scrambledFileWriter As StreamWriter = Nothing
-
-        Dim success As Boolean
-        Dim inputProteinFound As Boolean
-        Dim headerChecked As Boolean
-
-        Dim allowLookForAddnlRefInDescription As Boolean
-        Dim lookForAddnlRefInDescription As Boolean
-        Dim addnlRefMasterNames As SortedSet(Of String)
-
-        Dim addnlRefsToOutput() As AddnlRef = Nothing
-
-        Dim generateUniqueSequenceID As Boolean
-
-        Dim randomNumberGenerator As Random = Nothing
-
-        Dim scramblingMode As ProteinScramblingModeConstants
-        Dim residueCache = New ScramblingResidueCache()
-
-        Dim startTime As Date
-
-        ProcessingSummary = String.Empty
-
-        Dim pathInfo As FilePathInfo
-        pathInfo.ProteinInputFilePath = proteinInputFilePath
-        pathInfo.OutputFolderPath = outputFolderPath
-        pathInfo.OutputFileNameBaseOverride = outputFileNameBaseOverride
-        pathInfo.ProteinOutputFilePath = String.Empty
-        pathInfo.DigestedProteinOutputFilePath = String.Empty
-
-        Try
-
-            If String.IsNullOrWhiteSpace(pathInfo.ProteinInputFilePath) Then
-                SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidInputFilePath)
-                Return False
-            End If
-
-            ' Make sure the object variables are initialized
-            If Not InitializeObjectVariables() Then
-                success = False
-                Exit Try
-            End If
-
-            success = ParseProteinFileCreateOutputFile(pathInfo, proteinFileReader)
-
-        Catch ex As Exception
-            SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile)
-            success = False
-        End Try
-
-        ' Abort processing if we couldn't successfully open the input file
-        If Not success Then Return False
-
-        Try
-            ' Set the options for mpICalculator
-            ' Note that this will also update the pICalculator object in mInSilicoDigest
-            If mpICalculator IsNot Nothing Then
-                mpICalculator.HydrophobicityType = HydrophobicityType
-                mpICalculator.ReportMaximumpI = ReportMaximumpI
-                mpICalculator.SequenceWidthToExamineForMaximumpI = mSequenceWidthToExamineForMaximumpI
-            End If
-
-            If CreateProteinOutputFile Then
-                Try
-                    ' Open the protein output file (if required)
-                    ' This will cause an error if the input file is the same as the output file
-                    proteinFileWriter = New StreamWriter(pathInfo.ProteinOutputFilePath)
-                    success = True
-                Catch ex As Exception
-                    SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorCreatingProteinOutputFile)
-                    success = False
-                End Try
-                If Not success Then Exit Try
-            End If
-
-            If mMasterSequencesHashTable Is Nothing Then
-                mMasterSequencesHashTable = New Hashtable
-            Else
-                mMasterSequencesHashTable.Clear()
-            End If
-            mNextUniqueIDForMasterSeqs = 1
-
-            If CreateProteinOutputFile AndAlso CreateDigestedProteinOutputFile AndAlso Not CreateFastaOutputFile Then
-                success = ParseProteinFileCreateDigestedProteinOutputFile(pathInfo.DigestedProteinOutputFilePath, digestFileWriter)
-                If Not success Then Exit Try
-
-                If GenerateUniqueIDValuesForPeptides Then
-                    ' Initialize mMasterSequencesHashTable
-                    generateUniqueSequenceID = True
-                End If
-
-            End If
-
-            Dim loopCount = 1
-            If ProteinScramblingMode = ProteinScramblingModeConstants.Randomized Then
-                loopCount = ProteinScramblingLoopCount
-                If loopCount < 1 Then loopCount = 1
-                If loopCount > 10000 Then loopCount = 10000
-
-                allowLookForAddnlRefInDescription = False
-            Else
-                allowLookForAddnlRefInDescription = FastaFileOptions.LookForAddnlRefInDescription
-            End If
-
-            Dim outLine = New StringBuilder()
-
-            For loopIndex = 1 To loopCount
-
-                ' Attempt to open the input file
-                If Not proteinFileReader.OpenFile(pathInfo.ProteinInputFilePath) Then
-                    SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile)
-                    success = False
-                    Exit Try
-                End If
-
-                If CreateProteinOutputFile Then
-                    scramblingMode = ProteinScramblingMode
-                    residueCache.SamplingPercentage = ProteinScramblingSamplingPercentage
-                    If residueCache.SamplingPercentage <= 0 Then residueCache.SamplingPercentage = 100
-                    If residueCache.SamplingPercentage > 100 Then residueCache.SamplingPercentage = 100
-
-                    residueCache.Cache = String.Empty
-                    residueCache.CacheLength = SCRAMBLING_CACHE_LENGTH
-                    residueCache.OutputCount = 0
-                    residueCache.ResiduesToWrite = String.Empty
-
-                    If scramblingMode <> ProteinScramblingModeConstants.None Then
-
-                        success = InitializeScrambledOutput(pathInfo, residueCache, scramblingMode, scrambledFileWriter, randomNumberGenerator)
-                        If Not success Then Exit Try
-
-                    End If
-                Else
-                    scramblingMode = ProteinScramblingModeConstants.None
-                End If
-
-                startTime = DateTime.UtcNow
-
-                If CreateProteinOutputFile AndAlso mParsedFileIsFastaFile AndAlso allowLookForAddnlRefInDescription Then
-                    ' Need to pre-scan the FASTA file to find all of the possible additional reference values
-
-                    addnlRefMasterNames = New SortedSet(Of String)(StringComparer.CurrentCultureIgnoreCase)
-                    PreScanProteinFileForAddnlRefsInDescription(pathInfo.ProteinInputFilePath, addnlRefMasterNames)
-
-                    If addnlRefMasterNames.Count > 0 Then
-                        ' Need to extract out the key names from addnlRefMasterNames and sort them alphabetically
-                        ReDim addnlRefsToOutput(addnlRefMasterNames.Count - 1)
-                        lookForAddnlRefInDescription = True
-
-                        Dim index = 0
-                        For Each addnlRef In addnlRefMasterNames
-                            addnlRefsToOutput(index).RefName = String.Copy(addnlRef)
-                            index += 1
-                        Next
-
-                        Dim iAddnlRefComparer As New AddnlRefComparer
-                        Array.Sort(addnlRefsToOutput, iAddnlRefComparer)
-                    Else
-                        ReDim addnlRefsToOutput(0)
-                        lookForAddnlRefInDescription = False
-                    End If
-                End If
-
-                ResetProgress("Parsing protein input file")
-
-                If CreateProteinOutputFile AndAlso Not CreateFastaOutputFile Then
-                    outLine.Clear()
-
-                    ' Write the header line to the output file
-                    outLine.Append("ProteinName" & mOutputFileDelimiter)
-
-                    If lookForAddnlRefInDescription Then
-
-                        For index = 0 To addnlRefsToOutput.Length - 1
-                            outLine.Append(addnlRefsToOutput(index).RefName & mOutputFileDelimiter)
-                        Next index
-                    End If
-
-                    ' Include Description in the header line, even if we are excluding the description for all proteins
-                    outLine.Append("Description")
-
-                    If ComputeSequenceHashValues Then
-                        outLine.Append(mOutputFileDelimiter & "SequenceHash")
-                    End If
-
-                    If Not ExcludeProteinSequence Then
-                        outLine.Append(mOutputFileDelimiter & "Sequence")
-                    End If
-
-                    If ComputeProteinMass Then
-                        If ElementMassMode = PeptideSequence.ElementModeConstants.AverageMass Then
-                            outLine.Append(mOutputFileDelimiter & "Average Mass")
-                        Else
-                            outLine.Append(mOutputFileDelimiter & "Mass")
-                        End If
-                    End If
-
-                    If ComputepI Then
-                        outLine.Append(mOutputFileDelimiter & "pI" & mOutputFileDelimiter & "Hydrophobicity")
-                    End If
-
-                    If ComputeNET Then
-                        outLine.Append(mOutputFileDelimiter & "LC_NET")
-                    End If
-
-                    If ComputeSCXNET Then
-                        outLine.Append(mOutputFileDelimiter & "SCX_NET")
-                    End If
-
-                    proteinFileWriter.WriteLine(outLine.ToString())
-                End If
-
-                ' Read each protein in the input file and process appropriately
-                mProteinCount = 0
-                ReDim mProteins(PROTEIN_CACHE_MEMORY_RESERVE_COUNT)
-
-                mInputFileProteinsProcessed = 0
-                mInputFileLineSkipCount = 0
-                mInputFileLinesRead = 0
-                Do
-                    inputProteinFound = proteinFileReader.ReadNextProteinEntry()
-                    mInputFileLineSkipCount += proteinFileReader.LineSkipCount
-
-                    If Not inputProteinFound Then Continue Do
-
-                    If Not headerChecked Then
-                        If Not mParsedFileIsFastaFile Then
-                            headerChecked = True
-
-                            ' This may be a header line; possibly skip it
-                            If proteinFileReader.ProteinName.ToLower().StartsWith("protein") Then
-                                If proteinFileReader.ProteinDescription.ToLower().Contains("description") AndAlso
-                                    proteinFileReader.ProteinSequence.ToLower().Contains("sequence") Then
-                                    ' Skip this entry since it's a header line, for example:
-                                    ' ProteinName    Description    Sequence
-                                    Continue Do
-                                End If
-                            End If
-
-                            If proteinFileReader.ProteinName.ToLower().Contains("protein") AndAlso
-                               FractionLowercase(proteinFileReader.ProteinSequence) > 0.2 Then
-                                ' Skip this entry since it's a header line, for example:
-                                ' FirstProtein    ProteinDesc    Sequence
-                                Continue Do
-                            End If
-
-                        End If
-                    End If
-
-                    mInputFileProteinsProcessed += 1
-                    mInputFileLinesRead = proteinFileReader.LinesRead
-
-                    ParseProteinFileStoreProtein(proteinFileReader, lookForAddnlRefInDescription)
-
-                    If CreateProteinOutputFile Then
-                        If loopIndex = 1 Then
-
-                            If CreateFastaOutputFile Then
-                                ParseProteinFileWriteFasta(proteinFileWriter, outLine)
-                            Else
-                                ParseProteinFileWriteTextDelimited(proteinFileWriter, outLine, lookForAddnlRefInDescription, addnlRefsToOutput)
-                            End If
-
-                        End If
-
-                        If loopIndex = 1 AndAlso digestFileWriter IsNot Nothing Then
-                            ParseProteinFileWriteDigested(digestFileWriter, outLine, generateUniqueSequenceID)
-                        End If
-
-                        If scramblingMode <> ProteinScramblingModeConstants.None Then
-                            WriteScrambledFasta(scrambledFileWriter, randomNumberGenerator, mProteins(mProteinCount), scramblingMode, residueCache)
-                        End If
-
-                    Else
-                        ' Cache the proteins in memory
-                        mProteinCount += 1
-                        If mProteinCount >= mProteins.Length Then
-                            ReDim Preserve mProteins(mProteins.Length + PROTEIN_CACHE_MEMORY_RESERVE_COUNT)
-                        End If
-                    End If
-
-                    Dim percentProcessed = (loopIndex - 1) / CSng(loopCount) * 100.0! + proteinFileReader.PercentFileProcessed() / loopCount
-                    UpdateProgress(percentProcessed)
-
-                    If AbortProcessing Then Exit Do
-
-                Loop While inputProteinFound
-
-                If CreateProteinOutputFile AndAlso scramblingMode <> ProteinScramblingModeConstants.None Then
-                    ' Write out anything remaining in the cache
-
-                    Dim proteinNamePrefix As String
-                    If scramblingMode = ProteinScramblingModeConstants.Reversed Then
-                        proteinNamePrefix = PROTEIN_PREFIX_REVERSED
-                    Else
-                        proteinNamePrefix = PROTEIN_PREFIX_SCRAMBLED
-                    End If
-
-                    WriteFastaAppendToCache(scrambledFileWriter, residueCache, proteinNamePrefix, True)
-                End If
-
-                If mProteinCount > 0 Then
-                    ReDim Preserve mProteins(mProteinCount - 1)
-                Else
-                    ReDim mProteins(0)
-                End If
-
-                proteinFileReader.CloseFile()
-
-                If proteinFileWriter IsNot Nothing Then
-                    proteinFileWriter.Close()
-                End If
-
-                If digestFileWriter IsNot Nothing Then
-                    digestFileWriter.Close()
-                End If
-
-                If scrambledFileWriter IsNot Nothing Then
-                    scrambledFileWriter.Close()
-                End If
-            Next loopIndex
-
-            If ShowDebugPrompts Then
-                Dim statusMessage = String.Format("{0}{1}Elapsed time: {2:F2} seconds",
-                                                  Path.GetFileName(pathInfo.ProteinInputFilePath), ControlChars.NewLine,
-                                                  DateTime.UtcNow.Subtract(startTime).TotalSeconds)
-
-                MessageBox.Show(statusMessage, "Status", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            End If
-
-            Dim message = "Done: Processed " & mInputFileProteinsProcessed.ToString("###,##0") & " proteins (" & mInputFileLinesRead.ToString("###,###,##0") & " lines)"
-            If mInputFileLineSkipCount > 0 Then
-                message &= ControlChars.NewLine & "Note that " & mInputFileLineSkipCount.ToString("###,##0") & " lines were skipped in the input file due to having an unexpected format. "
-                If mParsedFileIsFastaFile Then
-                    message &= "This is an unexpected error for FASTA files."
-                Else
-                    message &= "Make sure that " & DelimitedFileFormatCode.ToString() & " is the appropriate format for this file (see the File Format Options tab)."
-                End If
-            End If
-
-            If loopCount > 1 Then
-                message &= ControlChars.NewLine & "Created " & loopCount.ToString() & " replicates of the scrambled output file"
-            End If
-
-            ProcessingSummary = message
-            OnStatusEvent(message)
-
-            success = True
-
-        Catch ex As Exception
-            ShowErrorMessage("Error in ParseProteinFile: " & ex.Message)
-            If CreateProteinOutputFile OrElse CreateDigestedProteinOutputFile Then
-                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorWritingOutputFile)
-                success = False
-            Else
-                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile)
-                success = False
-            End If
-        Finally
-            If proteinFileWriter IsNot Nothing Then
-                proteinFileWriter.Close()
-            End If
-            If digestFileWriter IsNot Nothing Then
-                digestFileWriter.Close()
-            End If
-            If scrambledFileWriter IsNot Nothing Then
-                scrambledFileWriter.Close()
-            End If
-        End Try
-
-        Return success
-
-    End Function
-
-    Private Sub ParseProteinFileStoreProtein(
-      proteinFileReader As ProteinFileReaderBaseClass,
-      lookForAddnlRefInDescription As Boolean)
-
-
-        mProteins(mProteinCount).Name = proteinFileReader.ProteinName
-        mProteins(mProteinCount).Description = proteinFileReader.ProteinDescription
-
-        If TruncateProteinDescription AndAlso mProteins(mProteinCount).Description.Length > MAX_PROTEIN_DESCRIPTION_LENGTH Then
-            mProteins(mProteinCount).Description = mProteins(mProteinCount).Description.Substring(0, MAX_PROTEIN_DESCRIPTION_LENGTH - 3) & "..."
-        End If
-
-        If lookForAddnlRefInDescription Then
-            ' Look for additional protein names in .Description, delimited by FastaFileOptions.AddnlRefSepChar
-            mProteins(mProteinCount).AlternateNameCount = ExtractAlternateProteinNamesFromDescription(
-                mProteins(mProteinCount).Description,
-                mProteins(mProteinCount).AlternateNames)
-        Else
-            mProteins(mProteinCount).AlternateNameCount = 0
-            ReDim mProteins(mProteinCount).AlternateNames(0)
-        End If
-
-        Dim sequence = proteinFileReader.ProteinSequence
-        mProteins(mProteinCount).Sequence = sequence
-
-        If ComputeSequenceHashIgnoreILDiff Then
-            mProteins(mProteinCount).SequenceHash = HashUtilities.ComputeStringHashSha1(sequence.Replace("L"c, "I"c)).ToUpper()
-        Else
-            mProteins(mProteinCount).SequenceHash = HashUtilities.ComputeStringHashSha1(sequence).ToUpper()
-        End If
-
-        If ComputeProteinMass Then
-            mProteins(mProteinCount).Mass = ComputeSequenceMass(sequence)
-        Else
-            mProteins(mProteinCount).Mass = 0
-        End If
-
-        If ComputepI Then
-            mProteins(mProteinCount).pI = ComputeSequencepI(sequence)
-            mProteins(mProteinCount).Hydrophobicity = ComputeSequenceHydrophobicity(sequence)
-        Else
-            mProteins(mProteinCount).pI = 0
-            mProteins(mProteinCount).Hydrophobicity = 0
-        End If
-
-        If ComputeNET Then
-            mProteins(mProteinCount).ProteinNET = ComputeSequenceNET(sequence)
-        End If
-
-        If ComputeSCXNET Then
-            mProteins(mProteinCount).ProteinSCXNET = ComputeSequenceSCXNET(sequence)
-        End If
-
-    End Sub
-
-    Private Sub ParseProteinFileWriteDigested(
-      digestFileWriter As TextWriter,
-      outLine As StringBuilder,
-      generateUniqueSequenceID As Boolean)
-
-        Dim peptideFragments As List(Of InSilicoDigest.PeptideSequenceWithNET) = Nothing
-        DigestProteinSequence(mProteins(mProteinCount).Sequence, peptideFragments, DigestionOptions, mProteins(mProteinCount).Name)
-
-        For Each peptideFragment In peptideFragments
-
-            Dim uniqueSeqID As Integer
-
-            If generateUniqueSequenceID Then
-                Try
-                    If mMasterSequencesHashTable.ContainsKey(peptideFragment.SequenceOneLetter) Then
-                        uniqueSeqID = CInt(mMasterSequencesHashTable(peptideFragment.SequenceOneLetter))
-                    Else
-                        mMasterSequencesHashTable.Add(peptideFragment.SequenceOneLetter, mNextUniqueIDForMasterSeqs)
-                        uniqueSeqID = mNextUniqueIDForMasterSeqs
-                    End If
-                    mNextUniqueIDForMasterSeqs += 1
-                Catch ex As Exception
-                    uniqueSeqID = 0
-                End Try
-            Else
-                uniqueSeqID = 0
-            End If
-
-            Dim baseSequence = peptideFragment.SequenceOneLetter
-            outLine.Clear()
-
-            If Not ExcludeProteinSequence Then
-                outLine.Append(mProteins(mProteinCount).Name & mOutputFileDelimiter)
-                If DigestionOptions.IncludePrefixAndSuffixResidues Then
-                    outLine.Append(peptideFragment.PrefixResidue & "." & baseSequence & "." & peptideFragment.SuffixResidue & mOutputFileDelimiter)
-                Else
-                    outLine.Append(baseSequence & mOutputFileDelimiter)
-                End If
-            End If
-
-            outLine.Append(uniqueSeqID.ToString() & mOutputFileDelimiter &
-                           peptideFragment.Mass & mOutputFileDelimiter &
-                           Math.Round(peptideFragment.NET, 4).ToString() & mOutputFileDelimiter &
-                           peptideFragment.PeptideName)
-
-            If ComputepI Then
-                Dim pI = ComputeSequencepI(baseSequence)
-                Dim hydrophobicity = ComputeSequenceHydrophobicity(baseSequence)
-
-                outLine.Append(mOutputFileDelimiter & pI.ToString("0.000") &
-                               mOutputFileDelimiter & hydrophobicity.ToString("0.0000"))
-            End If
-
-            If ComputeNET Then
-                Dim lcNET = ComputeSequenceNET(baseSequence)
-
-                outLine.Append(mOutputFileDelimiter & lcNET.ToString("0.0000"))
-            End If
-
-            If ComputeSCXNET Then
-                Dim scxNET = ComputeSequenceSCXNET(baseSequence)
-
-                outLine.Append(mOutputFileDelimiter & scxNET.ToString("0.0000"))
-            End If
-
-            digestFileWriter.WriteLine(outLine.ToString())
-        Next
-
-    End Sub
-
-    Private Sub ParseProteinFileWriteFasta(proteinFileWriter As TextWriter, outLine As StringBuilder)
-        ' Write the entry to the output FASTA file
-
-        If mProteins(mProteinCount).Name = "ProteinName" AndAlso
-           mProteins(mProteinCount).Description = "Description" AndAlso
-           mProteins(mProteinCount).Sequence = "Sequence" Then
-            ' Skip this entry; it's an artifact from converting from a FASTA file to a text file, then back to a FASTA file
-            Return
-        End If
-
-        outLine.Clear()
-        outLine.Append(FastaFileOptions.ProteinLineStartChar & mProteins(mProteinCount).Name)
-        If Not ExcludeProteinDescription Then
-            outLine.Append(FastaFileOptions.ProteinLineAccessionEndChar & mProteins(mProteinCount).Description)
-        End If
-        proteinFileWriter.WriteLine(outLine.ToString())
-
-        If Not ExcludeProteinSequence Then
-            Dim index = 0
-            Do While index < mProteins(mProteinCount).Sequence.Length
-                Dim length = Math.Min(60, mProteins(mProteinCount).Sequence.Length - index)
-                proteinFileWriter.WriteLine(mProteins(mProteinCount).Sequence.Substring(index, length))
-                index += 60
-            Loop
-        End If
-    End Sub
-
-    Private Sub ParseProteinFileWriteTextDelimited(
-      proteinFileWriter As TextWriter,
-      outLine As StringBuilder,
-      lookForAddnlRefInDescription As Boolean,
-      ByRef addnlRefsToOutput() As AddnlRef)
-
-        ' Write the entry to the protein output file, and possibly digest it
-
-        outLine.Clear()
-
-
-        If lookForAddnlRefInDescription Then
-            ' Reset the Accession numbers in addnlRefsToOutput
-            For index = 0 To addnlRefsToOutput.Length - 1
-                addnlRefsToOutput(index).RefAccession = String.Empty
-            Next index
-
-            ' Update the accession numbers in addnlRefsToOutput
-            For index = 0 To mProteins(mProteinCount).AlternateNameCount - 1
-                For compareIndex = 0 To addnlRefsToOutput.Length - 1
-                    If addnlRefsToOutput(compareIndex).RefName.ToUpper = mProteins(mProteinCount).AlternateNames(index).RefName.ToUpper Then
-                        addnlRefsToOutput(compareIndex).RefAccession = mProteins(mProteinCount).AlternateNames(index).RefAccession
-                        Exit For
-                    End If
-                Next compareIndex
-            Next index
-
-            outLine.Append(mProteins(mProteinCount).Name & mOutputFileDelimiter)
-            For index = 0 To addnlRefsToOutput.Length - 1
-                outLine.Append(addnlRefsToOutput(index).RefAccession & mOutputFileDelimiter)
-            Next index
-
-            If Not ExcludeProteinDescription Then
-                outLine.Append(mProteins(mProteinCount).Description)
-            End If
-
-        Else
-            outLine.Append(mProteins(mProteinCount).Name & mOutputFileDelimiter)
-            If Not ExcludeProteinDescription Then
-                outLine.Append(mProteins(mProteinCount).Description)
-            End If
-
-        End If
-
-        If ComputeSequenceHashValues Then
-            outLine.Append(mOutputFileDelimiter & mProteins(mProteinCount).SequenceHash)
-        End If
-
-        If Not ExcludeProteinSequence Then
-            outLine.Append(mOutputFileDelimiter & mProteins(mProteinCount).Sequence)
-        End If
-
-        If ComputeProteinMass Then
-            outLine.Append(mOutputFileDelimiter & Math.Round(mProteins(mProteinCount).Mass, 5).ToString())
-        End If
-
-        If ComputepI Then
-            outLine.Append(mOutputFileDelimiter & mProteins(mProteinCount).pI.ToString("0.000") &
-                           mOutputFileDelimiter & mProteins(mProteinCount).Hydrophobicity.ToString("0.0000"))
-        End If
-
-        If ComputeNET Then
-            outLine.Append(mOutputFileDelimiter & mProteins(mProteinCount).ProteinNET.ToString("0.0000"))
-        End If
-
-        If ComputeSCXNET Then
-            outLine.Append(mOutputFileDelimiter & mProteins(mProteinCount).ProteinSCXNET.ToString("0.0000"))
-        End If
-
-        proteinFileWriter.WriteLine(outLine.ToString())
-
-    End Sub
-
-    Private Function ParseProteinFileCreateOutputFile(
-      ByRef pathInfo As FilePathInfo,
-      <Out> ByRef proteinFileReader As ProteinFileReaderBaseClass) As Boolean
-
-        Dim outputFileName As String
-        Dim success As Boolean
-
-        If AssumeFastaFile OrElse IsFastaFile(pathInfo.ProteinInputFilePath, True) Then
-            If AssumeDelimitedFile Then
-                mParsedFileIsFastaFile = False
-            Else
-                mParsedFileIsFastaFile = True
-            End If
-        Else
-            mParsedFileIsFastaFile = False
-        End If
-
-        If CreateDigestedProteinOutputFile Then
-            ' Make sure mCreateFastaOutputFile is false
-            CreateFastaOutputFile = False
-        End If
-
-        If Not String.IsNullOrEmpty(pathInfo.OutputFileNameBaseOverride) Then
-            If Path.HasExtension(pathInfo.OutputFileNameBaseOverride) Then
-                outputFileName = String.Copy(pathInfo.OutputFileNameBaseOverride)
-
-                If CreateFastaOutputFile Then
-                    If Not Path.GetExtension(outputFileName).Equals(".fasta", StringComparison.OrdinalIgnoreCase) Then
-                        outputFileName &= ".fasta"
-                    End If
-                Else
-                    If Path.GetExtension(outputFileName).Length > 4 Then
-                        outputFileName &= ".txt"
-                    End If
-                End If
-            Else
-                If CreateFastaOutputFile Then
-                    outputFileName = pathInfo.OutputFileNameBaseOverride & ".fasta"
-                Else
-                    outputFileName = pathInfo.OutputFileNameBaseOverride & ".txt"
-                End If
-            End If
-        Else
-            outputFileName = String.Empty
-        End If
-
-        If mParsedFileIsFastaFile Then
-            Dim reader = New FastaFileReader()
-            proteinFileReader = reader
-        Else
-            Dim reader = New DelimitedProteinFileReader With {
-                .Delimiter = mInputFileDelimiter,
-                .DelimitedFileFormatCode = DelimitedFileFormatCode}
-            proteinFileReader = reader
-        End If
-
-        ' Verify that the input file exists
-        If Not File.Exists(pathInfo.ProteinInputFilePath) Then
-            SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidInputFilePath)
-            success = False
-            Return success
-        End If
-
-        If mParsedFileIsFastaFile Then
-            If outputFileName.Length = 0 Then
-                outputFileName = Path.GetFileName(pathInfo.ProteinInputFilePath)
-
-                If Path.GetExtension(outputFileName).Equals(".fasta", StringComparison.OrdinalIgnoreCase) Then
-                    ' Nothing special to do; will replace the extension below
-
-                ElseIf outputFileName.EndsWith(".fasta.gz", StringComparison.OrdinalIgnoreCase) Then
-                    ' Remove .gz from outputFileName
-                    outputFileName = StripExtension(outputFileName, ".gz")
-
-                Else
-                    ' .Fasta appears somewhere in the middle
-                    ' Remove the text .Fasta, then add the extension .txt (unless it already ends in .txt)
-                    Dim charIndex = outputFileName.ToLower().LastIndexOf(".fasta", StringComparison.Ordinal)
-                    If charIndex > 0 Then
-                        If charIndex < outputFileName.Length Then
-                            outputFileName = outputFileName.Substring(0, charIndex) & outputFileName.Substring(charIndex + 6)
-                        Else
-                            outputFileName = outputFileName.Substring(0, charIndex)
-                        End If
-                    Else
-                        ' This shouldn't happen
-                    End If
-                End If
-
-                If CreateFastaOutputFile Then
-                    outputFileName = Path.GetFileNameWithoutExtension(outputFileName) & "_new.fasta"
-                Else
-                    outputFileName = Path.ChangeExtension(outputFileName, ".txt")
-                End If
-            End If
-        Else
-            If outputFileName.Length = 0 Then
-                If CreateFastaOutputFile Then
-                    outputFileName = Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath) & ".fasta"
-                Else
-                    outputFileName = Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath) & "_parsed.txt"
-                End If
-            End If
-        End If
-
-        ' Make sure the output file isn't the same as the input file
-        If Path.GetFileName(pathInfo.ProteinInputFilePath).ToLower = Path.GetFileName(outputFileName).ToLower Then
-            outputFileName = Path.GetFileNameWithoutExtension(outputFileName) & "_new" & Path.GetExtension(outputFileName)
-        End If
-
-        ' Define the full path to the parsed proteins output file
-        pathInfo.ProteinOutputFilePath = Path.Combine(pathInfo.OutputFolderPath, outputFileName)
-
-        If outputFileName.EndsWith("_parsed.txt") Then
-            outputFileName = outputFileName.Substring(0, outputFileName.Length - "_parsed.txt".Length) & "_digested"
-        Else
-            outputFileName = Path.GetFileNameWithoutExtension(outputFileName) & "_digested"
-        End If
-
-        outputFileName &= "_Mass" & Math.Round(DigestionOptions.MinFragmentMass, 0).ToString() & "to" & Math.Round(DigestionOptions.MaxFragmentMass, 0).ToString()
-
-        If ComputepI AndAlso (DigestionOptions.MinIsoelectricPoint > 0 OrElse DigestionOptions.MaxIsoelectricPoint < 14) Then
-            outputFileName &= "_pI" & Math.Round(DigestionOptions.MinIsoelectricPoint, 1).ToString() & "to" & Math.Round(DigestionOptions.MaxIsoelectricPoint, 2).ToString()
-        End If
-
-        outputFileName &= ".txt"
-
-        ' Define the full path to the digested proteins output file
-        pathInfo.DigestedProteinOutputFilePath = Path.Combine(pathInfo.OutputFolderPath, outputFileName)
-
-        success = True
-        Return success
-    End Function
-
-    Private Function ParseProteinFileCreateDigestedProteinOutputFile(digestedProteinOutputFilePath As String, ByRef digestFileWriter As StreamWriter) As Boolean
-
-        Try
-            ' Create the digested protein output file
-            digestFileWriter = New StreamWriter(digestedProteinOutputFilePath)
-
-            Dim lineOut As String
-            If Not ExcludeProteinSequence Then
-                lineOut = "Protein_Name" & mOutputFileDelimiter & "Sequence" & mOutputFileDelimiter
-            Else
-                lineOut = String.Empty
-            End If
-            lineOut &= "Unique_ID" & mOutputFileDelimiter & "Monoisotopic_Mass" & mOutputFileDelimiter & "Predicted_NET" & mOutputFileDelimiter & "Tryptic_Name"
-
-            If ComputepI Then
-                lineOut &= mOutputFileDelimiter & "pI" & mOutputFileDelimiter & "Hydrophobicity"
-            End If
-
-            If ComputeNET Then
-                lineOut &= mOutputFileDelimiter & "LC_NET"
-            End If
-
-            If ComputeSCXNET Then
-                lineOut &= mOutputFileDelimiter & "SCX_NET"
-            End If
-
-            digestFileWriter.WriteLine(lineOut)
-
-            Return True
-        Catch ex As Exception
-            SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorCreatingDigestedProteinOutputFile)
-            Return False
-        End Try
-
-    End Function
-
-    Private Sub PreScanProteinFileForAddnlRefsInDescription(
-      proteinInputFilePath As String,
-      addnlRefMasterNames As ISet(Of String))
-
-        Dim reader As FastaFileReader = Nothing
-        Dim protein As ProteinInfo
-
-        Dim index As Integer
-
-        Dim success As Boolean
-        Dim inputProteinFound As Boolean
-
-        Try
-            reader = New FastaFileReader()
-
-            ' Attempt to open the input file
-            If Not reader.OpenFile(proteinInputFilePath) Then
-                success = False
-                Exit Try
-            End If
-
-            success = True
-
-        Catch ex As Exception
-            SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile)
-            success = False
-        End Try
-
-        ' Abort processing if we couldn't successfully open the input file
-        If Not success Then Return
-
-        Try
-
-            ResetProgress("Pre-reading FASTA file; looking for possible additional reference names")
-
-            ' Read each protein in the output file and process appropriately
-            Do
-                inputProteinFound = reader.ReadNextProteinEntry()
-
-                If inputProteinFound Then
-                    protein.Name = reader.ProteinName
-                    protein.Description = reader.ProteinDescription
-
-                    ' Look for additional protein names in .Description, delimited by FastaFileOptions.AddnlRefSepChar
-                    ReDim protein.AlternateNames(0)
-                    protein.AlternateNameCount = ExtractAlternateProteinNamesFromDescription(protein.Description, protein.AlternateNames)
-
-                    ' Make sure each of the names in .AlternateNames() is in addnlRefMasterNames
-                    For index = 0 To protein.AlternateNameCount - 1
-                        If Not addnlRefMasterNames.Contains(protein.AlternateNames(index).RefName) Then
-                            addnlRefMasterNames.Add(protein.AlternateNames(index).RefName)
-                        End If
-                    Next index
-
-                    UpdateProgress(reader.PercentFileProcessed())
-
-                    If AbortProcessing Then Exit Do
-                End If
-            Loop While inputProteinFound
-
-            reader.CloseFile()
-
-        Catch ex As Exception
-            SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile)
-        End Try
-
-        Return
-    End Sub
-
-    ''' <summary>
-    ''' If filePath ends with extension, remove it
-    ''' Supports multi-part extensions like .fasta.gz
-    ''' </summary>
-    ''' <param name="filePath">File name or path</param>
-    ''' <param name="extension">Extension, with or without the leading period</param>
-    ''' <returns></returns>
-    Public Shared Function StripExtension(filePath As String, extension As String) As String
-        If String.IsNullOrWhiteSpace(extension) Then
-            Return filePath
-        End If
-
-        If Not extension.StartsWith(".") Then
-            extension = "." & extension
-        End If
-
-        If Not filePath.EndsWith(extension, StringComparison.OrdinalIgnoreCase) Then
-            Return filePath
-        End If
-
-        Return filePath.Substring(0, filePath.Length - extension.Length)
-    End Function
-
-    Private Function ValidateProteinName(proteinName As String, maximumLength As Integer) As String
-        Dim sepChars = New Char() {" "c, ","c, ";"c, ":"c, "_"c, "-"c, "|"c, "/"c}
-
-        If maximumLength < 1 Then maximumLength = 1
-
-        If proteinName Is Nothing Then
-            proteinName = String.Empty
-        Else
-            If proteinName.Length > maximumLength Then
-                ' Truncate protein name to maximum length
-                proteinName = proteinName.Substring(0, maximumLength)
-
-                ' Make sure the protein name doesn't end in a space, dash, underscore, semicolon, colon, etc.
-                proteinName = proteinName.TrimEnd(sepChars)
-            End If
-        End If
-
-        Return proteinName
-
-    End Function
-
-    Private Sub WriteFastaAppendToCache(scrambledFileWriter As TextWriter, ByRef residueCache As ScramblingResidueCache, proteinNamePrefix As String, flushResiduesToWrite As Boolean)
-
-        Dim residueCount As Integer
-        Dim residuesToAppend As Integer
-
-        If residueCache.Cache.Length > 0 Then
-            residueCount = CInt(Math.Round(residueCache.Cache.Length * residueCache.SamplingPercentage / 100.0, 0))
-            If residueCount < 1 Then residueCount = 1
-            If residueCount > residueCache.Cache.Length Then residueCount = residueCache.Cache.Length
-
-            Do While residueCount > 0
-                If residueCache.ResiduesToWrite.Length + residueCount <= residueCache.CacheLength Then
-                    residueCache.ResiduesToWrite &= residueCache.Cache.Substring(0, residueCount)
-                    residueCache.Cache = String.Empty
-                    residueCount = 0
-                Else
-                    residuesToAppend = residueCache.CacheLength - residueCache.ResiduesToWrite.Length
-                    residueCache.ResiduesToWrite &= residueCache.Cache.Substring(0, residuesToAppend)
-                    residueCache.Cache = residueCache.Cache.Substring(residuesToAppend)
-                    residueCount -= residuesToAppend
-                End If
-
-                If residueCache.ResiduesToWrite.Length >= residueCache.CacheLength Then
-                    ' Write out .ResiduesToWrite
-                    WriteFastaEmptyCache(scrambledFileWriter, residueCache, proteinNamePrefix, residueCache.SamplingPercentage)
-                End If
-
-            Loop
-
-        End If
-
-        If flushResiduesToWrite AndAlso residueCache.ResiduesToWrite.Length > 0 Then
-            WriteFastaEmptyCache(scrambledFileWriter, residueCache, proteinNamePrefix, residueCache.SamplingPercentage)
-        End If
-
-    End Sub
-
-    Private Sub WriteFastaEmptyCache(scrambledFileWriter As TextWriter, ByRef residueCache As ScramblingResidueCache, proteinNamePrefix As String, samplingPercentage As Integer)
-        Dim proteinName As String
-        Dim headerLine As String
-
-        If residueCache.ResiduesToWrite.Length > 0 Then
-            residueCache.OutputCount += 1
-
-            proteinName = proteinNamePrefix & mFileNameAbbreviated
-
-            If samplingPercentage < 100 Then
-                proteinName = ValidateProteinName(proteinName, MAXIMUM_PROTEIN_NAME_LENGTH - 7 - Math.Max(5, residueCache.OutputCount.ToString.Length))
-            Else
-                proteinName = ValidateProteinName(proteinName, MAXIMUM_PROTEIN_NAME_LENGTH - 1 - Math.Max(5, residueCache.OutputCount.ToString.Length))
-            End If
-
-            If samplingPercentage < 100 Then
-                proteinName &= "_" & samplingPercentage.ToString() & "pct" & "_"
-            Else
-                proteinName &= proteinName & "_"
-            End If
-
-            proteinName &= residueCache.OutputCount.ToString()
-
-            headerLine = FastaFileOptions.ProteinLineStartChar & proteinName & FastaFileOptions.ProteinLineAccessionEndChar & proteinName
-
-            WriteFastaProteinAndResidues(scrambledFileWriter, headerLine, residueCache.ResiduesToWrite)
-            residueCache.ResiduesToWrite = String.Empty
-        End If
-
-    End Sub
-
-    Private Sub WriteFastaProteinAndResidues(scrambledFileWriter As TextWriter, headerLine As String, sequence As String)
-        scrambledFileWriter.WriteLine(headerLine)
-        Do While sequence.Length > 0
-            If sequence.Length >= 60 Then
-                scrambledFileWriter.WriteLine(sequence.Substring(0, 60))
-                sequence = sequence.Substring(60)
-            Else
-                scrambledFileWriter.WriteLine(sequence)
-                sequence = String.Empty
-            End If
-        Loop
-    End Sub
-
-    Private Sub WriteScrambledFasta(scrambledFileWriter As TextWriter, ByRef randomNumberGenerator As Random, protein As ProteinInfo, scramblingMode As ProteinScramblingModeConstants, ByRef residueCache As ScramblingResidueCache)
-
-        Dim sequence As String
-        Dim scrambledSequence As String
-        Dim headerLine As String
-
-        Dim proteinNamePrefix As String
-        Dim proteinName As String
-
-        Dim index As Integer
-        Dim residueCount As Integer
-
-        If scramblingMode = ProteinScramblingModeConstants.Reversed Then
-            proteinNamePrefix = PROTEIN_PREFIX_REVERSED
-            scrambledSequence = StrReverse(protein.Sequence)
-        Else
-            proteinNamePrefix = PROTEIN_PREFIX_SCRAMBLED
-
-            scrambledSequence = String.Empty
-
-            sequence = String.Copy(protein.Sequence)
-            residueCount = sequence.Length
-
-            Do While residueCount > 0
-                If residueCount <> sequence.Length Then
-                    ShowErrorMessage("Assertion failed in WriteScrambledFasta: residueCount should equal sequence.Length: " & residueCount & " vs. " & sequence.Length)
-                End If
-
-                ' Randomly extract residues from sequence
-                index = randomNumberGenerator.Next(residueCount)
-
-                scrambledSequence &= sequence.Substring(index, 1)
-
-                If index > 0 Then
-                    If index < sequence.Length - 1 Then
-                        sequence = sequence.Substring(0, index) & sequence.Substring(index + 1)
-                    Else
-                        sequence = sequence.Substring(0, index)
-                    End If
-                Else
-                    sequence = sequence.Substring(index + 1)
-                End If
-                residueCount -= 1
-            Loop
-
-        End If
-
-        If residueCache.SamplingPercentage >= 100 Then
-            proteinName = ValidateProteinName(proteinNamePrefix & protein.Name, MAXIMUM_PROTEIN_NAME_LENGTH)
-            headerLine = FastaFileOptions.ProteinLineStartChar & proteinName & FastaFileOptions.ProteinLineAccessionEndChar & protein.Description
-
-            WriteFastaProteinAndResidues(scrambledFileWriter, headerLine, scrambledSequence)
-        Else
-            ' Writing a sampling of the residues to the output file
-
-            Do While scrambledSequence.Length > 0
-                ' Append to the cache
-                If residueCache.Cache.Length + scrambledSequence.Length <= residueCache.CacheLength Then
-                    residueCache.Cache &= scrambledSequence
-                    scrambledSequence = String.Empty
-                Else
-                    residueCount = residueCache.CacheLength - residueCache.Cache.Length
-                    residueCache.Cache &= scrambledSequence.Substring(0, residueCount)
-                    scrambledSequence = scrambledSequence.Substring(residueCount)
-                End If
-
-                If residueCache.Cache.Length >= residueCache.CacheLength Then
-                    ' Write out a portion of the cache
-                    WriteFastaAppendToCache(scrambledFileWriter, residueCache, proteinNamePrefix, False)
-                End If
-            Loop
-
-        End If
-
-    End Sub
-
-    ''' <summary>
-    ''' Main processing function -- Calls ParseProteinFile
-    ''' </summary>
-    ''' <param name="inputFilePath"></param>
-    ''' <param name="outputFolderPath"></param>
-    ''' <param name="parameterFilePath"></param>
-    ''' <param name="resetErrorCode"></param>
-    ''' <returns></returns>
-    Public Overloads Overrides Function ProcessFile(inputFilePath As String, outputFolderPath As String, parameterFilePath As String, resetErrorCode As Boolean) As Boolean
-        ' Returns True if success, False if failure
-
-        Dim inputFile As FileInfo
-        Dim inputFilePathFull As String
-        Dim statusMessage As String
-
-        Dim success As Boolean
-
-        If resetErrorCode Then
-            SetLocalErrorCode(ParseProteinFileErrorCodes.NoError)
-        End If
-
-        If Not LoadParameterFileSettings(parameterFilePath) Then
-            statusMessage = "Parameter file load error: " & parameterFilePath
-            ShowErrorMessage(statusMessage)
-            If ErrorCode = ProcessFilesErrorCodes.NoError Then
-                SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidParameterFile)
-            End If
-            Return False
-        End If
-
-        Try
-            If inputFilePath Is Nothing OrElse inputFilePath.Length = 0 Then
-                ShowErrorMessage("Input file name is empty")
-                SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidInputFilePath)
-            Else
-
-                Console.WriteLine()
-                ShowMessage("Parsing " & Path.GetFileName(inputFilePath))
-
-                If Not CleanupFilePaths(inputFilePath, outputFolderPath) Then
-                    SetBaseClassErrorCode(ProcessFilesErrorCodes.FilePathError)
-                Else
-                    Try
-                        ' Obtain the full path to the input file
-                        inputFile = New FileInfo(inputFilePath)
-                        inputFilePathFull = inputFile.FullName
-
-                        success = ParseProteinFile(inputFilePathFull, outputFolderPath)
-
-                    Catch ex As Exception
-                        Throw New Exception("Error calling ParseProteinFile", ex)
-                    End Try
-                End If
-            End If
-        Catch ex As Exception
-            Throw New Exception("Error in ProcessFile", ex)
-        End Try
-
-        Return success
-
-    End Function
-
-    Private Sub SetLocalErrorCode(newErrorCode As ParseProteinFileErrorCodes)
-        SetLocalErrorCode(newErrorCode, False)
-    End Sub
-
-    Private Sub SetLocalErrorCode(newErrorCode As ParseProteinFileErrorCodes, leaveExistingErrorCodeUnchanged As Boolean)
-
-        If leaveExistingErrorCodeUnchanged AndAlso mLocalErrorCode <> ParseProteinFileErrorCodes.NoError Then
-            ' An error code is already defined; do not change it
-        Else
-            mLocalErrorCode = newErrorCode
-
-            If newErrorCode = ParseProteinFileErrorCodes.NoError Then
-                If ErrorCode = ProcessFilesErrorCodes.LocalizedError Then
-                    SetBaseClassErrorCode(ProcessFilesErrorCodes.NoError)
-                End If
-            Else
-                SetBaseClassErrorCode(ProcessFilesErrorCodes.LocalizedError)
-            End If
-        End If
-
-    End Sub
-
-    Protected Sub UpdateSubtaskProgress(description As String)
-        UpdateProgress(description, mProgressPercentComplete)
-    End Sub
-
-    Protected Sub UpdateSubtaskProgress(percentComplete As Single)
-        UpdateProgress(ProgressStepDescription, percentComplete)
-    End Sub
-
-    Protected Sub UpdateSubtaskProgress(description As String, percentComplete As Single)
-        Dim descriptionChanged = description <> mSubtaskProgressStepDescription
-
-        mSubtaskProgressStepDescription = String.Copy(description)
-        If percentComplete < 0 Then
-            percentComplete = 0
-        ElseIf percentComplete > 100 Then
-            percentComplete = 100
-        End If
-        mSubtaskProgressPercentComplete = percentComplete
-
-        If descriptionChanged Then
-            If Math.Abs(mSubtaskProgressPercentComplete - 0) < Single.Epsilon Then
-                LogMessage(mSubtaskProgressStepDescription.Replace(ControlChars.NewLine, "; "))
-            Else
-                LogMessage(mSubtaskProgressStepDescription & " (" & mSubtaskProgressPercentComplete.ToString("0.0") & "% complete)".Replace(ControlChars.NewLine, "; "))
-            End If
-        End If
-
-        RaiseEvent SubtaskProgressChanged(description, percentComplete)
-
-    End Sub
-
-    ' IComparer class to allow comparison of additional protein references
-    Private Class AddnlRefComparer
-        Implements IComparer(Of AddnlRef)
-
-        Public Function Compare(x As AddnlRef, y As AddnlRef) As Integer Implements IComparer(Of AddnlRef).Compare
-
-            If x.RefName > y.RefName Then
-                Return 1
-            ElseIf x.RefName < y.RefName Then
-                Return -1
-            Else
-                If x.RefAccession > y.RefAccession Then
-                    Return 1
-                ElseIf x.RefAccession < y.RefAccession Then
-                    Return -1
-                Else
-                    Return 0
-                End If
-            End If
-
-        End Function
-
-    End Class
-
-    ' Options class
-    Public Class FastaFileParseOptions
-
-        Public Sub New()
-            ProteinLineStartChar = ">"c
-            ProteinLineAccessionEndChar = " "c
-
-            mLookForAddnlRefInDescription = False
-            mAddnlRefSepChar = "|"c
-            mAddnlRefAccessionSepChar = ":"c
-        End Sub
-
-        Private mReadonly As Boolean
-
-        Private mLookForAddnlRefInDescription As Boolean
-
-        Private mAddnlRefSepChar As Char
-        Private mAddnlRefAccessionSepChar As Char
-
-        Public Property ReadonlyClass As Boolean
-            Get
-                Return mReadonly
-            End Get
-            Set
-                If Not mReadonly Then
-                    mReadonly = Value
-                End If
-            End Set
-        End Property
-
-        Public ReadOnly Property ProteinLineStartChar As Char = ">"c
-
-        Public ReadOnly Property ProteinLineAccessionEndChar As Char = " "c
-
-        Public Property LookForAddnlRefInDescription As Boolean
-            Get
-                Return mLookForAddnlRefInDescription
-            End Get
-            Set
-                If Not mReadonly Then
-                    mLookForAddnlRefInDescription = Value
-                End If
-            End Set
-        End Property
-
-        Public Property AddnlRefSepChar As Char
-            Get
-                Return mAddnlRefSepChar
-            End Get
-            Set
-                If Not Value = Nothing AndAlso Not mReadonly Then
-                    mAddnlRefSepChar = Value
-                End If
-            End Set
-        End Property
-
-        Public Property AddnlRefAccessionSepChar As Char
-            Get
-                Return mAddnlRefAccessionSepChar
-            End Get
-            Set
-                If Not Value = Nothing AndAlso Not mReadonly Then
-                    mAddnlRefAccessionSepChar = Value
-                End If
-            End Set
-        End Property
-
-    End Class
-
-    Private Sub InSilicoDigest_ErrorEvent(message As String) Handles mInSilicoDigest.ErrorEvent
-        ShowErrorMessage("Error in mInSilicoDigest: " & message)
-    End Sub
-
-    Private Sub InSilicoDigest_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mInSilicoDigest.ProgressChanged
-        UpdateSubtaskProgress(taskDescription, percentComplete)
-    End Sub
-
-    Private Sub InSilicoDigest_ProgressReset() Handles mInSilicoDigest.ProgressReset
-        ' Don't do anything with this event
-    End Sub
-
-    Private Sub NETCalculator_ErrorEvent(message As String) Handles mNETCalculator.ErrorEvent
-        ShowErrorMessage(message)
-    End Sub
-
-    Private Sub SCXNETCalculator_ErrorEvent(message As String) Handles mSCXNETCalculator.ErrorEvent
-        ShowErrorMessage(message)
-    End Sub
-
-End Class
+                _mInSilicoDigest = value;
+                if (_mInSilicoDigest != null)
+                {
+                    _mInSilicoDigest.ErrorEvent += InSilicoDigest_ErrorEvent;
+                    _mInSilicoDigest.ProgressChanged += InSilicoDigest_ProgressChanged;
+                    _mInSilicoDigest.ProgressReset += InSilicoDigest_ProgressReset;
+                }
+            }
+        }
+
+        private ComputePeptideProperties mpICalculator;
+        private ElutionTimePredictionKangas _mNETCalculator;
+
+        private ElutionTimePredictionKangas mNETCalculator
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _mNETCalculator;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_mNETCalculator != null)
+                {
+                    _mNETCalculator.ErrorEvent -= NETCalculator_ErrorEvent;
+                }
+
+                _mNETCalculator = value;
+                if (_mNETCalculator != null)
+                {
+                    _mNETCalculator.ErrorEvent += NETCalculator_ErrorEvent;
+                }
+            }
+        }
+
+        private SCXElutionTimePredictionKangas _mSCXNETCalculator;
+
+        private SCXElutionTimePredictionKangas mSCXNETCalculator
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _mSCXNETCalculator;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_mSCXNETCalculator != null)
+                {
+                    _mSCXNETCalculator.ErrorEvent -= SCXNETCalculator_ErrorEvent;
+                }
+
+                _mSCXNETCalculator = value;
+                if (_mSCXNETCalculator != null)
+                {
+                    _mSCXNETCalculator.ErrorEvent += SCXNETCalculator_ErrorEvent;
+                }
+            }
+        }
+
+        private int mProteinCount;
+        private ProteinInfo[] mProteins;
+        private bool mParsedFileIsFastaFile;
+        private string mFileNameAbbreviated;
+        private Hashtable mMasterSequencesHashTable;
+        private int mNextUniqueIDForMasterSeqs;
+        private ParseProteinFileErrorCodes mLocalErrorCode;
+        private string mSubtaskProgressStepDescription = string.Empty;
+        private float mSubtaskProgressPercentComplete = 0f;
+
+        // PercentComplete ranges from 0 to 100, but can contain decimal percentage values
+        public event SubtaskProgressChangedEventHandler SubtaskProgressChanged;
+
+        public delegate void SubtaskProgressChangedEventHandler(string taskDescription, float percentComplete);
+
+        public bool AssumeDelimitedFile { get; set; }
+        public bool AssumeFastaFile { get; set; }
+        public bool ComputeNET { get; set; }
+        public bool ComputepI { get; set; }
+        public bool ComputeProteinMass { get; set; }
+        public bool ComputeSequenceHashValues { get; set; }
+        public bool ComputeSequenceHashIgnoreILDiff { get; set; }
+        public bool ComputeSCXNET { get; set; }
+
+        /// <summary>
+        /// True to create a FASTA output file; false for a tab-delimited text file
+        /// </summary>
+        /// <value></value>
+        /// <returns></returns>
+        /// <remarks>Only valid if mCreateDigestedProteinOutputFile is False</remarks>
+        public bool CreateFastaOutputFile { get; set; }
+
+        /// <summary>
+        /// When True, then writes the proteins to a file; When false, then caches the results in memory
+        /// </summary>
+        /// <value></value>
+        /// <returns></returns>
+        /// <remarks>Use DigestProteinSequence to obtained digested peptides instead of proteins</remarks>
+        public bool CreateProteinOutputFile { get; set; }
+
+        /// <summary>
+        /// True to in-silico digest the proteins
+        /// </summary>
+        /// <value></value>
+        /// <returns></returns>
+        /// <remarks>Only valid if CreateProteinOutputFile is True</remarks>
+        public bool CreateDigestedProteinOutputFile { get; set; }
+
+        /// <summary>
+        /// When true, do not include protein description in the output file
+        /// </summary>
+        /// <returns></returns>
+        public bool ExcludeProteinDescription { get; set; }
+
+        /// <summary>
+        /// When true, do not include protein sequence in the output file
+        /// </summary>
+        /// <returns></returns>
+        public bool ExcludeProteinSequence { get; set; }
+
+        /// <summary>
+        /// When true, assign UniqueID values to the digested peptides (requires more memory)
+        /// </summary>
+        /// <value></value>
+        /// <returns></returns>
+        /// <remarks>Only valid if CreateDigestedProteinOutputFile is True</remarks>
+        public bool GenerateUniqueIDValuesForPeptides { get; set; }
+
+        /// <summary>
+        /// When true, include X residues when computing protein mass (using the mass of Ile/Leu)
+        /// </summary>
+        /// <returns></returns>
+        public bool IncludeXResiduesInMass { get; set; }
+
+        /// <summary>
+        /// Summary of the result of processing
+        /// </summary>
+        /// <returns></returns>
+        public string ProcessingSummary { get; set; }
+
+        /// <summary>
+        /// When true, report the maximum pI
+        /// </summary>
+        /// <returns></returns>
+        public bool ReportMaximumpI { get; set; }
+        public bool ShowDebugPrompts { get; set; }
+        public bool TruncateProteinDescription { get; set; }
+        public DelimitedProteinFileReader.ProteinFileFormatCode DelimitedFileFormatCode { get; set; }
+
+        public PeptideSequence.ElementModeConstants ElementMassMode
+        {
+            get
+            {
+                if (mInSilicoDigest is null)
+                {
+                    return PeptideSequence.ElementModeConstants.IsotopicMass;
+                }
+                else
+                {
+                    return mInSilicoDigest.ElementMassMode;
+                }
+            }
+
+            set
+            {
+                if (mInSilicoDigest is null)
+                {
+                    InitializeObjectVariables();
+                }
+
+                mInSilicoDigest.ElementMassMode = value;
+            }
+        }
+
+        public ComputePeptideProperties.HydrophobicityTypeConstants HydrophobicityType { get; set; }
+
+        public char InputFileDelimiter
+        {
+            get
+            {
+                return mInputFileDelimiter;
+            }
+
+            set
+            {
+                if (value != default)
+                {
+                    mInputFileDelimiter = value;
+                }
+            }
+        }
+
+        public int InputFileProteinsProcessed
+        {
+            get
+            {
+                return mInputFileProteinsProcessed;
+            }
+        }
+
+        public int InputFileLinesRead
+        {
+            get
+            {
+                return mInputFileLinesRead;
+            }
+        }
+
+        public int InputFileLineSkipCount
+        {
+            get
+            {
+                return mInputFileLineSkipCount;
+            }
+        }
+
+        public ParseProteinFileErrorCodes LocalErrorCode
+        {
+            get
+            {
+                return mLocalErrorCode;
+            }
+        }
+
+        public char OutputFileDelimiter
+        {
+            get
+            {
+                return mOutputFileDelimiter;
+            }
+
+            set
+            {
+                if (value != default)
+                {
+                    mOutputFileDelimiter = value;
+                }
+            }
+        }
+
+        public bool ParsedFileIsFastaFile
+        {
+            get
+            {
+                return mParsedFileIsFastaFile;
+            }
+        }
+
+        public int ProteinScramblingLoopCount { get; set; }
+        public ProteinScramblingModeConstants ProteinScramblingMode { get; set; }
+        public int ProteinScramblingSamplingPercentage { get; set; }
+
+        public int SequenceWidthToExamineForMaximumpI
+        {
+            get
+            {
+                return mSequenceWidthToExamineForMaximumpI;
+            }
+
+            set
+            {
+                if (value < 1)
+                    mSequenceWidthToExamineForMaximumpI = 1;
+                mSequenceWidthToExamineForMaximumpI = value;
+            }
+        }
+
+        private float ComputeSequenceHydrophobicity(string peptideSequence)
+        {
+            // Be sure to call InitializeObjectVariables before calling this function for the first time
+            // Otherwise, mpICalculator will be nothing
+            if (mpICalculator is null)
+            {
+                return 0f;
+            }
+            else
+            {
+                return mpICalculator.CalculateSequenceHydrophobicity(peptideSequence);
+            }
+        }
+
+        private float ComputeSequencepI(string peptideSequence)
+        {
+            // Be sure to call InitializeObjectVariables before calling this function for the first time
+            // Otherwise, mpICalculator will be nothing
+            if (mpICalculator is null)
+            {
+                return 0f;
+            }
+            else
+            {
+                return mpICalculator.CalculateSequencepI(peptideSequence);
+            }
+        }
+
+        private double ComputeSequenceMass(string peptideSequence)
+        {
+            // Be sure to call InitializeObjectVariables before calling this function for the first time
+            // Otherwise, mInSilicoDigest will be nothing
+            if (mInSilicoDigest is null)
+            {
+                return 0d;
+            }
+            else
+            {
+                return mInSilicoDigest.ComputeSequenceMass(peptideSequence, IncludeXResiduesInMass);
+            }
+        }
+
+        private float ComputeSequenceNET(string peptideSequence)
+        {
+            // Be sure to call InitializeObjectVariables before calling this function for the first time
+            // Otherwise, mNETCalculator will be nothing
+            if (mNETCalculator is null)
+            {
+                return 0f;
+            }
+            else
+            {
+                return mNETCalculator.GetElutionTime(peptideSequence);
+            }
+        }
+
+        private float ComputeSequenceSCXNET(string peptideSequence)
+        {
+            // Be sure to call InitializeObjectVariables before calling this function for the first time
+            // Otherwise, mSCXNETCalculator will be nothing
+            if (mSCXNETCalculator is null)
+            {
+                return 0f;
+            }
+            else
+            {
+                return mSCXNETCalculator.GetElutionTime(peptideSequence);
+            }
+        }
+
+        /// <summary>
+        /// Digest the protein sequence using the given cleavage options
+        /// </summary>
+        /// <param name="peptideSequence"></param>
+        /// <param name="peptideFragments"></param>
+        /// <param name="options"></param>
+        /// <param name="proteinName"></param>
+        /// <returns>The number of digested peptides in peptideFragments</returns>
+        public int DigestProteinSequence(string peptideSequence, out List<InSilicoDigest.PeptideSequenceWithNET> peptideFragments, InSilicoDigest.DigestionOptions options, string proteinName = "")
+        {
+            // Make sure the object variables are initialized
+            if (!InitializeObjectVariables())
+            {
+                peptideFragments = new List<InSilicoDigest.PeptideSequenceWithNET>();
+                return 0;
+            }
+
+            try
+            {
+                int peptideCount = mInSilicoDigest.DigestSequence(peptideSequence, out peptideFragments, options, ComputepI, proteinName);
+                return peptideCount;
+            }
+            catch (Exception ex)
+            {
+                SetLocalErrorCode(ParseProteinFileErrorCodes.DigestProteinSequenceError);
+                peptideFragments = new List<InSilicoDigest.PeptideSequenceWithNET>();
+                return 0;
+            }
+        }
+
+        private int ExtractAlternateProteinNamesFromDescription(ref string description, ref AddnlRef[] alternateNames)
+        {
+            // Searches in description for additional protein Ref names
+            // description is passed ByRef since the additional protein references will be removed from it
+
+            int alternateNameCount = 0;
+            alternateNames = new AddnlRef[1];
+            try
+            {
+                var proteinNames = description.Split(FastaFileOptions.AddnlRefSepChar);
+                if (proteinNames.Length > 0)
+                {
+                    alternateNames = new AddnlRef[proteinNames.Length];
+                    for (int index = 0, loopTo = proteinNames.Length - 1; index <= loopTo; index++)
+                    {
+                        int charIndex = proteinNames[index].IndexOf(FastaFileOptions.AddnlRefAccessionSepChar);
+                        if (charIndex > 0)
+                        {
+                            if (index == proteinNames.Length - 1)
+                            {
+                                // Need to find the next space after charIndex and truncate proteinNames() at that location
+                                int spaceIndex = proteinNames[index].IndexOf(' ', charIndex);
+                                if (spaceIndex >= 0)
+                                {
+                                    proteinNames[index] = proteinNames[index].Substring(0, spaceIndex);
+                                }
+                            }
+
+                            if (charIndex >= proteinNames[index].Length - 1)
+                            {
+                                // No accession after the colon; invalid entry so discard this entry and stop parsing
+                                Array.Resize(ref alternateNames, index);
+                                break;
+                            }
+
+                            alternateNames[index].RefName = proteinNames[index].Substring(0, charIndex);
+                            alternateNames[index].RefAccession = proteinNames[index].Substring(charIndex + 1);
+                            alternateNameCount += 1;
+                            charIndex = description.IndexOf(proteinNames[index], StringComparison.Ordinal);
+                            if (charIndex >= 0)
+                            {
+                                if (charIndex + proteinNames[index].Length + 1 < description.Length)
+                                {
+                                    description = description.Substring(charIndex + proteinNames[index].Length + 1);
+                                }
+                                else
+                                {
+                                    description = string.Empty;
+                                }
+                            }
+                            else
+                            {
+                                ShowErrorMessage("This code in ExtractAlternateProteinNamesFromDescription should never be reached");
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Error parsing out additional Ref Names from the Protein Description: " + ex.Message);
+            }
+
+            return alternateNameCount;
+        }
+
+        private double FractionLowercase(string proteinSequence)
+        {
+            int lowerCount = 0;
+            int upperCount = 0;
+            for (int index = 0, loopTo = proteinSequence.Length - 1; index <= loopTo; index++)
+            {
+                if (char.IsLower(proteinSequence[index]))
+                {
+                    lowerCount += 1;
+                }
+                else if (char.IsUpper(proteinSequence[index]))
+                {
+                    upperCount += 1;
+                }
+            }
+
+            if (lowerCount + upperCount == 0)
+            {
+                return 0d;
+            }
+
+            return lowerCount / (double)(lowerCount + upperCount);
+        }
+
+        public override IList<string> GetDefaultExtensionsToParse()
+        {
+            var extensionsToParse = new List<string>() { ".fasta", ".fasta.gz", ".txt" };
+            return extensionsToParse;
+        }
+
+        public override string GetErrorMessage()
+        {
+            // Returns "" if no error
+
+            string errorMessage;
+            if (ErrorCode == ProcessFilesErrorCodes.LocalizedError || ErrorCode == ProcessFilesErrorCodes.NoError)
+            {
+                switch (mLocalErrorCode)
+                {
+                    case ParseProteinFileErrorCodes.NoError:
+                        {
+                            errorMessage = "";
+                            break;
+                        }
+
+                    case ParseProteinFileErrorCodes.ProteinFileParsingOptionsSectionNotFound:
+                        {
+                            errorMessage = "The section " + XML_SECTION_OPTIONS + " was not found in the parameter file";
+                            break;
+                        }
+
+                    case ParseProteinFileErrorCodes.ErrorReadingInputFile:
+                        {
+                            errorMessage = "Error reading input file";
+                            break;
+                        }
+
+                    case ParseProteinFileErrorCodes.ErrorCreatingProteinOutputFile:
+                        {
+                            errorMessage = "Error creating parsed proteins output file";
+                            break;
+                        }
+
+                    case ParseProteinFileErrorCodes.ErrorCreatingDigestedProteinOutputFile:
+                        {
+                            errorMessage = "Error creating digested proteins output file";
+                            break;
+                        }
+
+                    case ParseProteinFileErrorCodes.ErrorCreatingScrambledProteinOutputFile:
+                        {
+                            errorMessage = "Error creating scrambled proteins output file";
+                            break;
+                        }
+
+                    case ParseProteinFileErrorCodes.ErrorWritingOutputFile:
+                        {
+                            errorMessage = "Error writing to one of the output files";
+                            break;
+                        }
+
+                    case ParseProteinFileErrorCodes.ErrorInitializingObjectVariables:
+                        {
+                            errorMessage = "Error initializing In Silico Digester class";
+                            break;
+                        }
+
+                    case ParseProteinFileErrorCodes.DigestProteinSequenceError:
+                        {
+                            errorMessage = "Error in DigestProteinSequence function";
+                            break;
+                        }
+
+                    case ParseProteinFileErrorCodes.UnspecifiedError:
+                        {
+                            errorMessage = "Unspecified localized error";
+                            break;
+                        }
+
+                    default:
+                        {
+                            // This shouldn't happen
+                            errorMessage = "Unknown error state";
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                errorMessage = GetBaseClassErrorMessage();
+            }
+
+            return errorMessage;
+        }
+
+        public int GetProteinCountCached()
+        {
+            return mProteinCount;
+        }
+
+        public ProteinInfo GetCachedProtein(int index)
+        {
+            if (index < mProteinCount)
+            {
+                return mProteins[index];
+            }
+            else
+            {
+                return default;
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="digestedPeptides"></param>
+        /// <param name="options"></param>
+        /// <returns>The number of peptides in digestedPeptides</returns>
+        public int GetDigestedPeptidesForCachedProtein(int index, out List<InSilicoDigest.PeptideSequenceWithNET> digestedPeptides, InSilicoDigest.DigestionOptions options)
+        {
+            if (index < mProteinCount)
+            {
+                return DigestProteinSequence(mProteins[index].Sequence, out digestedPeptides, options, mProteins[index].Name);
+            }
+            else
+            {
+                digestedPeptides = new List<InSilicoDigest.PeptideSequenceWithNET>();
+                return 0;
+            }
+        }
+
+        private void InitializeLocalVariables()
+        {
+            mLocalErrorCode = ParseProteinFileErrorCodes.NoError;
+            ShowDebugPrompts = false;
+            AssumeDelimitedFile = false;
+            AssumeFastaFile = false;
+            mInputFileDelimiter = ControlChars.Tab;
+            DelimitedFileFormatCode = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence;
+            mInputFileProteinsProcessed = 0;
+            mInputFileLinesRead = 0;
+            mInputFileLineSkipCount = 0;
+            mOutputFileDelimiter = ControlChars.Tab;
+            ExcludeProteinSequence = false;
+            ComputeProteinMass = true;
+            ComputepI = true;
+            ComputeNET = true;
+            ComputeSCXNET = true;
+            ComputeSequenceHashValues = false;
+            ComputeSequenceHashIgnoreILDiff = true;
+            TruncateProteinDescription = true;
+            IncludeXResiduesInMass = false;
+            ProteinScramblingMode = ProteinScramblingModeConstants.None;
+            ProteinScramblingSamplingPercentage = 100;
+            ProteinScramblingLoopCount = 1;
+            CreateFastaOutputFile = false;
+            CreateProteinOutputFile = false;
+            CreateDigestedProteinOutputFile = false;
+            GenerateUniqueIDValuesForPeptides = true;
+            DigestionOptions = new InSilicoDigest.DigestionOptions();
+            FastaFileOptions = new FastaFileParseOptions();
+            ProcessingSummary = string.Empty;
+            mProteinCount = 0;
+            mProteins = new ProteinInfo[1];
+            mFileNameAbbreviated = string.Empty;
+            HydrophobicityType = ComputePeptideProperties.HydrophobicityTypeConstants.HW;
+            ReportMaximumpI = false;
+            mSequenceWidthToExamineForMaximumpI = 10;
+        }
+
+        /// <summary>
+        /// Examines the file's extension and returns true if it ends in .fasta or .fasta.gz
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="notifyErrorsWithMessageBox"></param>
+        /// <returns></returns>
+        public static bool IsFastaFile(string filePath, bool notifyErrorsWithMessageBox = false)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(filePath))
+                {
+                    return false;
+                }
+
+                if (Path.GetExtension(StripExtension(filePath, ".gz")).Equals(".fasta", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                if (notifyErrorsWithMessageBox)
+                {
+                    MessageBox.Show("Error looking for suffix .fasta or .fasta.gz: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+                else
+                {
+                    ConsoleMsgUtils.ShowError("Error in IsFastaFile: " + ex.Message);
+                }
+
+                return false;
+            }
+        }
+
+        private bool InitializeObjectVariables()
+        {
+            string errorMessage = string.Empty;
+            if (!mObjectVariablesLoaded)
+            {
+                // Need to initialize the object variables
+
+                try
+                {
+                    mInSilicoDigest = new InSilicoDigest();
+                }
+                catch (Exception ex)
+                {
+                    errorMessage = "Error initializing InSilicoDigest class";
+                    SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables);
+                }
+
+                try
+                {
+                    mpICalculator = new ComputePeptideProperties();
+                }
+                catch (Exception ex)
+                {
+                    errorMessage = "Error initializing pI Calculation class";
+                    ShowErrorMessage(errorMessage);
+                    SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables);
+                }
+
+                try
+                {
+                    mNETCalculator = new ElutionTimePredictionKangas();
+                }
+                catch (Exception ex)
+                {
+                    errorMessage = "Error initializing LC NET Calculation class";
+                    ShowErrorMessage(errorMessage);
+                    SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables);
+                }
+
+                try
+                {
+                    mSCXNETCalculator = new SCXElutionTimePredictionKangas();
+                }
+                catch (Exception ex)
+                {
+                    errorMessage = "Error initializing SCX NET Calculation class";
+                    ShowErrorMessage(errorMessage);
+                    SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables);
+                }
+
+                if (errorMessage.Length > 0)
+                {
+                    ShowErrorMessage(errorMessage);
+                    mObjectVariablesLoaded = false;
+                }
+                else
+                {
+                    mObjectVariablesLoaded = true;
+                }
+            }
+
+            if (mInSilicoDigest is object)
+            {
+                if (mpICalculator is object)
+                {
+                    mInSilicoDigest.InitializepICalculator(ref mpICalculator);
+                }
+            }
+
+            return mObjectVariablesLoaded;
+        }
+
+        private bool InitializeScrambledOutput(FilePathInfo pathInfo, ScramblingResidueCache residueCache, ProteinScramblingModeConstants scramblingMode, out StreamWriter scrambledFileWriter, out Random randomNumberGenerator)
+        {
+            bool success;
+            int randomNumberSeed;
+            string suffix;
+            string scrambledFastaOutputFilePath;
+
+            // Wait to allow the timer to advance.
+            Thread.Sleep(1);
+            randomNumberSeed = Environment.TickCount;
+            randomNumberGenerator = new Random(randomNumberSeed);
+            if (scramblingMode == ProteinScramblingModeConstants.Reversed)
+            {
+                // Reversed FASTA file
+                suffix = "_reversed";
+                if (residueCache.SamplingPercentage < 100)
+                {
+                    suffix += "_" + residueCache.SamplingPercentage.ToString() + "pct";
+                }
+            }
+            else
+            {
+                // Scrambled FASTA file
+                suffix = "_scrambled_seed" + randomNumberSeed.ToString();
+                if (residueCache.SamplingPercentage < 100)
+                {
+                    suffix += "_" + residueCache.SamplingPercentage.ToString() + "pct";
+                }
+            }
+
+            scrambledFastaOutputFilePath = Path.Combine(pathInfo.OutputFolderPath, Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath) + suffix + ".fasta");
+
+            // Define the abbreviated name of the input file; used in the protein names
+            mFileNameAbbreviated = Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath);
+            if (mFileNameAbbreviated.Length > MAX_ABBREVIATED_FILENAME_LENGTH)
+            {
+                mFileNameAbbreviated = mFileNameAbbreviated.Substring(0, MAX_ABBREVIATED_FILENAME_LENGTH);
+                if (mFileNameAbbreviated.Substring(mFileNameAbbreviated.Length - 1, 1) == "_")
+                {
+                    mFileNameAbbreviated = mFileNameAbbreviated.Substring(0, mFileNameAbbreviated.Length - 1);
+                }
+                else if (mFileNameAbbreviated.LastIndexOf('-') > MAX_ABBREVIATED_FILENAME_LENGTH / 3d)
+                {
+                    mFileNameAbbreviated = mFileNameAbbreviated.Substring(0, mFileNameAbbreviated.LastIndexOf('-'));
+                }
+                else if (mFileNameAbbreviated.LastIndexOf('_') > MAX_ABBREVIATED_FILENAME_LENGTH / 3d)
+                {
+                    mFileNameAbbreviated = mFileNameAbbreviated.Substring(0, mFileNameAbbreviated.LastIndexOf('_'));
+                }
+            }
+
+            // Make sure there aren't any spaces in the abbreviated filename
+            mFileNameAbbreviated = mFileNameAbbreviated.Replace(" ", "_");
+            try
+            {
+                // Open the scrambled protein output FASTA file (if required)
+                scrambledFileWriter = new StreamWriter(scrambledFastaOutputFilePath);
+                success = true;
+            }
+            catch (Exception ex)
+            {
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorCreatingScrambledProteinOutputFile);
+                success = false;
+                scrambledFileWriter = null;
+            }
+
+            return success;
+        }
+
+        public bool LoadParameterFileSettings(string parameterFilePath)
+        {
+            var settingsFile = new XmlSettingsFileAccessor();
+            bool cysPeptidesOnly;
+            try
+            {
+                if (parameterFilePath is null || parameterFilePath.Length == 0)
+                {
+                    // No parameter file specified; nothing to load
+                    return true;
+                }
+
+                if (!File.Exists(parameterFilePath))
+                {
+                    // See if parameterFilePath points to a file in the same directory as the application
+                    parameterFilePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Path.GetFileName(parameterFilePath));
+                    if (!File.Exists(parameterFilePath))
+                    {
+                        SetBaseClassErrorCode(ProcessFilesErrorCodes.ParameterFileNotFound);
+                        return false;
+                    }
+                }
+
+                // Pass False to .LoadSettings() here to turn off case sensitive matching
+                if (settingsFile.LoadSettings(parameterFilePath, false))
+                {
+                    if (!settingsFile.SectionPresent(XML_SECTION_OPTIONS))
+                    {
+                        ShowErrorMessage("The node '<section name=\"" + XML_SECTION_OPTIONS + "\"> was not found in the parameter file: " + parameterFilePath);
+                        SetLocalErrorCode(ParseProteinFileErrorCodes.ProteinFileParsingOptionsSectionNotFound);
+                        return false;
+                    }
+                    else
+                    {
+                        // ComparisonFastaFile = settingsFile.GetParam(XML_SECTION_OPTIONS, "ComparisonFastaFile", ComparisonFastaFile)
+
+                        int inputFileColumnDelimiterIndex = settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiterIndex", (int)DelimiterCharConstants.Tab);
+                        string customInputFileColumnDelimiter = settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiter", Conversions.ToString(ControlChars.Tab));
+                        InputFileDelimiter = LookupColumnDelimiterChar(inputFileColumnDelimiterIndex, customInputFileColumnDelimiter, InputFileDelimiter);
+                        DelimitedFileFormatCode = (DelimitedProteinFileReader.ProteinFileFormatCode)Conversions.ToInteger(settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnOrdering", (int)DelimitedFileFormatCode));
+                        int outputFileFieldDelimiterIndex = settingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimiterIndex", (int)DelimiterCharConstants.Tab);
+                        string outputFileFieldDelimiter = settingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimiter", Conversions.ToString(ControlChars.Tab));
+                        OutputFileDelimiter = LookupColumnDelimiterChar(outputFileFieldDelimiterIndex, outputFileFieldDelimiter, OutputFileDelimiter);
+                        DigestionOptions.IncludePrefixAndSuffixResidues = settingsFile.GetParam(XML_SECTION_OPTIONS, "IncludePrefixAndSuffixResidues", DigestionOptions.IncludePrefixAndSuffixResidues);
+                        FastaFileOptions.LookForAddnlRefInDescription = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "LookForAddnlRefInDescription", FastaFileOptions.LookForAddnlRefInDescription);
+                        FastaFileOptions.AddnlRefSepChar = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "AddnlRefSepChar", FastaFileOptions.AddnlRefSepChar.ToString())[0];
+                        FastaFileOptions.AddnlRefAccessionSepChar = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "AddnlRefAccessionSepChar", FastaFileOptions.AddnlRefAccessionSepChar.ToString())[0];
+                        ExcludeProteinSequence = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ExcludeProteinSequence", ExcludeProteinSequence);
+                        ComputeProteinMass = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeProteinMass", ComputeProteinMass);
+                        IncludeXResiduesInMass = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "IncludeXResidues", IncludeXResiduesInMass);
+                        ElementMassMode = (PeptideSequence.ElementModeConstants)Conversions.ToInteger(settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ElementMassMode", (int)ElementMassMode));
+                        ComputepI = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputepI", ComputepI);
+                        ComputeNET = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeNET", ComputeNET);
+                        ComputeSCXNET = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeSCX", ComputeSCXNET);
+                        CreateDigestedProteinOutputFile = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "DigestProteins", CreateDigestedProteinOutputFile);
+                        ProteinScramblingMode = (ProteinScramblingModeConstants)Conversions.ToInteger(settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinReversalIndex", (int)ProteinScramblingMode));
+                        ProteinScramblingLoopCount = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinScramblingLoopCount", ProteinScramblingLoopCount);
+                        DigestionOptions.CleavageRuleID = (InSilicoDigest.CleavageRuleConstants)Conversions.ToInteger(settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CleavageRuleTypeIndex", (int)DigestionOptions.CleavageRuleID));
+                        DigestionOptions.RemoveDuplicateSequences = !settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "IncludeDuplicateSequences", !DigestionOptions.RemoveDuplicateSequences);
+                        cysPeptidesOnly = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CysPeptidesOnly", false);
+                        if (cysPeptidesOnly)
+                        {
+                            DigestionOptions.AminoAcidResidueFilterChars = new char[] { 'C' };
+                        }
+                        else
+                        {
+                            DigestionOptions.AminoAcidResidueFilterChars = new char[] { };
+                        }
+
+                        DigestionOptions.MinFragmentMass = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMinimumMass", DigestionOptions.MinFragmentMass);
+                        DigestionOptions.MaxFragmentMass = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMaximumMass", DigestionOptions.MaxFragmentMass);
+                        DigestionOptions.MinFragmentResidueCount = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMinimumResidueCount", DigestionOptions.MinFragmentResidueCount);
+                        DigestionOptions.MaxMissedCleavages = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMaximumMissedCleavages", DigestionOptions.MaxMissedCleavages);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Error in LoadParameterFileSettings: " + ex.Message);
+                return false;
+            }
+
+            return true;
+        }
+
+        public static char LookupColumnDelimiterChar(int delimiterIndex, string customDelimiter, char defaultDelimiter)
+        {
+            string delimiter;
+            switch (delimiterIndex)
+            {
+                case (int)DelimiterCharConstants.Space:
+                    {
+                        delimiter = " ";
+                        break;
+                    }
+
+                case (int)DelimiterCharConstants.Tab:
+                    {
+                        delimiter = Conversions.ToString(ControlChars.Tab);
+                        break;
+                    }
+
+                case (int)DelimiterCharConstants.Comma:
+                    {
+                        delimiter = ",";
+                        break;
+                    }
+
+                default:
+                    {
+                        // Includes DelimiterCharConstants.Other
+                        delimiter = string.Copy(customDelimiter);
+                        break;
+                    }
+            }
+
+            if (delimiter is null || delimiter.Length == 0)
+            {
+                delimiter = string.Copy(Conversions.ToString(defaultDelimiter));
+            }
+
+            try
+            {
+                return delimiter[0];
+            }
+            catch (Exception ex)
+            {
+                return ControlChars.Tab;
+            }
+        }
+
+        public bool ParseProteinFile(string proteinInputFilePath, string outputFolderPath)
+        {
+            return ParseProteinFile(proteinInputFilePath, outputFolderPath, string.Empty);
+        }
+
+        /// <summary>
+        /// Process the protein FASTA file or tab-delimited text file
+        /// </summary>
+        /// <param name="proteinInputFilePath"></param>
+        /// <param name="outputFolderPath"></param>
+        /// <param name="outputFileNameBaseOverride">Name for the protein output filename (auto-defined if empty)</param>
+        /// <returns></returns>
+        public bool ParseProteinFile(string proteinInputFilePath, string outputFolderPath, string outputFileNameBaseOverride)
+        {
+            ProteinFileReaderBaseClass proteinFileReader = null;
+            StreamWriter proteinFileWriter = null;
+            StreamWriter digestFileWriter = null;
+            StreamWriter scrambledFileWriter = null;
+            bool success;
+            bool inputProteinFound;
+            var headerChecked = default(bool);
+            bool allowLookForAddnlRefInDescription;
+            var lookForAddnlRefInDescription = default(bool);
+            SortedSet<string> addnlRefMasterNames;
+            AddnlRef[] addnlRefsToOutput = null;
+            var generateUniqueSequenceID = default(bool);
+            Random randomNumberGenerator = null;
+            ProteinScramblingModeConstants scramblingMode;
+            var residueCache = new ScramblingResidueCache();
+            var startTime = default(DateTime);
+            ProcessingSummary = string.Empty;
+            FilePathInfo pathInfo;
+            pathInfo.ProteinInputFilePath = proteinInputFilePath;
+            pathInfo.OutputFolderPath = outputFolderPath;
+            pathInfo.OutputFileNameBaseOverride = outputFileNameBaseOverride;
+            pathInfo.ProteinOutputFilePath = string.Empty;
+            pathInfo.DigestedProteinOutputFilePath = string.Empty;
+            try
+            {
+                if (string.IsNullOrWhiteSpace(pathInfo.ProteinInputFilePath))
+                {
+                    SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidInputFilePath);
+                    return false;
+                }
+
+                // Make sure the object variables are initialized
+                if (!InitializeObjectVariables())
+                {
+                    return false;
+                }
+
+                success = ParseProteinFileCreateOutputFile(ref pathInfo, out proteinFileReader);
+            }
+            catch (Exception ex)
+            {
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile);
+                success = false;
+            }
+
+            // Abort processing if we couldn't successfully open the input file
+            if (!success)
+                return false;
+            try
+            {
+                // Set the options for mpICalculator
+                // Note that this will also update the pICalculator object in mInSilicoDigest
+                if (mpICalculator is object)
+                {
+                    mpICalculator.HydrophobicityType = HydrophobicityType;
+                    mpICalculator.ReportMaximumpI = ReportMaximumpI;
+                    mpICalculator.SequenceWidthToExamineForMaximumpI = mSequenceWidthToExamineForMaximumpI;
+                }
+
+                if (CreateProteinOutputFile)
+                {
+                    try
+                    {
+                        // Open the protein output file (if required)
+                        // This will cause an error if the input file is the same as the output file
+                        proteinFileWriter = new StreamWriter(pathInfo.ProteinOutputFilePath);
+                        success = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorCreatingProteinOutputFile);
+                        success = false;
+                    }
+
+                    if (!success)
+                        return false;
+                }
+
+                if (mMasterSequencesHashTable is null)
+                {
+                    mMasterSequencesHashTable = new Hashtable();
+                }
+                else
+                {
+                    mMasterSequencesHashTable.Clear();
+                }
+
+                mNextUniqueIDForMasterSeqs = 1;
+                if (CreateProteinOutputFile && CreateDigestedProteinOutputFile && !CreateFastaOutputFile)
+                {
+                    success = ParseProteinFileCreateDigestedProteinOutputFile(pathInfo.DigestedProteinOutputFilePath, ref digestFileWriter);
+                    if (!success)
+                        return false;
+                    if (GenerateUniqueIDValuesForPeptides)
+                    {
+                        // Initialize mMasterSequencesHashTable
+                        generateUniqueSequenceID = true;
+                    }
+                }
+
+                int loopCount = 1;
+                if (ProteinScramblingMode == ProteinScramblingModeConstants.Randomized)
+                {
+                    loopCount = ProteinScramblingLoopCount;
+                    if (loopCount < 1)
+                        loopCount = 1;
+                    if (loopCount > 10000)
+                        loopCount = 10000;
+                    allowLookForAddnlRefInDescription = false;
+                }
+                else
+                {
+                    allowLookForAddnlRefInDescription = FastaFileOptions.LookForAddnlRefInDescription;
+                }
+
+                var outLine = new StringBuilder();
+                for (int loopIndex = 1, loopTo = loopCount; loopIndex <= loopTo; loopIndex++)
+                {
+                    // Attempt to open the input file
+                    if (!proteinFileReader.OpenFile(pathInfo.ProteinInputFilePath))
+                    {
+                        SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile);
+                        success = false;
+                        break;
+                    }
+
+                    if (CreateProteinOutputFile)
+                    {
+                        scramblingMode = ProteinScramblingMode;
+                        residueCache.SamplingPercentage = ProteinScramblingSamplingPercentage;
+                        if (residueCache.SamplingPercentage <= 0)
+                            residueCache.SamplingPercentage = 100;
+                        if (residueCache.SamplingPercentage > 100)
+                            residueCache.SamplingPercentage = 100;
+                        residueCache.Cache = string.Empty;
+                        residueCache.CacheLength = SCRAMBLING_CACHE_LENGTH;
+                        residueCache.OutputCount = 0;
+                        residueCache.ResiduesToWrite = string.Empty;
+                        if (scramblingMode != ProteinScramblingModeConstants.None)
+                        {
+                            success = InitializeScrambledOutput(pathInfo, residueCache, scramblingMode, out scrambledFileWriter, out randomNumberGenerator);
+                            if (!success)
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        scramblingMode = ProteinScramblingModeConstants.None;
+                    }
+
+                    startTime = DateTime.UtcNow;
+                    if (CreateProteinOutputFile && mParsedFileIsFastaFile && allowLookForAddnlRefInDescription)
+                    {
+                        // Need to pre-scan the FASTA file to find all of the possible additional reference values
+
+                        addnlRefMasterNames = new SortedSet<string>(StringComparer.CurrentCultureIgnoreCase);
+                        PreScanProteinFileForAddnlRefsInDescription(pathInfo.ProteinInputFilePath, addnlRefMasterNames);
+                        if (addnlRefMasterNames.Count > 0)
+                        {
+                            // Need to extract out the key names from addnlRefMasterNames and sort them alphabetically
+                            addnlRefsToOutput = new AddnlRef[addnlRefMasterNames.Count];
+                            lookForAddnlRefInDescription = true;
+                            int index = 0;
+                            foreach (var addnlRef in addnlRefMasterNames)
+                            {
+                                addnlRefsToOutput[index].RefName = string.Copy(addnlRef);
+                                index += 1;
+                            }
+
+                            var iAddnlRefComparer = new AddnlRefComparer();
+                            Array.Sort(addnlRefsToOutput, iAddnlRefComparer);
+                        }
+                        else
+                        {
+                            addnlRefsToOutput = new AddnlRef[1];
+                            lookForAddnlRefInDescription = false;
+                        }
+                    }
+
+                    ResetProgress("Parsing protein input file");
+                    if (CreateProteinOutputFile && !CreateFastaOutputFile)
+                    {
+                        outLine.Clear();
+
+                        // Write the header line to the output file
+                        outLine.Append("ProteinName" + mOutputFileDelimiter);
+                        if (lookForAddnlRefInDescription)
+                        {
+                            for (int index = 0, loopTo1 = addnlRefsToOutput.Length - 1; index <= loopTo1; index++)
+                                outLine.Append(addnlRefsToOutput[index].RefName + mOutputFileDelimiter);
+                        }
+
+                        // Include Description in the header line, even if we are excluding the description for all proteins
+                        outLine.Append("Description");
+                        if (ComputeSequenceHashValues)
+                        {
+                            outLine.Append(mOutputFileDelimiter + "SequenceHash");
+                        }
+
+                        if (!ExcludeProteinSequence)
+                        {
+                            outLine.Append(mOutputFileDelimiter + "Sequence");
+                        }
+
+                        if (ComputeProteinMass)
+                        {
+                            if (ElementMassMode == PeptideSequence.ElementModeConstants.AverageMass)
+                            {
+                                outLine.Append(mOutputFileDelimiter + "Average Mass");
+                            }
+                            else
+                            {
+                                outLine.Append(mOutputFileDelimiter + "Mass");
+                            }
+                        }
+
+                        if (ComputepI)
+                        {
+                            outLine.Append(mOutputFileDelimiter + "pI" + mOutputFileDelimiter + "Hydrophobicity");
+                        }
+
+                        if (ComputeNET)
+                        {
+                            outLine.Append(mOutputFileDelimiter + "LC_NET");
+                        }
+
+                        if (ComputeSCXNET)
+                        {
+                            outLine.Append(mOutputFileDelimiter + "SCX_NET");
+                        }
+
+                        proteinFileWriter.WriteLine(outLine.ToString());
+                    }
+
+                    // Read each protein in the input file and process appropriately
+                    mProteinCount = 0;
+                    mProteins = new ProteinInfo[501];
+                    mInputFileProteinsProcessed = 0;
+                    mInputFileLineSkipCount = 0;
+                    mInputFileLinesRead = 0;
+                    do
+                    {
+                        inputProteinFound = proteinFileReader.ReadNextProteinEntry();
+                        mInputFileLineSkipCount += proteinFileReader.LineSkipCount;
+                        if (!inputProteinFound)
+                            continue;
+                        if (!headerChecked)
+                        {
+                            if (!mParsedFileIsFastaFile)
+                            {
+                                headerChecked = true;
+
+                                // This may be a header line; possibly skip it
+                                if (proteinFileReader.ProteinName.ToLower().StartsWith("protein"))
+                                {
+                                    if (proteinFileReader.ProteinDescription.ToLower().Contains("description") && proteinFileReader.ProteinSequence.ToLower().Contains("sequence"))
+                                    {
+                                        // Skip this entry since it's a header line, for example:
+                                        // ProteinName    Description    Sequence
+                                        continue;
+                                    }
+                                }
+
+                                if (proteinFileReader.ProteinName.ToLower().Contains("protein") && FractionLowercase(proteinFileReader.ProteinSequence) > 0.2d)
+                                {
+                                    // Skip this entry since it's a header line, for example:
+                                    // FirstProtein    ProteinDesc    Sequence
+                                    continue;
+                                }
+                            }
+                        }
+
+                        mInputFileProteinsProcessed += 1;
+                        mInputFileLinesRead = proteinFileReader.LinesRead;
+                        ParseProteinFileStoreProtein(proteinFileReader, lookForAddnlRefInDescription);
+                        if (CreateProteinOutputFile)
+                        {
+                            if (loopIndex == 1)
+                            {
+                                if (CreateFastaOutputFile)
+                                {
+                                    ParseProteinFileWriteFasta(proteinFileWriter, outLine);
+                                }
+                                else
+                                {
+                                    ParseProteinFileWriteTextDelimited(proteinFileWriter, outLine, lookForAddnlRefInDescription, ref addnlRefsToOutput);
+                                }
+                            }
+
+                            if (loopIndex == 1 && digestFileWriter is object)
+                            {
+                                ParseProteinFileWriteDigested(digestFileWriter, outLine, generateUniqueSequenceID);
+                            }
+
+                            if (scramblingMode != ProteinScramblingModeConstants.None)
+                            {
+                                WriteScrambledFasta(scrambledFileWriter, ref randomNumberGenerator, mProteins[mProteinCount], scramblingMode, ref residueCache);
+                            }
+                        }
+                        else
+                        {
+                            // Cache the proteins in memory
+                            mProteinCount += 1;
+                            if (mProteinCount >= mProteins.Length)
+                            {
+                                Array.Resize(ref mProteins, mProteins.Length + PROTEIN_CACHE_MEMORY_RESERVE_COUNT + 1);
+                            }
+                        }
+
+                        float percentProcessed = (loopIndex - 1) / (float)loopCount * 100.0f + proteinFileReader.PercentFileProcessed() / loopCount;
+                        UpdateProgress(percentProcessed);
+                        if (AbortProcessing)
+                            break;
+                    }
+                    while (inputProteinFound);
+                    if (CreateProteinOutputFile && scramblingMode != ProteinScramblingModeConstants.None)
+                    {
+                        // Write out anything remaining in the cache
+
+                        string proteinNamePrefix;
+                        if (scramblingMode == ProteinScramblingModeConstants.Reversed)
+                        {
+                            proteinNamePrefix = PROTEIN_PREFIX_REVERSED;
+                        }
+                        else
+                        {
+                            proteinNamePrefix = PROTEIN_PREFIX_SCRAMBLED;
+                        }
+
+                        WriteFastaAppendToCache(scrambledFileWriter, ref residueCache, proteinNamePrefix, true);
+                    }
+
+                    if (mProteinCount > 0)
+                    {
+                        Array.Resize(ref mProteins, mProteinCount);
+                    }
+                    else
+                    {
+                        mProteins = new ProteinInfo[1];
+                    }
+
+                    proteinFileReader.CloseFile();
+                    if (proteinFileWriter is object)
+                    {
+                        proteinFileWriter.Close();
+                    }
+
+                    if (digestFileWriter is object)
+                    {
+                        digestFileWriter.Close();
+                    }
+
+                    if (scrambledFileWriter is object)
+                    {
+                        scrambledFileWriter.Close();
+                    }
+                }
+
+                if (ShowDebugPrompts)
+                {
+                    string statusMessage = string.Format("{0}{1}Elapsed time: {2:F2} seconds", Path.GetFileName(pathInfo.ProteinInputFilePath), ControlChars.NewLine, DateTime.UtcNow.Subtract(startTime).TotalSeconds);
+                    MessageBox.Show(statusMessage, "Status", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+
+                string message = "Done: Processed " + mInputFileProteinsProcessed.ToString("###,##0") + " proteins (" + mInputFileLinesRead.ToString("###,###,##0") + " lines)";
+                if (mInputFileLineSkipCount > 0)
+                {
+                    message += ControlChars.NewLine + "Note that " + mInputFileLineSkipCount.ToString("###,##0") + " lines were skipped in the input file due to having an unexpected format. ";
+                    if (mParsedFileIsFastaFile)
+                    {
+                        message += "This is an unexpected error for FASTA files.";
+                    }
+                    else
+                    {
+                        message += "Make sure that " + DelimitedFileFormatCode.ToString() + " is the appropriate format for this file (see the File Format Options tab).";
+                    }
+                }
+
+                if (loopCount > 1)
+                {
+                    message += ControlChars.NewLine + "Created " + loopCount.ToString() + " replicates of the scrambled output file";
+                }
+
+                ProcessingSummary = message;
+                OnStatusEvent(message);
+                success = true;
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Error in ParseProteinFile: " + ex.Message);
+                if (CreateProteinOutputFile || CreateDigestedProteinOutputFile)
+                {
+                    SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorWritingOutputFile);
+                    success = false;
+                }
+                else
+                {
+                    SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile);
+                    success = false;
+                }
+            }
+            finally
+            {
+                if (proteinFileWriter is object)
+                {
+                    proteinFileWriter.Close();
+                }
+
+                if (digestFileWriter is object)
+                {
+                    digestFileWriter.Close();
+                }
+
+                if (scrambledFileWriter is object)
+                {
+                    scrambledFileWriter.Close();
+                }
+            }
+
+            return success;
+        }
+
+        private void ParseProteinFileStoreProtein(ProteinFileReaderBaseClass proteinFileReader, bool lookForAddnlRefInDescription)
+        {
+            mProteins[mProteinCount].Name = proteinFileReader.ProteinName;
+            mProteins[mProteinCount].Description = proteinFileReader.ProteinDescription;
+            if (TruncateProteinDescription && mProteins[mProteinCount].Description.Length > MAX_PROTEIN_DESCRIPTION_LENGTH)
+            {
+                mProteins[mProteinCount].Description = mProteins[mProteinCount].Description.Substring(0, MAX_PROTEIN_DESCRIPTION_LENGTH - 3) + "...";
+            }
+
+            if (lookForAddnlRefInDescription)
+            {
+                // Look for additional protein names in .Description, delimited by FastaFileOptions.AddnlRefSepChar
+                mProteins[mProteinCount].AlternateNameCount = ExtractAlternateProteinNamesFromDescription(ref mProteins[mProteinCount].Description, ref mProteins[mProteinCount].AlternateNames);
+            }
+            else
+            {
+                mProteins[mProteinCount].AlternateNameCount = 0;
+                mProteins[mProteinCount].AlternateNames = new AddnlRef[1];
+            }
+
+            string sequence = proteinFileReader.ProteinSequence;
+            mProteins[mProteinCount].Sequence = sequence;
+            if (ComputeSequenceHashIgnoreILDiff)
+            {
+                mProteins[mProteinCount].SequenceHash = HashUtilities.ComputeStringHashSha1(sequence.Replace('L', 'I')).ToUpper();
+            }
+            else
+            {
+                mProteins[mProteinCount].SequenceHash = HashUtilities.ComputeStringHashSha1(sequence).ToUpper();
+            }
+
+            if (ComputeProteinMass)
+            {
+                mProteins[mProteinCount].Mass = ComputeSequenceMass(sequence);
+            }
+            else
+            {
+                mProteins[mProteinCount].Mass = 0d;
+            }
+
+            if (ComputepI)
+            {
+                mProteins[mProteinCount].pI = ComputeSequencepI(sequence);
+                mProteins[mProteinCount].Hydrophobicity = ComputeSequenceHydrophobicity(sequence);
+            }
+            else
+            {
+                mProteins[mProteinCount].pI = 0f;
+                mProteins[mProteinCount].Hydrophobicity = 0f;
+            }
+
+            if (ComputeNET)
+            {
+                mProteins[mProteinCount].ProteinNET = ComputeSequenceNET(sequence);
+            }
+
+            if (ComputeSCXNET)
+            {
+                mProteins[mProteinCount].ProteinSCXNET = ComputeSequenceSCXNET(sequence);
+            }
+        }
+
+        private void ParseProteinFileWriteDigested(TextWriter digestFileWriter, StringBuilder outLine, bool generateUniqueSequenceID)
+        {
+            List<InSilicoDigest.PeptideSequenceWithNET> peptideFragments = null;
+            DigestProteinSequence(mProteins[mProteinCount].Sequence, out peptideFragments, DigestionOptions, mProteins[mProteinCount].Name);
+            foreach (var peptideFragment in peptideFragments)
+            {
+                int uniqueSeqID;
+                if (generateUniqueSequenceID)
+                {
+                    try
+                    {
+                        if (mMasterSequencesHashTable.ContainsKey(peptideFragment.SequenceOneLetter))
+                        {
+                            uniqueSeqID = Conversions.ToInteger(mMasterSequencesHashTable[peptideFragment.SequenceOneLetter]);
+                        }
+                        else
+                        {
+                            mMasterSequencesHashTable.Add(peptideFragment.SequenceOneLetter, mNextUniqueIDForMasterSeqs);
+                            uniqueSeqID = mNextUniqueIDForMasterSeqs;
+                        }
+
+                        mNextUniqueIDForMasterSeqs += 1;
+                    }
+                    catch (Exception ex)
+                    {
+                        uniqueSeqID = 0;
+                    }
+                }
+                else
+                {
+                    uniqueSeqID = 0;
+                }
+
+                string baseSequence = peptideFragment.SequenceOneLetter;
+                outLine.Clear();
+                if (!ExcludeProteinSequence)
+                {
+                    outLine.Append(mProteins[mProteinCount].Name + mOutputFileDelimiter);
+                    if (DigestionOptions.IncludePrefixAndSuffixResidues)
+                    {
+                        outLine.Append(peptideFragment.PrefixResidue + "." + baseSequence + "." + peptideFragment.SuffixResidue + mOutputFileDelimiter);
+                    }
+                    else
+                    {
+                        outLine.Append(baseSequence + mOutputFileDelimiter);
+                    }
+                }
+
+                outLine.Append(uniqueSeqID.ToString() + mOutputFileDelimiter + peptideFragment.Mass + mOutputFileDelimiter + Math.Round(peptideFragment.NET, 4).ToString() + mOutputFileDelimiter + peptideFragment.PeptideName);
+                if (ComputepI)
+                {
+                    float pI = ComputeSequencepI(baseSequence);
+                    float hydrophobicity = ComputeSequenceHydrophobicity(baseSequence);
+                    outLine.Append(mOutputFileDelimiter + pI.ToString("0.000") + mOutputFileDelimiter + hydrophobicity.ToString("0.0000"));
+                }
+
+                if (ComputeNET)
+                {
+                    float lcNET = ComputeSequenceNET(baseSequence);
+                    outLine.Append(mOutputFileDelimiter + lcNET.ToString("0.0000"));
+                }
+
+                if (ComputeSCXNET)
+                {
+                    float scxNET = ComputeSequenceSCXNET(baseSequence);
+                    outLine.Append(mOutputFileDelimiter + scxNET.ToString("0.0000"));
+                }
+
+                digestFileWriter.WriteLine(outLine.ToString());
+            }
+        }
+
+        private void ParseProteinFileWriteFasta(TextWriter proteinFileWriter, StringBuilder outLine)
+        {
+            // Write the entry to the output FASTA file
+
+            if (mProteins[mProteinCount].Name == "ProteinName" && mProteins[mProteinCount].Description == "Description" && mProteins[mProteinCount].Sequence == "Sequence")
+            {
+                // Skip this entry; it's an artifact from converting from a FASTA file to a text file, then back to a FASTA file
+                return;
+            }
+
+            outLine.Clear();
+            outLine.Append(FastaFileOptions.ProteinLineStartChar + mProteins[mProteinCount].Name);
+            if (!ExcludeProteinDescription)
+            {
+                outLine.Append(FastaFileOptions.ProteinLineAccessionEndChar + mProteins[mProteinCount].Description);
+            }
+
+            proteinFileWriter.WriteLine(outLine.ToString());
+            if (!ExcludeProteinSequence)
+            {
+                int index = 0;
+                while (index < mProteins[mProteinCount].Sequence.Length)
+                {
+                    int length = Math.Min(60, mProteins[mProteinCount].Sequence.Length - index);
+                    proteinFileWriter.WriteLine(mProteins[mProteinCount].Sequence.Substring(index, length));
+                    index += 60;
+                }
+            }
+        }
+
+        private void ParseProteinFileWriteTextDelimited(TextWriter proteinFileWriter, StringBuilder outLine, bool lookForAddnlRefInDescription, ref AddnlRef[] addnlRefsToOutput)
+        {
+            // Write the entry to the protein output file, and possibly digest it
+
+            outLine.Clear();
+            if (lookForAddnlRefInDescription)
+            {
+                // Reset the Accession numbers in addnlRefsToOutput
+                for (int index = 0, loopTo = addnlRefsToOutput.Length - 1; index <= loopTo; index++)
+                    addnlRefsToOutput[index].RefAccession = string.Empty;
+
+                // Update the accession numbers in addnlRefsToOutput
+                for (int index = 0, loopTo1 = mProteins[mProteinCount].AlternateNameCount - 1; index <= loopTo1; index++)
+                {
+                    for (int compareIndex = 0, loopTo2 = addnlRefsToOutput.Length - 1; compareIndex <= loopTo2; compareIndex++)
+                    {
+                        if ((addnlRefsToOutput[compareIndex].RefName.ToUpper() ?? "") == (mProteins[mProteinCount].AlternateNames[index].RefName.ToUpper() ?? ""))
+                        {
+                            addnlRefsToOutput[compareIndex].RefAccession = mProteins[mProteinCount].AlternateNames[index].RefAccession;
+                            break;
+                        }
+                    }
+                }
+
+                outLine.Append(mProteins[mProteinCount].Name + mOutputFileDelimiter);
+                for (int index = 0, loopTo3 = addnlRefsToOutput.Length - 1; index <= loopTo3; index++)
+                    outLine.Append(addnlRefsToOutput[index].RefAccession + mOutputFileDelimiter);
+                if (!ExcludeProteinDescription)
+                {
+                    outLine.Append(mProteins[mProteinCount].Description);
+                }
+            }
+            else
+            {
+                outLine.Append(mProteins[mProteinCount].Name + mOutputFileDelimiter);
+                if (!ExcludeProteinDescription)
+                {
+                    outLine.Append(mProteins[mProteinCount].Description);
+                }
+            }
+
+            if (ComputeSequenceHashValues)
+            {
+                outLine.Append(mOutputFileDelimiter + mProteins[mProteinCount].SequenceHash);
+            }
+
+            if (!ExcludeProteinSequence)
+            {
+                outLine.Append(mOutputFileDelimiter + mProteins[mProteinCount].Sequence);
+            }
+
+            if (ComputeProteinMass)
+            {
+                outLine.Append(mOutputFileDelimiter + Math.Round(mProteins[mProteinCount].Mass, 5).ToString());
+            }
+
+            if (ComputepI)
+            {
+                outLine.Append(mOutputFileDelimiter + mProteins[mProteinCount].pI.ToString("0.000") + mOutputFileDelimiter + mProteins[mProteinCount].Hydrophobicity.ToString("0.0000"));
+            }
+
+            if (ComputeNET)
+            {
+                outLine.Append(mOutputFileDelimiter + mProteins[mProteinCount].ProteinNET.ToString("0.0000"));
+            }
+
+            if (ComputeSCXNET)
+            {
+                outLine.Append(mOutputFileDelimiter + mProteins[mProteinCount].ProteinSCXNET.ToString("0.0000"));
+            }
+
+            proteinFileWriter.WriteLine(outLine.ToString());
+        }
+
+        private bool ParseProteinFileCreateOutputFile(ref FilePathInfo pathInfo, out ProteinFileReaderBaseClass proteinFileReader)
+        {
+            string outputFileName;
+            bool success;
+            if (AssumeFastaFile || IsFastaFile(pathInfo.ProteinInputFilePath, true))
+            {
+                if (AssumeDelimitedFile)
+                {
+                    mParsedFileIsFastaFile = false;
+                }
+                else
+                {
+                    mParsedFileIsFastaFile = true;
+                }
+            }
+            else
+            {
+                mParsedFileIsFastaFile = false;
+            }
+
+            if (CreateDigestedProteinOutputFile)
+            {
+                // Make sure mCreateFastaOutputFile is false
+                CreateFastaOutputFile = false;
+            }
+
+            if (!string.IsNullOrEmpty(pathInfo.OutputFileNameBaseOverride))
+            {
+                if (Path.HasExtension(pathInfo.OutputFileNameBaseOverride))
+                {
+                    outputFileName = string.Copy(pathInfo.OutputFileNameBaseOverride);
+                    if (CreateFastaOutputFile)
+                    {
+                        if (!Path.GetExtension(outputFileName).Equals(".fasta", StringComparison.OrdinalIgnoreCase))
+                        {
+                            outputFileName += ".fasta";
+                        }
+                    }
+                    else if (Path.GetExtension(outputFileName).Length > 4)
+                    {
+                        outputFileName += ".txt";
+                    }
+                }
+                else if (CreateFastaOutputFile)
+                {
+                    outputFileName = pathInfo.OutputFileNameBaseOverride + ".fasta";
+                }
+                else
+                {
+                    outputFileName = pathInfo.OutputFileNameBaseOverride + ".txt";
+                }
+            }
+            else
+            {
+                outputFileName = string.Empty;
+            }
+
+            if (mParsedFileIsFastaFile)
+            {
+                var reader = new FastaFileReader();
+                proteinFileReader = reader;
+            }
+            else
+            {
+                var reader = new DelimitedProteinFileReader()
+                {
+                    Delimiter = mInputFileDelimiter,
+                    DelimitedFileFormatCode = DelimitedFileFormatCode
+                };
+                proteinFileReader = reader;
+            }
+
+            // Verify that the input file exists
+            if (!File.Exists(pathInfo.ProteinInputFilePath))
+            {
+                SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidInputFilePath);
+                success = false;
+                return success;
+            }
+
+            if (mParsedFileIsFastaFile)
+            {
+                if (outputFileName.Length == 0)
+                {
+                    outputFileName = Path.GetFileName(pathInfo.ProteinInputFilePath);
+                    if (Path.GetExtension(outputFileName).Equals(".fasta", StringComparison.OrdinalIgnoreCase))
+                    {
+                    }
+                    // Nothing special to do; will replace the extension below
+
+                    else if (outputFileName.EndsWith(".fasta.gz", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Remove .gz from outputFileName
+                        outputFileName = StripExtension(outputFileName, ".gz");
+                    }
+                    else
+                    {
+                        // .Fasta appears somewhere in the middle
+                        // Remove the text .Fasta, then add the extension .txt (unless it already ends in .txt)
+                        int charIndex = outputFileName.ToLower().LastIndexOf(".fasta", StringComparison.Ordinal);
+                        if (charIndex > 0)
+                        {
+                            if (charIndex < outputFileName.Length)
+                            {
+                                outputFileName = outputFileName.Substring(0, charIndex) + outputFileName.Substring(charIndex + 6);
+                            }
+                            else
+                            {
+                                outputFileName = outputFileName.Substring(0, charIndex);
+                            }
+                        }
+                        else
+                        {
+                            // This shouldn't happen
+                        }
+                    }
+
+                    if (CreateFastaOutputFile)
+                    {
+                        outputFileName = Path.GetFileNameWithoutExtension(outputFileName) + "_new.fasta";
+                    }
+                    else
+                    {
+                        outputFileName = Path.ChangeExtension(outputFileName, ".txt");
+                    }
+                }
+            }
+            else if (outputFileName.Length == 0)
+            {
+                if (CreateFastaOutputFile)
+                {
+                    outputFileName = Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath) + ".fasta";
+                }
+                else
+                {
+                    outputFileName = Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath) + "_parsed.txt";
+                }
+            }
+
+            // Make sure the output file isn't the same as the input file
+            if ((Path.GetFileName(pathInfo.ProteinInputFilePath).ToLower() ?? "") == (Path.GetFileName(outputFileName).ToLower() ?? ""))
+            {
+                outputFileName = Path.GetFileNameWithoutExtension(outputFileName) + "_new" + Path.GetExtension(outputFileName);
+            }
+
+            // Define the full path to the parsed proteins output file
+            pathInfo.ProteinOutputFilePath = Path.Combine(pathInfo.OutputFolderPath, outputFileName);
+            if (outputFileName.EndsWith("_parsed.txt"))
+            {
+                outputFileName = outputFileName.Substring(0, outputFileName.Length - "_parsed.txt".Length) + "_digested";
+            }
+            else
+            {
+                outputFileName = Path.GetFileNameWithoutExtension(outputFileName) + "_digested";
+            }
+
+            outputFileName += "_Mass" + Math.Round((decimal)DigestionOptions.MinFragmentMass, 0).ToString() + "to" + Math.Round((decimal)DigestionOptions.MaxFragmentMass, 0).ToString();
+            if (ComputepI && (DigestionOptions.MinIsoelectricPoint > 0f || DigestionOptions.MaxIsoelectricPoint < 14f))
+            {
+                outputFileName += "_pI" + Math.Round(DigestionOptions.MinIsoelectricPoint, 1).ToString() + "to" + Math.Round(DigestionOptions.MaxIsoelectricPoint, 2).ToString();
+            }
+
+            outputFileName += ".txt";
+
+            // Define the full path to the digested proteins output file
+            pathInfo.DigestedProteinOutputFilePath = Path.Combine(pathInfo.OutputFolderPath, outputFileName);
+            success = true;
+            return success;
+        }
+
+        private bool ParseProteinFileCreateDigestedProteinOutputFile(string digestedProteinOutputFilePath, ref StreamWriter digestFileWriter)
+        {
+            try
+            {
+                // Create the digested protein output file
+                digestFileWriter = new StreamWriter(digestedProteinOutputFilePath);
+                string lineOut;
+                if (!ExcludeProteinSequence)
+                {
+                    lineOut = "Protein_Name" + mOutputFileDelimiter + "Sequence" + mOutputFileDelimiter;
+                }
+                else
+                {
+                    lineOut = string.Empty;
+                }
+
+                lineOut += "Unique_ID" + mOutputFileDelimiter + "Monoisotopic_Mass" + mOutputFileDelimiter + "Predicted_NET" + mOutputFileDelimiter + "Tryptic_Name";
+                if (ComputepI)
+                {
+                    lineOut += mOutputFileDelimiter + "pI" + mOutputFileDelimiter + "Hydrophobicity";
+                }
+
+                if (ComputeNET)
+                {
+                    lineOut += mOutputFileDelimiter + "LC_NET";
+                }
+
+                if (ComputeSCXNET)
+                {
+                    lineOut += mOutputFileDelimiter + "SCX_NET";
+                }
+
+                digestFileWriter.WriteLine(lineOut);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorCreatingDigestedProteinOutputFile);
+                return false;
+            }
+        }
+
+        private void PreScanProteinFileForAddnlRefsInDescription(string proteinInputFilePath, ISet<string> addnlRefMasterNames)
+        {
+            FastaFileReader reader = null;
+            ProteinInfo protein;
+            int index;
+            bool success;
+            bool inputProteinFound;
+            try
+            {
+                reader = new FastaFileReader();
+
+                // Attempt to open the input file
+                if (!reader.OpenFile(proteinInputFilePath))
+                {
+                    success = false;
+                    return;
+                }
+
+                success = true;
+            }
+            catch (Exception ex)
+            {
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile);
+                success = false;
+            }
+
+            // Abort processing if we couldn't successfully open the input file
+            if (!success)
+                return;
+            try
+            {
+                ResetProgress("Pre-reading FASTA file; looking for possible additional reference names");
+
+                // Read each protein in the output file and process appropriately
+                do
+                {
+                    inputProteinFound = reader.ReadNextProteinEntry();
+                    if (inputProteinFound)
+                    {
+                        protein.Name = reader.ProteinName;
+                        protein.Description = reader.ProteinDescription;
+
+                        // Look for additional protein names in .Description, delimited by FastaFileOptions.AddnlRefSepChar
+                        protein.AlternateNames = new AddnlRef[1];
+                        protein.AlternateNameCount = ExtractAlternateProteinNamesFromDescription(ref protein.Description, ref protein.AlternateNames);
+
+                        // Make sure each of the names in .AlternateNames() is in addnlRefMasterNames
+                        var loopTo = protein.AlternateNameCount - 1;
+                        for (index = 0; index <= loopTo; index++)
+                        {
+                            if (!addnlRefMasterNames.Contains(protein.AlternateNames[index].RefName))
+                            {
+                                addnlRefMasterNames.Add(protein.AlternateNames[index].RefName);
+                            }
+                        }
+
+                        UpdateProgress(reader.PercentFileProcessed());
+                        if (AbortProcessing)
+                            break;
+                    }
+                }
+                while (inputProteinFound);
+                reader.CloseFile();
+            }
+            catch (Exception ex)
+            {
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile);
+            }
+
+            return;
+        }
+
+        /// <summary>
+        /// If filePath ends with extension, remove it
+        /// Supports multi-part extensions like .fasta.gz
+        /// </summary>
+        /// <param name="filePath">File name or path</param>
+        /// <param name="extension">Extension, with or without the leading period</param>
+        /// <returns></returns>
+        public static string StripExtension(string filePath, string extension)
+        {
+            if (string.IsNullOrWhiteSpace(extension))
+            {
+                return filePath;
+            }
+
+            if (!extension.StartsWith("."))
+            {
+                extension = "." + extension;
+            }
+
+            if (!filePath.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
+            {
+                return filePath;
+            }
+
+            return filePath.Substring(0, filePath.Length - extension.Length);
+        }
+
+        private string ValidateProteinName(string proteinName, int maximumLength)
+        {
+            var sepChars = new char[] { ' ', ',', ';', ':', '_', '-', '|', '/' };
+            if (maximumLength < 1)
+                maximumLength = 1;
+            if (proteinName is null)
+            {
+                proteinName = string.Empty;
+            }
+            else if (proteinName.Length > maximumLength)
+            {
+                // Truncate protein name to maximum length
+                proteinName = proteinName.Substring(0, maximumLength);
+
+                // Make sure the protein name doesn't end in a space, dash, underscore, semicolon, colon, etc.
+                proteinName = proteinName.TrimEnd(sepChars);
+            }
+
+            return proteinName;
+        }
+
+        private void WriteFastaAppendToCache(TextWriter scrambledFileWriter, ref ScramblingResidueCache residueCache, string proteinNamePrefix, bool flushResiduesToWrite)
+        {
+            int residueCount;
+            int residuesToAppend;
+            if (residueCache.Cache.Length > 0)
+            {
+                residueCount = (int)Math.Round(Math.Round(residueCache.Cache.Length * residueCache.SamplingPercentage / 100.0d, 0));
+                if (residueCount < 1)
+                    residueCount = 1;
+                if (residueCount > residueCache.Cache.Length)
+                    residueCount = residueCache.Cache.Length;
+                while (residueCount > 0)
+                {
+                    if (residueCache.ResiduesToWrite.Length + residueCount <= residueCache.CacheLength)
+                    {
+                        residueCache.ResiduesToWrite += residueCache.Cache.Substring(0, residueCount);
+                        residueCache.Cache = string.Empty;
+                        residueCount = 0;
+                    }
+                    else
+                    {
+                        residuesToAppend = residueCache.CacheLength - residueCache.ResiduesToWrite.Length;
+                        residueCache.ResiduesToWrite += residueCache.Cache.Substring(0, residuesToAppend);
+                        residueCache.Cache = residueCache.Cache.Substring(residuesToAppend);
+                        residueCount -= residuesToAppend;
+                    }
+
+                    if (residueCache.ResiduesToWrite.Length >= residueCache.CacheLength)
+                    {
+                        // Write out .ResiduesToWrite
+                        WriteFastaEmptyCache(scrambledFileWriter, ref residueCache, proteinNamePrefix, residueCache.SamplingPercentage);
+                    }
+                }
+            }
+
+            if (flushResiduesToWrite && residueCache.ResiduesToWrite.Length > 0)
+            {
+                WriteFastaEmptyCache(scrambledFileWriter, ref residueCache, proteinNamePrefix, residueCache.SamplingPercentage);
+            }
+        }
+
+        private void WriteFastaEmptyCache(TextWriter scrambledFileWriter, ref ScramblingResidueCache residueCache, string proteinNamePrefix, int samplingPercentage)
+        {
+            string proteinName;
+            string headerLine;
+            if (residueCache.ResiduesToWrite.Length > 0)
+            {
+                residueCache.OutputCount += 1;
+                proteinName = proteinNamePrefix + mFileNameAbbreviated;
+                if (samplingPercentage < 100)
+                {
+                    proteinName = ValidateProteinName(proteinName, MAXIMUM_PROTEIN_NAME_LENGTH - 7 - Math.Max(5, residueCache.OutputCount.ToString().Length));
+                }
+                else
+                {
+                    proteinName = ValidateProteinName(proteinName, MAXIMUM_PROTEIN_NAME_LENGTH - 1 - Math.Max(5, residueCache.OutputCount.ToString().Length));
+                }
+
+                if (samplingPercentage < 100)
+                {
+                    proteinName += "_" + samplingPercentage.ToString() + "pct" + "_";
+                }
+                else
+                {
+                    proteinName += proteinName + "_";
+                }
+
+                proteinName += residueCache.OutputCount.ToString();
+                headerLine = FastaFileOptions.ProteinLineStartChar + proteinName + FastaFileOptions.ProteinLineAccessionEndChar + proteinName;
+                WriteFastaProteinAndResidues(scrambledFileWriter, headerLine, residueCache.ResiduesToWrite);
+                residueCache.ResiduesToWrite = string.Empty;
+            }
+        }
+
+        private void WriteFastaProteinAndResidues(TextWriter scrambledFileWriter, string headerLine, string sequence)
+        {
+            scrambledFileWriter.WriteLine(headerLine);
+            while (sequence.Length > 0)
+            {
+                if (sequence.Length >= 60)
+                {
+                    scrambledFileWriter.WriteLine(sequence.Substring(0, 60));
+                    sequence = sequence.Substring(60);
+                }
+                else
+                {
+                    scrambledFileWriter.WriteLine(sequence);
+                    sequence = string.Empty;
+                }
+            }
+        }
+
+        private void WriteScrambledFasta(TextWriter scrambledFileWriter, ref Random randomNumberGenerator, ProteinInfo protein, ProteinScramblingModeConstants scramblingMode, ref ScramblingResidueCache residueCache)
+        {
+            string sequence;
+            string scrambledSequence;
+            string headerLine;
+            string proteinNamePrefix;
+            string proteinName;
+            int index;
+            int residueCount;
+            if (scramblingMode == ProteinScramblingModeConstants.Reversed)
+            {
+                proteinNamePrefix = PROTEIN_PREFIX_REVERSED;
+                scrambledSequence = Strings.StrReverse(protein.Sequence);
+            }
+            else
+            {
+                proteinNamePrefix = PROTEIN_PREFIX_SCRAMBLED;
+                scrambledSequence = string.Empty;
+                sequence = string.Copy(protein.Sequence);
+                residueCount = sequence.Length;
+                while (residueCount > 0)
+                {
+                    if (residueCount != sequence.Length)
+                    {
+                        ShowErrorMessage("Assertion failed in WriteScrambledFasta: residueCount should equal sequence.Length: " + residueCount + " vs. " + sequence.Length);
+                    }
+
+                    // Randomly extract residues from sequence
+                    index = randomNumberGenerator.Next(residueCount);
+                    scrambledSequence += sequence.Substring(index, 1);
+                    if (index > 0)
+                    {
+                        if (index < sequence.Length - 1)
+                        {
+                            sequence = sequence.Substring(0, index) + sequence.Substring(index + 1);
+                        }
+                        else
+                        {
+                            sequence = sequence.Substring(0, index);
+                        }
+                    }
+                    else
+                    {
+                        sequence = sequence.Substring(index + 1);
+                    }
+
+                    residueCount -= 1;
+                }
+            }
+
+            if (residueCache.SamplingPercentage >= 100)
+            {
+                proteinName = ValidateProteinName(proteinNamePrefix + protein.Name, MAXIMUM_PROTEIN_NAME_LENGTH);
+                headerLine = FastaFileOptions.ProteinLineStartChar + proteinName + FastaFileOptions.ProteinLineAccessionEndChar + protein.Description;
+                WriteFastaProteinAndResidues(scrambledFileWriter, headerLine, scrambledSequence);
+            }
+            else
+            {
+                // Writing a sampling of the residues to the output file
+
+                while (scrambledSequence.Length > 0)
+                {
+                    // Append to the cache
+                    if (residueCache.Cache.Length + scrambledSequence.Length <= residueCache.CacheLength)
+                    {
+                        residueCache.Cache += scrambledSequence;
+                        scrambledSequence = string.Empty;
+                    }
+                    else
+                    {
+                        residueCount = residueCache.CacheLength - residueCache.Cache.Length;
+                        residueCache.Cache += scrambledSequence.Substring(0, residueCount);
+                        scrambledSequence = scrambledSequence.Substring(residueCount);
+                    }
+
+                    if (residueCache.Cache.Length >= residueCache.CacheLength)
+                    {
+                        // Write out a portion of the cache
+                        WriteFastaAppendToCache(scrambledFileWriter, ref residueCache, proteinNamePrefix, false);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Main processing function -- Calls ParseProteinFile
+        /// </summary>
+        /// <param name="inputFilePath"></param>
+        /// <param name="outputFolderPath"></param>
+        /// <param name="parameterFilePath"></param>
+        /// <param name="resetErrorCode"></param>
+        /// <returns></returns>
+        public override bool ProcessFile(string inputFilePath, string outputFolderPath, string parameterFilePath, bool resetErrorCode)
+        {
+            // Returns True if success, False if failure
+
+            FileInfo inputFile;
+            string inputFilePathFull;
+            string statusMessage;
+            var success = default(bool);
+            if (resetErrorCode)
+            {
+                SetLocalErrorCode(ParseProteinFileErrorCodes.NoError);
+            }
+
+            if (!LoadParameterFileSettings(parameterFilePath))
+            {
+                statusMessage = "Parameter file load error: " + parameterFilePath;
+                ShowErrorMessage(statusMessage);
+                if (ErrorCode == ProcessFilesErrorCodes.NoError)
+                {
+                    SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidParameterFile);
+                }
+
+                return false;
+            }
+
+            try
+            {
+                if (inputFilePath is null || inputFilePath.Length == 0)
+                {
+                    ShowErrorMessage("Input file name is empty");
+                    SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidInputFilePath);
+                }
+                else
+                {
+                    Console.WriteLine();
+                    ShowMessage("Parsing " + Path.GetFileName(inputFilePath));
+                    if (!CleanupFilePaths(ref inputFilePath, ref outputFolderPath))
+                    {
+                        SetBaseClassErrorCode(ProcessFilesErrorCodes.FilePathError);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            // Obtain the full path to the input file
+                            inputFile = new FileInfo(inputFilePath);
+                            inputFilePathFull = inputFile.FullName;
+                            success = ParseProteinFile(inputFilePathFull, outputFolderPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception("Error calling ParseProteinFile", ex);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error in ProcessFile", ex);
+            }
+
+            return success;
+        }
+
+        private void SetLocalErrorCode(ParseProteinFileErrorCodes newErrorCode)
+        {
+            SetLocalErrorCode(newErrorCode, false);
+        }
+
+        private void SetLocalErrorCode(ParseProteinFileErrorCodes newErrorCode, bool leaveExistingErrorCodeUnchanged)
+        {
+            if (leaveExistingErrorCodeUnchanged && mLocalErrorCode != ParseProteinFileErrorCodes.NoError)
+            {
+            }
+            // An error code is already defined; do not change it
+            else
+            {
+                mLocalErrorCode = newErrorCode;
+                if (newErrorCode == ParseProteinFileErrorCodes.NoError)
+                {
+                    if (ErrorCode == ProcessFilesErrorCodes.LocalizedError)
+                    {
+                        SetBaseClassErrorCode(ProcessFilesErrorCodes.NoError);
+                    }
+                }
+                else
+                {
+                    SetBaseClassErrorCode(ProcessFilesErrorCodes.LocalizedError);
+                }
+            }
+        }
+
+        protected void UpdateSubtaskProgress(string description)
+        {
+            UpdateProgress(description, mProgressPercentComplete);
+        }
+
+        protected void UpdateSubtaskProgress(float percentComplete)
+        {
+            UpdateProgress(ProgressStepDescription, percentComplete);
+        }
+
+        protected void UpdateSubtaskProgress(string description, float percentComplete)
+        {
+            bool descriptionChanged = (description ?? "") != (mSubtaskProgressStepDescription ?? "");
+            mSubtaskProgressStepDescription = string.Copy(description);
+            if (percentComplete < 0f)
+            {
+                percentComplete = 0f;
+            }
+            else if (percentComplete > 100f)
+            {
+                percentComplete = 100f;
+            }
+
+            mSubtaskProgressPercentComplete = percentComplete;
+            if (descriptionChanged)
+            {
+                if (Math.Abs(mSubtaskProgressPercentComplete - 0f) < float.Epsilon)
+                {
+                    LogMessage(mSubtaskProgressStepDescription.Replace(ControlChars.NewLine, "; "));
+                }
+                else
+                {
+                    LogMessage(mSubtaskProgressStepDescription + " (" + mSubtaskProgressPercentComplete.ToString("0.0") + "% complete)".Replace(ControlChars.NewLine, "; "));
+                }
+            }
+
+            SubtaskProgressChanged?.Invoke(description, percentComplete);
+        }
+
+        // IComparer class to allow comparison of additional protein references
+        private class AddnlRefComparer : IComparer<AddnlRef>
+        {
+            public int Compare(AddnlRef x, AddnlRef y)
+            {
+                if (Operators.CompareString(x.RefName, y.RefName, false) > 0)
+                {
+                    return 1;
+                }
+                else if (Operators.CompareString(x.RefName, y.RefName, false) < 0)
+                {
+                    return -1;
+                }
+                else if (Operators.CompareString(x.RefAccession, y.RefAccession, false) > 0)
+                {
+                    return 1;
+                }
+                else if (Operators.CompareString(x.RefAccession, y.RefAccession, false) < 0)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+
+        // Options class
+        public class FastaFileParseOptions
+        {
+            public FastaFileParseOptions()
+            {
+                ProteinLineStartChar = '>';
+                ProteinLineAccessionEndChar = ' ';
+                mLookForAddnlRefInDescription = false;
+                mAddnlRefSepChar = '|';
+                mAddnlRefAccessionSepChar = ':';
+            }
+
+            private bool mReadonly;
+            private bool mLookForAddnlRefInDescription;
+            private char mAddnlRefSepChar;
+            private char mAddnlRefAccessionSepChar;
+
+            public bool ReadonlyClass
+            {
+                get
+                {
+                    return mReadonly;
+                }
+
+                set
+                {
+                    if (!mReadonly)
+                    {
+                        mReadonly = value;
+                    }
+                }
+            }
+
+            public char ProteinLineStartChar { get; private set; } = '>';
+            public char ProteinLineAccessionEndChar { get; private set; } = ' ';
+
+            public bool LookForAddnlRefInDescription
+            {
+                get
+                {
+                    return mLookForAddnlRefInDescription;
+                }
+
+                set
+                {
+                    if (!mReadonly)
+                    {
+                        mLookForAddnlRefInDescription = value;
+                    }
+                }
+            }
+
+            public char AddnlRefSepChar
+            {
+                get
+                {
+                    return mAddnlRefSepChar;
+                }
+
+                set
+                {
+                    if (value != default && !mReadonly)
+                    {
+                        mAddnlRefSepChar = value;
+                    }
+                }
+            }
+
+            public char AddnlRefAccessionSepChar
+            {
+                get
+                {
+                    return mAddnlRefAccessionSepChar;
+                }
+
+                set
+                {
+                    if (value != default && !mReadonly)
+                    {
+                        mAddnlRefAccessionSepChar = value;
+                    }
+                }
+            }
+        }
+
+        private void InSilicoDigest_ErrorEvent(string message)
+        {
+            ShowErrorMessage("Error in mInSilicoDigest: " + message);
+        }
+
+        private void InSilicoDigest_ProgressChanged(string taskDescription, float percentComplete)
+        {
+            UpdateSubtaskProgress(taskDescription, percentComplete);
+        }
+
+        private void InSilicoDigest_ProgressReset()
+        {
+            // Don't do anything with this event
+        }
+
+        private void NETCalculator_ErrorEvent(string message)
+        {
+            ShowErrorMessage(message);
+        }
+
+        private void SCXNETCalculator_ErrorEvent(string message)
+        {
+            ShowErrorMessage(message);
+        }
+    }
+}

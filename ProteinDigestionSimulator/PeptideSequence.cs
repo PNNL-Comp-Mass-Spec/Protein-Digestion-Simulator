@@ -1,1722 +1,1902 @@
-﻿Option Strict On
-
-Imports System.Runtime.InteropServices
-
-''' <summary>
-''' This class can be used to calculate the mass of an amino acid sequence (peptide or protein)
-''' The protein must be in one letter abbreviation format
-''' </summary>
-Public Class PeptideSequence
-
-    ''' <summary>
-    ''' Constructor
-    ''' </summary>
-    Public Sub New()
-        If Not mSharedArraysInitialized Then
-            mCurrentElementMode = ElementModeConstants.IsotopicMass
-            InitializeSharedData()
-            mSharedArraysInitialized = True
-        End If
-
-        mResidues = String.Empty
-    End Sub
-
-    Private Const UNKNOWN_SYMBOL_ONE_LETTER As Char = "X"c
-    Private Const UNKNOWN_SYMBOL_THREE_LETTERS As String = "Xxx"
-
-    Private Const TERMINII_SYMBOL As Char = "-"c
-    Private Const TRYPTIC_RULE_RESIDUES As String = "KR"
-    Private Const TRYPTIC_EXCEPTION_RESIDUES As String = "P"
-
-    Public Enum CTerminusGroupConstants
-        Hydroxyl = 0
-        Amide = 1
-        None = 2
-    End Enum
-
-    Public Enum NTerminusGroupConstants
-        Hydrogen = 0
-        HydrogenPlusProton = 1
-        Acetyl = 2
-        PyroGlu = 3
-        Carbamyl = 4
-        PTC = 5
-        None = 6
-    End Enum
-
-    ''' <summary>
-    ''' Cysteine treatment constants
-    ''' </summary>
-    Public Enum CysTreatmentModeConstants
-        Untreated = 0
-        Iodoacetamide = 1       ' +57.0215 (alkylated)
-        IodoaceticAcid = 2      ' +58.0055
-    End Enum
-
-    Public Enum ElementModeConstants
-        AverageMass = 0
-        IsotopicMass = 1
-    End Enum
-
-    Private Structure TerminusInfo
-        Public Formula As String
-        Public Mass As Double
-        Public MassElementMode As ElementModeConstants
-        ' ReSharper disable once NotAccessedField.Local
-        Public PrecedingResidue As String      ' If the peptide sequence is part of a protein, the user can record the final residue of the previous peptide sequence here
-        ' ReSharper disable once NotAccessedField.Local
-        Public FollowingResidue As String      ' If the peptide sequence is part of a protein, the user can record the first residue of the next peptide sequence here
-    End Structure
-
-    ' Variables shared across all instances of this class
-
-    Private Shared mSharedArraysInitialized As Boolean
-
-    ''' <summary>
-    ''' One letter symbols and corresponding mass for each
-    ''' </summary>
-    Private Shared AminoAcidMasses As Dictionary(Of Char, Double)
-
-    ''' <summary>
-    ''' One letter symbols and corresponding three letter symbol for each
-    ''' </summary>
-    Private Shared AminoAcidSymbols As Dictionary(Of Char, String)
-
-    ''' <summary>
-    ''' One letter element symbols and corresponding mass for each
-    ''' </summary>
-    Private Shared ElementMasses As Dictionary(Of Char, Double)
-
-    Private Shared mCurrentElementMode As ElementModeConstants
-
-    ''' <summary>
-    ''' Mass of hydrogen
-    ''' </summary>
-    Private Shared mHydrogenMass As Double
-
-    ''' <summary>
-    ''' Charge carrier mass: hydrogen minus one electron
-    ''' </summary>
-    Private Shared mChargeCarrierMass As Double
-
-    ''' <summary>
-    ''' Mass value to add for each Cys residue when CysTreatmentMode is Iodoacetamide
-    ''' </summary>
-    ''' <remarks>Auto-updated when mCurrentElementMode is updated</remarks>
-    Private Shared mIodoacetamideMass As Double
-
-    ''' <summary>
-    ''' Mass value to add for each Cys residue when CysTreatmentMode is IodoaceticAcid
-    ''' </summary>
-    ''' <remarks>Auto-updated when mCurrentElementMode is updated</remarks>
-    Private Shared mIodoaceticAcidMass As Double
-
-    Private Shared mTrypticCleavageRule As CleavageRule
-
-    Private mResidues As String
-
-    ''' <summary>
-    ''' Formula on the N-Terminus
-    ''' </summary>
-    Private mNTerminus As TerminusInfo
-
-    ''' <summary>
-    ''' Formula on the C-Terminus
-    ''' </summary>
-    Private mCTerminus As TerminusInfo
-
-    Private mTotalMass As Double
-    Private mTotalMassElementMode As ElementModeConstants
-
-    Private mDelayUpdateResidueMass As Boolean
-
-    ''' <summary>
-    ''' Charge carrier mass
-    ''' </summary>
-    ''' <returns></returns>
-    Public Shared ReadOnly Property ChargeCarrierMass As Double
-        Get
-            Return mChargeCarrierMass
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Cysteine treatment mode
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property CysTreatmentMode As CysTreatmentModeConstants
-
-    ''' <summary>
-    ''' Element mode
-    ''' </summary>
-    ''' <returns></returns>
-    Public Property ElementMode As ElementModeConstants
-        Get
-            Return mCurrentElementMode
-        End Get
-        Set
-            mCurrentElementMode = Value
-            InitializeSharedData()
-            UpdateSequenceMass()
-        End Set
-    End Property
-
-    ''' <summary>
-    ''' Sequence mass
-    ''' </summary>
-    ''' <returns></returns>
-    Public ReadOnly Property Mass As Double
-        Get
-            If mTotalMassElementMode <> mCurrentElementMode Then UpdateSequenceMass()
-            Return mTotalMass
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Adds new entry to AminoAcidMasses and AminoAcidSymbols
-    ''' </summary>
-    ''' <param name="symbolOneLetter"></param>
-    ''' <param name="symbolThreeLetter"></param>
-    ''' <param name="formula">
-    ''' Can only contain C, H, N, O, S, or P, with each element optionally having an integer after it
-    ''' Cannot contain any parentheses or other advanced formula features
-    ''' </param>
-    Private Sub AddAminoAcidStatEntry(symbolOneLetter As Char, symbolThreeLetter As String, formula As String)
-
-        If AminoAcidMasses.ContainsKey(symbolOneLetter) Then
-            AminoAcidMasses.Remove(symbolOneLetter)
-        End If
-
-        Dim aminoAcidMass = ComputeFormulaWeightCHNOSP(formula)
-        AminoAcidMasses.Add(symbolOneLetter, aminoAcidMass)
-
-        ' Uncomment this to create a file named "AminoAcidMasses.txt" containing the amino acid symbols and masses
-        ''Dim writer As New System.IO.StreamWriter("AminoAcidMasses.txt", True)
-        ''writer.WriteLine(symbolOneLetter & vbTab & mass.ToString("0.000000"))
-        ''writer.Close()
-
-        AminoAcidSymbols.Add(symbolOneLetter, symbolThreeLetter)
-
-    End Sub
-
-    ''' <summary>
-    ''' Remove prefix and suffix residues
-    ''' </summary>
-    ''' <param name="sequence">Sequence to examine</param>
-    ''' <param name="prefix">Output: prefix residue</param>
-    ''' <param name="suffix">Output: suffix residue</param>
-    ''' <returns></returns>
-    ''' <remarks>This function is only applicable for sequences in one-letter notation</remarks>
-    Private Function CheckForAndRemovePrefixAndSuffixResidues(
-        sequence As String,
-        <Out> Optional ByRef prefix As String = "",
-        <Out> Optional ByRef suffix As String = "") As String
-
-        prefix = String.Empty
-        suffix = String.Empty
-
-        ' First look if sequence is in the form A.BCDEFG.Z or -.BCDEFG.Z or A.BCDEFG.-
-        ' If so, then need to strip out the preceding A and Z residues since they aren't really part of the sequence
-        If sequence.Length > 1 AndAlso sequence.IndexOf(".", StringComparison.Ordinal) >= 0 Then
-            If sequence.Chars(1) = "." AndAlso sequence.Length > 2 Then
-                prefix = sequence.Chars(0)
-                sequence = sequence.Substring(2)
-            End If
-
-            If sequence.Length > 2 AndAlso sequence.Chars(sequence.Length - 2) = "." Then
-                prefix = sequence.Chars(sequence.Length - 1)
-                sequence = sequence.Substring(0, sequence.Length - 2)
-            End If
-
-            ' Also check for starting with a . or ending with a .
-            If sequence.Length > 0 AndAlso sequence.Chars(0) = "." Then
-                sequence = sequence.Substring(1)
-            End If
-
-            If sequence.Length > 0 AndAlso sequence.Chars(sequence.Length - 1) = "." Then
-                sequence = sequence.Substring(0, sequence.Length - 1)
-            End If
-        End If
-
-        Return sequence
-    End Function
-
-    ''' <summary>
-    ''' Checks a sequence to see if it matches the cleavage rule
-    ''' Both the prefix residue and the residue at the end of the sequence are tested against ruleResidues and exceptionResidues
-    ''' </summary>
-    ''' <param name="sequence"></param>
-    ''' <param name="cleavageRule"></param>
-    ''' <param name="ruleMatchCount">Output: the number of ends that matched the rule (0, 1, or 2); terminii are counted as rule matches</param>
-    ''' <param name="separationChar"></param>
-    ''' <param name="terminiiSymbol"></param>
-    ''' <param name="ignoreCase">When true, will capitalize all letters in sequence; if the calling method has already capitalized them, this can be set to False for a slight speed advantage</param>
-    ''' <returns>True if a valid match, False if not a match</returns>
-    ''' <remarks>Returns True if sequence doesn't contain any periods, and thus, can't be examined</remarks>
-    Public Function CheckSequenceAgainstCleavageRule(
-        sequence As String,
-        cleavageRule As CleavageRule,
-        <Out> ByRef ruleMatchCount As Integer,
-        Optional separationChar As String = ".",
-        Optional terminiiSymbol As Char = TERMINII_SYMBOL,
-        Optional ignoreCase As Boolean = True) As Boolean
-
-        ' ReSharper disable CommentTypo
-
-        ' For example, if ruleResidues = "KR", exceptionResidues = "P", and reversedCleavageDirection = False
-        ' Then if sequence = "R.AEQDDLANYGPGNGVLPSAGSSISMEK.L" then matchesCleavageRule = True
-        ' However, if sequence = "R.IGASGEHIFIIGVDK.P" then matchesCleavageRule = False since suffix = "P"
-        ' Finally, if sequence = "R.IGASGEHIFIIGVDKPNR.Q" then matchesCleavageRule = True since K is ignored, but the final R.Q is valid
-
-        ' ReSharper restore CommentTypo
-
-        ' Need to reset this to zero since passed ByRef
-        ruleMatchCount = 0
-        Dim terminusCount = 0
-
-        ' First, make sure the sequence is in the form A.BCDEFG.H or A.BCDEFG or BCDEFG.H
-        ' If it isn't, then we can't check it (we'll return true)
-
-        If cleavageRule.CleavageResidues Is Nothing OrElse cleavageRule.CleavageResidues.Length = 0 Then
-            ' No rules
-            Return True
-        End If
-
-        Dim periodIndex1 = sequence.IndexOf(separationChar, StringComparison.Ordinal)
-        Dim periodIndex2 As Integer
-
-        If periodIndex1 < 0 Then
-            ' No periods, can't check
-            Console.WriteLine("CheckSequenceAgainstCleavageRule called with a sequence that doesn't contain prefix or suffix separation characters; unable to process: " & sequence)
-            Return True
-        Else
-            periodIndex2 = sequence.IndexOf(separationChar, periodIndex1 + 1, StringComparison.Ordinal)
-        End If
-
-        If ignoreCase Then
-            sequence = sequence.ToUpper()
-        End If
-
-        Dim prefix As Char
-        Dim suffix As Char
-        Dim sequenceStart As Char
-        Dim sequenceEnd As Char
-
-        ' Find the prefix residue and starting residue
-        '
-        If periodIndex1 >= 1 Then
-            prefix = sequence.Chars(periodIndex1 - 1)
-            sequenceStart = sequence.Chars(periodIndex1 + 1)
-        Else
-            ' periodIndex1 must be 0; assume we're at the protein terminus
-            prefix = terminiiSymbol
-            sequenceStart = sequence.Chars(periodIndex1 + 1)
-        End If
-
-        If periodIndex2 > periodIndex1 + 1 AndAlso periodIndex2 <= sequence.Length - 2 Then
-            suffix = sequence.Chars(periodIndex2 - 1)
-            sequenceStart = sequence.Chars(periodIndex2 + 1)
-        ElseIf periodIndex1 > 1 Then
-            sequenceEnd = sequence.Chars(sequence.Length - 1)
-        End If
-
-        If cleavageRule.CleavageResidues = terminiiSymbol Then
-            ' Peptide database rules
-            ' See if prefix and suffix are both "" or are both terminiiSymbol
-            If (prefix = terminiiSymbol AndAlso suffix = terminiiSymbol) OrElse
-               (prefix = Nothing AndAlso suffix = Nothing) Then
-                ruleMatchCount = 2
-                ' Count this as a match to the cleavage rule
-                Return True
-            Else
-                Return False
-            End If
-        End If
-
-        ' Test both prefix and sequenceEnd against ruleResidues
-        ' Make sure suffix does not match exceptionResidues
-        For endToCheck = 0 To 1
-            Dim skipThisEnd = False
-            Dim testResidue As Char
-            Dim exceptionResidue As Char
-
-            If endToCheck = 0 Then
-                ' N terminus
-                If prefix = terminiiSymbol Then
-                    terminusCount += 1
-                    skipThisEnd = True
-                Else
-                    If cleavageRule.ReversedCleavageDirection Then
-                        testResidue = sequenceStart
-                        exceptionResidue = prefix
-                    Else
-                        testResidue = prefix
-                        exceptionResidue = sequenceStart
-                    End If
-                End If
-            Else
-                ' C terminus
-                If suffix = terminiiSymbol Then
-                    terminusCount += 1
-                    skipThisEnd = True
-                Else
-                    If cleavageRule.ReversedCleavageDirection Then
-                        testResidue = suffix
-                        exceptionResidue = sequenceEnd
-                    Else
-                        testResidue = sequenceEnd
-                        exceptionResidue = suffix
-                    End If
-                End If
-            End If
-
-            If skipThisEnd Then Continue For
-
-            Dim ruleMatch = ResiduesMatchCleavageRule(testResidue, exceptionResidue, cleavageRule)
-
-            If ruleMatch Then
-                ruleMatchCount += 1
-            Else
-                For Each additionalRule In cleavageRule.AdditionalCleavageRules
-                    Dim altRuleMatch = ResiduesMatchCleavageRule(testResidue, exceptionResidue, additionalRule)
-                    If altRuleMatch Then
-                        ruleMatchCount += 1
-                        Exit For
-                    End If
-                Next
-            End If
-
-
-        Next endToCheck
-
-        If terminusCount = 2 Then
-            ' Both ends of the peptide are terminii; label as fully matching the rules and set ruleMatchCount to 2
-            ruleMatchCount = 2
-            Return True
-        End If
-
-        If terminusCount = 1 Then
-            ' One end was a terminus; can either be fully cleaved or non-cleaved; never partially cleaved
-            If ruleMatchCount >= 1 Then
-                ruleMatchCount = 2
-                Return True
-            End If
-            Return False
-        End If
-
-        If ruleMatchCount = 2 Then
-            Return True
-        End If
-
-        If ruleMatchCount >= 1 AndAlso cleavageRule.AllowPartialCleavage Then
-            Return True
-        End If
-
-        Return False
-
-    End Function
-
-    Private Function CheckSequenceAgainstCleavageRuleMatchTestResidue(testResidue As Char, ruleResidues As String) As Boolean
-        ' Checks to see if testResidue matches one of the residues in ruleResidues
-        ' Used to test by Rule Residues and Exception Residues
-
-        If ruleResidues.IndexOf(testResidue) >= 0 Then
-            Return True
-        Else
-            Return False
-        End If
-
-    End Function
-
-    ''' <summary>
-    ''' Very simple mass computation utility; only considers elements C, H, N, O, S, and P
-    ''' </summary>
-    ''' <param name="formula">
-    ''' Can only contain C, H, N, O, S, or P, with each element optionally having an integer after it
-    ''' Cannot contain any parentheses or other advanced formula features
-    ''' </param>
-    ''' <returns>Formula mass, or 0 if any unknown symbols are encountered</returns>
-    Private Function ComputeFormulaWeightCHNOSP(formula As String) As Double
-
-        Dim formulaMass As Double = 0
-        Dim lastElementIndex As Integer = -1
-        Dim multiplier As String = String.Empty
-
-        For index = 0 To formula.Length - 1
-            If Char.IsNumber(formula.Chars(index)) Then
-                multiplier &= formula.Chars(index)
-            Else
-                If lastElementIndex >= 0 Then
-                    formulaMass += ComputeFormulaWeightLookupMass(formula.Chars(lastElementIndex), multiplier)
-                    multiplier = String.Empty
-                End If
-                lastElementIndex = index
-            End If
-        Next
-
-        ' Handle the final element
-        If lastElementIndex >= 0 Then
-            formulaMass += ComputeFormulaWeightLookupMass(formula.Chars(lastElementIndex), multiplier)
-        End If
-
-        Return formulaMass
-
-    End Function
-
-    Private Function ComputeFormulaWeightLookupMass(symbol As Char, multiplier As String) As Double
-
-        Dim multiplierVal = PRISM.DataUtils.StringToValueUtils.CIntSafe(multiplier, 1)
-
-        Try
-            Return ElementMasses(symbol) * multiplierVal
-        Catch ex As Exception
-            ' Symbol not found, or has invalid mass
-            Return 0
-        End Try
-
-    End Function
-
-    ''' <summary>
-    ''' Converts a sequence from 1 letter to 3 letter codes or vice versa
-    ''' </summary>
-    ''' <param name="sequence"></param>
-    ''' <param name="oneLetterTo3Letter"></param>
-    ''' <param name="addSpaceEvery10Residues"></param>
-    ''' <param name="separateResiduesWithDash"></param>
-    ''' <returns></returns>
-    Public Function ConvertAminoAcidSequenceSymbols(
-        sequence As String,
-        oneLetterTo3Letter As Boolean,
-        Optional addSpaceEvery10Residues As Boolean = False,
-        Optional separateResiduesWithDash As Boolean = False) As String
-
-        Dim peptide As New PeptideSequence()
-        Dim prefix As String = String.Empty
-        Dim suffix As String = String.Empty
-
-        Try
-            If oneLetterTo3Letter Then
-                sequence = CheckForAndRemovePrefixAndSuffixResidues(sequence, prefix, suffix)
-            End If
-            peptide.SetSequence(sequence, NTerminusGroupConstants.None, CTerminusGroupConstants.None, Not oneLetterTo3Letter)
-
-            Dim sequenceOut = peptide.GetSequence(oneLetterTo3Letter, addSpaceEvery10Residues, separateResiduesWithDash)
-
-            If oneLetterTo3Letter AndAlso (prefix.Length > 0 Or suffix.Length > 0) Then
-                peptide.SetSequence(prefix, NTerminusGroupConstants.None, CTerminusGroupConstants.None, False)
-                sequenceOut = peptide.GetSequence(True, False, False) & "." & sequenceOut
-
-                peptide.SetSequence(suffix, NTerminusGroupConstants.None, CTerminusGroupConstants.None, False)
-                sequenceOut &= "." & peptide.GetSequence(True, False, False)
-            End If
-
-            Return sequenceOut
-
-        Catch ex As Exception
-            Return String.Empty
-        End Try
-
-    End Function
-
-    ''' <summary>
-    ''' Convert between 1 letter and 3 letter symbol
-    ''' </summary>
-    ''' <param name="symbolToParse">Amino acid symbol to parse</param>
-    ''' <param name="oneLetterTo3Letter">
-    ''' When true, converting 1 letter codes to 3 letter codes
-    ''' Otherwise, converting 3 letter codes to 1 letter codes
-    ''' </param>
-    ''' <returns>Converted amino acid symbol if a valid amino acid symbol, otherwise an empty string</returns>
-    Private Function GetAminoAcidSymbolConversion(symbolToParse As String, oneLetterTo3Letter As Boolean) As String
-
-        If oneLetterTo3Letter Then
-            ' 1 letter to 3 letter
-            Dim symbol = symbolToParse.Substring(0, 1).ToUpper.Chars(0)
-            If AminoAcidSymbols.ContainsKey(symbol) Then
-                Return AminoAcidSymbols(symbol)
-            Else
-                Return String.Empty
-            End If
-        Else
-            ' 3 letter to 1 letter
-            Dim myEnumerator As IDictionaryEnumerator = AminoAcidSymbols.GetEnumerator()
-            symbolToParse = symbolToParse.ToUpper()
-            Do While myEnumerator.MoveNext()
-                If CType(myEnumerator.Value, String).ToUpper() = symbolToParse Then
-                    Return CType(myEnumerator.Key, String)
-                End If
-            Loop
-
-            ' If we get here, the value wasn't found
-            Return String.Empty
-        End If
-
-    End Function
-
-    ''' <summary>
-    ''' Returns the given residue in the current sequence
-    ''' </summary>
-    ''' <param name="residueNumber"></param>
-    ''' <param name="use3LetterCode"></param>
-    ''' <returns></returns>
-    Public Function GetResidue(residueNumber As Integer, Optional use3LetterCode As Boolean = False) As String
-
-        If mResidues IsNot Nothing AndAlso (residueNumber > 0 AndAlso residueNumber <= mResidues.Length) Then
-            If use3LetterCode Then
-                Return GetAminoAcidSymbolConversion(mResidues.Chars(residueNumber - 1), True)
-            Else
-                Return mResidues.Chars(residueNumber - 1)
-            End If
-        Else
-            Return String.Empty
-        End If
-
-    End Function
-
-    Public Function GetResidueCount() As Integer
-        If mResidues Is Nothing Then
-            Return 0
-        Else
-            Return mResidues.Length
-        End If
-    End Function
-
-    ''' <summary>
-    ''' Returns the number of occurrences of the given residue in the loaded sequence, or -1 if an error
-    ''' </summary>
-    ''' <param name="residueSymbol"></param>
-    ''' <param name="use3LetterCode"></param>
-    ''' <returns></returns>
-    Public Function GetResidueCountSpecificResidue(residueSymbol As String, Optional use3LetterCode As Boolean = False) As Integer
-
-        Dim searchResidue1Letter As Char
-
-        If mResidues Is Nothing OrElse mResidues.Length = 0 Then Return 0
-
-        Try
-            If use3LetterCode Then
-                searchResidue1Letter = GetAminoAcidSymbolConversion(residueSymbol, False).Chars(0)
-            Else
-                searchResidue1Letter = residueSymbol.Chars(0)
-            End If
-        Catch ex As Exception
-            Return -1
-        End Try
-
-        Dim residueIndex = -1
-        Dim residueCount = 0
-        Do
-            residueIndex = mResidues.IndexOf(searchResidue1Letter, residueIndex + 1)
-            If residueIndex >= 0 Then
-                residueCount += 1
-            Else
-                Exit Do
-            End If
-        Loop
-
-        Return residueCount
-    End Function
-
-    ''' <summary>
-    ''' Construct the peptide sequence using Residues() and the N and C Terminus info
-    ''' </summary>
-    ''' <param name="use3LetterCode"></param>
-    ''' <param name="addSpaceEvery10Residues"></param>
-    ''' <param name="separateResiduesWithDash"></param>
-    ''' <param name="includeNAndCTerminii"></param>
-    ''' <returns></returns>
-    Public Function GetSequence(
-        Optional use3LetterCode As Boolean = False,
-        Optional addSpaceEvery10Residues As Boolean = False,
-        Optional separateResiduesWithDash As Boolean = False,
-        Optional includeNAndCTerminii As Boolean = False) As String
-
-        Dim sequence As String
-        Dim dashAdd As String = String.Empty
-
-        If mResidues Is Nothing Then Return String.Empty
-
-        If Not use3LetterCode AndAlso Not addSpaceEvery10Residues AndAlso Not separateResiduesWithDash Then
-            ' Simply return the sequence, possibly with the N and C terminii
-            sequence = mResidues
-        Else
-
-            If separateResiduesWithDash Then dashAdd = "-" Else dashAdd = String.Empty
-
-            sequence = String.Empty
-            Dim lastIndex = mResidues.Length - 1
-            For index = 0 To lastIndex
-
-                If use3LetterCode Then
-                    Dim symbol3Letter = GetAminoAcidSymbolConversion(mResidues.Chars(index), True)
-                    If symbol3Letter = String.Empty Then symbol3Letter = UNKNOWN_SYMBOL_THREE_LETTERS
-                    sequence &= symbol3Letter
-                Else
-                    sequence &= mResidues.Chars(index)
-                End If
-
-                If index < lastIndex Then
-                    If addSpaceEvery10Residues Then
-                        If (index + 1) Mod 10 = 0 Then
-                            sequence &= " "
-                        Else
-                            sequence &= dashAdd
-                        End If
-                    Else
-                        sequence &= dashAdd
-                    End If
-                End If
-
-            Next index
-
-        End If
-
-        If includeNAndCTerminii Then
-            sequence = mNTerminus.Formula & dashAdd & sequence & dashAdd & mCTerminus.Formula
-        End If
-
-        Return sequence
-    End Function
-
-    Public Function GetSequenceMass() As Double
-        Return Mass
-    End Function
-
-    ''' <summary>
-    ''' Get the tryptic name for the peptide, within the context of the protein residues
-    ''' </summary>
-    ''' <param name="proteinResidues"></param>
-    ''' <param name="peptideResidues"></param>
-    ''' <param name="cleavageRule"></param>
-    ''' <param name="returnResidueStart">Output: residue in the protein where the peptide starts</param>
-    ''' <param name="returnResidueEnd">Output: residue in the protein where the peptide ends</param>
-    ''' <param name="icr2LSCompatible"></param>
-    ''' <param name="terminiiSymbol"></param>
-    ''' <param name="ignoreCase"></param>
-    ''' <param name="proteinSearchStartLoc"></param>
-    ''' <returns></returns>
-    Public Function GetTrypticName(
-        proteinResidues As String,
-        peptideResidues As String,
-        cleavageRule As CleavageRule,
-        <Out> Optional ByRef returnResidueStart As Integer = 0,
-        <Out> Optional ByRef returnResidueEnd As Integer = 0,
-        Optional icr2LSCompatible As Boolean = False,
-        Optional terminiiSymbol As Char = TERMINII_SYMBOL,
-        Optional ignoreCase As Boolean = True,
-        Optional proteinSearchStartLoc As Integer = 1) As String
-
-        ' Examines peptideResidues to see where they exist in proteinResidues
-        ' Constructs a name string based on their position and based on whether the fragment is truly tryptic
-        ' In addition, returns the position of the first and last residue in returnResidueStart and returnResidueEnd
-        ' The tryptic name in the following format
-        ' t1  indicates tryptic peptide 1
-        ' t2 represents tryptic peptide 2, etc.
-        ' t1.2  indicates tryptic peptide 1, plus one more tryptic peptide, i.e. t1 and t2
-        ' t5.2  indicates tryptic peptide 5, plus one more tryptic peptide, i.e. t5 and t6
-        ' t5.3  indicates tryptic peptide 5, plus two more tryptic peptides, i.e. t5, t6, and t7
-        ' 40.52  means that the residues are not tryptic, and simply range from residue 40 to 52
-        ' If the peptide residues are not present in proteinResidues, returns ""
-        ' Since a peptide can occur multiple times in a protein, one can set proteinSearchStartLoc to a value larger than 1 to ignore previous hits
-
-        ' If icr2LSCompatible is True, then the values returned when a peptide is not tryptic are modified to
-        ' range from the starting residue, to the ending residue +1
-        ' returnResidueEnd is always equal to the position of the final residue, regardless of icr2LSCompatible
-
-        ' ReSharper disable CommentTypo
-        ' For example, if proteinResidues = "IGKANR"
-        ' Then when peptideResidues = "IGK", the TrypticName is t1
-        ' Then when peptideResidues = "ANR", the TrypticName is t2
-        ' Then when peptideResidues = "IGKANR", the TrypticName is t1.2
-        ' Then when peptideResidues = "IG", the TrypticName is 1.2
-        ' Then when peptideResidues = "KANR", the TrypticName is 3.6
-        ' Then when peptideResidues = "NR", the TrypticName is 5.6
-
-        ' However, if icr2LSCompatible = True, then the last three are changed to:
-        ' Then when peptideResidues = "IG", the TrypticName is 1.3
-        ' Then when peptideResidues = "KANR", the TrypticName is 3.7
-        ' Then when peptideResidues = "NR", the TrypticName is 5.7
-
-        ' ReSharper restore CommentTypo
-
-        If ignoreCase Then
-            proteinResidues = proteinResidues.ToUpper()
-            peptideResidues = peptideResidues.ToUpper()
-        End If
-
-        ' startLoc and endLoc track residue numbers, ranging from 1 to length of the protein
-        Dim startLoc As Integer
-
-        If proteinSearchStartLoc <= 1 Then
-            startLoc = proteinResidues.IndexOf(peptideResidues, StringComparison.Ordinal) + 1
-        Else
-            startLoc = proteinResidues.Substring(proteinSearchStartLoc + 1).IndexOf(peptideResidues, StringComparison.Ordinal) + 1
-            If startLoc > 0 Then
-                startLoc = startLoc + proteinSearchStartLoc - 1
-            End If
-        End If
-
-        Dim peptideResiduesLength = peptideResidues.Length
-
-        If startLoc > 0 AndAlso proteinResidues.Length > 0 AndAlso peptideResiduesLength > 0 Then
-            Dim endLoc = startLoc + peptideResiduesLength - 1
-            Dim prefix As Char
-            Dim suffix As Char
-
-            ' Determine if the residue is tryptic
-            ' Use CheckSequenceAgainstCleavageRule() for this
-            If startLoc > 1 Then
-                prefix = proteinResidues.Chars(startLoc - 2)
-            Else
-                prefix = terminiiSymbol
-            End If
-
-            If endLoc = proteinResidues.Length Then
-                suffix = terminiiSymbol
-            Else
-                suffix = proteinResidues.Chars(endLoc)
-            End If
-
-            Dim ruleMatchCount As Integer
-
-            ' We can set ignoreCase to false when calling CheckSequenceAgainstCleavageRule
-            ' since proteinResidues and peptideResidues are already uppercase
-            Dim matchesCleavageRule = CheckSequenceAgainstCleavageRule(prefix & "." & peptideResidues & "." & suffix, cleavageRule, ruleMatchCount, "."c, terminiiSymbol, False)
-
-            Dim trypticName As String
-
-            If matchesCleavageRule Then
-                ' Construct trypticName
-
-                Dim trypticResidueNumber As Integer
-
-                ' Determine which tryptic residue peptideResidues is
-                If startLoc = 1 Then
-                    trypticResidueNumber = 1
-                Else
-                    trypticResidueNumber = 0
-                    Dim proteinResiduesBeforeStartLoc = proteinResidues.Substring(0, startLoc - 1)
-                    Dim residueFollowingSearchResidues = peptideResidues.Chars(0)
-
-                    Dim ruleResidueNumForProtein = 0
-                    Do
-                        ruleResidueNumForProtein = GetTrypticNameFindNextCleavageLoc(proteinResiduesBeforeStartLoc, residueFollowingSearchResidues, ruleResidueNumForProtein + 1, cleavageRule, terminiiSymbol)
-                        If ruleResidueNumForProtein > 0 Then
-                            trypticResidueNumber += 1
-                        End If
-                    Loop While ruleResidueNumForProtein > 0 AndAlso ruleResidueNumForProtein + 1 < startLoc
-                    trypticResidueNumber += 1
-                End If
-
-                ' Determine number of K or R residues in peptideResidues
-                ' Ignore K or R residues followed by Proline
-                Dim ruleResidueMatchCount = 0
-                Dim ruleResidueNumForPeptide = 0
-                Do
-                    ruleResidueNumForPeptide = GetTrypticNameFindNextCleavageLoc(peptideResidues, suffix, ruleResidueNumForPeptide + 1, cleavageRule, terminiiSymbol)
-                    If ruleResidueNumForPeptide > 0 Then
-                        ruleResidueMatchCount += 1
-                    End If
-                Loop While ruleResidueNumForPeptide > 0 AndAlso ruleResidueNumForPeptide < peptideResiduesLength
-
-                trypticName = "t" & trypticResidueNumber.ToString()
-                If ruleResidueMatchCount > 1 Then
-                    trypticName &= "." & Trim(Str((ruleResidueMatchCount)))
-                End If
-            Else
-                If icr2LSCompatible Then
-                    trypticName = startLoc.ToString() & "." & (endLoc + 1).ToString()
-                Else
-                    trypticName = startLoc.ToString() & "." & endLoc.ToString()
-                End If
-            End If
-
-            returnResidueStart = startLoc
-            returnResidueEnd = endLoc
-            Return trypticName
-        Else
-            ' Residues not found
-            returnResidueStart = 0
-            returnResidueEnd = 0
-            Return String.Empty
-        End If
-
-    End Function
-
-    ''' <summary>
-    ''' Examines peptideResidues to see where they exist in proteinResidues
-    ''' Looks for all possible matches, returning them as a comma separated list
-    ''' </summary>
-    ''' <param name="proteinResidues"></param>
-    ''' <param name="peptideResidues"></param>
-    ''' <param name="cleavageRule"></param>
-    ''' <param name="returnMatchCount">Output: number of times peptideResidues is found in proteinResidues</param>
-    ''' <param name="returnResidueStart">Output: residue in the protein where the peptide starts</param>
-    ''' <param name="returnResidueEnd">Output: residue in the protein where the peptide ends</param>
-    ''' <param name="icr2LSCompatible"></param>
-    ''' <param name="terminiiSymbol"></param>
-    ''' <param name="ignoreCase"></param>
-    ''' <param name="proteinSearchStartLoc"></param>
-    ''' <param name="listDelimiter"></param>
-    ''' <returns>Comma separated list of tryptic names</returns>
-    ''' <remarks>See GetTrypticName for additional information</remarks>
-    Public Function GetTrypticNameMultipleMatches(
-        proteinResidues As String,
-        peptideResidues As String,
-        cleavageRule As CleavageRule,
-        <Out> Optional ByRef returnMatchCount As Integer = 1,
-        <Out> Optional ByRef returnResidueStart As Integer = 0,
-        <Out> Optional ByRef returnResidueEnd As Integer = 0,
-        Optional icr2LSCompatible As Boolean = False,
-        Optional terminiiSymbol As Char = TERMINII_SYMBOL,
-        Optional ignoreCase As Boolean = True,
-        Optional proteinSearchStartLoc As Integer = 1,
-        Optional listDelimiter As String = ", ") As String
-
-        Dim currentResidueStart As Integer, currentResidueEnd As Integer
-
-        returnMatchCount = 0
-        returnResidueStart = 0
-        returnResidueEnd = 0
-
-        Dim currentSearchLoc = proteinSearchStartLoc
-        Dim nameList = String.Empty
-
-        Do
-            Dim currentName = GetTrypticName(proteinResidues, peptideResidues, cleavageRule, currentResidueStart, currentResidueEnd, icr2LSCompatible, terminiiSymbol, ignoreCase, currentSearchLoc)
-
-            If currentName.Length > 0 Then
-                If nameList.Length > 0 Then
-                    nameList &= listDelimiter
-                End If
-                nameList &= currentName
-                currentSearchLoc = currentResidueEnd + 1
-                returnMatchCount += 1
-
-                If returnMatchCount = 1 Then
-                    returnResidueStart = currentResidueStart
-                End If
-                returnResidueEnd = currentResidueEnd
-
-                If currentSearchLoc > Len(proteinResidues) Then Exit Do
-            Else
-                Exit Do
-            End If
-        Loop
-
-        Return nameList
-
-    End Function
-
-    ''' <summary>
-    ''' Finds the location of the next cleavage point in searchResidues using the given cleavage rule
-    ''' </summary>
-    ''' <param name="searchResidues"></param>
-    ''' <param name="residueFollowingSearchResidues">Residue following the last residue in searchResidues</param>
-    ''' <param name="startResidueNum">Starting residue number (value between 1 and length of searchResidues)</param>
-    ''' <param name="cleavageRule"></param>
-    ''' <param name="terminiiSymbol"></param>
-    ''' <returns>Residue number of the next cleavage location (value between 1 and length of searchResidues), or 0 if no match</returns>
-    ''' <remarks>
-    ''' Assumes searchResidues are already upper case
-    ''' </remarks>
-    Private Function GetTrypticNameFindNextCleavageLoc(
-      searchResidues As String,
-      residueFollowingSearchResidues As String,
-      startResidueNum As Integer,
-      cleavageRule As CleavageRule,
-      Optional terminiiSymbol As Char = TERMINII_SYMBOL) As Integer
-
-
-        ' ReSharper disable CommentTypo
-
-        ' For example, if searchResidues = "IGASGEHIFIIGVDKPNR" and residueFollowingSearchResidues = "Q"
-        '  and the protein it is part of is: TNSANFRIGASGEHIFIIGVDKPNRQPDS
-        '  and cleavageRule has CleavageResidues = "KR and ExceptionResidues = "P"
-        ' The K in IGASGEHIFIIGVDKPNR is ignored because the following residue is P,
-        '  while the R in IGASGEHIFIIGVDKPNR is OK because residueFollowingSearchResidues is Q
-
-        ' It is the calling function's responsibility to assign the correct residue to residueFollowingSearchResidues
-        ' If no match is found, but residueFollowingSearchResidues is "-", the cleavage location returned is Len(searchResidues) + 1
-
-        ' ReSharper restore CommentTypo
-
-        Dim exceptionSuffixResidueCount = cleavageRule.ExceptionResidues.Length
-
-        Dim minCleavedResidueNum = -1
-        For charIndexInCleavageResidues = 0 To cleavageRule.CleavageResidues.Length - 1
-            Dim cleavedResidueNum As Integer
-            Dim matchFound As Boolean = FindNextCleavageResidue(cleavageRule, charIndexInCleavageResidues, searchResidues, startResidueNum, cleavedResidueNum)
-
-            If matchFound Then
-                If exceptionSuffixResidueCount > 0 Then
-
-                    Dim exceptionCharIndexInSearchResidues As Integer
-                    Dim matchFoundToExceptionResidue As Boolean = IsMatchToExceptionResidue(cleavageRule, searchResidues, residueFollowingSearchResidues, cleavedResidueNum, exceptionCharIndexInSearchResidues)
-
-                    If matchFoundToExceptionResidue Then
-
-                        ' Exception char matched; can't count this as the cleavage point
-                        matchFound = False
-                        Dim recursiveCheck = False
-                        Dim newStartResidueNum As Integer
-
-                        If cleavageRule.ReversedCleavageDirection Then
-                            If cleavedResidueNum + 1 < searchResidues.Length Then
-                                recursiveCheck = True
-                                newStartResidueNum = cleavedResidueNum + 2
-                            End If
-                        Else
-                            If exceptionCharIndexInSearchResidues < searchResidues.Length Then
-                                recursiveCheck = True
-                                newStartResidueNum = exceptionCharIndexInSearchResidues
-                            End If
-                        End If
-
-                        If recursiveCheck Then
-                            ' Recursively call this function to find the next cleavage position, using an updated startResidue position
-
-                            Dim residueNumViaRecursiveSearch = GetTrypticNameFindNextCleavageLoc(searchResidues, residueFollowingSearchResidues, newStartResidueNum, cleavageRule, terminiiSymbol)
-
-                            If residueNumViaRecursiveSearch > 0 Then
-                                ' Found a residue further along that is a valid cleavage point
-                                cleavedResidueNum = residueNumViaRecursiveSearch
-                                If cleavedResidueNum >= 1 AndAlso cleavedResidueNum >= startResidueNum Then matchFound = True
-                            Else
-                                cleavedResidueNum = 0
-                            End If
-                        Else
-                            cleavedResidueNum = 0
-                        End If
-                    End If
-                End If
-            End If
-
-            If matchFound Then
-                If minCleavedResidueNum < 0 Then
-                    minCleavedResidueNum = cleavedResidueNum
-                Else
-                    If cleavedResidueNum < minCleavedResidueNum Then
-                        minCleavedResidueNum = cleavedResidueNum
-                    End If
-                End If
-            End If
-        Next
-
-        If minCleavedResidueNum < 0 AndAlso residueFollowingSearchResidues = terminiiSymbol Then
-            minCleavedResidueNum = searchResidues.Length + 1
-        End If
-
-        For Each additionalRule In cleavageRule.AdditionalCleavageRules
-            Dim additionalRuleResidueNum = GetTrypticNameFindNextCleavageLoc(searchResidues, residueFollowingSearchResidues, startResidueNum, additionalRule, terminiiSymbol)
-            If additionalRuleResidueNum >= 0 AndAlso additionalRuleResidueNum < minCleavedResidueNum Then
-                minCleavedResidueNum = additionalRuleResidueNum
-            End If
-        Next
-
-        If minCleavedResidueNum < 0 Then
-            Return 0
-        Else
-            Return minCleavedResidueNum
-        End If
-
-    End Function
-
-    Public Function GetTrypticPeptideNext(
-        proteinResidues As String,
-        searchStartLoc As Integer,
-        <Out> Optional ByRef returnResidueStart As Integer = 0,
-        <Out> Optional ByRef returnResidueEnd As Integer = 0) As String
-
-        Return GetTrypticPeptideNext(proteinResidues, searchStartLoc, mTrypticCleavageRule, returnResidueStart, returnResidueEnd)
-    End Function
-
-    ''' <summary>
-    ''' Finds the next tryptic peptide in proteinResidues, starting the search as searchStartLoc
-    ''' </summary>
-    ''' <param name="proteinResidues"></param>
-    ''' <param name="searchStartLoc"></param>
-    ''' <param name="cleavageRule">Cleavage rule</param>
-    ''' <param name="returnResidueStart">Output: residue in the protein where the peptide starts</param>
-    ''' <param name="returnResidueEnd">Output: residue in the protein where the peptide ends</param>
-    ''' <param name="terminiiSymbol"></param>
-    ''' <returns>The next tryptic peptide in proteinResidues</returns>
-    ''' <remarks>
-    ''' Useful when obtaining all of the tryptic peptides for a protein, since this function will operate
-    ''' much faster than repeatedly calling GetTrypticPeptideByFragmentNumber()
-    ''' </remarks>
-    Public Function GetTrypticPeptideNext(
-        proteinResidues As String,
-        searchStartLoc As Integer,
-        cleavageRule As CleavageRule,
-        <Out> ByRef returnResidueStart As Integer,
-        <Out> ByRef returnResidueEnd As Integer,
-        Optional terminiiSymbol As Char = TERMINII_SYMBOL) As String
-
-        Dim proteinResiduesLength As Integer
-
-        If searchStartLoc < 1 Then searchStartLoc = 1
-
-        If proteinResidues Is Nothing Then
-            proteinResiduesLength = 0
-        Else
-            proteinResiduesLength = proteinResidues.Length
-        End If
-
-        If searchStartLoc > proteinResiduesLength Then
-            returnResidueStart = 0
-            returnResidueEnd = 0
-            Return String.Empty
-        End If
-
-        Dim ruleResidueNum = GetTrypticNameFindNextCleavageLoc(proteinResidues, terminiiSymbol, searchStartLoc, cleavageRule, terminiiSymbol)
-        If ruleResidueNum > 0 Then
-            returnResidueStart = searchStartLoc
-            If ruleResidueNum > proteinResiduesLength Then
-                returnResidueEnd = proteinResiduesLength
-            Else
-                returnResidueEnd = ruleResidueNum
-            End If
-            Return proteinResidues.Substring(returnResidueStart - 1, returnResidueEnd - returnResidueStart + 1)
-        Else
-            returnResidueStart = 1
-            returnResidueEnd = proteinResiduesLength
-            Return proteinResidues
-        End If
-
-    End Function
-
-    ''' <summary>
-    ''' Finds the desired tryptic peptide from proteinResidues
-    ''' </summary>
-    ''' <param name="proteinResidues"></param>
-    ''' <param name="desiredPeptideNumber"></param>
-    ''' <param name="cleavageRule"></param>
-    ''' <param name="returnResidueStart">Output: residue in the protein where the peptide starts</param>
-    ''' <param name="returnResidueEnd">Output: residue in the protein where the peptide ends</param>
-    ''' <param name="terminiiSymbol"></param>
-    ''' <param name="ignoreCase"></param>
-    ''' <returns>The desired tryptic peptide from proteinResidues</returns>
-    ''' <remarks>
-    ''' For example, if proteinResidues = "IGKANRMTFGL"
-    ''' when desiredPeptideNumber = 1, returns "IGK"
-    ''' when desiredPeptideNumber = 2, returns "ANR"
-    ''' when desiredPeptideNumber = 3, returns "MTFGL"
-    ''' </remarks>
-    Public Function GetTrypticPeptideByFragmentNumber(
-        proteinResidues As String,
-        desiredPeptideNumber As Integer,
-        cleavageRule As CleavageRule,
-        <Out> Optional ByRef returnResidueStart As Integer = 0,
-        <Out> Optional ByRef returnResidueEnd As Integer = 0,
-        Optional terminiiSymbol As Char = TERMINII_SYMBOL,
-        Optional ignoreCase As Boolean = True) As String
-
-        Dim matchingFragment As String
-
-        If desiredPeptideNumber < 1 Then
-            returnResidueStart = 0
-            returnResidueEnd = 0
-            Return String.Empty
-        End If
-
-        If ignoreCase Then
-            proteinResidues = proteinResidues.ToUpper
-        End If
-
-        Dim proteinResiduesLength = proteinResidues.Length
-
-        ' startLoc tracks residue number, ranging from 1 to length of the protein
-        Dim startLoc = 1
-        Dim prevStartLoc = 0
-
-        Dim ruleResidueNum As Integer
-        Dim currentTrypticPeptideNumber = 0
-
-        Do
-            ruleResidueNum = GetTrypticNameFindNextCleavageLoc(proteinResidues, terminiiSymbol, startLoc, cleavageRule, terminiiSymbol)
-            If ruleResidueNum > 0 Then
-                currentTrypticPeptideNumber += 1
-                prevStartLoc = startLoc
-                startLoc = ruleResidueNum + 1
-
-                If prevStartLoc > proteinResiduesLength Then
-                    ' User requested a peptide number that doesn't exist
-                    returnResidueStart = 0
-                    returnResidueEnd = 0
-                    Return String.Empty
-                End If
-            Else
-                ' This code should never be reached
-                Console.WriteLine("Unexpected code point reached in GetTrypticPeptideByFragmentNumber")
-                Exit Do
-            End If
-        Loop While currentTrypticPeptideNumber < desiredPeptideNumber
-
-        If currentTrypticPeptideNumber > 0 AndAlso prevStartLoc > 0 Then
-            If prevStartLoc > proteinResidues.Length Then
-                ' User requested a peptide number that is too high
-                returnResidueStart = 0
-                returnResidueEnd = 0
-                matchingFragment = String.Empty
-            Else
-                ' Match found, find the extent of this peptide
-                returnResidueStart = prevStartLoc
-                If ruleResidueNum > proteinResiduesLength Then
-                    returnResidueEnd = proteinResiduesLength
-                Else
-                    returnResidueEnd = ruleResidueNum
-                End If
-                matchingFragment = proteinResidues.Substring(prevStartLoc - 1, ruleResidueNum - prevStartLoc + 1)
-            End If
-        Else
-            returnResidueStart = 1
-            returnResidueEnd = proteinResiduesLength
-            matchingFragment = proteinResidues
-        End If
-
-        Return matchingFragment
-
-    End Function
-
-    Private Function FindNextCleavageResidue(
-      cleavageRule As CleavageRule,
-      charIndexInCleavageResidues As Integer,
-      searchResidues As String,
-      startResidueNum As Integer,
-      <Out> ByRef cleavageResidueNum As Integer) As Boolean
-
-        If cleavageRule.ReversedCleavageDirection Then
-            ' Cleave before the matched residue
-            ' Note that the CharLoc value we're storing is the location just before the cleavage point
-            cleavageResidueNum = searchResidues.IndexOf(cleavageRule.CleavageResidues.Chars(charIndexInCleavageResidues), startResidueNum)
-        Else
-            cleavageResidueNum = searchResidues.IndexOf(cleavageRule.CleavageResidues.Chars(charIndexInCleavageResidues), startResidueNum - 1) + 1
-        End If
-
-        If cleavageResidueNum >= 1 AndAlso cleavageResidueNum >= startResidueNum Then
-            Return True
-        End If
-
-        Return False
-
-    End Function
-
-    Private Function IsMatchToExceptionResidue(
-      cleavageRule As CleavageRule,
-      searchResidues As String,
-      residueFollowingSearchResidues As String,
-      cleavedResidueIndex As Integer,
-      <Out> ByRef exceptionCharIndexInSearchResidues As Integer) As Boolean
-
-        Dim exceptionResidueToCheck As Char
-
-        If cleavageRule.ReversedCleavageDirection Then
-            ' Make sure the residue before the matched residue does not match exceptionResidues
-            ' We already subtracted 1 from charLoc so charLoc is already the correct character number
-            ' Note that the logic in FindNextCleavageResidue assures that charLoc is > 0
-            exceptionCharIndexInSearchResidues = cleavedResidueIndex
-            exceptionResidueToCheck = searchResidues.Chars(exceptionCharIndexInSearchResidues - 1)
-        Else
-            ' Make sure suffixResidue does not match exceptionResidues
-            If cleavedResidueIndex < searchResidues.Length Then
-                exceptionCharIndexInSearchResidues = cleavedResidueIndex + 1
-                exceptionResidueToCheck = searchResidues.Chars(exceptionCharIndexInSearchResidues - 1)
-            Else
-                ' Matched the last residue in searchResidues
-                exceptionCharIndexInSearchResidues = searchResidues.Length + 1
-                exceptionResidueToCheck = residueFollowingSearchResidues.Chars(0)
-            End If
-        End If
-
-        If cleavageRule.ExceptionResidues.IndexOf(exceptionResidueToCheck) >= 0 Then
-            Return True
-        End If
-
-        Return False
-    End Function
-
-    ''' <summary>
-    ''' Removing the leading H, if present
-    ''' </summary>
-    ''' <param name="workingSequence">Amino acids, in 3 letter notation</param>
-    ''' <remarks>This is only applicable for sequences in 3 letter notation</remarks>
-    Private Sub RemoveLeadingH(ByRef workingSequence As String)
-
-        If workingSequence.Substring(0, 1).ToUpper() = "H" AndAlso workingSequence.Length >= 4 Then
-            ' If next character is not a character, remove the H and the next character
-            If Not Char.IsLetter(workingSequence.Chars(1)) Then
-                workingSequence = workingSequence.Substring(2)
-            Else
-                ' Otherwise, see if next three characters are letters
-                If Char.IsLetter(workingSequence.Chars(1)) AndAlso
-                    Char.IsLetter(workingSequence.Chars(2)) AndAlso
-                    Char.IsLetter(workingSequence.Chars(3)) Then
-                    ' Formula starts with 4 characters and the first is H, see if the first 3 characters are a valid amino acid code
-
-                    Dim oneLetterSymbol = GetAminoAcidSymbolConversion(workingSequence.Substring(1, 3), False)
-
-                    If oneLetterSymbol.Length > 0 Then
-                        ' Starts with H then a valid 3 letter abbreviation, so remove the initial H
-                        workingSequence = workingSequence.Substring(1)
-                    End If
-                End If
-            End If
-        End If
-
-    End Sub
-
-    ''' <summary>
-    ''' Removing the trailing OH, if present
-    ''' </summary>
-    ''' <param name="workingSequence">Amino acids, in 3 letter notation</param>
-    ''' <remarks>This is only applicable for sequences in 3 letter notation</remarks>
-    Private Sub RemoveTrailingOH(ByRef workingSequence As String)
-
-        Dim stringLength = workingSequence.Length
-        If workingSequence.Substring(stringLength - 2, 2).ToUpper() = "OH" AndAlso stringLength >= 5 Then
-            ' If previous character is not a character, then remove the OH (and the character preceding)
-            If Not Char.IsLetter(workingSequence.Chars(stringLength - 3)) Then
-                workingSequence = workingSequence.Substring(0, stringLength - 3)
-            Else
-                ' Otherwise, see if previous three characters are letters
-                If Char.IsLetter(workingSequence.Chars(stringLength - 2)) AndAlso
-                    Char.IsLetter(workingSequence.Chars(stringLength - 3)) AndAlso
-                    Char.IsLetter(workingSequence.Chars(stringLength - 4)) Then
-                    ' Formula ends with 3 characters and the last two are OH, see if the last 3 characters are a valid amino acid code
-
-                    Dim oneLetterSymbol = GetAminoAcidSymbolConversion(workingSequence.Substring(stringLength - 4, 3), False)
-
-                    If oneLetterSymbol.Length > 0 Then
-                        ' Ends with a valid 3 letter abbreviation then OH, so remove the OH
-                        workingSequence = workingSequence.Substring(0, stringLength - 2)
-                    End If
-                End If
-            End If
-        End If
-
-    End Sub
-
-    Private Function ResiduesMatchCleavageRule(testResidue As Char, exceptionResidue As Char, cleavageRule As CleavageRule) As Boolean
-
-        If CheckSequenceAgainstCleavageRuleMatchTestResidue(testResidue, cleavageRule.CleavageResidues) Then
-            ' Match found
-            ' See if exceptionResidue matches any of the exception residues
-            If Not CheckSequenceAgainstCleavageRuleMatchTestResidue(exceptionResidue, cleavageRule.ExceptionResidues) Then
-                Return True
-            End If
-        End If
-
-        Return False
-    End Function
-
-    ''' <summary>
-    ''' Define the C-terminus using an empirical formula
-    ''' </summary>
-    ''' <param name="formula">Can only contain C, H, N, O, S, or P, and cannot contain any parentheses or other advanced formula features</param>
-    ''' <param name="followingResidue"></param>
-    ''' <param name="use3LetterCode"></param>
-    ''' <returns>0 if success; 1 if error</returns>
-    ''' <remarks>
-    ''' Typical C terminus groups
-    ''' Free Acid = OH
-    ''' Amide = NH2
-    ''' </remarks>
-    Private Function SetCTerminus(formula As String, Optional followingResidue As String = "", Optional use3LetterCode As Boolean = False) As Integer
-
-        Dim returnVal As Integer
-
-        mCTerminus.Formula = formula
-        mCTerminus.Mass = ComputeFormulaWeightCHNOSP(mCTerminus.Formula)
-        mCTerminus.MassElementMode = mCurrentElementMode
-        If mCTerminus.Mass < 0 Then
-            mCTerminus.Mass = 0
-            returnVal = 1
-        Else
-            returnVal = 0
-        End If
-
-        mCTerminus.PrecedingResidue = String.Empty
-        If use3LetterCode AndAlso followingResidue.Length > 0 Then
-            mCTerminus.FollowingResidue = GetAminoAcidSymbolConversion(followingResidue, False)
-        Else
-            mCTerminus.FollowingResidue = followingResidue
-        End If
-
-        If Not mDelayUpdateResidueMass Then UpdateSequenceMass()
-        Return returnVal
-
-    End Function
-
-    ''' <summary>
-    ''' Define the C-terminus using an enum in CTerminusGroupConstants
-    ''' </summary>
-    ''' <param name="cTerminusGroup"></param>
-    ''' <param name="followingResidue"></param>
-    ''' <param name="use3LetterCode"></param>
-    ''' <returns>0 if success; 1 if error</returns>
-    Public Function SetCTerminusGroup(cTerminusGroup As CTerminusGroupConstants, Optional followingResidue As String = "", Optional use3LetterCode As Boolean = False) As Integer
-
-        Dim errorCode As Integer
-
-        Select Case cTerminusGroup
-            Case CTerminusGroupConstants.Hydroxyl : errorCode = SetCTerminus("OH", followingResidue, use3LetterCode)
-            Case CTerminusGroupConstants.Amide : errorCode = SetCTerminus("NH2", followingResidue, use3LetterCode)
-            Case CTerminusGroupConstants.None : errorCode = SetCTerminus(String.Empty, followingResidue, use3LetterCode)
-            Case Else : errorCode = 1
-        End Select
-
-        Return errorCode
-
-    End Function
-
-
-    ''' <summary>
-    ''' Define the N-terminus using an empirical formula
-    ''' </summary>
-    ''' <param name="formula">Can only contain C, H, N, O, S, or P, and cannot contain any parentheses or other advanced formula features</param>
-    ''' <param name="precedingResidue"></param>
-    ''' <param name="use3LetterCode"></param>
-    ''' <returns>0 if success; 1 if error</returns>
-    ''' <remarks>
-    ''' Typical N terminus groups
-    ''' Hydrogen = H
-    ''' Acetyl = C2OH3
-    ''' PyroGlu = C5O2NH6
-    ''' Carbamyl = CONH2
-    ''' PTC = C7H6NS
-    ''' </remarks>
-    Private Function SetNTerminus(formula As String, Optional precedingResidue As String = "", Optional use3LetterCode As Boolean = False) As Integer
-
-        Dim returnVal As Integer
-
-        mNTerminus.Formula = formula
-        mNTerminus.Mass = ComputeFormulaWeightCHNOSP(mNTerminus.Formula)
-        mNTerminus.MassElementMode = mCurrentElementMode
-        If mNTerminus.Mass < 0 Then
-            mNTerminus.Mass = 0
-            returnVal = 1
-        Else
-            returnVal = 0
-        End If
-        mNTerminus.PrecedingResidue = String.Empty
-        If use3LetterCode AndAlso precedingResidue.Length > 0 Then
-            mNTerminus.PrecedingResidue = GetAminoAcidSymbolConversion(precedingResidue, False)
-        Else
-            mNTerminus.PrecedingResidue = precedingResidue
-        End If
-        mNTerminus.FollowingResidue = String.Empty
-
-        If Not mDelayUpdateResidueMass Then UpdateSequenceMass()
-        Return returnVal
-
-    End Function
-
-    ''' <summary>
-    ''' Define the N-terminus using an enum in NTerminusGroupConstants
-    ''' </summary>
-    ''' <param name="nTerminusGroup"></param>
-    ''' <param name="precedingResidue"></param>
-    ''' <param name="use3LetterCode"></param>
-    ''' <returns>0 if success; 1 if error</returns>
-    Public Function SetNTerminusGroup(nTerminusGroup As NTerminusGroupConstants, Optional precedingResidue As String = "", Optional use3LetterCode As Boolean = False) As Integer
-
-        Dim errorCode As Integer
-
-        Select Case nTerminusGroup
-            Case NTerminusGroupConstants.Hydrogen : errorCode = SetNTerminus("H", precedingResidue, use3LetterCode)
-            Case NTerminusGroupConstants.HydrogenPlusProton : errorCode = SetNTerminus("HH", precedingResidue, use3LetterCode)
-            Case NTerminusGroupConstants.Acetyl : errorCode = SetNTerminus("C2OH3", precedingResidue, use3LetterCode)
-            Case NTerminusGroupConstants.PyroGlu : errorCode = SetNTerminus("C5O2NH6", precedingResidue, use3LetterCode)
-                ' ReSharper disable once StringLiteralTypo
-            Case NTerminusGroupConstants.Carbamyl : errorCode = SetNTerminus("CONH2", precedingResidue, use3LetterCode)
-            Case NTerminusGroupConstants.PTC : errorCode = SetNTerminus("C7H6NS", precedingResidue, use3LetterCode)
-            Case NTerminusGroupConstants.None : errorCode = SetNTerminus("", precedingResidue, use3LetterCode)
-            Case Else : errorCode = 1
-        End Select
-
-        Return errorCode
-
-    End Function
-
-    ''' <summary>
-    ''' Define the peptide sequence
-    ''' </summary>
-    ''' <param name="sequence">Peptide or protein amino acid symbols</param>
-    ''' <param name="nTerminus">N-terminus type</param>
-    ''' <param name="cTerminus">C-terminus type</param>
-    ''' <param name="is3LetterCode">When true, sequence uses 3 letter amino acid symbols</param>
-    ''' <param name="oneLetterCheckForPrefixAndSuffixResidues">
-    ''' When true, if the sequence has prefix and suffix letters, they are removed
-    ''' For example: R.ABCDEFGK.R will be stored as ABCDEFGK
-    ''' </param>
-    ''' <param name="threeLetterCheckForPrefixHandSuffixOH">
-    ''' When true, if the sequence starts with H or OH, remove those letters
-    ''' For example: Arg.AlaCysAspPheGlyLys.Arg will be stored as AlaCysAspPheGlyLys
-    ''' </param>
-    ''' <returns>
-    ''' 0 if success or 1 if an error
-    ''' Will return 0 if the sequence is blank or if it contains no valid residues
-    ''' </returns>
-    ''' <remarks>Calls UpdateSequenceMass</remarks>
-    Public Overridable Function SetSequence(
-      sequence As String,
-      Optional nTerminus As NTerminusGroupConstants = NTerminusGroupConstants.Hydrogen,
-      Optional cTerminus As CTerminusGroupConstants = CTerminusGroupConstants.Hydroxyl,
-      Optional is3LetterCode As Boolean = False,
-      Optional oneLetterCheckForPrefixAndSuffixResidues As Boolean = True,
-      Optional threeLetterCheckForPrefixHandSuffixOH As Boolean = True) As Integer
-
-        mResidues = String.Empty
-
-        sequence = sequence.Trim()
-        Dim sequenceStrLength = sequence.Length
-        If sequenceStrLength = 0 Then
-            UpdateSequenceMass()
-            Return 0
-        End If
-
-        If Not is3LetterCode Then
-            ' Sequence is 1 letter codes
-
-            If oneLetterCheckForPrefixAndSuffixResidues Then
-                sequence = CheckForAndRemovePrefixAndSuffixResidues(sequence)
-                sequenceStrLength = sequence.Length
-            End If
-
-            ' Now parse the string of 1 letter characters
-            For index = 0 To sequenceStrLength - 1
-                If Char.IsLetter(sequence.Chars(index)) Then
-                    ' Character found
-                    mResidues &= sequence.Chars(index)
-                Else
-                    ' Ignore anything else
-                End If
-            Next index
-
-        Else
-            ' Sequence is 3 letter codes
-            If threeLetterCheckForPrefixHandSuffixOH Then
-                ' Look for a leading H or trailing OH, provided those don't match any of the amino acids
-                RemoveLeadingH(sequence)
-                RemoveTrailingOH(sequence)
-
-                ' Recompute sequence length
-                sequenceStrLength = sequence.Length
-            End If
-
-            Dim index = 0
-            Do While index <= sequenceStrLength - 3
-                If Char.IsLetter(sequence.Chars(index)) Then
-                    If Char.IsLetter(sequence.Chars(index + 1)) AndAlso
-                       Char.IsLetter(sequence.Chars(index + 2)) Then
-
-                        Dim oneLetterSymbol = GetAminoAcidSymbolConversion(sequence.Substring(index, 3), False)
-
-                        If oneLetterSymbol.Length = 0 Then
-                            ' 3 letter symbol not found
-                            ' Add anyway, but mark as X
-                            oneLetterSymbol = UNKNOWN_SYMBOL_ONE_LETTER
-                        End If
-
-                        mResidues &= oneLetterSymbol
-                        index += 3
-                    Else
-                        ' First letter is a character, but next two are not; ignore it
-                        index += 1
-                    End If
-                Else
-                    ' Ignore anything else
-                    index += 1
-                End If
-            Loop
-        End If
-
-        ' By calling SetNTerminus and SetCTerminus, the UpdateSequenceMass() Sub will also be called
-        ' We don't want to compute the mass yet
-        mDelayUpdateResidueMass = True
-        SetNTerminusGroup(nTerminus)
-        SetCTerminusGroup(cTerminus)
-
-        mDelayUpdateResidueMass = False
-        UpdateSequenceMass()
-
-        Return 0
-
-    End Function
-
-    ''' <summary>
-    ''' Updates the sequence without performing any error checking
-    ''' Does not look for or remove prefix or suffix letters
-    ''' </summary>
-    ''' <param name="sequenceNoPrefixOrSuffix"></param>
-    ''' <remarks>Calls UpdateSequenceMass</remarks>
-    Public Overridable Sub SetSequenceOneLetterCharactersOnly(sequenceNoPrefixOrSuffix As String)
-        mResidues = sequenceNoPrefixOrSuffix
-        UpdateSequenceMass()
-    End Sub
-
-    ''' <summary>
-    ''' Computes mass for each residue in mResidues
-    ''' Only process one letter amino acid abbreviations
-    ''' </summary>
-    Private Sub UpdateSequenceMass()
-
-        Dim runningTotal As Double
-        Dim protonatedNTerminus As Boolean
-
-        If mDelayUpdateResidueMass Then Exit Sub
-
-        If mResidues.Length = 0 Then
-            runningTotal = 0
-        Else
-            ' The N-terminus ions are the basis for the running total
-            ValidateTerminusMasses()
-
-            runningTotal = mNTerminus.Mass
-            If mNTerminus.Formula.ToUpper = "HH" Then
-                ' ntgNTerminusGroupConstants.HydrogenPlusProton; since we add back in the proton below when computing the fragment masses,
-                '  we need to subtract it out here
-                ' However, we need to subtract out mHydrogenMass, and not mChargeCarrierMass since the current
-                '  formula's mass was computed using two hydrogen atoms, and not one hydrogen and one charge carrier
-                protonatedNTerminus = True
-                runningTotal -= mHydrogenMass
-            End If
-
-            For index = 0 To mResidues.Length - 1
-                Try
-                    Dim oneLetterSymbol = mResidues.Chars(index)
-
-                    runningTotal += AminoAcidMasses(oneLetterSymbol)
-
-                    If oneLetterSymbol = "C"c AndAlso CysTreatmentMode <> CysTreatmentModeConstants.Untreated Then
-                        Select Case CysTreatmentMode
-                            Case CysTreatmentModeConstants.Iodoacetamide
-                                runningTotal += mIodoacetamideMass
-
-                            Case CysTreatmentModeConstants.IodoaceticAcid
-                                runningTotal += mIodoaceticAcidMass
-                        End Select
-
-                    End If
-
-                Catch ex As Exception
-                    ' Skip this residue
-                    Console.WriteLine("Error parsing Residue symbols in UpdateSequenceMass; " & ex.Message)
-                End Try
-            Next index
-
-            runningTotal += mCTerminus.Mass
-            If protonatedNTerminus Then
-                runningTotal += mChargeCarrierMass
-            End If
-        End If
-
-        mTotalMassElementMode = mCurrentElementMode
-        mTotalMass = runningTotal
-
-    End Sub
-
-    Private Sub UpdateStandardMasses()
-        Const DEFAULT_CHARGE_CARRIER_MASS_AVG = 1.00739
-        Const DEFAULT_CHARGE_CARRIER_MASS_MONOISOTOPIC = 1.00727649
-
-        If mCurrentElementMode = ElementModeConstants.AverageMass Then
-            mChargeCarrierMass = DEFAULT_CHARGE_CARRIER_MASS_AVG
-        Else
-            mChargeCarrierMass = DEFAULT_CHARGE_CARRIER_MASS_MONOISOTOPIC
-        End If
-
-        ' Update Hydrogen mass
-        mHydrogenMass = ComputeFormulaWeightCHNOSP("H")
-
-        mIodoacetamideMass = ComputeFormulaWeightCHNOSP("C2H3NO")
-        mIodoaceticAcidMass = ComputeFormulaWeightCHNOSP("C2H2O2")
-
-    End Sub
-
-    Private Sub ValidateTerminusMasses()
-        If mNTerminus.MassElementMode <> mCurrentElementMode Then
-            mNTerminus.Mass = ComputeFormulaWeightCHNOSP(mNTerminus.Formula)
-            mNTerminus.MassElementMode = mCurrentElementMode
-        End If
-
-        If mCTerminus.MassElementMode <> mCurrentElementMode Then
-            mCTerminus.Mass = ComputeFormulaWeightCHNOSP(mCTerminus.Formula)
-            mCTerminus.MassElementMode = mCurrentElementMode
-        End If
-
-    End Sub
-
-    Private Sub InitializeSharedData()
-
-        If ElementMasses Is Nothing Then
-            ElementMasses = New Dictionary(Of Char, Double)
-        Else
-            ElementMasses.Clear()
-        End If
-
-        If mCurrentElementMode = ElementModeConstants.IsotopicMass Then
-            ' Isotopic masses
-            ElementMasses.Add("C"c, 12.0)
-            ElementMasses.Add("H"c, 1.0078246)
-            ElementMasses.Add("N"c, 14.003074)
-            ElementMasses.Add("O"c, 15.994915)
-            ElementMasses.Add("S"c, 31.972072)
-            ElementMasses.Add("P"c, 30.973763)
-        Else
-            ' Average masses
-            ElementMasses.Add("C"c, 12.0107)
-            ElementMasses.Add("H"c, 1.00794)
-            ElementMasses.Add("N"c, 14.00674)
-            ElementMasses.Add("O"c, 15.9994)
-            ElementMasses.Add("S"c, 32.066)
-            ElementMasses.Add("P"c, 30.973761)
-        End If
-
-        If AminoAcidMasses Is Nothing Then
-            AminoAcidMasses = New Dictionary(Of Char, Double)
-        Else
-            AminoAcidMasses.Clear()
-        End If
-
-        If AminoAcidSymbols Is Nothing Then
-            AminoAcidSymbols = New Dictionary(Of Char, String)
-        Else
-            AminoAcidSymbols.Clear()
-        End If
-
-        AddAminoAcidStatEntry("A"c, "Ala", "C3H5NO")
-        AddAminoAcidStatEntry("B"c, "Bbb", "C4H6N2O2")       ' N or D
-        AddAminoAcidStatEntry("C"c, "Cys", "C3H5NOS")
-        AddAminoAcidStatEntry("D"c, "Asp", "C4H5NO3")
-        AddAminoAcidStatEntry("E"c, "Glu", "C5H7NO3")
-        AddAminoAcidStatEntry("F"c, "Phe", "C9H9NO")
-        AddAminoAcidStatEntry("G"c, "Gly", "C2H3NO")
-        AddAminoAcidStatEntry("H"c, "His", "C6H7N3O")
-        AddAminoAcidStatEntry("I"c, "Ile", "C6H11NO")
-        AddAminoAcidStatEntry("J"c, "Jjj", "C6H11NO")        ' Unknown; use mass of Ile/Leu
-        AddAminoAcidStatEntry("K"c, "Lys", "C6H12N2O")
-        AddAminoAcidStatEntry("L"c, "Leu", "C6H11NO")
-        AddAminoAcidStatEntry("M"c, "Met", "C5H9NOS")
-        AddAminoAcidStatEntry("N"c, "Asn", "C4H6N2O2")
-        AddAminoAcidStatEntry("O"c, "Orn", "C5H10N2O")
-        AddAminoAcidStatEntry("P"c, "Pro", "C5H7NO")
-        AddAminoAcidStatEntry("Q"c, "Gln", "C5H8N2O2")
-        AddAminoAcidStatEntry("R"c, "Arg", "C6H12N4O")
-        AddAminoAcidStatEntry("S"c, "Ser", "C3H5NO2")
-        AddAminoAcidStatEntry("T"c, "Thr", "C4H7NO2")
-        AddAminoAcidStatEntry("U"c, "Gla", "C6H7NO5")
-        AddAminoAcidStatEntry("V"c, "Val", "C5H9NO")
-        AddAminoAcidStatEntry("W"c, "Trp", "C11H10N2O")
-        AddAminoAcidStatEntry(UNKNOWN_SYMBOL_ONE_LETTER, UNKNOWN_SYMBOL_THREE_LETTERS, "C6H11NO")       ' Unknown; use mass of Ile/Leu
-        AddAminoAcidStatEntry("Y"c, "Tyr", "C9H9NO2")
-        AddAminoAcidStatEntry("Z"c, "Zzz", "C5H8N2O2")       ' Q or E (note that these are 0.984 Da apart)
-
-        UpdateStandardMasses()
-
-        mTrypticCleavageRule = New CleavageRule("Fully Tryptic", TRYPTIC_RULE_RESIDUES, TRYPTIC_EXCEPTION_RESIDUES, False)
-
-    End Sub
-
-End Class
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using Microsoft.VisualBasic;
+using Microsoft.VisualBasic.CompilerServices;
+
+namespace ProteinDigestionSimulator
+{
+    /// <summary>
+    /// This class can be used to calculate the mass of an amino acid sequence (peptide or protein)
+    /// The protein must be in one letter abbreviation format
+    /// </summary>
+    public class PeptideSequence
+    {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public PeptideSequence()
+        {
+            if (!mSharedArraysInitialized)
+            {
+                mCurrentElementMode = ElementModeConstants.IsotopicMass;
+                InitializeSharedData();
+                mSharedArraysInitialized = true;
+            }
+
+            mResidues = string.Empty;
+        }
+
+        private const char UNKNOWN_SYMBOL_ONE_LETTER = 'X';
+        private const string UNKNOWN_SYMBOL_THREE_LETTERS = "Xxx";
+        private const char TERMINII_SYMBOL = '-';
+        private const string TRYPTIC_RULE_RESIDUES = "KR";
+        private const string TRYPTIC_EXCEPTION_RESIDUES = "P";
+
+        public enum CTerminusGroupConstants
+        {
+            Hydroxyl = 0,
+            Amide = 1,
+            None = 2
+        }
+
+        public enum NTerminusGroupConstants
+        {
+            Hydrogen = 0,
+            HydrogenPlusProton = 1,
+            Acetyl = 2,
+            PyroGlu = 3,
+            Carbamyl = 4,
+            PTC = 5,
+            None = 6
+        }
+
+        /// <summary>
+        /// Cysteine treatment constants
+        /// </summary>
+        public enum CysTreatmentModeConstants
+        {
+            Untreated = 0,
+            Iodoacetamide = 1,       // +57.0215 (alkylated)
+            IodoaceticAcid = 2      // +58.0055
+        }
+
+        public enum ElementModeConstants
+        {
+            AverageMass = 0,
+            IsotopicMass = 1
+        }
+
+        private struct TerminusInfo
+        {
+            public string Formula;
+            public double Mass;
+            public ElementModeConstants MassElementMode;
+            // ReSharper disable once NotAccessedField.Local
+            public string PrecedingResidue;      // If the peptide sequence is part of a protein, the user can record the final residue of the previous peptide sequence here
+                                                 // ReSharper disable once NotAccessedField.Local
+            public string FollowingResidue;      // If the peptide sequence is part of a protein, the user can record the first residue of the next peptide sequence here
+        }
+
+        // Variables shared across all instances of this class
+
+        private static bool mSharedArraysInitialized;
+
+        /// <summary>
+        /// One letter symbols and corresponding mass for each
+        /// </summary>
+        private static Dictionary<char, double> AminoAcidMasses;
+
+        /// <summary>
+        /// One letter symbols and corresponding three letter symbol for each
+        /// </summary>
+        private static Dictionary<char, string> AminoAcidSymbols;
+
+        /// <summary>
+        /// One letter element symbols and corresponding mass for each
+        /// </summary>
+        private static Dictionary<char, double> ElementMasses;
+        private static ElementModeConstants mCurrentElementMode;
+
+        /// <summary>
+        /// Mass of hydrogen
+        /// </summary>
+        private static double mHydrogenMass;
+
+        /// <summary>
+        /// Charge carrier mass: hydrogen minus one electron
+        /// </summary>
+        private static double mChargeCarrierMass;
+
+        /// <summary>
+        /// Mass value to add for each Cys residue when CysTreatmentMode is Iodoacetamide
+        /// </summary>
+        /// <remarks>Auto-updated when mCurrentElementMode is updated</remarks>
+        private static double mIodoacetamideMass;
+
+        /// <summary>
+        /// Mass value to add for each Cys residue when CysTreatmentMode is IodoaceticAcid
+        /// </summary>
+        /// <remarks>Auto-updated when mCurrentElementMode is updated</remarks>
+        private static double mIodoaceticAcidMass;
+        private static CleavageRule mTrypticCleavageRule;
+        private string mResidues;
+
+        /// <summary>
+        /// Formula on the N-Terminus
+        /// </summary>
+        private TerminusInfo mNTerminus;
+
+        /// <summary>
+        /// Formula on the C-Terminus
+        /// </summary>
+        private TerminusInfo mCTerminus;
+        private double mTotalMass;
+        private ElementModeConstants mTotalMassElementMode;
+        private bool mDelayUpdateResidueMass;
+
+        /// <summary>
+        /// Charge carrier mass
+        /// </summary>
+        /// <returns></returns>
+        public static double ChargeCarrierMass
+        {
+            get
+            {
+                return mChargeCarrierMass;
+            }
+        }
+
+        /// <summary>
+        /// Cysteine treatment mode
+        /// </summary>
+        /// <returns></returns>
+        public CysTreatmentModeConstants CysTreatmentMode { get; set; }
+
+        /// <summary>
+        /// Element mode
+        /// </summary>
+        /// <returns></returns>
+        public ElementModeConstants ElementMode
+        {
+            get
+            {
+                return mCurrentElementMode;
+            }
+
+            set
+            {
+                mCurrentElementMode = value;
+                InitializeSharedData();
+                UpdateSequenceMass();
+            }
+        }
+
+        /// <summary>
+        /// Sequence mass
+        /// </summary>
+        /// <returns></returns>
+        public double Mass
+        {
+            get
+            {
+                if (mTotalMassElementMode != mCurrentElementMode)
+                    UpdateSequenceMass();
+                return mTotalMass;
+            }
+        }
+
+        /// <summary>
+        /// Adds new entry to AminoAcidMasses and AminoAcidSymbols
+        /// </summary>
+        /// <param name="symbolOneLetter"></param>
+        /// <param name="symbolThreeLetter"></param>
+        /// <param name="formula">
+        /// Can only contain C, H, N, O, S, or P, with each element optionally having an integer after it
+        /// Cannot contain any parentheses or other advanced formula features
+        /// </param>
+        private void AddAminoAcidStatEntry(char symbolOneLetter, string symbolThreeLetter, string formula)
+        {
+            if (AminoAcidMasses.ContainsKey(symbolOneLetter))
+            {
+                AminoAcidMasses.Remove(symbolOneLetter);
+            }
+
+            double aminoAcidMass = ComputeFormulaWeightCHNOSP(formula);
+            AminoAcidMasses.Add(symbolOneLetter, aminoAcidMass);
+
+            // Uncomment this to create a file named "AminoAcidMasses.txt" containing the amino acid symbols and masses
+            // var writer = new System.IO.StreamWriter("AminoAcidMasses.txt", true);
+            // writer.WriteLine(symbolOneLetter + "\t" + mass.ToString("0.000000"));
+            // writer.Close();
+
+            AminoAcidSymbols.Add(symbolOneLetter, symbolThreeLetter);
+        }
+
+        /// <summary>
+        /// Remove prefix and suffix residues
+        /// </summary>
+        /// <param name="sequence">Sequence to examine</param>
+        /// <param name="prefix">Output: prefix residue</param>
+        /// <param name="suffix">Output: suffix residue</param>
+        /// <returns></returns>
+        /// <remarks>This function is only applicable for sequences in one-letter notation</remarks>
+        private string CheckForAndRemovePrefixAndSuffixResidues(string sequence, [Optional, DefaultParameterValue("")] out string prefix, [Optional, DefaultParameterValue("")] out string suffix)
+        {
+            prefix = string.Empty;
+            suffix = string.Empty;
+
+            // First look if sequence is in the form A.BCDEFG.Z or -.BCDEFG.Z or A.BCDEFG.-
+            // If so, then need to strip out the preceding A and Z residues since they aren't really part of the sequence
+            if (sequence.Length > 1 && sequence.IndexOf(".", StringComparison.Ordinal) >= 0)
+            {
+                if (Conversions.ToString(sequence[1]) == "." && sequence.Length > 2)
+                {
+                    prefix = Conversions.ToString(sequence[0]);
+                    sequence = sequence.Substring(2);
+                }
+
+                if (sequence.Length > 2 && Conversions.ToString(sequence[sequence.Length - 2]) == ".")
+                {
+                    prefix = Conversions.ToString(sequence[sequence.Length - 1]);
+                    sequence = sequence.Substring(0, sequence.Length - 2);
+                }
+
+                // Also check for starting with a . or ending with a .
+                if (sequence.Length > 0 && Conversions.ToString(sequence[0]) == ".")
+                {
+                    sequence = sequence.Substring(1);
+                }
+
+                if (sequence.Length > 0 && Conversions.ToString(sequence[sequence.Length - 1]) == ".")
+                {
+                    sequence = sequence.Substring(0, sequence.Length - 1);
+                }
+            }
+
+            return sequence;
+        }
+
+        /// <summary>
+        /// Checks a sequence to see if it matches the cleavage rule
+        /// Both the prefix residue and the residue at the end of the sequence are tested against ruleResidues and exceptionResidues
+        /// </summary>
+        /// <param name="sequence"></param>
+        /// <param name="cleavageRule"></param>
+        /// <param name="ruleMatchCount">Output: the number of ends that matched the rule (0, 1, or 2); terminii are counted as rule matches</param>
+        /// <param name="separationChar"></param>
+        /// <param name="terminiiSymbol"></param>
+        /// <param name="ignoreCase">When true, will capitalize all letters in sequence; if the calling method has already capitalized them, this can be set to False for a slight speed advantage</param>
+        /// <returns>True if a valid match, False if not a match</returns>
+        /// <remarks>Returns True if sequence doesn't contain any periods, and thus, can't be examined</remarks>
+        public bool CheckSequenceAgainstCleavageRule(string sequence, CleavageRule cleavageRule, out int ruleMatchCount, string separationChar = ".", char terminiiSymbol = TERMINII_SYMBOL, bool ignoreCase = true)
+        {
+            // ReSharper disable CommentTypo
+
+            // For example, if ruleResidues = "KR", exceptionResidues = "P", and reversedCleavageDirection = False
+            // Then if sequence = "R.AEQDDLANYGPGNGVLPSAGSSISMEK.L" then matchesCleavageRule = True
+            // However, if sequence = "R.IGASGEHIFIIGVDK.P" then matchesCleavageRule = False since suffix = "P"
+            // Finally, if sequence = "R.IGASGEHIFIIGVDKPNR.Q" then matchesCleavageRule = True since K is ignored, but the final R.Q is valid
+
+            // ReSharper restore CommentTypo
+
+            // Need to reset this to zero since passed ByRef
+            ruleMatchCount = 0;
+            int terminusCount = 0;
+
+            // First, make sure the sequence is in the form A.BCDEFG.H or A.BCDEFG or BCDEFG.H
+            // If it isn't, then we can't check it (we'll return true)
+
+            if (cleavageRule.CleavageResidues is null || cleavageRule.CleavageResidues.Length == 0)
+            {
+                // No rules
+                return true;
+            }
+
+            int periodIndex1 = sequence.IndexOf(separationChar, StringComparison.Ordinal);
+            int periodIndex2;
+            if (periodIndex1 < 0)
+            {
+                // No periods, can't check
+                Console.WriteLine("CheckSequenceAgainstCleavageRule called with a sequence that doesn't contain prefix or suffix separation characters; unable to process: " + sequence);
+                return true;
+            }
+            else
+            {
+                periodIndex2 = sequence.IndexOf(separationChar, periodIndex1 + 1, StringComparison.Ordinal);
+            }
+
+            if (ignoreCase)
+            {
+                sequence = sequence.ToUpper();
+            }
+
+            char prefix;
+            var suffix = default(char);
+            char sequenceStart;
+            var sequenceEnd = default(char);
+
+            // Find the prefix residue and starting residue
+            //
+            if (periodIndex1 >= 1)
+            {
+                prefix = sequence[periodIndex1 - 1];
+                sequenceStart = sequence[periodIndex1 + 1];
+            }
+            else
+            {
+                // periodIndex1 must be 0; assume we're at the protein terminus
+                prefix = terminiiSymbol;
+                sequenceStart = sequence[periodIndex1 + 1];
+            }
+
+            if (periodIndex2 > periodIndex1 + 1 && periodIndex2 <= sequence.Length - 2)
+            {
+                suffix = sequence[periodIndex2 - 1];
+                sequenceStart = sequence[periodIndex2 + 1];
+            }
+            else if (periodIndex1 > 1)
+            {
+                sequenceEnd = sequence[sequence.Length - 1];
+            }
+
+            if (cleavageRule.CleavageResidues == Conversions.ToString(terminiiSymbol))
+            {
+                // Peptide database rules
+                // See if prefix and suffix are both "" or are both terminiiSymbol
+                if (prefix == terminiiSymbol && suffix == terminiiSymbol || prefix == default(char) && suffix == default(char))
+                {
+                    ruleMatchCount = 2;
+                    // Count this as a match to the cleavage rule
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            // Test both prefix and sequenceEnd against ruleResidues
+            // Make sure suffix does not match exceptionResidues
+            for (int endToCheck = 0; endToCheck <= 1; endToCheck++)
+            {
+                bool skipThisEnd = false;
+                var testResidue = default(char);
+                var exceptionResidue = default(char);
+                if (endToCheck == 0)
+                {
+                    // N terminus
+                    if (prefix == terminiiSymbol)
+                    {
+                        terminusCount += 1;
+                        skipThisEnd = true;
+                    }
+                    else if (cleavageRule.ReversedCleavageDirection)
+                    {
+                        testResidue = sequenceStart;
+                        exceptionResidue = prefix;
+                    }
+                    else
+                    {
+                        testResidue = prefix;
+                        exceptionResidue = sequenceStart;
+                    }
+                }
+                // C terminus
+                else if (suffix == terminiiSymbol)
+                {
+                    terminusCount += 1;
+                    skipThisEnd = true;
+                }
+                else if (cleavageRule.ReversedCleavageDirection)
+                {
+                    testResidue = suffix;
+                    exceptionResidue = sequenceEnd;
+                }
+                else
+                {
+                    testResidue = sequenceEnd;
+                    exceptionResidue = suffix;
+                }
+
+                if (skipThisEnd)
+                    continue;
+                bool ruleMatch = ResiduesMatchCleavageRule(testResidue, exceptionResidue, cleavageRule);
+                if (ruleMatch)
+                {
+                    ruleMatchCount += 1;
+                }
+                else
+                {
+                    foreach (var additionalRule in cleavageRule.AdditionalCleavageRules)
+                    {
+                        bool altRuleMatch = ResiduesMatchCleavageRule(testResidue, exceptionResidue, additionalRule);
+                        if (altRuleMatch)
+                        {
+                            ruleMatchCount += 1;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (terminusCount == 2)
+            {
+                // Both ends of the peptide are terminii; label as fully matching the rules and set ruleMatchCount to 2
+                ruleMatchCount = 2;
+                return true;
+            }
+
+            if (terminusCount == 1)
+            {
+                // One end was a terminus; can either be fully cleaved or non-cleaved; never partially cleaved
+                if (ruleMatchCount >= 1)
+                {
+                    ruleMatchCount = 2;
+                    return true;
+                }
+
+                return false;
+            }
+
+            if (ruleMatchCount == 2)
+            {
+                return true;
+            }
+
+            if (ruleMatchCount >= 1 && cleavageRule.AllowPartialCleavage)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool CheckSequenceAgainstCleavageRuleMatchTestResidue(char testResidue, string ruleResidues)
+        {
+            // Checks to see if testResidue matches one of the residues in ruleResidues
+            // Used to test by Rule Residues and Exception Residues
+
+            if (ruleResidues.IndexOf(testResidue) >= 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Very simple mass computation utility; only considers elements C, H, N, O, S, and P
+        /// </summary>
+        /// <param name="formula">
+        /// Can only contain C, H, N, O, S, or P, with each element optionally having an integer after it
+        /// Cannot contain any parentheses or other advanced formula features
+        /// </param>
+        /// <returns>Formula mass, or 0 if any unknown symbols are encountered</returns>
+        private double ComputeFormulaWeightCHNOSP(string formula)
+        {
+            double formulaMass = 0d;
+            int lastElementIndex = -1;
+            string multiplier = string.Empty;
+            for (int index = 0, loopTo = formula.Length - 1; index <= loopTo; index++)
+            {
+                if (char.IsNumber(formula[index]))
+                {
+                    multiplier += Conversions.ToString(formula[index]);
+                }
+                else
+                {
+                    if (lastElementIndex >= 0)
+                    {
+                        formulaMass += ComputeFormulaWeightLookupMass(formula[lastElementIndex], multiplier);
+                        multiplier = string.Empty;
+                    }
+
+                    lastElementIndex = index;
+                }
+            }
+
+            // Handle the final element
+            if (lastElementIndex >= 0)
+            {
+                formulaMass += ComputeFormulaWeightLookupMass(formula[lastElementIndex], multiplier);
+            }
+
+            return formulaMass;
+        }
+
+        private double ComputeFormulaWeightLookupMass(char symbol, string multiplier)
+        {
+            int multiplierVal = PRISM.DataUtils.StringToValueUtils.CIntSafe(multiplier, 1);
+            try
+            {
+                return ElementMasses[symbol] * multiplierVal;
+            }
+            catch (Exception ex)
+            {
+                // Symbol not found, or has invalid mass
+                return 0d;
+            }
+        }
+
+        /// <summary>
+        /// Converts a sequence from 1 letter to 3 letter codes or vice versa
+        /// </summary>
+        /// <param name="sequence"></param>
+        /// <param name="oneLetterTo3Letter"></param>
+        /// <param name="addSpaceEvery10Residues"></param>
+        /// <param name="separateResiduesWithDash"></param>
+        /// <returns></returns>
+        public string ConvertAminoAcidSequenceSymbols(string sequence, bool oneLetterTo3Letter, bool addSpaceEvery10Residues = false, bool separateResiduesWithDash = false)
+        {
+            var peptide = new PeptideSequence();
+            string prefix = string.Empty;
+            string suffix = string.Empty;
+            try
+            {
+                if (oneLetterTo3Letter)
+                {
+                    sequence = CheckForAndRemovePrefixAndSuffixResidues(sequence, out prefix, out suffix);
+                }
+
+                peptide.SetSequence(sequence, NTerminusGroupConstants.None, CTerminusGroupConstants.None, !oneLetterTo3Letter);
+                string sequenceOut = peptide.GetSequence(oneLetterTo3Letter, addSpaceEvery10Residues, separateResiduesWithDash);
+                if (oneLetterTo3Letter && prefix.Length > 0 | suffix.Length > 0)
+                {
+                    peptide.SetSequence(prefix, NTerminusGroupConstants.None, CTerminusGroupConstants.None, false);
+                    sequenceOut = peptide.GetSequence(true, false, false) + "." + sequenceOut;
+                    peptide.SetSequence(suffix, NTerminusGroupConstants.None, CTerminusGroupConstants.None, false);
+                    sequenceOut += "." + peptide.GetSequence(true, false, false);
+                }
+
+                return sequenceOut;
+            }
+            catch (Exception ex)
+            {
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Convert between 1 letter and 3 letter symbol
+        /// </summary>
+        /// <param name="symbolToParse">Amino acid symbol to parse</param>
+        /// <param name="oneLetterTo3Letter">
+        /// When true, converting 1 letter codes to 3 letter codes
+        /// Otherwise, converting 3 letter codes to 1 letter codes
+        /// </param>
+        /// <returns>Converted amino acid symbol if a valid amino acid symbol, otherwise an empty string</returns>
+        private string GetAminoAcidSymbolConversion(string symbolToParse, bool oneLetterTo3Letter)
+        {
+            if (oneLetterTo3Letter)
+            {
+                // 1 letter to 3 letter
+                char symbol = symbolToParse.Substring(0, 1).ToUpper()[0];
+                if (AminoAcidSymbols.ContainsKey(symbol))
+                {
+                    return AminoAcidSymbols[symbol];
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+            else
+            {
+                // 3 letter to 1 letter
+                IDictionaryEnumerator myEnumerator = AminoAcidSymbols.GetEnumerator();
+                symbolToParse = symbolToParse.ToUpper();
+                while (myEnumerator.MoveNext())
+                {
+                    if ((Conversions.ToString(myEnumerator.Value).ToUpper() ?? "") == (symbolToParse ?? ""))
+                    {
+                        return Conversions.ToString(myEnumerator.Key);
+                    }
+                }
+
+                // If we get here, the value wasn't found
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Returns the given residue in the current sequence
+        /// </summary>
+        /// <param name="residueNumber"></param>
+        /// <param name="use3LetterCode"></param>
+        /// <returns></returns>
+        public string GetResidue(int residueNumber, bool use3LetterCode = false)
+        {
+            if (mResidues is object && residueNumber > 0 && residueNumber <= mResidues.Length)
+            {
+                if (use3LetterCode)
+                {
+                    return GetAminoAcidSymbolConversion(Conversions.ToString(mResidues[residueNumber - 1]), true);
+                }
+                else
+                {
+                    return Conversions.ToString(mResidues[residueNumber - 1]);
+                }
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public int GetResidueCount()
+        {
+            if (mResidues is null)
+            {
+                return 0;
+            }
+            else
+            {
+                return mResidues.Length;
+            }
+        }
+
+        /// <summary>
+        /// Returns the number of occurrences of the given residue in the loaded sequence, or -1 if an error
+        /// </summary>
+        /// <param name="residueSymbol"></param>
+        /// <param name="use3LetterCode"></param>
+        /// <returns></returns>
+        public int GetResidueCountSpecificResidue(string residueSymbol, bool use3LetterCode = false)
+        {
+            char searchResidue1Letter;
+            if (mResidues is null || mResidues.Length == 0)
+                return 0;
+            try
+            {
+                if (use3LetterCode)
+                {
+                    searchResidue1Letter = GetAminoAcidSymbolConversion(residueSymbol, false)[0];
+                }
+                else
+                {
+                    searchResidue1Letter = residueSymbol[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+
+            int residueIndex = -1;
+            int residueCount = 0;
+            do
+            {
+                residueIndex = mResidues.IndexOf(searchResidue1Letter, residueIndex + 1);
+                if (residueIndex >= 0)
+                {
+                    residueCount += 1;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            while (true);
+            return residueCount;
+        }
+
+        /// <summary>
+        /// Construct the peptide sequence using Residues() and the N and C Terminus info
+        /// </summary>
+        /// <param name="use3LetterCode"></param>
+        /// <param name="addSpaceEvery10Residues"></param>
+        /// <param name="separateResiduesWithDash"></param>
+        /// <param name="includeNAndCTerminii"></param>
+        /// <returns></returns>
+        public string GetSequence(bool use3LetterCode = false, bool addSpaceEvery10Residues = false, bool separateResiduesWithDash = false, bool includeNAndCTerminii = false)
+        {
+            string sequence;
+            string dashAdd = string.Empty;
+            if (mResidues is null)
+                return string.Empty;
+            if (!use3LetterCode && !addSpaceEvery10Residues && !separateResiduesWithDash)
+            {
+                // Simply return the sequence, possibly with the N and C terminii
+                sequence = mResidues;
+            }
+            else
+            {
+                if (separateResiduesWithDash)
+                    dashAdd = "-";
+                else
+                    dashAdd = string.Empty;
+                sequence = string.Empty;
+                int lastIndex = mResidues.Length - 1;
+                for (int index = 0, loopTo = lastIndex; index <= loopTo; index++)
+                {
+                    if (use3LetterCode)
+                    {
+                        string symbol3Letter = GetAminoAcidSymbolConversion(Conversions.ToString(mResidues[index]), true);
+                        if ((symbol3Letter ?? "") == (string.Empty ?? ""))
+                            symbol3Letter = UNKNOWN_SYMBOL_THREE_LETTERS;
+                        sequence += symbol3Letter;
+                    }
+                    else
+                    {
+                        sequence += Conversions.ToString(mResidues[index]);
+                    }
+
+                    if (index < lastIndex)
+                    {
+                        if (addSpaceEvery10Residues)
+                        {
+                            if ((index + 1) % 10 == 0)
+                            {
+                                sequence += " ";
+                            }
+                            else
+                            {
+                                sequence += dashAdd;
+                            }
+                        }
+                        else
+                        {
+                            sequence += dashAdd;
+                        }
+                    }
+                }
+            }
+
+            if (includeNAndCTerminii)
+            {
+                sequence = mNTerminus.Formula + dashAdd + sequence + dashAdd + mCTerminus.Formula;
+            }
+
+            return sequence;
+        }
+
+        public double GetSequenceMass()
+        {
+            return Mass;
+        }
+
+        /// <summary>
+        /// Get the tryptic name for the peptide, within the context of the protein residues
+        /// </summary>
+        /// <param name="proteinResidues"></param>
+        /// <param name="peptideResidues"></param>
+        /// <param name="cleavageRule"></param>
+        /// <param name="returnResidueStart">Output: residue in the protein where the peptide starts</param>
+        /// <param name="returnResidueEnd">Output: residue in the protein where the peptide ends</param>
+        /// <param name="icr2LSCompatible"></param>
+        /// <param name="terminiiSymbol"></param>
+        /// <param name="ignoreCase"></param>
+        /// <param name="proteinSearchStartLoc"></param>
+        /// <returns></returns>
+        public string GetTrypticName(string proteinResidues, string peptideResidues, CleavageRule cleavageRule, [Optional, DefaultParameterValue(0)] out int returnResidueStart, [Optional, DefaultParameterValue(0)] out int returnResidueEnd, bool icr2LSCompatible = false, char terminiiSymbol = TERMINII_SYMBOL, bool ignoreCase = true, int proteinSearchStartLoc = 1)
+        {
+            // Examines peptideResidues to see where they exist in proteinResidues
+            // Constructs a name string based on their position and based on whether the fragment is truly tryptic
+            // In addition, returns the position of the first and last residue in returnResidueStart and returnResidueEnd
+            // The tryptic name in the following format
+            // t1  indicates tryptic peptide 1
+            // t2 represents tryptic peptide 2, etc.
+            // t1.2  indicates tryptic peptide 1, plus one more tryptic peptide, i.e. t1 and t2
+            // t5.2  indicates tryptic peptide 5, plus one more tryptic peptide, i.e. t5 and t6
+            // t5.3  indicates tryptic peptide 5, plus two more tryptic peptides, i.e. t5, t6, and t7
+            // 40.52  means that the residues are not tryptic, and simply range from residue 40 to 52
+            // If the peptide residues are not present in proteinResidues, returns ""
+            // Since a peptide can occur multiple times in a protein, one can set proteinSearchStartLoc to a value larger than 1 to ignore previous hits
+
+            // If icr2LSCompatible is True, then the values returned when a peptide is not tryptic are modified to
+            // range from the starting residue, to the ending residue +1
+            // returnResidueEnd is always equal to the position of the final residue, regardless of icr2LSCompatible
+
+            // ReSharper disable CommentTypo
+            // For example, if proteinResidues = "IGKANR"
+            // Then when peptideResidues = "IGK", the TrypticName is t1
+            // Then when peptideResidues = "ANR", the TrypticName is t2
+            // Then when peptideResidues = "IGKANR", the TrypticName is t1.2
+            // Then when peptideResidues = "IG", the TrypticName is 1.2
+            // Then when peptideResidues = "KANR", the TrypticName is 3.6
+            // Then when peptideResidues = "NR", the TrypticName is 5.6
+
+            // However, if icr2LSCompatible = True, then the last three are changed to:
+            // Then when peptideResidues = "IG", the TrypticName is 1.3
+            // Then when peptideResidues = "KANR", the TrypticName is 3.7
+            // Then when peptideResidues = "NR", the TrypticName is 5.7
+
+            // ReSharper restore CommentTypo
+
+            if (ignoreCase)
+            {
+                proteinResidues = proteinResidues.ToUpper();
+                peptideResidues = peptideResidues.ToUpper();
+            }
+
+            // startLoc and endLoc track residue numbers, ranging from 1 to length of the protein
+            int startLoc;
+            if (proteinSearchStartLoc <= 1)
+            {
+                startLoc = proteinResidues.IndexOf(peptideResidues, StringComparison.Ordinal) + 1;
+            }
+            else
+            {
+                startLoc = proteinResidues.Substring(proteinSearchStartLoc + 1).IndexOf(peptideResidues, StringComparison.Ordinal) + 1;
+                if (startLoc > 0)
+                {
+                    startLoc = startLoc + proteinSearchStartLoc - 1;
+                }
+            }
+
+            int peptideResiduesLength = peptideResidues.Length;
+            if (startLoc > 0 && proteinResidues.Length > 0 && peptideResiduesLength > 0)
+            {
+                int endLoc = startLoc + peptideResiduesLength - 1;
+                char prefix;
+                char suffix;
+
+                // Determine if the residue is tryptic
+                // Use CheckSequenceAgainstCleavageRule() for this
+                if (startLoc > 1)
+                {
+                    prefix = proteinResidues[startLoc - 2];
+                }
+                else
+                {
+                    prefix = terminiiSymbol;
+                }
+
+                if (endLoc == proteinResidues.Length)
+                {
+                    suffix = terminiiSymbol;
+                }
+                else
+                {
+                    suffix = proteinResidues[endLoc];
+                }
+
+                int ruleMatchCount;
+
+                // We can set ignoreCase to false when calling CheckSequenceAgainstCleavageRule
+                // since proteinResidues and peptideResidues are already uppercase
+                bool matchesCleavageRule = CheckSequenceAgainstCleavageRule(prefix + "." + peptideResidues + "." + suffix, cleavageRule, out ruleMatchCount, Conversions.ToString('.'), terminiiSymbol, false);
+                string trypticName;
+                if (matchesCleavageRule)
+                {
+                    // Construct trypticName
+
+                    int trypticResidueNumber;
+
+                    // Determine which tryptic residue peptideResidues is
+                    if (startLoc == 1)
+                    {
+                        trypticResidueNumber = 1;
+                    }
+                    else
+                    {
+                        trypticResidueNumber = 0;
+                        string proteinResiduesBeforeStartLoc = proteinResidues.Substring(0, startLoc - 1);
+                        char residueFollowingSearchResidues = peptideResidues[0];
+                        int ruleResidueNumForProtein = 0;
+                        do
+                        {
+                            ruleResidueNumForProtein = GetTrypticNameFindNextCleavageLoc(proteinResiduesBeforeStartLoc, Conversions.ToString(residueFollowingSearchResidues), ruleResidueNumForProtein + 1, cleavageRule, terminiiSymbol);
+                            if (ruleResidueNumForProtein > 0)
+                            {
+                                trypticResidueNumber += 1;
+                            }
+                        }
+                        while (ruleResidueNumForProtein > 0 && ruleResidueNumForProtein + 1 < startLoc);
+                        trypticResidueNumber += 1;
+                    }
+
+                    // Determine number of K or R residues in peptideResidues
+                    // Ignore K or R residues followed by Proline
+                    int ruleResidueMatchCount = 0;
+                    int ruleResidueNumForPeptide = 0;
+                    do
+                    {
+                        ruleResidueNumForPeptide = GetTrypticNameFindNextCleavageLoc(peptideResidues, Conversions.ToString(suffix), ruleResidueNumForPeptide + 1, cleavageRule, terminiiSymbol);
+                        if (ruleResidueNumForPeptide > 0)
+                        {
+                            ruleResidueMatchCount += 1;
+                        }
+                    }
+                    while (ruleResidueNumForPeptide > 0 && ruleResidueNumForPeptide < peptideResiduesLength);
+                    trypticName = "t" + trypticResidueNumber.ToString();
+                    if (ruleResidueMatchCount > 1)
+                    {
+                        trypticName += "." + Strings.Trim(Conversion.Str(ruleResidueMatchCount));
+                    }
+                }
+                else if (icr2LSCompatible)
+                {
+                    trypticName = startLoc.ToString() + "." + (endLoc + 1).ToString();
+                }
+                else
+                {
+                    trypticName = startLoc.ToString() + "." + endLoc.ToString();
+                }
+
+                returnResidueStart = startLoc;
+                returnResidueEnd = endLoc;
+                return trypticName;
+            }
+            else
+            {
+                // Residues not found
+                returnResidueStart = 0;
+                returnResidueEnd = 0;
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Examines peptideResidues to see where they exist in proteinResidues
+        /// Looks for all possible matches, returning them as a comma separated list
+        /// </summary>
+        /// <param name="proteinResidues"></param>
+        /// <param name="peptideResidues"></param>
+        /// <param name="cleavageRule"></param>
+        /// <param name="returnMatchCount">Output: number of times peptideResidues is found in proteinResidues</param>
+        /// <param name="returnResidueStart">Output: residue in the protein where the peptide starts</param>
+        /// <param name="returnResidueEnd">Output: residue in the protein where the peptide ends</param>
+        /// <param name="icr2LSCompatible"></param>
+        /// <param name="terminiiSymbol"></param>
+        /// <param name="ignoreCase"></param>
+        /// <param name="proteinSearchStartLoc"></param>
+        /// <param name="listDelimiter"></param>
+        /// <returns>Comma separated list of tryptic names</returns>
+        /// <remarks>See GetTrypticName for additional information</remarks>
+        public string GetTrypticNameMultipleMatches(string proteinResidues, string peptideResidues, CleavageRule cleavageRule, [Optional, DefaultParameterValue(1)] out int returnMatchCount, [Optional, DefaultParameterValue(0)] out int returnResidueStart, [Optional, DefaultParameterValue(0)] out int returnResidueEnd, bool icr2LSCompatible = false, char terminiiSymbol = TERMINII_SYMBOL, bool ignoreCase = true, int proteinSearchStartLoc = 1, string listDelimiter = ", ")
+        {
+            int currentResidueStart;
+            int currentResidueEnd;
+            returnMatchCount = 0;
+            returnResidueStart = 0;
+            returnResidueEnd = 0;
+            int currentSearchLoc = proteinSearchStartLoc;
+            string nameList = string.Empty;
+            do
+            {
+                string currentName = GetTrypticName(proteinResidues, peptideResidues, cleavageRule, out currentResidueStart, out currentResidueEnd, icr2LSCompatible, terminiiSymbol, ignoreCase, currentSearchLoc);
+                if (currentName.Length > 0)
+                {
+                    if (nameList.Length > 0)
+                    {
+                        nameList += listDelimiter;
+                    }
+
+                    nameList += currentName;
+                    currentSearchLoc = currentResidueEnd + 1;
+                    returnMatchCount += 1;
+                    if (returnMatchCount == 1)
+                    {
+                        returnResidueStart = currentResidueStart;
+                    }
+
+                    returnResidueEnd = currentResidueEnd;
+                    if (currentSearchLoc > Strings.Len(proteinResidues))
+                        break;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            while (true);
+            return nameList;
+        }
+
+        /// <summary>
+        /// Finds the location of the next cleavage point in searchResidues using the given cleavage rule
+        /// </summary>
+        /// <param name="searchResidues"></param>
+        /// <param name="residueFollowingSearchResidues">Residue following the last residue in searchResidues</param>
+        /// <param name="startResidueNum">Starting residue number (value between 1 and length of searchResidues)</param>
+        /// <param name="cleavageRule"></param>
+        /// <param name="terminiiSymbol"></param>
+        /// <returns>Residue number of the next cleavage location (value between 1 and length of searchResidues), or 0 if no match</returns>
+        /// <remarks>
+        /// Assumes searchResidues are already upper case
+        /// </remarks>
+        private int GetTrypticNameFindNextCleavageLoc(string searchResidues, string residueFollowingSearchResidues, int startResidueNum, CleavageRule cleavageRule, char terminiiSymbol = TERMINII_SYMBOL)
+        {
+
+            // ReSharper disable CommentTypo
+
+            // For example, if searchResidues = "IGASGEHIFIIGVDKPNR" and residueFollowingSearchResidues = "Q"
+            // and the protein it is part of is: TNSANFRIGASGEHIFIIGVDKPNRQPDS
+            // and cleavageRule has CleavageResidues = "KR and ExceptionResidues = "P"
+            // The K in IGASGEHIFIIGVDKPNR is ignored because the following residue is P,
+            // while the R in IGASGEHIFIIGVDKPNR is OK because residueFollowingSearchResidues is Q
+
+            // It is the calling function's responsibility to assign the correct residue to residueFollowingSearchResidues
+            // If no match is found, but residueFollowingSearchResidues is "-", the cleavage location returned is Len(searchResidues) + 1
+
+            // ReSharper restore CommentTypo
+
+            int exceptionSuffixResidueCount = cleavageRule.ExceptionResidues.Length;
+            int minCleavedResidueNum = -1;
+            for (int charIndexInCleavageResidues = 0, loopTo = cleavageRule.CleavageResidues.Length - 1; charIndexInCleavageResidues <= loopTo; charIndexInCleavageResidues++)
+            {
+                int cleavedResidueNum;
+                bool matchFound = FindNextCleavageResidue(cleavageRule, charIndexInCleavageResidues, searchResidues, startResidueNum, out cleavedResidueNum);
+                if (matchFound)
+                {
+                    if (exceptionSuffixResidueCount > 0)
+                    {
+                        int exceptionCharIndexInSearchResidues;
+                        bool matchFoundToExceptionResidue = IsMatchToExceptionResidue(cleavageRule, searchResidues, residueFollowingSearchResidues, cleavedResidueNum, out exceptionCharIndexInSearchResidues);
+                        if (matchFoundToExceptionResidue)
+                        {
+                            // Exception char matched; can't count this as the cleavage point
+                            matchFound = false;
+                            bool recursiveCheck = false;
+                            var newStartResidueNum = default(int);
+                            if (cleavageRule.ReversedCleavageDirection)
+                            {
+                                if (cleavedResidueNum + 1 < searchResidues.Length)
+                                {
+                                    recursiveCheck = true;
+                                    newStartResidueNum = cleavedResidueNum + 2;
+                                }
+                            }
+                            else if (exceptionCharIndexInSearchResidues < searchResidues.Length)
+                            {
+                                recursiveCheck = true;
+                                newStartResidueNum = exceptionCharIndexInSearchResidues;
+                            }
+
+                            if (recursiveCheck)
+                            {
+                                // Recursively call this function to find the next cleavage position, using an updated startResidue position
+
+                                int residueNumViaRecursiveSearch = GetTrypticNameFindNextCleavageLoc(searchResidues, residueFollowingSearchResidues, newStartResidueNum, cleavageRule, terminiiSymbol);
+                                if (residueNumViaRecursiveSearch > 0)
+                                {
+                                    // Found a residue further along that is a valid cleavage point
+                                    cleavedResidueNum = residueNumViaRecursiveSearch;
+                                    if (cleavedResidueNum >= 1 && cleavedResidueNum >= startResidueNum)
+                                        matchFound = true;
+                                }
+                                else
+                                {
+                                    cleavedResidueNum = 0;
+                                }
+                            }
+                            else
+                            {
+                                cleavedResidueNum = 0;
+                            }
+                        }
+                    }
+                }
+
+                if (matchFound)
+                {
+                    if (minCleavedResidueNum < 0)
+                    {
+                        minCleavedResidueNum = cleavedResidueNum;
+                    }
+                    else if (cleavedResidueNum < minCleavedResidueNum)
+                    {
+                        minCleavedResidueNum = cleavedResidueNum;
+                    }
+                }
+            }
+
+            if (minCleavedResidueNum < 0 && residueFollowingSearchResidues == Conversions.ToString(terminiiSymbol))
+            {
+                minCleavedResidueNum = searchResidues.Length + 1;
+            }
+
+            foreach (var additionalRule in cleavageRule.AdditionalCleavageRules)
+            {
+                int additionalRuleResidueNum = GetTrypticNameFindNextCleavageLoc(searchResidues, residueFollowingSearchResidues, startResidueNum, additionalRule, terminiiSymbol);
+                if (additionalRuleResidueNum >= 0 && additionalRuleResidueNum < minCleavedResidueNum)
+                {
+                    minCleavedResidueNum = additionalRuleResidueNum;
+                }
+            }
+
+            if (minCleavedResidueNum < 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return minCleavedResidueNum;
+            }
+        }
+
+        public string GetTrypticPeptideNext(string proteinResidues, int searchStartLoc, [Optional, DefaultParameterValue(0)] out int returnResidueStart, [Optional, DefaultParameterValue(0)] out int returnResidueEnd)
+        {
+            return GetTrypticPeptideNext(proteinResidues, searchStartLoc, mTrypticCleavageRule, out returnResidueStart, out returnResidueEnd);
+        }
+
+        /// <summary>
+        /// Finds the next tryptic peptide in proteinResidues, starting the search as searchStartLoc
+        /// </summary>
+        /// <param name="proteinResidues"></param>
+        /// <param name="searchStartLoc"></param>
+        /// <param name="cleavageRule">Cleavage rule</param>
+        /// <param name="returnResidueStart">Output: residue in the protein where the peptide starts</param>
+        /// <param name="returnResidueEnd">Output: residue in the protein where the peptide ends</param>
+        /// <param name="terminiiSymbol"></param>
+        /// <returns>The next tryptic peptide in proteinResidues</returns>
+        /// <remarks>
+        /// Useful when obtaining all of the tryptic peptides for a protein, since this function will operate
+        /// much faster than repeatedly calling GetTrypticPeptideByFragmentNumber()
+        /// </remarks>
+        public string GetTrypticPeptideNext(string proteinResidues, int searchStartLoc, CleavageRule cleavageRule, out int returnResidueStart, out int returnResidueEnd, char terminiiSymbol = TERMINII_SYMBOL)
+        {
+            int proteinResiduesLength;
+            if (searchStartLoc < 1)
+                searchStartLoc = 1;
+            if (proteinResidues is null)
+            {
+                proteinResiduesLength = 0;
+            }
+            else
+            {
+                proteinResiduesLength = proteinResidues.Length;
+            }
+
+            if (searchStartLoc > proteinResiduesLength)
+            {
+                returnResidueStart = 0;
+                returnResidueEnd = 0;
+                return string.Empty;
+            }
+
+            int ruleResidueNum = GetTrypticNameFindNextCleavageLoc(proteinResidues, Conversions.ToString(terminiiSymbol), searchStartLoc, cleavageRule, terminiiSymbol);
+            if (ruleResidueNum > 0)
+            {
+                returnResidueStart = searchStartLoc;
+                if (ruleResidueNum > proteinResiduesLength)
+                {
+                    returnResidueEnd = proteinResiduesLength;
+                }
+                else
+                {
+                    returnResidueEnd = ruleResidueNum;
+                }
+
+                return proteinResidues.Substring(returnResidueStart - 1, returnResidueEnd - returnResidueStart + 1);
+            }
+            else
+            {
+                returnResidueStart = 1;
+                returnResidueEnd = proteinResiduesLength;
+                return proteinResidues;
+            }
+        }
+
+        /// <summary>
+        /// Finds the desired tryptic peptide from proteinResidues
+        /// </summary>
+        /// <param name="proteinResidues"></param>
+        /// <param name="desiredPeptideNumber"></param>
+        /// <param name="cleavageRule"></param>
+        /// <param name="returnResidueStart">Output: residue in the protein where the peptide starts</param>
+        /// <param name="returnResidueEnd">Output: residue in the protein where the peptide ends</param>
+        /// <param name="terminiiSymbol"></param>
+        /// <param name="ignoreCase"></param>
+        /// <returns>The desired tryptic peptide from proteinResidues</returns>
+        /// <remarks>
+        /// For example, if proteinResidues = "IGKANRMTFGL"
+        /// when desiredPeptideNumber = 1, returns "IGK"
+        /// when desiredPeptideNumber = 2, returns "ANR"
+        /// when desiredPeptideNumber = 3, returns "MTFGL"
+        /// </remarks>
+        public string GetTrypticPeptideByFragmentNumber(string proteinResidues, int desiredPeptideNumber, CleavageRule cleavageRule, [Optional, DefaultParameterValue(0)] out int returnResidueStart, [Optional, DefaultParameterValue(0)] out int returnResidueEnd, char terminiiSymbol = TERMINII_SYMBOL, bool ignoreCase = true)
+        {
+            string matchingFragment;
+            if (desiredPeptideNumber < 1)
+            {
+                returnResidueStart = 0;
+                returnResidueEnd = 0;
+                return string.Empty;
+            }
+
+            if (ignoreCase)
+            {
+                proteinResidues = proteinResidues.ToUpper();
+            }
+
+            int proteinResiduesLength = proteinResidues.Length;
+
+            // startLoc tracks residue number, ranging from 1 to length of the protein
+            int startLoc = 1;
+            int prevStartLoc = 0;
+            int ruleResidueNum;
+            int currentTrypticPeptideNumber = 0;
+            do
+            {
+                ruleResidueNum = GetTrypticNameFindNextCleavageLoc(proteinResidues, Conversions.ToString(terminiiSymbol), startLoc, cleavageRule, terminiiSymbol);
+                if (ruleResidueNum > 0)
+                {
+                    currentTrypticPeptideNumber += 1;
+                    prevStartLoc = startLoc;
+                    startLoc = ruleResidueNum + 1;
+                    if (prevStartLoc > proteinResiduesLength)
+                    {
+                        // User requested a peptide number that doesn't exist
+                        returnResidueStart = 0;
+                        returnResidueEnd = 0;
+                        return string.Empty;
+                    }
+                }
+                else
+                {
+                    // This code should never be reached
+                    Console.WriteLine("Unexpected code point reached in GetTrypticPeptideByFragmentNumber");
+                    break;
+                }
+            }
+            while (currentTrypticPeptideNumber < desiredPeptideNumber);
+            if (currentTrypticPeptideNumber > 0 && prevStartLoc > 0)
+            {
+                if (prevStartLoc > proteinResidues.Length)
+                {
+                    // User requested a peptide number that is too high
+                    returnResidueStart = 0;
+                    returnResidueEnd = 0;
+                    matchingFragment = string.Empty;
+                }
+                else
+                {
+                    // Match found, find the extent of this peptide
+                    returnResidueStart = prevStartLoc;
+                    if (ruleResidueNum > proteinResiduesLength)
+                    {
+                        returnResidueEnd = proteinResiduesLength;
+                    }
+                    else
+                    {
+                        returnResidueEnd = ruleResidueNum;
+                    }
+
+                    matchingFragment = proteinResidues.Substring(prevStartLoc - 1, ruleResidueNum - prevStartLoc + 1);
+                }
+            }
+            else
+            {
+                returnResidueStart = 1;
+                returnResidueEnd = proteinResiduesLength;
+                matchingFragment = proteinResidues;
+            }
+
+            return matchingFragment;
+        }
+
+        private bool FindNextCleavageResidue(CleavageRule cleavageRule, int charIndexInCleavageResidues, string searchResidues, int startResidueNum, out int cleavageResidueNum)
+        {
+            if (cleavageRule.ReversedCleavageDirection)
+            {
+                // Cleave before the matched residue
+                // Note that the CharLoc value we're storing is the location just before the cleavage point
+                cleavageResidueNum = searchResidues.IndexOf(cleavageRule.CleavageResidues[charIndexInCleavageResidues], startResidueNum);
+            }
+            else
+            {
+                cleavageResidueNum = searchResidues.IndexOf(cleavageRule.CleavageResidues[charIndexInCleavageResidues], startResidueNum - 1) + 1;
+            }
+
+            if (cleavageResidueNum >= 1 && cleavageResidueNum >= startResidueNum)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsMatchToExceptionResidue(CleavageRule cleavageRule, string searchResidues, string residueFollowingSearchResidues, int cleavedResidueIndex, out int exceptionCharIndexInSearchResidues)
+        {
+            char exceptionResidueToCheck;
+            if (cleavageRule.ReversedCleavageDirection)
+            {
+                // Make sure the residue before the matched residue does not match exceptionResidues
+                // We already subtracted 1 from charLoc so charLoc is already the correct character number
+                // Note that the logic in FindNextCleavageResidue assures that charLoc is > 0
+                exceptionCharIndexInSearchResidues = cleavedResidueIndex;
+                exceptionResidueToCheck = searchResidues[exceptionCharIndexInSearchResidues - 1];
+            }
+            // Make sure suffixResidue does not match exceptionResidues
+            else if (cleavedResidueIndex < searchResidues.Length)
+            {
+                exceptionCharIndexInSearchResidues = cleavedResidueIndex + 1;
+                exceptionResidueToCheck = searchResidues[exceptionCharIndexInSearchResidues - 1];
+            }
+            else
+            {
+                // Matched the last residue in searchResidues
+                exceptionCharIndexInSearchResidues = searchResidues.Length + 1;
+                exceptionResidueToCheck = residueFollowingSearchResidues[0];
+            }
+
+            if (cleavageRule.ExceptionResidues.IndexOf(exceptionResidueToCheck) >= 0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Removing the leading H, if present
+        /// </summary>
+        /// <param name="workingSequence">Amino acids, in 3 letter notation</param>
+        /// <remarks>This is only applicable for sequences in 3 letter notation</remarks>
+        private void RemoveLeadingH(ref string workingSequence)
+        {
+            if (workingSequence.Substring(0, 1).ToUpper() == "H" && workingSequence.Length >= 4)
+            {
+                // If next character is not a character, remove the H and the next character
+                if (!char.IsLetter(workingSequence[1]))
+                {
+                    workingSequence = workingSequence.Substring(2);
+                }
+                // Otherwise, see if next three characters are letters
+                else if (char.IsLetter(workingSequence[1]) && char.IsLetter(workingSequence[2]) && char.IsLetter(workingSequence[3]))
+                {
+                    // Formula starts with 4 characters and the first is H, see if the first 3 characters are a valid amino acid code
+
+                    string oneLetterSymbol = GetAminoAcidSymbolConversion(workingSequence.Substring(1, 3), false);
+                    if (oneLetterSymbol.Length > 0)
+                    {
+                        // Starts with H then a valid 3 letter abbreviation, so remove the initial H
+                        workingSequence = workingSequence.Substring(1);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Removing the trailing OH, if present
+        /// </summary>
+        /// <param name="workingSequence">Amino acids, in 3 letter notation</param>
+        /// <remarks>This is only applicable for sequences in 3 letter notation</remarks>
+        private void RemoveTrailingOH(ref string workingSequence)
+        {
+            int stringLength = workingSequence.Length;
+            if (workingSequence.Substring(stringLength - 2, 2).ToUpper() == "OH" && stringLength >= 5)
+            {
+                // If previous character is not a character, then remove the OH (and the character preceding)
+                if (!char.IsLetter(workingSequence[stringLength - 3]))
+                {
+                    workingSequence = workingSequence.Substring(0, stringLength - 3);
+                }
+                // Otherwise, see if previous three characters are letters
+                else if (char.IsLetter(workingSequence[stringLength - 2]) && char.IsLetter(workingSequence[stringLength - 3]) && char.IsLetter(workingSequence[stringLength - 4]))
+                {
+                    // Formula ends with 3 characters and the last two are OH, see if the last 3 characters are a valid amino acid code
+
+                    string oneLetterSymbol = GetAminoAcidSymbolConversion(workingSequence.Substring(stringLength - 4, 3), false);
+                    if (oneLetterSymbol.Length > 0)
+                    {
+                        // Ends with a valid 3 letter abbreviation then OH, so remove the OH
+                        workingSequence = workingSequence.Substring(0, stringLength - 2);
+                    }
+                }
+            }
+        }
+
+        private bool ResiduesMatchCleavageRule(char testResidue, char exceptionResidue, CleavageRule cleavageRule)
+        {
+            if (CheckSequenceAgainstCleavageRuleMatchTestResidue(testResidue, cleavageRule.CleavageResidues))
+            {
+                // Match found
+                // See if exceptionResidue matches any of the exception residues
+                if (!CheckSequenceAgainstCleavageRuleMatchTestResidue(exceptionResidue, cleavageRule.ExceptionResidues))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Define the C-terminus using an empirical formula
+        /// </summary>
+        /// <param name="formula">Can only contain C, H, N, O, S, or P, and cannot contain any parentheses or other advanced formula features</param>
+        /// <param name="followingResidue"></param>
+        /// <param name="use3LetterCode"></param>
+        /// <returns>0 if success; 1 if error</returns>
+        /// <remarks>
+        /// Typical C terminus groups
+        /// Free Acid = OH
+        /// Amide = NH2
+        /// </remarks>
+        private int SetCTerminus(string formula, string followingResidue = "", bool use3LetterCode = false)
+        {
+            int returnVal;
+            mCTerminus.Formula = formula;
+            mCTerminus.Mass = ComputeFormulaWeightCHNOSP(mCTerminus.Formula);
+            mCTerminus.MassElementMode = mCurrentElementMode;
+            if (mCTerminus.Mass < 0d)
+            {
+                mCTerminus.Mass = 0d;
+                returnVal = 1;
+            }
+            else
+            {
+                returnVal = 0;
+            }
+
+            mCTerminus.PrecedingResidue = string.Empty;
+            if (use3LetterCode && followingResidue.Length > 0)
+            {
+                mCTerminus.FollowingResidue = GetAminoAcidSymbolConversion(followingResidue, false);
+            }
+            else
+            {
+                mCTerminus.FollowingResidue = followingResidue;
+            }
+
+            if (!mDelayUpdateResidueMass)
+                UpdateSequenceMass();
+            return returnVal;
+        }
+
+        /// <summary>
+        /// Define the C-terminus using an enum in CTerminusGroupConstants
+        /// </summary>
+        /// <param name="cTerminusGroup"></param>
+        /// <param name="followingResidue"></param>
+        /// <param name="use3LetterCode"></param>
+        /// <returns>0 if success; 1 if error</returns>
+        public int SetCTerminusGroup(CTerminusGroupConstants cTerminusGroup, string followingResidue = "", bool use3LetterCode = false)
+        {
+            int errorCode;
+            switch (cTerminusGroup)
+            {
+                case CTerminusGroupConstants.Hydroxyl:
+                    {
+                        errorCode = SetCTerminus("OH", followingResidue, use3LetterCode);
+                        break;
+                    }
+
+                case CTerminusGroupConstants.Amide:
+                    {
+                        errorCode = SetCTerminus("NH2", followingResidue, use3LetterCode);
+                        break;
+                    }
+
+                case CTerminusGroupConstants.None:
+                    {
+                        errorCode = SetCTerminus(string.Empty, followingResidue, use3LetterCode);
+                        break;
+                    }
+
+                default:
+                    {
+                        errorCode = 1;
+                        break;
+                    }
+            }
+
+            return errorCode;
+        }
+
+        /// <summary>
+        /// Define the N-terminus using an empirical formula
+        /// </summary>
+        /// <param name="formula">Can only contain C, H, N, O, S, or P, and cannot contain any parentheses or other advanced formula features</param>
+        /// <param name="precedingResidue"></param>
+        /// <param name="use3LetterCode"></param>
+        /// <returns>0 if success; 1 if error</returns>
+        /// <remarks>
+        /// Typical N terminus groups
+        /// Hydrogen = H
+        /// Acetyl = C2OH3
+        /// PyroGlu = C5O2NH6
+        /// Carbamyl = CONH2
+        /// PTC = C7H6NS
+        /// </remarks>
+        private int SetNTerminus(string formula, string precedingResidue = "", bool use3LetterCode = false)
+        {
+            int returnVal;
+            mNTerminus.Formula = formula;
+            mNTerminus.Mass = ComputeFormulaWeightCHNOSP(mNTerminus.Formula);
+            mNTerminus.MassElementMode = mCurrentElementMode;
+            if (mNTerminus.Mass < 0d)
+            {
+                mNTerminus.Mass = 0d;
+                returnVal = 1;
+            }
+            else
+            {
+                returnVal = 0;
+            }
+
+            mNTerminus.PrecedingResidue = string.Empty;
+            if (use3LetterCode && precedingResidue.Length > 0)
+            {
+                mNTerminus.PrecedingResidue = GetAminoAcidSymbolConversion(precedingResidue, false);
+            }
+            else
+            {
+                mNTerminus.PrecedingResidue = precedingResidue;
+            }
+
+            mNTerminus.FollowingResidue = string.Empty;
+            if (!mDelayUpdateResidueMass)
+                UpdateSequenceMass();
+            return returnVal;
+        }
+
+        /// <summary>
+        /// Define the N-terminus using an enum in NTerminusGroupConstants
+        /// </summary>
+        /// <param name="nTerminusGroup"></param>
+        /// <param name="precedingResidue"></param>
+        /// <param name="use3LetterCode"></param>
+        /// <returns>0 if success; 1 if error</returns>
+        public int SetNTerminusGroup(NTerminusGroupConstants nTerminusGroup, string precedingResidue = "", bool use3LetterCode = false)
+        {
+            int errorCode;
+            switch (nTerminusGroup)
+            {
+                case NTerminusGroupConstants.Hydrogen:
+                    {
+                        errorCode = SetNTerminus("H", precedingResidue, use3LetterCode);
+                        break;
+                    }
+
+                case NTerminusGroupConstants.HydrogenPlusProton:
+                    {
+                        errorCode = SetNTerminus("HH", precedingResidue, use3LetterCode);
+                        break;
+                    }
+
+                case NTerminusGroupConstants.Acetyl:
+                    {
+                        errorCode = SetNTerminus("C2OH3", precedingResidue, use3LetterCode);
+                        break;
+                    }
+
+                case NTerminusGroupConstants.PyroGlu:
+                    {
+                        errorCode = SetNTerminus("C5O2NH6", precedingResidue, use3LetterCode);
+                        break;
+                    }
+                // ReSharper disable once StringLiteralTypo
+                case NTerminusGroupConstants.Carbamyl:
+                    {
+                        errorCode = SetNTerminus("CONH2", precedingResidue, use3LetterCode);
+                        break;
+                    }
+
+                case NTerminusGroupConstants.PTC:
+                    {
+                        errorCode = SetNTerminus("C7H6NS", precedingResidue, use3LetterCode);
+                        break;
+                    }
+
+                case NTerminusGroupConstants.None:
+                    {
+                        errorCode = SetNTerminus("", precedingResidue, use3LetterCode);
+                        break;
+                    }
+
+                default:
+                    {
+                        errorCode = 1;
+                        break;
+                    }
+            }
+
+            return errorCode;
+        }
+
+        /// <summary>
+        /// Define the peptide sequence
+        /// </summary>
+        /// <param name="sequence">Peptide or protein amino acid symbols</param>
+        /// <param name="nTerminus">N-terminus type</param>
+        /// <param name="cTerminus">C-terminus type</param>
+        /// <param name="is3LetterCode">When true, sequence uses 3 letter amino acid symbols</param>
+        /// <param name="oneLetterCheckForPrefixAndSuffixResidues">
+        /// When true, if the sequence has prefix and suffix letters, they are removed
+        /// For example: R.ABCDEFGK.R will be stored as ABCDEFGK
+        /// </param>
+        /// <param name="threeLetterCheckForPrefixHandSuffixOH">
+        /// When true, if the sequence starts with H or OH, remove those letters
+        /// For example: Arg.AlaCysAspPheGlyLys.Arg will be stored as AlaCysAspPheGlyLys
+        /// </param>
+        /// <returns>
+        /// 0 if success or 1 if an error
+        /// Will return 0 if the sequence is blank or if it contains no valid residues
+        /// </returns>
+        /// <remarks>Calls UpdateSequenceMass</remarks>
+        public virtual int SetSequence(string sequence, NTerminusGroupConstants nTerminus = NTerminusGroupConstants.Hydrogen, CTerminusGroupConstants cTerminus = CTerminusGroupConstants.Hydroxyl, bool is3LetterCode = false, bool oneLetterCheckForPrefixAndSuffixResidues = true, bool threeLetterCheckForPrefixHandSuffixOH = true)
+        {
+            mResidues = string.Empty;
+            sequence = sequence.Trim();
+            int sequenceStrLength = sequence.Length;
+            if (sequenceStrLength == 0)
+            {
+                UpdateSequenceMass();
+                return 0;
+            }
+
+            if (!is3LetterCode)
+            {
+                // Sequence is 1 letter codes
+
+                if (oneLetterCheckForPrefixAndSuffixResidues)
+                {
+                    sequence = CheckForAndRemovePrefixAndSuffixResidues(sequence, out _, out _);
+                    sequenceStrLength = sequence.Length;
+                }
+
+                // Now parse the string of 1 letter characters
+                for (int index = 0, loopTo = sequenceStrLength - 1; index <= loopTo; index++)
+                {
+                    if (char.IsLetter(sequence[index]))
+                    {
+                        // Character found
+                        mResidues += Conversions.ToString(sequence[index]);
+                    }
+                    else
+                    {
+                        // Ignore anything else
+                    }
+                }
+            }
+            else
+            {
+                // Sequence is 3 letter codes
+                if (threeLetterCheckForPrefixHandSuffixOH)
+                {
+                    // Look for a leading H or trailing OH, provided those don't match any of the amino acids
+                    RemoveLeadingH(ref sequence);
+                    RemoveTrailingOH(ref sequence);
+
+                    // Recompute sequence length
+                    sequenceStrLength = sequence.Length;
+                }
+
+                int index = 0;
+                while (index <= sequenceStrLength - 3)
+                {
+                    if (char.IsLetter(sequence[index]))
+                    {
+                        if (char.IsLetter(sequence[index + 1]) && char.IsLetter(sequence[index + 2]))
+                        {
+                            string oneLetterSymbol = GetAminoAcidSymbolConversion(sequence.Substring(index, 3), false);
+                            if (oneLetterSymbol.Length == 0)
+                            {
+                                // 3 letter symbol not found
+                                // Add anyway, but mark as X
+                                oneLetterSymbol = Conversions.ToString(UNKNOWN_SYMBOL_ONE_LETTER);
+                            }
+
+                            mResidues += oneLetterSymbol;
+                            index += 3;
+                        }
+                        else
+                        {
+                            // First letter is a character, but next two are not; ignore it
+                            index += 1;
+                        }
+                    }
+                    else
+                    {
+                        // Ignore anything else
+                        index += 1;
+                    }
+                }
+            }
+
+            // By calling SetNTerminus and SetCTerminus, the UpdateSequenceMass() Sub will also be called
+            // We don't want to compute the mass yet
+            mDelayUpdateResidueMass = true;
+            SetNTerminusGroup(nTerminus);
+            SetCTerminusGroup(cTerminus);
+            mDelayUpdateResidueMass = false;
+            UpdateSequenceMass();
+            return 0;
+        }
+
+        /// <summary>
+        /// Updates the sequence without performing any error checking
+        /// Does not look for or remove prefix or suffix letters
+        /// </summary>
+        /// <param name="sequenceNoPrefixOrSuffix"></param>
+        /// <remarks>Calls UpdateSequenceMass</remarks>
+        public virtual void SetSequenceOneLetterCharactersOnly(string sequenceNoPrefixOrSuffix)
+        {
+            mResidues = sequenceNoPrefixOrSuffix;
+            UpdateSequenceMass();
+        }
+
+        /// <summary>
+        /// Computes mass for each residue in mResidues
+        /// Only process one letter amino acid abbreviations
+        /// </summary>
+        private void UpdateSequenceMass()
+        {
+            double runningTotal;
+            var protonatedNTerminus = default(bool);
+            if (mDelayUpdateResidueMass)
+                return;
+            if (mResidues.Length == 0)
+            {
+                runningTotal = 0d;
+            }
+            else
+            {
+                // The N-terminus ions are the basis for the running total
+                ValidateTerminusMasses();
+                runningTotal = mNTerminus.Mass;
+                if (mNTerminus.Formula.ToUpper() == "HH")
+                {
+                    // ntgNTerminusGroupConstants.HydrogenPlusProton; since we add back in the proton below when computing the fragment masses,
+                    // we need to subtract it out here
+                    // However, we need to subtract out mHydrogenMass, and not mChargeCarrierMass since the current
+                    // formula's mass was computed using two hydrogen atoms, and not one hydrogen and one charge carrier
+                    protonatedNTerminus = true;
+                    runningTotal -= mHydrogenMass;
+                }
+
+                for (int index = 0, loopTo = mResidues.Length - 1; index <= loopTo; index++)
+                {
+                    try
+                    {
+                        char oneLetterSymbol = mResidues[index];
+                        runningTotal += AminoAcidMasses[oneLetterSymbol];
+                        if (oneLetterSymbol == 'C' && CysTreatmentMode != CysTreatmentModeConstants.Untreated)
+                        {
+                            switch (CysTreatmentMode)
+                            {
+                                case CysTreatmentModeConstants.Iodoacetamide:
+                                    {
+                                        runningTotal += mIodoacetamideMass;
+                                        break;
+                                    }
+
+                                case CysTreatmentModeConstants.IodoaceticAcid:
+                                    {
+                                        runningTotal += mIodoaceticAcidMass;
+                                        break;
+                                    }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Skip this residue
+                        Console.WriteLine("Error parsing Residue symbols in UpdateSequenceMass; " + ex.Message);
+                    }
+                }
+
+                runningTotal += mCTerminus.Mass;
+                if (protonatedNTerminus)
+                {
+                    runningTotal += mChargeCarrierMass;
+                }
+            }
+
+            mTotalMassElementMode = mCurrentElementMode;
+            mTotalMass = runningTotal;
+        }
+
+        private void UpdateStandardMasses()
+        {
+            const double DEFAULT_CHARGE_CARRIER_MASS_AVG = 1.00739d;
+            const double DEFAULT_CHARGE_CARRIER_MASS_MONOISOTOPIC = 1.00727649d;
+            if (mCurrentElementMode == ElementModeConstants.AverageMass)
+            {
+                mChargeCarrierMass = DEFAULT_CHARGE_CARRIER_MASS_AVG;
+            }
+            else
+            {
+                mChargeCarrierMass = DEFAULT_CHARGE_CARRIER_MASS_MONOISOTOPIC;
+            }
+
+            // Update Hydrogen mass
+            mHydrogenMass = ComputeFormulaWeightCHNOSP("H");
+            mIodoacetamideMass = ComputeFormulaWeightCHNOSP("C2H3NO");
+            mIodoaceticAcidMass = ComputeFormulaWeightCHNOSP("C2H2O2");
+        }
+
+        private void ValidateTerminusMasses()
+        {
+            if (mNTerminus.MassElementMode != mCurrentElementMode)
+            {
+                mNTerminus.Mass = ComputeFormulaWeightCHNOSP(mNTerminus.Formula);
+                mNTerminus.MassElementMode = mCurrentElementMode;
+            }
+
+            if (mCTerminus.MassElementMode != mCurrentElementMode)
+            {
+                mCTerminus.Mass = ComputeFormulaWeightCHNOSP(mCTerminus.Formula);
+                mCTerminus.MassElementMode = mCurrentElementMode;
+            }
+        }
+
+        private void InitializeSharedData()
+        {
+            if (ElementMasses is null)
+            {
+                ElementMasses = new Dictionary<char, double>();
+            }
+            else
+            {
+                ElementMasses.Clear();
+            }
+
+            if (mCurrentElementMode == ElementModeConstants.IsotopicMass)
+            {
+                // Isotopic masses
+                ElementMasses.Add('C', 12.0d);
+                ElementMasses.Add('H', 1.0078246d);
+                ElementMasses.Add('N', 14.003074d);
+                ElementMasses.Add('O', 15.994915d);
+                ElementMasses.Add('S', 31.972072d);
+                ElementMasses.Add('P', 30.973763d);
+            }
+            else
+            {
+                // Average masses
+                ElementMasses.Add('C', 12.0107d);
+                ElementMasses.Add('H', 1.00794d);
+                ElementMasses.Add('N', 14.00674d);
+                ElementMasses.Add('O', 15.9994d);
+                ElementMasses.Add('S', 32.066d);
+                ElementMasses.Add('P', 30.973761d);
+            }
+
+            if (AminoAcidMasses is null)
+            {
+                AminoAcidMasses = new Dictionary<char, double>();
+            }
+            else
+            {
+                AminoAcidMasses.Clear();
+            }
+
+            if (AminoAcidSymbols is null)
+            {
+                AminoAcidSymbols = new Dictionary<char, string>();
+            }
+            else
+            {
+                AminoAcidSymbols.Clear();
+            }
+
+            AddAminoAcidStatEntry('A', "Ala", "C3H5NO");
+            AddAminoAcidStatEntry('B', "Bbb", "C4H6N2O2");       // N or D
+            AddAminoAcidStatEntry('C', "Cys", "C3H5NOS");
+            AddAminoAcidStatEntry('D', "Asp", "C4H5NO3");
+            AddAminoAcidStatEntry('E', "Glu", "C5H7NO3");
+            AddAminoAcidStatEntry('F', "Phe", "C9H9NO");
+            AddAminoAcidStatEntry('G', "Gly", "C2H3NO");
+            AddAminoAcidStatEntry('H', "His", "C6H7N3O");
+            AddAminoAcidStatEntry('I', "Ile", "C6H11NO");
+            AddAminoAcidStatEntry('J', "Jjj", "C6H11NO");        // Unknown; use mass of Ile/Leu
+            AddAminoAcidStatEntry('K', "Lys", "C6H12N2O");
+            AddAminoAcidStatEntry('L', "Leu", "C6H11NO");
+            AddAminoAcidStatEntry('M', "Met", "C5H9NOS");
+            AddAminoAcidStatEntry('N', "Asn", "C4H6N2O2");
+            AddAminoAcidStatEntry('O', "Orn", "C5H10N2O");
+            AddAminoAcidStatEntry('P', "Pro", "C5H7NO");
+            AddAminoAcidStatEntry('Q', "Gln", "C5H8N2O2");
+            AddAminoAcidStatEntry('R', "Arg", "C6H12N4O");
+            AddAminoAcidStatEntry('S', "Ser", "C3H5NO2");
+            AddAminoAcidStatEntry('T', "Thr", "C4H7NO2");
+            AddAminoAcidStatEntry('U', "Gla", "C6H7NO5");
+            AddAminoAcidStatEntry('V', "Val", "C5H9NO");
+            AddAminoAcidStatEntry('W', "Trp", "C11H10N2O");
+            AddAminoAcidStatEntry(UNKNOWN_SYMBOL_ONE_LETTER, UNKNOWN_SYMBOL_THREE_LETTERS, "C6H11NO");       // Unknown; use mass of Ile/Leu
+            AddAminoAcidStatEntry('Y', "Tyr", "C9H9NO2");
+            AddAminoAcidStatEntry('Z', "Zzz", "C5H8N2O2");       // Q or E (note that these are 0.984 Da apart)
+            UpdateStandardMasses();
+            mTrypticCleavageRule = new CleavageRule("Fully Tryptic", TRYPTIC_RULE_RESIDUES, TRYPTIC_EXCEPTION_RESIDUES, false);
+        }
+    }
+}

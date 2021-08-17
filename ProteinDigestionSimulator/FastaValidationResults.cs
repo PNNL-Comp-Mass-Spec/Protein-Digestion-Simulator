@@ -1,1125 +1,1224 @@
-﻿Option Strict On
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Text;
+using System.Windows.Forms;
+using Microsoft.VisualBasic;
+using Microsoft.VisualBasic.CompilerServices;
+using PRISM.Logging;
+using DBUtils = PRISMDatabaseUtils.DataTableUtils;
+using PRISMWin;
+using ValidateFastaFile;
 
-Imports System.IO
-Imports System.Text
-Imports PRISM.Logging
-Imports PRISMWin
-Imports ValidateFastaFile
-Imports DBUtils = PRISMDatabaseUtils.DataTableUtils
+namespace ProteinDigestionSimulator
+{
+    public partial class FastaValidation
+    {
+        // Ignore Spelling: validator, dt, ds, chk
 
-Public Class FastaValidation
+        public FastaValidation(string fastaFilePath) : base()
+        {
+            // This call is required by the Windows Form Designer.
+            InitializeComponent();
 
-    ' Ignore Spelling: validator, dt, ds, chk
+            // Add any initialization after the InitializeComponent() call
+            InitializeForm(fastaFilePath);
+            mValidationTriggerTimer = new Timer()
+            {
+                Interval = 100,
+                Enabled = true
+            };
+            mValidationTriggerTimer.Tick += mValidationTriggerTimer_Tick;
+            mValidateFastaFile = new FastaValidator();
+            RegisterEvents(mValidateFastaFile);
+            _chkWrapLongResidueLines.Name = "chkWrapLongResidueLines";
+            _txtResults.Name = "txtResults";
+            _txtProteinNameLengthMaximum.Name = "txtProteinNameLengthMaximum";
+            _txtProteinNameLengthMinimum.Name = "txtProteinNameLengthMinimum";
+            _txtMaximumResiduesPerLine.Name = "txtMaximumResiduesPerLine";
+            _txtMaxFileErrorsToTrack.Name = "txtMaxFileErrorsToTrack";
+            _txtResiduesPerLineForWrap.Name = "txtResiduesPerLineForWrap";
+            _chkKeepDuplicateNamedProteins.Name = "chkKeepDuplicateNamedProteins";
+            _chkConsolidateDuplicateProteinSeqs.Name = "chkConsolidateDuplicateProteinSeqs";
+            _chkRenameDuplicateProteins.Name = "chkRenameDuplicateProteins";
+            _chkGenerateFixedFastaFile.Name = "chkGenerateFixedFastaFile";
+            _cmdCreateDefaultValidationRulesFile.Name = "cmdCreateDefaultValidationRulesFile";
+            _txtCustomValidationRulesFilePath.Name = "txtCustomValidationRulesFilePath";
+            _cmdSelectCustomRulesFile.Name = "cmdSelectCustomRulesFile";
+            _txtFilterData.Name = "txtFilterData";
+            _cmdValidateFastaFile.Name = "cmdValidateFastaFile";
+            _cmdCancel.Name = "cmdCancel";
+        }
 
-    Public Sub New(fastaFilePath As String)
-        MyBase.New()
+        private const string COL_NAME_LINE = "Line";
+        private const string COL_NAME_COLUMN = "Column";
+        private const string COL_NAME_PROTEIN = "Protein";
+        private const string COL_NAME_DESCRIPTION = "Description";
+        private const string COL_NAME_CONTEXT = "Context";
 
-        'This call is required by the Windows Form Designer.
-        InitializeComponent()
+        public struct FastaValidationOptions
+        {
+            public bool Initialized;
+            public int MaximumErrorsToTrackInDetail;
+            public int MaximumResiduesPerLine;
+            public int ValidProteinNameLengthMinimum;
+            public int ValidProteinNameLengthMaximum;
+            public bool AllowAsterisksInResidues;
+            public bool CheckForDuplicateProteinNames;
+            public bool LogResultsToFile;
+            public bool SaveHashInfoFile;
+            public FixedFastaOptions FixedFastaOptions;
+        }
 
-        'Add any initialization after the InitializeComponent() call
-        InitializeForm(fastaFilePath)
+        public struct FixedFastaOptions
+        {
+            public bool GenerateFixedFasta;
+            public bool TruncateLongProteinName;
+            public bool RenameProteinWithDuplicateNames;
+            public bool KeepDuplicateNamedProteins;
+            public bool WrapLongResidueLines;
+            public int ResiduesPerLineForWrap;
+            public bool RemoveInvalidResidues;
+            public bool SplitOutMultipleRefsForKnownAccession;
+            public bool SplitOutMultipleRefsInProteinName;
+            public bool ConsolidateDuplicateProteins;
+            public bool ConsolidateDupsIgnoreILDiff;
+        }
 
+        private DataSet mErrorsDataset;
+        private DataView mErrorsDataView;
+        private DataSet mWarningsDataset;
+        private DataView mWarningsDataView;
+        private bool mKeepDuplicateNamedProteinsLastValue = false;
 
-        mValidationTriggerTimer = New Timer With {
-            .Interval = 100,
-            .Enabled = True
+        // This timer is used to cause StartValidation to be called after the form becomes visible
+        private readonly Timer mValidationTriggerTimer;
+        private readonly FastaValidator mValidateFastaFile;
+        private string mValidatorErrorMessage;
+        private readonly List<string> mValidateFastaFileErrors = new List<string>();
+        private readonly List<string> mValidateFastaFileWarnings = new List<string>();
+
+        public event FastaValidationStartedEventHandler FastaValidationStarted;
+
+        public delegate void FastaValidationStartedEventHandler();
+
+        public string CustomRulesFilePath
+        {
+            get
+            {
+                return txtCustomValidationRulesFilePath.Text;
             }
 
-        AddHandler mValidationTriggerTimer.Tick, AddressOf mValidationTriggerTimer_Tick
-
-        mValidateFastaFile = New FastaValidator()
-        RegisterEvents(mValidateFastaFile)
-
-    End Sub
-
-    Private Const COL_NAME_LINE As String = "Line"
-    Private Const COL_NAME_COLUMN As String = "Column"
-    Private Const COL_NAME_PROTEIN As String = "Protein"
-    Private Const COL_NAME_DESCRIPTION As String = "Description"
-    Private Const COL_NAME_CONTEXT As String = "Context"
-
-    Public Structure FastaValidationOptions
-        Public Initialized As Boolean
-
-        Public MaximumErrorsToTrackInDetail As Integer
-        Public MaximumResiduesPerLine As Integer
-
-        Public ValidProteinNameLengthMinimum As Integer
-        Public ValidProteinNameLengthMaximum As Integer
-        Public AllowAsterisksInResidues As Boolean
-        Public CheckForDuplicateProteinNames As Boolean
-        Public LogResultsToFile As Boolean
-        Public SaveHashInfoFile As Boolean
-
-        Public FixedFastaOptions As FixedFastaOptions
-    End Structure
-
-    Public Structure FixedFastaOptions
-        Public GenerateFixedFasta As Boolean
-        Public TruncateLongProteinName As Boolean
-        Public RenameProteinWithDuplicateNames As Boolean
-        Public KeepDuplicateNamedProteins As Boolean
-        Public WrapLongResidueLines As Boolean
-        Public ResiduesPerLineForWrap As Integer
-        Public RemoveInvalidResidues As Boolean
-        Public SplitOutMultipleRefsForKnownAccession As Boolean
-        Public SplitOutMultipleRefsInProteinName As Boolean
-        Public ConsolidateDuplicateProteins As Boolean
-        Public ConsolidateDupsIgnoreILDiff As Boolean
-    End Structure
-
-    Private mErrorsDataset As DataSet
-    Private mErrorsDataView As DataView
-
-    Private mWarningsDataset As DataSet
-    Private mWarningsDataView As DataView
-
-    Private mKeepDuplicateNamedProteinsLastValue As Boolean = False
-
-    ' This timer is used to cause StartValidation to be called after the form becomes visible
-    Private ReadOnly mValidationTriggerTimer As Timer
-
-    Private ReadOnly mValidateFastaFile As FastaValidator
-
-    Private mValidatorErrorMessage As String
-
-    Private ReadOnly mValidateFastaFileErrors As List(Of String) = New List(Of String)
-
-    Private ReadOnly mValidateFastaFileWarnings As List(Of String) = New List(Of String)
-
-    Public Event FastaValidationStarted()
-
-    Public Property CustomRulesFilePath As String
-        Get
-            Return txtCustomValidationRulesFilePath.Text
-        End Get
-        Set
-            txtCustomValidationRulesFilePath.Text = Value
-        End Set
-    End Property
-
-    Public Property FastaFilePath As String
-
-    Public Property TextFontSize As Single
-        Get
-            Return txtResults.Font.SizeInPoints
-        End Get
-        Set
-            If Value < 6 Then
-                Value = 6
-            ElseIf Value > 72 Then
-                Value = 72
-            End If
-
-            Try
-                txtResults.Font = New Font(txtResults.Font.FontFamily, Value)
-
-                dgErrors.Font = New Font(txtResults.Font.FontFamily, Value)
-                dgWarnings.Font = New Font(txtResults.Font.FontFamily, Value)
-
-            Catch ex As Exception
-                ' Ignore errors here
-            End Try
-
-        End Set
-    End Property
-
-    Private Sub AppendToString(results As ICollection(Of String), newText As String)
-        results.Add(newText)
-    End Sub
-
-    Private Sub AppendToString(results As ICollection(Of String), numberDescription As String, number As Long)
-        AppendToString(results, numberDescription, number, True)
-    End Sub
-
-    Private Sub AppendToString(results As ICollection(Of String), numberDescription As String, number As Long, useCommaSeparator As Boolean)
-
-        If useCommaSeparator Then
-            results.Add(numberDescription & number.ToString("###,###,###,###,##0"))
-        Else
-            results.Add(numberDescription & number.ToString())
-        End If
-
-    End Sub
-
-    Private Sub AppendValidatorErrors(results As ICollection(Of String))
-
-        If mValidateFastaFileErrors.Count > 0 Then
-            AppendToString(results, String.Empty)
-            AppendToString(results, "Errors from the validator")
-
-            For Each item In mValidateFastaFileErrors
-                AppendToString(results, item)
-            Next
-        End If
-
-        If mValidateFastaFileWarnings.Count > 0 Then
-            AppendToString(results, String.Empty)
-            AppendToString(results, "Warnings from the validator")
-
-            For Each item In mValidateFastaFileWarnings
-                AppendToString(results, item)
-            Next
-        End If
-
-    End Sub
-
-    Private Sub CopyAllResults()
-        Clipboard.SetDataObject(txtResults.Text & ControlChars.NewLine & FlattenDataView(mErrorsDataView) & ControlChars.NewLine & FlattenDataView(mWarningsDataView), True)
-    End Sub
-
-    Private Sub CopyErrorsDataView()
-        Clipboard.SetDataObject(FlattenDataView(mErrorsDataView), True)
-    End Sub
-
-    Private Sub CopyWarningsDataView()
-        Clipboard.SetDataObject(FlattenDataView(mWarningsDataView), True)
-    End Sub
-
-    Private Sub CreateDefaultValidationRulesFile()
-
-        Dim dialog As New SaveFileDialog() With {
-            .AddExtension = True,
-            .CheckFileExists = False,
-            .CheckPathExists = True,
-            .CreatePrompt = False,
-            .DefaultExt = ".xml",
-            .DereferenceLinks = True,
-            .OverwritePrompt = False,
-            .ValidateNames = True,
-            .Filter = "XML Settings Files (*.xml)|*.xml|All files (*.*)|*.*",
-            .FilterIndex = 1
+            set
+            {
+                txtCustomValidationRulesFilePath.Text = value;
+            }
         }
 
-        If Len(txtCustomValidationRulesFilePath.Text.Length) > 0 Then
-            Try
-                dialog.InitialDirectory = Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString()
-            Catch
-                dialog.InitialDirectory = GetApplicationDataFolderPath()
-            End Try
-        Else
-            dialog.InitialDirectory = GetApplicationDataFolderPath()
-        End If
-
-        dialog.Title = "Select/Create file to save custom rule definitions"
-
-        dialog.ShowDialog()
-        If dialog.FileName.Length > 0 Then
-            Dim customRuleDefinitionsFilePath = dialog.FileName
-
-            Try
-                Dim validateFastaFile As New FastaValidator()
-                validateFastaFile.SaveSettingsToParameterFile(customRuleDefinitionsFilePath)
-
-                If txtCustomValidationRulesFilePath.TextLength = 0 Then
-                    txtCustomValidationRulesFilePath.Text = customRuleDefinitionsFilePath
-                End If
-
-                MessageBox.Show("File " & customRuleDefinitionsFilePath & " now contains the default rule validation settings.", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information)
-
-            Catch ex As Exception
-                MessageBox.Show("Error creating/updating file: " & customRuleDefinitionsFilePath & ControlChars.NewLine & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-            End Try
-
-        End If
-
-    End Sub
-
-    ''' <summary>
-    ''' Display the results
-    ''' </summary>
-    ''' <param name="parameterFilePath"></param>
-    Private Sub DisplayResults(parameterFilePath As String)
-
-        Const sepChar = ControlChars.Tab
-
-        Dim results = New List(Of String) From {
-            "Results for file " & mValidateFastaFile.FastaFilePath
-        }
-
-        AppendToString(results, "Protein count = " & mValidateFastaFile.ProteinCount & sepChar & sepChar & "Residue count = ", mValidateFastaFile.ResidueCount)
-        AppendToString(results, "Error count = " & mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.ErrorMsg, FastaValidator.ErrorWarningCountTypes.Total))
-        AppendToString(results, "Warning count = ", mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.WarningMsg, FastaValidator.ErrorWarningCountTypes.Total))
-
-        If mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.GenerateFixedFASTAFile) Then
-            AppendToString(results, "Count of long protein names that were truncated = " & mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.TruncatedProteinNameCount))
-            AppendToString(results, "Count of protein names with invalid chars removed = " & mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.ProteinNamesInvalidCharsReplaced))
-            AppendToString(results, "Count of protein names with multiple refs split out = " & mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.ProteinNamesMultipleRefsRemoved))
-            AppendToString(results, "Count of residue lines with invalid chars removed = " & mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.UpdatedResidueLines))
-
-            If mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.FixedFastaRenameDuplicateNameProteins) Then
-                AppendToString(results, "Count of proteins renamed due to duplicate names = " & mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.DuplicateProteinNamesRenamedCount))
-            ElseIf mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.CheckForDuplicateProteinNames) Then
-                AppendToString(results, "Count of proteins skipped due to duplicate names = " & mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.DuplicateProteinNamesSkippedCount))
-            End If
-
-            If mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs) Then
-                AppendToString(results, "Count of proteins removed due to duplicate sequences = " & mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.DuplicateProteinSeqsSkippedCount))
-            End If
-
-        End If
-
-        If parameterFilePath.Length > 0 Then
-            AppendToString(results, "Used validation rules from file " & parameterFilePath)
-        Else
-            AppendToString(results, "Default validation rules were used.")
-        End If
-
-        Dim outputStatsEnabled = mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.OutputToStatsFile)
-
-        If outputStatsEnabled Then
-            AppendToString(results, "Results were logged to file: " & mValidateFastaFile.StatsFilePath())
-        End If
-
-        AppendValidatorErrors(results)
-
-        txtResults.Text = String.Join(ControlChars.NewLine, results)
-
-        txtResults.SelectionStart = 0
-        txtResults.SelectionLength = 0
-
-        ' Clear the filters
-        txtFilterData.Text = String.Empty
-
-        If mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.ErrorMsg, FastaValidator.ErrorWarningCountTypes.Specified) > 0 Then
-            ' List all of the errors
-            PopulateMsgResultsDataGrid(dgErrors, mErrorsDataset, mValidateFastaFile.FileErrorList)
-        Else
-            mErrorsDataset.Tables(0).Clear()
-        End If
-
-        If mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.WarningMsg, FastaValidator.ErrorWarningCountTypes.Specified) > 0 Then
-            ' List all of the warnings in the DataGrid
-            PopulateMsgResultsDataGrid(dgWarnings, mWarningsDataset, mValidateFastaFile.FileWarningList)
-        Else
-            mWarningsDataset.Tables(0).Clear()
-        End If
-
-        PositionControls()
-        FilterLists()
-    End Sub
-
-    Private Sub EnableDisableControls()
-        Dim enableFixedFastaOptions As Boolean
-
-        enableFixedFastaOptions = chkGenerateFixedFastaFile.Checked
-
-        txtLongProteinNameSplitChars.Enabled = enableFixedFastaOptions
-        txtInvalidProteinNameCharsToRemove.Enabled = enableFixedFastaOptions
-        txtResiduesPerLineForWrap.Enabled = enableFixedFastaOptions AndAlso chkWrapLongResidueLines.Checked
-
-        chkSplitOutMultipleRefsInProteinName.Enabled = enableFixedFastaOptions
-        chkRenameDuplicateProteins.Enabled = enableFixedFastaOptions
-
-        If enableFixedFastaOptions Then
-            If chkRenameDuplicateProteins.Checked Then
-                chkKeepDuplicateNamedProteins.Enabled = False
-                chkKeepDuplicateNamedProteins.Checked = False
-            Else
-                chkKeepDuplicateNamedProteins.Enabled = True
-                chkKeepDuplicateNamedProteins.Checked = mKeepDuplicateNamedProteinsLastValue
-            End If
-        Else
-            chkKeepDuplicateNamedProteins.Enabled = False
-        End If
-
-
-        chkConsolidateDuplicateProteinSeqs.Enabled = enableFixedFastaOptions
-        chkConsolidateDupsIgnoreILDiff.Enabled = enableFixedFastaOptions AndAlso chkConsolidateDuplicateProteinSeqs.Checked
-
-        chkTruncateLongProteinNames.Enabled = enableFixedFastaOptions
-        chkSplitOutMultipleRefsForKnownAccession.Enabled = enableFixedFastaOptions
-        chkWrapLongResidueLines.Enabled = enableFixedFastaOptions
-        chkRemoveInvalidResidues.Enabled = enableFixedFastaOptions
-
-        If txtCustomValidationRulesFilePath.TextLength > 0 Then
-            chkAllowAsteriskInResidues.Enabled = False
-        Else
-            chkAllowAsteriskInResidues.Enabled = True
-        End If
-
-    End Sub
-
-    ''' <summary>
-    ''' Copy the contents of the DataGrid to the clipboard
-    ''' </summary>
-    ''' <param name="dvDataView"></param>
-    ''' <returns></returns>
-    Private Function FlattenDataView(dvDataView As DataView) As String
-
-        Const sepChar As Char = ControlChars.Tab
-
-        Dim flattenedText As String = String.Empty
-        Dim index As Integer
-        Dim columnCount As Integer
-
-        Try
-            columnCount = dvDataView.Table.Columns.Count
-            For index = 0 To columnCount - 1
-                If index < columnCount - 1 Then
-                    flattenedText &= dvDataView.Table.Columns.Item(index).ColumnName.ToString() & sepChar
-                Else
-                    flattenedText &= dvDataView.Table.Columns.Item(index).ColumnName.ToString() & ControlChars.NewLine
-                End If
-            Next index
-
-            For Each currentRow As DataRow In dvDataView.Table.Rows
-                For index = 0 To columnCount - 1
-                    If index < columnCount - 1 Then
-                        flattenedText &= currentRow(index).ToString() & sepChar
-                    Else
-                        flattenedText &= currentRow(index).ToString() & ControlChars.NewLine
-                    End If
-                Next index
-            Next
-
-        Catch ex As Exception
-            flattenedText &= ControlChars.NewLine & ControlChars.NewLine & "Error copying data: " & ex.Message
-        End Try
-
-        Return flattenedText
-
-    End Function
-
-    Private Sub CopySummaryText()
-
-        Dim selStart = txtResults.SelectionStart
-        Dim selLength = txtResults.SelectionLength
-
-        txtResults.SelectAll()
-        txtResults.Copy()
-
-        txtResults.SelectionStart = selStart
-        txtResults.SelectionLength = selLength
-
-    End Sub
-
-    Private Sub FilterLists()
-
-        Dim filter As String
-
-        Try
-            filter = String.Empty
-            If txtFilterData.TextLength > 0 Then
-                filter = "[" & COL_NAME_PROTEIN & "] LIKE '%" & txtFilterData.Text & "%' OR [" & COL_NAME_DESCRIPTION & "] LIKE '%" & txtFilterData.Text & "%' OR [" & COL_NAME_CONTEXT & "] LIKE '%" & txtFilterData.Text & "%'"
-            End If
-
-            mErrorsDataView.RowFilter = filter
-            dgErrors.Update()
-
-            mWarningsDataView.RowFilter = filter
-            dgWarnings.Update()
-
-        Catch ex As Exception
-            MessageBox.Show("Error filtering lists: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-        End Try
-
-    End Sub
-
-    Private Function GetApplicationDataFolderPath() As String
-        Dim appDataFolderPath As String = String.Empty
-
-        Try
-            appDataFolderPath = Path.Combine(
-               Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-               "PAST Toolkit\ProteinDigestionSimulator")
-
-            If Not Directory.Exists(appDataFolderPath) Then
-                Directory.CreateDirectory(appDataFolderPath)
-            End If
-
-        Catch ex As Exception
-            ' Ignore errors here; an exception will likely be thrown by the calling function that is trying to access this non-existent application data folder
-        End Try
-
-        Return appDataFolderPath
-
-    End Function
-
-    Public Function GetOptions() As FastaValidationOptions
-
-        Dim fastaValidationOptions = New FastaValidationOptions With {
-            .MaximumErrorsToTrackInDetail = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "", False, 10, False),
-            .MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "", False, 120, False),
-            .ValidProteinNameLengthMinimum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "", False, 3, False),
-            .ValidProteinNameLengthMaximum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "", False, 34, False),
-            .AllowAsterisksInResidues = chkAllowAsteriskInResidues.Checked,
-            .CheckForDuplicateProteinNames = chkCheckForDuplicateProteinInfo.Checked,
-            .LogResultsToFile = chkLogResults.Checked,
-            .SaveHashInfoFile = chkSaveBasicProteinHashInfoFile.Checked
-        }
-
-        fastaValidationOptions.FixedFastaOptions.GenerateFixedFasta = chkGenerateFixedFastaFile.Checked
-        fastaValidationOptions.FixedFastaOptions.TruncateLongProteinName = chkTruncateLongProteinNames.Checked
-        fastaValidationOptions.FixedFastaOptions.RenameProteinWithDuplicateNames = chkRenameDuplicateProteins.Checked
-        fastaValidationOptions.FixedFastaOptions.KeepDuplicateNamedProteins = chkKeepDuplicateNamedProteins.Checked
-        fastaValidationOptions.FixedFastaOptions.WrapLongResidueLines = chkWrapLongResidueLines.Checked
-        fastaValidationOptions.FixedFastaOptions.RemoveInvalidResidues = chkRemoveInvalidResidues.Checked
-        fastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsForKnownAccession = chkSplitOutMultipleRefsForKnownAccession.Checked
-        fastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsInProteinName = chkSplitOutMultipleRefsInProteinName.Checked
-        fastaValidationOptions.FixedFastaOptions.ConsolidateDuplicateProteins = chkConsolidateDuplicateProteinSeqs.Checked
-        fastaValidationOptions.FixedFastaOptions.ConsolidateDupsIgnoreILDiff = chkConsolidateDupsIgnoreILDiff.Checked
-        fastaValidationOptions.FixedFastaOptions.ResiduesPerLineForWrap = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "", False, 60, False)
-
-        fastaValidationOptions.Initialized = True
-
-        Return fastaValidationOptions
-
-    End Function
-
-    Private Sub InitializeDataGrid(dgDataGrid As DataGrid, ByRef dsDataset As DataSet, ByRef dvDataView As DataView, msgType As FastaValidator.MsgTypeConstants)
-
-        Dim dtDataTable As DataTable
-
-        Dim msgColumnName As String
-        Dim datasetName As String
-        Dim dataTableName As String
-
-        If msgType = FastaValidator.MsgTypeConstants.WarningMsg Then
-            msgColumnName = "Warnings"
-        ElseIf msgType = FastaValidator.MsgTypeConstants.ErrorMsg Then
-            msgColumnName = "Errors"
-        Else
-            msgColumnName = "Status"
-        End If
-
-        datasetName = "ds" & msgColumnName
-        dataTableName = "T_" & msgColumnName
-
-        ' Create a DataTable
-        dtDataTable = New DataTable(dataTableName)
-
-        ' Add the columns to the DataTable
-        DBUtils.AppendColumnIntegerToTable(dtDataTable, COL_NAME_LINE)
-        DBUtils.AppendColumnIntegerToTable(dtDataTable, COL_NAME_COLUMN)
-        DBUtils.AppendColumnStringToTable(dtDataTable, COL_NAME_PROTEIN)
-        DBUtils.AppendColumnStringToTable(dtDataTable, COL_NAME_DESCRIPTION)
-        DBUtils.AppendColumnStringToTable(dtDataTable, COL_NAME_CONTEXT)
-
-        ' Could define a primary key
-        ''With dtDataTable
-        ''    Dim PrimaryKeyColumn As DataColumn() = New DataColumn() {.Columns(COL_NAME_LINE)}
-        ''    .PrimaryKey = PrimaryKeyColumn
-        ''End With
-
-        ' Instantiate the DataSet
-        dsDataset = New DataSet(datasetName)
-
-        ' Add the table to the DataSet
-        dsDataset.Tables.Add(dtDataTable)
-
-        ' Instantiate the DataView
-        dvDataView = New DataView With {
-            .Table = dsDataset.Tables(dataTableName),
-            .RowFilter = String.Empty
-        }
-
-        ' Bind the DataSet to the DataGrid
-        dgDataGrid.DataSource = dvDataView
-        dgDataGrid.ReadOnly = False
-        dgDataGrid.CaptionText = msgColumnName
-
-        ' Update the grid's table style
-        UpdateDataGridTableStyle(dgDataGrid, dataTableName)
-
-    End Sub
-
-    Private Sub InitializeForm(fastaFilePathToValidate As String)
-        txtResults.ReadOnly = True
-        Me.TextFontSize = 10
-
-        InitializeDataGrid(dgErrors, mErrorsDataset, mErrorsDataView, FastaValidator.MsgTypeConstants.ErrorMsg)
-        InitializeDataGrid(dgWarnings, mWarningsDataset, mWarningsDataView, FastaValidator.MsgTypeConstants.WarningMsg)
-
-        SetNewFastaFile(fastaFilePathToValidate)
-
-        EnableDisableControls()
-        SetToolTips()
-
-        ResetOptionsToDefault()
-
-    End Sub
-
-    Private Sub PopulateMsgResultsDataGrid(dgDataGrid As Control, dsDataset As DataSet, itemList As IEnumerable(Of FastaValidator.MsgInfo))
-
-        ' Clear the table
-        dsDataset.Tables(0).Clear()
-
-        ' Populate it with new data
-        For Each item In itemList
-            Dim currentRow = dsDataset.Tables(0).NewRow()
-            currentRow(COL_NAME_LINE) = item.LineNumber
-            currentRow(COL_NAME_COLUMN) = item.ColNumber
-            If item.ProteinName Is Nothing OrElse item.ProteinName.Length = 0 Then
-                currentRow(COL_NAME_PROTEIN) = "N/A"
-            Else
-                currentRow(COL_NAME_PROTEIN) = item.ProteinName
-            End If
-
-            currentRow(COL_NAME_DESCRIPTION) = mValidateFastaFile.LookupMessageDescription(item.MessageCode, item.ExtraInfo)
-            currentRow(COL_NAME_CONTEXT) = item.Context
-
-            ' Add the row to the table
-            dsDataset.Tables(0).Rows.Add(currentRow)
-        Next
-
-        dgDataGrid.Update()
-
-    End Sub
-
-    Private Sub PositionControls()
-
-        Const MAX_RATIO As Single = 1.5
-        Const MENU_HEIGHT = 80
-
-        Dim desiredHeight As Integer
-
-        Dim errorToWarningsRatio As Double = 1
-
-        Try
-            If mErrorsDataset IsNot Nothing AndAlso mWarningsDataset IsNot Nothing Then
-                If mErrorsDataset.Tables(0).Rows.Count = 0 AndAlso mWarningsDataset.Tables(0).Rows.Count = 0 Then
-                    errorToWarningsRatio = 1
-                ElseIf mErrorsDataset.Tables(0).Rows.Count = 0 Then
-                    errorToWarningsRatio = 1 / MAX_RATIO
-                ElseIf mWarningsDataset.Tables(0).Rows.Count = 0 Then
-                    errorToWarningsRatio = MAX_RATIO
-                Else
-                    errorToWarningsRatio = mErrorsDataset.Tables(0).Rows.Count / mWarningsDataset.Tables(0).Rows.Count
-
-                    If errorToWarningsRatio < 1 / MAX_RATIO Then
-                        errorToWarningsRatio = 1 / MAX_RATIO
-                    ElseIf errorToWarningsRatio > MAX_RATIO Then
-                        errorToWarningsRatio = MAX_RATIO
-                    End If
-                End If
-            End If
-        Catch ex As Exception
-            errorToWarningsRatio = 1
-        End Try
-
-        If errorToWarningsRatio >= 1 Then
-            ' Errors grid should be taller
-            desiredHeight = CInt(Math.Round((Me.Height - dgErrors.Top - MENU_HEIGHT) / (errorToWarningsRatio + 1) * errorToWarningsRatio, 0))
-        Else
-            ' Errors grid should be shorter
-            desiredHeight = CInt(Math.Round((Me.Height - dgErrors.Top - MENU_HEIGHT) / (1 / errorToWarningsRatio + 1), 0)) - 2
-        End If
-
-        If desiredHeight < 5 Then desiredHeight = 5
-        dgErrors.Height = desiredHeight
-
-        dgWarnings.Top = dgErrors.Top + dgErrors.Height + 10
-
-        desiredHeight = CInt(Math.Round(desiredHeight / errorToWarningsRatio, 0))
-        If desiredHeight < 5 Then desiredHeight = 5
-        dgWarnings.Height = desiredHeight
-
-    End Sub
-
-    Private Sub ResetOptionsToDefault()
-        txtMaxFileErrorsToTrack.Text = "10"
-
-        txtMaximumResiduesPerLine.Text = "120"
-
-        txtProteinNameLengthMinimum.Text = "3"
-        txtProteinNameLengthMaximum.Text = "34"
-
-        txtLongProteinNameSplitChars.Text = FastaValidator.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR
-        txtInvalidProteinNameCharsToRemove.Text = ""
-        txtResiduesPerLineForWrap.Text = "60"
-
-        chkAllowAsteriskInResidues.Checked = False
-        chkCheckForDuplicateProteinInfo.Checked = True
-        chkSaveBasicProteinHashInfoFile.Checked = False
-
-        chkLogResults.Checked = False
-
-        ' Note: Leave this option unchanged
-        'chkGenerateFixedFastaFile.Checked = False
-
-        chkConsolidateDuplicateProteinSeqs.Checked = True
-        chkConsolidateDupsIgnoreILDiff.Checked = True
-
-        chkRemoveInvalidResidues.Checked = False
-        chkRenameDuplicateProteins.Checked = True
-        chkKeepDuplicateNamedProteins.Checked = False
-        chkSplitOutMultipleRefsForKnownAccession.Checked = False
-        chkSplitOutMultipleRefsInProteinName.Checked = False
-        chkTruncateLongProteinNames.Checked = True
-        chkWrapLongResidueLines.Checked = True
-    End Sub
-
-    Private Sub SelectCustomRulesFile()
-
-        Dim dialog As New OpenFileDialog() With {
-            .AddExtension = True,
-            .CheckFileExists = True,
-            .CheckPathExists = True,
-            .DefaultExt = ".xml",
-            .DereferenceLinks = True,
-            .Multiselect = False,
-            .ValidateNames = True,
-            .Filter = "XML Settings Files (*.xml)|*.xml|All files (*.*)|*.*",
-            .FilterIndex = 1
-        }
-
-        If Len(txtCustomValidationRulesFilePath.Text.Length) > 0 Then
-            Try
-                dialog.InitialDirectory = Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString()
-            Catch
-                dialog.InitialDirectory = GetApplicationDataFolderPath()
-            End Try
-        Else
-            dialog.InitialDirectory = GetApplicationDataFolderPath()
-        End If
-
-        dialog.Title = "Select custom rules file"
-
-        dialog.ShowDialog()
-        If dialog.FileName.Length > 0 Then
-            txtCustomValidationRulesFilePath.Text = dialog.FileName
-        End If
-
-    End Sub
-
-    Public Sub SetNewFastaFile(fastaFilePathToValidate As String)
-        Me.FastaFilePath = fastaFilePathToValidate
-
-        txtResults.Text = String.Empty
-
-        ' Clear the filters
-        txtFilterData.Text = String.Empty
-
-        mErrorsDataset.Tables(0).Clear()
-        mWarningsDataset.Tables(0).Clear()
-
-    End Sub
-
-    Private Sub ShowAboutBox()
-        Dim message = New StringBuilder()
-
-        message.AppendLine("FASTA File Validation module written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2005")
-        message.AppendLine("Copyright 2018 Battelle Memorial Institute")
-        message.AppendLine()
-        message.AppendLine("This is version " & Application.ProductVersion & " (" & PROGRAM_DATE & ")")
-        message.AppendLine()
-        message.AppendLine("E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov")
-        message.AppendLine("Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/")
-        message.AppendLine()
-        message.AppendLine("Licensed under the 2-Clause BSD License; https://opensource.org/licenses/BSD-2-Clause")
-        message.AppendLine()
-        message.Append("This software is provided by the copyright holders and contributors ""as is"" and ")
-        message.Append("any express or implied warranties, including, but not limited to, the implied ")
-        message.Append("warranties of merchantability and fitness for a particular purpose are ")
-        message.Append("disclaimed. In no event shall the copyright holder or contributors be liable ")
-        message.Append("for any direct, indirect, incidental, special, exemplary, or consequential ")
-        message.Append("damages (including, but not limited to, procurement of substitute goods or ")
-        message.Append("services; loss of use, data, or profits; or business interruption) however ")
-        message.Append("caused and on any theory of liability, whether in contract, strict liability, ")
-        message.Append("or tort (including negligence or otherwise) arising in any way out of the use ")
-        message.Append("of this software, even if advised of the possibility of such damage.")
-
-        MessageBox.Show(message.ToString(), "About", MessageBoxButtons.OK, MessageBoxIcon.Information)
-
-    End Sub
-
-    Private Sub ShowHideObjectsDuringValidation(validating As Boolean)
-        pbarProgress.Visible = validating
-
-        lblFilterData.Visible = Not validating
-        txtFilterData.Visible = Not validating
-
-        cmdValidateFastaFile.Visible = Not validating
-        cmdValidateFastaFile.Enabled = Not validating
-
-        cmdCancel.Visible = validating
-        cmdCancel.Enabled = validating
-
-    End Sub
-
-    Public Sub SetOptions(fastaValidationOptions As FastaValidationOptions)
-
-        txtMaxFileErrorsToTrack.Text = fastaValidationOptions.MaximumErrorsToTrackInDetail.ToString()
-        txtMaximumResiduesPerLine.Text = fastaValidationOptions.MaximumResiduesPerLine.ToString()
-
-        txtProteinNameLengthMinimum.Text = fastaValidationOptions.ValidProteinNameLengthMinimum.ToString()
-        txtProteinNameLengthMaximum.Text = fastaValidationOptions.ValidProteinNameLengthMaximum.ToString()
-
-        chkAllowAsteriskInResidues.Checked = fastaValidationOptions.AllowAsterisksInResidues
-        chkCheckForDuplicateProteinInfo.Checked = fastaValidationOptions.CheckForDuplicateProteinNames
-        chkLogResults.Checked = fastaValidationOptions.LogResultsToFile
-        chkSaveBasicProteinHashInfoFile.Checked = fastaValidationOptions.SaveHashInfoFile
-
-        chkGenerateFixedFastaFile.Checked = fastaValidationOptions.FixedFastaOptions.GenerateFixedFasta
-        chkTruncateLongProteinNames.Checked = fastaValidationOptions.FixedFastaOptions.TruncateLongProteinName
-        chkRenameDuplicateProteins.Checked = fastaValidationOptions.FixedFastaOptions.RenameProteinWithDuplicateNames
-        chkKeepDuplicateNamedProteins.Checked = fastaValidationOptions.FixedFastaOptions.KeepDuplicateNamedProteins
-        chkWrapLongResidueLines.Checked = fastaValidationOptions.FixedFastaOptions.WrapLongResidueLines
-        chkRemoveInvalidResidues.Checked = fastaValidationOptions.FixedFastaOptions.RemoveInvalidResidues
-        chkSplitOutMultipleRefsForKnownAccession.Checked = fastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsForKnownAccession
-        chkSplitOutMultipleRefsInProteinName.Checked = fastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsInProteinName
-        chkConsolidateDuplicateProteinSeqs.Checked = fastaValidationOptions.FixedFastaOptions.ConsolidateDuplicateProteins
-        chkConsolidateDupsIgnoreILDiff.Checked = fastaValidationOptions.FixedFastaOptions.ConsolidateDupsIgnoreILDiff
-        txtResiduesPerLineForWrap.Text = fastaValidationOptions.FixedFastaOptions.ResiduesPerLineForWrap.ToString()
-
-        Application.DoEvents()
-
-    End Sub
-
-    Private Sub SetToolTips()
-        Dim toolTipControl As New ToolTip()
-
-        toolTipControl.SetToolTip(txtLongProteinNameSplitChars, "Enter one or more characters to look for when truncating long protein names (do not separate the characters by commas).  Default character is a vertical bar.")
-        toolTipControl.SetToolTip(txtInvalidProteinNameCharsToRemove, "Enter one or more characters to look and replace with an underscore (do not separate the characters by commas).  Leave blank to not replace any characters.")
-        toolTipControl.SetToolTip(chkSplitOutMultipleRefsForKnownAccession, "If a protein name matches the standard IPI, GI, or JGI accession numbers, and if it contains additional reference information, then the additional information will be moved to the protein's description.")
-        toolTipControl.SetToolTip(chkSaveBasicProteinHashInfoFile, "To minimize memory usage, enable this option by disable 'Check for Duplicate Proteins'")
-
-    End Sub
-
-    Private Sub StartValidation()
-
-        Dim parameterFilePath As String
-        Dim fileExists As Boolean
-
-        Dim success As Boolean
-
-        Try
-
-            mValidatorErrorMessage = String.Empty
-            mValidateFastaFileErrors.Clear()
-            mValidateFastaFileWarnings.Clear()
-
-            RaiseEvent FastaValidationStarted()
-
-            ShowHideObjectsDuringValidation(True)
-            Cursor.Current = Cursors.WaitCursor
-            Application.DoEvents()
-
-            ' Note: the following settings will be overridden if a parameter file with these settings defined is provided to .ProcessFile()
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.WarnBlankLinesBetweenProteins, True)
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.AllowAsteriskInResidues, chkAllowAsteriskInResidues.Checked)
-
-            mValidateFastaFile.MinimumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "Minimum protein name length should be a number", False, 3, False)
-            mValidateFastaFile.MaximumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "Maximum protein name length should be a number", False, 34, False)
-
-            If chkGenerateFixedFastaFile.Checked AndAlso chkWrapLongResidueLines.Checked Then
-                mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "Residues per line for wrapping should be a number", False, 60, False)
-            Else
-                mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "Maximum residues per line should be a number", False, 120, False)
-            End If
-
-            parameterFilePath = txtCustomValidationRulesFilePath.Text
-            If parameterFilePath.Length > 0 Then
-                Try
-                    fileExists = File.Exists(parameterFilePath)
-                Catch ex As Exception
-                    fileExists = False
-                End Try
-
-                If Not fileExists Then
-                    MessageBox.Show("Custom rules validation file not found: " & ControlChars.NewLine & parameterFilePath & ControlChars.NewLine &
-                                    "The default validation rules will be used instead.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-                    parameterFilePath = String.Empty
-                Else
-                    mValidateFastaFile.LoadParameterFileSettings(parameterFilePath)
-                End If
-            End If
-
-            If parameterFilePath.Length = 0 Then
-                mValidateFastaFile.SetDefaultRules()
-            End If
-
-            mValidateFastaFile.MaximumFileErrorsToTrack = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "Max file errors or warnings should be a positive number", False, 10, False)
-
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.CheckForDuplicateProteinNames, chkCheckForDuplicateProteinInfo.Checked)
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.CheckForDuplicateProteinSequences, chkCheckForDuplicateProteinInfo.Checked)
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.SaveBasicProteinHashInfoFile, chkSaveBasicProteinHashInfoFile.Checked)
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.OutputToStatsFile, chkLogResults.Checked)
-
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.GenerateFixedFASTAFile, chkGenerateFixedFastaFile.Checked)
-
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaSplitOutMultipleRefsForKnownAccession, chkSplitOutMultipleRefsForKnownAccession.Checked)
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.SplitOutMultipleRefsInProteinName, chkSplitOutMultipleRefsInProteinName.Checked)
-
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaRenameDuplicateNameProteins, chkRenameDuplicateProteins.Checked)
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaKeepDuplicateNamedProteins, chkKeepDuplicateNamedProteins.Checked)
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs, chkConsolidateDuplicateProteinSeqs.Checked)
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaConsolidateDupsIgnoreILDiff, chkConsolidateDupsIgnoreILDiff.Checked)
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaTruncateLongProteinNames, chkTruncateLongProteinNames.Checked)
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaWrapLongResidueLines, chkWrapLongResidueLines.Checked)
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaRemoveInvalidResidues, chkRemoveInvalidResidues.Checked())
-
-            mValidateFastaFile.ProteinNameFirstRefSepChars = FastaValidator.DEFAULT_PROTEIN_NAME_FIRST_REF_SEP_CHARS
-            mValidateFastaFile.ProteinNameSubsequentRefSepChars = FastaValidator.DEFAULT_PROTEIN_NAME_SUBSEQUENT_REF_SEP_CHARS
-
-            ' Also apply chkGenerateFixedFastaFile to SaveProteinSequenceHashInfoFiles
-            mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.SaveProteinSequenceHashInfoFiles, chkGenerateFixedFastaFile.Checked)
-
-            If txtLongProteinNameSplitChars.TextLength > 0 Then
-                mValidateFastaFile.LongProteinNameSplitChars = txtLongProteinNameSplitChars.Text
-            Else
-                mValidateFastaFile.LongProteinNameSplitChars = FastaValidator.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR
-            End If
-
-            mValidateFastaFile.ProteinNameInvalidCharsToRemove = txtInvalidProteinNameCharsToRemove.Text
-
-            pbarProgress.Minimum = 0
-            pbarProgress.Maximum = 100
-            pbarProgress.Value = 0
-
-            ' Analyze the FASTA file; returns true if the analysis was successful (even if the file contains errors or warnings)
-            success = mValidateFastaFile.ProcessFile(FastaFilePath, String.Empty, String.Empty)
-
-            cmdCancel.Enabled = False
-
-            If success Then
-                DisplayResults(parameterFilePath)
-            Else
-                Dim results = New List(Of String) From {
-                    "Error calling mValidateFastaFile.ProcessFile: " & mValidateFastaFile.GetErrorMessage()
+        public string FastaFilePath { get; set; }
+
+        public float TextFontSize
+        {
+            get
+            {
+                return txtResults.Font.SizeInPoints;
+            }
+
+            set
+            {
+                if (value < 6f)
+                {
+                    value = 6f;
+                }
+                else if (value > 72f)
+                {
+                    value = 72f;
                 }
 
-                AppendValidatorErrors(results)
-
-                txtResults.Text = String.Join(ControlChars.NewLine, results)
-
-                If Not String.IsNullOrEmpty(mValidatorErrorMessage) Then
-                    txtResults.AppendText(ControlChars.NewLine & mValidatorErrorMessage)
-                End If
-            End If
-
-        Catch ex As Exception
-            MessageBox.Show("Error validating FASTA file: " & FastaFilePath & ControlChars.NewLine & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
-        Finally
-            ShowHideObjectsDuringValidation(False)
-
-            Cursor.Current = Cursors.Default
-            Application.DoEvents()
-        End Try
-
-    End Sub
-
-    Private Sub UpdateDataGridTableStyle(dgDataGrid As DataGrid, targetTableName As String)
-
-        ' Instantiate the TableStyle
-        ' Setting the MappingName of the table style to targetTableName will cause this style to be used with that table
-        Dim tsTableStyle = New DataGridTableStyle With {
-            .MappingName = targetTableName,
-            .AllowSorting = True,
-            .ColumnHeadersVisible = True,
-            .RowHeadersVisible = False,
-            .ReadOnly = True
+                try
+                {
+                    txtResults.Font = new Font(txtResults.Font.FontFamily, value);
+                    dgErrors.Font = new Font(txtResults.Font.FontFamily, value);
+                    dgWarnings.Font = new Font(txtResults.Font.FontFamily, value);
+                }
+                catch (Exception ex)
+                {
+                    // Ignore errors here
+                }
+            }
         }
 
-        DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_LINE, "Line", 80)
-        DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_COLUMN, "Column", 80)
-        DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_PROTEIN, "Protein", 200)
-        DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_DESCRIPTION, "Value", 550)
-        DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_CONTEXT, "Context", 200)
+        private void AppendToString(ICollection<string> results, string newText)
+        {
+            results.Add(newText);
+        }
 
-        dgDataGrid.TableStyles.Clear()
+        private void AppendToString(ICollection<string> results, string numberDescription, long number)
+        {
+            AppendToString(results, numberDescription, number, true);
+        }
 
-        If Not dgDataGrid.TableStyles.Contains(tsTableStyle) Then
-            dgDataGrid.TableStyles.Add(tsTableStyle)
-        End If
+        private void AppendToString(ICollection<string> results, string numberDescription, long number, bool useCommaSeparator)
+        {
+            if (useCommaSeparator)
+            {
+                results.Add(numberDescription + number.ToString("###,###,###,###,##0"));
+            }
+            else
+            {
+                results.Add(numberDescription + number.ToString());
+            }
+        }
 
-        dgDataGrid.Refresh()
+        private void AppendValidatorErrors(ICollection<string> results)
+        {
+            if (mValidateFastaFileErrors.Count > 0)
+            {
+                AppendToString(results, string.Empty);
+                AppendToString(results, "Errors from the validator");
+                foreach (var item in mValidateFastaFileErrors)
+                    AppendToString(results, item);
+            }
 
-    End Sub
+            if (mValidateFastaFileWarnings.Count > 0)
+            {
+                AppendToString(results, string.Empty);
+                AppendToString(results, "Warnings from the validator");
+                foreach (var item in mValidateFastaFileWarnings)
+                    AppendToString(results, item);
+            }
+        }
 
-    Private Sub chkGenerateFixedFastaFile_CheckedChanged(sender As Object, e As EventArgs) Handles chkGenerateFixedFastaFile.CheckedChanged
-        EnableDisableControls()
-    End Sub
+        private void CopyAllResults()
+        {
+            Clipboard.SetDataObject(txtResults.Text + ControlChars.NewLine + FlattenDataView(mErrorsDataView) + ControlChars.NewLine + FlattenDataView(mWarningsDataView), true);
+        }
 
-    Private Sub chkConsolidateDuplicateProteinSeqs_CheckedChanged(sender As Object, e As EventArgs) Handles chkConsolidateDuplicateProteinSeqs.CheckedChanged
-        EnableDisableControls()
-    End Sub
+        private void CopyErrorsDataView()
+        {
+            Clipboard.SetDataObject(FlattenDataView(mErrorsDataView), true);
+        }
 
-    Private Sub chkRenameDuplicateProteins_CheckedChanged(sender As Object, e As EventArgs) Handles chkRenameDuplicateProteins.CheckedChanged
-        EnableDisableControls()
-    End Sub
+        private void CopyWarningsDataView()
+        {
+            Clipboard.SetDataObject(FlattenDataView(mWarningsDataView), true);
+        }
 
-    Private Sub chkKeepDuplicateNamedProteins_CheckedChanged(sender As Object, e As EventArgs) Handles chkKeepDuplicateNamedProteins.CheckedChanged
-        If chkKeepDuplicateNamedProteins.Enabled Then
-            mKeepDuplicateNamedProteinsLastValue = chkKeepDuplicateNamedProteins.Checked
-        End If
-    End Sub
+        private void CreateDefaultValidationRulesFile()
+        {
+            var dialog = new SaveFileDialog()
+            {
+                AddExtension = true,
+                CheckFileExists = false,
+                CheckPathExists = true,
+                CreatePrompt = false,
+                DefaultExt = ".xml",
+                DereferenceLinks = true,
+                OverwritePrompt = false,
+                ValidateNames = true,
+                Filter = "XML Settings Files (*.xml)|*.xml|All files (*.*)|*.*",
+                FilterIndex = 1
+            };
+            if (Strings.Len(txtCustomValidationRulesFilePath.Text.Length) > 0)
+            {
+                try
+                {
+                    dialog.InitialDirectory = Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString();
+                }
+                catch
+                {
+                    dialog.InitialDirectory = GetApplicationDataFolderPath();
+                }
+            }
+            else
+            {
+                dialog.InitialDirectory = GetApplicationDataFolderPath();
+            }
 
-    Private Sub chkWrapLongResidueLines_CheckedChanged(sender As Object, e As EventArgs) Handles chkWrapLongResidueLines.CheckedChanged
-        EnableDisableControls()
-    End Sub
+            dialog.Title = "Select/Create file to save custom rule definitions";
+            dialog.ShowDialog();
+            if (dialog.FileName.Length > 0)
+            {
+                string customRuleDefinitionsFilePath = dialog.FileName;
+                try
+                {
+                    var validateFastaFile = new FastaValidator();
+                    validateFastaFile.SaveSettingsToParameterFile(customRuleDefinitionsFilePath);
+                    if (txtCustomValidationRulesFilePath.TextLength == 0)
+                    {
+                        txtCustomValidationRulesFilePath.Text = customRuleDefinitionsFilePath;
+                    }
 
-    Private Sub cmdCancel_Click(sender As Object, e As EventArgs) Handles cmdCancel.Click
-        If mValidateFastaFile IsNot Nothing Then
-            cmdCancel.Enabled = False
-            mValidateFastaFile.AbortProcessingNow()
-        End If
-    End Sub
+                    MessageBox.Show("File " + customRuleDefinitionsFilePath + " now contains the default rule validation settings.", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error creating/updating file: " + customRuleDefinitionsFilePath + ControlChars.NewLine + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+            }
+        }
 
-    Private Sub cmdCreateDefaultValidationRulesFile_Click_1(sender As Object, e As EventArgs) Handles cmdCreateDefaultValidationRulesFile.Click
-        CreateDefaultValidationRulesFile()
-    End Sub
+        /// <summary>
+        /// Display the results
+        /// </summary>
+        /// <param name="parameterFilePath"></param>
+        private void DisplayResults(string parameterFilePath)
+        {
+            const char sepChar = ControlChars.Tab;
+            var results = new List<string>() { "Results for file " + mValidateFastaFile.FastaFilePath };
+            AppendToString(results, "Protein count = " + mValidateFastaFile.ProteinCount + sepChar + sepChar + "Residue count = ", mValidateFastaFile.ResidueCount);
+            AppendToString(results, "Error count = " + mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.ErrorMsg, FastaValidator.ErrorWarningCountTypes.Total));
+            AppendToString(results, "Warning count = ", mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.WarningMsg, FastaValidator.ErrorWarningCountTypes.Total));
+            if (mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.GenerateFixedFASTAFile))
+            {
+                AppendToString(results, "Count of long protein names that were truncated = " + mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.TruncatedProteinNameCount));
+                AppendToString(results, "Count of protein names with invalid chars removed = " + mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.ProteinNamesInvalidCharsReplaced));
+                AppendToString(results, "Count of protein names with multiple refs split out = " + mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.ProteinNamesMultipleRefsRemoved));
+                AppendToString(results, "Count of residue lines with invalid chars removed = " + mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.UpdatedResidueLines));
+                if (mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.FixedFastaRenameDuplicateNameProteins))
+                {
+                    AppendToString(results, "Count of proteins renamed due to duplicate names = " + mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.DuplicateProteinNamesRenamedCount));
+                }
+                else if (mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.CheckForDuplicateProteinNames))
+                {
+                    AppendToString(results, "Count of proteins skipped due to duplicate names = " + mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.DuplicateProteinNamesSkippedCount));
+                }
 
-    Private Sub cmdSelectCustomRulesFile_Click(sender As Object, e As EventArgs) Handles cmdSelectCustomRulesFile.Click
-        SelectCustomRulesFile()
-    End Sub
+                if (mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs))
+                {
+                    AppendToString(results, "Count of proteins removed due to duplicate sequences = " + mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.DuplicateProteinSeqsSkippedCount));
+                }
+            }
 
-    Private Sub cmdValidateFastaFile_Click(sender As Object, e As EventArgs) Handles cmdValidateFastaFile.Click
-        StartValidation()
-    End Sub
+            if (parameterFilePath.Length > 0)
+            {
+                AppendToString(results, "Used validation rules from file " + parameterFilePath);
+            }
+            else
+            {
+                AppendToString(results, "Default validation rules were used.");
+            }
 
-    Private Sub frmFastaValidationResults_Resize(sender As Object, e As EventArgs) Handles MyBase.Resize
-        PositionControls()
-    End Sub
+            bool outputStatsEnabled = mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.OutputToStatsFile);
+            if (outputStatsEnabled)
+            {
+                AppendToString(results, "Results were logged to file: " + mValidateFastaFile.StatsFilePath);
+            }
 
-    Private Sub txtCustomValidationRulesFilePath_TextChanged(sender As Object, e As EventArgs) Handles txtCustomValidationRulesFilePath.TextChanged
-        EnableDisableControls()
-    End Sub
+            AppendValidatorErrors(results);
+            txtResults.Text = string.Join(ControlChars.NewLine, results);
+            txtResults.SelectionStart = 0;
+            txtResults.SelectionLength = 0;
 
-    Private Sub txtFilterData_Validated(sender As Object, e As EventArgs) Handles txtFilterData.Validated
-        FilterLists()
-    End Sub
+            // Clear the filters
+            txtFilterData.Text = string.Empty;
+            if (mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.ErrorMsg, FastaValidator.ErrorWarningCountTypes.Specified) > 0)
+            {
+                // List all of the errors
+                PopulateMsgResultsDataGrid(dgErrors, mErrorsDataset, mValidateFastaFile.FileErrorList);
+            }
+            else
+            {
+                mErrorsDataset.Tables[0].Clear();
+            }
 
-    Private Sub txtFilterData_KeyDown(sender As Object, e As KeyEventArgs) Handles txtFilterData.KeyDown
-        If e.KeyCode = Keys.Enter Then
-            FilterLists()
-        End If
-    End Sub
+            if (mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.WarningMsg, FastaValidator.ErrorWarningCountTypes.Specified) > 0)
+            {
+                // List all of the warnings in the DataGrid
+                PopulateMsgResultsDataGrid(dgWarnings, mWarningsDataset, mValidateFastaFile.FileWarningList);
+            }
+            else
+            {
+                mWarningsDataset.Tables[0].Clear();
+            }
 
-    Private Sub txtMaxFileErrorsToTrack_KeyPress1(sender As Object, e As KeyPressEventArgs) Handles txtMaxFileErrorsToTrack.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtMaxFileErrorsToTrack, e, True)
-    End Sub
+            PositionControls();
+            FilterLists();
+        }
 
-    Private Sub txtMaximumResiduesPerLine_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtMaximumResiduesPerLine.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtMaximumResiduesPerLine, e, True)
-    End Sub
+        private void EnableDisableControls()
+        {
+            bool enableFixedFastaOptions;
+            enableFixedFastaOptions = chkGenerateFixedFastaFile.Checked;
+            txtLongProteinNameSplitChars.Enabled = enableFixedFastaOptions;
+            txtInvalidProteinNameCharsToRemove.Enabled = enableFixedFastaOptions;
+            txtResiduesPerLineForWrap.Enabled = enableFixedFastaOptions && chkWrapLongResidueLines.Checked;
+            chkSplitOutMultipleRefsInProteinName.Enabled = enableFixedFastaOptions;
+            chkRenameDuplicateProteins.Enabled = enableFixedFastaOptions;
+            if (enableFixedFastaOptions)
+            {
+                if (chkRenameDuplicateProteins.Checked)
+                {
+                    chkKeepDuplicateNamedProteins.Enabled = false;
+                    chkKeepDuplicateNamedProteins.Checked = false;
+                }
+                else
+                {
+                    chkKeepDuplicateNamedProteins.Enabled = true;
+                    chkKeepDuplicateNamedProteins.Checked = mKeepDuplicateNamedProteinsLastValue;
+                }
+            }
+            else
+            {
+                chkKeepDuplicateNamedProteins.Enabled = false;
+            }
 
-    Private Sub txtProteinNameLengthMinimum_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtProteinNameLengthMinimum.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtProteinNameLengthMinimum, e, True)
-    End Sub
+            chkConsolidateDuplicateProteinSeqs.Enabled = enableFixedFastaOptions;
+            chkConsolidateDupsIgnoreILDiff.Enabled = enableFixedFastaOptions && chkConsolidateDuplicateProteinSeqs.Checked;
+            chkTruncateLongProteinNames.Enabled = enableFixedFastaOptions;
+            chkSplitOutMultipleRefsForKnownAccession.Enabled = enableFixedFastaOptions;
+            chkWrapLongResidueLines.Enabled = enableFixedFastaOptions;
+            chkRemoveInvalidResidues.Enabled = enableFixedFastaOptions;
+            if (txtCustomValidationRulesFilePath.TextLength > 0)
+            {
+                chkAllowAsteriskInResidues.Enabled = false;
+            }
+            else
+            {
+                chkAllowAsteriskInResidues.Enabled = true;
+            }
+        }
 
-    Private Sub txtProteinNameLengthMaximum_KeyPress(sender As Object, e As KeyPressEventArgs) Handles txtProteinNameLengthMaximum.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtProteinNameLengthMaximum, e, True)
-    End Sub
+        /// <summary>
+        /// Copy the contents of the DataGrid to the clipboard
+        /// </summary>
+        /// <param name="dvDataView"></param>
+        /// <returns></returns>
+        private string FlattenDataView(DataView dvDataView)
+        {
+            const char sepChar = ControlChars.Tab;
+            string flattenedText = string.Empty;
+            int index;
+            int columnCount;
+            try
+            {
+                columnCount = dvDataView.Table.Columns.Count;
+                var loopTo = columnCount - 1;
+                for (index = 0; index <= loopTo; index++)
+                {
+                    if (index < columnCount - 1)
+                    {
+                        flattenedText += dvDataView.Table.Columns[index].ColumnName.ToString() + sepChar;
+                    }
+                    else
+                    {
+                        flattenedText += dvDataView.Table.Columns[index].ColumnName.ToString() + ControlChars.NewLine;
+                    }
+                }
 
-    Private Sub txtResiduesPerLineForWrap_TextChanged(sender As Object, e As KeyPressEventArgs) Handles txtResiduesPerLineForWrap.KeyPress
-        TextBoxUtils.TextBoxKeyPressHandler(txtResiduesPerLineForWrap, e, True)
-    End Sub
+                foreach (DataRow currentRow in dvDataView.Table.Rows)
+                {
+                    var loopTo1 = columnCount - 1;
+                    for (index = 0; index <= loopTo1; index++)
+                    {
+                        if (index < columnCount - 1)
+                        {
+                            flattenedText += currentRow[index].ToString() + sepChar;
+                        }
+                        else
+                        {
+                            flattenedText += currentRow[index].ToString() + ControlChars.NewLine;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                flattenedText += ControlChars.NewLine + ControlChars.NewLine + "Error copying data: " + ex.Message;
+            }
 
-    Private Sub txtResults_KeyDown(sender As Object, e As KeyEventArgs) Handles txtResults.KeyDown
-        If e.Control = True Then
-            If e.KeyCode = Keys.A Then
-                txtResults.SelectAll()
-            End If
-        End If
-    End Sub
+            return flattenedText;
+        }
 
-    ''' <summary>
-    ''' This timer is used to cause StartValidation to be called after the form becomes visible
-    ''' </summary>
-    ''' <param name="sender"></param>
-    ''' <param name="e"></param>
-    ''' <remarks></remarks>
-    Private Sub mValidationTriggerTimer_Tick(sender As Object, e As EventArgs)
-        mValidationTriggerTimer.Enabled = False
+        private void CopySummaryText()
+        {
+            int selStart = txtResults.SelectionStart;
+            int selLength = txtResults.SelectionLength;
+            txtResults.SelectAll();
+            txtResults.Copy();
+            txtResults.SelectionStart = selStart;
+            txtResults.SelectionLength = selLength;
+        }
 
-        Try
-            ' Check whether the FASTA file is over 250 MB in size
-            ' If it is, auto-disable the check for duplicate proteins (to avoid using too much memory)
-            Dim fastaFile = New FileInfo(FastaFilePath)
-            If fastaFile.Exists Then
-                If fastaFile.Length > 250 * 1024 * 1024 Then
-                    chkCheckForDuplicateProteinInfo.Checked = False
-                End If
-                StartValidation()
-            End If
+        private void FilterLists()
+        {
+            string filter;
+            try
+            {
+                filter = string.Empty;
+                if (txtFilterData.TextLength > 0)
+                {
+                    filter = "[" + COL_NAME_PROTEIN + "] LIKE '%" + txtFilterData.Text + "%' OR [" + COL_NAME_DESCRIPTION + "] LIKE '%" + txtFilterData.Text + "%' OR [" + COL_NAME_CONTEXT + "] LIKE '%" + txtFilterData.Text + "%'";
+                }
 
-        Catch ex As Exception
-            MessageBox.Show("Error examining the FASTA file size: " & ex.Message)
-        End Try
+                mErrorsDataView.RowFilter = filter;
+                dgErrors.Update();
+                mWarningsDataView.RowFilter = filter;
+                dgWarnings.Update();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error filtering lists: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+        }
 
-    End Sub
+        private string GetApplicationDataFolderPath()
+        {
+            string appDataFolderPath = string.Empty;
+            try
+            {
+                appDataFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"PAST Toolkit\ProteinDigestionSimulator");
+                if (!Directory.Exists(appDataFolderPath))
+                {
+                    Directory.CreateDirectory(appDataFolderPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Ignore errors here; an exception will likely be thrown by the calling function that is trying to access this non-existent application data folder
+            }
 
-    Private Sub mnuFileExit_Click(sender As Object, e As EventArgs) Handles mnuFileExit.Click
-        Me.Close()
-    End Sub
+            return appDataFolderPath;
+        }
 
-    Private Sub mnuEditCopySummary_Click(sender As Object, e As EventArgs) Handles mnuEditCopySummary.Click
-        CopySummaryText()
-    End Sub
+        public FastaValidationOptions GetOptions()
+        {
+            bool argisError = false;
+            bool argisError1 = false;
+            bool argisError2 = false;
+            bool argisError3 = false;
+            var fastaValidationOptions = new FastaValidationOptions()
+            {
+                MaximumErrorsToTrackInDetail = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "", out argisError, 10, false),
+                MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "", out argisError1, 120, false),
+                ValidProteinNameLengthMinimum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "", out argisError2, 3, false),
+                ValidProteinNameLengthMaximum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "", out argisError3, 34, false),
+                AllowAsterisksInResidues = chkAllowAsteriskInResidues.Checked,
+                CheckForDuplicateProteinNames = chkCheckForDuplicateProteinInfo.Checked,
+                LogResultsToFile = chkLogResults.Checked,
+                SaveHashInfoFile = chkSaveBasicProteinHashInfoFile.Checked
+            };
+            fastaValidationOptions.FixedFastaOptions.GenerateFixedFasta = chkGenerateFixedFastaFile.Checked;
+            fastaValidationOptions.FixedFastaOptions.TruncateLongProteinName = chkTruncateLongProteinNames.Checked;
+            fastaValidationOptions.FixedFastaOptions.RenameProteinWithDuplicateNames = chkRenameDuplicateProteins.Checked;
+            fastaValidationOptions.FixedFastaOptions.KeepDuplicateNamedProteins = chkKeepDuplicateNamedProteins.Checked;
+            fastaValidationOptions.FixedFastaOptions.WrapLongResidueLines = chkWrapLongResidueLines.Checked;
+            fastaValidationOptions.FixedFastaOptions.RemoveInvalidResidues = chkRemoveInvalidResidues.Checked;
+            fastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsForKnownAccession = chkSplitOutMultipleRefsForKnownAccession.Checked;
+            fastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsInProteinName = chkSplitOutMultipleRefsInProteinName.Checked;
+            fastaValidationOptions.FixedFastaOptions.ConsolidateDuplicateProteins = chkConsolidateDuplicateProteinSeqs.Checked;
+            fastaValidationOptions.FixedFastaOptions.ConsolidateDupsIgnoreILDiff = chkConsolidateDupsIgnoreILDiff.Checked;
+            bool argisError4 = false;
+            fastaValidationOptions.FixedFastaOptions.ResiduesPerLineForWrap = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "", out argisError4, 60, false);
+            fastaValidationOptions.Initialized = true;
+            return fastaValidationOptions;
+        }
 
-    Private Sub mnuEditCopyAllResults_Click(sender As Object, e As EventArgs) Handles mnuEditCopyAllResults.Click
-        CopyAllResults()
-    End Sub
+        private void InitializeDataGrid(DataGrid dgDataGrid, ref DataSet dsDataset, ref DataView dvDataView, FastaValidator.MsgTypeConstants msgType)
+        {
+            DataTable dtDataTable;
+            string msgColumnName;
+            string datasetName;
+            string dataTableName;
+            if (msgType == FastaValidator.MsgTypeConstants.WarningMsg)
+            {
+                msgColumnName = "Warnings";
+            }
+            else if (msgType == FastaValidator.MsgTypeConstants.ErrorMsg)
+            {
+                msgColumnName = "Errors";
+            }
+            else
+            {
+                msgColumnName = "Status";
+            }
 
-    Private Sub mnuEditCopyAllErrors_Click(sender As Object, e As EventArgs) Handles mnuEditCopyAllErrors.Click
-        CopyErrorsDataView()
-    End Sub
+            datasetName = "ds" + msgColumnName;
+            dataTableName = "T_" + msgColumnName;
 
-    Private Sub mnuEditCopyAllWarnings_Click(sender As Object, e As EventArgs) Handles mnuEditCopyAllWarnings.Click
-        CopyWarningsDataView()
-    End Sub
+            // Create a DataTable
+            dtDataTable = new DataTable(dataTableName);
 
-    Private Sub mnuEditFontSizeDecrease_Click(sender As Object, e As EventArgs) Handles mnuEditFontSizeDecrease.Click
-        If Me.TextFontSize > 14 Then
-            Me.TextFontSize -= 2
-        Else
-            Me.TextFontSize -= 1
-        End If
-    End Sub
+            // Add the columns to the DataTable
+            DBUtils.AppendColumnIntegerToTable(dtDataTable, COL_NAME_LINE);
+            DBUtils.AppendColumnIntegerToTable(dtDataTable, COL_NAME_COLUMN);
+            DBUtils.AppendColumnStringToTable(dtDataTable, COL_NAME_PROTEIN);
+            DBUtils.AppendColumnStringToTable(dtDataTable, COL_NAME_DESCRIPTION);
+            DBUtils.AppendColumnStringToTable(dtDataTable, COL_NAME_CONTEXT);
 
-    Private Sub mnuEditFontSizeIncrease_Click(sender As Object, e As EventArgs) Handles mnuEditFontSizeIncrease.Click
-        If Me.TextFontSize >= 14 Then
-            Me.TextFontSize += 2
-        Else
-            Me.TextFontSize += 1
-        End If
-    End Sub
+            // Could define a primary key
+            // dtDataTable.PrimaryKey = new DataColumn() {dtDataTable.Columns[COL_NAME_LINE]};
 
-    Private Sub mnuEditResetToDefaults_Click(sender As Object, e As EventArgs) Handles mnuEditResetToDefaults.Click
-        ResetOptionsToDefault()
-    End Sub
+            // Instantiate the DataSet
+            dsDataset = new DataSet(datasetName);
 
-    Private Sub mnuHelpAbout_Click(sender As Object, e As EventArgs) Handles mnuHelpAbout.Click
-        ShowAboutBox()
-    End Sub
+            // Add the table to the DataSet
+            dsDataset.Tables.Add(dtDataTable);
 
-    Private Overloads Sub RegisterEvents(obj As IEventNotifier)
-        AddHandler obj.StatusEvent, AddressOf MessageEventHandler
-        AddHandler obj.ErrorEvent, AddressOf ErrorEventHandler
-        AddHandler obj.ProgressUpdate, AddressOf ProgressUpdateHandler
-        AddHandler obj.WarningEvent, AddressOf WarningEventHandler
-    End Sub
+            // Instantiate the DataView
+            dvDataView = new DataView()
+            {
+                Table = dsDataset.Tables[dataTableName],
+                RowFilter = string.Empty
+            };
 
-    Private Sub ErrorEventHandler(message As String, ex As Exception)
-        mValidatorErrorMessage = message
+            // Bind the DataSet to the DataGrid
+            dgDataGrid.DataSource = dvDataView;
+            dgDataGrid.ReadOnly = false;
+            dgDataGrid.CaptionText = msgColumnName;
 
-        If ex IsNot Nothing AndAlso Not message.Contains(ex.Message) Then
-            mValidateFastaFileErrors.Add(message & ": " & ex.Message)
-        Else
-            mValidateFastaFileErrors.Add(message)
-        End If
+            // Update the grid's table style
+            UpdateDataGridTableStyle(dgDataGrid, dataTableName);
+        }
 
-    End Sub
+        private void InitializeForm(string fastaFilePathToValidate)
+        {
+            txtResults.ReadOnly = true;
+            TextFontSize = 10f;
+            InitializeDataGrid(dgErrors, ref mErrorsDataset, ref mErrorsDataView, FastaValidator.MsgTypeConstants.ErrorMsg);
+            InitializeDataGrid(dgWarnings, ref mWarningsDataset, ref mWarningsDataView, FastaValidator.MsgTypeConstants.WarningMsg);
+            SetNewFastaFile(fastaFilePathToValidate);
+            EnableDisableControls();
+            SetToolTips();
+            ResetOptionsToDefault();
+        }
 
-    Private Sub MessageEventHandler(message As String)
-        ' Uncomment to debug:
-        ' Console.WriteLine(message)
-    End Sub
+        private void PopulateMsgResultsDataGrid(Control dgDataGrid, DataSet dsDataset, IEnumerable<FastaValidator.MsgInfo> itemList)
+        {
+            // Clear the table
+            dsDataset.Tables[0].Clear();
 
-    Private Sub ProgressUpdateHandler(taskDescription As String, percentComplete As Single)
-        Try
-            pbarProgress.Value = CType(percentComplete, Integer)
-            Application.DoEvents()
-        Catch ex As Exception
-            ' Ignore errors here
-        End Try
-    End Sub
+            // Populate it with new data
+            foreach (var item in itemList)
+            {
+                var currentRow = dsDataset.Tables[0].NewRow();
+                currentRow[COL_NAME_LINE] = item.LineNumber;
+                currentRow[COL_NAME_COLUMN] = item.ColNumber;
+                if (item.ProteinName is null || item.ProteinName.Length == 0)
+                {
+                    currentRow[COL_NAME_PROTEIN] = "N/A";
+                }
+                else
+                {
+                    currentRow[COL_NAME_PROTEIN] = item.ProteinName;
+                }
 
-    Private Sub WarningEventHandler(message As String)
-        mValidateFastaFileWarnings.Add(message)
-    End Sub
+                currentRow[COL_NAME_DESCRIPTION] = mValidateFastaFile.LookupMessageDescription(item.MessageCode, item.ExtraInfo);
+                currentRow[COL_NAME_CONTEXT] = item.Context;
 
-End Class
+                // Add the row to the table
+                dsDataset.Tables[0].Rows.Add(currentRow);
+            }
+
+            dgDataGrid.Update();
+        }
+
+        private void PositionControls()
+        {
+            const float MAX_RATIO = 1.5f;
+            const int MENU_HEIGHT = 80;
+            int desiredHeight;
+            double errorToWarningsRatio = 1d;
+            try
+            {
+                if (mErrorsDataset is object && mWarningsDataset is object)
+                {
+                    if (mErrorsDataset.Tables[0].Rows.Count == 0 && mWarningsDataset.Tables[0].Rows.Count == 0)
+                    {
+                        errorToWarningsRatio = 1d;
+                    }
+                    else if (mErrorsDataset.Tables[0].Rows.Count == 0)
+                    {
+                        errorToWarningsRatio = 1f / MAX_RATIO;
+                    }
+                    else if (mWarningsDataset.Tables[0].Rows.Count == 0)
+                    {
+                        errorToWarningsRatio = MAX_RATIO;
+                    }
+                    else
+                    {
+                        errorToWarningsRatio = mErrorsDataset.Tables[0].Rows.Count / (double)mWarningsDataset.Tables[0].Rows.Count;
+                        if (errorToWarningsRatio < 1f / MAX_RATIO)
+                        {
+                            errorToWarningsRatio = 1f / MAX_RATIO;
+                        }
+                        else if (errorToWarningsRatio > MAX_RATIO)
+                        {
+                            errorToWarningsRatio = MAX_RATIO;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorToWarningsRatio = 1d;
+            }
+
+            if (errorToWarningsRatio >= 1d)
+            {
+                // Errors grid should be taller
+                desiredHeight = (int)Math.Round(Math.Round((Height - dgErrors.Top - MENU_HEIGHT) / (errorToWarningsRatio + 1d) * errorToWarningsRatio, 0));
+            }
+            else
+            {
+                // Errors grid should be shorter
+                desiredHeight = (int)Math.Round(Math.Round((Height - dgErrors.Top - MENU_HEIGHT) / (1d / errorToWarningsRatio + 1d), 0)) - 2;
+            }
+
+            if (desiredHeight < 5)
+                desiredHeight = 5;
+            dgErrors.Height = desiredHeight;
+            dgWarnings.Top = dgErrors.Top + dgErrors.Height + 10;
+            desiredHeight = (int)Math.Round(Math.Round(desiredHeight / errorToWarningsRatio, 0));
+            if (desiredHeight < 5)
+                desiredHeight = 5;
+            dgWarnings.Height = desiredHeight;
+        }
+
+        private void ResetOptionsToDefault()
+        {
+            txtMaxFileErrorsToTrack.Text = "10";
+            txtMaximumResiduesPerLine.Text = "120";
+            txtProteinNameLengthMinimum.Text = "3";
+            txtProteinNameLengthMaximum.Text = "34";
+            txtLongProteinNameSplitChars.Text = Conversions.ToString(FastaValidator.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR);
+            txtInvalidProteinNameCharsToRemove.Text = "";
+            txtResiduesPerLineForWrap.Text = "60";
+            chkAllowAsteriskInResidues.Checked = false;
+            chkCheckForDuplicateProteinInfo.Checked = true;
+            chkSaveBasicProteinHashInfoFile.Checked = false;
+            chkLogResults.Checked = false;
+
+            // Note: Leave this option unchanged
+            // chkGenerateFixedFastaFile.Checked = False
+
+            chkConsolidateDuplicateProteinSeqs.Checked = true;
+            chkConsolidateDupsIgnoreILDiff.Checked = true;
+            chkRemoveInvalidResidues.Checked = false;
+            chkRenameDuplicateProteins.Checked = true;
+            chkKeepDuplicateNamedProteins.Checked = false;
+            chkSplitOutMultipleRefsForKnownAccession.Checked = false;
+            chkSplitOutMultipleRefsInProteinName.Checked = false;
+            chkTruncateLongProteinNames.Checked = true;
+            chkWrapLongResidueLines.Checked = true;
+        }
+
+        private void SelectCustomRulesFile()
+        {
+            var dialog = new OpenFileDialog()
+            {
+                AddExtension = true,
+                CheckFileExists = true,
+                CheckPathExists = true,
+                DefaultExt = ".xml",
+                DereferenceLinks = true,
+                Multiselect = false,
+                ValidateNames = true,
+                Filter = "XML Settings Files (*.xml)|*.xml|All files (*.*)|*.*",
+                FilterIndex = 1
+            };
+            if (Strings.Len(txtCustomValidationRulesFilePath.Text.Length) > 0)
+            {
+                try
+                {
+                    dialog.InitialDirectory = Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString();
+                }
+                catch
+                {
+                    dialog.InitialDirectory = GetApplicationDataFolderPath();
+                }
+            }
+            else
+            {
+                dialog.InitialDirectory = GetApplicationDataFolderPath();
+            }
+
+            dialog.Title = "Select custom rules file";
+            dialog.ShowDialog();
+            if (dialog.FileName.Length > 0)
+            {
+                txtCustomValidationRulesFilePath.Text = dialog.FileName;
+            }
+        }
+
+        public void SetNewFastaFile(string fastaFilePathToValidate)
+        {
+            FastaFilePath = fastaFilePathToValidate;
+            txtResults.Text = string.Empty;
+
+            // Clear the filters
+            txtFilterData.Text = string.Empty;
+            mErrorsDataset.Tables[0].Clear();
+            mWarningsDataset.Tables[0].Clear();
+        }
+
+        private void ShowAboutBox()
+        {
+            var message = new StringBuilder();
+            message.AppendLine("FASTA File Validation module written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2005");
+            message.AppendLine("Copyright 2018 Battelle Memorial Institute");
+            message.AppendLine();
+            message.AppendLine("This is version " + Application.ProductVersion + " (" + Program.PROGRAM_DATE + ")");
+            message.AppendLine();
+            message.AppendLine("E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov");
+            message.AppendLine("Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/");
+            message.AppendLine();
+            message.AppendLine("Licensed under the 2-Clause BSD License; https://opensource.org/licenses/BSD-2-Clause");
+            message.AppendLine();
+            message.Append("This software is provided by the copyright holders and contributors \"as is\" and ");
+            message.Append("any express or implied warranties, including, but not limited to, the implied ");
+            message.Append("warranties of merchantability and fitness for a particular purpose are ");
+            message.Append("disclaimed. In no event shall the copyright holder or contributors be liable ");
+            message.Append("for any direct, indirect, incidental, special, exemplary, or consequential ");
+            message.Append("damages (including, but not limited to, procurement of substitute goods or ");
+            message.Append("services; loss of use, data, or profits; or business interruption) however ");
+            message.Append("caused and on any theory of liability, whether in contract, strict liability, ");
+            message.Append("or tort (including negligence or otherwise) arising in any way out of the use ");
+            message.Append("of this software, even if advised of the possibility of such damage.");
+            MessageBox.Show(message.ToString(), "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void ShowHideObjectsDuringValidation(bool validating)
+        {
+            pbarProgress.Visible = validating;
+            lblFilterData.Visible = !validating;
+            txtFilterData.Visible = !validating;
+            cmdValidateFastaFile.Visible = !validating;
+            cmdValidateFastaFile.Enabled = !validating;
+            cmdCancel.Visible = validating;
+            cmdCancel.Enabled = validating;
+        }
+
+        public void SetOptions(FastaValidationOptions fastaValidationOptions)
+        {
+            txtMaxFileErrorsToTrack.Text = fastaValidationOptions.MaximumErrorsToTrackInDetail.ToString();
+            txtMaximumResiduesPerLine.Text = fastaValidationOptions.MaximumResiduesPerLine.ToString();
+            txtProteinNameLengthMinimum.Text = fastaValidationOptions.ValidProteinNameLengthMinimum.ToString();
+            txtProteinNameLengthMaximum.Text = fastaValidationOptions.ValidProteinNameLengthMaximum.ToString();
+            chkAllowAsteriskInResidues.Checked = fastaValidationOptions.AllowAsterisksInResidues;
+            chkCheckForDuplicateProteinInfo.Checked = fastaValidationOptions.CheckForDuplicateProteinNames;
+            chkLogResults.Checked = fastaValidationOptions.LogResultsToFile;
+            chkSaveBasicProteinHashInfoFile.Checked = fastaValidationOptions.SaveHashInfoFile;
+            chkGenerateFixedFastaFile.Checked = fastaValidationOptions.FixedFastaOptions.GenerateFixedFasta;
+            chkTruncateLongProteinNames.Checked = fastaValidationOptions.FixedFastaOptions.TruncateLongProteinName;
+            chkRenameDuplicateProteins.Checked = fastaValidationOptions.FixedFastaOptions.RenameProteinWithDuplicateNames;
+            chkKeepDuplicateNamedProteins.Checked = fastaValidationOptions.FixedFastaOptions.KeepDuplicateNamedProteins;
+            chkWrapLongResidueLines.Checked = fastaValidationOptions.FixedFastaOptions.WrapLongResidueLines;
+            chkRemoveInvalidResidues.Checked = fastaValidationOptions.FixedFastaOptions.RemoveInvalidResidues;
+            chkSplitOutMultipleRefsForKnownAccession.Checked = fastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsForKnownAccession;
+            chkSplitOutMultipleRefsInProteinName.Checked = fastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsInProteinName;
+            chkConsolidateDuplicateProteinSeqs.Checked = fastaValidationOptions.FixedFastaOptions.ConsolidateDuplicateProteins;
+            chkConsolidateDupsIgnoreILDiff.Checked = fastaValidationOptions.FixedFastaOptions.ConsolidateDupsIgnoreILDiff;
+            txtResiduesPerLineForWrap.Text = fastaValidationOptions.FixedFastaOptions.ResiduesPerLineForWrap.ToString();
+            Application.DoEvents();
+        }
+
+        private void SetToolTips()
+        {
+            var toolTipControl = new ToolTip();
+            toolTipControl.SetToolTip(txtLongProteinNameSplitChars, "Enter one or more characters to look for when truncating long protein names (do not separate the characters by commas).  Default character is a vertical bar.");
+            toolTipControl.SetToolTip(txtInvalidProteinNameCharsToRemove, "Enter one or more characters to look and replace with an underscore (do not separate the characters by commas).  Leave blank to not replace any characters.");
+            toolTipControl.SetToolTip(chkSplitOutMultipleRefsForKnownAccession, "If a protein name matches the standard IPI, GI, or JGI accession numbers, and if it contains additional reference information, then the additional information will be moved to the protein's description.");
+            toolTipControl.SetToolTip(chkSaveBasicProteinHashInfoFile, "To minimize memory usage, enable this option by disable 'Check for Duplicate Proteins'");
+        }
+
+        private void StartValidation()
+        {
+            string parameterFilePath;
+            bool fileExists;
+            bool success;
+            try
+            {
+                mValidatorErrorMessage = string.Empty;
+                mValidateFastaFileErrors.Clear();
+                mValidateFastaFileWarnings.Clear();
+                FastaValidationStarted?.Invoke();
+                ShowHideObjectsDuringValidation(true);
+                Cursor.Current = Cursors.WaitCursor;
+                Application.DoEvents();
+
+                // Note: the following settings will be overridden if a parameter file with these settings defined is provided to .ProcessFile()
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.WarnBlankLinesBetweenProteins, true);
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.AllowAsteriskInResidues, chkAllowAsteriskInResidues.Checked);
+                bool argisError = false;
+                mValidateFastaFile.MinimumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "Minimum protein name length should be a number", out argisError, 3, false);
+                bool argisError1 = false;
+                mValidateFastaFile.MaximumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "Maximum protein name length should be a number", out argisError1, 34, false);
+                if (chkGenerateFixedFastaFile.Checked && chkWrapLongResidueLines.Checked)
+                {
+                    bool argisError2 = false;
+                    mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "Residues per line for wrapping should be a number", out argisError2, 60, false);
+                }
+                else
+                {
+                    bool argisError3 = false;
+                    mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "Maximum residues per line should be a number", out argisError3, 120, false);
+                }
+
+                parameterFilePath = txtCustomValidationRulesFilePath.Text;
+                if (parameterFilePath.Length > 0)
+                {
+                    try
+                    {
+                        fileExists = File.Exists(parameterFilePath);
+                    }
+                    catch (Exception ex)
+                    {
+                        fileExists = false;
+                    }
+
+                    if (!fileExists)
+                    {
+                        MessageBox.Show("Custom rules validation file not found: " + ControlChars.NewLine + parameterFilePath + ControlChars.NewLine + "The default validation rules will be used instead.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        parameterFilePath = string.Empty;
+                    }
+                    else
+                    {
+                        mValidateFastaFile.LoadParameterFileSettings(parameterFilePath);
+                    }
+                }
+
+                if (parameterFilePath.Length == 0)
+                {
+                    mValidateFastaFile.SetDefaultRules();
+                }
+
+                bool argisError4 = false;
+                mValidateFastaFile.MaximumFileErrorsToTrack = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "Max file errors or warnings should be a positive number", out argisError4, 10, false);
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.CheckForDuplicateProteinNames, chkCheckForDuplicateProteinInfo.Checked);
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.CheckForDuplicateProteinSequences, chkCheckForDuplicateProteinInfo.Checked);
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.SaveBasicProteinHashInfoFile, chkSaveBasicProteinHashInfoFile.Checked);
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.OutputToStatsFile, chkLogResults.Checked);
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.GenerateFixedFASTAFile, chkGenerateFixedFastaFile.Checked);
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaSplitOutMultipleRefsForKnownAccession, chkSplitOutMultipleRefsForKnownAccession.Checked);
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.SplitOutMultipleRefsInProteinName, chkSplitOutMultipleRefsInProteinName.Checked);
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaRenameDuplicateNameProteins, chkRenameDuplicateProteins.Checked);
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaKeepDuplicateNamedProteins, chkKeepDuplicateNamedProteins.Checked);
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs, chkConsolidateDuplicateProteinSeqs.Checked);
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaConsolidateDupsIgnoreILDiff, chkConsolidateDupsIgnoreILDiff.Checked);
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaTruncateLongProteinNames, chkTruncateLongProteinNames.Checked);
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaWrapLongResidueLines, chkWrapLongResidueLines.Checked);
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaRemoveInvalidResidues, chkRemoveInvalidResidues.Checked);
+                mValidateFastaFile.ProteinNameFirstRefSepChars = FastaValidator.DEFAULT_PROTEIN_NAME_FIRST_REF_SEP_CHARS;
+                mValidateFastaFile.ProteinNameSubsequentRefSepChars = FastaValidator.DEFAULT_PROTEIN_NAME_SUBSEQUENT_REF_SEP_CHARS;
+
+                // Also apply chkGenerateFixedFastaFile to SaveProteinSequenceHashInfoFiles
+                mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.SaveProteinSequenceHashInfoFiles, chkGenerateFixedFastaFile.Checked);
+                if (txtLongProteinNameSplitChars.TextLength > 0)
+                {
+                    mValidateFastaFile.LongProteinNameSplitChars = txtLongProteinNameSplitChars.Text;
+                }
+                else
+                {
+                    mValidateFastaFile.LongProteinNameSplitChars = Conversions.ToString(FastaValidator.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR);
+                }
+
+                mValidateFastaFile.ProteinNameInvalidCharsToRemove = txtInvalidProteinNameCharsToRemove.Text;
+                pbarProgress.Minimum = 0;
+                pbarProgress.Maximum = 100;
+                pbarProgress.Value = 0;
+
+                // Analyze the FASTA file; returns true if the analysis was successful (even if the file contains errors or warnings)
+                success = mValidateFastaFile.ProcessFile(FastaFilePath, string.Empty, string.Empty);
+                cmdCancel.Enabled = false;
+                if (success)
+                {
+                    DisplayResults(parameterFilePath);
+                }
+                else
+                {
+                    var results = new List<string>() { "Error calling mValidateFastaFile.ProcessFile: " + mValidateFastaFile.GetErrorMessage() };
+                    AppendValidatorErrors(results);
+                    txtResults.Text = string.Join(ControlChars.NewLine, results);
+                    if (!string.IsNullOrEmpty(mValidatorErrorMessage))
+                    {
+                        txtResults.AppendText(ControlChars.NewLine + mValidatorErrorMessage);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error validating FASTA file: " + FastaFilePath + ControlChars.NewLine + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            finally
+            {
+                ShowHideObjectsDuringValidation(false);
+                Cursor.Current = Cursors.Default;
+                Application.DoEvents();
+            }
+        }
+
+        private void UpdateDataGridTableStyle(DataGrid dgDataGrid, string targetTableName)
+        {
+            // Instantiate the TableStyle
+            // Setting the MappingName of the table style to targetTableName will cause this style to be used with that table
+            var tsTableStyle = new DataGridTableStyle()
+            {
+                MappingName = targetTableName,
+                AllowSorting = true,
+                ColumnHeadersVisible = true,
+                RowHeadersVisible = false,
+                ReadOnly = true
+            };
+            DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_LINE, "Line", 80);
+            DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_COLUMN, "Column", 80);
+            DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_PROTEIN, "Protein", 200);
+            DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_DESCRIPTION, "Value", 550);
+            DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_CONTEXT, "Context", 200);
+            dgDataGrid.TableStyles.Clear();
+            if (!dgDataGrid.TableStyles.Contains(tsTableStyle))
+            {
+                dgDataGrid.TableStyles.Add(tsTableStyle);
+            }
+
+            dgDataGrid.Refresh();
+        }
+
+        private void chkGenerateFixedFastaFile_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void chkConsolidateDuplicateProteinSeqs_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void chkRenameDuplicateProteins_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void chkKeepDuplicateNamedProteins_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkKeepDuplicateNamedProteins.Enabled)
+            {
+                mKeepDuplicateNamedProteinsLastValue = chkKeepDuplicateNamedProteins.Checked;
+            }
+        }
+
+        private void chkWrapLongResidueLines_CheckedChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void cmdCancel_Click(object sender, EventArgs e)
+        {
+            if (mValidateFastaFile is object)
+            {
+                cmdCancel.Enabled = false;
+                mValidateFastaFile.AbortProcessingNow();
+            }
+        }
+
+        private void cmdCreateDefaultValidationRulesFile_Click_1(object sender, EventArgs e)
+        {
+            CreateDefaultValidationRulesFile();
+        }
+
+        private void cmdSelectCustomRulesFile_Click(object sender, EventArgs e)
+        {
+            SelectCustomRulesFile();
+        }
+
+        private void cmdValidateFastaFile_Click(object sender, EventArgs e)
+        {
+            StartValidation();
+        }
+
+        private void frmFastaValidationResults_Resize(object sender, EventArgs e)
+        {
+            PositionControls();
+        }
+
+        private void txtCustomValidationRulesFilePath_TextChanged(object sender, EventArgs e)
+        {
+            EnableDisableControls();
+        }
+
+        private void txtFilterData_Validated(object sender, EventArgs e)
+        {
+            FilterLists();
+        }
+
+        private void txtFilterData_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                FilterLists();
+            }
+        }
+
+        private void txtMaxFileErrorsToTrack_KeyPress1(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtMaxFileErrorsToTrack, e, true);
+        }
+
+        private void txtMaximumResiduesPerLine_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtMaximumResiduesPerLine, e, true);
+        }
+
+        private void txtProteinNameLengthMinimum_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtProteinNameLengthMinimum, e, true);
+        }
+
+        private void txtProteinNameLengthMaximum_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtProteinNameLengthMaximum, e, true);
+        }
+
+        private void txtResiduesPerLineForWrap_TextChanged(object sender, KeyPressEventArgs e)
+        {
+            TextBoxUtils.TextBoxKeyPressHandler(txtResiduesPerLineForWrap, e, true);
+        }
+
+        private void txtResults_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control == true)
+            {
+                if (e.KeyCode == Keys.A)
+                {
+                    txtResults.SelectAll();
+                }
+            }
+        }
+
+        /// <summary>
+        /// This timer is used to cause StartValidation to be called after the form becomes visible
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <remarks></remarks>
+        private void mValidationTriggerTimer_Tick(object sender, EventArgs e)
+        {
+            mValidationTriggerTimer.Enabled = false;
+            try
+            {
+                // Check whether the FASTA file is over 250 MB in size
+                // If it is, auto-disable the check for duplicate proteins (to avoid using too much memory)
+                var fastaFile = new FileInfo(FastaFilePath);
+                if (fastaFile.Exists)
+                {
+                    if (fastaFile.Length > 250 * 1024 * 1024)
+                    {
+                        chkCheckForDuplicateProteinInfo.Checked = false;
+                    }
+
+                    StartValidation();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error examining the FASTA file size: " + ex.Message);
+            }
+        }
+
+        private void mnuFileExit_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void mnuEditCopySummary_Click(object sender, EventArgs e)
+        {
+            CopySummaryText();
+        }
+
+        private void mnuEditCopyAllResults_Click(object sender, EventArgs e)
+        {
+            CopyAllResults();
+        }
+
+        private void mnuEditCopyAllErrors_Click(object sender, EventArgs e)
+        {
+            CopyErrorsDataView();
+        }
+
+        private void mnuEditCopyAllWarnings_Click(object sender, EventArgs e)
+        {
+            CopyWarningsDataView();
+        }
+
+        private void mnuEditFontSizeDecrease_Click(object sender, EventArgs e)
+        {
+            if (TextFontSize > 14f)
+            {
+                TextFontSize -= 2f;
+            }
+            else
+            {
+                TextFontSize -= 1f;
+            }
+        }
+
+        private void mnuEditFontSizeIncrease_Click(object sender, EventArgs e)
+        {
+            if (TextFontSize >= 14f)
+            {
+                TextFontSize += 2f;
+            }
+            else
+            {
+                TextFontSize += 1f;
+            }
+        }
+
+        private void mnuEditResetToDefaults_Click(object sender, EventArgs e)
+        {
+            ResetOptionsToDefault();
+        }
+
+        private void mnuHelpAbout_Click(object sender, EventArgs e)
+        {
+            ShowAboutBox();
+        }
+
+        private void RegisterEvents(IEventNotifier obj)
+        {
+            obj.StatusEvent += MessageEventHandler;
+            obj.ErrorEvent += ErrorEventHandler;
+            obj.ProgressUpdate += ProgressUpdateHandler;
+            obj.WarningEvent += WarningEventHandler;
+        }
+
+        private void ErrorEventHandler(string message, Exception ex)
+        {
+            mValidatorErrorMessage = message;
+            if (ex is object && !message.Contains(ex.Message))
+            {
+                mValidateFastaFileErrors.Add(message + ": " + ex.Message);
+            }
+            else
+            {
+                mValidateFastaFileErrors.Add(message);
+            }
+        }
+
+        private void MessageEventHandler(string message)
+        {
+            // Uncomment to debug:
+            // Console.WriteLine(message)
+        }
+
+        private void ProgressUpdateHandler(string taskDescription, float percentComplete)
+        {
+            try
+            {
+                pbarProgress.Value = Conversions.ToInteger(percentComplete);
+                Application.DoEvents();
+            }
+            catch (Exception ex)
+            {
+                // Ignore errors here
+            }
+        }
+
+        private void WarningEventHandler(string message)
+        {
+            mValidateFastaFileWarnings.Add(message);
+        }
+    }
+}

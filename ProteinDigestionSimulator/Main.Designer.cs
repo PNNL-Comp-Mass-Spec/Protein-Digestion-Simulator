@@ -1,1747 +1,3096 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
-Partial Class Main
-    Inherits System.Windows.Forms.Form
+﻿using System;
+using System.Diagnostics;
+using System.Drawing;
+using System.Runtime.CompilerServices;
+using System.Windows.Forms;
+using Microsoft.VisualBasic.CompilerServices;
 
-    'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
-    Protected Overrides Sub Dispose(disposing As Boolean)
-        Try
-            If disposing AndAlso components IsNot Nothing Then
-                components.Dispose()
-            End If
-        Finally
-            MyBase.Dispose(disposing)
-        End Try
-    End Sub
+namespace ProteinDigestionSimulator
+{
+    [DesignerGenerated()]
+    public partial class Main : Form
+    {
+        // Form overrides dispose to clean up the component list.
+        [DebuggerNonUserCode()]
+        protected override void Dispose(bool disposing)
+        {
+            try
+            {
+                if (disposing && components is object)
+                {
+                    components.Dispose();
+                }
+            }
+            finally
+            {
+                base.Dispose(disposing);
+            }
+        }
 
-    'Required by the Windows Form Designer
-    Private components As System.ComponentModel.IContainer
+        // Required by the Windows Form Designer
+        private System.ComponentModel.IContainer components;
 
-    'NOTE: The following procedure is required by the Windows Form Designer
-    'It can be modified using the Windows Form Designer.
-    'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
-    Private Sub InitializeComponent()
-        Me.components = New System.ComponentModel.Container()
-        Me.txtProteinInputFilePath = New System.Windows.Forms.TextBox()
-        Me.optUseRectangleSearchRegion = New System.Windows.Forms.RadioButton()
-        Me.optUseEllipseSearchRegion = New System.Windows.Forms.RadioButton()
-        Me.lblUniquenessCalculationsNote = New System.Windows.Forms.Label()
-        Me.lblProteinScramblingLoopCount = New System.Windows.Forms.Label()
-        Me.fraPeakMatchingOptions = New System.Windows.Forms.GroupBox()
-        Me.txtMaxPeakMatchingResultsPerFeatureToSave = New System.Windows.Forms.TextBox()
-        Me.lblMaxPeakMatchingResultsPerFeatureToSave = New System.Windows.Forms.Label()
-        Me.chkExportPeakMatchingResults = New System.Windows.Forms.CheckBox()
-        Me.txtMinimumSLiCScore = New System.Windows.Forms.TextBox()
-        Me.lblMinimumSLiCScore = New System.Windows.Forms.Label()
-        Me.chkUseSLiCScoreForUniqueness = New System.Windows.Forms.CheckBox()
-        Me.TabPageUniquenessStats = New System.Windows.Forms.TabPage()
-        Me.fraSqlServerOptions = New System.Windows.Forms.GroupBox()
-        Me.chkSqlServerUseExistingData = New System.Windows.Forms.CheckBox()
-        Me.chkAllowSqlServerCaching = New System.Windows.Forms.CheckBox()
-        Me.lblSqlServerPassword = New System.Windows.Forms.Label()
-        Me.lblSqlServerUsername = New System.Windows.Forms.Label()
-        Me.txtSqlServerPassword = New System.Windows.Forms.TextBox()
-        Me.txtSqlServerUsername = New System.Windows.Forms.TextBox()
-        Me.lblSqlServerDatabase = New System.Windows.Forms.Label()
-        Me.lblSqlServerServerName = New System.Windows.Forms.Label()
-        Me.chkSqlServerUseIntegratedSecurity = New System.Windows.Forms.CheckBox()
-        Me.txtSqlServerDatabase = New System.Windows.Forms.TextBox()
-        Me.txtSqlServerName = New System.Windows.Forms.TextBox()
-        Me.chkUseSqlServerDBToCacheData = New System.Windows.Forms.CheckBox()
-        Me.fraUniquenessBinningOptions = New System.Windows.Forms.GroupBox()
-        Me.lblPeptideUniquenessMassMode = New System.Windows.Forms.Label()
-        Me.txtUniquenessBinWidth = New System.Windows.Forms.TextBox()
-        Me.lblUniquenessBinWidth = New System.Windows.Forms.Label()
-        Me.chkAutoComputeRangeForBinning = New System.Windows.Forms.CheckBox()
-        Me.txtUniquenessBinEndMass = New System.Windows.Forms.TextBox()
-        Me.lblUniquenessBinEndMass = New System.Windows.Forms.Label()
-        Me.txtUniquenessBinStartMass = New System.Windows.Forms.TextBox()
-        Me.lblUniquenessBinStartMass = New System.Windows.Forms.Label()
-        Me.lblUniquenessStatsNote = New System.Windows.Forms.Label()
-        Me.cmdGenerateUniquenessStats = New System.Windows.Forms.Button()
-        Me.chkAssumeInputFileIsDigested = New System.Windows.Forms.CheckBox()
-        Me.txtProteinScramblingLoopCount = New System.Windows.Forms.TextBox()
-        Me.lblSamplingPercentageUnits = New System.Windows.Forms.Label()
-        Me.txtMaxpISequenceLength = New System.Windows.Forms.TextBox()
-        Me.lblProteinReversalSamplingPercentage = New System.Windows.Forms.Label()
-        Me.lblMaxpISequenceLength = New System.Windows.Forms.Label()
-        Me.chkMaxpIModeEnabled = New System.Windows.Forms.CheckBox()
-        Me.frapIAndHydrophobicity = New System.Windows.Forms.GroupBox()
-        Me.lblHydrophobicityMode = New System.Windows.Forms.Label()
-        Me.cboHydrophobicityMode = New System.Windows.Forms.ComboBox()
-        Me.txtpIStats = New System.Windows.Forms.TextBox()
-        Me.txtSequenceForpI = New System.Windows.Forms.TextBox()
-        Me.lblSequenceForpI = New System.Windows.Forms.Label()
-        Me.fraDelimitedFileOptions = New System.Windows.Forms.GroupBox()
-        Me.cboInputFileColumnOrdering = New System.Windows.Forms.ComboBox()
-        Me.lblInputFileColumnOrdering = New System.Windows.Forms.Label()
-        Me.txtInputFileColumnDelimiter = New System.Windows.Forms.TextBox()
-        Me.lblInputFileColumnDelimiter = New System.Windows.Forms.Label()
-        Me.cboInputFileColumnDelimiter = New System.Windows.Forms.ComboBox()
-        Me.TabPageFileFormatOptions = New System.Windows.Forms.TabPage()
-        Me.tbsOptions = New System.Windows.Forms.TabControl()
-        Me.TabPageParseAndDigest = New System.Windows.Forms.TabPage()
-        Me.fraProcessingOptions = New System.Windows.Forms.GroupBox()
-        Me.txtProteinReversalSamplingPercentage = New System.Windows.Forms.TextBox()
-        Me.lbltxtAddnlRefAccessionSepChar = New System.Windows.Forms.Label()
-        Me.chkLookForAddnlRefInDescription = New System.Windows.Forms.CheckBox()
-        Me.cboProteinReversalOptions = New System.Windows.Forms.ComboBox()
-        Me.lblProteinReversalOptions = New System.Windows.Forms.Label()
-        Me.chkDigestProteins = New System.Windows.Forms.CheckBox()
-        Me.lblAddnlRefSepChar = New System.Windows.Forms.Label()
-        Me.txtAddnlRefAccessionSepChar = New System.Windows.Forms.TextBox()
-        Me.txtAddnlRefSepChar = New System.Windows.Forms.TextBox()
-        Me.chkCreateFastaOutputFile = New System.Windows.Forms.CheckBox()
-        Me.fraCalculationOptions = New System.Windows.Forms.GroupBox()
-        Me.cmdNETInfo = New System.Windows.Forms.Button()
-        Me.chkExcludeProteinDescription = New System.Windows.Forms.CheckBox()
-        Me.chkComputeSequenceHashIgnoreILDiff = New System.Windows.Forms.CheckBox()
-        Me.chkTruncateProteinDescription = New System.Windows.Forms.CheckBox()
-        Me.chkComputeSequenceHashValues = New System.Windows.Forms.CheckBox()
-        Me.lblMassMode = New System.Windows.Forms.Label()
-        Me.cboElementMassMode = New System.Windows.Forms.ComboBox()
-        Me.chkExcludeProteinSequence = New System.Windows.Forms.CheckBox()
-        Me.chkComputepIandNET = New System.Windows.Forms.CheckBox()
-        Me.chkIncludeXResidues = New System.Windows.Forms.CheckBox()
-        Me.chkComputeProteinMass = New System.Windows.Forms.CheckBox()
-        Me.fraDigestionOptions = New System.Windows.Forms.GroupBox()
-        Me.cboFragmentMassMode = New System.Windows.Forms.ComboBox()
-        Me.lblFragmentMassMode = New System.Windows.Forms.Label()
-        Me.cboCysTreatmentMode = New System.Windows.Forms.ComboBox()
-        Me.lblCysTreatment = New System.Windows.Forms.Label()
-        Me.txtDigestProteinsMaximumpI = New System.Windows.Forms.TextBox()
-        Me.lblDigestProteinsMaximumpI = New System.Windows.Forms.Label()
-        Me.txtDigestProteinsMinimumpI = New System.Windows.Forms.TextBox()
-        Me.lblDigestProteinsMinimumpI = New System.Windows.Forms.Label()
-        Me.chkGenerateUniqueIDValues = New System.Windows.Forms.CheckBox()
-        Me.chkCysPeptidesOnly = New System.Windows.Forms.CheckBox()
-        Me.txtDigestProteinsMinimumResidueCount = New System.Windows.Forms.TextBox()
-        Me.lblDigestProteinsMinimumResidueCount = New System.Windows.Forms.Label()
-        Me.txtDigestProteinsMaximumMissedCleavages = New System.Windows.Forms.TextBox()
-        Me.lblDigestProteinsMaximumMissedCleavages = New System.Windows.Forms.Label()
-        Me.txtDigestProteinsMaximumMass = New System.Windows.Forms.TextBox()
-        Me.lblDigestProteinsMaximumMass = New System.Windows.Forms.Label()
-        Me.txtDigestProteinsMinimumMass = New System.Windows.Forms.TextBox()
-        Me.lblDigestProteinsMinimumMass = New System.Windows.Forms.Label()
-        Me.cboCleavageRuleType = New System.Windows.Forms.ComboBox()
-        Me.chkIncludeDuplicateSequences = New System.Windows.Forms.CheckBox()
-        Me.cmdParseInputFile = New System.Windows.Forms.Button()
-        Me.TabPagePeakMatchingThresholds = New System.Windows.Forms.TabPage()
-        Me.chkAutoDefineSLiCScoreTolerances = New System.Windows.Forms.CheckBox()
-        Me.cmdPastePMThresholdsList = New System.Windows.Forms.Button()
-        Me.cboPMPredefinedThresholds = New System.Windows.Forms.ComboBox()
-        Me.cmdPMThresholdsAutoPopulate = New System.Windows.Forms.Button()
-        Me.cmdClearPMThresholdsList = New System.Windows.Forms.Button()
-        Me.cboMassTolType = New System.Windows.Forms.ComboBox()
-        Me.lblMassTolType = New System.Windows.Forms.Label()
-        Me.dgPeakMatchingThresholds = New System.Windows.Forms.DataGrid()
-        Me.TabPageProgress = New System.Windows.Forms.TabPage()
-        Me.pbarProgress = New System.Windows.Forms.ProgressBar()
-        Me.lblErrorMessage = New System.Windows.Forms.Label()
-        Me.lblSubtaskProgress = New System.Windows.Forms.Label()
-        Me.lblProgress = New System.Windows.Forms.Label()
-        Me.lblSubtaskProgressDescription = New System.Windows.Forms.Label()
-        Me.lblProgressDescription = New System.Windows.Forms.Label()
-        Me.cmdAbortProcessing = New System.Windows.Forms.Button()
-        Me.mnuHelpAboutElutionTime = New System.Windows.Forms.MenuItem()
-        Me.cboInputFileFormat = New System.Windows.Forms.ComboBox()
-        Me.lblInputFileFormat = New System.Windows.Forms.Label()
-        Me.cmdSelectFile = New System.Windows.Forms.Button()
-        Me.fraInputFilePath = New System.Windows.Forms.GroupBox()
-        Me.cmdValidateFastaFile = New System.Windows.Forms.Button()
-        Me.chkEnableLogging = New System.Windows.Forms.CheckBox()
-        Me.mnuFileSelectOutputFile = New System.Windows.Forms.MenuItem()
-        Me.cmdSelectOutputFile = New System.Windows.Forms.Button()
-        Me.mnuFileSep1 = New System.Windows.Forms.MenuItem()
-        Me.mnuFile = New System.Windows.Forms.MenuItem()
-        Me.mnuFileSelectInputFile = New System.Windows.Forms.MenuItem()
-        Me.mnuFileSaveDefaultOptions = New System.Windows.Forms.MenuItem()
-        Me.mnuFileSep2 = New System.Windows.Forms.MenuItem()
-        Me.mnuFileExit = New System.Windows.Forms.MenuItem()
-        Me.txtProteinOutputFilePath = New System.Windows.Forms.TextBox()
-        Me.chkIncludePrefixAndSuffixResidues = New System.Windows.Forms.CheckBox()
-        Me.mnuEditResetOptions = New System.Windows.Forms.MenuItem()
-        Me.mnuHelp = New System.Windows.Forms.MenuItem()
-        Me.mnuHelpAbout = New System.Windows.Forms.MenuItem()
-        Me.mnuEditSep1 = New System.Windows.Forms.MenuItem()
-        Me.mnuEditMakeUniquenessStats = New System.Windows.Forms.MenuItem()
-        Me.mnuEdit = New System.Windows.Forms.MenuItem()
-        Me.mnuEditParseFile = New System.Windows.Forms.MenuItem()
-        Me.MainMenuControl = New System.Windows.Forms.MainMenu(Me.components)
-        Me.lblOutputFileFieldDelimiter = New System.Windows.Forms.Label()
-        Me.cboOutputFileFieldDelimiter = New System.Windows.Forms.ComboBox()
-        Me.txtOutputFileFieldDelimiter = New System.Windows.Forms.TextBox()
-        Me.fraOutputTextOptions = New System.Windows.Forms.GroupBox()
-        Me.fraPeakMatchingOptions.SuspendLayout()
-        Me.TabPageUniquenessStats.SuspendLayout()
-        Me.fraSqlServerOptions.SuspendLayout()
-        Me.fraUniquenessBinningOptions.SuspendLayout()
-        Me.frapIAndHydrophobicity.SuspendLayout()
-        Me.fraDelimitedFileOptions.SuspendLayout()
-        Me.TabPageFileFormatOptions.SuspendLayout()
-        Me.tbsOptions.SuspendLayout()
-        Me.TabPageParseAndDigest.SuspendLayout()
-        Me.fraProcessingOptions.SuspendLayout()
-        Me.fraCalculationOptions.SuspendLayout()
-        Me.fraDigestionOptions.SuspendLayout()
-        Me.TabPagePeakMatchingThresholds.SuspendLayout()
-        CType(Me.dgPeakMatchingThresholds, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.TabPageProgress.SuspendLayout()
-        Me.fraInputFilePath.SuspendLayout()
-        Me.fraOutputTextOptions.SuspendLayout()
-        Me.SuspendLayout()
-        '
-        'txtProteinInputFilePath
-        '
-        Me.txtProteinInputFilePath.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.txtProteinInputFilePath.Location = New System.Drawing.Point(104, 26)
-        Me.txtProteinInputFilePath.Name = "txtProteinInputFilePath"
-        Me.txtProteinInputFilePath.Size = New System.Drawing.Size(611, 20)
-        Me.txtProteinInputFilePath.TabIndex = 1
-        '
-        'optUseRectangleSearchRegion
-        '
-        Me.optUseRectangleSearchRegion.Location = New System.Drawing.Point(232, 96)
-        Me.optUseRectangleSearchRegion.Name = "optUseRectangleSearchRegion"
-        Me.optUseRectangleSearchRegion.Size = New System.Drawing.Size(136, 16)
-        Me.optUseRectangleSearchRegion.TabIndex = 7
-        Me.optUseRectangleSearchRegion.Text = "Use rectangle region"
-        '
-        'optUseEllipseSearchRegion
-        '
-        Me.optUseEllipseSearchRegion.Checked = True
-        Me.optUseEllipseSearchRegion.Location = New System.Drawing.Point(232, 72)
-        Me.optUseEllipseSearchRegion.Name = "optUseEllipseSearchRegion"
-        Me.optUseEllipseSearchRegion.Size = New System.Drawing.Size(152, 16)
-        Me.optUseEllipseSearchRegion.TabIndex = 6
-        Me.optUseEllipseSearchRegion.TabStop = True
-        Me.optUseEllipseSearchRegion.Text = "Use ellipse search region"
-        '
-        'lblUniquenessCalculationsNote
-        '
-        Me.lblUniquenessCalculationsNote.Location = New System.Drawing.Point(240, 192)
-        Me.lblUniquenessCalculationsNote.Name = "lblUniquenessCalculationsNote"
-        Me.lblUniquenessCalculationsNote.Size = New System.Drawing.Size(384, 88)
-        Me.lblUniquenessCalculationsNote.TabIndex = 6
-        '
-        'lblProteinScramblingLoopCount
-        '
-        Me.lblProteinScramblingLoopCount.Location = New System.Drawing.Point(232, 42)
-        Me.lblProteinScramblingLoopCount.Name = "lblProteinScramblingLoopCount"
-        Me.lblProteinScramblingLoopCount.Size = New System.Drawing.Size(72, 16)
-        Me.lblProteinScramblingLoopCount.TabIndex = 12
-        Me.lblProteinScramblingLoopCount.Text = "Loop Count"
-        Me.lblProteinScramblingLoopCount.TextAlign = System.Drawing.ContentAlignment.TopRight
-        '
-        'fraPeakMatchingOptions
-        '
-        Me.fraPeakMatchingOptions.Controls.Add(Me.optUseRectangleSearchRegion)
-        Me.fraPeakMatchingOptions.Controls.Add(Me.optUseEllipseSearchRegion)
-        Me.fraPeakMatchingOptions.Controls.Add(Me.txtMaxPeakMatchingResultsPerFeatureToSave)
-        Me.fraPeakMatchingOptions.Controls.Add(Me.lblMaxPeakMatchingResultsPerFeatureToSave)
-        Me.fraPeakMatchingOptions.Controls.Add(Me.chkExportPeakMatchingResults)
-        Me.fraPeakMatchingOptions.Controls.Add(Me.txtMinimumSLiCScore)
-        Me.fraPeakMatchingOptions.Controls.Add(Me.lblMinimumSLiCScore)
-        Me.fraPeakMatchingOptions.Controls.Add(Me.chkUseSLiCScoreForUniqueness)
-        Me.fraPeakMatchingOptions.Location = New System.Drawing.Point(232, 48)
-        Me.fraPeakMatchingOptions.Name = "fraPeakMatchingOptions"
-        Me.fraPeakMatchingOptions.Size = New System.Drawing.Size(392, 136)
-        Me.fraPeakMatchingOptions.TabIndex = 2
-        Me.fraPeakMatchingOptions.TabStop = False
-        Me.fraPeakMatchingOptions.Text = "Peak Matching Options"
-        '
-        'txtMaxPeakMatchingResultsPerFeatureToSave
-        '
-        Me.txtMaxPeakMatchingResultsPerFeatureToSave.Location = New System.Drawing.Point(272, 16)
-        Me.txtMaxPeakMatchingResultsPerFeatureToSave.Name = "txtMaxPeakMatchingResultsPerFeatureToSave"
-        Me.txtMaxPeakMatchingResultsPerFeatureToSave.Size = New System.Drawing.Size(40, 20)
-        Me.txtMaxPeakMatchingResultsPerFeatureToSave.TabIndex = 1
-        Me.txtMaxPeakMatchingResultsPerFeatureToSave.Text = "3"
-        '
-        'lblMaxPeakMatchingResultsPerFeatureToSave
-        '
-        Me.lblMaxPeakMatchingResultsPerFeatureToSave.Location = New System.Drawing.Point(16, 18)
-        Me.lblMaxPeakMatchingResultsPerFeatureToSave.Name = "lblMaxPeakMatchingResultsPerFeatureToSave"
-        Me.lblMaxPeakMatchingResultsPerFeatureToSave.Size = New System.Drawing.Size(256, 16)
-        Me.lblMaxPeakMatchingResultsPerFeatureToSave.TabIndex = 0
-        Me.lblMaxPeakMatchingResultsPerFeatureToSave.Text = "Max Peak Matching Results Per Feature To Save"
-        '
-        'chkExportPeakMatchingResults
-        '
-        Me.chkExportPeakMatchingResults.Location = New System.Drawing.Point(32, 36)
-        Me.chkExportPeakMatchingResults.Name = "chkExportPeakMatchingResults"
-        Me.chkExportPeakMatchingResults.Size = New System.Drawing.Size(192, 17)
-        Me.chkExportPeakMatchingResults.TabIndex = 2
-        Me.chkExportPeakMatchingResults.Text = "Export peak matching results"
-        '
-        'txtMinimumSLiCScore
-        '
-        Me.txtMinimumSLiCScore.Location = New System.Drawing.Point(144, 104)
-        Me.txtMinimumSLiCScore.Name = "txtMinimumSLiCScore"
-        Me.txtMinimumSLiCScore.Size = New System.Drawing.Size(40, 20)
-        Me.txtMinimumSLiCScore.TabIndex = 5
-        Me.txtMinimumSLiCScore.Text = "0.99"
-        '
-        'lblMinimumSLiCScore
-        '
-        Me.lblMinimumSLiCScore.Location = New System.Drawing.Point(16, 96)
-        Me.lblMinimumSLiCScore.Name = "lblMinimumSLiCScore"
-        Me.lblMinimumSLiCScore.Size = New System.Drawing.Size(128, 32)
-        Me.lblMinimumSLiCScore.TabIndex = 4
-        Me.lblMinimumSLiCScore.Text = "Minimum SLiC score to be considered unique"
-        '
-        'chkUseSLiCScoreForUniqueness
-        '
-        Me.chkUseSLiCScoreForUniqueness.Checked = True
-        Me.chkUseSLiCScoreForUniqueness.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkUseSLiCScoreForUniqueness.Location = New System.Drawing.Point(16, 60)
-        Me.chkUseSLiCScoreForUniqueness.Name = "chkUseSLiCScoreForUniqueness"
-        Me.chkUseSLiCScoreForUniqueness.Size = New System.Drawing.Size(168, 32)
-        Me.chkUseSLiCScoreForUniqueness.TabIndex = 3
-        Me.chkUseSLiCScoreForUniqueness.Text = "Use SLiC Score when gauging peptide uniqueness"
-        '
-        'TabPageUniquenessStats
-        '
-        Me.TabPageUniquenessStats.Controls.Add(Me.lblUniquenessCalculationsNote)
-        Me.TabPageUniquenessStats.Controls.Add(Me.fraPeakMatchingOptions)
-        Me.TabPageUniquenessStats.Controls.Add(Me.fraSqlServerOptions)
-        Me.TabPageUniquenessStats.Controls.Add(Me.fraUniquenessBinningOptions)
-        Me.TabPageUniquenessStats.Controls.Add(Me.lblUniquenessStatsNote)
-        Me.TabPageUniquenessStats.Controls.Add(Me.cmdGenerateUniquenessStats)
-        Me.TabPageUniquenessStats.Controls.Add(Me.chkAssumeInputFileIsDigested)
-        Me.TabPageUniquenessStats.Location = New System.Drawing.Point(4, 22)
-        Me.TabPageUniquenessStats.Name = "TabPageUniquenessStats"
-        Me.TabPageUniquenessStats.Size = New System.Drawing.Size(696, 328)
-        Me.TabPageUniquenessStats.TabIndex = 1
-        Me.TabPageUniquenessStats.Text = "Peptide Uniqueness Options"
-        Me.TabPageUniquenessStats.UseVisualStyleBackColor = True
-        '
-        'fraSqlServerOptions
-        '
-        Me.fraSqlServerOptions.Controls.Add(Me.chkSqlServerUseExistingData)
-        Me.fraSqlServerOptions.Controls.Add(Me.chkAllowSqlServerCaching)
-        Me.fraSqlServerOptions.Controls.Add(Me.lblSqlServerPassword)
-        Me.fraSqlServerOptions.Controls.Add(Me.lblSqlServerUsername)
-        Me.fraSqlServerOptions.Controls.Add(Me.txtSqlServerPassword)
-        Me.fraSqlServerOptions.Controls.Add(Me.txtSqlServerUsername)
-        Me.fraSqlServerOptions.Controls.Add(Me.lblSqlServerDatabase)
-        Me.fraSqlServerOptions.Controls.Add(Me.lblSqlServerServerName)
-        Me.fraSqlServerOptions.Controls.Add(Me.chkSqlServerUseIntegratedSecurity)
-        Me.fraSqlServerOptions.Controls.Add(Me.txtSqlServerDatabase)
-        Me.fraSqlServerOptions.Controls.Add(Me.txtSqlServerName)
-        Me.fraSqlServerOptions.Controls.Add(Me.chkUseSqlServerDBToCacheData)
-        Me.fraSqlServerOptions.Location = New System.Drawing.Point(232, 192)
-        Me.fraSqlServerOptions.Name = "fraSqlServerOptions"
-        Me.fraSqlServerOptions.Size = New System.Drawing.Size(376, 112)
-        Me.fraSqlServerOptions.TabIndex = 4
-        Me.fraSqlServerOptions.TabStop = False
-        Me.fraSqlServerOptions.Text = "Sql Server Options"
-        Me.fraSqlServerOptions.Visible = False
-        '
-        'chkSqlServerUseExistingData
-        '
-        Me.chkSqlServerUseExistingData.Checked = True
-        Me.chkSqlServerUseExistingData.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkSqlServerUseExistingData.Location = New System.Drawing.Point(8, 88)
-        Me.chkSqlServerUseExistingData.Name = "chkSqlServerUseExistingData"
-        Me.chkSqlServerUseExistingData.Size = New System.Drawing.Size(144, 16)
-        Me.chkSqlServerUseExistingData.TabIndex = 11
-        Me.chkSqlServerUseExistingData.Text = "Use Existing Data"
-        '
-        'chkAllowSqlServerCaching
-        '
-        Me.chkAllowSqlServerCaching.Location = New System.Drawing.Point(8, 16)
-        Me.chkAllowSqlServerCaching.Name = "chkAllowSqlServerCaching"
-        Me.chkAllowSqlServerCaching.Size = New System.Drawing.Size(144, 32)
-        Me.chkAllowSqlServerCaching.TabIndex = 0
-        Me.chkAllowSqlServerCaching.Text = "Allow data caching using Sql Server"
-        '
-        'lblSqlServerPassword
-        '
-        Me.lblSqlServerPassword.Location = New System.Drawing.Point(264, 64)
-        Me.lblSqlServerPassword.Name = "lblSqlServerPassword"
-        Me.lblSqlServerPassword.Size = New System.Drawing.Size(56, 16)
-        Me.lblSqlServerPassword.TabIndex = 9
-        Me.lblSqlServerPassword.Text = "Password"
-        '
-        'lblSqlServerUsername
-        '
-        Me.lblSqlServerUsername.Location = New System.Drawing.Point(184, 64)
-        Me.lblSqlServerUsername.Name = "lblSqlServerUsername"
-        Me.lblSqlServerUsername.Size = New System.Drawing.Size(56, 16)
-        Me.lblSqlServerUsername.TabIndex = 7
-        Me.lblSqlServerUsername.Text = "Username"
-        '
-        'txtSqlServerPassword
-        '
-        Me.txtSqlServerPassword.Location = New System.Drawing.Point(264, 80)
-        Me.txtSqlServerPassword.Name = "txtSqlServerPassword"
-        Me.txtSqlServerPassword.PasswordChar = Global.Microsoft.VisualBasic.ChrW(42)
-        Me.txtSqlServerPassword.Size = New System.Drawing.Size(88, 20)
-        Me.txtSqlServerPassword.TabIndex = 10
-        Me.txtSqlServerPassword.Text = "pw"
-        '
-        'txtSqlServerUsername
-        '
-        Me.txtSqlServerUsername.Location = New System.Drawing.Point(184, 80)
-        Me.txtSqlServerUsername.Name = "txtSqlServerUsername"
-        Me.txtSqlServerUsername.Size = New System.Drawing.Size(72, 20)
-        Me.txtSqlServerUsername.TabIndex = 8
-        Me.txtSqlServerUsername.Text = "user"
-        '
-        'lblSqlServerDatabase
-        '
-        Me.lblSqlServerDatabase.Location = New System.Drawing.Point(264, 16)
-        Me.lblSqlServerDatabase.Name = "lblSqlServerDatabase"
-        Me.lblSqlServerDatabase.Size = New System.Drawing.Size(56, 16)
-        Me.lblSqlServerDatabase.TabIndex = 4
-        Me.lblSqlServerDatabase.Text = "Database"
-        '
-        'lblSqlServerServerName
-        '
-        Me.lblSqlServerServerName.Location = New System.Drawing.Point(184, 16)
-        Me.lblSqlServerServerName.Name = "lblSqlServerServerName"
-        Me.lblSqlServerServerName.Size = New System.Drawing.Size(56, 16)
-        Me.lblSqlServerServerName.TabIndex = 2
-        Me.lblSqlServerServerName.Text = "Server"
-        '
-        'chkSqlServerUseIntegratedSecurity
-        '
-        Me.chkSqlServerUseIntegratedSecurity.Checked = True
-        Me.chkSqlServerUseIntegratedSecurity.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkSqlServerUseIntegratedSecurity.Location = New System.Drawing.Point(8, 72)
-        Me.chkSqlServerUseIntegratedSecurity.Name = "chkSqlServerUseIntegratedSecurity"
-        Me.chkSqlServerUseIntegratedSecurity.Size = New System.Drawing.Size(144, 16)
-        Me.chkSqlServerUseIntegratedSecurity.TabIndex = 6
-        Me.chkSqlServerUseIntegratedSecurity.Text = "Use Integrated Security"
-        '
-        'txtSqlServerDatabase
-        '
-        Me.txtSqlServerDatabase.Location = New System.Drawing.Point(264, 32)
-        Me.txtSqlServerDatabase.Name = "txtSqlServerDatabase"
-        Me.txtSqlServerDatabase.Size = New System.Drawing.Size(88, 20)
-        Me.txtSqlServerDatabase.TabIndex = 5
-        Me.txtSqlServerDatabase.Text = "TempDB"
-        '
-        'txtSqlServerName
-        '
-        Me.txtSqlServerName.Location = New System.Drawing.Point(184, 32)
-        Me.txtSqlServerName.Name = "txtSqlServerName"
-        Me.txtSqlServerName.Size = New System.Drawing.Size(72, 20)
-        Me.txtSqlServerName.TabIndex = 3
-        Me.txtSqlServerName.Text = "Monroe"
-        '
-        'chkUseSqlServerDBToCacheData
-        '
-        Me.chkUseSqlServerDBToCacheData.Checked = True
-        Me.chkUseSqlServerDBToCacheData.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkUseSqlServerDBToCacheData.Location = New System.Drawing.Point(8, 56)
-        Me.chkUseSqlServerDBToCacheData.Name = "chkUseSqlServerDBToCacheData"
-        Me.chkUseSqlServerDBToCacheData.Size = New System.Drawing.Size(144, 16)
-        Me.chkUseSqlServerDBToCacheData.TabIndex = 1
-        Me.chkUseSqlServerDBToCacheData.Text = "Enable data caching"
-        '
-        'fraUniquenessBinningOptions
-        '
-        Me.fraUniquenessBinningOptions.Controls.Add(Me.lblPeptideUniquenessMassMode)
-        Me.fraUniquenessBinningOptions.Controls.Add(Me.txtUniquenessBinWidth)
-        Me.fraUniquenessBinningOptions.Controls.Add(Me.lblUniquenessBinWidth)
-        Me.fraUniquenessBinningOptions.Controls.Add(Me.chkAutoComputeRangeForBinning)
-        Me.fraUniquenessBinningOptions.Controls.Add(Me.txtUniquenessBinEndMass)
-        Me.fraUniquenessBinningOptions.Controls.Add(Me.lblUniquenessBinEndMass)
-        Me.fraUniquenessBinningOptions.Controls.Add(Me.txtUniquenessBinStartMass)
-        Me.fraUniquenessBinningOptions.Controls.Add(Me.lblUniquenessBinStartMass)
-        Me.fraUniquenessBinningOptions.Location = New System.Drawing.Point(8, 120)
-        Me.fraUniquenessBinningOptions.Name = "fraUniquenessBinningOptions"
-        Me.fraUniquenessBinningOptions.Size = New System.Drawing.Size(208, 160)
-        Me.fraUniquenessBinningOptions.TabIndex = 3
-        Me.fraUniquenessBinningOptions.TabStop = False
-        Me.fraUniquenessBinningOptions.Text = "Binning Options"
-        '
-        'lblPeptideUniquenessMassMode
-        '
-        Me.lblPeptideUniquenessMassMode.Location = New System.Drawing.Point(16, 136)
-        Me.lblPeptideUniquenessMassMode.Name = "lblPeptideUniquenessMassMode"
-        Me.lblPeptideUniquenessMassMode.Size = New System.Drawing.Size(176, 16)
-        Me.lblPeptideUniquenessMassMode.TabIndex = 7
-        Me.lblPeptideUniquenessMassMode.Text = "Using monoisotopic masses"
-        '
-        'txtUniquenessBinWidth
-        '
-        Me.txtUniquenessBinWidth.Location = New System.Drawing.Point(80, 24)
-        Me.txtUniquenessBinWidth.Name = "txtUniquenessBinWidth"
-        Me.txtUniquenessBinWidth.Size = New System.Drawing.Size(40, 20)
-        Me.txtUniquenessBinWidth.TabIndex = 1
-        Me.txtUniquenessBinWidth.Text = "25"
-        '
-        'lblUniquenessBinWidth
-        '
-        Me.lblUniquenessBinWidth.Location = New System.Drawing.Point(16, 26)
-        Me.lblUniquenessBinWidth.Name = "lblUniquenessBinWidth"
-        Me.lblUniquenessBinWidth.Size = New System.Drawing.Size(64, 16)
-        Me.lblUniquenessBinWidth.TabIndex = 0
-        Me.lblUniquenessBinWidth.Text = "Bin Width"
-        '
-        'chkAutoComputeRangeForBinning
-        '
-        Me.chkAutoComputeRangeForBinning.Checked = True
-        Me.chkAutoComputeRangeForBinning.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkAutoComputeRangeForBinning.Location = New System.Drawing.Point(16, 56)
-        Me.chkAutoComputeRangeForBinning.Name = "chkAutoComputeRangeForBinning"
-        Me.chkAutoComputeRangeForBinning.Size = New System.Drawing.Size(184, 17)
-        Me.chkAutoComputeRangeForBinning.TabIndex = 2
-        Me.chkAutoComputeRangeForBinning.Text = "Auto compute range for binning"
-        '
-        'txtUniquenessBinEndMass
-        '
-        Me.txtUniquenessBinEndMass.Location = New System.Drawing.Point(80, 104)
-        Me.txtUniquenessBinEndMass.Name = "txtUniquenessBinEndMass"
-        Me.txtUniquenessBinEndMass.Size = New System.Drawing.Size(40, 20)
-        Me.txtUniquenessBinEndMass.TabIndex = 6
-        Me.txtUniquenessBinEndMass.Text = "6000"
-        '
-        'lblUniquenessBinEndMass
-        '
-        Me.lblUniquenessBinEndMass.Location = New System.Drawing.Point(16, 106)
-        Me.lblUniquenessBinEndMass.Name = "lblUniquenessBinEndMass"
-        Me.lblUniquenessBinEndMass.Size = New System.Drawing.Size(64, 16)
-        Me.lblUniquenessBinEndMass.TabIndex = 5
-        Me.lblUniquenessBinEndMass.Text = "End Mass"
-        '
-        'txtUniquenessBinStartMass
-        '
-        Me.txtUniquenessBinStartMass.Location = New System.Drawing.Point(80, 80)
-        Me.txtUniquenessBinStartMass.Name = "txtUniquenessBinStartMass"
-        Me.txtUniquenessBinStartMass.Size = New System.Drawing.Size(40, 20)
-        Me.txtUniquenessBinStartMass.TabIndex = 4
-        Me.txtUniquenessBinStartMass.Text = "400"
-        '
-        'lblUniquenessBinStartMass
-        '
-        Me.lblUniquenessBinStartMass.Location = New System.Drawing.Point(16, 82)
-        Me.lblUniquenessBinStartMass.Name = "lblUniquenessBinStartMass"
-        Me.lblUniquenessBinStartMass.Size = New System.Drawing.Size(64, 16)
-        Me.lblUniquenessBinStartMass.TabIndex = 3
-        Me.lblUniquenessBinStartMass.Text = "Start Mass"
-        '
-        'lblUniquenessStatsNote
-        '
-        Me.lblUniquenessStatsNote.Location = New System.Drawing.Point(8, 56)
-        Me.lblUniquenessStatsNote.Name = "lblUniquenessStatsNote"
-        Me.lblUniquenessStatsNote.Size = New System.Drawing.Size(200, 48)
-        Me.lblUniquenessStatsNote.TabIndex = 1
-        Me.lblUniquenessStatsNote.Text = "Note that Digestion Options and Mass Calculation Options also apply for uniquenes" &
-    "s stats generation."
-        '
-        'cmdGenerateUniquenessStats
-        '
-        Me.cmdGenerateUniquenessStats.Location = New System.Drawing.Point(232, 16)
-        Me.cmdGenerateUniquenessStats.Name = "cmdGenerateUniquenessStats"
-        Me.cmdGenerateUniquenessStats.Size = New System.Drawing.Size(176, 24)
-        Me.cmdGenerateUniquenessStats.TabIndex = 5
-        Me.cmdGenerateUniquenessStats.Text = "&Generate Uniqueness Stats"
-        '
-        'chkAssumeInputFileIsDigested
-        '
-        Me.chkAssumeInputFileIsDigested.Location = New System.Drawing.Point(8, 16)
-        Me.chkAssumeInputFileIsDigested.Name = "chkAssumeInputFileIsDigested"
-        Me.chkAssumeInputFileIsDigested.Size = New System.Drawing.Size(192, 32)
-        Me.chkAssumeInputFileIsDigested.TabIndex = 0
-        Me.chkAssumeInputFileIsDigested.Text = "Assume input file is already digested (for Delimited files only)"
-        '
-        'txtProteinScramblingLoopCount
-        '
-        Me.txtProteinScramblingLoopCount.Location = New System.Drawing.Point(312, 40)
-        Me.txtProteinScramblingLoopCount.MaxLength = 3
-        Me.txtProteinScramblingLoopCount.Name = "txtProteinScramblingLoopCount"
-        Me.txtProteinScramblingLoopCount.Size = New System.Drawing.Size(32, 20)
-        Me.txtProteinScramblingLoopCount.TabIndex = 13
-        Me.txtProteinScramblingLoopCount.Text = "1"
-        '
-        'lblSamplingPercentageUnits
-        '
-        Me.lblSamplingPercentageUnits.Location = New System.Drawing.Point(208, 42)
-        Me.lblSamplingPercentageUnits.Name = "lblSamplingPercentageUnits"
-        Me.lblSamplingPercentageUnits.Size = New System.Drawing.Size(16, 16)
-        Me.lblSamplingPercentageUnits.TabIndex = 4
-        Me.lblSamplingPercentageUnits.Text = "%"
-        '
-        'txtMaxpISequenceLength
-        '
-        Me.txtMaxpISequenceLength.Location = New System.Drawing.Point(168, 70)
-        Me.txtMaxpISequenceLength.Name = "txtMaxpISequenceLength"
-        Me.txtMaxpISequenceLength.Size = New System.Drawing.Size(40, 20)
-        Me.txtMaxpISequenceLength.TabIndex = 4
-        Me.txtMaxpISequenceLength.Text = "10"
-        '
-        'lblProteinReversalSamplingPercentage
-        '
-        Me.lblProteinReversalSamplingPercentage.Location = New System.Drawing.Point(48, 42)
-        Me.lblProteinReversalSamplingPercentage.Name = "lblProteinReversalSamplingPercentage"
-        Me.lblProteinReversalSamplingPercentage.Size = New System.Drawing.Size(112, 16)
-        Me.lblProteinReversalSamplingPercentage.TabIndex = 2
-        Me.lblProteinReversalSamplingPercentage.Text = "Sampling Percentage"
-        Me.lblProteinReversalSamplingPercentage.TextAlign = System.Drawing.ContentAlignment.TopRight
-        '
-        'lblMaxpISequenceLength
-        '
-        Me.lblMaxpISequenceLength.Location = New System.Drawing.Point(32, 72)
-        Me.lblMaxpISequenceLength.Name = "lblMaxpISequenceLength"
-        Me.lblMaxpISequenceLength.Size = New System.Drawing.Size(144, 16)
-        Me.lblMaxpISequenceLength.TabIndex = 3
-        Me.lblMaxpISequenceLength.Text = "Sub-sequence Length"
-        '
-        'chkMaxpIModeEnabled
-        '
-        Me.chkMaxpIModeEnabled.Location = New System.Drawing.Point(8, 48)
-        Me.chkMaxpIModeEnabled.Name = "chkMaxpIModeEnabled"
-        Me.chkMaxpIModeEnabled.Size = New System.Drawing.Size(224, 16)
-        Me.chkMaxpIModeEnabled.TabIndex = 2
-        Me.chkMaxpIModeEnabled.Text = "Report maximum of all sub-sequences"
-        '
-        'frapIAndHydrophobicity
-        '
-        Me.frapIAndHydrophobicity.Controls.Add(Me.txtMaxpISequenceLength)
-        Me.frapIAndHydrophobicity.Controls.Add(Me.lblMaxpISequenceLength)
-        Me.frapIAndHydrophobicity.Controls.Add(Me.chkMaxpIModeEnabled)
-        Me.frapIAndHydrophobicity.Controls.Add(Me.lblHydrophobicityMode)
-        Me.frapIAndHydrophobicity.Controls.Add(Me.cboHydrophobicityMode)
-        Me.frapIAndHydrophobicity.Controls.Add(Me.txtpIStats)
-        Me.frapIAndHydrophobicity.Controls.Add(Me.txtSequenceForpI)
-        Me.frapIAndHydrophobicity.Controls.Add(Me.lblSequenceForpI)
-        Me.frapIAndHydrophobicity.Location = New System.Drawing.Point(8, 108)
-        Me.frapIAndHydrophobicity.Name = "frapIAndHydrophobicity"
-        Me.frapIAndHydrophobicity.Size = New System.Drawing.Size(616, 136)
-        Me.frapIAndHydrophobicity.TabIndex = 2
-        Me.frapIAndHydrophobicity.TabStop = False
-        Me.frapIAndHydrophobicity.Text = "pI And Hydrophobicity"
-        '
-        'lblHydrophobicityMode
-        '
-        Me.lblHydrophobicityMode.Location = New System.Drawing.Point(8, 24)
-        Me.lblHydrophobicityMode.Name = "lblHydrophobicityMode"
-        Me.lblHydrophobicityMode.Size = New System.Drawing.Size(120, 16)
-        Me.lblHydrophobicityMode.TabIndex = 0
-        Me.lblHydrophobicityMode.Text = "Hydrophobicity Mode"
-        '
-        'cboHydrophobicityMode
-        '
-        Me.cboHydrophobicityMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboHydrophobicityMode.DropDownWidth = 70
-        Me.cboHydrophobicityMode.Location = New System.Drawing.Point(128, 18)
-        Me.cboHydrophobicityMode.Name = "cboHydrophobicityMode"
-        Me.cboHydrophobicityMode.Size = New System.Drawing.Size(184, 21)
-        Me.cboHydrophobicityMode.TabIndex = 1
-        '
-        'txtpIStats
-        '
-        Me.txtpIStats.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-            Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
-        Me.txtpIStats.Location = New System.Drawing.Point(336, 48)
-        Me.txtpIStats.MaxLength = 1
-        Me.txtpIStats.Multiline = True
-        Me.txtpIStats.Name = "txtpIStats"
-        Me.txtpIStats.ReadOnly = True
-        Me.txtpIStats.Size = New System.Drawing.Size(272, 80)
-        Me.txtpIStats.TabIndex = 7
-        '
-        'txtSequenceForpI
-        '
-        Me.txtSequenceForpI.Location = New System.Drawing.Point(400, 16)
-        Me.txtSequenceForpI.Name = "txtSequenceForpI"
-        Me.txtSequenceForpI.Size = New System.Drawing.Size(208, 20)
-        Me.txtSequenceForpI.TabIndex = 6
-        Me.txtSequenceForpI.Text = "FKDLGEEQFK"
-        '
-        'lblSequenceForpI
-        '
-        Me.lblSequenceForpI.Location = New System.Drawing.Point(328, 20)
-        Me.lblSequenceForpI.Name = "lblSequenceForpI"
-        Me.lblSequenceForpI.Size = New System.Drawing.Size(72, 16)
-        Me.lblSequenceForpI.TabIndex = 5
-        Me.lblSequenceForpI.Text = "Sequence"
-        '
-        'fraDelimitedFileOptions
-        '
-        Me.fraDelimitedFileOptions.Controls.Add(Me.cboInputFileColumnOrdering)
-        Me.fraDelimitedFileOptions.Controls.Add(Me.lblInputFileColumnOrdering)
-        Me.fraDelimitedFileOptions.Controls.Add(Me.txtInputFileColumnDelimiter)
-        Me.fraDelimitedFileOptions.Controls.Add(Me.lblInputFileColumnDelimiter)
-        Me.fraDelimitedFileOptions.Controls.Add(Me.cboInputFileColumnDelimiter)
-        Me.fraDelimitedFileOptions.Location = New System.Drawing.Point(8, 12)
-        Me.fraDelimitedFileOptions.Name = "fraDelimitedFileOptions"
-        Me.fraDelimitedFileOptions.Size = New System.Drawing.Size(496, 88)
-        Me.fraDelimitedFileOptions.TabIndex = 1
-        Me.fraDelimitedFileOptions.TabStop = False
-        Me.fraDelimitedFileOptions.Text = "Delimited Input File Options"
-        '
-        'cboInputFileColumnOrdering
-        '
-        Me.cboInputFileColumnOrdering.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboInputFileColumnOrdering.DropDownWidth = 70
-        Me.cboInputFileColumnOrdering.Location = New System.Drawing.Point(88, 24)
-        Me.cboInputFileColumnOrdering.Name = "cboInputFileColumnOrdering"
-        Me.cboInputFileColumnOrdering.Size = New System.Drawing.Size(392, 21)
-        Me.cboInputFileColumnOrdering.TabIndex = 1
-        '
-        'lblInputFileColumnOrdering
-        '
-        Me.lblInputFileColumnOrdering.Location = New System.Drawing.Point(8, 26)
-        Me.lblInputFileColumnOrdering.Name = "lblInputFileColumnOrdering"
-        Me.lblInputFileColumnOrdering.Size = New System.Drawing.Size(80, 16)
-        Me.lblInputFileColumnOrdering.TabIndex = 0
-        Me.lblInputFileColumnOrdering.Text = "Column Order"
-        '
-        'txtInputFileColumnDelimiter
-        '
-        Me.txtInputFileColumnDelimiter.Location = New System.Drawing.Point(192, 56)
-        Me.txtInputFileColumnDelimiter.MaxLength = 1
-        Me.txtInputFileColumnDelimiter.Name = "txtInputFileColumnDelimiter"
-        Me.txtInputFileColumnDelimiter.Size = New System.Drawing.Size(32, 20)
-        Me.txtInputFileColumnDelimiter.TabIndex = 4
-        Me.txtInputFileColumnDelimiter.Text = ";"
-        '
-        'lblInputFileColumnDelimiter
-        '
-        Me.lblInputFileColumnDelimiter.Location = New System.Drawing.Point(8, 58)
-        Me.lblInputFileColumnDelimiter.Name = "lblInputFileColumnDelimiter"
-        Me.lblInputFileColumnDelimiter.Size = New System.Drawing.Size(96, 16)
-        Me.lblInputFileColumnDelimiter.TabIndex = 2
-        Me.lblInputFileColumnDelimiter.Text = "Column Delimiter"
-        '
-        'cboInputFileColumnDelimiter
-        '
-        Me.cboInputFileColumnDelimiter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboInputFileColumnDelimiter.DropDownWidth = 70
-        Me.cboInputFileColumnDelimiter.Location = New System.Drawing.Point(112, 56)
-        Me.cboInputFileColumnDelimiter.Name = "cboInputFileColumnDelimiter"
-        Me.cboInputFileColumnDelimiter.Size = New System.Drawing.Size(70, 21)
-        Me.cboInputFileColumnDelimiter.TabIndex = 3
-        '
-        'TabPageFileFormatOptions
-        '
-        Me.TabPageFileFormatOptions.Controls.Add(Me.frapIAndHydrophobicity)
-        Me.TabPageFileFormatOptions.Controls.Add(Me.fraDelimitedFileOptions)
-        Me.TabPageFileFormatOptions.Location = New System.Drawing.Point(4, 22)
-        Me.TabPageFileFormatOptions.Name = "TabPageFileFormatOptions"
-        Me.TabPageFileFormatOptions.Size = New System.Drawing.Size(696, 328)
-        Me.TabPageFileFormatOptions.TabIndex = 2
-        Me.TabPageFileFormatOptions.Text = "File Format Options"
-        Me.TabPageFileFormatOptions.UseVisualStyleBackColor = True
-        '
-        'tbsOptions
-        '
-        Me.tbsOptions.Controls.Add(Me.TabPageFileFormatOptions)
-        Me.tbsOptions.Controls.Add(Me.TabPageParseAndDigest)
-        Me.tbsOptions.Controls.Add(Me.TabPageUniquenessStats)
-        Me.tbsOptions.Controls.Add(Me.TabPagePeakMatchingThresholds)
-        Me.tbsOptions.Controls.Add(Me.TabPageProgress)
-        Me.tbsOptions.Location = New System.Drawing.Point(12, 212)
-        Me.tbsOptions.Name = "tbsOptions"
-        Me.tbsOptions.SelectedIndex = 0
-        Me.tbsOptions.Size = New System.Drawing.Size(704, 354)
-        Me.tbsOptions.TabIndex = 5
-        '
-        'TabPageParseAndDigest
-        '
-        Me.TabPageParseAndDigest.Controls.Add(Me.fraProcessingOptions)
-        Me.TabPageParseAndDigest.Controls.Add(Me.fraCalculationOptions)
-        Me.TabPageParseAndDigest.Controls.Add(Me.fraDigestionOptions)
-        Me.TabPageParseAndDigest.Controls.Add(Me.cmdParseInputFile)
-        Me.TabPageParseAndDigest.Location = New System.Drawing.Point(4, 22)
-        Me.TabPageParseAndDigest.Name = "TabPageParseAndDigest"
-        Me.TabPageParseAndDigest.Size = New System.Drawing.Size(696, 328)
-        Me.TabPageParseAndDigest.TabIndex = 0
-        Me.TabPageParseAndDigest.Text = "Parse and Digest File Options"
-        Me.TabPageParseAndDigest.UseVisualStyleBackColor = True
-        '
-        'fraProcessingOptions
-        '
-        Me.fraProcessingOptions.Controls.Add(Me.lblProteinScramblingLoopCount)
-        Me.fraProcessingOptions.Controls.Add(Me.txtProteinScramblingLoopCount)
-        Me.fraProcessingOptions.Controls.Add(Me.lblSamplingPercentageUnits)
-        Me.fraProcessingOptions.Controls.Add(Me.lblProteinReversalSamplingPercentage)
-        Me.fraProcessingOptions.Controls.Add(Me.txtProteinReversalSamplingPercentage)
-        Me.fraProcessingOptions.Controls.Add(Me.lbltxtAddnlRefAccessionSepChar)
-        Me.fraProcessingOptions.Controls.Add(Me.chkLookForAddnlRefInDescription)
-        Me.fraProcessingOptions.Controls.Add(Me.cboProteinReversalOptions)
-        Me.fraProcessingOptions.Controls.Add(Me.lblProteinReversalOptions)
-        Me.fraProcessingOptions.Controls.Add(Me.chkDigestProteins)
-        Me.fraProcessingOptions.Controls.Add(Me.lblAddnlRefSepChar)
-        Me.fraProcessingOptions.Controls.Add(Me.txtAddnlRefAccessionSepChar)
-        Me.fraProcessingOptions.Controls.Add(Me.txtAddnlRefSepChar)
-        Me.fraProcessingOptions.Controls.Add(Me.chkCreateFastaOutputFile)
-        Me.fraProcessingOptions.Location = New System.Drawing.Point(8, 8)
-        Me.fraProcessingOptions.Name = "fraProcessingOptions"
-        Me.fraProcessingOptions.Size = New System.Drawing.Size(360, 176)
-        Me.fraProcessingOptions.TabIndex = 0
-        Me.fraProcessingOptions.TabStop = False
-        Me.fraProcessingOptions.Text = "Processing Options"
-        '
-        'txtProteinReversalSamplingPercentage
-        '
-        Me.txtProteinReversalSamplingPercentage.Location = New System.Drawing.Point(168, 40)
-        Me.txtProteinReversalSamplingPercentage.MaxLength = 3
-        Me.txtProteinReversalSamplingPercentage.Name = "txtProteinReversalSamplingPercentage"
-        Me.txtProteinReversalSamplingPercentage.Size = New System.Drawing.Size(32, 20)
-        Me.txtProteinReversalSamplingPercentage.TabIndex = 3
-        Me.txtProteinReversalSamplingPercentage.Text = "100"
-        '
-        'lbltxtAddnlRefAccessionSepChar
-        '
-        Me.lbltxtAddnlRefAccessionSepChar.Location = New System.Drawing.Point(96, 96)
-        Me.lbltxtAddnlRefAccessionSepChar.Name = "lbltxtAddnlRefAccessionSepChar"
-        Me.lbltxtAddnlRefAccessionSepChar.Size = New System.Drawing.Size(160, 16)
-        Me.lbltxtAddnlRefAccessionSepChar.TabIndex = 8
-        Me.lbltxtAddnlRefAccessionSepChar.Text = "Addnl Ref Accession Sep Char"
-        Me.lbltxtAddnlRefAccessionSepChar.TextAlign = System.Drawing.ContentAlignment.TopRight
-        '
-        'chkLookForAddnlRefInDescription
-        '
-        Me.chkLookForAddnlRefInDescription.Location = New System.Drawing.Point(16, 72)
-        Me.chkLookForAddnlRefInDescription.Name = "chkLookForAddnlRefInDescription"
-        Me.chkLookForAddnlRefInDescription.Size = New System.Drawing.Size(120, 32)
-        Me.chkLookForAddnlRefInDescription.TabIndex = 5
-        Me.chkLookForAddnlRefInDescription.Text = "Look for addnl Ref in description"
-        '
-        'cboProteinReversalOptions
-        '
-        Me.cboProteinReversalOptions.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboProteinReversalOptions.Location = New System.Drawing.Point(168, 16)
-        Me.cboProteinReversalOptions.Name = "cboProteinReversalOptions"
-        Me.cboProteinReversalOptions.Size = New System.Drawing.Size(184, 21)
-        Me.cboProteinReversalOptions.TabIndex = 1
-        '
-        'lblProteinReversalOptions
-        '
-        Me.lblProteinReversalOptions.Location = New System.Drawing.Point(16, 20)
-        Me.lblProteinReversalOptions.Name = "lblProteinReversalOptions"
-        Me.lblProteinReversalOptions.Size = New System.Drawing.Size(160, 16)
-        Me.lblProteinReversalOptions.TabIndex = 0
-        Me.lblProteinReversalOptions.Text = "Protein Reversal / Scrambling"
-        '
-        'chkDigestProteins
-        '
-        Me.chkDigestProteins.Location = New System.Drawing.Point(16, 115)
-        Me.chkDigestProteins.Name = "chkDigestProteins"
-        Me.chkDigestProteins.Size = New System.Drawing.Size(160, 32)
-        Me.chkDigestProteins.TabIndex = 10
-        Me.chkDigestProteins.Text = "In Silico digest of all proteins in input file"
-        '
-        'lblAddnlRefSepChar
-        '
-        Me.lblAddnlRefSepChar.Location = New System.Drawing.Point(144, 72)
-        Me.lblAddnlRefSepChar.Name = "lblAddnlRefSepChar"
-        Me.lblAddnlRefSepChar.Size = New System.Drawing.Size(112, 16)
-        Me.lblAddnlRefSepChar.TabIndex = 6
-        Me.lblAddnlRefSepChar.Text = "Addnl Ref Sep Char"
-        Me.lblAddnlRefSepChar.TextAlign = System.Drawing.ContentAlignment.TopRight
-        '
-        'txtAddnlRefAccessionSepChar
-        '
-        Me.txtAddnlRefAccessionSepChar.Location = New System.Drawing.Point(264, 96)
-        Me.txtAddnlRefAccessionSepChar.MaxLength = 1
-        Me.txtAddnlRefAccessionSepChar.Name = "txtAddnlRefAccessionSepChar"
-        Me.txtAddnlRefAccessionSepChar.Size = New System.Drawing.Size(32, 20)
-        Me.txtAddnlRefAccessionSepChar.TabIndex = 9
-        Me.txtAddnlRefAccessionSepChar.Text = ":"
-        '
-        'txtAddnlRefSepChar
-        '
-        Me.txtAddnlRefSepChar.Location = New System.Drawing.Point(264, 72)
-        Me.txtAddnlRefSepChar.MaxLength = 1
-        Me.txtAddnlRefSepChar.Name = "txtAddnlRefSepChar"
-        Me.txtAddnlRefSepChar.Size = New System.Drawing.Size(32, 20)
-        Me.txtAddnlRefSepChar.TabIndex = 7
-        Me.txtAddnlRefSepChar.Text = "|"
-        '
-        'chkCreateFastaOutputFile
-        '
-        Me.chkCreateFastaOutputFile.Location = New System.Drawing.Point(192, 128)
-        Me.chkCreateFastaOutputFile.Name = "chkCreateFastaOutputFile"
-        Me.chkCreateFastaOutputFile.Size = New System.Drawing.Size(160, 16)
-        Me.chkCreateFastaOutputFile.TabIndex = 11
-        Me.chkCreateFastaOutputFile.Text = "Create FASTA Output File"
-        '
-        'fraCalculationOptions
-        '
-        Me.fraCalculationOptions.Controls.Add(Me.cmdNETInfo)
-        Me.fraCalculationOptions.Controls.Add(Me.chkExcludeProteinDescription)
-        Me.fraCalculationOptions.Controls.Add(Me.chkComputeSequenceHashIgnoreILDiff)
-        Me.fraCalculationOptions.Controls.Add(Me.chkTruncateProteinDescription)
-        Me.fraCalculationOptions.Controls.Add(Me.chkComputeSequenceHashValues)
-        Me.fraCalculationOptions.Controls.Add(Me.lblMassMode)
-        Me.fraCalculationOptions.Controls.Add(Me.cboElementMassMode)
-        Me.fraCalculationOptions.Controls.Add(Me.chkExcludeProteinSequence)
-        Me.fraCalculationOptions.Controls.Add(Me.chkComputepIandNET)
-        Me.fraCalculationOptions.Controls.Add(Me.chkIncludeXResidues)
-        Me.fraCalculationOptions.Controls.Add(Me.chkComputeProteinMass)
-        Me.fraCalculationOptions.Location = New System.Drawing.Point(376, 40)
-        Me.fraCalculationOptions.Name = "fraCalculationOptions"
-        Me.fraCalculationOptions.Size = New System.Drawing.Size(308, 150)
-        Me.fraCalculationOptions.TabIndex = 1
-        Me.fraCalculationOptions.TabStop = False
-        Me.fraCalculationOptions.Text = "Calculation Options"
-        '
-        'cmdNETInfo
-        '
-        Me.cmdNETInfo.Location = New System.Drawing.Point(268, 87)
-        Me.cmdNETInfo.Margin = New System.Windows.Forms.Padding(1)
-        Me.cmdNETInfo.Name = "cmdNETInfo"
-        Me.cmdNETInfo.Size = New System.Drawing.Size(34, 20)
-        Me.cmdNETInfo.TabIndex = 4
-        Me.cmdNETInfo.Text = "Info"
-        '
-        'chkExcludeProteinDescription
-        '
-        Me.chkExcludeProteinDescription.Location = New System.Drawing.Point(185, 128)
-        Me.chkExcludeProteinDescription.Name = "chkExcludeProteinDescription"
-        Me.chkExcludeProteinDescription.Size = New System.Drawing.Size(120, 19)
-        Me.chkExcludeProteinDescription.TabIndex = 9
-        Me.chkExcludeProteinDescription.Text = "Exclude Description"
-        '
-        'chkComputeSequenceHashIgnoreILDiff
-        '
-        Me.chkComputeSequenceHashIgnoreILDiff.Checked = True
-        Me.chkComputeSequenceHashIgnoreILDiff.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkComputeSequenceHashIgnoreILDiff.Location = New System.Drawing.Point(185, 107)
-        Me.chkComputeSequenceHashIgnoreILDiff.Name = "chkComputeSequenceHashIgnoreILDiff"
-        Me.chkComputeSequenceHashIgnoreILDiff.Size = New System.Drawing.Size(104, 19)
-        Me.chkComputeSequenceHashIgnoreILDiff.TabIndex = 8
-        Me.chkComputeSequenceHashIgnoreILDiff.Text = "Ignore I/L Diff"
-        '
-        'chkTruncateProteinDescription
-        '
-        Me.chkTruncateProteinDescription.Checked = True
-        Me.chkTruncateProteinDescription.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkTruncateProteinDescription.Location = New System.Drawing.Point(16, 128)
-        Me.chkTruncateProteinDescription.Name = "chkTruncateProteinDescription"
-        Me.chkTruncateProteinDescription.Size = New System.Drawing.Size(164, 19)
-        Me.chkTruncateProteinDescription.TabIndex = 7
-        Me.chkTruncateProteinDescription.Text = "Truncate long description"
-        '
-        'chkComputeSequenceHashValues
-        '
-        Me.chkComputeSequenceHashValues.Checked = True
-        Me.chkComputeSequenceHashValues.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkComputeSequenceHashValues.Location = New System.Drawing.Point(16, 107)
-        Me.chkComputeSequenceHashValues.Name = "chkComputeSequenceHashValues"
-        Me.chkComputeSequenceHashValues.Size = New System.Drawing.Size(164, 19)
-        Me.chkComputeSequenceHashValues.TabIndex = 6
-        Me.chkComputeSequenceHashValues.Text = "Compute sequence hashes"
-        '
-        'lblMassMode
-        '
-        Me.lblMassMode.Location = New System.Drawing.Point(16, 66)
-        Me.lblMassMode.Name = "lblMassMode"
-        Me.lblMassMode.Size = New System.Drawing.Size(64, 16)
-        Me.lblMassMode.TabIndex = 5
-        Me.lblMassMode.Text = "Mass type"
-        Me.lblMassMode.TextAlign = System.Drawing.ContentAlignment.TopRight
-        '
-        'cboElementMassMode
-        '
-        Me.cboElementMassMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboElementMassMode.Location = New System.Drawing.Point(88, 65)
-        Me.cboElementMassMode.Name = "cboElementMassMode"
-        Me.cboElementMassMode.Size = New System.Drawing.Size(144, 21)
-        Me.cboElementMassMode.TabIndex = 4
-        '
-        'chkExcludeProteinSequence
-        '
-        Me.chkExcludeProteinSequence.Location = New System.Drawing.Point(16, 16)
-        Me.chkExcludeProteinSequence.Name = "chkExcludeProteinSequence"
-        Me.chkExcludeProteinSequence.Size = New System.Drawing.Size(192, 16)
-        Me.chkExcludeProteinSequence.TabIndex = 0
-        Me.chkExcludeProteinSequence.Text = "Exclude Protein Sequence"
-        '
-        'chkComputepIandNET
-        '
-        Me.chkComputepIandNET.Location = New System.Drawing.Point(16, 89)
-        Me.chkComputepIandNET.Name = "chkComputepIandNET"
-        Me.chkComputepIandNET.Size = New System.Drawing.Size(252, 18)
-        Me.chkComputepIandNET.TabIndex = 3
-        Me.chkComputepIandNET.Text = "Compute pI and Normalized Elution Time (NET)"
-        '
-        'chkIncludeXResidues
-        '
-        Me.chkIncludeXResidues.Location = New System.Drawing.Point(16, 49)
-        Me.chkIncludeXResidues.Name = "chkIncludeXResidues"
-        Me.chkIncludeXResidues.Size = New System.Drawing.Size(216, 16)
-        Me.chkIncludeXResidues.TabIndex = 2
-        Me.chkIncludeXResidues.Text = "Include X Residues in Mass (113 Da)"
-        '
-        'chkComputeProteinMass
-        '
-        Me.chkComputeProteinMass.Location = New System.Drawing.Point(16, 33)
-        Me.chkComputeProteinMass.Name = "chkComputeProteinMass"
-        Me.chkComputeProteinMass.Size = New System.Drawing.Size(144, 16)
-        Me.chkComputeProteinMass.TabIndex = 1
-        Me.chkComputeProteinMass.Text = "Compute Protein Mass"
-        '
-        'fraDigestionOptions
-        '
-        Me.fraDigestionOptions.Controls.Add(Me.cboFragmentMassMode)
-        Me.fraDigestionOptions.Controls.Add(Me.lblFragmentMassMode)
-        Me.fraDigestionOptions.Controls.Add(Me.cboCysTreatmentMode)
-        Me.fraDigestionOptions.Controls.Add(Me.lblCysTreatment)
-        Me.fraDigestionOptions.Controls.Add(Me.txtDigestProteinsMaximumpI)
-        Me.fraDigestionOptions.Controls.Add(Me.lblDigestProteinsMaximumpI)
-        Me.fraDigestionOptions.Controls.Add(Me.txtDigestProteinsMinimumpI)
-        Me.fraDigestionOptions.Controls.Add(Me.lblDigestProteinsMinimumpI)
-        Me.fraDigestionOptions.Controls.Add(Me.chkGenerateUniqueIDValues)
-        Me.fraDigestionOptions.Controls.Add(Me.chkCysPeptidesOnly)
-        Me.fraDigestionOptions.Controls.Add(Me.txtDigestProteinsMinimumResidueCount)
-        Me.fraDigestionOptions.Controls.Add(Me.lblDigestProteinsMinimumResidueCount)
-        Me.fraDigestionOptions.Controls.Add(Me.txtDigestProteinsMaximumMissedCleavages)
-        Me.fraDigestionOptions.Controls.Add(Me.lblDigestProteinsMaximumMissedCleavages)
-        Me.fraDigestionOptions.Controls.Add(Me.txtDigestProteinsMaximumMass)
-        Me.fraDigestionOptions.Controls.Add(Me.lblDigestProteinsMaximumMass)
-        Me.fraDigestionOptions.Controls.Add(Me.txtDigestProteinsMinimumMass)
-        Me.fraDigestionOptions.Controls.Add(Me.lblDigestProteinsMinimumMass)
-        Me.fraDigestionOptions.Controls.Add(Me.cboCleavageRuleType)
-        Me.fraDigestionOptions.Controls.Add(Me.chkIncludeDuplicateSequences)
-        Me.fraDigestionOptions.Location = New System.Drawing.Point(8, 190)
-        Me.fraDigestionOptions.Name = "fraDigestionOptions"
-        Me.fraDigestionOptions.Size = New System.Drawing.Size(675, 128)
-        Me.fraDigestionOptions.TabIndex = 2
-        Me.fraDigestionOptions.TabStop = False
-        Me.fraDigestionOptions.Text = "Digestion Options"
-        '
-        'cboFragmentMassMode
-        '
-        Me.cboFragmentMassMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboFragmentMassMode.Location = New System.Drawing.Point(75, 104)
-        Me.cboFragmentMassMode.Name = "cboFragmentMassMode"
-        Me.cboFragmentMassMode.Size = New System.Drawing.Size(117, 21)
-        Me.cboFragmentMassMode.TabIndex = 19
-        '
-        'lblFragmentMassMode
-        '
-        Me.lblFragmentMassMode.Location = New System.Drawing.Point(8, 106)
-        Me.lblFragmentMassMode.Name = "lblFragmentMassMode"
-        Me.lblFragmentMassMode.Size = New System.Drawing.Size(68, 16)
-        Me.lblFragmentMassMode.TabIndex = 18
-        Me.lblFragmentMassMode.Text = "Mass Mode"
-        '
-        'cboCysTreatmentMode
-        '
-        Me.cboCysTreatmentMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboCysTreatmentMode.Location = New System.Drawing.Point(553, 76)
-        Me.cboCysTreatmentMode.Name = "cboCysTreatmentMode"
-        Me.cboCysTreatmentMode.Size = New System.Drawing.Size(117, 21)
-        Me.cboCysTreatmentMode.TabIndex = 17
-        '
-        'lblCysTreatment
-        '
-        Me.lblCysTreatment.Location = New System.Drawing.Point(553, 56)
-        Me.lblCysTreatment.Name = "lblCysTreatment"
-        Me.lblCysTreatment.Size = New System.Drawing.Size(104, 21)
-        Me.lblCysTreatment.TabIndex = 16
-        Me.lblCysTreatment.Text = "Cys treatment:"
-        '
-        'txtDigestProteinsMaximumpI
-        '
-        Me.txtDigestProteinsMaximumpI.Location = New System.Drawing.Point(497, 80)
-        Me.txtDigestProteinsMaximumpI.Name = "txtDigestProteinsMaximumpI"
-        Me.txtDigestProteinsMaximumpI.Size = New System.Drawing.Size(40, 20)
-        Me.txtDigestProteinsMaximumpI.TabIndex = 13
-        Me.txtDigestProteinsMaximumpI.Text = "14"
-        '
-        'lblDigestProteinsMaximumpI
-        '
-        Me.lblDigestProteinsMaximumpI.Location = New System.Drawing.Point(420, 80)
-        Me.lblDigestProteinsMaximumpI.Name = "lblDigestProteinsMaximumpI"
-        Me.lblDigestProteinsMaximumpI.Size = New System.Drawing.Size(72, 16)
-        Me.lblDigestProteinsMaximumpI.TabIndex = 12
-        Me.lblDigestProteinsMaximumpI.Text = "Maximum pI"
-        '
-        'txtDigestProteinsMinimumpI
-        '
-        Me.txtDigestProteinsMinimumpI.Location = New System.Drawing.Point(497, 56)
-        Me.txtDigestProteinsMinimumpI.Name = "txtDigestProteinsMinimumpI"
-        Me.txtDigestProteinsMinimumpI.Size = New System.Drawing.Size(40, 20)
-        Me.txtDigestProteinsMinimumpI.TabIndex = 11
-        Me.txtDigestProteinsMinimumpI.Text = "0"
-        '
-        'lblDigestProteinsMinimumpI
-        '
-        Me.lblDigestProteinsMinimumpI.Location = New System.Drawing.Point(420, 56)
-        Me.lblDigestProteinsMinimumpI.Name = "lblDigestProteinsMinimumpI"
-        Me.lblDigestProteinsMinimumpI.Size = New System.Drawing.Size(72, 16)
-        Me.lblDigestProteinsMinimumpI.TabIndex = 10
-        Me.lblDigestProteinsMinimumpI.Text = "Minimum pI"
-        '
-        'chkGenerateUniqueIDValues
-        '
-        Me.chkGenerateUniqueIDValues.Checked = True
-        Me.chkGenerateUniqueIDValues.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkGenerateUniqueIDValues.Location = New System.Drawing.Point(218, 102)
-        Me.chkGenerateUniqueIDValues.Name = "chkGenerateUniqueIDValues"
-        Me.chkGenerateUniqueIDValues.Size = New System.Drawing.Size(176, 16)
-        Me.chkGenerateUniqueIDValues.TabIndex = 14
-        Me.chkGenerateUniqueIDValues.Text = "Generate UniqueID Values"
-        '
-        'chkCysPeptidesOnly
-        '
-        Me.chkCysPeptidesOnly.Location = New System.Drawing.Point(486, 16)
-        Me.chkCysPeptidesOnly.Name = "chkCysPeptidesOnly"
-        Me.chkCysPeptidesOnly.Size = New System.Drawing.Size(112, 32)
-        Me.chkCysPeptidesOnly.TabIndex = 15
-        Me.chkCysPeptidesOnly.Text = "Include cysteine peptides only"
-        '
-        'txtDigestProteinsMinimumResidueCount
-        '
-        Me.txtDigestProteinsMinimumResidueCount.Location = New System.Drawing.Point(359, 56)
-        Me.txtDigestProteinsMinimumResidueCount.Name = "txtDigestProteinsMinimumResidueCount"
-        Me.txtDigestProteinsMinimumResidueCount.Size = New System.Drawing.Size(32, 20)
-        Me.txtDigestProteinsMinimumResidueCount.TabIndex = 7
-        Me.txtDigestProteinsMinimumResidueCount.Text = "0"
-        '
-        'lblDigestProteinsMinimumResidueCount
-        '
-        Me.lblDigestProteinsMinimumResidueCount.Location = New System.Drawing.Point(216, 58)
-        Me.lblDigestProteinsMinimumResidueCount.Name = "lblDigestProteinsMinimumResidueCount"
-        Me.lblDigestProteinsMinimumResidueCount.Size = New System.Drawing.Size(136, 16)
-        Me.lblDigestProteinsMinimumResidueCount.TabIndex = 6
-        Me.lblDigestProteinsMinimumResidueCount.Text = "Minimum Residue Count"
-        '
-        'txtDigestProteinsMaximumMissedCleavages
-        '
-        Me.txtDigestProteinsMaximumMissedCleavages.Location = New System.Drawing.Point(359, 80)
-        Me.txtDigestProteinsMaximumMissedCleavages.Name = "txtDigestProteinsMaximumMissedCleavages"
-        Me.txtDigestProteinsMaximumMissedCleavages.Size = New System.Drawing.Size(32, 20)
-        Me.txtDigestProteinsMaximumMissedCleavages.TabIndex = 9
-        Me.txtDigestProteinsMaximumMissedCleavages.Text = "3"
-        '
-        'lblDigestProteinsMaximumMissedCleavages
-        '
-        Me.lblDigestProteinsMaximumMissedCleavages.Location = New System.Drawing.Point(216, 82)
-        Me.lblDigestProteinsMaximumMissedCleavages.Name = "lblDigestProteinsMaximumMissedCleavages"
-        Me.lblDigestProteinsMaximumMissedCleavages.Size = New System.Drawing.Size(136, 16)
-        Me.lblDigestProteinsMaximumMissedCleavages.TabIndex = 8
-        Me.lblDigestProteinsMaximumMissedCleavages.Text = "Max Missed Cleavages"
-        '
-        'txtDigestProteinsMaximumMass
-        '
-        Me.txtDigestProteinsMaximumMass.Location = New System.Drawing.Point(152, 80)
-        Me.txtDigestProteinsMaximumMass.Name = "txtDigestProteinsMaximumMass"
-        Me.txtDigestProteinsMaximumMass.Size = New System.Drawing.Size(40, 20)
-        Me.txtDigestProteinsMaximumMass.TabIndex = 5
-        Me.txtDigestProteinsMaximumMass.Text = "6000"
-        '
-        'lblDigestProteinsMaximumMass
-        '
-        Me.lblDigestProteinsMaximumMass.Location = New System.Drawing.Point(8, 82)
-        Me.lblDigestProteinsMaximumMass.Name = "lblDigestProteinsMaximumMass"
-        Me.lblDigestProteinsMaximumMass.Size = New System.Drawing.Size(144, 16)
-        Me.lblDigestProteinsMaximumMass.TabIndex = 4
-        Me.lblDigestProteinsMaximumMass.Text = "Maximum Fragment Mass"
-        '
-        'txtDigestProteinsMinimumMass
-        '
-        Me.txtDigestProteinsMinimumMass.Location = New System.Drawing.Point(152, 56)
-        Me.txtDigestProteinsMinimumMass.Name = "txtDigestProteinsMinimumMass"
-        Me.txtDigestProteinsMinimumMass.Size = New System.Drawing.Size(40, 20)
-        Me.txtDigestProteinsMinimumMass.TabIndex = 3
-        Me.txtDigestProteinsMinimumMass.Text = "400"
-        '
-        'lblDigestProteinsMinimumMass
-        '
-        Me.lblDigestProteinsMinimumMass.Location = New System.Drawing.Point(8, 58)
-        Me.lblDigestProteinsMinimumMass.Name = "lblDigestProteinsMinimumMass"
-        Me.lblDigestProteinsMinimumMass.Size = New System.Drawing.Size(144, 16)
-        Me.lblDigestProteinsMinimumMass.TabIndex = 2
-        Me.lblDigestProteinsMinimumMass.Text = "Minimum Fragment Mass"
-        '
-        'cboCleavageRuleType
-        '
-        Me.cboCleavageRuleType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboCleavageRuleType.Location = New System.Drawing.Point(8, 24)
-        Me.cboCleavageRuleType.Name = "cboCleavageRuleType"
-        Me.cboCleavageRuleType.Size = New System.Drawing.Size(288, 21)
-        Me.cboCleavageRuleType.TabIndex = 0
-        '
-        'chkIncludeDuplicateSequences
-        '
-        Me.chkIncludeDuplicateSequences.Location = New System.Drawing.Point(312, 16)
-        Me.chkIncludeDuplicateSequences.Name = "chkIncludeDuplicateSequences"
-        Me.chkIncludeDuplicateSequences.Size = New System.Drawing.Size(168, 32)
-        Me.chkIncludeDuplicateSequences.TabIndex = 1
-        Me.chkIncludeDuplicateSequences.Text = "Include duplicate sequences for given protein"
-        '
-        'cmdParseInputFile
-        '
-        Me.cmdParseInputFile.Location = New System.Drawing.Point(384, 8)
-        Me.cmdParseInputFile.Name = "cmdParseInputFile"
-        Me.cmdParseInputFile.Size = New System.Drawing.Size(112, 24)
-        Me.cmdParseInputFile.TabIndex = 3
-        Me.cmdParseInputFile.Text = "&Parse and Digest"
-        '
-        'TabPagePeakMatchingThresholds
-        '
-        Me.TabPagePeakMatchingThresholds.Controls.Add(Me.chkAutoDefineSLiCScoreTolerances)
-        Me.TabPagePeakMatchingThresholds.Controls.Add(Me.cmdPastePMThresholdsList)
-        Me.TabPagePeakMatchingThresholds.Controls.Add(Me.cboPMPredefinedThresholds)
-        Me.TabPagePeakMatchingThresholds.Controls.Add(Me.cmdPMThresholdsAutoPopulate)
-        Me.TabPagePeakMatchingThresholds.Controls.Add(Me.cmdClearPMThresholdsList)
-        Me.TabPagePeakMatchingThresholds.Controls.Add(Me.cboMassTolType)
-        Me.TabPagePeakMatchingThresholds.Controls.Add(Me.lblMassTolType)
-        Me.TabPagePeakMatchingThresholds.Controls.Add(Me.dgPeakMatchingThresholds)
-        Me.TabPagePeakMatchingThresholds.Location = New System.Drawing.Point(4, 22)
-        Me.TabPagePeakMatchingThresholds.Name = "TabPagePeakMatchingThresholds"
-        Me.TabPagePeakMatchingThresholds.Size = New System.Drawing.Size(696, 328)
-        Me.TabPagePeakMatchingThresholds.TabIndex = 3
-        Me.TabPagePeakMatchingThresholds.Text = "Peak Matching Thresholds"
-        Me.TabPagePeakMatchingThresholds.UseVisualStyleBackColor = True
-        '
-        'chkAutoDefineSLiCScoreTolerances
-        '
-        Me.chkAutoDefineSLiCScoreTolerances.Checked = True
-        Me.chkAutoDefineSLiCScoreTolerances.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkAutoDefineSLiCScoreTolerances.Location = New System.Drawing.Point(16, 256)
-        Me.chkAutoDefineSLiCScoreTolerances.Name = "chkAutoDefineSLiCScoreTolerances"
-        Me.chkAutoDefineSLiCScoreTolerances.Size = New System.Drawing.Size(208, 16)
-        Me.chkAutoDefineSLiCScoreTolerances.TabIndex = 3
-        Me.chkAutoDefineSLiCScoreTolerances.Text = "Auto Define SLiC Score Tolerances"
-        '
-        'cmdPastePMThresholdsList
-        '
-        Me.cmdPastePMThresholdsList.Location = New System.Drawing.Point(456, 96)
-        Me.cmdPastePMThresholdsList.Name = "cmdPastePMThresholdsList"
-        Me.cmdPastePMThresholdsList.Size = New System.Drawing.Size(104, 24)
-        Me.cmdPastePMThresholdsList.TabIndex = 6
-        Me.cmdPastePMThresholdsList.Text = "Paste Values"
-        '
-        'cboPMPredefinedThresholds
-        '
-        Me.cboPMPredefinedThresholds.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboPMPredefinedThresholds.Location = New System.Drawing.Point(336, 256)
-        Me.cboPMPredefinedThresholds.Name = "cboPMPredefinedThresholds"
-        Me.cboPMPredefinedThresholds.Size = New System.Drawing.Size(264, 21)
-        Me.cboPMPredefinedThresholds.TabIndex = 5
-        '
-        'cmdPMThresholdsAutoPopulate
-        '
-        Me.cmdPMThresholdsAutoPopulate.Location = New System.Drawing.Point(336, 224)
-        Me.cmdPMThresholdsAutoPopulate.Name = "cmdPMThresholdsAutoPopulate"
-        Me.cmdPMThresholdsAutoPopulate.Size = New System.Drawing.Size(104, 24)
-        Me.cmdPMThresholdsAutoPopulate.TabIndex = 4
-        Me.cmdPMThresholdsAutoPopulate.Text = "Auto-Populate"
-        '
-        'cmdClearPMThresholdsList
-        '
-        Me.cmdClearPMThresholdsList.Location = New System.Drawing.Point(456, 128)
-        Me.cmdClearPMThresholdsList.Name = "cmdClearPMThresholdsList"
-        Me.cmdClearPMThresholdsList.Size = New System.Drawing.Size(104, 24)
-        Me.cmdClearPMThresholdsList.TabIndex = 7
-        Me.cmdClearPMThresholdsList.Text = "Clear List"
-        '
-        'cboMassTolType
-        '
-        Me.cboMassTolType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboMassTolType.Location = New System.Drawing.Point(144, 224)
-        Me.cboMassTolType.Name = "cboMassTolType"
-        Me.cboMassTolType.Size = New System.Drawing.Size(136, 21)
-        Me.cboMassTolType.TabIndex = 2
-        '
-        'lblMassTolType
-        '
-        Me.lblMassTolType.Location = New System.Drawing.Point(16, 226)
-        Me.lblMassTolType.Name = "lblMassTolType"
-        Me.lblMassTolType.Size = New System.Drawing.Size(136, 16)
-        Me.lblMassTolType.TabIndex = 1
-        Me.lblMassTolType.Text = "Mass Tolerance Type"
-        '
-        'dgPeakMatchingThresholds
-        '
-        Me.dgPeakMatchingThresholds.CaptionText = "Peak Matching Thresholds"
-        Me.dgPeakMatchingThresholds.DataMember = ""
-        Me.dgPeakMatchingThresholds.HeaderForeColor = System.Drawing.SystemColors.ControlText
-        Me.dgPeakMatchingThresholds.Location = New System.Drawing.Point(16, 8)
-        Me.dgPeakMatchingThresholds.Name = "dgPeakMatchingThresholds"
-        Me.dgPeakMatchingThresholds.Size = New System.Drawing.Size(424, 208)
-        Me.dgPeakMatchingThresholds.TabIndex = 0
-        '
-        'TabPageProgress
-        '
-        Me.TabPageProgress.Controls.Add(Me.pbarProgress)
-        Me.TabPageProgress.Controls.Add(Me.lblErrorMessage)
-        Me.TabPageProgress.Controls.Add(Me.lblSubtaskProgress)
-        Me.TabPageProgress.Controls.Add(Me.lblProgress)
-        Me.TabPageProgress.Controls.Add(Me.lblSubtaskProgressDescription)
-        Me.TabPageProgress.Controls.Add(Me.lblProgressDescription)
-        Me.TabPageProgress.Controls.Add(Me.cmdAbortProcessing)
-        Me.TabPageProgress.Location = New System.Drawing.Point(4, 22)
-        Me.TabPageProgress.Name = "TabPageProgress"
-        Me.TabPageProgress.Size = New System.Drawing.Size(696, 328)
-        Me.TabPageProgress.TabIndex = 4
-        Me.TabPageProgress.Text = "Progress"
-        Me.TabPageProgress.UseVisualStyleBackColor = True
-        '
-        'pbarProgress
-        '
-        Me.pbarProgress.Location = New System.Drawing.Point(13, 12)
-        Me.pbarProgress.Name = "pbarProgress"
-        Me.pbarProgress.Size = New System.Drawing.Size(122, 20)
-        Me.pbarProgress.TabIndex = 12
-        '
-        'lblErrorMessage
-        '
-        Me.lblErrorMessage.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.lblErrorMessage.Location = New System.Drawing.Point(137, 112)
-        Me.lblErrorMessage.Name = "lblErrorMessage"
-        Me.lblErrorMessage.Size = New System.Drawing.Size(515, 32)
-        Me.lblErrorMessage.TabIndex = 11
-        Me.lblErrorMessage.Text = "Error message ..."
-        Me.lblErrorMessage.Visible = False
-        '
-        'lblSubtaskProgress
-        '
-        Me.lblSubtaskProgress.Location = New System.Drawing.Point(13, 61)
-        Me.lblSubtaskProgress.Name = "lblSubtaskProgress"
-        Me.lblSubtaskProgress.Size = New System.Drawing.Size(118, 18)
-        Me.lblSubtaskProgress.TabIndex = 8
-        Me.lblSubtaskProgress.Text = "0"
-        Me.lblSubtaskProgress.Visible = False
-        '
-        'lblProgress
-        '
-        Me.lblProgress.Location = New System.Drawing.Point(13, 35)
-        Me.lblProgress.Name = "lblProgress"
-        Me.lblProgress.Size = New System.Drawing.Size(118, 18)
-        Me.lblProgress.TabIndex = 7
-        Me.lblProgress.Text = "0"
-        '
-        'lblSubtaskProgressDescription
-        '
-        Me.lblSubtaskProgressDescription.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.lblSubtaskProgressDescription.Location = New System.Drawing.Point(140, 61)
-        Me.lblSubtaskProgressDescription.Name = "lblSubtaskProgressDescription"
-        Me.lblSubtaskProgressDescription.Size = New System.Drawing.Size(515, 32)
-        Me.lblSubtaskProgressDescription.TabIndex = 6
-        Me.lblSubtaskProgressDescription.Text = "Subtask progress description ..."
-        Me.lblSubtaskProgressDescription.Visible = False
-        '
-        'lblProgressDescription
-        '
-        Me.lblProgressDescription.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.lblProgressDescription.Location = New System.Drawing.Point(140, 12)
-        Me.lblProgressDescription.Name = "lblProgressDescription"
-        Me.lblProgressDescription.Size = New System.Drawing.Size(515, 32)
-        Me.lblProgressDescription.TabIndex = 5
-        Me.lblProgressDescription.Text = "Progress description ..."
-        '
-        'cmdAbortProcessing
-        '
-        Me.cmdAbortProcessing.Location = New System.Drawing.Point(10, 106)
-        Me.cmdAbortProcessing.Name = "cmdAbortProcessing"
-        Me.cmdAbortProcessing.Size = New System.Drawing.Size(121, 24)
-        Me.cmdAbortProcessing.TabIndex = 4
-        Me.cmdAbortProcessing.Text = "Abort Processing"
-        '
-        'mnuHelpAboutElutionTime
-        '
-        Me.mnuHelpAboutElutionTime.Index = 1
-        Me.mnuHelpAboutElutionTime.Text = "About &Elution Time Prediction"
-        '
-        'cboInputFileFormat
-        '
-        Me.cboInputFileFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboInputFileFormat.Location = New System.Drawing.Point(112, 56)
-        Me.cboInputFileFormat.Name = "cboInputFileFormat"
-        Me.cboInputFileFormat.Size = New System.Drawing.Size(112, 21)
-        Me.cboInputFileFormat.TabIndex = 3
-        '
-        'lblInputFileFormat
-        '
-        Me.lblInputFileFormat.Location = New System.Drawing.Point(8, 58)
-        Me.lblInputFileFormat.Name = "lblInputFileFormat"
-        Me.lblInputFileFormat.Size = New System.Drawing.Size(104, 16)
-        Me.lblInputFileFormat.TabIndex = 2
-        Me.lblInputFileFormat.Text = "Input File Format"
-        '
-        'cmdSelectFile
-        '
-        Me.cmdSelectFile.Location = New System.Drawing.Point(8, 24)
-        Me.cmdSelectFile.Name = "cmdSelectFile"
-        Me.cmdSelectFile.Size = New System.Drawing.Size(80, 24)
-        Me.cmdSelectFile.TabIndex = 0
-        Me.cmdSelectFile.Text = "&Select file"
-        '
-        'fraInputFilePath
-        '
-        Me.fraInputFilePath.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.fraInputFilePath.Controls.Add(Me.cmdValidateFastaFile)
-        Me.fraInputFilePath.Controls.Add(Me.cboInputFileFormat)
-        Me.fraInputFilePath.Controls.Add(Me.lblInputFileFormat)
-        Me.fraInputFilePath.Controls.Add(Me.cmdSelectFile)
-        Me.fraInputFilePath.Controls.Add(Me.txtProteinInputFilePath)
-        Me.fraInputFilePath.Location = New System.Drawing.Point(12, 12)
-        Me.fraInputFilePath.Name = "fraInputFilePath"
-        Me.fraInputFilePath.Size = New System.Drawing.Size(730, 88)
-        Me.fraInputFilePath.TabIndex = 3
-        Me.fraInputFilePath.TabStop = False
-        Me.fraInputFilePath.Text = "Protein Input File Path (FASTA or Tab-delimited)"
-        '
-        'cmdValidateFastaFile
-        '
-        Me.cmdValidateFastaFile.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.cmdValidateFastaFile.Location = New System.Drawing.Point(595, 56)
-        Me.cmdValidateFastaFile.Name = "cmdValidateFastaFile"
-        Me.cmdValidateFastaFile.Size = New System.Drawing.Size(120, 24)
-        Me.cmdValidateFastaFile.TabIndex = 4
-        Me.cmdValidateFastaFile.Text = "&Validate FASTA File"
-        '
-        'chkEnableLogging
-        '
-        Me.chkEnableLogging.Checked = True
-        Me.chkEnableLogging.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.chkEnableLogging.Location = New System.Drawing.Point(422, 19)
-        Me.chkEnableLogging.Name = "chkEnableLogging"
-        Me.chkEnableLogging.Size = New System.Drawing.Size(112, 24)
-        Me.chkEnableLogging.TabIndex = 4
-        Me.chkEnableLogging.Text = "Enable logging"
-        '
-        'mnuFileSelectOutputFile
-        '
-        Me.mnuFileSelectOutputFile.Index = 1
-        Me.mnuFileSelectOutputFile.Text = "Select &Output File..."
-        '
-        'cmdSelectOutputFile
-        '
-        Me.cmdSelectOutputFile.Location = New System.Drawing.Point(8, 56)
-        Me.cmdSelectOutputFile.Name = "cmdSelectOutputFile"
-        Me.cmdSelectOutputFile.Size = New System.Drawing.Size(88, 33)
-        Me.cmdSelectOutputFile.TabIndex = 5
-        Me.cmdSelectOutputFile.Text = "Select / &Create File"
-        '
-        'mnuFileSep1
-        '
-        Me.mnuFileSep1.Index = 2
-        Me.mnuFileSep1.Text = "-"
-        '
-        'mnuFile
-        '
-        Me.mnuFile.Index = 0
-        Me.mnuFile.MenuItems.AddRange(New System.Windows.Forms.MenuItem() {Me.mnuFileSelectInputFile, Me.mnuFileSelectOutputFile, Me.mnuFileSep1, Me.mnuFileSaveDefaultOptions, Me.mnuFileSep2, Me.mnuFileExit})
-        Me.mnuFile.Text = "&File"
-        '
-        'mnuFileSelectInputFile
-        '
-        Me.mnuFileSelectInputFile.Index = 0
-        Me.mnuFileSelectInputFile.Text = "Select &Input File..."
-        '
-        'mnuFileSaveDefaultOptions
-        '
-        Me.mnuFileSaveDefaultOptions.Index = 3
-        Me.mnuFileSaveDefaultOptions.Text = "Save &Default Options"
-        '
-        'mnuFileSep2
-        '
-        Me.mnuFileSep2.Index = 4
-        Me.mnuFileSep2.Text = "-"
-        '
-        'mnuFileExit
-        '
-        Me.mnuFileExit.Index = 5
-        Me.mnuFileExit.Text = "E&xit"
-        '
-        'txtProteinOutputFilePath
-        '
-        Me.txtProteinOutputFilePath.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.txtProteinOutputFilePath.Location = New System.Drawing.Point(104, 62)
-        Me.txtProteinOutputFilePath.Name = "txtProteinOutputFilePath"
-        Me.txtProteinOutputFilePath.Size = New System.Drawing.Size(611, 20)
-        Me.txtProteinOutputFilePath.TabIndex = 6
-        '
-        'chkIncludePrefixAndSuffixResidues
-        '
-        Me.chkIncludePrefixAndSuffixResidues.Location = New System.Drawing.Point(256, 16)
-        Me.chkIncludePrefixAndSuffixResidues.Name = "chkIncludePrefixAndSuffixResidues"
-        Me.chkIncludePrefixAndSuffixResidues.Size = New System.Drawing.Size(160, 32)
-        Me.chkIncludePrefixAndSuffixResidues.TabIndex = 3
-        Me.chkIncludePrefixAndSuffixResidues.Text = "Include prefix and suffix residues for the sequences"
-        '
-        'mnuEditResetOptions
-        '
-        Me.mnuEditResetOptions.Index = 3
-        Me.mnuEditResetOptions.Text = "&Reset options to Defaults..."
-        '
-        'mnuHelp
-        '
-        Me.mnuHelp.Index = 2
-        Me.mnuHelp.MenuItems.AddRange(New System.Windows.Forms.MenuItem() {Me.mnuHelpAbout, Me.mnuHelpAboutElutionTime})
-        Me.mnuHelp.Text = "&Help"
-        '
-        'mnuHelpAbout
-        '
-        Me.mnuHelpAbout.Index = 0
-        Me.mnuHelpAbout.Text = "&About"
-        '
-        'mnuEditSep1
-        '
-        Me.mnuEditSep1.Index = 2
-        Me.mnuEditSep1.Text = "-"
-        '
-        'mnuEditMakeUniquenessStats
-        '
-        Me.mnuEditMakeUniquenessStats.Index = 1
-        Me.mnuEditMakeUniquenessStats.Text = "&Make Uniqueness Stats"
-        '
-        'mnuEdit
-        '
-        Me.mnuEdit.Index = 1
-        Me.mnuEdit.MenuItems.AddRange(New System.Windows.Forms.MenuItem() {Me.mnuEditParseFile, Me.mnuEditMakeUniquenessStats, Me.mnuEditSep1, Me.mnuEditResetOptions})
-        Me.mnuEdit.Text = "&Edit"
-        '
-        'mnuEditParseFile
-        '
-        Me.mnuEditParseFile.Index = 0
-        Me.mnuEditParseFile.Text = "&Parse File"
-        '
-        'MainMenuControl
-        '
-        Me.MainMenuControl.MenuItems.AddRange(New System.Windows.Forms.MenuItem() {Me.mnuFile, Me.mnuEdit, Me.mnuHelp})
-        '
-        'lblOutputFileFieldDelimiter
-        '
-        Me.lblOutputFileFieldDelimiter.Location = New System.Drawing.Point(8, 26)
-        Me.lblOutputFileFieldDelimiter.Name = "lblOutputFileFieldDelimiter"
-        Me.lblOutputFileFieldDelimiter.Size = New System.Drawing.Size(112, 18)
-        Me.lblOutputFileFieldDelimiter.TabIndex = 0
-        Me.lblOutputFileFieldDelimiter.Text = "Field delimiter"
-        '
-        'cboOutputFileFieldDelimiter
-        '
-        Me.cboOutputFileFieldDelimiter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.cboOutputFileFieldDelimiter.Location = New System.Drawing.Point(128, 24)
-        Me.cboOutputFileFieldDelimiter.Name = "cboOutputFileFieldDelimiter"
-        Me.cboOutputFileFieldDelimiter.Size = New System.Drawing.Size(70, 21)
-        Me.cboOutputFileFieldDelimiter.TabIndex = 1
-        '
-        'txtOutputFileFieldDelimiter
-        '
-        Me.txtOutputFileFieldDelimiter.Location = New System.Drawing.Point(208, 24)
-        Me.txtOutputFileFieldDelimiter.MaxLength = 1
-        Me.txtOutputFileFieldDelimiter.Name = "txtOutputFileFieldDelimiter"
-        Me.txtOutputFileFieldDelimiter.Size = New System.Drawing.Size(32, 20)
-        Me.txtOutputFileFieldDelimiter.TabIndex = 2
-        Me.txtOutputFileFieldDelimiter.Text = ";"
-        '
-        'fraOutputTextOptions
-        '
-        Me.fraOutputTextOptions.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
-            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.fraOutputTextOptions.Controls.Add(Me.chkEnableLogging)
-        Me.fraOutputTextOptions.Controls.Add(Me.cmdSelectOutputFile)
-        Me.fraOutputTextOptions.Controls.Add(Me.txtProteinOutputFilePath)
-        Me.fraOutputTextOptions.Controls.Add(Me.chkIncludePrefixAndSuffixResidues)
-        Me.fraOutputTextOptions.Controls.Add(Me.cboOutputFileFieldDelimiter)
-        Me.fraOutputTextOptions.Controls.Add(Me.txtOutputFileFieldDelimiter)
-        Me.fraOutputTextOptions.Controls.Add(Me.lblOutputFileFieldDelimiter)
-        Me.fraOutputTextOptions.Location = New System.Drawing.Point(12, 108)
-        Me.fraOutputTextOptions.Name = "fraOutputTextOptions"
-        Me.fraOutputTextOptions.Size = New System.Drawing.Size(730, 96)
-        Me.fraOutputTextOptions.TabIndex = 4
-        Me.fraOutputTextOptions.TabStop = False
-        Me.fraOutputTextOptions.Text = "Output Options"
-        '
-        'frmMain
-        '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
-        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(754, 577)
-        Me.Controls.Add(Me.tbsOptions)
-        Me.Controls.Add(Me.fraInputFilePath)
-        Me.Controls.Add(Me.fraOutputTextOptions)
-        Me.Menu = Me.MainMenuControl
-        Me.Name = "frmMain"
-        Me.Text = "Protein Digestion Simulator"
-        Me.fraPeakMatchingOptions.ResumeLayout(False)
-        Me.fraPeakMatchingOptions.PerformLayout()
-        Me.TabPageUniquenessStats.ResumeLayout(False)
-        Me.fraSqlServerOptions.ResumeLayout(False)
-        Me.fraSqlServerOptions.PerformLayout()
-        Me.fraUniquenessBinningOptions.ResumeLayout(False)
-        Me.fraUniquenessBinningOptions.PerformLayout()
-        Me.frapIAndHydrophobicity.ResumeLayout(False)
-        Me.frapIAndHydrophobicity.PerformLayout()
-        Me.fraDelimitedFileOptions.ResumeLayout(False)
-        Me.fraDelimitedFileOptions.PerformLayout()
-        Me.TabPageFileFormatOptions.ResumeLayout(False)
-        Me.tbsOptions.ResumeLayout(False)
-        Me.TabPageParseAndDigest.ResumeLayout(False)
-        Me.fraProcessingOptions.ResumeLayout(False)
-        Me.fraProcessingOptions.PerformLayout()
-        Me.fraCalculationOptions.ResumeLayout(False)
-        Me.fraDigestionOptions.ResumeLayout(False)
-        Me.fraDigestionOptions.PerformLayout()
-        Me.TabPagePeakMatchingThresholds.ResumeLayout(False)
-        CType(Me.dgPeakMatchingThresholds, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.TabPageProgress.ResumeLayout(False)
-        Me.fraInputFilePath.ResumeLayout(False)
-        Me.fraInputFilePath.PerformLayout()
-        Me.fraOutputTextOptions.ResumeLayout(False)
-        Me.fraOutputTextOptions.PerformLayout()
-        Me.ResumeLayout(False)
+        // NOTE: The following procedure is required by the Windows Form Designer
+        // It can be modified using the Windows Form Designer.
+        // Do not modify it using the code editor.
+        [DebuggerStepThrough()]
+        private void InitializeComponent()
+        {
+            components = new System.ComponentModel.Container();
+            _txtProteinInputFilePath = new TextBox();
+            _txtProteinInputFilePath.TextChanged += new EventHandler(txtProteinInputFilePath_TextChanged);
+            optUseRectangleSearchRegion = new RadioButton();
+            optUseEllipseSearchRegion = new RadioButton();
+            lblUniquenessCalculationsNote = new Label();
+            lblProteinScramblingLoopCount = new Label();
+            fraPeakMatchingOptions = new GroupBox();
+            _txtMaxPeakMatchingResultsPerFeatureToSave = new TextBox();
+            _txtMaxPeakMatchingResultsPerFeatureToSave.KeyPress += new KeyPressEventHandler(txtMaxPeakMatchingResultsPerFeatureToSave_KeyPress);
+            _txtMaxPeakMatchingResultsPerFeatureToSave.Validating += new System.ComponentModel.CancelEventHandler(txtMaxPeakMatchingResultsPerFeatureToSave_Validating);
+            lblMaxPeakMatchingResultsPerFeatureToSave = new Label();
+            chkExportPeakMatchingResults = new CheckBox();
+            _txtMinimumSLiCScore = new TextBox();
+            _txtMinimumSLiCScore.KeyPress += new KeyPressEventHandler(txtMinimumSLiCScore_KeyPress);
+            _txtMinimumSLiCScore.Validating += new System.ComponentModel.CancelEventHandler(txtMinimumSLiCScore_Validating);
+            lblMinimumSLiCScore = new Label();
+            _chkUseSLiCScoreForUniqueness = new CheckBox();
+            _chkUseSLiCScoreForUniqueness.CheckedChanged += new EventHandler(chkUseSLiCScoreForUniqueness_CheckedChanged);
+            TabPageUniquenessStats = new TabPage();
+            fraSqlServerOptions = new GroupBox();
+            chkSqlServerUseExistingData = new CheckBox();
+            _chkAllowSqlServerCaching = new CheckBox();
+            _chkAllowSqlServerCaching.CheckedChanged += new EventHandler(chkAllowSqlServerCaching_CheckedChanged);
+            lblSqlServerPassword = new Label();
+            lblSqlServerUsername = new Label();
+            txtSqlServerPassword = new TextBox();
+            txtSqlServerUsername = new TextBox();
+            lblSqlServerDatabase = new Label();
+            lblSqlServerServerName = new Label();
+            _chkSqlServerUseIntegratedSecurity = new CheckBox();
+            _chkSqlServerUseIntegratedSecurity.CheckedChanged += new EventHandler(chkSqlServerUseIntegratedSecurity_CheckedChanged);
+            txtSqlServerDatabase = new TextBox();
+            txtSqlServerName = new TextBox();
+            _chkUseSqlServerDBToCacheData = new CheckBox();
+            _chkUseSqlServerDBToCacheData.CheckedChanged += new EventHandler(chkUseSqlServerDBToCacheData_CheckedChanged);
+            fraUniquenessBinningOptions = new GroupBox();
+            lblPeptideUniquenessMassMode = new Label();
+            _txtUniquenessBinWidth = new TextBox();
+            _txtUniquenessBinWidth.KeyPress += new KeyPressEventHandler(txtUniquenessBinWidth_KeyPress);
+            lblUniquenessBinWidth = new Label();
+            _chkAutoComputeRangeForBinning = new CheckBox();
+            _chkAutoComputeRangeForBinning.CheckedChanged += new EventHandler(chkAutoComputeRangeForBinning_CheckedChanged);
+            _txtUniquenessBinEndMass = new TextBox();
+            _txtUniquenessBinEndMass.KeyPress += new KeyPressEventHandler(txtUniquenessBinEndMass_KeyPress);
+            lblUniquenessBinEndMass = new Label();
+            _txtUniquenessBinStartMass = new TextBox();
+            _txtUniquenessBinStartMass.KeyPress += new KeyPressEventHandler(txtUniquenessBinStartMass_KeyPress);
+            lblUniquenessBinStartMass = new Label();
+            lblUniquenessStatsNote = new Label();
+            _cmdGenerateUniquenessStats = new Button();
+            _cmdGenerateUniquenessStats.Click += new EventHandler(cmdGenerateUniquenessStats_Click);
+            chkAssumeInputFileIsDigested = new CheckBox();
+            _txtProteinScramblingLoopCount = new TextBox();
+            _txtProteinScramblingLoopCount.KeyPress += new KeyPressEventHandler(txtProteinScramblingLoopCount_KeyPress);
+            lblSamplingPercentageUnits = new Label();
+            _txtMaxpISequenceLength = new TextBox();
+            _txtMaxpISequenceLength.KeyDown += new KeyEventHandler(txtMaxpISequenceLength_KeyDown);
+            _txtMaxpISequenceLength.KeyPress += new KeyPressEventHandler(txtMaxpISequenceLength_KeyPress);
+            _txtMaxpISequenceLength.Validating += new System.ComponentModel.CancelEventHandler(txtMaxpISequenceLength_Validating);
+            _txtMaxpISequenceLength.Validated += new EventHandler(txtMaxpISequenceLength_Validated);
+            lblProteinReversalSamplingPercentage = new Label();
+            lblMaxpISequenceLength = new Label();
+            _chkMaxpIModeEnabled = new CheckBox();
+            _chkMaxpIModeEnabled.CheckedChanged += new EventHandler(chkMaxpIModeEnabled_CheckedChanged);
+            frapIAndHydrophobicity = new GroupBox();
+            lblHydrophobicityMode = new Label();
+            _cboHydrophobicityMode = new ComboBox();
+            _cboHydrophobicityMode.SelectedIndexChanged += new EventHandler(cboHydrophobicityMode_SelectedIndexChanged);
+            txtpIStats = new TextBox();
+            _txtSequenceForpI = new TextBox();
+            _txtSequenceForpI.TextChanged += new EventHandler(txtSequenceForpI_TextChanged);
+            lblSequenceForpI = new Label();
+            fraDelimitedFileOptions = new GroupBox();
+            cboInputFileColumnOrdering = new ComboBox();
+            lblInputFileColumnOrdering = new Label();
+            txtInputFileColumnDelimiter = new TextBox();
+            lblInputFileColumnDelimiter = new Label();
+            _cboInputFileColumnDelimiter = new ComboBox();
+            _cboInputFileColumnDelimiter.SelectedIndexChanged += new EventHandler(cboInputFileColumnDelimiter_SelectedIndexChanged);
+            TabPageFileFormatOptions = new TabPage();
+            tbsOptions = new TabControl();
+            TabPageParseAndDigest = new TabPage();
+            fraProcessingOptions = new GroupBox();
+            _txtProteinReversalSamplingPercentage = new TextBox();
+            _txtProteinReversalSamplingPercentage.KeyPress += new KeyPressEventHandler(txtProteinReversalSamplingPercentage_KeyPress);
+            lbltxtAddnlRefAccessionSepChar = new Label();
+            _chkLookForAddnlRefInDescription = new CheckBox();
+            _chkLookForAddnlRefInDescription.CheckedChanged += new EventHandler(chkLookForAddnlRefInDescription_CheckedChanged);
+            _cboProteinReversalOptions = new ComboBox();
+            _cboProteinReversalOptions.SelectedIndexChanged += new EventHandler(cboProteinReversalOptions_SelectedIndexChanged);
+            lblProteinReversalOptions = new Label();
+            _chkDigestProteins = new CheckBox();
+            _chkDigestProteins.CheckedChanged += new EventHandler(chkDigestProteins_CheckedChanged);
+            lblAddnlRefSepChar = new Label();
+            txtAddnlRefAccessionSepChar = new TextBox();
+            txtAddnlRefSepChar = new TextBox();
+            _chkCreateFastaOutputFile = new CheckBox();
+            _chkCreateFastaOutputFile.CheckedChanged += new EventHandler(chkCreateFastaOutputFile_CheckedChanged);
+            fraCalculationOptions = new GroupBox();
+            _cmdNETInfo = new Button();
+            _cmdNETInfo.Click += new EventHandler(cmdNETInfo_Click);
+            chkExcludeProteinDescription = new CheckBox();
+            chkComputeSequenceHashIgnoreILDiff = new CheckBox();
+            chkTruncateProteinDescription = new CheckBox();
+            _chkComputeSequenceHashValues = new CheckBox();
+            _chkComputeSequenceHashValues.CheckedChanged += new EventHandler(chkComputeSequenceHashValues_CheckedChanged);
+            lblMassMode = new Label();
+            _cboElementMassMode = new ComboBox();
+            _cboElementMassMode.SelectedIndexChanged += new EventHandler(cboElementMassMode_SelectedIndexChanged);
+            chkExcludeProteinSequence = new CheckBox();
+            _chkComputepIandNET = new CheckBox();
+            _chkComputepIandNET.CheckedChanged += new EventHandler(chkComputepI_CheckedChanged);
+            chkIncludeXResidues = new CheckBox();
+            chkComputeProteinMass = new CheckBox();
+            fraDigestionOptions = new GroupBox();
+            cboFragmentMassMode = new ComboBox();
+            lblFragmentMassMode = new Label();
+            cboCysTreatmentMode = new ComboBox();
+            lblCysTreatment = new Label();
+            txtDigestProteinsMaximumpI = new TextBox();
+            lblDigestProteinsMaximumpI = new Label();
+            txtDigestProteinsMinimumpI = new TextBox();
+            lblDigestProteinsMinimumpI = new Label();
+            chkGenerateUniqueIDValues = new CheckBox();
+            chkCysPeptidesOnly = new CheckBox();
+            _txtDigestProteinsMinimumResidueCount = new TextBox();
+            _txtDigestProteinsMinimumResidueCount.KeyPress += new KeyPressEventHandler(txtDigestProteinsMinimumResidueCount_KeyPress);
+            lblDigestProteinsMinimumResidueCount = new Label();
+            _txtDigestProteinsMaximumMissedCleavages = new TextBox();
+            _txtDigestProteinsMaximumMissedCleavages.KeyPress += new KeyPressEventHandler(txtDigestProteinsMaximumMissedCleavages_KeyPress);
+            lblDigestProteinsMaximumMissedCleavages = new Label();
+            _txtDigestProteinsMaximumMass = new TextBox();
+            _txtDigestProteinsMaximumMass.KeyPress += new KeyPressEventHandler(txtDigestProteinsMaximumMass_KeyPress);
+            lblDigestProteinsMaximumMass = new Label();
+            _txtDigestProteinsMinimumMass = new TextBox();
+            _txtDigestProteinsMinimumMass.KeyPress += new KeyPressEventHandler(txtDigestProteinsMinimumMass_KeyPress);
+            lblDigestProteinsMinimumMass = new Label();
+            cboCleavageRuleType = new ComboBox();
+            chkIncludeDuplicateSequences = new CheckBox();
+            _cmdParseInputFile = new Button();
+            _cmdParseInputFile.Click += new EventHandler(cmdParseInputFile_Click);
+            TabPagePeakMatchingThresholds = new TabPage();
+            _chkAutoDefineSLiCScoreTolerances = new CheckBox();
+            _chkAutoDefineSLiCScoreTolerances.CheckedChanged += new EventHandler(chkAutoDefineSLiCScoreTolerances_CheckedChanged);
+            _cmdPastePMThresholdsList = new Button();
+            _cmdPastePMThresholdsList.Click += new EventHandler(cmdPastePMThresholdsList_Click);
+            cboPMPredefinedThresholds = new ComboBox();
+            _cmdPMThresholdsAutoPopulate = new Button();
+            _cmdPMThresholdsAutoPopulate.Click += new EventHandler(cmdPMThresholdsAutoPopulate_Click);
+            _cmdClearPMThresholdsList = new Button();
+            _cmdClearPMThresholdsList.Click += new EventHandler(cmdClearPMThresholdsList_Click);
+            cboMassTolType = new ComboBox();
+            lblMassTolType = new Label();
+            dgPeakMatchingThresholds = new DataGrid();
+            TabPageProgress = new TabPage();
+            pbarProgress = new ProgressBar();
+            lblErrorMessage = new Label();
+            lblSubtaskProgress = new Label();
+            lblProgress = new Label();
+            lblSubtaskProgressDescription = new Label();
+            lblProgressDescription = new Label();
+            _cmdAbortProcessing = new Button();
+            _cmdAbortProcessing.Click += new EventHandler(cmdAbortProcessing_Click);
+            _mnuHelpAboutElutionTime = new MenuItem();
+            _mnuHelpAboutElutionTime.Click += new EventHandler(mnuHelpAboutElutionTime_Click);
+            _cboInputFileFormat = new ComboBox();
+            _cboInputFileFormat.SelectedIndexChanged += new EventHandler(cboInputFileFormat_SelectedIndexChanged);
+            lblInputFileFormat = new Label();
+            _cmdSelectFile = new Button();
+            _cmdSelectFile.Click += new EventHandler(cmdSelectFile_Click);
+            fraInputFilePath = new GroupBox();
+            _cmdValidateFastaFile = new Button();
+            _cmdValidateFastaFile.Click += new EventHandler(cmdValidateFastaFile_Click);
+            chkEnableLogging = new CheckBox();
+            _mnuFileSelectOutputFile = new MenuItem();
+            _mnuFileSelectOutputFile.Click += new EventHandler(mnuFileSelectOutputFile_Click);
+            _cmdSelectOutputFile = new Button();
+            _cmdSelectOutputFile.Click += new EventHandler(cmdSelectOutputFile_Click);
+            mnuFileSep1 = new MenuItem();
+            mnuFile = new MenuItem();
+            _mnuFileSelectInputFile = new MenuItem();
+            _mnuFileSelectInputFile.Click += new EventHandler(mnuFileSelectInputFile_Click);
+            _mnuFileSaveDefaultOptions = new MenuItem();
+            _mnuFileSaveDefaultOptions.Click += new EventHandler(mnuFileSaveDefaultOptions_Click);
+            mnuFileSep2 = new MenuItem();
+            _mnuFileExit = new MenuItem();
+            _mnuFileExit.Click += new EventHandler(mnuFileExit_Click);
+            txtProteinOutputFilePath = new TextBox();
+            chkIncludePrefixAndSuffixResidues = new CheckBox();
+            _mnuEditResetOptions = new MenuItem();
+            _mnuEditResetOptions.Click += new EventHandler(mnuEditResetOptions_Click);
+            mnuHelp = new MenuItem();
+            _mnuHelpAbout = new MenuItem();
+            _mnuHelpAbout.Click += new EventHandler(mnuHelpAbout_Click);
+            mnuEditSep1 = new MenuItem();
+            _mnuEditMakeUniquenessStats = new MenuItem();
+            _mnuEditMakeUniquenessStats.Click += new EventHandler(mnuEditMakeUniquenessStats_Click);
+            mnuEdit = new MenuItem();
+            _mnuEditParseFile = new MenuItem();
+            _mnuEditParseFile.Click += new EventHandler(mnuEditParseFile_Click);
+            MainMenuControl = new MainMenu(components);
+            lblOutputFileFieldDelimiter = new Label();
+            _cboOutputFileFieldDelimiter = new ComboBox();
+            _cboOutputFileFieldDelimiter.SelectedIndexChanged += new EventHandler(cboOutputFileFieldDelimiter_SelectedIndexChanged);
+            txtOutputFileFieldDelimiter = new TextBox();
+            fraOutputTextOptions = new GroupBox();
+            fraPeakMatchingOptions.SuspendLayout();
+            TabPageUniquenessStats.SuspendLayout();
+            fraSqlServerOptions.SuspendLayout();
+            fraUniquenessBinningOptions.SuspendLayout();
+            frapIAndHydrophobicity.SuspendLayout();
+            fraDelimitedFileOptions.SuspendLayout();
+            TabPageFileFormatOptions.SuspendLayout();
+            tbsOptions.SuspendLayout();
+            TabPageParseAndDigest.SuspendLayout();
+            fraProcessingOptions.SuspendLayout();
+            fraCalculationOptions.SuspendLayout();
+            fraDigestionOptions.SuspendLayout();
+            TabPagePeakMatchingThresholds.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgPeakMatchingThresholds).BeginInit();
+            TabPageProgress.SuspendLayout();
+            fraInputFilePath.SuspendLayout();
+            fraOutputTextOptions.SuspendLayout();
+            SuspendLayout();
+            // 
+            // txtProteinInputFilePath
+            // 
+            _txtProteinInputFilePath.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            _txtProteinInputFilePath.Location = new Point(104, 26);
+            _txtProteinInputFilePath.Name = "_txtProteinInputFilePath";
+            _txtProteinInputFilePath.Size = new Size(611, 20);
+            _txtProteinInputFilePath.TabIndex = 1;
+            // 
+            // optUseRectangleSearchRegion
+            // 
+            optUseRectangleSearchRegion.Location = new Point(232, 96);
+            optUseRectangleSearchRegion.Name = "optUseRectangleSearchRegion";
+            optUseRectangleSearchRegion.Size = new Size(136, 16);
+            optUseRectangleSearchRegion.TabIndex = 7;
+            optUseRectangleSearchRegion.Text = "Use rectangle region";
+            // 
+            // optUseEllipseSearchRegion
+            // 
+            optUseEllipseSearchRegion.Checked = true;
+            optUseEllipseSearchRegion.Location = new Point(232, 72);
+            optUseEllipseSearchRegion.Name = "optUseEllipseSearchRegion";
+            optUseEllipseSearchRegion.Size = new Size(152, 16);
+            optUseEllipseSearchRegion.TabIndex = 6;
+            optUseEllipseSearchRegion.TabStop = true;
+            optUseEllipseSearchRegion.Text = "Use ellipse search region";
+            // 
+            // lblUniquenessCalculationsNote
+            // 
+            lblUniquenessCalculationsNote.Location = new Point(240, 192);
+            lblUniquenessCalculationsNote.Name = "lblUniquenessCalculationsNote";
+            lblUniquenessCalculationsNote.Size = new Size(384, 88);
+            lblUniquenessCalculationsNote.TabIndex = 6;
+            // 
+            // lblProteinScramblingLoopCount
+            // 
+            lblProteinScramblingLoopCount.Location = new Point(232, 42);
+            lblProteinScramblingLoopCount.Name = "lblProteinScramblingLoopCount";
+            lblProteinScramblingLoopCount.Size = new Size(72, 16);
+            lblProteinScramblingLoopCount.TabIndex = 12;
+            lblProteinScramblingLoopCount.Text = "Loop Count";
+            lblProteinScramblingLoopCount.TextAlign = ContentAlignment.TopRight;
+            // 
+            // fraPeakMatchingOptions
+            // 
+            fraPeakMatchingOptions.Controls.Add(optUseRectangleSearchRegion);
+            fraPeakMatchingOptions.Controls.Add(optUseEllipseSearchRegion);
+            fraPeakMatchingOptions.Controls.Add(_txtMaxPeakMatchingResultsPerFeatureToSave);
+            fraPeakMatchingOptions.Controls.Add(lblMaxPeakMatchingResultsPerFeatureToSave);
+            fraPeakMatchingOptions.Controls.Add(chkExportPeakMatchingResults);
+            fraPeakMatchingOptions.Controls.Add(_txtMinimumSLiCScore);
+            fraPeakMatchingOptions.Controls.Add(lblMinimumSLiCScore);
+            fraPeakMatchingOptions.Controls.Add(_chkUseSLiCScoreForUniqueness);
+            fraPeakMatchingOptions.Location = new Point(232, 48);
+            fraPeakMatchingOptions.Name = "fraPeakMatchingOptions";
+            fraPeakMatchingOptions.Size = new Size(392, 136);
+            fraPeakMatchingOptions.TabIndex = 2;
+            fraPeakMatchingOptions.TabStop = false;
+            fraPeakMatchingOptions.Text = "Peak Matching Options";
+            // 
+            // txtMaxPeakMatchingResultsPerFeatureToSave
+            // 
+            _txtMaxPeakMatchingResultsPerFeatureToSave.Location = new Point(272, 16);
+            _txtMaxPeakMatchingResultsPerFeatureToSave.Name = "_txtMaxPeakMatchingResultsPerFeatureToSave";
+            _txtMaxPeakMatchingResultsPerFeatureToSave.Size = new Size(40, 20);
+            _txtMaxPeakMatchingResultsPerFeatureToSave.TabIndex = 1;
+            _txtMaxPeakMatchingResultsPerFeatureToSave.Text = "3";
+            // 
+            // lblMaxPeakMatchingResultsPerFeatureToSave
+            // 
+            lblMaxPeakMatchingResultsPerFeatureToSave.Location = new Point(16, 18);
+            lblMaxPeakMatchingResultsPerFeatureToSave.Name = "lblMaxPeakMatchingResultsPerFeatureToSave";
+            lblMaxPeakMatchingResultsPerFeatureToSave.Size = new Size(256, 16);
+            lblMaxPeakMatchingResultsPerFeatureToSave.TabIndex = 0;
+            lblMaxPeakMatchingResultsPerFeatureToSave.Text = "Max Peak Matching Results Per Feature To Save";
+            // 
+            // chkExportPeakMatchingResults
+            // 
+            chkExportPeakMatchingResults.Location = new Point(32, 36);
+            chkExportPeakMatchingResults.Name = "chkExportPeakMatchingResults";
+            chkExportPeakMatchingResults.Size = new Size(192, 17);
+            chkExportPeakMatchingResults.TabIndex = 2;
+            chkExportPeakMatchingResults.Text = "Export peak matching results";
+            // 
+            // txtMinimumSLiCScore
+            // 
+            _txtMinimumSLiCScore.Location = new Point(144, 104);
+            _txtMinimumSLiCScore.Name = "_txtMinimumSLiCScore";
+            _txtMinimumSLiCScore.Size = new Size(40, 20);
+            _txtMinimumSLiCScore.TabIndex = 5;
+            _txtMinimumSLiCScore.Text = "0.99";
+            // 
+            // lblMinimumSLiCScore
+            // 
+            lblMinimumSLiCScore.Location = new Point(16, 96);
+            lblMinimumSLiCScore.Name = "lblMinimumSLiCScore";
+            lblMinimumSLiCScore.Size = new Size(128, 32);
+            lblMinimumSLiCScore.TabIndex = 4;
+            lblMinimumSLiCScore.Text = "Minimum SLiC score to be considered unique";
+            // 
+            // chkUseSLiCScoreForUniqueness
+            // 
+            _chkUseSLiCScoreForUniqueness.Checked = true;
+            _chkUseSLiCScoreForUniqueness.CheckState = CheckState.Checked;
+            _chkUseSLiCScoreForUniqueness.Location = new Point(16, 60);
+            _chkUseSLiCScoreForUniqueness.Name = "_chkUseSLiCScoreForUniqueness";
+            _chkUseSLiCScoreForUniqueness.Size = new Size(168, 32);
+            _chkUseSLiCScoreForUniqueness.TabIndex = 3;
+            _chkUseSLiCScoreForUniqueness.Text = "Use SLiC Score when gauging peptide uniqueness";
+            // 
+            // TabPageUniquenessStats
+            // 
+            TabPageUniquenessStats.Controls.Add(lblUniquenessCalculationsNote);
+            TabPageUniquenessStats.Controls.Add(fraPeakMatchingOptions);
+            TabPageUniquenessStats.Controls.Add(fraSqlServerOptions);
+            TabPageUniquenessStats.Controls.Add(fraUniquenessBinningOptions);
+            TabPageUniquenessStats.Controls.Add(lblUniquenessStatsNote);
+            TabPageUniquenessStats.Controls.Add(_cmdGenerateUniquenessStats);
+            TabPageUniquenessStats.Controls.Add(chkAssumeInputFileIsDigested);
+            TabPageUniquenessStats.Location = new Point(4, 22);
+            TabPageUniquenessStats.Name = "TabPageUniquenessStats";
+            TabPageUniquenessStats.Size = new Size(696, 328);
+            TabPageUniquenessStats.TabIndex = 1;
+            TabPageUniquenessStats.Text = "Peptide Uniqueness Options";
+            TabPageUniquenessStats.UseVisualStyleBackColor = true;
+            // 
+            // fraSqlServerOptions
+            // 
+            fraSqlServerOptions.Controls.Add(chkSqlServerUseExistingData);
+            fraSqlServerOptions.Controls.Add(_chkAllowSqlServerCaching);
+            fraSqlServerOptions.Controls.Add(lblSqlServerPassword);
+            fraSqlServerOptions.Controls.Add(lblSqlServerUsername);
+            fraSqlServerOptions.Controls.Add(txtSqlServerPassword);
+            fraSqlServerOptions.Controls.Add(txtSqlServerUsername);
+            fraSqlServerOptions.Controls.Add(lblSqlServerDatabase);
+            fraSqlServerOptions.Controls.Add(lblSqlServerServerName);
+            fraSqlServerOptions.Controls.Add(_chkSqlServerUseIntegratedSecurity);
+            fraSqlServerOptions.Controls.Add(txtSqlServerDatabase);
+            fraSqlServerOptions.Controls.Add(txtSqlServerName);
+            fraSqlServerOptions.Controls.Add(_chkUseSqlServerDBToCacheData);
+            fraSqlServerOptions.Location = new Point(232, 192);
+            fraSqlServerOptions.Name = "fraSqlServerOptions";
+            fraSqlServerOptions.Size = new Size(376, 112);
+            fraSqlServerOptions.TabIndex = 4;
+            fraSqlServerOptions.TabStop = false;
+            fraSqlServerOptions.Text = "Sql Server Options";
+            fraSqlServerOptions.Visible = false;
+            // 
+            // chkSqlServerUseExistingData
+            // 
+            chkSqlServerUseExistingData.Checked = true;
+            chkSqlServerUseExistingData.CheckState = CheckState.Checked;
+            chkSqlServerUseExistingData.Location = new Point(8, 88);
+            chkSqlServerUseExistingData.Name = "chkSqlServerUseExistingData";
+            chkSqlServerUseExistingData.Size = new Size(144, 16);
+            chkSqlServerUseExistingData.TabIndex = 11;
+            chkSqlServerUseExistingData.Text = "Use Existing Data";
+            // 
+            // chkAllowSqlServerCaching
+            // 
+            _chkAllowSqlServerCaching.Location = new Point(8, 16);
+            _chkAllowSqlServerCaching.Name = "_chkAllowSqlServerCaching";
+            _chkAllowSqlServerCaching.Size = new Size(144, 32);
+            _chkAllowSqlServerCaching.TabIndex = 0;
+            _chkAllowSqlServerCaching.Text = "Allow data caching using Sql Server";
+            // 
+            // lblSqlServerPassword
+            // 
+            lblSqlServerPassword.Location = new Point(264, 64);
+            lblSqlServerPassword.Name = "lblSqlServerPassword";
+            lblSqlServerPassword.Size = new Size(56, 16);
+            lblSqlServerPassword.TabIndex = 9;
+            lblSqlServerPassword.Text = "Password";
+            // 
+            // lblSqlServerUsername
+            // 
+            lblSqlServerUsername.Location = new Point(184, 64);
+            lblSqlServerUsername.Name = "lblSqlServerUsername";
+            lblSqlServerUsername.Size = new Size(56, 16);
+            lblSqlServerUsername.TabIndex = 7;
+            lblSqlServerUsername.Text = "Username";
+            // 
+            // txtSqlServerPassword
+            // 
+            txtSqlServerPassword.Location = new Point(264, 80);
+            txtSqlServerPassword.Name = "txtSqlServerPassword";
+            txtSqlServerPassword.PasswordChar = '*';
+            txtSqlServerPassword.Size = new Size(88, 20);
+            txtSqlServerPassword.TabIndex = 10;
+            txtSqlServerPassword.Text = "pw";
+            // 
+            // txtSqlServerUsername
+            // 
+            txtSqlServerUsername.Location = new Point(184, 80);
+            txtSqlServerUsername.Name = "txtSqlServerUsername";
+            txtSqlServerUsername.Size = new Size(72, 20);
+            txtSqlServerUsername.TabIndex = 8;
+            txtSqlServerUsername.Text = "user";
+            // 
+            // lblSqlServerDatabase
+            // 
+            lblSqlServerDatabase.Location = new Point(264, 16);
+            lblSqlServerDatabase.Name = "lblSqlServerDatabase";
+            lblSqlServerDatabase.Size = new Size(56, 16);
+            lblSqlServerDatabase.TabIndex = 4;
+            lblSqlServerDatabase.Text = "Database";
+            // 
+            // lblSqlServerServerName
+            // 
+            lblSqlServerServerName.Location = new Point(184, 16);
+            lblSqlServerServerName.Name = "lblSqlServerServerName";
+            lblSqlServerServerName.Size = new Size(56, 16);
+            lblSqlServerServerName.TabIndex = 2;
+            lblSqlServerServerName.Text = "Server";
+            // 
+            // chkSqlServerUseIntegratedSecurity
+            // 
+            _chkSqlServerUseIntegratedSecurity.Checked = true;
+            _chkSqlServerUseIntegratedSecurity.CheckState = CheckState.Checked;
+            _chkSqlServerUseIntegratedSecurity.Location = new Point(8, 72);
+            _chkSqlServerUseIntegratedSecurity.Name = "_chkSqlServerUseIntegratedSecurity";
+            _chkSqlServerUseIntegratedSecurity.Size = new Size(144, 16);
+            _chkSqlServerUseIntegratedSecurity.TabIndex = 6;
+            _chkSqlServerUseIntegratedSecurity.Text = "Use Integrated Security";
+            // 
+            // txtSqlServerDatabase
+            // 
+            txtSqlServerDatabase.Location = new Point(264, 32);
+            txtSqlServerDatabase.Name = "txtSqlServerDatabase";
+            txtSqlServerDatabase.Size = new Size(88, 20);
+            txtSqlServerDatabase.TabIndex = 5;
+            txtSqlServerDatabase.Text = "TempDB";
+            // 
+            // txtSqlServerName
+            // 
+            txtSqlServerName.Location = new Point(184, 32);
+            txtSqlServerName.Name = "txtSqlServerName";
+            txtSqlServerName.Size = new Size(72, 20);
+            txtSqlServerName.TabIndex = 3;
+            txtSqlServerName.Text = "Monroe";
+            // 
+            // chkUseSqlServerDBToCacheData
+            // 
+            _chkUseSqlServerDBToCacheData.Checked = true;
+            _chkUseSqlServerDBToCacheData.CheckState = CheckState.Checked;
+            _chkUseSqlServerDBToCacheData.Location = new Point(8, 56);
+            _chkUseSqlServerDBToCacheData.Name = "_chkUseSqlServerDBToCacheData";
+            _chkUseSqlServerDBToCacheData.Size = new Size(144, 16);
+            _chkUseSqlServerDBToCacheData.TabIndex = 1;
+            _chkUseSqlServerDBToCacheData.Text = "Enable data caching";
+            // 
+            // fraUniquenessBinningOptions
+            // 
+            fraUniquenessBinningOptions.Controls.Add(lblPeptideUniquenessMassMode);
+            fraUniquenessBinningOptions.Controls.Add(_txtUniquenessBinWidth);
+            fraUniquenessBinningOptions.Controls.Add(lblUniquenessBinWidth);
+            fraUniquenessBinningOptions.Controls.Add(_chkAutoComputeRangeForBinning);
+            fraUniquenessBinningOptions.Controls.Add(_txtUniquenessBinEndMass);
+            fraUniquenessBinningOptions.Controls.Add(lblUniquenessBinEndMass);
+            fraUniquenessBinningOptions.Controls.Add(_txtUniquenessBinStartMass);
+            fraUniquenessBinningOptions.Controls.Add(lblUniquenessBinStartMass);
+            fraUniquenessBinningOptions.Location = new Point(8, 120);
+            fraUniquenessBinningOptions.Name = "fraUniquenessBinningOptions";
+            fraUniquenessBinningOptions.Size = new Size(208, 160);
+            fraUniquenessBinningOptions.TabIndex = 3;
+            fraUniquenessBinningOptions.TabStop = false;
+            fraUniquenessBinningOptions.Text = "Binning Options";
+            // 
+            // lblPeptideUniquenessMassMode
+            // 
+            lblPeptideUniquenessMassMode.Location = new Point(16, 136);
+            lblPeptideUniquenessMassMode.Name = "lblPeptideUniquenessMassMode";
+            lblPeptideUniquenessMassMode.Size = new Size(176, 16);
+            lblPeptideUniquenessMassMode.TabIndex = 7;
+            lblPeptideUniquenessMassMode.Text = "Using monoisotopic masses";
+            // 
+            // txtUniquenessBinWidth
+            // 
+            _txtUniquenessBinWidth.Location = new Point(80, 24);
+            _txtUniquenessBinWidth.Name = "_txtUniquenessBinWidth";
+            _txtUniquenessBinWidth.Size = new Size(40, 20);
+            _txtUniquenessBinWidth.TabIndex = 1;
+            _txtUniquenessBinWidth.Text = "25";
+            // 
+            // lblUniquenessBinWidth
+            // 
+            lblUniquenessBinWidth.Location = new Point(16, 26);
+            lblUniquenessBinWidth.Name = "lblUniquenessBinWidth";
+            lblUniquenessBinWidth.Size = new Size(64, 16);
+            lblUniquenessBinWidth.TabIndex = 0;
+            lblUniquenessBinWidth.Text = "Bin Width";
+            // 
+            // chkAutoComputeRangeForBinning
+            // 
+            _chkAutoComputeRangeForBinning.Checked = true;
+            _chkAutoComputeRangeForBinning.CheckState = CheckState.Checked;
+            _chkAutoComputeRangeForBinning.Location = new Point(16, 56);
+            _chkAutoComputeRangeForBinning.Name = "_chkAutoComputeRangeForBinning";
+            _chkAutoComputeRangeForBinning.Size = new Size(184, 17);
+            _chkAutoComputeRangeForBinning.TabIndex = 2;
+            _chkAutoComputeRangeForBinning.Text = "Auto compute range for binning";
+            // 
+            // txtUniquenessBinEndMass
+            // 
+            _txtUniquenessBinEndMass.Location = new Point(80, 104);
+            _txtUniquenessBinEndMass.Name = "_txtUniquenessBinEndMass";
+            _txtUniquenessBinEndMass.Size = new Size(40, 20);
+            _txtUniquenessBinEndMass.TabIndex = 6;
+            _txtUniquenessBinEndMass.Text = "6000";
+            // 
+            // lblUniquenessBinEndMass
+            // 
+            lblUniquenessBinEndMass.Location = new Point(16, 106);
+            lblUniquenessBinEndMass.Name = "lblUniquenessBinEndMass";
+            lblUniquenessBinEndMass.Size = new Size(64, 16);
+            lblUniquenessBinEndMass.TabIndex = 5;
+            lblUniquenessBinEndMass.Text = "End Mass";
+            // 
+            // txtUniquenessBinStartMass
+            // 
+            _txtUniquenessBinStartMass.Location = new Point(80, 80);
+            _txtUniquenessBinStartMass.Name = "_txtUniquenessBinStartMass";
+            _txtUniquenessBinStartMass.Size = new Size(40, 20);
+            _txtUniquenessBinStartMass.TabIndex = 4;
+            _txtUniquenessBinStartMass.Text = "400";
+            // 
+            // lblUniquenessBinStartMass
+            // 
+            lblUniquenessBinStartMass.Location = new Point(16, 82);
+            lblUniquenessBinStartMass.Name = "lblUniquenessBinStartMass";
+            lblUniquenessBinStartMass.Size = new Size(64, 16);
+            lblUniquenessBinStartMass.TabIndex = 3;
+            lblUniquenessBinStartMass.Text = "Start Mass";
+            // 
+            // lblUniquenessStatsNote
+            // 
+            lblUniquenessStatsNote.Location = new Point(8, 56);
+            lblUniquenessStatsNote.Name = "lblUniquenessStatsNote";
+            lblUniquenessStatsNote.Size = new Size(200, 48);
+            lblUniquenessStatsNote.TabIndex = 1;
+            lblUniquenessStatsNote.Text = "Note that Digestion Options and Mass Calculation Options also apply for uniquenes" + "s stats generation.";
+            // 
+            // cmdGenerateUniquenessStats
+            // 
+            _cmdGenerateUniquenessStats.Location = new Point(232, 16);
+            _cmdGenerateUniquenessStats.Name = "_cmdGenerateUniquenessStats";
+            _cmdGenerateUniquenessStats.Size = new Size(176, 24);
+            _cmdGenerateUniquenessStats.TabIndex = 5;
+            _cmdGenerateUniquenessStats.Text = "&Generate Uniqueness Stats";
+            // 
+            // chkAssumeInputFileIsDigested
+            // 
+            chkAssumeInputFileIsDigested.Location = new Point(8, 16);
+            chkAssumeInputFileIsDigested.Name = "chkAssumeInputFileIsDigested";
+            chkAssumeInputFileIsDigested.Size = new Size(192, 32);
+            chkAssumeInputFileIsDigested.TabIndex = 0;
+            chkAssumeInputFileIsDigested.Text = "Assume input file is already digested (for Delimited files only)";
+            // 
+            // txtProteinScramblingLoopCount
+            // 
+            _txtProteinScramblingLoopCount.Location = new Point(312, 40);
+            _txtProteinScramblingLoopCount.MaxLength = 3;
+            _txtProteinScramblingLoopCount.Name = "_txtProteinScramblingLoopCount";
+            _txtProteinScramblingLoopCount.Size = new Size(32, 20);
+            _txtProteinScramblingLoopCount.TabIndex = 13;
+            _txtProteinScramblingLoopCount.Text = "1";
+            // 
+            // lblSamplingPercentageUnits
+            // 
+            lblSamplingPercentageUnits.Location = new Point(208, 42);
+            lblSamplingPercentageUnits.Name = "lblSamplingPercentageUnits";
+            lblSamplingPercentageUnits.Size = new Size(16, 16);
+            lblSamplingPercentageUnits.TabIndex = 4;
+            lblSamplingPercentageUnits.Text = "%";
+            // 
+            // txtMaxpISequenceLength
+            // 
+            _txtMaxpISequenceLength.Location = new Point(168, 70);
+            _txtMaxpISequenceLength.Name = "_txtMaxpISequenceLength";
+            _txtMaxpISequenceLength.Size = new Size(40, 20);
+            _txtMaxpISequenceLength.TabIndex = 4;
+            _txtMaxpISequenceLength.Text = "10";
+            // 
+            // lblProteinReversalSamplingPercentage
+            // 
+            lblProteinReversalSamplingPercentage.Location = new Point(48, 42);
+            lblProteinReversalSamplingPercentage.Name = "lblProteinReversalSamplingPercentage";
+            lblProteinReversalSamplingPercentage.Size = new Size(112, 16);
+            lblProteinReversalSamplingPercentage.TabIndex = 2;
+            lblProteinReversalSamplingPercentage.Text = "Sampling Percentage";
+            lblProteinReversalSamplingPercentage.TextAlign = ContentAlignment.TopRight;
+            // 
+            // lblMaxpISequenceLength
+            // 
+            lblMaxpISequenceLength.Location = new Point(32, 72);
+            lblMaxpISequenceLength.Name = "lblMaxpISequenceLength";
+            lblMaxpISequenceLength.Size = new Size(144, 16);
+            lblMaxpISequenceLength.TabIndex = 3;
+            lblMaxpISequenceLength.Text = "Sub-sequence Length";
+            // 
+            // chkMaxpIModeEnabled
+            // 
+            _chkMaxpIModeEnabled.Location = new Point(8, 48);
+            _chkMaxpIModeEnabled.Name = "_chkMaxpIModeEnabled";
+            _chkMaxpIModeEnabled.Size = new Size(224, 16);
+            _chkMaxpIModeEnabled.TabIndex = 2;
+            _chkMaxpIModeEnabled.Text = "Report maximum of all sub-sequences";
+            // 
+            // frapIAndHydrophobicity
+            // 
+            frapIAndHydrophobicity.Controls.Add(_txtMaxpISequenceLength);
+            frapIAndHydrophobicity.Controls.Add(lblMaxpISequenceLength);
+            frapIAndHydrophobicity.Controls.Add(_chkMaxpIModeEnabled);
+            frapIAndHydrophobicity.Controls.Add(lblHydrophobicityMode);
+            frapIAndHydrophobicity.Controls.Add(_cboHydrophobicityMode);
+            frapIAndHydrophobicity.Controls.Add(txtpIStats);
+            frapIAndHydrophobicity.Controls.Add(_txtSequenceForpI);
+            frapIAndHydrophobicity.Controls.Add(lblSequenceForpI);
+            frapIAndHydrophobicity.Location = new Point(8, 108);
+            frapIAndHydrophobicity.Name = "frapIAndHydrophobicity";
+            frapIAndHydrophobicity.Size = new Size(616, 136);
+            frapIAndHydrophobicity.TabIndex = 2;
+            frapIAndHydrophobicity.TabStop = false;
+            frapIAndHydrophobicity.Text = "pI And Hydrophobicity";
+            // 
+            // lblHydrophobicityMode
+            // 
+            lblHydrophobicityMode.Location = new Point(8, 24);
+            lblHydrophobicityMode.Name = "lblHydrophobicityMode";
+            lblHydrophobicityMode.Size = new Size(120, 16);
+            lblHydrophobicityMode.TabIndex = 0;
+            lblHydrophobicityMode.Text = "Hydrophobicity Mode";
+            // 
+            // cboHydrophobicityMode
+            // 
+            _cboHydrophobicityMode.DropDownStyle = ComboBoxStyle.DropDownList;
+            _cboHydrophobicityMode.DropDownWidth = 70;
+            _cboHydrophobicityMode.Location = new Point(128, 18);
+            _cboHydrophobicityMode.Name = "_cboHydrophobicityMode";
+            _cboHydrophobicityMode.Size = new Size(184, 21);
+            _cboHydrophobicityMode.TabIndex = 1;
+            // 
+            // txtpIStats
+            // 
+            txtpIStats.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            txtpIStats.Location = new Point(336, 48);
+            txtpIStats.MaxLength = 1;
+            txtpIStats.Multiline = true;
+            txtpIStats.Name = "txtpIStats";
+            txtpIStats.ReadOnly = true;
+            txtpIStats.Size = new Size(272, 80);
+            txtpIStats.TabIndex = 7;
+            // 
+            // txtSequenceForpI
+            // 
+            _txtSequenceForpI.Location = new Point(400, 16);
+            _txtSequenceForpI.Name = "_txtSequenceForpI";
+            _txtSequenceForpI.Size = new Size(208, 20);
+            _txtSequenceForpI.TabIndex = 6;
+            _txtSequenceForpI.Text = "FKDLGEEQFK";
+            // 
+            // lblSequenceForpI
+            // 
+            lblSequenceForpI.Location = new Point(328, 20);
+            lblSequenceForpI.Name = "lblSequenceForpI";
+            lblSequenceForpI.Size = new Size(72, 16);
+            lblSequenceForpI.TabIndex = 5;
+            lblSequenceForpI.Text = "Sequence";
+            // 
+            // fraDelimitedFileOptions
+            // 
+            fraDelimitedFileOptions.Controls.Add(cboInputFileColumnOrdering);
+            fraDelimitedFileOptions.Controls.Add(lblInputFileColumnOrdering);
+            fraDelimitedFileOptions.Controls.Add(txtInputFileColumnDelimiter);
+            fraDelimitedFileOptions.Controls.Add(lblInputFileColumnDelimiter);
+            fraDelimitedFileOptions.Controls.Add(_cboInputFileColumnDelimiter);
+            fraDelimitedFileOptions.Location = new Point(8, 12);
+            fraDelimitedFileOptions.Name = "fraDelimitedFileOptions";
+            fraDelimitedFileOptions.Size = new Size(496, 88);
+            fraDelimitedFileOptions.TabIndex = 1;
+            fraDelimitedFileOptions.TabStop = false;
+            fraDelimitedFileOptions.Text = "Delimited Input File Options";
+            // 
+            // cboInputFileColumnOrdering
+            // 
+            cboInputFileColumnOrdering.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboInputFileColumnOrdering.DropDownWidth = 70;
+            cboInputFileColumnOrdering.Location = new Point(88, 24);
+            cboInputFileColumnOrdering.Name = "cboInputFileColumnOrdering";
+            cboInputFileColumnOrdering.Size = new Size(392, 21);
+            cboInputFileColumnOrdering.TabIndex = 1;
+            // 
+            // lblInputFileColumnOrdering
+            // 
+            lblInputFileColumnOrdering.Location = new Point(8, 26);
+            lblInputFileColumnOrdering.Name = "lblInputFileColumnOrdering";
+            lblInputFileColumnOrdering.Size = new Size(80, 16);
+            lblInputFileColumnOrdering.TabIndex = 0;
+            lblInputFileColumnOrdering.Text = "Column Order";
+            // 
+            // txtInputFileColumnDelimiter
+            // 
+            txtInputFileColumnDelimiter.Location = new Point(192, 56);
+            txtInputFileColumnDelimiter.MaxLength = 1;
+            txtInputFileColumnDelimiter.Name = "txtInputFileColumnDelimiter";
+            txtInputFileColumnDelimiter.Size = new Size(32, 20);
+            txtInputFileColumnDelimiter.TabIndex = 4;
+            txtInputFileColumnDelimiter.Text = ";";
+            // 
+            // lblInputFileColumnDelimiter
+            // 
+            lblInputFileColumnDelimiter.Location = new Point(8, 58);
+            lblInputFileColumnDelimiter.Name = "lblInputFileColumnDelimiter";
+            lblInputFileColumnDelimiter.Size = new Size(96, 16);
+            lblInputFileColumnDelimiter.TabIndex = 2;
+            lblInputFileColumnDelimiter.Text = "Column Delimiter";
+            // 
+            // cboInputFileColumnDelimiter
+            // 
+            _cboInputFileColumnDelimiter.DropDownStyle = ComboBoxStyle.DropDownList;
+            _cboInputFileColumnDelimiter.DropDownWidth = 70;
+            _cboInputFileColumnDelimiter.Location = new Point(112, 56);
+            _cboInputFileColumnDelimiter.Name = "_cboInputFileColumnDelimiter";
+            _cboInputFileColumnDelimiter.Size = new Size(70, 21);
+            _cboInputFileColumnDelimiter.TabIndex = 3;
+            // 
+            // TabPageFileFormatOptions
+            // 
+            TabPageFileFormatOptions.Controls.Add(frapIAndHydrophobicity);
+            TabPageFileFormatOptions.Controls.Add(fraDelimitedFileOptions);
+            TabPageFileFormatOptions.Location = new Point(4, 22);
+            TabPageFileFormatOptions.Name = "TabPageFileFormatOptions";
+            TabPageFileFormatOptions.Size = new Size(696, 328);
+            TabPageFileFormatOptions.TabIndex = 2;
+            TabPageFileFormatOptions.Text = "File Format Options";
+            TabPageFileFormatOptions.UseVisualStyleBackColor = true;
+            // 
+            // tbsOptions
+            // 
+            tbsOptions.Controls.Add(TabPageFileFormatOptions);
+            tbsOptions.Controls.Add(TabPageParseAndDigest);
+            tbsOptions.Controls.Add(TabPageUniquenessStats);
+            tbsOptions.Controls.Add(TabPagePeakMatchingThresholds);
+            tbsOptions.Controls.Add(TabPageProgress);
+            tbsOptions.Location = new Point(12, 212);
+            tbsOptions.Name = "tbsOptions";
+            tbsOptions.SelectedIndex = 0;
+            tbsOptions.Size = new Size(704, 354);
+            tbsOptions.TabIndex = 5;
+            // 
+            // TabPageParseAndDigest
+            // 
+            TabPageParseAndDigest.Controls.Add(fraProcessingOptions);
+            TabPageParseAndDigest.Controls.Add(fraCalculationOptions);
+            TabPageParseAndDigest.Controls.Add(fraDigestionOptions);
+            TabPageParseAndDigest.Controls.Add(_cmdParseInputFile);
+            TabPageParseAndDigest.Location = new Point(4, 22);
+            TabPageParseAndDigest.Name = "TabPageParseAndDigest";
+            TabPageParseAndDigest.Size = new Size(696, 328);
+            TabPageParseAndDigest.TabIndex = 0;
+            TabPageParseAndDigest.Text = "Parse and Digest File Options";
+            TabPageParseAndDigest.UseVisualStyleBackColor = true;
+            // 
+            // fraProcessingOptions
+            // 
+            fraProcessingOptions.Controls.Add(lblProteinScramblingLoopCount);
+            fraProcessingOptions.Controls.Add(_txtProteinScramblingLoopCount);
+            fraProcessingOptions.Controls.Add(lblSamplingPercentageUnits);
+            fraProcessingOptions.Controls.Add(lblProteinReversalSamplingPercentage);
+            fraProcessingOptions.Controls.Add(_txtProteinReversalSamplingPercentage);
+            fraProcessingOptions.Controls.Add(lbltxtAddnlRefAccessionSepChar);
+            fraProcessingOptions.Controls.Add(_chkLookForAddnlRefInDescription);
+            fraProcessingOptions.Controls.Add(_cboProteinReversalOptions);
+            fraProcessingOptions.Controls.Add(lblProteinReversalOptions);
+            fraProcessingOptions.Controls.Add(_chkDigestProteins);
+            fraProcessingOptions.Controls.Add(lblAddnlRefSepChar);
+            fraProcessingOptions.Controls.Add(txtAddnlRefAccessionSepChar);
+            fraProcessingOptions.Controls.Add(txtAddnlRefSepChar);
+            fraProcessingOptions.Controls.Add(_chkCreateFastaOutputFile);
+            fraProcessingOptions.Location = new Point(8, 8);
+            fraProcessingOptions.Name = "fraProcessingOptions";
+            fraProcessingOptions.Size = new Size(360, 176);
+            fraProcessingOptions.TabIndex = 0;
+            fraProcessingOptions.TabStop = false;
+            fraProcessingOptions.Text = "Processing Options";
+            // 
+            // txtProteinReversalSamplingPercentage
+            // 
+            _txtProteinReversalSamplingPercentage.Location = new Point(168, 40);
+            _txtProteinReversalSamplingPercentage.MaxLength = 3;
+            _txtProteinReversalSamplingPercentage.Name = "_txtProteinReversalSamplingPercentage";
+            _txtProteinReversalSamplingPercentage.Size = new Size(32, 20);
+            _txtProteinReversalSamplingPercentage.TabIndex = 3;
+            _txtProteinReversalSamplingPercentage.Text = "100";
+            // 
+            // lbltxtAddnlRefAccessionSepChar
+            // 
+            lbltxtAddnlRefAccessionSepChar.Location = new Point(96, 96);
+            lbltxtAddnlRefAccessionSepChar.Name = "lbltxtAddnlRefAccessionSepChar";
+            lbltxtAddnlRefAccessionSepChar.Size = new Size(160, 16);
+            lbltxtAddnlRefAccessionSepChar.TabIndex = 8;
+            lbltxtAddnlRefAccessionSepChar.Text = "Addnl Ref Accession Sep Char";
+            lbltxtAddnlRefAccessionSepChar.TextAlign = ContentAlignment.TopRight;
+            // 
+            // chkLookForAddnlRefInDescription
+            // 
+            _chkLookForAddnlRefInDescription.Location = new Point(16, 72);
+            _chkLookForAddnlRefInDescription.Name = "_chkLookForAddnlRefInDescription";
+            _chkLookForAddnlRefInDescription.Size = new Size(120, 32);
+            _chkLookForAddnlRefInDescription.TabIndex = 5;
+            _chkLookForAddnlRefInDescription.Text = "Look for addnl Ref in description";
+            // 
+            // cboProteinReversalOptions
+            // 
+            _cboProteinReversalOptions.DropDownStyle = ComboBoxStyle.DropDownList;
+            _cboProteinReversalOptions.Location = new Point(168, 16);
+            _cboProteinReversalOptions.Name = "_cboProteinReversalOptions";
+            _cboProteinReversalOptions.Size = new Size(184, 21);
+            _cboProteinReversalOptions.TabIndex = 1;
+            // 
+            // lblProteinReversalOptions
+            // 
+            lblProteinReversalOptions.Location = new Point(16, 20);
+            lblProteinReversalOptions.Name = "lblProteinReversalOptions";
+            lblProteinReversalOptions.Size = new Size(160, 16);
+            lblProteinReversalOptions.TabIndex = 0;
+            lblProteinReversalOptions.Text = "Protein Reversal / Scrambling";
+            // 
+            // chkDigestProteins
+            // 
+            _chkDigestProteins.Location = new Point(16, 115);
+            _chkDigestProteins.Name = "_chkDigestProteins";
+            _chkDigestProteins.Size = new Size(160, 32);
+            _chkDigestProteins.TabIndex = 10;
+            _chkDigestProteins.Text = "In Silico digest of all proteins in input file";
+            // 
+            // lblAddnlRefSepChar
+            // 
+            lblAddnlRefSepChar.Location = new Point(144, 72);
+            lblAddnlRefSepChar.Name = "lblAddnlRefSepChar";
+            lblAddnlRefSepChar.Size = new Size(112, 16);
+            lblAddnlRefSepChar.TabIndex = 6;
+            lblAddnlRefSepChar.Text = "Addnl Ref Sep Char";
+            lblAddnlRefSepChar.TextAlign = ContentAlignment.TopRight;
+            // 
+            // txtAddnlRefAccessionSepChar
+            // 
+            txtAddnlRefAccessionSepChar.Location = new Point(264, 96);
+            txtAddnlRefAccessionSepChar.MaxLength = 1;
+            txtAddnlRefAccessionSepChar.Name = "txtAddnlRefAccessionSepChar";
+            txtAddnlRefAccessionSepChar.Size = new Size(32, 20);
+            txtAddnlRefAccessionSepChar.TabIndex = 9;
+            txtAddnlRefAccessionSepChar.Text = ":";
+            // 
+            // txtAddnlRefSepChar
+            // 
+            txtAddnlRefSepChar.Location = new Point(264, 72);
+            txtAddnlRefSepChar.MaxLength = 1;
+            txtAddnlRefSepChar.Name = "txtAddnlRefSepChar";
+            txtAddnlRefSepChar.Size = new Size(32, 20);
+            txtAddnlRefSepChar.TabIndex = 7;
+            txtAddnlRefSepChar.Text = "|";
+            // 
+            // chkCreateFastaOutputFile
+            // 
+            _chkCreateFastaOutputFile.Location = new Point(192, 128);
+            _chkCreateFastaOutputFile.Name = "_chkCreateFastaOutputFile";
+            _chkCreateFastaOutputFile.Size = new Size(160, 16);
+            _chkCreateFastaOutputFile.TabIndex = 11;
+            _chkCreateFastaOutputFile.Text = "Create FASTA Output File";
+            // 
+            // fraCalculationOptions
+            // 
+            fraCalculationOptions.Controls.Add(_cmdNETInfo);
+            fraCalculationOptions.Controls.Add(chkExcludeProteinDescription);
+            fraCalculationOptions.Controls.Add(chkComputeSequenceHashIgnoreILDiff);
+            fraCalculationOptions.Controls.Add(chkTruncateProteinDescription);
+            fraCalculationOptions.Controls.Add(_chkComputeSequenceHashValues);
+            fraCalculationOptions.Controls.Add(lblMassMode);
+            fraCalculationOptions.Controls.Add(_cboElementMassMode);
+            fraCalculationOptions.Controls.Add(chkExcludeProteinSequence);
+            fraCalculationOptions.Controls.Add(_chkComputepIandNET);
+            fraCalculationOptions.Controls.Add(chkIncludeXResidues);
+            fraCalculationOptions.Controls.Add(chkComputeProteinMass);
+            fraCalculationOptions.Location = new Point(376, 40);
+            fraCalculationOptions.Name = "fraCalculationOptions";
+            fraCalculationOptions.Size = new Size(308, 150);
+            fraCalculationOptions.TabIndex = 1;
+            fraCalculationOptions.TabStop = false;
+            fraCalculationOptions.Text = "Calculation Options";
+            // 
+            // cmdNETInfo
+            // 
+            _cmdNETInfo.Location = new Point(268, 87);
+            _cmdNETInfo.Margin = new Padding(1);
+            _cmdNETInfo.Name = "_cmdNETInfo";
+            _cmdNETInfo.Size = new Size(34, 20);
+            _cmdNETInfo.TabIndex = 4;
+            _cmdNETInfo.Text = "Info";
+            // 
+            // chkExcludeProteinDescription
+            // 
+            chkExcludeProteinDescription.Location = new Point(185, 128);
+            chkExcludeProteinDescription.Name = "chkExcludeProteinDescription";
+            chkExcludeProteinDescription.Size = new Size(120, 19);
+            chkExcludeProteinDescription.TabIndex = 9;
+            chkExcludeProteinDescription.Text = "Exclude Description";
+            // 
+            // chkComputeSequenceHashIgnoreILDiff
+            // 
+            chkComputeSequenceHashIgnoreILDiff.Checked = true;
+            chkComputeSequenceHashIgnoreILDiff.CheckState = CheckState.Checked;
+            chkComputeSequenceHashIgnoreILDiff.Location = new Point(185, 107);
+            chkComputeSequenceHashIgnoreILDiff.Name = "chkComputeSequenceHashIgnoreILDiff";
+            chkComputeSequenceHashIgnoreILDiff.Size = new Size(104, 19);
+            chkComputeSequenceHashIgnoreILDiff.TabIndex = 8;
+            chkComputeSequenceHashIgnoreILDiff.Text = "Ignore I/L Diff";
+            // 
+            // chkTruncateProteinDescription
+            // 
+            chkTruncateProteinDescription.Checked = true;
+            chkTruncateProteinDescription.CheckState = CheckState.Checked;
+            chkTruncateProteinDescription.Location = new Point(16, 128);
+            chkTruncateProteinDescription.Name = "chkTruncateProteinDescription";
+            chkTruncateProteinDescription.Size = new Size(164, 19);
+            chkTruncateProteinDescription.TabIndex = 7;
+            chkTruncateProteinDescription.Text = "Truncate long description";
+            // 
+            // chkComputeSequenceHashValues
+            // 
+            _chkComputeSequenceHashValues.Checked = true;
+            _chkComputeSequenceHashValues.CheckState = CheckState.Checked;
+            _chkComputeSequenceHashValues.Location = new Point(16, 107);
+            _chkComputeSequenceHashValues.Name = "_chkComputeSequenceHashValues";
+            _chkComputeSequenceHashValues.Size = new Size(164, 19);
+            _chkComputeSequenceHashValues.TabIndex = 6;
+            _chkComputeSequenceHashValues.Text = "Compute sequence hashes";
+            // 
+            // lblMassMode
+            // 
+            lblMassMode.Location = new Point(16, 66);
+            lblMassMode.Name = "lblMassMode";
+            lblMassMode.Size = new Size(64, 16);
+            lblMassMode.TabIndex = 5;
+            lblMassMode.Text = "Mass type";
+            lblMassMode.TextAlign = ContentAlignment.TopRight;
+            // 
+            // cboElementMassMode
+            // 
+            _cboElementMassMode.DropDownStyle = ComboBoxStyle.DropDownList;
+            _cboElementMassMode.Location = new Point(88, 65);
+            _cboElementMassMode.Name = "_cboElementMassMode";
+            _cboElementMassMode.Size = new Size(144, 21);
+            _cboElementMassMode.TabIndex = 4;
+            // 
+            // chkExcludeProteinSequence
+            // 
+            chkExcludeProteinSequence.Location = new Point(16, 16);
+            chkExcludeProteinSequence.Name = "chkExcludeProteinSequence";
+            chkExcludeProteinSequence.Size = new Size(192, 16);
+            chkExcludeProteinSequence.TabIndex = 0;
+            chkExcludeProteinSequence.Text = "Exclude Protein Sequence";
+            // 
+            // chkComputepIandNET
+            // 
+            _chkComputepIandNET.Location = new Point(16, 89);
+            _chkComputepIandNET.Name = "_chkComputepIandNET";
+            _chkComputepIandNET.Size = new Size(252, 18);
+            _chkComputepIandNET.TabIndex = 3;
+            _chkComputepIandNET.Text = "Compute pI and Normalized Elution Time (NET)";
+            // 
+            // chkIncludeXResidues
+            // 
+            chkIncludeXResidues.Location = new Point(16, 49);
+            chkIncludeXResidues.Name = "chkIncludeXResidues";
+            chkIncludeXResidues.Size = new Size(216, 16);
+            chkIncludeXResidues.TabIndex = 2;
+            chkIncludeXResidues.Text = "Include X Residues in Mass (113 Da)";
+            // 
+            // chkComputeProteinMass
+            // 
+            chkComputeProteinMass.Location = new Point(16, 33);
+            chkComputeProteinMass.Name = "chkComputeProteinMass";
+            chkComputeProteinMass.Size = new Size(144, 16);
+            chkComputeProteinMass.TabIndex = 1;
+            chkComputeProteinMass.Text = "Compute Protein Mass";
+            // 
+            // fraDigestionOptions
+            // 
+            fraDigestionOptions.Controls.Add(cboFragmentMassMode);
+            fraDigestionOptions.Controls.Add(lblFragmentMassMode);
+            fraDigestionOptions.Controls.Add(cboCysTreatmentMode);
+            fraDigestionOptions.Controls.Add(lblCysTreatment);
+            fraDigestionOptions.Controls.Add(txtDigestProteinsMaximumpI);
+            fraDigestionOptions.Controls.Add(lblDigestProteinsMaximumpI);
+            fraDigestionOptions.Controls.Add(txtDigestProteinsMinimumpI);
+            fraDigestionOptions.Controls.Add(lblDigestProteinsMinimumpI);
+            fraDigestionOptions.Controls.Add(chkGenerateUniqueIDValues);
+            fraDigestionOptions.Controls.Add(chkCysPeptidesOnly);
+            fraDigestionOptions.Controls.Add(_txtDigestProteinsMinimumResidueCount);
+            fraDigestionOptions.Controls.Add(lblDigestProteinsMinimumResidueCount);
+            fraDigestionOptions.Controls.Add(_txtDigestProteinsMaximumMissedCleavages);
+            fraDigestionOptions.Controls.Add(lblDigestProteinsMaximumMissedCleavages);
+            fraDigestionOptions.Controls.Add(_txtDigestProteinsMaximumMass);
+            fraDigestionOptions.Controls.Add(lblDigestProteinsMaximumMass);
+            fraDigestionOptions.Controls.Add(_txtDigestProteinsMinimumMass);
+            fraDigestionOptions.Controls.Add(lblDigestProteinsMinimumMass);
+            fraDigestionOptions.Controls.Add(cboCleavageRuleType);
+            fraDigestionOptions.Controls.Add(chkIncludeDuplicateSequences);
+            fraDigestionOptions.Location = new Point(8, 190);
+            fraDigestionOptions.Name = "fraDigestionOptions";
+            fraDigestionOptions.Size = new Size(675, 128);
+            fraDigestionOptions.TabIndex = 2;
+            fraDigestionOptions.TabStop = false;
+            fraDigestionOptions.Text = "Digestion Options";
+            // 
+            // cboFragmentMassMode
+            // 
+            cboFragmentMassMode.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboFragmentMassMode.Location = new Point(75, 104);
+            cboFragmentMassMode.Name = "cboFragmentMassMode";
+            cboFragmentMassMode.Size = new Size(117, 21);
+            cboFragmentMassMode.TabIndex = 19;
+            // 
+            // lblFragmentMassMode
+            // 
+            lblFragmentMassMode.Location = new Point(8, 106);
+            lblFragmentMassMode.Name = "lblFragmentMassMode";
+            lblFragmentMassMode.Size = new Size(68, 16);
+            lblFragmentMassMode.TabIndex = 18;
+            lblFragmentMassMode.Text = "Mass Mode";
+            // 
+            // cboCysTreatmentMode
+            // 
+            cboCysTreatmentMode.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboCysTreatmentMode.Location = new Point(553, 76);
+            cboCysTreatmentMode.Name = "cboCysTreatmentMode";
+            cboCysTreatmentMode.Size = new Size(117, 21);
+            cboCysTreatmentMode.TabIndex = 17;
+            // 
+            // lblCysTreatment
+            // 
+            lblCysTreatment.Location = new Point(553, 56);
+            lblCysTreatment.Name = "lblCysTreatment";
+            lblCysTreatment.Size = new Size(104, 21);
+            lblCysTreatment.TabIndex = 16;
+            lblCysTreatment.Text = "Cys treatment:";
+            // 
+            // txtDigestProteinsMaximumpI
+            // 
+            txtDigestProteinsMaximumpI.Location = new Point(497, 80);
+            txtDigestProteinsMaximumpI.Name = "txtDigestProteinsMaximumpI";
+            txtDigestProteinsMaximumpI.Size = new Size(40, 20);
+            txtDigestProteinsMaximumpI.TabIndex = 13;
+            txtDigestProteinsMaximumpI.Text = "14";
+            // 
+            // lblDigestProteinsMaximumpI
+            // 
+            lblDigestProteinsMaximumpI.Location = new Point(420, 80);
+            lblDigestProteinsMaximumpI.Name = "lblDigestProteinsMaximumpI";
+            lblDigestProteinsMaximumpI.Size = new Size(72, 16);
+            lblDigestProteinsMaximumpI.TabIndex = 12;
+            lblDigestProteinsMaximumpI.Text = "Maximum pI";
+            // 
+            // txtDigestProteinsMinimumpI
+            // 
+            txtDigestProteinsMinimumpI.Location = new Point(497, 56);
+            txtDigestProteinsMinimumpI.Name = "txtDigestProteinsMinimumpI";
+            txtDigestProteinsMinimumpI.Size = new Size(40, 20);
+            txtDigestProteinsMinimumpI.TabIndex = 11;
+            txtDigestProteinsMinimumpI.Text = "0";
+            // 
+            // lblDigestProteinsMinimumpI
+            // 
+            lblDigestProteinsMinimumpI.Location = new Point(420, 56);
+            lblDigestProteinsMinimumpI.Name = "lblDigestProteinsMinimumpI";
+            lblDigestProteinsMinimumpI.Size = new Size(72, 16);
+            lblDigestProteinsMinimumpI.TabIndex = 10;
+            lblDigestProteinsMinimumpI.Text = "Minimum pI";
+            // 
+            // chkGenerateUniqueIDValues
+            // 
+            chkGenerateUniqueIDValues.Checked = true;
+            chkGenerateUniqueIDValues.CheckState = CheckState.Checked;
+            chkGenerateUniqueIDValues.Location = new Point(218, 102);
+            chkGenerateUniqueIDValues.Name = "chkGenerateUniqueIDValues";
+            chkGenerateUniqueIDValues.Size = new Size(176, 16);
+            chkGenerateUniqueIDValues.TabIndex = 14;
+            chkGenerateUniqueIDValues.Text = "Generate UniqueID Values";
+            // 
+            // chkCysPeptidesOnly
+            // 
+            chkCysPeptidesOnly.Location = new Point(486, 16);
+            chkCysPeptidesOnly.Name = "chkCysPeptidesOnly";
+            chkCysPeptidesOnly.Size = new Size(112, 32);
+            chkCysPeptidesOnly.TabIndex = 15;
+            chkCysPeptidesOnly.Text = "Include cysteine peptides only";
+            // 
+            // txtDigestProteinsMinimumResidueCount
+            // 
+            _txtDigestProteinsMinimumResidueCount.Location = new Point(359, 56);
+            _txtDigestProteinsMinimumResidueCount.Name = "_txtDigestProteinsMinimumResidueCount";
+            _txtDigestProteinsMinimumResidueCount.Size = new Size(32, 20);
+            _txtDigestProteinsMinimumResidueCount.TabIndex = 7;
+            _txtDigestProteinsMinimumResidueCount.Text = "0";
+            // 
+            // lblDigestProteinsMinimumResidueCount
+            // 
+            lblDigestProteinsMinimumResidueCount.Location = new Point(216, 58);
+            lblDigestProteinsMinimumResidueCount.Name = "lblDigestProteinsMinimumResidueCount";
+            lblDigestProteinsMinimumResidueCount.Size = new Size(136, 16);
+            lblDigestProteinsMinimumResidueCount.TabIndex = 6;
+            lblDigestProteinsMinimumResidueCount.Text = "Minimum Residue Count";
+            // 
+            // txtDigestProteinsMaximumMissedCleavages
+            // 
+            _txtDigestProteinsMaximumMissedCleavages.Location = new Point(359, 80);
+            _txtDigestProteinsMaximumMissedCleavages.Name = "_txtDigestProteinsMaximumMissedCleavages";
+            _txtDigestProteinsMaximumMissedCleavages.Size = new Size(32, 20);
+            _txtDigestProteinsMaximumMissedCleavages.TabIndex = 9;
+            _txtDigestProteinsMaximumMissedCleavages.Text = "3";
+            // 
+            // lblDigestProteinsMaximumMissedCleavages
+            // 
+            lblDigestProteinsMaximumMissedCleavages.Location = new Point(216, 82);
+            lblDigestProteinsMaximumMissedCleavages.Name = "lblDigestProteinsMaximumMissedCleavages";
+            lblDigestProteinsMaximumMissedCleavages.Size = new Size(136, 16);
+            lblDigestProteinsMaximumMissedCleavages.TabIndex = 8;
+            lblDigestProteinsMaximumMissedCleavages.Text = "Max Missed Cleavages";
+            // 
+            // txtDigestProteinsMaximumMass
+            // 
+            _txtDigestProteinsMaximumMass.Location = new Point(152, 80);
+            _txtDigestProteinsMaximumMass.Name = "_txtDigestProteinsMaximumMass";
+            _txtDigestProteinsMaximumMass.Size = new Size(40, 20);
+            _txtDigestProteinsMaximumMass.TabIndex = 5;
+            _txtDigestProteinsMaximumMass.Text = "6000";
+            // 
+            // lblDigestProteinsMaximumMass
+            // 
+            lblDigestProteinsMaximumMass.Location = new Point(8, 82);
+            lblDigestProteinsMaximumMass.Name = "lblDigestProteinsMaximumMass";
+            lblDigestProteinsMaximumMass.Size = new Size(144, 16);
+            lblDigestProteinsMaximumMass.TabIndex = 4;
+            lblDigestProteinsMaximumMass.Text = "Maximum Fragment Mass";
+            // 
+            // txtDigestProteinsMinimumMass
+            // 
+            _txtDigestProteinsMinimumMass.Location = new Point(152, 56);
+            _txtDigestProteinsMinimumMass.Name = "_txtDigestProteinsMinimumMass";
+            _txtDigestProteinsMinimumMass.Size = new Size(40, 20);
+            _txtDigestProteinsMinimumMass.TabIndex = 3;
+            _txtDigestProteinsMinimumMass.Text = "400";
+            // 
+            // lblDigestProteinsMinimumMass
+            // 
+            lblDigestProteinsMinimumMass.Location = new Point(8, 58);
+            lblDigestProteinsMinimumMass.Name = "lblDigestProteinsMinimumMass";
+            lblDigestProteinsMinimumMass.Size = new Size(144, 16);
+            lblDigestProteinsMinimumMass.TabIndex = 2;
+            lblDigestProteinsMinimumMass.Text = "Minimum Fragment Mass";
+            // 
+            // cboCleavageRuleType
+            // 
+            cboCleavageRuleType.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboCleavageRuleType.Location = new Point(8, 24);
+            cboCleavageRuleType.Name = "cboCleavageRuleType";
+            cboCleavageRuleType.Size = new Size(288, 21);
+            cboCleavageRuleType.TabIndex = 0;
+            // 
+            // chkIncludeDuplicateSequences
+            // 
+            chkIncludeDuplicateSequences.Location = new Point(312, 16);
+            chkIncludeDuplicateSequences.Name = "chkIncludeDuplicateSequences";
+            chkIncludeDuplicateSequences.Size = new Size(168, 32);
+            chkIncludeDuplicateSequences.TabIndex = 1;
+            chkIncludeDuplicateSequences.Text = "Include duplicate sequences for given protein";
+            // 
+            // cmdParseInputFile
+            // 
+            _cmdParseInputFile.Location = new Point(384, 8);
+            _cmdParseInputFile.Name = "_cmdParseInputFile";
+            _cmdParseInputFile.Size = new Size(112, 24);
+            _cmdParseInputFile.TabIndex = 3;
+            _cmdParseInputFile.Text = "&Parse and Digest";
+            // 
+            // TabPagePeakMatchingThresholds
+            // 
+            TabPagePeakMatchingThresholds.Controls.Add(_chkAutoDefineSLiCScoreTolerances);
+            TabPagePeakMatchingThresholds.Controls.Add(_cmdPastePMThresholdsList);
+            TabPagePeakMatchingThresholds.Controls.Add(cboPMPredefinedThresholds);
+            TabPagePeakMatchingThresholds.Controls.Add(_cmdPMThresholdsAutoPopulate);
+            TabPagePeakMatchingThresholds.Controls.Add(_cmdClearPMThresholdsList);
+            TabPagePeakMatchingThresholds.Controls.Add(cboMassTolType);
+            TabPagePeakMatchingThresholds.Controls.Add(lblMassTolType);
+            TabPagePeakMatchingThresholds.Controls.Add(dgPeakMatchingThresholds);
+            TabPagePeakMatchingThresholds.Location = new Point(4, 22);
+            TabPagePeakMatchingThresholds.Name = "TabPagePeakMatchingThresholds";
+            TabPagePeakMatchingThresholds.Size = new Size(696, 328);
+            TabPagePeakMatchingThresholds.TabIndex = 3;
+            TabPagePeakMatchingThresholds.Text = "Peak Matching Thresholds";
+            TabPagePeakMatchingThresholds.UseVisualStyleBackColor = true;
+            // 
+            // chkAutoDefineSLiCScoreTolerances
+            // 
+            _chkAutoDefineSLiCScoreTolerances.Checked = true;
+            _chkAutoDefineSLiCScoreTolerances.CheckState = CheckState.Checked;
+            _chkAutoDefineSLiCScoreTolerances.Location = new Point(16, 256);
+            _chkAutoDefineSLiCScoreTolerances.Name = "_chkAutoDefineSLiCScoreTolerances";
+            _chkAutoDefineSLiCScoreTolerances.Size = new Size(208, 16);
+            _chkAutoDefineSLiCScoreTolerances.TabIndex = 3;
+            _chkAutoDefineSLiCScoreTolerances.Text = "Auto Define SLiC Score Tolerances";
+            // 
+            // cmdPastePMThresholdsList
+            // 
+            _cmdPastePMThresholdsList.Location = new Point(456, 96);
+            _cmdPastePMThresholdsList.Name = "_cmdPastePMThresholdsList";
+            _cmdPastePMThresholdsList.Size = new Size(104, 24);
+            _cmdPastePMThresholdsList.TabIndex = 6;
+            _cmdPastePMThresholdsList.Text = "Paste Values";
+            // 
+            // cboPMPredefinedThresholds
+            // 
+            cboPMPredefinedThresholds.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboPMPredefinedThresholds.Location = new Point(336, 256);
+            cboPMPredefinedThresholds.Name = "cboPMPredefinedThresholds";
+            cboPMPredefinedThresholds.Size = new Size(264, 21);
+            cboPMPredefinedThresholds.TabIndex = 5;
+            // 
+            // cmdPMThresholdsAutoPopulate
+            // 
+            _cmdPMThresholdsAutoPopulate.Location = new Point(336, 224);
+            _cmdPMThresholdsAutoPopulate.Name = "_cmdPMThresholdsAutoPopulate";
+            _cmdPMThresholdsAutoPopulate.Size = new Size(104, 24);
+            _cmdPMThresholdsAutoPopulate.TabIndex = 4;
+            _cmdPMThresholdsAutoPopulate.Text = "Auto-Populate";
+            // 
+            // cmdClearPMThresholdsList
+            // 
+            _cmdClearPMThresholdsList.Location = new Point(456, 128);
+            _cmdClearPMThresholdsList.Name = "_cmdClearPMThresholdsList";
+            _cmdClearPMThresholdsList.Size = new Size(104, 24);
+            _cmdClearPMThresholdsList.TabIndex = 7;
+            _cmdClearPMThresholdsList.Text = "Clear List";
+            // 
+            // cboMassTolType
+            // 
+            cboMassTolType.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboMassTolType.Location = new Point(144, 224);
+            cboMassTolType.Name = "cboMassTolType";
+            cboMassTolType.Size = new Size(136, 21);
+            cboMassTolType.TabIndex = 2;
+            // 
+            // lblMassTolType
+            // 
+            lblMassTolType.Location = new Point(16, 226);
+            lblMassTolType.Name = "lblMassTolType";
+            lblMassTolType.Size = new Size(136, 16);
+            lblMassTolType.TabIndex = 1;
+            lblMassTolType.Text = "Mass Tolerance Type";
+            // 
+            // dgPeakMatchingThresholds
+            // 
+            dgPeakMatchingThresholds.CaptionText = "Peak Matching Thresholds";
+            dgPeakMatchingThresholds.DataMember = "";
+            dgPeakMatchingThresholds.HeaderForeColor = SystemColors.ControlText;
+            dgPeakMatchingThresholds.Location = new Point(16, 8);
+            dgPeakMatchingThresholds.Name = "dgPeakMatchingThresholds";
+            dgPeakMatchingThresholds.Size = new Size(424, 208);
+            dgPeakMatchingThresholds.TabIndex = 0;
+            // 
+            // TabPageProgress
+            // 
+            TabPageProgress.Controls.Add(pbarProgress);
+            TabPageProgress.Controls.Add(lblErrorMessage);
+            TabPageProgress.Controls.Add(lblSubtaskProgress);
+            TabPageProgress.Controls.Add(lblProgress);
+            TabPageProgress.Controls.Add(lblSubtaskProgressDescription);
+            TabPageProgress.Controls.Add(lblProgressDescription);
+            TabPageProgress.Controls.Add(_cmdAbortProcessing);
+            TabPageProgress.Location = new Point(4, 22);
+            TabPageProgress.Name = "TabPageProgress";
+            TabPageProgress.Size = new Size(696, 328);
+            TabPageProgress.TabIndex = 4;
+            TabPageProgress.Text = "Progress";
+            TabPageProgress.UseVisualStyleBackColor = true;
+            // 
+            // pbarProgress
+            // 
+            pbarProgress.Location = new Point(13, 12);
+            pbarProgress.Name = "pbarProgress";
+            pbarProgress.Size = new Size(122, 20);
+            pbarProgress.TabIndex = 12;
+            // 
+            // lblErrorMessage
+            // 
+            lblErrorMessage.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            lblErrorMessage.Location = new Point(137, 112);
+            lblErrorMessage.Name = "lblErrorMessage";
+            lblErrorMessage.Size = new Size(515, 32);
+            lblErrorMessage.TabIndex = 11;
+            lblErrorMessage.Text = "Error message ...";
+            lblErrorMessage.Visible = false;
+            // 
+            // lblSubtaskProgress
+            // 
+            lblSubtaskProgress.Location = new Point(13, 61);
+            lblSubtaskProgress.Name = "lblSubtaskProgress";
+            lblSubtaskProgress.Size = new Size(118, 18);
+            lblSubtaskProgress.TabIndex = 8;
+            lblSubtaskProgress.Text = "0";
+            lblSubtaskProgress.Visible = false;
+            // 
+            // lblProgress
+            // 
+            lblProgress.Location = new Point(13, 35);
+            lblProgress.Name = "lblProgress";
+            lblProgress.Size = new Size(118, 18);
+            lblProgress.TabIndex = 7;
+            lblProgress.Text = "0";
+            // 
+            // lblSubtaskProgressDescription
+            // 
+            lblSubtaskProgressDescription.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            lblSubtaskProgressDescription.Location = new Point(140, 61);
+            lblSubtaskProgressDescription.Name = "lblSubtaskProgressDescription";
+            lblSubtaskProgressDescription.Size = new Size(515, 32);
+            lblSubtaskProgressDescription.TabIndex = 6;
+            lblSubtaskProgressDescription.Text = "Subtask progress description ...";
+            lblSubtaskProgressDescription.Visible = false;
+            // 
+            // lblProgressDescription
+            // 
+            lblProgressDescription.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            lblProgressDescription.Location = new Point(140, 12);
+            lblProgressDescription.Name = "lblProgressDescription";
+            lblProgressDescription.Size = new Size(515, 32);
+            lblProgressDescription.TabIndex = 5;
+            lblProgressDescription.Text = "Progress description ...";
+            // 
+            // cmdAbortProcessing
+            // 
+            _cmdAbortProcessing.Location = new Point(10, 106);
+            _cmdAbortProcessing.Name = "_cmdAbortProcessing";
+            _cmdAbortProcessing.Size = new Size(121, 24);
+            _cmdAbortProcessing.TabIndex = 4;
+            _cmdAbortProcessing.Text = "Abort Processing";
+            // 
+            // mnuHelpAboutElutionTime
+            // 
+            _mnuHelpAboutElutionTime.Index = 1;
+            _mnuHelpAboutElutionTime.Text = "About &Elution Time Prediction";
+            // 
+            // cboInputFileFormat
+            // 
+            _cboInputFileFormat.DropDownStyle = ComboBoxStyle.DropDownList;
+            _cboInputFileFormat.Location = new Point(112, 56);
+            _cboInputFileFormat.Name = "_cboInputFileFormat";
+            _cboInputFileFormat.Size = new Size(112, 21);
+            _cboInputFileFormat.TabIndex = 3;
+            // 
+            // lblInputFileFormat
+            // 
+            lblInputFileFormat.Location = new Point(8, 58);
+            lblInputFileFormat.Name = "lblInputFileFormat";
+            lblInputFileFormat.Size = new Size(104, 16);
+            lblInputFileFormat.TabIndex = 2;
+            lblInputFileFormat.Text = "Input File Format";
+            // 
+            // cmdSelectFile
+            // 
+            _cmdSelectFile.Location = new Point(8, 24);
+            _cmdSelectFile.Name = "_cmdSelectFile";
+            _cmdSelectFile.Size = new Size(80, 24);
+            _cmdSelectFile.TabIndex = 0;
+            _cmdSelectFile.Text = "&Select file";
+            // 
+            // fraInputFilePath
+            // 
+            fraInputFilePath.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            fraInputFilePath.Controls.Add(_cmdValidateFastaFile);
+            fraInputFilePath.Controls.Add(_cboInputFileFormat);
+            fraInputFilePath.Controls.Add(lblInputFileFormat);
+            fraInputFilePath.Controls.Add(_cmdSelectFile);
+            fraInputFilePath.Controls.Add(_txtProteinInputFilePath);
+            fraInputFilePath.Location = new Point(12, 12);
+            fraInputFilePath.Name = "fraInputFilePath";
+            fraInputFilePath.Size = new Size(730, 88);
+            fraInputFilePath.TabIndex = 3;
+            fraInputFilePath.TabStop = false;
+            fraInputFilePath.Text = "Protein Input File Path (FASTA or Tab-delimited)";
+            // 
+            // cmdValidateFastaFile
+            // 
+            _cmdValidateFastaFile.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            _cmdValidateFastaFile.Location = new Point(595, 56);
+            _cmdValidateFastaFile.Name = "_cmdValidateFastaFile";
+            _cmdValidateFastaFile.Size = new Size(120, 24);
+            _cmdValidateFastaFile.TabIndex = 4;
+            _cmdValidateFastaFile.Text = "&Validate FASTA File";
+            // 
+            // chkEnableLogging
+            // 
+            chkEnableLogging.Checked = true;
+            chkEnableLogging.CheckState = CheckState.Checked;
+            chkEnableLogging.Location = new Point(422, 19);
+            chkEnableLogging.Name = "chkEnableLogging";
+            chkEnableLogging.Size = new Size(112, 24);
+            chkEnableLogging.TabIndex = 4;
+            chkEnableLogging.Text = "Enable logging";
+            // 
+            // mnuFileSelectOutputFile
+            // 
+            _mnuFileSelectOutputFile.Index = 1;
+            _mnuFileSelectOutputFile.Text = "Select &Output File...";
+            // 
+            // cmdSelectOutputFile
+            // 
+            _cmdSelectOutputFile.Location = new Point(8, 56);
+            _cmdSelectOutputFile.Name = "_cmdSelectOutputFile";
+            _cmdSelectOutputFile.Size = new Size(88, 33);
+            _cmdSelectOutputFile.TabIndex = 5;
+            _cmdSelectOutputFile.Text = "Select / &Create File";
+            // 
+            // mnuFileSep1
+            // 
+            mnuFileSep1.Index = 2;
+            mnuFileSep1.Text = "-";
+            // 
+            // mnuFile
+            // 
+            mnuFile.Index = 0;
+            mnuFile.MenuItems.AddRange(new MenuItem[] { _mnuFileSelectInputFile, _mnuFileSelectOutputFile, mnuFileSep1, _mnuFileSaveDefaultOptions, mnuFileSep2, _mnuFileExit });
+            mnuFile.Text = "&File";
+            // 
+            // mnuFileSelectInputFile
+            // 
+            _mnuFileSelectInputFile.Index = 0;
+            _mnuFileSelectInputFile.Text = "Select &Input File...";
+            // 
+            // mnuFileSaveDefaultOptions
+            // 
+            _mnuFileSaveDefaultOptions.Index = 3;
+            _mnuFileSaveDefaultOptions.Text = "Save &Default Options";
+            // 
+            // mnuFileSep2
+            // 
+            mnuFileSep2.Index = 4;
+            mnuFileSep2.Text = "-";
+            // 
+            // mnuFileExit
+            // 
+            _mnuFileExit.Index = 5;
+            _mnuFileExit.Text = "E&xit";
+            // 
+            // txtProteinOutputFilePath
+            // 
+            txtProteinOutputFilePath.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtProteinOutputFilePath.Location = new Point(104, 62);
+            txtProteinOutputFilePath.Name = "txtProteinOutputFilePath";
+            txtProteinOutputFilePath.Size = new Size(611, 20);
+            txtProteinOutputFilePath.TabIndex = 6;
+            // 
+            // chkIncludePrefixAndSuffixResidues
+            // 
+            chkIncludePrefixAndSuffixResidues.Location = new Point(256, 16);
+            chkIncludePrefixAndSuffixResidues.Name = "chkIncludePrefixAndSuffixResidues";
+            chkIncludePrefixAndSuffixResidues.Size = new Size(160, 32);
+            chkIncludePrefixAndSuffixResidues.TabIndex = 3;
+            chkIncludePrefixAndSuffixResidues.Text = "Include prefix and suffix residues for the sequences";
+            // 
+            // mnuEditResetOptions
+            // 
+            _mnuEditResetOptions.Index = 3;
+            _mnuEditResetOptions.Text = "&Reset options to Defaults...";
+            // 
+            // mnuHelp
+            // 
+            mnuHelp.Index = 2;
+            mnuHelp.MenuItems.AddRange(new MenuItem[] { _mnuHelpAbout, _mnuHelpAboutElutionTime });
+            mnuHelp.Text = "&Help";
+            // 
+            // mnuHelpAbout
+            // 
+            _mnuHelpAbout.Index = 0;
+            _mnuHelpAbout.Text = "&About";
+            // 
+            // mnuEditSep1
+            // 
+            mnuEditSep1.Index = 2;
+            mnuEditSep1.Text = "-";
+            // 
+            // mnuEditMakeUniquenessStats
+            // 
+            _mnuEditMakeUniquenessStats.Index = 1;
+            _mnuEditMakeUniquenessStats.Text = "&Make Uniqueness Stats";
+            // 
+            // mnuEdit
+            // 
+            mnuEdit.Index = 1;
+            mnuEdit.MenuItems.AddRange(new MenuItem[] { _mnuEditParseFile, _mnuEditMakeUniquenessStats, mnuEditSep1, _mnuEditResetOptions });
+            mnuEdit.Text = "&Edit";
+            // 
+            // mnuEditParseFile
+            // 
+            _mnuEditParseFile.Index = 0;
+            _mnuEditParseFile.Text = "&Parse File";
+            // 
+            // MainMenuControl
+            // 
+            MainMenuControl.MenuItems.AddRange(new MenuItem[] { mnuFile, mnuEdit, mnuHelp });
+            // 
+            // lblOutputFileFieldDelimiter
+            // 
+            lblOutputFileFieldDelimiter.Location = new Point(8, 26);
+            lblOutputFileFieldDelimiter.Name = "lblOutputFileFieldDelimiter";
+            lblOutputFileFieldDelimiter.Size = new Size(112, 18);
+            lblOutputFileFieldDelimiter.TabIndex = 0;
+            lblOutputFileFieldDelimiter.Text = "Field delimiter";
+            // 
+            // cboOutputFileFieldDelimiter
+            // 
+            _cboOutputFileFieldDelimiter.DropDownStyle = ComboBoxStyle.DropDownList;
+            _cboOutputFileFieldDelimiter.Location = new Point(128, 24);
+            _cboOutputFileFieldDelimiter.Name = "_cboOutputFileFieldDelimiter";
+            _cboOutputFileFieldDelimiter.Size = new Size(70, 21);
+            _cboOutputFileFieldDelimiter.TabIndex = 1;
+            // 
+            // txtOutputFileFieldDelimiter
+            // 
+            txtOutputFileFieldDelimiter.Location = new Point(208, 24);
+            txtOutputFileFieldDelimiter.MaxLength = 1;
+            txtOutputFileFieldDelimiter.Name = "txtOutputFileFieldDelimiter";
+            txtOutputFileFieldDelimiter.Size = new Size(32, 20);
+            txtOutputFileFieldDelimiter.TabIndex = 2;
+            txtOutputFileFieldDelimiter.Text = ";";
+            // 
+            // fraOutputTextOptions
+            // 
+            fraOutputTextOptions.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            fraOutputTextOptions.Controls.Add(chkEnableLogging);
+            fraOutputTextOptions.Controls.Add(_cmdSelectOutputFile);
+            fraOutputTextOptions.Controls.Add(txtProteinOutputFilePath);
+            fraOutputTextOptions.Controls.Add(chkIncludePrefixAndSuffixResidues);
+            fraOutputTextOptions.Controls.Add(_cboOutputFileFieldDelimiter);
+            fraOutputTextOptions.Controls.Add(txtOutputFileFieldDelimiter);
+            fraOutputTextOptions.Controls.Add(lblOutputFileFieldDelimiter);
+            fraOutputTextOptions.Location = new Point(12, 108);
+            fraOutputTextOptions.Name = "fraOutputTextOptions";
+            fraOutputTextOptions.Size = new Size(730, 96);
+            fraOutputTextOptions.TabIndex = 4;
+            fraOutputTextOptions.TabStop = false;
+            fraOutputTextOptions.Text = "Output Options";
+            // 
+            // frmMain
+            // 
+            AutoScaleDimensions = new SizeF(6.0f, 13.0f);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(754, 577);
+            Controls.Add(tbsOptions);
+            Controls.Add(fraInputFilePath);
+            Controls.Add(fraOutputTextOptions);
+            Menu = MainMenuControl;
+            Name = "frmMain";
+            Text = "Protein Digestion Simulator";
+            fraPeakMatchingOptions.ResumeLayout(false);
+            fraPeakMatchingOptions.PerformLayout();
+            TabPageUniquenessStats.ResumeLayout(false);
+            fraSqlServerOptions.ResumeLayout(false);
+            fraSqlServerOptions.PerformLayout();
+            fraUniquenessBinningOptions.ResumeLayout(false);
+            fraUniquenessBinningOptions.PerformLayout();
+            frapIAndHydrophobicity.ResumeLayout(false);
+            frapIAndHydrophobicity.PerformLayout();
+            fraDelimitedFileOptions.ResumeLayout(false);
+            fraDelimitedFileOptions.PerformLayout();
+            TabPageFileFormatOptions.ResumeLayout(false);
+            tbsOptions.ResumeLayout(false);
+            TabPageParseAndDigest.ResumeLayout(false);
+            fraProcessingOptions.ResumeLayout(false);
+            fraProcessingOptions.PerformLayout();
+            fraCalculationOptions.ResumeLayout(false);
+            fraDigestionOptions.ResumeLayout(false);
+            fraDigestionOptions.PerformLayout();
+            TabPagePeakMatchingThresholds.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgPeakMatchingThresholds).EndInit();
+            TabPageProgress.ResumeLayout(false);
+            fraInputFilePath.ResumeLayout(false);
+            fraInputFilePath.PerformLayout();
+            fraOutputTextOptions.ResumeLayout(false);
+            fraOutputTextOptions.PerformLayout();
+            Load += new EventHandler(frmMain_Load);
+            Closing += new System.ComponentModel.CancelEventHandler(frmMain_Closing);
+            ResumeLayout(false);
+        }
 
-    End Sub
-    Friend WithEvents txtProteinInputFilePath As System.Windows.Forms.TextBox
-    Friend WithEvents optUseRectangleSearchRegion As System.Windows.Forms.RadioButton
-    Friend WithEvents optUseEllipseSearchRegion As System.Windows.Forms.RadioButton
-    Friend WithEvents lblUniquenessCalculationsNote As System.Windows.Forms.Label
-    Friend WithEvents lblProteinScramblingLoopCount As System.Windows.Forms.Label
-    Friend WithEvents fraPeakMatchingOptions As System.Windows.Forms.GroupBox
-    Friend WithEvents txtMaxPeakMatchingResultsPerFeatureToSave As System.Windows.Forms.TextBox
-    Friend WithEvents lblMaxPeakMatchingResultsPerFeatureToSave As System.Windows.Forms.Label
-    Friend WithEvents chkExportPeakMatchingResults As System.Windows.Forms.CheckBox
-    Friend WithEvents txtMinimumSLiCScore As System.Windows.Forms.TextBox
-    Friend WithEvents lblMinimumSLiCScore As System.Windows.Forms.Label
-    Friend WithEvents chkUseSLiCScoreForUniqueness As System.Windows.Forms.CheckBox
-    Friend WithEvents TabPageUniquenessStats As System.Windows.Forms.TabPage
-    Friend WithEvents fraSqlServerOptions As System.Windows.Forms.GroupBox
-    Friend WithEvents chkSqlServerUseExistingData As System.Windows.Forms.CheckBox
-    Friend WithEvents chkAllowSqlServerCaching As System.Windows.Forms.CheckBox
-    Friend WithEvents lblSqlServerPassword As System.Windows.Forms.Label
-    Friend WithEvents lblSqlServerUsername As System.Windows.Forms.Label
-    Friend WithEvents txtSqlServerPassword As System.Windows.Forms.TextBox
-    Friend WithEvents txtSqlServerUsername As System.Windows.Forms.TextBox
-    Friend WithEvents lblSqlServerDatabase As System.Windows.Forms.Label
-    Friend WithEvents lblSqlServerServerName As System.Windows.Forms.Label
-    Friend WithEvents chkSqlServerUseIntegratedSecurity As System.Windows.Forms.CheckBox
-    Friend WithEvents txtSqlServerDatabase As System.Windows.Forms.TextBox
-    Friend WithEvents txtSqlServerName As System.Windows.Forms.TextBox
-    Friend WithEvents chkUseSqlServerDBToCacheData As System.Windows.Forms.CheckBox
-    Friend WithEvents fraUniquenessBinningOptions As System.Windows.Forms.GroupBox
-    Friend WithEvents lblPeptideUniquenessMassMode As System.Windows.Forms.Label
-    Friend WithEvents txtUniquenessBinWidth As System.Windows.Forms.TextBox
-    Friend WithEvents lblUniquenessBinWidth As System.Windows.Forms.Label
-    Friend WithEvents chkAutoComputeRangeForBinning As System.Windows.Forms.CheckBox
-    Friend WithEvents txtUniquenessBinEndMass As System.Windows.Forms.TextBox
-    Friend WithEvents lblUniquenessBinEndMass As System.Windows.Forms.Label
-    Friend WithEvents txtUniquenessBinStartMass As System.Windows.Forms.TextBox
-    Friend WithEvents lblUniquenessBinStartMass As System.Windows.Forms.Label
-    Friend WithEvents lblUniquenessStatsNote As System.Windows.Forms.Label
-    Friend WithEvents cmdGenerateUniquenessStats As System.Windows.Forms.Button
-    Friend WithEvents chkAssumeInputFileIsDigested As System.Windows.Forms.CheckBox
-    Friend WithEvents txtProteinScramblingLoopCount As System.Windows.Forms.TextBox
-    Friend WithEvents lblSamplingPercentageUnits As System.Windows.Forms.Label
-    Friend WithEvents txtMaxpISequenceLength As System.Windows.Forms.TextBox
-    Friend WithEvents lblProteinReversalSamplingPercentage As System.Windows.Forms.Label
-    Friend WithEvents lblMaxpISequenceLength As System.Windows.Forms.Label
-    Friend WithEvents chkMaxpIModeEnabled As System.Windows.Forms.CheckBox
-    Friend WithEvents frapIAndHydrophobicity As System.Windows.Forms.GroupBox
-    Friend WithEvents lblHydrophobicityMode As System.Windows.Forms.Label
-    Friend WithEvents cboHydrophobicityMode As System.Windows.Forms.ComboBox
-    Friend WithEvents txtpIStats As System.Windows.Forms.TextBox
-    Friend WithEvents txtSequenceForpI As System.Windows.Forms.TextBox
-    Friend WithEvents lblSequenceForpI As System.Windows.Forms.Label
-    Friend WithEvents fraDelimitedFileOptions As System.Windows.Forms.GroupBox
-    Friend WithEvents cboInputFileColumnOrdering As System.Windows.Forms.ComboBox
-    Friend WithEvents lblInputFileColumnOrdering As System.Windows.Forms.Label
-    Friend WithEvents txtInputFileColumnDelimiter As System.Windows.Forms.TextBox
-    Friend WithEvents lblInputFileColumnDelimiter As System.Windows.Forms.Label
-    Friend WithEvents cboInputFileColumnDelimiter As System.Windows.Forms.ComboBox
-    Friend WithEvents TabPageFileFormatOptions As System.Windows.Forms.TabPage
-    Friend WithEvents tbsOptions As System.Windows.Forms.TabControl
-    Friend WithEvents TabPageParseAndDigest As System.Windows.Forms.TabPage
-    Friend WithEvents fraProcessingOptions As System.Windows.Forms.GroupBox
-    Friend WithEvents txtProteinReversalSamplingPercentage As System.Windows.Forms.TextBox
-    Friend WithEvents lbltxtAddnlRefAccessionSepChar As System.Windows.Forms.Label
-    Friend WithEvents chkLookForAddnlRefInDescription As System.Windows.Forms.CheckBox
-    Friend WithEvents cboProteinReversalOptions As System.Windows.Forms.ComboBox
-    Friend WithEvents lblProteinReversalOptions As System.Windows.Forms.Label
-    Friend WithEvents chkDigestProteins As System.Windows.Forms.CheckBox
-    Friend WithEvents lblAddnlRefSepChar As System.Windows.Forms.Label
-    Friend WithEvents txtAddnlRefAccessionSepChar As System.Windows.Forms.TextBox
-    Friend WithEvents txtAddnlRefSepChar As System.Windows.Forms.TextBox
-    Friend WithEvents chkCreateFastaOutputFile As System.Windows.Forms.CheckBox
-    Friend WithEvents fraCalculationOptions As System.Windows.Forms.GroupBox
-    Friend WithEvents lblMassMode As System.Windows.Forms.Label
-    Friend WithEvents cboElementMassMode As System.Windows.Forms.ComboBox
-    Friend WithEvents chkExcludeProteinSequence As System.Windows.Forms.CheckBox
-    Friend WithEvents chkComputepIandNET As System.Windows.Forms.CheckBox
-    Friend WithEvents chkIncludeXResidues As System.Windows.Forms.CheckBox
-    Friend WithEvents chkComputeProteinMass As System.Windows.Forms.CheckBox
-    Friend WithEvents fraDigestionOptions As System.Windows.Forms.GroupBox
-    Friend WithEvents txtDigestProteinsMaximumpI As System.Windows.Forms.TextBox
-    Friend WithEvents lblDigestProteinsMaximumpI As System.Windows.Forms.Label
-    Friend WithEvents txtDigestProteinsMinimumpI As System.Windows.Forms.TextBox
-    Friend WithEvents lblDigestProteinsMinimumpI As System.Windows.Forms.Label
-    Friend WithEvents chkGenerateUniqueIDValues As System.Windows.Forms.CheckBox
-    Friend WithEvents chkCysPeptidesOnly As System.Windows.Forms.CheckBox
-    Friend WithEvents txtDigestProteinsMinimumResidueCount As System.Windows.Forms.TextBox
-    Friend WithEvents lblDigestProteinsMinimumResidueCount As System.Windows.Forms.Label
-    Friend WithEvents txtDigestProteinsMaximumMissedCleavages As System.Windows.Forms.TextBox
-    Friend WithEvents lblDigestProteinsMaximumMissedCleavages As System.Windows.Forms.Label
-    Friend WithEvents txtDigestProteinsMaximumMass As System.Windows.Forms.TextBox
-    Friend WithEvents lblDigestProteinsMaximumMass As System.Windows.Forms.Label
-    Friend WithEvents txtDigestProteinsMinimumMass As System.Windows.Forms.TextBox
-    Friend WithEvents lblDigestProteinsMinimumMass As System.Windows.Forms.Label
-    Friend WithEvents cboCleavageRuleType As System.Windows.Forms.ComboBox
-    Friend WithEvents chkIncludeDuplicateSequences As System.Windows.Forms.CheckBox
-    Friend WithEvents cmdParseInputFile As System.Windows.Forms.Button
-    Friend WithEvents TabPagePeakMatchingThresholds As System.Windows.Forms.TabPage
-    Friend WithEvents chkAutoDefineSLiCScoreTolerances As System.Windows.Forms.CheckBox
-    Friend WithEvents cmdPastePMThresholdsList As System.Windows.Forms.Button
-    Friend WithEvents cboPMPredefinedThresholds As System.Windows.Forms.ComboBox
-    Friend WithEvents cmdPMThresholdsAutoPopulate As System.Windows.Forms.Button
-    Friend WithEvents cmdClearPMThresholdsList As System.Windows.Forms.Button
-    Friend WithEvents cboMassTolType As System.Windows.Forms.ComboBox
-    Friend WithEvents lblMassTolType As System.Windows.Forms.Label
-    Friend WithEvents dgPeakMatchingThresholds As System.Windows.Forms.DataGrid
-    Friend WithEvents TabPageProgress As System.Windows.Forms.TabPage
-    Friend WithEvents pbarProgress As System.Windows.Forms.ProgressBar
-    Friend WithEvents lblErrorMessage As System.Windows.Forms.Label
-    Friend WithEvents lblSubtaskProgress As System.Windows.Forms.Label
-    Friend WithEvents lblProgress As System.Windows.Forms.Label
-    Friend WithEvents lblSubtaskProgressDescription As System.Windows.Forms.Label
-    Friend WithEvents lblProgressDescription As System.Windows.Forms.Label
-    Friend WithEvents cmdAbortProcessing As System.Windows.Forms.Button
-    Friend WithEvents mnuHelpAboutElutionTime As System.Windows.Forms.MenuItem
-    Friend WithEvents cboInputFileFormat As System.Windows.Forms.ComboBox
-    Friend WithEvents lblInputFileFormat As System.Windows.Forms.Label
-    Friend WithEvents cmdSelectFile As System.Windows.Forms.Button
-    Friend WithEvents fraInputFilePath As System.Windows.Forms.GroupBox
-    Friend WithEvents cmdValidateFastaFile As System.Windows.Forms.Button
-    Friend WithEvents chkEnableLogging As System.Windows.Forms.CheckBox
-    Friend WithEvents mnuFileSelectOutputFile As System.Windows.Forms.MenuItem
-    Friend WithEvents cmdSelectOutputFile As System.Windows.Forms.Button
-    Friend WithEvents mnuFileSep1 As System.Windows.Forms.MenuItem
-    Friend WithEvents mnuFile As System.Windows.Forms.MenuItem
-    Friend WithEvents mnuFileSelectInputFile As System.Windows.Forms.MenuItem
-    Friend WithEvents mnuFileSaveDefaultOptions As System.Windows.Forms.MenuItem
-    Friend WithEvents mnuFileSep2 As System.Windows.Forms.MenuItem
-    Friend WithEvents mnuFileExit As System.Windows.Forms.MenuItem
-    Friend WithEvents txtProteinOutputFilePath As System.Windows.Forms.TextBox
-    Friend WithEvents chkIncludePrefixAndSuffixResidues As System.Windows.Forms.CheckBox
-    Friend WithEvents mnuEditResetOptions As System.Windows.Forms.MenuItem
-    Friend WithEvents mnuHelp As System.Windows.Forms.MenuItem
-    Friend WithEvents mnuHelpAbout As System.Windows.Forms.MenuItem
-    Friend WithEvents mnuEditSep1 As System.Windows.Forms.MenuItem
-    Friend WithEvents mnuEditMakeUniquenessStats As System.Windows.Forms.MenuItem
-    Friend WithEvents mnuEdit As System.Windows.Forms.MenuItem
-    Friend WithEvents mnuEditParseFile As System.Windows.Forms.MenuItem
-    Friend WithEvents MainMenuControl As System.Windows.Forms.MainMenu
-    Friend WithEvents lblOutputFileFieldDelimiter As System.Windows.Forms.Label
-    Friend WithEvents cboOutputFileFieldDelimiter As System.Windows.Forms.ComboBox
-    Friend WithEvents txtOutputFileFieldDelimiter As System.Windows.Forms.TextBox
-    Friend WithEvents fraOutputTextOptions As System.Windows.Forms.GroupBox
-    Friend WithEvents chkTruncateProteinDescription As System.Windows.Forms.CheckBox
-    Friend WithEvents chkComputeSequenceHashValues As System.Windows.Forms.CheckBox
-    Friend WithEvents chkComputeSequenceHashIgnoreILDiff As System.Windows.Forms.CheckBox
-    Friend WithEvents chkExcludeProteinDescription As CheckBox
-    Friend WithEvents cmdNETInfo As Button
-    Friend WithEvents cboCysTreatmentMode As ComboBox
-    Friend WithEvents lblCysTreatment As Label
-    Friend WithEvents cboFragmentMassMode As ComboBox
-    Friend WithEvents lblFragmentMassMode As Label
-End Class
+        private TextBox _txtProteinInputFilePath;
+
+        internal TextBox txtProteinInputFilePath
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _txtProteinInputFilePath;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_txtProteinInputFilePath != null)
+                {
+                    _txtProteinInputFilePath.TextChanged -= txtProteinInputFilePath_TextChanged;
+                }
+
+                _txtProteinInputFilePath = value;
+                if (_txtProteinInputFilePath != null)
+                {
+                    _txtProteinInputFilePath.TextChanged += txtProteinInputFilePath_TextChanged;
+                }
+            }
+        }
+
+        internal RadioButton optUseRectangleSearchRegion;
+        internal RadioButton optUseEllipseSearchRegion;
+        internal Label lblUniquenessCalculationsNote;
+        internal Label lblProteinScramblingLoopCount;
+        internal GroupBox fraPeakMatchingOptions;
+        private TextBox _txtMaxPeakMatchingResultsPerFeatureToSave;
+
+        internal TextBox txtMaxPeakMatchingResultsPerFeatureToSave
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _txtMaxPeakMatchingResultsPerFeatureToSave;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_txtMaxPeakMatchingResultsPerFeatureToSave != null)
+                {
+                    _txtMaxPeakMatchingResultsPerFeatureToSave.KeyPress -= txtMaxPeakMatchingResultsPerFeatureToSave_KeyPress;
+                    _txtMaxPeakMatchingResultsPerFeatureToSave.Validating -= txtMaxPeakMatchingResultsPerFeatureToSave_Validating;
+                }
+
+                _txtMaxPeakMatchingResultsPerFeatureToSave = value;
+                if (_txtMaxPeakMatchingResultsPerFeatureToSave != null)
+                {
+                    _txtMaxPeakMatchingResultsPerFeatureToSave.KeyPress += txtMaxPeakMatchingResultsPerFeatureToSave_KeyPress;
+                    _txtMaxPeakMatchingResultsPerFeatureToSave.Validating += txtMaxPeakMatchingResultsPerFeatureToSave_Validating;
+                }
+            }
+        }
+
+        internal Label lblMaxPeakMatchingResultsPerFeatureToSave;
+        internal CheckBox chkExportPeakMatchingResults;
+        private TextBox _txtMinimumSLiCScore;
+
+        internal TextBox txtMinimumSLiCScore
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _txtMinimumSLiCScore;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_txtMinimumSLiCScore != null)
+                {
+                    _txtMinimumSLiCScore.KeyPress -= txtMinimumSLiCScore_KeyPress;
+                    _txtMinimumSLiCScore.Validating -= txtMinimumSLiCScore_Validating;
+                }
+
+                _txtMinimumSLiCScore = value;
+                if (_txtMinimumSLiCScore != null)
+                {
+                    _txtMinimumSLiCScore.KeyPress += txtMinimumSLiCScore_KeyPress;
+                    _txtMinimumSLiCScore.Validating += txtMinimumSLiCScore_Validating;
+                }
+            }
+        }
+
+        internal Label lblMinimumSLiCScore;
+        private CheckBox _chkUseSLiCScoreForUniqueness;
+
+        internal CheckBox chkUseSLiCScoreForUniqueness
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _chkUseSLiCScoreForUniqueness;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_chkUseSLiCScoreForUniqueness != null)
+                {
+                    _chkUseSLiCScoreForUniqueness.CheckedChanged -= chkUseSLiCScoreForUniqueness_CheckedChanged;
+                }
+
+                _chkUseSLiCScoreForUniqueness = value;
+                if (_chkUseSLiCScoreForUniqueness != null)
+                {
+                    _chkUseSLiCScoreForUniqueness.CheckedChanged += chkUseSLiCScoreForUniqueness_CheckedChanged;
+                }
+            }
+        }
+
+        internal TabPage TabPageUniquenessStats;
+        internal GroupBox fraSqlServerOptions;
+        internal CheckBox chkSqlServerUseExistingData;
+        private CheckBox _chkAllowSqlServerCaching;
+
+        internal CheckBox chkAllowSqlServerCaching
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _chkAllowSqlServerCaching;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_chkAllowSqlServerCaching != null)
+                {
+                    _chkAllowSqlServerCaching.CheckedChanged -= chkAllowSqlServerCaching_CheckedChanged;
+                }
+
+                _chkAllowSqlServerCaching = value;
+                if (_chkAllowSqlServerCaching != null)
+                {
+                    _chkAllowSqlServerCaching.CheckedChanged += chkAllowSqlServerCaching_CheckedChanged;
+                }
+            }
+        }
+
+        internal Label lblSqlServerPassword;
+        internal Label lblSqlServerUsername;
+        internal TextBox txtSqlServerPassword;
+        internal TextBox txtSqlServerUsername;
+        internal Label lblSqlServerDatabase;
+        internal Label lblSqlServerServerName;
+        private CheckBox _chkSqlServerUseIntegratedSecurity;
+
+        internal CheckBox chkSqlServerUseIntegratedSecurity
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _chkSqlServerUseIntegratedSecurity;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_chkSqlServerUseIntegratedSecurity != null)
+                {
+                    _chkSqlServerUseIntegratedSecurity.CheckedChanged -= chkSqlServerUseIntegratedSecurity_CheckedChanged;
+                }
+
+                _chkSqlServerUseIntegratedSecurity = value;
+                if (_chkSqlServerUseIntegratedSecurity != null)
+                {
+                    _chkSqlServerUseIntegratedSecurity.CheckedChanged += chkSqlServerUseIntegratedSecurity_CheckedChanged;
+                }
+            }
+        }
+
+        internal TextBox txtSqlServerDatabase;
+        internal TextBox txtSqlServerName;
+        private CheckBox _chkUseSqlServerDBToCacheData;
+
+        internal CheckBox chkUseSqlServerDBToCacheData
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _chkUseSqlServerDBToCacheData;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_chkUseSqlServerDBToCacheData != null)
+                {
+                    _chkUseSqlServerDBToCacheData.CheckedChanged -= chkUseSqlServerDBToCacheData_CheckedChanged;
+                }
+
+                _chkUseSqlServerDBToCacheData = value;
+                if (_chkUseSqlServerDBToCacheData != null)
+                {
+                    _chkUseSqlServerDBToCacheData.CheckedChanged += chkUseSqlServerDBToCacheData_CheckedChanged;
+                }
+            }
+        }
+
+        internal GroupBox fraUniquenessBinningOptions;
+        internal Label lblPeptideUniquenessMassMode;
+        private TextBox _txtUniquenessBinWidth;
+
+        internal TextBox txtUniquenessBinWidth
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _txtUniquenessBinWidth;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_txtUniquenessBinWidth != null)
+                {
+                    _txtUniquenessBinWidth.KeyPress -= txtUniquenessBinWidth_KeyPress;
+                }
+
+                _txtUniquenessBinWidth = value;
+                if (_txtUniquenessBinWidth != null)
+                {
+                    _txtUniquenessBinWidth.KeyPress += txtUniquenessBinWidth_KeyPress;
+                }
+            }
+        }
+
+        internal Label lblUniquenessBinWidth;
+        private CheckBox _chkAutoComputeRangeForBinning;
+
+        internal CheckBox chkAutoComputeRangeForBinning
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _chkAutoComputeRangeForBinning;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_chkAutoComputeRangeForBinning != null)
+                {
+                    _chkAutoComputeRangeForBinning.CheckedChanged -= chkAutoComputeRangeForBinning_CheckedChanged;
+                }
+
+                _chkAutoComputeRangeForBinning = value;
+                if (_chkAutoComputeRangeForBinning != null)
+                {
+                    _chkAutoComputeRangeForBinning.CheckedChanged += chkAutoComputeRangeForBinning_CheckedChanged;
+                }
+            }
+        }
+
+        private TextBox _txtUniquenessBinEndMass;
+
+        internal TextBox txtUniquenessBinEndMass
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _txtUniquenessBinEndMass;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_txtUniquenessBinEndMass != null)
+                {
+                    _txtUniquenessBinEndMass.KeyPress -= txtUniquenessBinEndMass_KeyPress;
+                }
+
+                _txtUniquenessBinEndMass = value;
+                if (_txtUniquenessBinEndMass != null)
+                {
+                    _txtUniquenessBinEndMass.KeyPress += txtUniquenessBinEndMass_KeyPress;
+                }
+            }
+        }
+
+        internal Label lblUniquenessBinEndMass;
+        private TextBox _txtUniquenessBinStartMass;
+
+        internal TextBox txtUniquenessBinStartMass
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _txtUniquenessBinStartMass;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_txtUniquenessBinStartMass != null)
+                {
+                    _txtUniquenessBinStartMass.KeyPress -= txtUniquenessBinStartMass_KeyPress;
+                }
+
+                _txtUniquenessBinStartMass = value;
+                if (_txtUniquenessBinStartMass != null)
+                {
+                    _txtUniquenessBinStartMass.KeyPress += txtUniquenessBinStartMass_KeyPress;
+                }
+            }
+        }
+
+        internal Label lblUniquenessBinStartMass;
+        internal Label lblUniquenessStatsNote;
+        private Button _cmdGenerateUniquenessStats;
+
+        internal Button cmdGenerateUniquenessStats
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _cmdGenerateUniquenessStats;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_cmdGenerateUniquenessStats != null)
+                {
+                    _cmdGenerateUniquenessStats.Click -= cmdGenerateUniquenessStats_Click;
+                }
+
+                _cmdGenerateUniquenessStats = value;
+                if (_cmdGenerateUniquenessStats != null)
+                {
+                    _cmdGenerateUniquenessStats.Click += cmdGenerateUniquenessStats_Click;
+                }
+            }
+        }
+
+        internal CheckBox chkAssumeInputFileIsDigested;
+        private TextBox _txtProteinScramblingLoopCount;
+
+        internal TextBox txtProteinScramblingLoopCount
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _txtProteinScramblingLoopCount;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_txtProteinScramblingLoopCount != null)
+                {
+                    _txtProteinScramblingLoopCount.KeyPress -= txtProteinScramblingLoopCount_KeyPress;
+                }
+
+                _txtProteinScramblingLoopCount = value;
+                if (_txtProteinScramblingLoopCount != null)
+                {
+                    _txtProteinScramblingLoopCount.KeyPress += txtProteinScramblingLoopCount_KeyPress;
+                }
+            }
+        }
+
+        internal Label lblSamplingPercentageUnits;
+        private TextBox _txtMaxpISequenceLength;
+
+        internal TextBox txtMaxpISequenceLength
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _txtMaxpISequenceLength;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_txtMaxpISequenceLength != null)
+                {
+                    _txtMaxpISequenceLength.KeyDown -= txtMaxpISequenceLength_KeyDown;
+                    _txtMaxpISequenceLength.KeyPress -= txtMaxpISequenceLength_KeyPress;
+                    _txtMaxpISequenceLength.Validating -= txtMaxpISequenceLength_Validating;
+                    _txtMaxpISequenceLength.Validated -= txtMaxpISequenceLength_Validated;
+                }
+
+                _txtMaxpISequenceLength = value;
+                if (_txtMaxpISequenceLength != null)
+                {
+                    _txtMaxpISequenceLength.KeyDown += txtMaxpISequenceLength_KeyDown;
+                    _txtMaxpISequenceLength.KeyPress += txtMaxpISequenceLength_KeyPress;
+                    _txtMaxpISequenceLength.Validating += txtMaxpISequenceLength_Validating;
+                    _txtMaxpISequenceLength.Validated += txtMaxpISequenceLength_Validated;
+                }
+            }
+        }
+
+        internal Label lblProteinReversalSamplingPercentage;
+        internal Label lblMaxpISequenceLength;
+        private CheckBox _chkMaxpIModeEnabled;
+
+        internal CheckBox chkMaxpIModeEnabled
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _chkMaxpIModeEnabled;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_chkMaxpIModeEnabled != null)
+                {
+                    _chkMaxpIModeEnabled.CheckedChanged -= chkMaxpIModeEnabled_CheckedChanged;
+                }
+
+                _chkMaxpIModeEnabled = value;
+                if (_chkMaxpIModeEnabled != null)
+                {
+                    _chkMaxpIModeEnabled.CheckedChanged += chkMaxpIModeEnabled_CheckedChanged;
+                }
+            }
+        }
+
+        internal GroupBox frapIAndHydrophobicity;
+        internal Label lblHydrophobicityMode;
+        private ComboBox _cboHydrophobicityMode;
+
+        internal ComboBox cboHydrophobicityMode
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _cboHydrophobicityMode;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_cboHydrophobicityMode != null)
+                {
+                    _cboHydrophobicityMode.SelectedIndexChanged -= cboHydrophobicityMode_SelectedIndexChanged;
+                }
+
+                _cboHydrophobicityMode = value;
+                if (_cboHydrophobicityMode != null)
+                {
+                    _cboHydrophobicityMode.SelectedIndexChanged += cboHydrophobicityMode_SelectedIndexChanged;
+                }
+            }
+        }
+
+        internal TextBox txtpIStats;
+        private TextBox _txtSequenceForpI;
+
+        internal TextBox txtSequenceForpI
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _txtSequenceForpI;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_txtSequenceForpI != null)
+                {
+                    _txtSequenceForpI.TextChanged -= txtSequenceForpI_TextChanged;
+                }
+
+                _txtSequenceForpI = value;
+                if (_txtSequenceForpI != null)
+                {
+                    _txtSequenceForpI.TextChanged += txtSequenceForpI_TextChanged;
+                }
+            }
+        }
+
+        internal Label lblSequenceForpI;
+        internal GroupBox fraDelimitedFileOptions;
+        internal ComboBox cboInputFileColumnOrdering;
+        internal Label lblInputFileColumnOrdering;
+        internal TextBox txtInputFileColumnDelimiter;
+        internal Label lblInputFileColumnDelimiter;
+        private ComboBox _cboInputFileColumnDelimiter;
+
+        internal ComboBox cboInputFileColumnDelimiter
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _cboInputFileColumnDelimiter;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_cboInputFileColumnDelimiter != null)
+                {
+                    _cboInputFileColumnDelimiter.SelectedIndexChanged -= cboInputFileColumnDelimiter_SelectedIndexChanged;
+                }
+
+                _cboInputFileColumnDelimiter = value;
+                if (_cboInputFileColumnDelimiter != null)
+                {
+                    _cboInputFileColumnDelimiter.SelectedIndexChanged += cboInputFileColumnDelimiter_SelectedIndexChanged;
+                }
+            }
+        }
+
+        internal TabPage TabPageFileFormatOptions;
+        internal TabControl tbsOptions;
+        internal TabPage TabPageParseAndDigest;
+        internal GroupBox fraProcessingOptions;
+        private TextBox _txtProteinReversalSamplingPercentage;
+
+        internal TextBox txtProteinReversalSamplingPercentage
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _txtProteinReversalSamplingPercentage;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_txtProteinReversalSamplingPercentage != null)
+                {
+                    _txtProteinReversalSamplingPercentage.KeyPress -= txtProteinReversalSamplingPercentage_KeyPress;
+                }
+
+                _txtProteinReversalSamplingPercentage = value;
+                if (_txtProteinReversalSamplingPercentage != null)
+                {
+                    _txtProteinReversalSamplingPercentage.KeyPress += txtProteinReversalSamplingPercentage_KeyPress;
+                }
+            }
+        }
+
+        internal Label lbltxtAddnlRefAccessionSepChar;
+        private CheckBox _chkLookForAddnlRefInDescription;
+
+        internal CheckBox chkLookForAddnlRefInDescription
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _chkLookForAddnlRefInDescription;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_chkLookForAddnlRefInDescription != null)
+                {
+                    _chkLookForAddnlRefInDescription.CheckedChanged -= chkLookForAddnlRefInDescription_CheckedChanged;
+                }
+
+                _chkLookForAddnlRefInDescription = value;
+                if (_chkLookForAddnlRefInDescription != null)
+                {
+                    _chkLookForAddnlRefInDescription.CheckedChanged += chkLookForAddnlRefInDescription_CheckedChanged;
+                }
+            }
+        }
+
+        private ComboBox _cboProteinReversalOptions;
+
+        internal ComboBox cboProteinReversalOptions
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _cboProteinReversalOptions;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_cboProteinReversalOptions != null)
+                {
+                    _cboProteinReversalOptions.SelectedIndexChanged -= cboProteinReversalOptions_SelectedIndexChanged;
+                }
+
+                _cboProteinReversalOptions = value;
+                if (_cboProteinReversalOptions != null)
+                {
+                    _cboProteinReversalOptions.SelectedIndexChanged += cboProteinReversalOptions_SelectedIndexChanged;
+                }
+            }
+        }
+
+        internal Label lblProteinReversalOptions;
+        private CheckBox _chkDigestProteins;
+
+        internal CheckBox chkDigestProteins
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _chkDigestProteins;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_chkDigestProteins != null)
+                {
+                    _chkDigestProteins.CheckedChanged -= chkDigestProteins_CheckedChanged;
+                }
+
+                _chkDigestProteins = value;
+                if (_chkDigestProteins != null)
+                {
+                    _chkDigestProteins.CheckedChanged += chkDigestProteins_CheckedChanged;
+                }
+            }
+        }
+
+        internal Label lblAddnlRefSepChar;
+        internal TextBox txtAddnlRefAccessionSepChar;
+        internal TextBox txtAddnlRefSepChar;
+        private CheckBox _chkCreateFastaOutputFile;
+
+        internal CheckBox chkCreateFastaOutputFile
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _chkCreateFastaOutputFile;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_chkCreateFastaOutputFile != null)
+                {
+                    _chkCreateFastaOutputFile.CheckedChanged -= chkCreateFastaOutputFile_CheckedChanged;
+                }
+
+                _chkCreateFastaOutputFile = value;
+                if (_chkCreateFastaOutputFile != null)
+                {
+                    _chkCreateFastaOutputFile.CheckedChanged += chkCreateFastaOutputFile_CheckedChanged;
+                }
+            }
+        }
+
+        internal GroupBox fraCalculationOptions;
+        internal Label lblMassMode;
+        private ComboBox _cboElementMassMode;
+
+        internal ComboBox cboElementMassMode
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _cboElementMassMode;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_cboElementMassMode != null)
+                {
+                    _cboElementMassMode.SelectedIndexChanged -= cboElementMassMode_SelectedIndexChanged;
+                }
+
+                _cboElementMassMode = value;
+                if (_cboElementMassMode != null)
+                {
+                    _cboElementMassMode.SelectedIndexChanged += cboElementMassMode_SelectedIndexChanged;
+                }
+            }
+        }
+
+        internal CheckBox chkExcludeProteinSequence;
+        private CheckBox _chkComputepIandNET;
+
+        internal CheckBox chkComputepIandNET
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _chkComputepIandNET;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_chkComputepIandNET != null)
+                {
+                    _chkComputepIandNET.CheckedChanged -= chkComputepI_CheckedChanged;
+                }
+
+                _chkComputepIandNET = value;
+                if (_chkComputepIandNET != null)
+                {
+                    _chkComputepIandNET.CheckedChanged += chkComputepI_CheckedChanged;
+                }
+            }
+        }
+
+        internal CheckBox chkIncludeXResidues;
+        internal CheckBox chkComputeProteinMass;
+        internal GroupBox fraDigestionOptions;
+        internal TextBox txtDigestProteinsMaximumpI;
+        internal Label lblDigestProteinsMaximumpI;
+        internal TextBox txtDigestProteinsMinimumpI;
+        internal Label lblDigestProteinsMinimumpI;
+        internal CheckBox chkGenerateUniqueIDValues;
+        internal CheckBox chkCysPeptidesOnly;
+        private TextBox _txtDigestProteinsMinimumResidueCount;
+
+        internal TextBox txtDigestProteinsMinimumResidueCount
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _txtDigestProteinsMinimumResidueCount;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_txtDigestProteinsMinimumResidueCount != null)
+                {
+                    _txtDigestProteinsMinimumResidueCount.KeyPress -= txtDigestProteinsMinimumResidueCount_KeyPress;
+                }
+
+                _txtDigestProteinsMinimumResidueCount = value;
+                if (_txtDigestProteinsMinimumResidueCount != null)
+                {
+                    _txtDigestProteinsMinimumResidueCount.KeyPress += txtDigestProteinsMinimumResidueCount_KeyPress;
+                }
+            }
+        }
+
+        internal Label lblDigestProteinsMinimumResidueCount;
+        private TextBox _txtDigestProteinsMaximumMissedCleavages;
+
+        internal TextBox txtDigestProteinsMaximumMissedCleavages
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _txtDigestProteinsMaximumMissedCleavages;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_txtDigestProteinsMaximumMissedCleavages != null)
+                {
+                    _txtDigestProteinsMaximumMissedCleavages.KeyPress -= txtDigestProteinsMaximumMissedCleavages_KeyPress;
+                }
+
+                _txtDigestProteinsMaximumMissedCleavages = value;
+                if (_txtDigestProteinsMaximumMissedCleavages != null)
+                {
+                    _txtDigestProteinsMaximumMissedCleavages.KeyPress += txtDigestProteinsMaximumMissedCleavages_KeyPress;
+                }
+            }
+        }
+
+        internal Label lblDigestProteinsMaximumMissedCleavages;
+        private TextBox _txtDigestProteinsMaximumMass;
+
+        internal TextBox txtDigestProteinsMaximumMass
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _txtDigestProteinsMaximumMass;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_txtDigestProteinsMaximumMass != null)
+                {
+                    _txtDigestProteinsMaximumMass.KeyPress -= txtDigestProteinsMaximumMass_KeyPress;
+                }
+
+                _txtDigestProteinsMaximumMass = value;
+                if (_txtDigestProteinsMaximumMass != null)
+                {
+                    _txtDigestProteinsMaximumMass.KeyPress += txtDigestProteinsMaximumMass_KeyPress;
+                }
+            }
+        }
+
+        internal Label lblDigestProteinsMaximumMass;
+        private TextBox _txtDigestProteinsMinimumMass;
+
+        internal TextBox txtDigestProteinsMinimumMass
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _txtDigestProteinsMinimumMass;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_txtDigestProteinsMinimumMass != null)
+                {
+                    _txtDigestProteinsMinimumMass.KeyPress -= txtDigestProteinsMinimumMass_KeyPress;
+                }
+
+                _txtDigestProteinsMinimumMass = value;
+                if (_txtDigestProteinsMinimumMass != null)
+                {
+                    _txtDigestProteinsMinimumMass.KeyPress += txtDigestProteinsMinimumMass_KeyPress;
+                }
+            }
+        }
+
+        internal Label lblDigestProteinsMinimumMass;
+        internal ComboBox cboCleavageRuleType;
+        internal CheckBox chkIncludeDuplicateSequences;
+        private Button _cmdParseInputFile;
+
+        internal Button cmdParseInputFile
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _cmdParseInputFile;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_cmdParseInputFile != null)
+                {
+                    _cmdParseInputFile.Click -= cmdParseInputFile_Click;
+                }
+
+                _cmdParseInputFile = value;
+                if (_cmdParseInputFile != null)
+                {
+                    _cmdParseInputFile.Click += cmdParseInputFile_Click;
+                }
+            }
+        }
+
+        internal TabPage TabPagePeakMatchingThresholds;
+        private CheckBox _chkAutoDefineSLiCScoreTolerances;
+
+        internal CheckBox chkAutoDefineSLiCScoreTolerances
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _chkAutoDefineSLiCScoreTolerances;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_chkAutoDefineSLiCScoreTolerances != null)
+                {
+                    _chkAutoDefineSLiCScoreTolerances.CheckedChanged -= chkAutoDefineSLiCScoreTolerances_CheckedChanged;
+                }
+
+                _chkAutoDefineSLiCScoreTolerances = value;
+                if (_chkAutoDefineSLiCScoreTolerances != null)
+                {
+                    _chkAutoDefineSLiCScoreTolerances.CheckedChanged += chkAutoDefineSLiCScoreTolerances_CheckedChanged;
+                }
+            }
+        }
+
+        private Button _cmdPastePMThresholdsList;
+
+        internal Button cmdPastePMThresholdsList
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _cmdPastePMThresholdsList;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_cmdPastePMThresholdsList != null)
+                {
+                    _cmdPastePMThresholdsList.Click -= cmdPastePMThresholdsList_Click;
+                }
+
+                _cmdPastePMThresholdsList = value;
+                if (_cmdPastePMThresholdsList != null)
+                {
+                    _cmdPastePMThresholdsList.Click += cmdPastePMThresholdsList_Click;
+                }
+            }
+        }
+
+        internal ComboBox cboPMPredefinedThresholds;
+        private Button _cmdPMThresholdsAutoPopulate;
+
+        internal Button cmdPMThresholdsAutoPopulate
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _cmdPMThresholdsAutoPopulate;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_cmdPMThresholdsAutoPopulate != null)
+                {
+                    _cmdPMThresholdsAutoPopulate.Click -= cmdPMThresholdsAutoPopulate_Click;
+                }
+
+                _cmdPMThresholdsAutoPopulate = value;
+                if (_cmdPMThresholdsAutoPopulate != null)
+                {
+                    _cmdPMThresholdsAutoPopulate.Click += cmdPMThresholdsAutoPopulate_Click;
+                }
+            }
+        }
+
+        private Button _cmdClearPMThresholdsList;
+
+        internal Button cmdClearPMThresholdsList
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _cmdClearPMThresholdsList;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_cmdClearPMThresholdsList != null)
+                {
+                    _cmdClearPMThresholdsList.Click -= cmdClearPMThresholdsList_Click;
+                }
+
+                _cmdClearPMThresholdsList = value;
+                if (_cmdClearPMThresholdsList != null)
+                {
+                    _cmdClearPMThresholdsList.Click += cmdClearPMThresholdsList_Click;
+                }
+            }
+        }
+
+        internal ComboBox cboMassTolType;
+        internal Label lblMassTolType;
+        internal DataGrid dgPeakMatchingThresholds;
+        internal TabPage TabPageProgress;
+        internal ProgressBar pbarProgress;
+        internal Label lblErrorMessage;
+        internal Label lblSubtaskProgress;
+        internal Label lblProgress;
+        internal Label lblSubtaskProgressDescription;
+        internal Label lblProgressDescription;
+        private Button _cmdAbortProcessing;
+
+        internal Button cmdAbortProcessing
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _cmdAbortProcessing;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_cmdAbortProcessing != null)
+                {
+                    _cmdAbortProcessing.Click -= cmdAbortProcessing_Click;
+                }
+
+                _cmdAbortProcessing = value;
+                if (_cmdAbortProcessing != null)
+                {
+                    _cmdAbortProcessing.Click += cmdAbortProcessing_Click;
+                }
+            }
+        }
+
+        private MenuItem _mnuHelpAboutElutionTime;
+
+        internal MenuItem mnuHelpAboutElutionTime
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _mnuHelpAboutElutionTime;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_mnuHelpAboutElutionTime != null)
+                {
+                    _mnuHelpAboutElutionTime.Click -= mnuHelpAboutElutionTime_Click;
+                }
+
+                _mnuHelpAboutElutionTime = value;
+                if (_mnuHelpAboutElutionTime != null)
+                {
+                    _mnuHelpAboutElutionTime.Click += mnuHelpAboutElutionTime_Click;
+                }
+            }
+        }
+
+        private ComboBox _cboInputFileFormat;
+
+        internal ComboBox cboInputFileFormat
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _cboInputFileFormat;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_cboInputFileFormat != null)
+                {
+                    _cboInputFileFormat.SelectedIndexChanged -= cboInputFileFormat_SelectedIndexChanged;
+                }
+
+                _cboInputFileFormat = value;
+                if (_cboInputFileFormat != null)
+                {
+                    _cboInputFileFormat.SelectedIndexChanged += cboInputFileFormat_SelectedIndexChanged;
+                }
+            }
+        }
+
+        internal Label lblInputFileFormat;
+        private Button _cmdSelectFile;
+
+        internal Button cmdSelectFile
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _cmdSelectFile;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_cmdSelectFile != null)
+                {
+                    _cmdSelectFile.Click -= cmdSelectFile_Click;
+                }
+
+                _cmdSelectFile = value;
+                if (_cmdSelectFile != null)
+                {
+                    _cmdSelectFile.Click += cmdSelectFile_Click;
+                }
+            }
+        }
+
+        internal GroupBox fraInputFilePath;
+        private Button _cmdValidateFastaFile;
+
+        internal Button cmdValidateFastaFile
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _cmdValidateFastaFile;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_cmdValidateFastaFile != null)
+                {
+                    _cmdValidateFastaFile.Click -= cmdValidateFastaFile_Click;
+                }
+
+                _cmdValidateFastaFile = value;
+                if (_cmdValidateFastaFile != null)
+                {
+                    _cmdValidateFastaFile.Click += cmdValidateFastaFile_Click;
+                }
+            }
+        }
+
+        internal CheckBox chkEnableLogging;
+        private MenuItem _mnuFileSelectOutputFile;
+
+        internal MenuItem mnuFileSelectOutputFile
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _mnuFileSelectOutputFile;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_mnuFileSelectOutputFile != null)
+                {
+                    _mnuFileSelectOutputFile.Click -= mnuFileSelectOutputFile_Click;
+                }
+
+                _mnuFileSelectOutputFile = value;
+                if (_mnuFileSelectOutputFile != null)
+                {
+                    _mnuFileSelectOutputFile.Click += mnuFileSelectOutputFile_Click;
+                }
+            }
+        }
+
+        private Button _cmdSelectOutputFile;
+
+        internal Button cmdSelectOutputFile
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _cmdSelectOutputFile;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_cmdSelectOutputFile != null)
+                {
+                    _cmdSelectOutputFile.Click -= cmdSelectOutputFile_Click;
+                }
+
+                _cmdSelectOutputFile = value;
+                if (_cmdSelectOutputFile != null)
+                {
+                    _cmdSelectOutputFile.Click += cmdSelectOutputFile_Click;
+                }
+            }
+        }
+
+        internal MenuItem mnuFileSep1;
+        internal MenuItem mnuFile;
+        private MenuItem _mnuFileSelectInputFile;
+
+        internal MenuItem mnuFileSelectInputFile
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _mnuFileSelectInputFile;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_mnuFileSelectInputFile != null)
+                {
+                    _mnuFileSelectInputFile.Click -= mnuFileSelectInputFile_Click;
+                }
+
+                _mnuFileSelectInputFile = value;
+                if (_mnuFileSelectInputFile != null)
+                {
+                    _mnuFileSelectInputFile.Click += mnuFileSelectInputFile_Click;
+                }
+            }
+        }
+
+        private MenuItem _mnuFileSaveDefaultOptions;
+
+        internal MenuItem mnuFileSaveDefaultOptions
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _mnuFileSaveDefaultOptions;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_mnuFileSaveDefaultOptions != null)
+                {
+                    _mnuFileSaveDefaultOptions.Click -= mnuFileSaveDefaultOptions_Click;
+                }
+
+                _mnuFileSaveDefaultOptions = value;
+                if (_mnuFileSaveDefaultOptions != null)
+                {
+                    _mnuFileSaveDefaultOptions.Click += mnuFileSaveDefaultOptions_Click;
+                }
+            }
+        }
+
+        internal MenuItem mnuFileSep2;
+        private MenuItem _mnuFileExit;
+
+        internal MenuItem mnuFileExit
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _mnuFileExit;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_mnuFileExit != null)
+                {
+                    _mnuFileExit.Click -= mnuFileExit_Click;
+                }
+
+                _mnuFileExit = value;
+                if (_mnuFileExit != null)
+                {
+                    _mnuFileExit.Click += mnuFileExit_Click;
+                }
+            }
+        }
+
+        internal TextBox txtProteinOutputFilePath;
+        internal CheckBox chkIncludePrefixAndSuffixResidues;
+        private MenuItem _mnuEditResetOptions;
+
+        internal MenuItem mnuEditResetOptions
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _mnuEditResetOptions;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_mnuEditResetOptions != null)
+                {
+                    _mnuEditResetOptions.Click -= mnuEditResetOptions_Click;
+                }
+
+                _mnuEditResetOptions = value;
+                if (_mnuEditResetOptions != null)
+                {
+                    _mnuEditResetOptions.Click += mnuEditResetOptions_Click;
+                }
+            }
+        }
+
+        internal MenuItem mnuHelp;
+        private MenuItem _mnuHelpAbout;
+
+        internal MenuItem mnuHelpAbout
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _mnuHelpAbout;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_mnuHelpAbout != null)
+                {
+                    _mnuHelpAbout.Click -= mnuHelpAbout_Click;
+                }
+
+                _mnuHelpAbout = value;
+                if (_mnuHelpAbout != null)
+                {
+                    _mnuHelpAbout.Click += mnuHelpAbout_Click;
+                }
+            }
+        }
+
+        internal MenuItem mnuEditSep1;
+        private MenuItem _mnuEditMakeUniquenessStats;
+
+        internal MenuItem mnuEditMakeUniquenessStats
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _mnuEditMakeUniquenessStats;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_mnuEditMakeUniquenessStats != null)
+                {
+                    _mnuEditMakeUniquenessStats.Click -= mnuEditMakeUniquenessStats_Click;
+                }
+
+                _mnuEditMakeUniquenessStats = value;
+                if (_mnuEditMakeUniquenessStats != null)
+                {
+                    _mnuEditMakeUniquenessStats.Click += mnuEditMakeUniquenessStats_Click;
+                }
+            }
+        }
+
+        internal MenuItem mnuEdit;
+        private MenuItem _mnuEditParseFile;
+
+        internal MenuItem mnuEditParseFile
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _mnuEditParseFile;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_mnuEditParseFile != null)
+                {
+                    _mnuEditParseFile.Click -= mnuEditParseFile_Click;
+                }
+
+                _mnuEditParseFile = value;
+                if (_mnuEditParseFile != null)
+                {
+                    _mnuEditParseFile.Click += mnuEditParseFile_Click;
+                }
+            }
+        }
+
+        internal MainMenu MainMenuControl;
+        internal Label lblOutputFileFieldDelimiter;
+        private ComboBox _cboOutputFileFieldDelimiter;
+
+        internal ComboBox cboOutputFileFieldDelimiter
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _cboOutputFileFieldDelimiter;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_cboOutputFileFieldDelimiter != null)
+                {
+                    _cboOutputFileFieldDelimiter.SelectedIndexChanged -= cboOutputFileFieldDelimiter_SelectedIndexChanged;
+                }
+
+                _cboOutputFileFieldDelimiter = value;
+                if (_cboOutputFileFieldDelimiter != null)
+                {
+                    _cboOutputFileFieldDelimiter.SelectedIndexChanged += cboOutputFileFieldDelimiter_SelectedIndexChanged;
+                }
+            }
+        }
+
+        internal TextBox txtOutputFileFieldDelimiter;
+        internal GroupBox fraOutputTextOptions;
+        internal CheckBox chkTruncateProteinDescription;
+        private CheckBox _chkComputeSequenceHashValues;
+
+        internal CheckBox chkComputeSequenceHashValues
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _chkComputeSequenceHashValues;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_chkComputeSequenceHashValues != null)
+                {
+                    _chkComputeSequenceHashValues.CheckedChanged -= chkComputeSequenceHashValues_CheckedChanged;
+                }
+
+                _chkComputeSequenceHashValues = value;
+                if (_chkComputeSequenceHashValues != null)
+                {
+                    _chkComputeSequenceHashValues.CheckedChanged += chkComputeSequenceHashValues_CheckedChanged;
+                }
+            }
+        }
+
+        internal CheckBox chkComputeSequenceHashIgnoreILDiff;
+        internal CheckBox chkExcludeProteinDescription;
+        private Button _cmdNETInfo;
+
+        internal Button cmdNETInfo
+        {
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            get
+            {
+                return _cmdNETInfo;
+            }
+
+            [MethodImpl(MethodImplOptions.Synchronized)]
+            set
+            {
+                if (_cmdNETInfo != null)
+                {
+                    _cmdNETInfo.Click -= cmdNETInfo_Click;
+                }
+
+                _cmdNETInfo = value;
+                if (_cmdNETInfo != null)
+                {
+                    _cmdNETInfo.Click += cmdNETInfo_Click;
+                }
+            }
+        }
+
+        internal ComboBox cboCysTreatmentMode;
+        internal Label lblCysTreatment;
+        internal ComboBox cboFragmentMassMode;
+        internal Label lblFragmentMassMode;
+    }
+}
