@@ -142,12 +142,7 @@ namespace ProteinDigestionSimulator
             results.Add(newText);
         }
 
-        private void AppendToString(ICollection<string> results, string numberDescription, long number)
-        {
-            AppendToString(results, numberDescription, number, true);
-        }
-
-        private void AppendToString(ICollection<string> results, string numberDescription, long number, bool useCommaSeparator)
+        private void AppendToString(ICollection<string> results, string numberDescription, long number, bool useCommaSeparator = true)
         {
             if (useCommaSeparator)
             {
@@ -468,10 +463,10 @@ namespace ProteinDigestionSimulator
         {
             var fastaValidationOptions = new FastaValidationOptions
             {
-                MaximumErrorsToTrackInDetail = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "", out _, 10, false),
-                MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "", out _, 120, false),
-                ValidProteinNameLengthMinimum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "", out _, 3, false),
-                ValidProteinNameLengthMaximum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "", out _, 34, false),
+                MaximumErrorsToTrackInDetail = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "", out _, 10),
+                MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "", out _, 120),
+                ValidProteinNameLengthMinimum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "", out _, 3),
+                ValidProteinNameLengthMaximum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "", out _, 34),
                 AllowAsterisksInResidues = chkAllowAsteriskInResidues.Checked,
                 CheckForDuplicateProteinNames = chkCheckForDuplicateProteinInfo.Checked,
                 LogResultsToFile = chkLogResults.Checked,
@@ -487,7 +482,7 @@ namespace ProteinDigestionSimulator
             fastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsInProteinName = chkSplitOutMultipleRefsInProteinName.Checked;
             fastaValidationOptions.FixedFastaOptions.ConsolidateDuplicateProteins = chkConsolidateDuplicateProteinSeqs.Checked;
             fastaValidationOptions.FixedFastaOptions.ConsolidateDupsIgnoreILDiff = chkConsolidateDupsIgnoreILDiff.Checked;
-            fastaValidationOptions.FixedFastaOptions.ResiduesPerLineForWrap = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "", out _, 60, false);
+            fastaValidationOptions.FixedFastaOptions.ResiduesPerLineForWrap = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "", out _, 60);
             fastaValidationOptions.Initialized = true;
             return fastaValidationOptions;
         }
@@ -495,17 +490,17 @@ namespace ProteinDigestionSimulator
         private void InitializeDataGrid(DataGrid dgDataGrid, ref DataSet dsDataset, ref DataView dvDataView, FastaValidator.MsgTypeConstants msgType)
         {
             string msgColumnName;
-            if (msgType == FastaValidator.MsgTypeConstants.WarningMsg)
+            switch (msgType)
             {
-                msgColumnName = "Warnings";
-            }
-            else if (msgType == FastaValidator.MsgTypeConstants.ErrorMsg)
-            {
-                msgColumnName = "Errors";
-            }
-            else
-            {
-                msgColumnName = "Status";
+                case FastaValidator.MsgTypeConstants.WarningMsg:
+                    msgColumnName = "Warnings";
+                    break;
+                case FastaValidator.MsgTypeConstants.ErrorMsg:
+                    msgColumnName = "Errors";
+                    break;
+                default:
+                    msgColumnName = "Status";
+                    break;
             }
 
             var datasetName = "ds" + msgColumnName;
@@ -812,15 +807,15 @@ namespace ProteinDigestionSimulator
                 // Note: the following settings will be overridden if a parameter file with these settings defined is provided to .ProcessFile()
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.WarnBlankLinesBetweenProteins, true);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.AllowAsteriskInResidues, chkAllowAsteriskInResidues.Checked);
-                mValidateFastaFile.MinimumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "Minimum protein name length should be a number", out _, 3, false);
-                mValidateFastaFile.MaximumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "Maximum protein name length should be a number", out _, 34, false);
+                mValidateFastaFile.MinimumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "Minimum protein name length should be a number", out _, 3);
+                mValidateFastaFile.MaximumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "Maximum protein name length should be a number", out _, 34);
                 if (chkGenerateFixedFastaFile.Checked && chkWrapLongResidueLines.Checked)
                 {
-                    mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "Residues per line for wrapping should be a number", out _, 60, false);
+                    mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "Residues per line for wrapping should be a number", out _, 60);
                 }
                 else
                 {
-                    mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "Maximum residues per line should be a number", out _, 120, false);
+                    mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "Maximum residues per line should be a number", out _, 120);
                 }
 
                 var parameterFilePath = txtCustomValidationRulesFilePath.Text;
@@ -852,7 +847,7 @@ namespace ProteinDigestionSimulator
                     mValidateFastaFile.SetDefaultRules();
                 }
 
-                mValidateFastaFile.MaximumFileErrorsToTrack = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "Max file errors or warnings should be a positive number", out _, 10, false);
+                mValidateFastaFile.MaximumFileErrorsToTrack = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "Max file errors or warnings should be a positive number", out _, 10);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.CheckForDuplicateProteinNames, chkCheckForDuplicateProteinInfo.Checked);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.CheckForDuplicateProteinSequences, chkCheckForDuplicateProteinInfo.Checked);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.SaveBasicProteinHashInfoFile, chkSaveBasicProteinHashInfoFile.Checked);
@@ -1019,32 +1014,32 @@ namespace ProteinDigestionSimulator
 
         private void txtMaxFileErrorsToTrack_KeyPress1(object sender, KeyPressEventArgs e)
         {
-            TextBoxUtils.TextBoxKeyPressHandler(txtMaxFileErrorsToTrack, e, true);
+            TextBoxUtils.TextBoxKeyPressHandler(txtMaxFileErrorsToTrack, e);
         }
 
         private void txtMaximumResiduesPerLine_KeyPress(object sender, KeyPressEventArgs e)
         {
-            TextBoxUtils.TextBoxKeyPressHandler(txtMaximumResiduesPerLine, e, true);
+            TextBoxUtils.TextBoxKeyPressHandler(txtMaximumResiduesPerLine, e);
         }
 
         private void txtProteinNameLengthMinimum_KeyPress(object sender, KeyPressEventArgs e)
         {
-            TextBoxUtils.TextBoxKeyPressHandler(txtProteinNameLengthMinimum, e, true);
+            TextBoxUtils.TextBoxKeyPressHandler(txtProteinNameLengthMinimum, e);
         }
 
         private void txtProteinNameLengthMaximum_KeyPress(object sender, KeyPressEventArgs e)
         {
-            TextBoxUtils.TextBoxKeyPressHandler(txtProteinNameLengthMaximum, e, true);
+            TextBoxUtils.TextBoxKeyPressHandler(txtProteinNameLengthMaximum, e);
         }
 
         private void txtResiduesPerLineForWrap_TextChanged(object sender, KeyPressEventArgs e)
         {
-            TextBoxUtils.TextBoxKeyPressHandler(txtResiduesPerLineForWrap, e, true);
+            TextBoxUtils.TextBoxKeyPressHandler(txtResiduesPerLineForWrap, e);
         }
 
         private void txtResults_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Control == true)
+            if (e.Control)
             {
                 if (e.KeyCode == Keys.A)
                 {

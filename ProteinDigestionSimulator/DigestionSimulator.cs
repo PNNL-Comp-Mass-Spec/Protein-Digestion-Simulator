@@ -119,7 +119,6 @@ namespace ProteinDigestionSimulator
         private char mOutputFileDelimiter;
         private int mMaxPeakMatchingResultsPerFeatureToSave;
         private readonly MassBinningOptions mPeptideUniquenessBinningSettings = new MassBinningOptions();
-        private ErrorCodes mLocalErrorCode;
         private string mLastErrorMessage;
         private PeakMatching mPeakMatching; // TODO: This should just be a local variable (fix ProgressContinues event)
 
@@ -176,10 +175,8 @@ namespace ProteinDigestionSimulator
                 {
                     return PeptideSequence.ElementModeConstants.IsotopicMass;
                 }
-                else
-                {
-                    return mProteinFileParser.ElementMassMode;
-                }
+
+                return mProteinFileParser.ElementMassMode;
             }
             set
             {
@@ -192,7 +189,7 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        public ErrorCodes LocalErrorCode => mLocalErrorCode;
+        public ErrorCodes LocalErrorCode { get; private set; }
 
         public int MaxPeakMatchingResultsPerFeatureToSave
         {
@@ -491,9 +488,7 @@ namespace ProteinDigestionSimulator
                         lineOut = (thresholdIndex + 1).ToString() + mOutputFileDelimiter;
                     }
 
-                    int proteinID;
-                    var proteinName = string.Empty;
-                    if (mProteinInfo.GetProteinInfoByRowIndex(proteinIndex, out proteinID, out proteinName))
+                    if (mProteinInfo.GetProteinInfoByRowIndex(proteinIndex, out var proteinID, out var proteinName))
                     {
                         lineOut += proteinName + mOutputFileDelimiter + proteinID + mOutputFileDelimiter + mProteinInfo.GetPeptideCountForProteinByID(proteinID) + mOutputFileDelimiter + GetPeptidesUniquelyIdentifiedCountByProteinID(proteinID);
                         proteinStatsWriter.WriteLine(lineOut);
@@ -554,7 +549,6 @@ namespace ProteinDigestionSimulator
                     if (usingSLiCScoreForUniqueness)
                     {
                         // See if any of the matches have a SLiC Score >= the minimum SLiC Score
-                        uniqueMatch = false;
                         int matchIndex;
                         for (matchIndex = 0; matchIndex < matchCount; matchIndex++)
                         {
@@ -570,10 +564,6 @@ namespace ProteinDigestionSimulator
                     else if (matchCount == 1)
                     {
                         uniqueMatch = true;
-                    }
-                    else
-                    {
-                        uniqueMatch = false;
                     }
                 }
             }
@@ -645,13 +635,13 @@ namespace ProteinDigestionSimulator
                 // ----------------------------------------------------
                 progressStep = 0;
                 progressStepCount = 1 + mThresholdLevels.Length * 3;
-                LogMessage("Caching data in memory", MessageTypeConstants.Normal);
-                LogMessage("Caching peak matching results in memory", MessageTypeConstants.Normal);
+                LogMessage("Caching data in memory");
+                LogMessage("Caching peak matching results in memory");
 
                 // ----------------------------------------------------
                 // Load the proteins and digest them, or simply load the peptides
                 // ----------------------------------------------------
-                LogMessage("Load proteins or peptides from " + Path.GetFileName(proteinInputFilePath), MessageTypeConstants.Normal);
+                LogMessage("Load proteins or peptides from " + Path.GetFileName(proteinInputFilePath));
                 success = LoadProteinsOrPeptides(proteinInputFilePath);
 
                 // ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
@@ -726,7 +716,7 @@ namespace ProteinDigestionSimulator
                         // Initialize rangeSearch
                         // ----------------------------------------------------
 
-                        LogMessage("Uniqueness Stats processing starting, Threshold Count = " + mThresholdLevels.Length, MessageTypeConstants.Normal);
+                        LogMessage("Uniqueness Stats processing starting, Threshold Count = " + mThresholdLevels.Length);
 
                         if (!PeakMatching.FillRangeSearchObject(ref rangeSearch, mComparisonPeptideInfo))
                         {
@@ -768,7 +758,7 @@ namespace ProteinDigestionSimulator
                                 UpdateSubtaskProgress("Finding matching peptides for given search thresholds", 0f);
 
                                 // Perform the actual peak matching
-                                LogMessage("Threshold " + (thresholdIndex + 1) + ", IdentifySequences", MessageTypeConstants.Normal);
+                                LogMessage("Threshold " + (thresholdIndex + 1) + ", IdentifySequences");
                                 success = mPeakMatching.IdentifySequences(mThresholdLevels[thresholdIndex], ref featuresToIdentify, mComparisonPeptideInfo, out var featureMatchResults, ref rangeSearch);
                                 mPeptideMatchResults = featureMatchResults;
                                 mPeptideMatchResults.SortingList += mPeptideMatchResults_SortingList;
@@ -787,7 +777,7 @@ namespace ProteinDigestionSimulator
                                 UpdateProgress((float)(progressStep / (double)progressStepCount * 100d));
 
                                 // Summarize the results by peptide
-                                LogMessage("Threshold " + (thresholdIndex + 1) + ", SummarizeResultsByPeptide", MessageTypeConstants.Normal);
+                                LogMessage("Threshold " + (thresholdIndex + 1) + ", SummarizeResultsByPeptide");
                                 success = SummarizeResultsByPeptide(mThresholdLevels[thresholdIndex], thresholdIndex, featuresToIdentify, mPeptideMatchResults, outputFolderPath, outputFilenameBase, peptideUniquenessWriter);
                                 if (!success)
                                     break;
@@ -795,19 +785,17 @@ namespace ProteinDigestionSimulator
                                 UpdateProgress((float)(progressStep / (double)progressStepCount * 100d));
 
                                 // Summarize the results by protein
-                                LogMessage("Threshold " + (thresholdIndex + 1) + ", SummarizeResultsByProtein", MessageTypeConstants.Normal);
+                                LogMessage("Threshold " + (thresholdIndex + 1) + ", SummarizeResultsByProtein");
                                 success = SummarizeResultsByProtein(mThresholdLevels[thresholdIndex], thresholdIndex, featuresToIdentify, mPeptideMatchResults, outputFolderPath, outputFilenameBase, proteinStatsWriter);
                                 if (!success)
                                     break;
                                 progressStep += 1;
                                 UpdateProgress((float)(progressStep / (double)progressStepCount * 100d));
-                                if (!success || AbortProcessing)
+                                if (AbortProcessing)
                                 {
                                     success = false;
                                     break;
                                 }
-
-                                success = true;
                             }
                         }
                     }
@@ -852,7 +840,7 @@ namespace ProteinDigestionSimulator
 
             if (!searchAborted && success)
             {
-                LogMessage("Uniqueness Stats processing complete", MessageTypeConstants.Normal);
+                LogMessage("Uniqueness Stats processing complete");
             }
 
             return success;
@@ -871,7 +859,7 @@ namespace ProteinDigestionSimulator
             string errorMessage;
             if (ErrorCode == ProcessFilesErrorCodes.LocalizedError || ErrorCode == ProcessFilesErrorCodes.NoError)
             {
-                switch (mLocalErrorCode)
+                switch (LocalErrorCode)
                 {
                     case ErrorCodes.NoError:
                         errorMessage = "";
@@ -950,12 +938,7 @@ namespace ProteinDigestionSimulator
         private int GetPeptidesUniquelyIdentifiedCountByProteinID(int proteinID)
         {
             var dataRows = mProteinToIdentifiedPeptideMappingTable.Select(PROTEIN_ID_COLUMN + " = " + proteinID);
-            if (dataRows != null)
-            {
-                return dataRows.Length;
-            }
-
-            return 0;
+            return dataRows.Length;
         }
 
         private void InitializeBinnedStats(BinnedPeptideCountStats statsBinned, int binCount)
@@ -1049,7 +1032,7 @@ namespace ProteinDigestionSimulator
             UseSLiCScoreForUniqueness = true;
             UseEllipseSearchRegion = true;
             CreateSeparateOutputFileForEachThreshold = false;
-            mLocalErrorCode = ErrorCodes.NoError;
+            LocalErrorCode = ErrorCodes.NoError;
             mLastErrorMessage = string.Empty;
             InitializeProteinToIdentifiedPeptideMappingTable();
             InitializeThresholdLevels(ref mThresholdLevels, 1, false);
@@ -1231,11 +1214,6 @@ namespace ProteinDigestionSimulator
             bool success;
             try
             {
-                if (mComparisonPeptideInfo != null)
-                {
-                    mComparisonPeptideInfo = null;
-                }
-
                 mComparisonPeptideInfo = new PeakMatching.PMComparisonFeatureInfo();
                 if (mProteinInfo != null)
                 {
@@ -1259,13 +1237,13 @@ namespace ProteinDigestionSimulator
                 bool digestionEnabled;
                 if (ProteinFileParser.IsFastaFile(proteinInputFilePath) || mProteinFileParser.AssumeFastaFile)
                 {
-                    LogMessage("Input file format = FASTA", MessageTypeConstants.Normal);
+                    LogMessage("Input file format = FASTA");
                     digestionEnabled = true;
                 }
                 else
                 {
                     delimitedFileFormatCode = mProteinFileParser.DelimitedFileFormatCode;
-                    LogMessage("Input file format = " + delimitedFileFormatCode, MessageTypeConstants.Normal);
+                    LogMessage("Input file format = " + delimitedFileFormatCode);
                     digestionEnabled = DigestSequences;
                 }
 
@@ -1286,7 +1264,7 @@ namespace ProteinDigestionSimulator
                         break;
                 }
 
-                LogMessage("Digest sequences = " + digestionEnabled, MessageTypeConstants.Normal);
+                LogMessage("Digest sequences = " + digestionEnabled);
                 if (digestionEnabled)
                 {
                     success = LoadProteinsOrPeptidesWork(proteinInputFilePath);
@@ -1303,7 +1281,7 @@ namespace ProteinDigestionSimulator
 
                 if (success)
                 {
-                    LogMessage("Loaded " + mComparisonPeptideInfo.Count + " peptides corresponding to " + mProteinInfo.Count + " proteins", MessageTypeConstants.Normal);
+                    LogMessage("Loaded " + mComparisonPeptideInfo.Count + " peptides corresponding to " + mProteinInfo.Count + " proteins");
                 }
             }
             catch (Exception ex)
@@ -1546,7 +1524,6 @@ namespace ProteinDigestionSimulator
         private void InitializeBinningRanges(PeakMatching.SearchThresholds thresholds, PeakMatching.PMFeatureInfo featuresToIdentify, PeakMatching.PMFeatureMatchResults peptideMatchResults, BinnedPeptideCountStats peptideStatsBinned)
         {
             var currentFeatureID = default(int);
-            var featureInfo = new PeakMatching.FeatureInfo();
             var matchResultInfo = default(PeakMatching.PMFeatureMatchResults.PeakMatchingResult);
             if (peptideStatsBinned.Settings.AutoDetermineMassRange)
             {
@@ -1561,7 +1538,7 @@ namespace ProteinDigestionSimulator
                 for (matchIndex = 0; matchIndex < peptideMatchResults.Count; matchIndex++)
                 {
                     peptideMatchResults.GetMatchInfoByRowIndex(matchIndex, ref currentFeatureID, ref matchResultInfo);
-                    featuresToIdentify.GetFeatureInfoByFeatureID(currentFeatureID, out featureInfo);
+                    featuresToIdentify.GetFeatureInfoByFeatureID(currentFeatureID, out var featureInfo);
                     var featureMass = (float)featureInfo.Mass;
                     if (featureMass > peptideStatsBinned.Settings.MassMaximum)
                     {
@@ -1584,8 +1561,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 var IntegerMass = (int)Math.Round(Math.Round(peptideStatsBinned.Settings.MassMinimum, 0));
-                int remainder;
-                Math.DivRem(IntegerMass, 100, out remainder);
+                Math.DivRem(IntegerMass, 100, out var remainder);
                 IntegerMass -= remainder;
                 peptideStatsBinned.Settings.MassMinimum = IntegerMass;
                 IntegerMass = (int)Math.Round(Math.Round(peptideStatsBinned.Settings.MassMaximum, 0));
@@ -1719,7 +1695,6 @@ namespace ProteinDigestionSimulator
 
         private bool SummarizeResultsByPeptide(PeakMatching.SearchThresholds thresholds, int thresholdIndex, PeakMatching.PMFeatureInfo featuresToIdentify, PeakMatching.PMFeatureMatchResults peptideMatchResults, string outputFolderPath, string outputFilenameBase, StreamWriter peptideUniquenessWriter)
         {
-            var featureInfo = new PeakMatching.FeatureInfo();
             var matchCount = default(int);
             bool success;
             try
@@ -1744,13 +1719,13 @@ namespace ProteinDigestionSimulator
 
                 // ToDo: When using Sql Server, switch this to use a SP that performs the same function as this For Loop, sorting the results in a table in the DB, but using Bulk Update queries
 
-                LogMessage("SummarizeResultsByPeptide starting, total feature count = " + featuresToIdentifyCount, MessageTypeConstants.Normal);
+                LogMessage("SummarizeResultsByPeptide starting, total feature count = " + featuresToIdentifyCount);
                 var peptideSkipCount = 0;
                 int binIndex;
                 int peptideIndex;
                 for (peptideIndex = 0; peptideIndex < featuresToIdentifyCount; peptideIndex++)
                 {
-                    if (featuresToIdentify.GetFeatureInfoByRowIndex(peptideIndex, out featureInfo))
+                    if (featuresToIdentify.GetFeatureInfoByRowIndex(peptideIndex, out var featureInfo))
                     {
                         binIndex = MassToBinIndex(featureInfo.Mass, peptideStatsBinned.Settings.MassMinimum, peptideStatsBinned.Settings.MassBinSizeDa);
                         if (binIndex < 0 || binIndex > peptideStatsBinned.BinCount - 1)
@@ -1787,7 +1762,7 @@ namespace ProteinDigestionSimulator
 
                     if (peptideIndex % 100000 == 0 && peptideIndex > 0)
                     {
-                        LogMessage("SummarizeResultsByPeptide, peptideIndex = " + peptideIndex, MessageTypeConstants.Normal);
+                        LogMessage("SummarizeResultsByPeptide, peptideIndex = " + peptideIndex);
                     }
                 }
 
@@ -1826,7 +1801,7 @@ namespace ProteinDigestionSimulator
                     peptideUniquenessWriter.Close();
                 }
 
-                LogMessage("SummarizeResultsByPeptide complete", MessageTypeConstants.Normal);
+                LogMessage("SummarizeResultsByPeptide complete");
                 UpdateProgress(100f);
             }
             catch
@@ -1864,7 +1839,6 @@ namespace ProteinDigestionSimulator
         {
             var matchCount = default(int);
             bool success;
-            var featureInfo = new PeakMatching.FeatureInfo();
             try
             {
                 var featuresToIdentifyCount = featuresToIdentify.Count;
@@ -1877,11 +1851,11 @@ namespace ProteinDigestionSimulator
 
                 // Initialize mProteinToIdentifiedPeptideMappingTable
                 mProteinToIdentifiedPeptideMappingTable.Clear();
-                LogMessage("SummarizeResultsByProtein starting, total feature count = " + featuresToIdentifyCount, MessageTypeConstants.Normal);
+                LogMessage("SummarizeResultsByProtein starting, total feature count = " + featuresToIdentifyCount);
                 int peptideIndex;
                 for (peptideIndex = 0; peptideIndex < featuresToIdentifyCount; peptideIndex++)
                 {
-                    if (featuresToIdentify.GetFeatureInfoByRowIndex(peptideIndex, out featureInfo))
+                    if (featuresToIdentify.GetFeatureInfoByRowIndex(peptideIndex, out var featureInfo))
                     {
                         if (FeatureContainsUniqueMatch(featureInfo, peptideMatchResults, ref matchCount, UseSLiCScoreForUniqueness, mPeptideUniquenessBinningSettings.MinimumSLiCScore))
                         {
@@ -1909,7 +1883,7 @@ namespace ProteinDigestionSimulator
 
                     if (peptideIndex % 100000 == 0 && peptideIndex > 0)
                     {
-                        LogMessage("SummarizeResultsByProtein, peptideIndex = " + peptideIndex, MessageTypeConstants.Normal);
+                        LogMessage("SummarizeResultsByProtein, peptideIndex = " + peptideIndex);
                     }
                 }
 
@@ -1931,7 +1905,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 UpdateProgress(100f);
-                LogMessage("SummarizeResultsByProtein complete", MessageTypeConstants.Normal);
+                LogMessage("SummarizeResultsByProtein complete");
             }
             catch
             {
@@ -1960,27 +1934,22 @@ namespace ProteinDigestionSimulator
             proteinStatsWriter.Flush();
         }
 
-        private void SetLocalErrorCode(ErrorCodes newErrorCode)
-        {
-            SetLocalErrorCode(newErrorCode, false);
-        }
-
         private void SetLocalErrorCode(ErrorCodes newErrorCode, Exception ex)
         {
-            SetLocalErrorCode(newErrorCode, false);
+            SetLocalErrorCode(newErrorCode);
             LogMessage(newErrorCode + ": " + ex.Message, MessageTypeConstants.ErrorMsg);
             mLastErrorMessage = ex.Message;
         }
 
-        private void SetLocalErrorCode(ErrorCodes newErrorCode, bool leaveExistingErrorCodeUnchanged)
+        private void SetLocalErrorCode(ErrorCodes newErrorCode, bool leaveExistingErrorCodeUnchanged = false)
         {
-            if (leaveExistingErrorCodeUnchanged && mLocalErrorCode != ErrorCodes.NoError)
+            if (leaveExistingErrorCodeUnchanged && LocalErrorCode != ErrorCodes.NoError)
             {
             }
             // An error code is already defined; do not change it
             else
             {
-                mLocalErrorCode = newErrorCode;
+                LocalErrorCode = newErrorCode;
                 mLastErrorMessage = string.Empty;
             }
         }
@@ -2033,7 +2002,7 @@ namespace ProteinDigestionSimulator
             sortingListCount += 1;
             if (DateTime.UtcNow.Subtract(sortingListLastPostTime).TotalSeconds >= 10d)
             {
-                LogMessage("Sorting protein list (SortCount = " + sortingListCount + ")", MessageTypeConstants.Normal);
+                LogMessage("Sorting protein list (SortCount = " + sortingListCount + ")");
                 sortingListLastPostTime = DateTime.UtcNow;
             }
         }
@@ -2046,7 +2015,7 @@ namespace ProteinDigestionSimulator
             sortingMappingsCount += 1;
             if (DateTime.UtcNow.Subtract(sortingMappingsLastPostTime).TotalSeconds >= 10d)
             {
-                LogMessage("Sorting protein to peptide mapping info (SortCount = " + sortingMappingsCount + ")", MessageTypeConstants.Normal);
+                LogMessage("Sorting protein to peptide mapping info (SortCount = " + sortingMappingsCount + ")");
                 sortingMappingsLastPostTime = DateTime.UtcNow;
             }
         }
@@ -2059,7 +2028,7 @@ namespace ProteinDigestionSimulator
             resultsSortingListCount += 1;
             if (DateTime.UtcNow.Subtract(resultsSortingListLastPostTime).TotalSeconds >= 10d)
             {
-                LogMessage("Sorting peptide match results list (SortCount = " + resultsSortingListCount + ")", MessageTypeConstants.Normal);
+                LogMessage("Sorting peptide match results list (SortCount = " + resultsSortingListCount + ")");
                 resultsSortingListLastPostTime = DateTime.UtcNow;
             }
         }
@@ -2069,7 +2038,7 @@ namespace ProteinDigestionSimulator
             switch (EventType)
             {
                 case PeakMatching.MessageTypeConstants.Normal:
-                    LogMessage(Message, MessageTypeConstants.Normal);
+                    LogMessage(Message);
                     break;
                 case PeakMatching.MessageTypeConstants.Warning:
                     LogMessage(Message, MessageTypeConstants.Warning);

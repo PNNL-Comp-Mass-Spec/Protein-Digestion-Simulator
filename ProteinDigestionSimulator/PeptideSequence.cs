@@ -110,11 +110,6 @@ namespace ProteinDigestionSimulator
         private static double mHydrogenMass;
 
         /// <summary>
-        /// Charge carrier mass: hydrogen minus one electron
-        /// </summary>
-        private static double mChargeCarrierMass;
-
-        /// <summary>
         /// Mass value to add for each Cys residue when CysTreatmentMode is Iodoacetamide
         /// </summary>
         /// <remarks>Auto-updated when mCurrentElementMode is updated</remarks>
@@ -142,10 +137,10 @@ namespace ProteinDigestionSimulator
         private bool mDelayUpdateResidueMass;
 
         /// <summary>
-        /// Charge carrier mass
+        /// Charge carrier mass: hydrogen minus one electron
         /// </summary>
         /// <returns></returns>
-        public static double ChargeCarrierMass => mChargeCarrierMass;
+        public static double ChargeCarrierMass { get; private set; }
 
         /// <summary>
         /// Cysteine treatment mode
@@ -436,12 +431,7 @@ namespace ProteinDigestionSimulator
                 return true;
             }
 
-            if (ruleMatchCount >= 1 && cleavageRule.AllowPartialCleavage)
-            {
-                return true;
-            }
-
-            return false;
+            return ruleMatchCount >= 1 && cleavageRule.AllowPartialCleavage;
         }
 
         private bool CheckSequenceAgainstCleavageRuleMatchTestResidue(char testResidue, string ruleResidues)
@@ -449,12 +439,7 @@ namespace ProteinDigestionSimulator
             // Checks to see if testResidue matches one of the residues in ruleResidues
             // Used to test by Rule Residues and Exception Residues
 
-            if (ruleResidues.IndexOf(testResidue) >= 0)
-            {
-                return true;
-            }
-
-            return false;
+            return ruleResidues.IndexOf(testResidue) >= 0;
         }
 
         /// <summary>
@@ -535,10 +520,10 @@ namespace ProteinDigestionSimulator
                 var sequenceOut = peptide.GetSequence(oneLetterTo3Letter, addSpaceEvery10Residues, separateResiduesWithDash);
                 if (oneLetterTo3Letter && prefix.Length > 0 | suffix.Length > 0)
                 {
-                    peptide.SetSequence(prefix, NTerminusGroupConstants.None, CTerminusGroupConstants.None, false);
-                    sequenceOut = peptide.GetSequence(true, false, false) + "." + sequenceOut;
-                    peptide.SetSequence(suffix, NTerminusGroupConstants.None, CTerminusGroupConstants.None, false);
-                    sequenceOut += "." + peptide.GetSequence(true, false, false);
+                    peptide.SetSequence(prefix, NTerminusGroupConstants.None, CTerminusGroupConstants.None);
+                    sequenceOut = peptide.GetSequence(true) + "." + sequenceOut;
+                    peptide.SetSequence(suffix, NTerminusGroupConstants.None, CTerminusGroupConstants.None);
+                    sequenceOut += "." + peptide.GetSequence(true);
                 }
 
                 return sequenceOut;
@@ -995,14 +980,12 @@ namespace ProteinDigestionSimulator
             var minCleavedResidueNum = -1;
             for (var charIndexInCleavageResidues = 0; charIndexInCleavageResidues < cleavageRule.CleavageResidues.Length; charIndexInCleavageResidues++)
             {
-                int cleavedResidueNum;
-                var matchFound = FindNextCleavageResidue(cleavageRule, charIndexInCleavageResidues, searchResidues, startResidueNum, out cleavedResidueNum);
+                var matchFound = FindNextCleavageResidue(cleavageRule, charIndexInCleavageResidues, searchResidues, startResidueNum, out var cleavedResidueNum);
                 if (matchFound)
                 {
                     if (exceptionSuffixResidueCount > 0)
                     {
-                        int exceptionCharIndexInSearchResidues;
-                        var matchFoundToExceptionResidue = IsMatchToExceptionResidue(cleavageRule, searchResidues, residueFollowingSearchResidues, cleavedResidueNum, out exceptionCharIndexInSearchResidues);
+                        var matchFoundToExceptionResidue = IsMatchToExceptionResidue(cleavageRule, searchResidues, residueFollowingSearchResidues, cleavedResidueNum, out var exceptionCharIndexInSearchResidues);
                         if (matchFoundToExceptionResidue)
                         {
                             // Exception char matched; can't count this as the cleavage point
@@ -1032,7 +1015,7 @@ namespace ProteinDigestionSimulator
                                 {
                                     // Found a residue further along that is a valid cleavage point
                                     cleavedResidueNum = residueNumViaRecursiveSearch;
-                                    if (cleavedResidueNum >= 1 && cleavedResidueNum >= startResidueNum)
+                                    if (cleavedResidueNum >= startResidueNum)
                                         matchFound = true;
                                 }
                                 else
@@ -1255,12 +1238,7 @@ namespace ProteinDigestionSimulator
                 cleavageResidueNum = searchResidues.IndexOf(cleavageRule.CleavageResidues[charIndexInCleavageResidues], startResidueNum - 1) + 1;
             }
 
-            if (cleavageResidueNum >= 1 && cleavageResidueNum >= startResidueNum)
-            {
-                return true;
-            }
-
-            return false;
+            return cleavageResidueNum >= 1 && cleavageResidueNum >= startResidueNum;
         }
 
         private bool IsMatchToExceptionResidue(CleavageRule cleavageRule, string searchResidues, string residueFollowingSearchResidues, int cleavedResidueIndex, out int exceptionCharIndexInSearchResidues)
@@ -1287,12 +1265,7 @@ namespace ProteinDigestionSimulator
                 exceptionResidueToCheck = residueFollowingSearchResidues[0];
             }
 
-            if (cleavageRule.ExceptionResidues.IndexOf(exceptionResidueToCheck) >= 0)
-            {
-                return true;
-            }
-
-            return false;
+            return cleavageRule.ExceptionResidues.IndexOf(exceptionResidueToCheck) >= 0;
         }
 
         /// <summary>
@@ -1677,11 +1650,10 @@ namespace ProteinDigestionSimulator
                     runningTotal -= mHydrogenMass;
                 }
 
-                for (var index = 0; index < mResidues.Length; index++)
+                foreach (var oneLetterSymbol in mResidues)
                 {
                     try
                     {
-                        var oneLetterSymbol = mResidues[index];
                         runningTotal += AminoAcidMasses[oneLetterSymbol];
                         if (oneLetterSymbol == 'C' && CysTreatmentMode != CysTreatmentModeConstants.Untreated)
                         {
@@ -1706,7 +1678,7 @@ namespace ProteinDigestionSimulator
                 runningTotal += mCTerminus.Mass;
                 if (protonatedNTerminus)
                 {
-                    runningTotal += mChargeCarrierMass;
+                    runningTotal += ChargeCarrierMass;
                 }
             }
 
@@ -1720,11 +1692,11 @@ namespace ProteinDigestionSimulator
             const double DEFAULT_CHARGE_CARRIER_MASS_MONOISOTOPIC = 1.00727649d;
             if (mCurrentElementMode == ElementModeConstants.AverageMass)
             {
-                mChargeCarrierMass = DEFAULT_CHARGE_CARRIER_MASS_AVG;
+                ChargeCarrierMass = DEFAULT_CHARGE_CARRIER_MASS_AVG;
             }
             else
             {
-                mChargeCarrierMass = DEFAULT_CHARGE_CARRIER_MASS_MONOISOTOPIC;
+                ChargeCarrierMass = DEFAULT_CHARGE_CARRIER_MASS_MONOISOTOPIC;
             }
 
             // Update Hydrogen mass

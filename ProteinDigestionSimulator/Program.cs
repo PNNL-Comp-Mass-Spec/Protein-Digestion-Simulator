@@ -181,7 +181,6 @@ namespace ProteinDigestionSimulator
         {
             // Returns True if no problems; otherwise, returns false
 
-            var value = string.Empty;
             var validParameters = new List<string> { "I", "F", "D", "M", "AD", "O", "P", "S", "A", "R", "DEBUG" };
             try
             {
@@ -189,12 +188,12 @@ namespace ProteinDigestionSimulator
                 if (commandLineParser.InvalidParametersPresent(validParameters))
                 {
                     ConsoleMsgUtils.ShowErrors("Invalid command line parameters", (from item in commandLineParser.InvalidParameters(validParameters)
-                                                                                   select ("/" + item)).ToList());
+                                                                                   select "/" + item).ToList());
                     return false;
                 }
 
                 // Query commandLineParser to see if various parameters are present
-                if (commandLineParser.RetrieveValueForParameter("I", out value))
+                if (commandLineParser.RetrieveValueForParameter("I", out var value))
                 {
                     mInputFilePath = value;
                 }

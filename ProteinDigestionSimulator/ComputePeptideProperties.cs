@@ -132,13 +132,12 @@ namespace ProteinDigestionSimulator
         {
             var runningSum = 0d;
             var residueCount = 0;
-            var aaInfo = new AA();
             for (var li = 1; li <= seq.Length; li++)
             {
                 var residue = char.ToUpper(seq[li - 1]);
                 try
                 {
-                    if (!mAminoAcids.TryGetValue(residue, out aaInfo))
+                    if (!mAminoAcids.TryGetValue(residue, out var aaInfo))
                     {
                         continue;
                     }

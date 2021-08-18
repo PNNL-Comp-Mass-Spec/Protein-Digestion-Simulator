@@ -151,9 +151,6 @@ namespace ProteinDigestionSimulator
         }
 
         private char mInputFileDelimiter;                              // Only used for delimited protein input files, not for FASTA files
-        private int mInputFileProteinsProcessed;
-        private int mInputFileLinesRead;
-        private int mInputFileLineSkipCount;
         private char mOutputFileDelimiter;
         private int mSequenceWidthToExamineForMaximumpI;
         public InSilicoDigest.DigestionOptions DigestionOptions;
@@ -165,11 +162,9 @@ namespace ProteinDigestionSimulator
         private SCXElutionTimePredictionKangas mSCXNETCalculator;
 
         private readonly List<ProteinInfo> mProteins = new List<ProteinInfo>();
-        private bool mParsedFileIsFastaFile;
         private string mFileNameAbbreviated;
         private Dictionary<string, int> mMasterSequencesDictionary;
         private int mNextUniqueIDForMasterSeqs;
-        private ParseProteinFileErrorCodes mLocalErrorCode;
         private string mSubtaskProgressStepDescription = string.Empty;
         private float mSubtaskProgressPercentComplete = 0f;
 
@@ -288,13 +283,13 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        public int InputFileProteinsProcessed => mInputFileProteinsProcessed;
+        public int InputFileProteinsProcessed { get; private set; }
 
-        public int InputFileLinesRead => mInputFileLinesRead;
+        public int InputFileLinesRead { get; private set; }
 
-        public int InputFileLineSkipCount => mInputFileLineSkipCount;
+        public int InputFileLineSkipCount { get; private set; }
 
-        public ParseProteinFileErrorCodes LocalErrorCode => mLocalErrorCode;
+        public ParseProteinFileErrorCodes LocalErrorCode { get; private set; }
 
         public char OutputFileDelimiter
         {
@@ -308,7 +303,7 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        public bool ParsedFileIsFastaFile => mParsedFileIsFastaFile;
+        public bool ParsedFileIsFastaFile { get; private set; }
 
         public int ProteinScramblingLoopCount { get; set; }
         public ProteinScramblingModeConstants ProteinScramblingMode { get; set; }
@@ -482,13 +477,13 @@ namespace ProteinDigestionSimulator
         {
             var lowerCount = 0;
             var upperCount = 0;
-            for (var index = 0; index < proteinSequence.Length; index++)
+            foreach (var residue in proteinSequence)
             {
-                if (char.IsLower(proteinSequence[index]))
+                if (char.IsLower(residue))
                 {
                     lowerCount += 1;
                 }
-                else if (char.IsUpper(proteinSequence[index]))
+                else if (char.IsUpper(residue))
                 {
                     upperCount += 1;
                 }
@@ -515,7 +510,7 @@ namespace ProteinDigestionSimulator
             string errorMessage;
             if (ErrorCode == ProcessFilesErrorCodes.LocalizedError || ErrorCode == ProcessFilesErrorCodes.NoError)
             {
-                switch (mLocalErrorCode)
+                switch (LocalErrorCode)
                 {
                     case ParseProteinFileErrorCodes.NoError:
                         errorMessage = "";
@@ -596,15 +591,15 @@ namespace ProteinDigestionSimulator
 
         private void InitializeLocalVariables()
         {
-            mLocalErrorCode = ParseProteinFileErrorCodes.NoError;
+            LocalErrorCode = ParseProteinFileErrorCodes.NoError;
             ShowDebugPrompts = false;
             AssumeDelimitedFile = false;
             AssumeFastaFile = false;
             mInputFileDelimiter = '\t';
             DelimitedFileFormatCode = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence;
-            mInputFileProteinsProcessed = 0;
-            mInputFileLinesRead = 0;
-            mInputFileLineSkipCount = 0;
+            InputFileProteinsProcessed = 0;
+            InputFileLinesRead = 0;
+            InputFileLineSkipCount = 0;
             mOutputFileDelimiter = '\t';
             ExcludeProteinSequence = false;
             ComputeProteinMass = true;
@@ -646,12 +641,7 @@ namespace ProteinDigestionSimulator
                     return false;
                 }
 
-                if (Path.GetExtension(StripExtension(filePath, ".gz")).Equals(".fasta", StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-
-                return false;
+                return Path.GetExtension(StripExtension(filePath, ".gz")).Equals(".fasta", StringComparison.OrdinalIgnoreCase);
             }
             catch (Exception ex)
             {
@@ -914,7 +904,7 @@ namespace ProteinDigestionSimulator
                     break;
             }
 
-            if (delimiter == null || delimiter.Length == 0)
+            if (delimiter.Length == 0)
             {
                 delimiter = defaultDelimiter.ToString();
             }
@@ -1008,7 +998,6 @@ namespace ProteinDigestionSimulator
                         // Open the protein output file (if required)
                         // This will cause an error if the input file is the same as the output file
                         proteinFileWriter = new StreamWriter(pathInfo.ProteinOutputFilePath);
-                        success = true;
                     }
                     catch
                     {
@@ -1066,7 +1055,6 @@ namespace ProteinDigestionSimulator
                     if (!proteinFileReader.OpenFile(pathInfo.ProteinInputFilePath))
                     {
                         SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile);
-                        success = false;
                         break;
                     }
 
@@ -1096,7 +1084,7 @@ namespace ProteinDigestionSimulator
                     }
 
                     startTime = DateTime.UtcNow;
-                    if (CreateProteinOutputFile && mParsedFileIsFastaFile && allowLookForAddnlRefInDescription)
+                    if (CreateProteinOutputFile && ParsedFileIsFastaFile && allowLookForAddnlRefInDescription)
                     {
                         // Need to pre-scan the FASTA file to find all of the possible additional reference values
 
@@ -1132,8 +1120,8 @@ namespace ProteinDigestionSimulator
                         outLine.Append("ProteinName" + mOutputFileDelimiter);
                         if (lookForAddnlRefInDescription)
                         {
-                            for (var index = 0; index < addnlRefsToOutput.Length; index++)
-                                outLine.Append(addnlRefsToOutput[index].RefName + mOutputFileDelimiter);
+                            foreach (var addnlRef in addnlRefsToOutput)
+                                outLine.Append(addnlRef.RefName + mOutputFileDelimiter);
                         }
 
                         // Include Description in the header line, even if we are excluding the description for all proteins
@@ -1181,19 +1169,19 @@ namespace ProteinDigestionSimulator
                     // Read each protein in the input file and process appropriately
                     mProteins.Clear();
                     mProteins.Capacity = 501;
-                    mInputFileProteinsProcessed = 0;
-                    mInputFileLineSkipCount = 0;
-                    mInputFileLinesRead = 0;
+                    InputFileProteinsProcessed = 0;
+                    InputFileLineSkipCount = 0;
+                    InputFileLinesRead = 0;
                     bool inputProteinFound;
                     do
                     {
                         inputProteinFound = proteinFileReader.ReadNextProteinEntry();
-                        mInputFileLineSkipCount += proteinFileReader.LineSkipCount;
+                        InputFileLineSkipCount += proteinFileReader.LineSkipCount;
                         if (!inputProteinFound)
                             continue;
                         if (!headerChecked)
                         {
-                            if (!mParsedFileIsFastaFile)
+                            if (!ParsedFileIsFastaFile)
                             {
                                 headerChecked = true;
 
@@ -1217,8 +1205,8 @@ namespace ProteinDigestionSimulator
                             }
                         }
 
-                        mInputFileProteinsProcessed += 1;
-                        mInputFileLinesRead = proteinFileReader.LinesRead;
+                        InputFileProteinsProcessed += 1;
+                        InputFileLinesRead = proteinFileReader.LinesRead;
                         var protein = ParseProteinFileStoreProtein(proteinFileReader, lookForAddnlRefInDescription);
                         if (CreateProteinOutputFile)
                         {
@@ -1301,11 +1289,11 @@ namespace ProteinDigestionSimulator
                     MessageBox.Show(statusMessage, "Status", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
-                var message = "Done: Processed " + mInputFileProteinsProcessed.ToString("###,##0") + " proteins (" + mInputFileLinesRead.ToString("###,###,##0") + " lines)";
-                if (mInputFileLineSkipCount > 0)
+                var message = "Done: Processed " + InputFileProteinsProcessed.ToString("###,##0") + " proteins (" + InputFileLinesRead.ToString("###,###,##0") + " lines)";
+                if (InputFileLineSkipCount > 0)
                 {
-                    message += Environment.NewLine + "Note that " + mInputFileLineSkipCount.ToString("###,##0") + " lines were skipped in the input file due to having an unexpected format. ";
-                    if (mParsedFileIsFastaFile)
+                    message += Environment.NewLine + "Note that " + InputFileLineSkipCount.ToString("###,##0") + " lines were skipped in the input file due to having an unexpected format. ";
+                    if (ParsedFileIsFastaFile)
                     {
                         message += "This is an unexpected error for FASTA files.";
                     }
@@ -1361,9 +1349,11 @@ namespace ProteinDigestionSimulator
 
         private ProteinInfo ParseProteinFileStoreProtein(ProteinFileReaderBaseClass proteinFileReader, bool lookForAddnlRefInDescription)
         {
-            var protein = new ProteinInfo();
-            protein.Name = proteinFileReader.ProteinName;
-            protein.Description = proteinFileReader.ProteinDescription;
+            var protein = new ProteinInfo
+            {
+                Name = proteinFileReader.ProteinName,
+                Description = proteinFileReader.ProteinDescription
+            };
             if (TruncateProteinDescription && protein.Description.Length > MAX_PROTEIN_DESCRIPTION_LENGTH)
             {
                 protein.Description = protein.Description.Substring(0, MAX_PROTEIN_DESCRIPTION_LENGTH - 3) + "...";
@@ -1425,8 +1415,7 @@ namespace ProteinDigestionSimulator
 
         private void ParseProteinFileWriteDigested(TextWriter digestFileWriter, ProteinInfo protein, StringBuilder outLine, bool generateUniqueSequenceID)
         {
-            List<InSilicoDigest.PeptideSequenceWithNET> peptideFragments = null;
-            DigestProteinSequence(protein.Sequence, out peptideFragments, DigestionOptions, protein.Name);
+            DigestProteinSequence(protein.Sequence, out var peptideFragments, DigestionOptions, protein.Name);
             foreach (var peptideFragment in peptideFragments)
             {
                 int uniqueSeqID;
@@ -1533,25 +1522,26 @@ namespace ProteinDigestionSimulator
             if (lookForAddnlRefInDescription)
             {
                 // Reset the Accession numbers in addnlRefsToOutput
-                for (var index = 0; index < addnlRefsToOutput.Length; index++)
-                    addnlRefsToOutput[index].RefAccession = string.Empty;
+                foreach (var addnlRef in addnlRefsToOutput)
+                    addnlRef.RefAccession = string.Empty;
 
                 // Update the accession numbers in addnlRefsToOutput
                 for (var index = 0; index < protein.AlternateNameCount; index++)
                 {
-                    for (var compareIndex = 0; compareIndex < addnlRefsToOutput.Length; compareIndex++)
+                    foreach (var addnlRef in addnlRefsToOutput)
                     {
-                        if (addnlRefsToOutput[compareIndex].RefName.ToUpper() == protein.AlternateNames[index].RefName.ToUpper())
+                        if (addnlRef.RefName.ToUpper() == protein.AlternateNames[index].RefName.ToUpper())
                         {
-                            addnlRefsToOutput[compareIndex].RefAccession = protein.AlternateNames[index].RefAccession;
+                            addnlRef.RefAccession = protein.AlternateNames[index].RefAccession;
                             break;
                         }
                     }
                 }
 
                 outLine.Append(protein.Name + mOutputFileDelimiter);
-                for (var index = 0; index < addnlRefsToOutput.Length; index++)
-                    outLine.Append(addnlRefsToOutput[index].RefAccession + mOutputFileDelimiter);
+                foreach (var addnlRef in addnlRefsToOutput)
+                    outLine.Append(addnlRef.RefAccession + mOutputFileDelimiter);
+
                 if (!ExcludeProteinDescription)
                 {
                     outLine.Append(protein.Description);
@@ -1602,21 +1592,20 @@ namespace ProteinDigestionSimulator
         private bool ParseProteinFileCreateOutputFile(FilePathInfo pathInfo, out ProteinFileReaderBaseClass proteinFileReader)
         {
             string outputFileName;
-            bool success;
             if (AssumeFastaFile || IsFastaFile(pathInfo.ProteinInputFilePath, true))
             {
                 if (AssumeDelimitedFile)
                 {
-                    mParsedFileIsFastaFile = false;
+                    ParsedFileIsFastaFile = false;
                 }
                 else
                 {
-                    mParsedFileIsFastaFile = true;
+                    ParsedFileIsFastaFile = true;
                 }
             }
             else
             {
-                mParsedFileIsFastaFile = false;
+                ParsedFileIsFastaFile = false;
             }
 
             if (CreateDigestedProteinOutputFile)
@@ -1656,7 +1645,7 @@ namespace ProteinDigestionSimulator
                 outputFileName = string.Empty;
             }
 
-            if (mParsedFileIsFastaFile)
+            if (ParsedFileIsFastaFile)
             {
                 var reader = new FastaFileReader();
                 proteinFileReader = reader;
@@ -1675,11 +1664,10 @@ namespace ProteinDigestionSimulator
             if (!File.Exists(pathInfo.ProteinInputFilePath))
             {
                 SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidInputFilePath);
-                success = false;
-                return success;
+                return false;
             }
 
-            if (mParsedFileIsFastaFile)
+            if (ParsedFileIsFastaFile)
             {
                 if (outputFileName.Length == 0)
                 {
@@ -1761,8 +1749,7 @@ namespace ProteinDigestionSimulator
 
             // Define the full path to the digested proteins output file
             pathInfo.DigestedProteinOutputFilePath = Path.Combine(pathInfo.OutputFolderPath, outputFileName);
-            success = true;
-            return success;
+            return true;
         }
 
         private bool ParseProteinFileCreateDigestedProteinOutputFile(string digestedProteinOutputFilePath, ref StreamWriter digestFileWriter)
@@ -1819,7 +1806,6 @@ namespace ProteinDigestionSimulator
                 // Attempt to open the input file
                 if (!reader.OpenFile(proteinInputFilePath))
                 {
-                    success = false;
                     return;
                 }
 
@@ -2162,20 +2148,15 @@ namespace ProteinDigestionSimulator
             return success;
         }
 
-        private void SetLocalErrorCode(ParseProteinFileErrorCodes newErrorCode)
+        private void SetLocalErrorCode(ParseProteinFileErrorCodes newErrorCode, bool leaveExistingErrorCodeUnchanged = false)
         {
-            SetLocalErrorCode(newErrorCode, false);
-        }
-
-        private void SetLocalErrorCode(ParseProteinFileErrorCodes newErrorCode, bool leaveExistingErrorCodeUnchanged)
-        {
-            if (leaveExistingErrorCodeUnchanged && mLocalErrorCode != ParseProteinFileErrorCodes.NoError)
+            if (leaveExistingErrorCodeUnchanged && LocalErrorCode != ParseProteinFileErrorCodes.NoError)
             {
             }
             // An error code is already defined; do not change it
             else
             {
-                mLocalErrorCode = newErrorCode;
+                LocalErrorCode = newErrorCode;
                 if (newErrorCode == ParseProteinFileErrorCodes.NoError)
                 {
                     if (ErrorCode == ProcessFilesErrorCodes.LocalizedError)

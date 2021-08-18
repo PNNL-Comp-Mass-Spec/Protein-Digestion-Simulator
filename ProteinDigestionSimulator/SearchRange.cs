@@ -47,7 +47,6 @@ namespace ProteinDigestionSimulator
         private int mPointByPointFillCount;
         private int[] mPointerIndices;        // Pointers to the original index of the data point in the source array
         private bool mPointerArrayIsValid;
-        private bool mUsePointerIndexArray;    // Set this to false to conserve memory usage
 
         public int DataCount
         {
@@ -96,11 +95,7 @@ namespace ProteinDigestionSimulator
         }
 
         // ReSharper disable once UnusedMember.Global
-        public bool UsePointerIndexArray
-        {
-            get => mUsePointerIndexArray;
-            set => mUsePointerIndexArray = value;
-        }
+        public bool UsePointerIndexArray { get; set; }
 
         private void BinarySearchRangeInt(int searchValue, int toleranceHalfWidth, ref int matchIndexStart, ref int matchIndexEnd)
         {
@@ -359,7 +354,7 @@ namespace ProteinDigestionSimulator
                 {
                     mDataInt = new int[values.Length];
                     values.CopyTo(mDataInt, 0);
-                    if (mUsePointerIndexArray)
+                    if (UsePointerIndexArray)
                     {
                         InitializePointerIndexArray(mDataInt.Length);
                         Array.Sort(mDataInt, mPointerIndices);
@@ -405,7 +400,7 @@ namespace ProteinDigestionSimulator
                 {
                     mDataSingle = new float[values.Length];
                     values.CopyTo(mDataSingle, 0);
-                    if (mUsePointerIndexArray)
+                    if (UsePointerIndexArray)
                     {
                         InitializePointerIndexArray(mDataSingle.Length);
                         Array.Sort(mDataSingle, mPointerIndices);
@@ -451,7 +446,7 @@ namespace ProteinDigestionSimulator
                 {
                     mDataDouble = new double[values.Length];
                     values.CopyTo(mDataDouble, 0);
-                    if (mUsePointerIndexArray)
+                    if (UsePointerIndexArray)
                     {
                         InitializePointerIndexArray(mDataDouble.Length);
                         Array.Sort(mDataDouble, mPointerIndices);
@@ -486,7 +481,7 @@ namespace ProteinDigestionSimulator
 
         public bool FillWithDataAddBlock(int[] valuesToAdd)
         {
-            var success = default(bool);
+            var success = true;
             try
             {
                 if (mDataInt.Length <= mPointByPointFillCount + valuesToAdd.Length - 1)
@@ -496,13 +491,13 @@ namespace ProteinDigestionSimulator
 
                 Array.Copy(valuesToAdd, 0, mDataInt, mPointByPointFillCount - 1, valuesToAdd.Length);
                 mPointByPointFillCount += valuesToAdd.Length;
+
+                //for (var index = 0; index < valuesToAdd.Length; index++)
+                //{
+                //    mDataInt[mPointByPointFillCount] = valuesToAdd[index];
+                //    mPointByPointFillCount++;
+                //}
             }
-
-            // For index = 0 To valuesToAdd.Length - 1
-            // mDataInt(mPointByPointFillCount) = valuesToAdd(index)
-            // mPointByPointFillCount += 1
-            // Next index
-
             catch
             {
                 success = false;
@@ -513,7 +508,7 @@ namespace ProteinDigestionSimulator
 
         public bool FillWithDataAddBlock(float[] valuesToAdd)
         {
-            var success = default(bool);
+            var success = true;
             try
             {
                 if (mDataSingle.Length <= mPointByPointFillCount + valuesToAdd.Length - 1)
@@ -534,7 +529,7 @@ namespace ProteinDigestionSimulator
 
         public bool FillWithDataAddBlock(double[] valuesToAdd)
         {
-            var success = default(bool);
+            var success = true;
             try
             {
                 if (mDataDouble.Length <= mPointByPointFillCount + valuesToAdd.Length - 1)
@@ -555,7 +550,7 @@ namespace ProteinDigestionSimulator
 
         public bool FillWithDataAddPoint(int valueToAdd)
         {
-            var success = default(bool);
+            var success = true;
             try
             {
                 if (mDataType != DataTypeToUse.FillingIntegerType)
@@ -726,7 +721,7 @@ namespace ProteinDigestionSimulator
 
                 if (success && DataArray != null)
                 {
-                    if (mUsePointerIndexArray)
+                    if (UsePointerIndexArray)
                     {
                         InitializePointerIndexArray(DataArray.Length);
                         Array.Sort(DataArray, mPointerIndices);
@@ -1063,7 +1058,7 @@ namespace ProteinDigestionSimulator
         {
             mDataType = DataTypeToUse.NoDataPresent;
             ClearUnusedData();
-            mUsePointerIndexArray = true;
+            UsePointerIndexArray = true;
             InitializePointerIndexArray(0);
         }
 

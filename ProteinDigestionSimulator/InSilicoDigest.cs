@@ -147,8 +147,7 @@ namespace ProteinDigestionSimulator
         /// See method InitializeCleavageRules for a list of the rules</remarks>
         public bool CheckSequenceAgainstCleavageRule(string sequence, CleavageRuleConstants ruleId, [Optional, DefaultParameterValue(0)] out int ruleMatchCount)
         {
-            CleavageRule cleavageRule = null;
-            if (mCleavageRules.TryGetValue(ruleId, out cleavageRule))
+            if (mCleavageRules.TryGetValue(ruleId, out var cleavageRule))
             {
                 if (ruleId == CleavageRuleConstants.NoRule)
                 {
@@ -205,9 +204,7 @@ namespace ProteinDigestionSimulator
                 {
                     do
                     {
-                        int returnResidueStart;
-                        int returnResidueEnd;
-                        var fragment = mPeptideSequence.GetTrypticPeptideNext(sequence, startSearchLoc, out returnResidueStart, out returnResidueEnd);
+                        var fragment = mPeptideSequence.GetTrypticPeptideNext(sequence, startSearchLoc, out _, out var returnResidueEnd);
                         if (fragment.Length > 0)
                         {
                             trypticCount += 1;
@@ -259,11 +256,10 @@ namespace ProteinDigestionSimulator
             var proteinSequenceLength = proteinSequence.Length;
             try
             {
-                CleavageRule cleavageRule = null;
-                var success = GetCleavageRuleById(digestionOptions.CleavageRuleID, out cleavageRule);
+                var success = GetCleavageRuleById(digestionOptions.CleavageRuleID, out var cleavageRule);
                 if (!success)
                 {
-                    ReportError("DigestSequence", new Exception("Invalid cleavage rule: " + ((int)digestionOptions.CleavageRuleID)));
+                    ReportError("DigestSequence", new Exception("Invalid cleavage rule: " + (int)digestionOptions.CleavageRuleID));
                     return 0;
                 }
 
@@ -282,9 +278,7 @@ namespace ProteinDigestionSimulator
                 // is faster than using the GetTrypticPeptideByFragmentNumber function
                 do
                 {
-                    int residueStartLoc;
-                    int residueEndLoc;
-                    var peptideSequence = mPeptideSequence.GetTrypticPeptideNext(proteinSequence, searchStartLoc, cleavageRule, out residueStartLoc, out residueEndLoc);
+                    var peptideSequence = mPeptideSequence.GetTrypticPeptideNext(proteinSequence, searchStartLoc, cleavageRule, out var residueStartLoc, out var residueEndLoc);
                     if (peptideSequence.Length > 0)
                     {
                         trypticFragCache[trypticFragCacheCount] = peptideSequence;
@@ -455,7 +449,6 @@ namespace ProteinDigestionSimulator
                 return true;
             }
 
-            cleavageRule = null;
             return false;
         }
 
@@ -564,9 +557,9 @@ namespace ProteinDigestionSimulator
             var peptideFragment = new PeptideSequenceWithNET
             {
                 AutoComputeNET = false,
-                CysTreatmentMode = digestionOptions.CysTreatmentMode
+                CysTreatmentMode = digestionOptions.CysTreatmentMode,
+                SequenceOneLetter = peptideSequence
             };
-            peptideFragment.SequenceOneLetter = peptideSequence;
             if (peptideFragment.Mass < minFragmentMass || peptideFragment.Mass > maxFragmentMass)
             {
                 return;
@@ -627,10 +620,7 @@ namespace ProteinDigestionSimulator
                 peptideFragment.PeptideName = residueStartLoc + "." + residueEndLoc;
             }
 
-            if (addFragment)
-            {
-                peptideFragments.Add(peptideFragment);
-            }
+            peptideFragments.Add(peptideFragment);
         }
 
         private void ReportError(string functionName, Exception ex)
@@ -706,15 +696,15 @@ namespace ProteinDigestionSimulator
                 }
 
                 // Disable mAutoComputeNET for now so that the call to SetSequence() below doesn't auto-call UpdateNET
-                mAutoComputeNET = false;
+                AutoComputeNET = false;
                 PeptideName = string.Empty;
                 SetSequence(string.Empty);
-                mNET = 0f;
+                NET = 0f;
                 mPrefixResidue = PROTEIN_TERMINUS_SYMBOL;
                 mSuffixResidue = PROTEIN_TERMINUS_SYMBOL;
 
                 // Re-enable mAutoComputeNET
-                mAutoComputeNET = true;
+                AutoComputeNET = true;
             }
 
             public const string PROTEIN_TERMINUS_SYMBOL = "-";
@@ -723,24 +713,15 @@ namespace ProteinDigestionSimulator
             // All objects of type PeptideSequenceWithNET will use the same instance of this object
             private static NETPrediction.iPeptideElutionTime NETPredictor;
 
-            /// <summary>
-            /// When true, auto-compute NET when Sequence change
-            /// Set to False to speed things up a little
-            /// </summary>
-            private bool mAutoComputeNET;
-            private float mNET;
             private string mPrefixResidue;
             private string mSuffixResidue;
 
             /// <summary>
-            /// When true, auto-compute NET
+            /// When true, auto-compute NET when Sequence changes
+            /// Set to False to speed things up a little
             /// </summary>
             /// <returns></returns>
-            public bool AutoComputeNET
-            {
-                get => mAutoComputeNET;
-                set => mAutoComputeNET = value;
-            }
+            public bool AutoComputeNET { get; set; }
 
             /// <summary>
             /// Peptide name
@@ -752,7 +733,7 @@ namespace ProteinDigestionSimulator
             /// Normalized elution time
             /// </summary>
             /// <returns></returns>
-            public float NET => mNET;
+            public float NET { get; private set; }
 
             /// <summary>
             /// Prefix residue
@@ -780,8 +761,8 @@ namespace ProteinDigestionSimulator
             /// <returns></returns>
             public string SequenceOneLetter
             {
-                get => GetSequence(false);
-                set => SetSequence(value, NTerminusGroupConstants.Hydrogen, CTerminusGroupConstants.Hydroxyl, false);
+                get => GetSequence();
+                set => SetSequence(value);
             }
 
             /// <summary>
@@ -823,7 +804,7 @@ namespace ProteinDigestionSimulator
             public override int SetSequence(string sequence, NTerminusGroupConstants nTerminus = NTerminusGroupConstants.Hydrogen, CTerminusGroupConstants cTerminus = CTerminusGroupConstants.Hydroxyl, bool is3LetterCode = false, bool oneLetterCheckForPrefixAndSuffixResidues = true, bool threeLetterCheckForPrefixHandSuffixOH = true)
             {
                 var returnVal = base.SetSequence(sequence, nTerminus, cTerminus, is3LetterCode, oneLetterCheckForPrefixAndSuffixResidues, threeLetterCheckForPrefixHandSuffixOH);
-                if (mAutoComputeNET)
+                if (AutoComputeNET)
                     UpdateNET();
                 return returnVal;
             }
@@ -837,7 +818,7 @@ namespace ProteinDigestionSimulator
             public override void SetSequenceOneLetterCharactersOnly(string sequenceNoPrefixOrSuffix)
             {
                 base.SetSequenceOneLetterCharactersOnly(sequenceNoPrefixOrSuffix);
-                if (mAutoComputeNET)
+                if (AutoComputeNET)
                     UpdateNET();
             }
 
@@ -848,20 +829,20 @@ namespace ProteinDigestionSimulator
             {
                 try
                 {
-                    var sequence = GetSequence(false);
+                    var sequence = GetSequence();
                     if (CysTreatmentMode != CysTreatmentModeConstants.Untreated)
                     {
                         // Change cysteine residues to lowercase so that the NET predictor will recognize them as alkylated
-                        mNET = NETPredictor.GetElutionTime(sequence.Replace("C", "c"));
+                        NET = NETPredictor.GetElutionTime(sequence.Replace("C", "c"));
                     }
                     else
                     {
-                        mNET = NETPredictor.GetElutionTime(sequence);
+                        NET = NETPredictor.GetElutionTime(sequence);
                     }
                 }
                 catch
                 {
-                    mNET = 0f;
+                    NET = 0f;
                 }
             }
         }
@@ -880,8 +861,8 @@ namespace ProteinDigestionSimulator
                 FragmentMassMode = FragmentMassConstants.Monoisotopic;
                 mMinFragmentMass = 0;
                 mMaxFragmentMass = 6000;
-                mMinIsoelectricPoint = 0f;
-                mMaxIsoelectricPoint = 100f;
+                MinIsoelectricPoint = 0f;
+                MaxIsoelectricPoint = 100f;
                 RemoveDuplicateSequences = false;
                 IncludePrefixAndSuffixResidues = false;
                 AminoAcidResidueFilterChars = new char[0];
@@ -891,8 +872,6 @@ namespace ProteinDigestionSimulator
             private int mMinFragmentResidueCount;
             private int mMinFragmentMass;
             private int mMaxFragmentMass;
-            private float mMinIsoelectricPoint;
-            private float mMaxIsoelectricPoint;
 
             public char[] AminoAcidResidueFilterChars { get; set; }
 
@@ -946,17 +925,9 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            public float MinIsoelectricPoint
-            {
-                get => mMinIsoelectricPoint;
-                set => mMinIsoelectricPoint = value;
-            }
+            public float MinIsoelectricPoint { get; set; }
 
-            public float MaxIsoelectricPoint
-            {
-                get => mMaxIsoelectricPoint;
-                set => mMaxIsoelectricPoint = value;
-            }
+            public float MaxIsoelectricPoint { get; set; }
 
             public bool RemoveDuplicateSequences { get; set; }
             public bool IncludePrefixAndSuffixResidues { get; set; }
@@ -968,9 +939,9 @@ namespace ProteinDigestionSimulator
                     mMaxFragmentMass = mMinFragmentMass;
                 }
 
-                if (mMaxIsoelectricPoint < mMinIsoelectricPoint)
+                if (MaxIsoelectricPoint < MinIsoelectricPoint)
                 {
-                    mMaxIsoelectricPoint = mMinIsoelectricPoint;
+                    MaxIsoelectricPoint = MinIsoelectricPoint;
                 }
             }
         }

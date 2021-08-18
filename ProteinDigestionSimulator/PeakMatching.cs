@@ -242,12 +242,7 @@ namespace ProteinDigestionSimulator
                     rowIndex = BinarySearchFindFeature(featureID);
                 }
 
-                if (rowIndex >= 0)
-                {
-                    return true;
-                }
-
-                return false;
+                return rowIndex >= 0;
             }
 
             public int Count => mFeatureCount;
@@ -256,8 +251,7 @@ namespace ProteinDigestionSimulator
             {
                 // Return the feature info for featureID
 
-                int rowIndex;
-                var matchFound = ContainsFeature(featureID, out rowIndex);
+                var matchFound = ContainsFeature(featureID, out var rowIndex);
                 if (matchFound)
                 {
                     featureInfo = mFeatures[rowIndex];
@@ -401,8 +395,7 @@ namespace ProteinDigestionSimulator
             {
                 // Return the feature info for featureID
 
-                int rowIndex;
-                var matchFound = ContainsFeature(featureID, out rowIndex);
+                var matchFound = ContainsFeature(featureID, out var rowIndex);
                 if (matchFound)
                 {
                     featureInfo = mFeatures[rowIndex];
@@ -683,8 +676,6 @@ namespace ProteinDigestionSimulator
 
         private int mMaxPeakMatchingResultsPerFeatureToSave;
         private readonly SearchModeOptions mSearchModeOptions = new SearchModeOptions();
-        private string mProgressDescription;
-        private float mProgressPercent;
         private bool mAbortProcessing;
 
         public event ProgressContinuesEventHandler ProgressContinues;
@@ -706,9 +697,9 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        public string ProgressDescription => mProgressDescription;
+        public string ProgressDescription { get; private set; }
 
-        public float ProgressPct => mProgressPercent;
+        public float ProgressPct { get; private set; }
 
         public bool UseMaxSearchDistanceMultiplierAndSLiCScore
         {
@@ -754,7 +745,6 @@ namespace ProteinDigestionSimulator
         private void ComputeSLiCScores(ref FeatureInfo featureToIdentify, ref PMFeatureMatchResults featureMatchResults, List<PeakMatchingRawMatches> rawMatches, PMComparisonFeatureInfo comparisonFeatures, ref SearchThresholds searchThresholds, SearchThresholds.SearchTolerances computedTolerances)
         {
             int index;
-            var comparisonFeatureInfo = FeatureInfo.Blank();
             string message;
 
             // Compute the match scores (aka SLiC scores)
@@ -862,7 +852,7 @@ namespace ProteinDigestionSimulator
                 // Record, at most, mMaxPeakMatchingResultsPerFeatureToSave entries
                 for (index = 0; index < Math.Min(mMaxPeakMatchingResultsPerFeatureToSave, rawMatches.Count); index++)
                 {
-                    comparisonFeatures.GetFeatureInfoByRowIndex(rawMatches[index].MatchingIDIndex, out comparisonFeatureInfo);
+                    comparisonFeatures.GetFeatureInfoByRowIndex(rawMatches[index].MatchingIDIndex, out var comparisonFeatureInfo);
                     featureMatchResults.AddMatch(featureToIdentify.FeatureID, comparisonFeatureInfo.FeatureID, rawMatches[index].SLiCScore, rawMatches[index].DelSLiC, rawMatches[index].MassErr, rawMatches[index].NETErr, rawMatches.Count);
                 }
             }
@@ -921,9 +911,6 @@ namespace ProteinDigestionSimulator
 
             // Note that featureMatchResults will only contain info on the features in featuresToIdentify that matched entries in comparisonFeatures
 
-            var currentFeatureToIdentify = FeatureInfo.Blank();
-            var currentComparisonFeature = FeatureInfo.Blank();
-
             bool success;
 
             // if (mUseSqlServerForMatchResults)
@@ -953,7 +940,7 @@ namespace ProteinDigestionSimulator
                 {
                     // Use rangeSearch to search for matches to each peptide in comparisonFeatures
 
-                    if (featuresToIdentify.GetFeatureInfoByRowIndex(featureIndex, out currentFeatureToIdentify))
+                    if (featuresToIdentify.GetFeatureInfoByRowIndex(featureIndex, out var currentFeatureToIdentify))
                     {
                         // By Calling .ComputedSearchTolerances() with a mass, the tolerances will be auto re-computed
                         var computedTolerances = searchThresholds.get_ComputedSearchTolerances(currentFeatureToIdentify.Mass);
@@ -981,7 +968,7 @@ namespace ProteinDigestionSimulator
                             for (matchIndex = matchInd1; matchIndex <= matchInd2; matchIndex++)
                             {
                                 var comparisonFeaturesOriginalRowIndex = rangeSearch.get_OriginalIndex(matchIndex);
-                                if (comparisonFeatures.GetFeatureInfoByRowIndex(comparisonFeaturesOriginalRowIndex, out currentComparisonFeature))
+                                if (comparisonFeatures.GetFeatureInfoByRowIndex(comparisonFeaturesOriginalRowIndex, out var currentComparisonFeature))
                                 {
                                     double netDiff = currentFeatureToIdentify.NET - currentComparisonFeature.NET;
                                     if (Math.Abs(netDiff) <= netTol)
@@ -1089,12 +1076,7 @@ namespace ProteinDigestionSimulator
 
             try
             {
-                if (Math.Pow(pointX, 2d) / Math.Pow(xTol, 2d) + Math.Pow(pointY, 2d) / Math.Pow(yTol, 2d) <= 1d)
-                {
-                    return true;
-                }
-
-                return false;
+                return Math.Pow(pointX, 2d) / Math.Pow(xTol, 2d) + Math.Pow(pointY, 2d) / Math.Pow(yTol, 2d) <= 1d;
             }
             catch
             {
@@ -1109,7 +1091,7 @@ namespace ProteinDigestionSimulator
         /// <param name="progressPercent">Value between 0 and 100</param>
         private void UpdateProgress(float progressPercent)
         {
-            mProgressPercent = progressPercent;
+            ProgressPct = progressPercent;
             ProgressContinues?.Invoke();
         }
 
@@ -1120,8 +1102,8 @@ namespace ProteinDigestionSimulator
         /// <param name="progressPercent">Value between 0 and 100</param>
         private void UpdateProgress(string description, float progressPercent)
         {
-            mProgressDescription = description;
-            mProgressPercent = progressPercent;
+            ProgressDescription = description;
+            ProgressPct = progressPercent;
             ProgressContinues?.Invoke();
         }
 
@@ -1160,16 +1142,15 @@ namespace ProteinDigestionSimulator
             private double mNETTolerance;           // NET search tolerance, +- this value
             private float mSLiCScoreMaxSearchDistanceMultiplier;
             private readonly SLiCScoreOptions mSLiCScoreOptions = new SLiCScoreOptions();
-            private readonly SearchTolerances mComputedSearchTolerances = new SearchTolerances();
 
             public bool AutoDefineSLiCScoreThresholds { get; set; }
 
-            public SearchTolerances ComputedSearchTolerances => mComputedSearchTolerances;
+            public SearchTolerances ComputedSearchTolerances { get; } = new SearchTolerances();
 
             public SearchTolerances get_ComputedSearchTolerances(double referenceMass)
             {
                 DefinePeakMatchingTolerances(ref referenceMass);
-                return mComputedSearchTolerances;
+                return ComputedSearchTolerances;
             }
 
             public MassToleranceConstants MassTolType { get; set; }
@@ -1251,11 +1232,11 @@ namespace ProteinDigestionSimulator
                 switch (MassTolType)
                 {
                     case MassToleranceConstants.PPM:
-                        mComputedSearchTolerances.MWTolAbsFinal = PPMToMass(mMassTolerance, referenceMass);
+                        ComputedSearchTolerances.MWTolAbsFinal = PPMToMass(mMassTolerance, referenceMass);
                         MWTolPPMBroad = mMassTolerance;
                         break;
                     case MassToleranceConstants.Absolute:
-                        mComputedSearchTolerances.MWTolAbsFinal = mMassTolerance;
+                        ComputedSearchTolerances.MWTolAbsFinal = mMassTolerance;
                         if (referenceMass > 0d)
                         {
                             MWTolPPMBroad = MassToPPM(mMassTolerance, referenceMass);
@@ -1276,16 +1257,16 @@ namespace ProteinDigestionSimulator
                     MWTolPPMBroad = mSLiCScoreOptions.MassPPMStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR;
                 }
 
-                mComputedSearchTolerances.NETTolBroad = mSLiCScoreOptions.NETStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR;
-                if (mComputedSearchTolerances.NETTolBroad < mNETTolerance)
+                ComputedSearchTolerances.NETTolBroad = mSLiCScoreOptions.NETStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR;
+                if (ComputedSearchTolerances.NETTolBroad < mNETTolerance)
                 {
-                    mComputedSearchTolerances.NETTolBroad = mNETTolerance;
+                    ComputedSearchTolerances.NETTolBroad = mNETTolerance;
                 }
 
-                mComputedSearchTolerances.NETTolFinal = mNETTolerance;
+                ComputedSearchTolerances.NETTolFinal = mNETTolerance;
 
                 // Convert from PPM to Absolute mass
-                mComputedSearchTolerances.MWTolAbsBroad = PPMToMass(MWTolPPMBroad, referenceMass);
+                ComputedSearchTolerances.MWTolAbsBroad = PPMToMass(MWTolPPMBroad, referenceMass);
             }
 
             private void InitializeSLiCScoreOptions(bool computeUsingSearchThresholds)
