@@ -589,7 +589,7 @@ namespace ProteinDigestionSimulator
 
         public bool FillWithDataAddPoint(float valueToAdd)
         {
-            var success = default(bool);
+            var success = true;
             try
             {
                 if (mDataType != DataTypeToUse.FillingSingleType)
@@ -628,7 +628,7 @@ namespace ProteinDigestionSimulator
 
         public bool FillWithDataAddPoint(double valueToAdd)
         {
-            var success = default(bool);
+            var success = true;
             try
             {
                 if (mDataType != DataTypeToUse.FillingDoubleType)
