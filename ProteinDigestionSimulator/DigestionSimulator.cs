@@ -119,122 +119,22 @@ namespace ProteinDigestionSimulator
         /// Protein file parser
         /// </summary>
         /// <remarks>This class is exposed as public so that we can directly access some of its properties without having to create wrapper properties in this class</remarks>
-        private ProteinFileParser _mProteinFileParser;
-
-        public ProteinFileParser mProteinFileParser
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get
-            {
-                return _mProteinFileParser;
-            }
-
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set
-            {
-                if (_mProteinFileParser != null)
-                {
-                    _mProteinFileParser.ErrorEvent -= mProteinFileParser_ErrorEvent;
-                }
-
-                _mProteinFileParser = value;
-                if (_mProteinFileParser != null)
-                {
-                    _mProteinFileParser.ErrorEvent += mProteinFileParser_ErrorEvent;
-                }
-            }
-        }
+        public ProteinFileParser mProteinFileParser;
 
         private char mOutputFileDelimiter;
         private int mMaxPeakMatchingResultsPerFeatureToSave;
         private readonly MassBinningOptions mPeptideUniquenessBinningSettings = new MassBinningOptions();
         private ErrorCodes mLocalErrorCode;
         private string mLastErrorMessage;
-        private PeakMatching _mPeakMatching;
-
-        private PeakMatching mPeakMatching
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get
-            {
-                return _mPeakMatching;
-            }
-
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set
-            {
-                if (_mPeakMatching != null)
-                {
-                    _mPeakMatching.LogEvent -= mPeakMatching_LogEvent;
-                    _mPeakMatching.ProgressContinues -= mPeakMatching_ProgressContinues;
-                }
-
-                _mPeakMatching = value;
-                if (_mPeakMatching != null)
-                {
-                    _mPeakMatching.LogEvent += mPeakMatching_LogEvent;
-                    _mPeakMatching.ProgressContinues += mPeakMatching_ProgressContinues;
-                }
-            }
-        }
+        private PeakMatching mPeakMatching; // TODO: This should just be a local variable (fix ProgressContinues event)
 
         /// <summary>
         /// Comparison peptides to match against
         /// </summary>
         private PeakMatching.PMComparisonFeatureInfo mComparisonPeptideInfo;
-        private ProteinCollection _mProteinInfo;
 
-        private ProteinCollection mProteinInfo
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get
-            {
-                return _mProteinInfo;
-            }
-
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set
-            {
-                if (_mProteinInfo != null)
-                {
-                    _mProteinInfo.SortingList -= mProteinInfo_SortingList;
-                    _mProteinInfo.SortingMappings -= mProteinInfo_SortingMappings;
-                }
-
-                _mProteinInfo = value;
-                if (_mProteinInfo != null)
-                {
-                    _mProteinInfo.SortingList += mProteinInfo_SortingList;
-                    _mProteinInfo.SortingMappings += mProteinInfo_SortingMappings;
-                }
-            }
-        }
-
-        private PeakMatching.PMFeatureMatchResults _mPeptideMatchResults;
-
-        private PeakMatching.PMFeatureMatchResults mPeptideMatchResults
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get
-            {
-                return _mPeptideMatchResults;
-            }
-
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set
-            {
-                if (_mPeptideMatchResults != null)
-                {
-                    _mPeptideMatchResults.SortingList -= mPeptideMatchResults_SortingList;
-                }
-
-                _mPeptideMatchResults = value;
-                if (_mPeptideMatchResults != null)
-                {
-                    _mPeptideMatchResults.SortingList += mPeptideMatchResults_SortingList;
-                }
-            }
-        }
+        private ProteinCollection mProteinInfo;
+        private PeakMatching.PMFeatureMatchResults mPeptideMatchResults;
 
         /// <summary>
         /// Holds the lists of peptides that were uniquely identified for each protein
@@ -893,6 +793,9 @@ namespace ProteinDigestionSimulator
                                 UseEllipseSearchRegion = UseEllipseSearchRegion
                             };
 
+                            mPeakMatching.LogEvent += mPeakMatching_LogEvent;
+                            mPeakMatching.ProgressContinues += mPeakMatching_ProgressContinues;
+
                             // ----------------------------------------------------
                             // Initialize the output files if combining all results
                             // in a single file for each type of result
@@ -916,6 +819,8 @@ namespace ProteinDigestionSimulator
                                 LogMessage("Threshold " + (thresholdIndex + 1).ToString() + ", IdentifySequences", MessageTypeConstants.Normal);
                                 success = mPeakMatching.IdentifySequences(mThresholdLevels[thresholdIndex], ref featuresToIdentify, mComparisonPeptideInfo, out var featureMatchResults, ref rangeSearch);
                                 mPeptideMatchResults = featureMatchResults;
+                                mPeptideMatchResults.SortingList += mPeptideMatchResults_SortingList;
+
                                 if (!success)
                                     break;
                                 if (SavePeakMatchingResults)
@@ -977,6 +882,13 @@ namespace ProteinDigestionSimulator
                             peptideUniquenessWriter.Close();
                         if (proteinStatsWriter != null)
                             proteinStatsWriter.Close();
+
+                        if (mPeakMatching != null)
+                        {
+                            mPeakMatching.LogEvent -= mPeakMatching_LogEvent;
+                            mPeakMatching.ProgressContinues -= mPeakMatching_ProgressContinues;
+                        }
+
                         mPeakMatching = null;
                     }
                     catch (Exception ex)
@@ -1288,6 +1200,7 @@ namespace ProteinDigestionSimulator
             if (mProteinFileParser == null)
             {
                 mProteinFileParser = new ProteinFileParser();
+                mProteinFileParser.ErrorEvent += mProteinFileParser_ErrorEvent;
                 resetToDefaults = true;
             }
 
@@ -1382,10 +1295,14 @@ namespace ProteinDigestionSimulator
                 mComparisonPeptideInfo = new PeakMatching.PMComparisonFeatureInfo();
                 if (mProteinInfo != null)
                 {
+                    mProteinInfo.SortingList -= mProteinInfo_SortingList;
+                    mProteinInfo.SortingMappings -= mProteinInfo_SortingMappings;
                     mProteinInfo = null;
                 }
 
                 mProteinInfo = new ProteinCollection();
+                mProteinInfo.SortingList += mProteinInfo_SortingList;
+                mProteinInfo.SortingMappings += mProteinInfo_SortingMappings;
 
                 // Possibly initialize the ProteinFileParser object
                 if (mProteinFileParser == null)

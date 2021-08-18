@@ -33,31 +33,8 @@ namespace ProteinDigestionSimulator
         protected ProteinEntry[] mProteins;
         protected bool mProteinArrayIsSorted;
         protected int mMaxProteinIDUsed;
-        private ProteinToPeptideMappingInfo _mProteinToPeptideMapping;
 
-        protected ProteinToPeptideMappingInfo mProteinToPeptideMapping
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get
-            {
-                return _mProteinToPeptideMapping;
-            }
-
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set
-            {
-                if (_mProteinToPeptideMapping != null)
-                {
-                    _mProteinToPeptideMapping.SortingList -= mProteinToPeptideMapping_SortingList;
-                }
-
-                _mProteinToPeptideMapping = value;
-                if (_mProteinToPeptideMapping != null)
-                {
-                    _mProteinToPeptideMapping.SortingList += mProteinToPeptideMapping_SortingList;
-                }
-            }
-        }
+        protected ProteinToPeptideMappingInfo mProteinToPeptideMapping;
 
         protected bool mUseProteinNameHashTable;
         protected Hashtable mProteinNameToRowIndex;
@@ -75,6 +52,7 @@ namespace ProteinDigestionSimulator
             mUseProteinNameHashTable = true;                       // Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
             Clear();
             mProteinToPeptideMapping = new ProteinToPeptideMappingInfo();
+            mProteinToPeptideMapping.SortingList += mProteinToPeptideMapping_SortingList;
         }
 
         public bool Add(string proteinName, ref int newProteinID)

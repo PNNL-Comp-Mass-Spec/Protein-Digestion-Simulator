@@ -156,88 +156,10 @@ namespace ProteinDigestionSimulator
         public InSilicoDigest.DigestionOptions DigestionOptions;
         public FastaFileParseOptions FastaFileOptions;
         private bool mObjectVariablesLoaded;
-        private InSilicoDigest _mInSilicoDigest;
-
-        private InSilicoDigest mInSilicoDigest
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get
-            {
-                return _mInSilicoDigest;
-            }
-
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set
-            {
-                if (_mInSilicoDigest != null)
-                {
-                    _mInSilicoDigest.ErrorEvent -= InSilicoDigest_ErrorEvent;
-                    _mInSilicoDigest.ProgressChanged -= InSilicoDigest_ProgressChanged;
-                    _mInSilicoDigest.ProgressReset -= InSilicoDigest_ProgressReset;
-                }
-
-                _mInSilicoDigest = value;
-                if (_mInSilicoDigest != null)
-                {
-                    _mInSilicoDigest.ErrorEvent += InSilicoDigest_ErrorEvent;
-                    _mInSilicoDigest.ProgressChanged += InSilicoDigest_ProgressChanged;
-                    _mInSilicoDigest.ProgressReset += InSilicoDigest_ProgressReset;
-                }
-            }
-        }
-
+        private InSilicoDigest mInSilicoDigest;
         private ComputePeptideProperties mpICalculator;
-        private ElutionTimePredictionKangas _mNETCalculator;
-
-        private ElutionTimePredictionKangas mNETCalculator
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get
-            {
-                return _mNETCalculator;
-            }
-
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set
-            {
-                if (_mNETCalculator != null)
-                {
-                    _mNETCalculator.ErrorEvent -= NETCalculator_ErrorEvent;
-                }
-
-                _mNETCalculator = value;
-                if (_mNETCalculator != null)
-                {
-                    _mNETCalculator.ErrorEvent += NETCalculator_ErrorEvent;
-                }
-            }
-        }
-
-        private SCXElutionTimePredictionKangas _mSCXNETCalculator;
-
-        private SCXElutionTimePredictionKangas mSCXNETCalculator
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get
-            {
-                return _mSCXNETCalculator;
-            }
-
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set
-            {
-                if (_mSCXNETCalculator != null)
-                {
-                    _mSCXNETCalculator.ErrorEvent -= SCXNETCalculator_ErrorEvent;
-                }
-
-                _mSCXNETCalculator = value;
-                if (_mSCXNETCalculator != null)
-                {
-                    _mSCXNETCalculator.ErrorEvent += SCXNETCalculator_ErrorEvent;
-                }
-            }
-        }
+        private ElutionTimePredictionKangas mNETCalculator;
+        private SCXElutionTimePredictionKangas mSCXNETCalculator;
 
         private readonly List<ProteinInfo> mProteins = new List<ProteinInfo>();
         private bool mParsedFileIsFastaFile;
@@ -814,6 +736,9 @@ namespace ProteinDigestionSimulator
                 try
                 {
                     mInSilicoDigest = new InSilicoDigest();
+                    mInSilicoDigest.ErrorEvent += InSilicoDigest_ErrorEvent;
+                    mInSilicoDigest.ProgressChanged += InSilicoDigest_ProgressChanged;
+                    mInSilicoDigest.ProgressReset += InSilicoDigest_ProgressReset;
                 }
                 catch (Exception ex)
                 {
@@ -835,6 +760,7 @@ namespace ProteinDigestionSimulator
                 try
                 {
                     mNETCalculator = new ElutionTimePredictionKangas();
+                    mNETCalculator.ErrorEvent += NETCalculator_ErrorEvent;
                 }
                 catch (Exception ex)
                 {
@@ -846,6 +772,7 @@ namespace ProteinDigestionSimulator
                 try
                 {
                     mSCXNETCalculator = new SCXElutionTimePredictionKangas();
+                    mSCXNETCalculator.ErrorEvent += SCXNETCalculator_ErrorEvent;
                 }
                 catch (Exception ex)
                 {

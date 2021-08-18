@@ -52,48 +52,48 @@ namespace ProteinDigestionSimulator
             SCXNETCalculator = new SCXElutionTimePredictionKangas();
             mCleavageRuleComboboxIndexToType = new Dictionary<int, InSilicoDigest.CleavageRuleConstants>();
             InitializeControls();
-            _txtProteinInputFilePath.Name = "txtProteinInputFilePath";
-            _txtMaxPeakMatchingResultsPerFeatureToSave.Name = "txtMaxPeakMatchingResultsPerFeatureToSave";
-            _txtMinimumSLiCScore.Name = "txtMinimumSLiCScore";
-            _chkUseSLiCScoreForUniqueness.Name = "chkUseSLiCScoreForUniqueness";
-            _chkAllowSqlServerCaching.Name = "chkAllowSqlServerCaching";
-            _chkSqlServerUseIntegratedSecurity.Name = "chkSqlServerUseIntegratedSecurity";
-            _chkUseSqlServerDBToCacheData.Name = "chkUseSqlServerDBToCacheData";
-            _txtUniquenessBinWidth.Name = "txtUniquenessBinWidth";
-            _chkAutoComputeRangeForBinning.Name = "chkAutoComputeRangeForBinning";
-            _txtUniquenessBinEndMass.Name = "txtUniquenessBinEndMass";
-            _txtUniquenessBinStartMass.Name = "txtUniquenessBinStartMass";
-            _cmdGenerateUniquenessStats.Name = "cmdGenerateUniquenessStats";
-            _txtProteinScramblingLoopCount.Name = "txtProteinScramblingLoopCount";
-            _txtMaxpISequenceLength.Name = "txtMaxpISequenceLength";
-            _chkMaxpIModeEnabled.Name = "chkMaxpIModeEnabled";
-            _cboHydrophobicityMode.Name = "cboHydrophobicityMode";
-            _txtSequenceForpI.Name = "txtSequenceForpI";
-            _cboInputFileColumnDelimiter.Name = "cboInputFileColumnDelimiter";
-            _txtProteinReversalSamplingPercentage.Name = "txtProteinReversalSamplingPercentage";
-            _chkLookForAddnlRefInDescription.Name = "chkLookForAddnlRefInDescription";
-            _cboProteinReversalOptions.Name = "cboProteinReversalOptions";
-            _chkDigestProteins.Name = "chkDigestProteins";
-            _chkCreateFastaOutputFile.Name = "chkCreateFastaOutputFile";
-            _cmdNETInfo.Name = "cmdNETInfo";
-            _chkComputeSequenceHashValues.Name = "chkComputeSequenceHashValues";
-            _cboElementMassMode.Name = "cboElementMassMode";
-            _chkComputepIandNET.Name = "chkComputepIandNET";
-            _txtDigestProteinsMinimumResidueCount.Name = "txtDigestProteinsMinimumResidueCount";
-            _txtDigestProteinsMaximumMissedCleavages.Name = "txtDigestProteinsMaximumMissedCleavages";
-            _txtDigestProteinsMaximumMass.Name = "txtDigestProteinsMaximumMass";
-            _txtDigestProteinsMinimumMass.Name = "txtDigestProteinsMinimumMass";
-            _cmdParseInputFile.Name = "cmdParseInputFile";
-            _chkAutoDefineSLiCScoreTolerances.Name = "chkAutoDefineSLiCScoreTolerances";
-            _cmdPastePMThresholdsList.Name = "cmdPastePMThresholdsList";
-            _cmdPMThresholdsAutoPopulate.Name = "cmdPMThresholdsAutoPopulate";
-            _cmdClearPMThresholdsList.Name = "cmdClearPMThresholdsList";
-            _cmdAbortProcessing.Name = "cmdAbortProcessing";
-            _cboInputFileFormat.Name = "cboInputFileFormat";
-            _cmdSelectFile.Name = "cmdSelectFile";
-            _cmdValidateFastaFile.Name = "cmdValidateFastaFile";
-            _cmdSelectOutputFile.Name = "cmdSelectOutputFile";
-            _cboOutputFileFieldDelimiter.Name = "cboOutputFileFieldDelimiter";
+            txtProteinInputFilePath.Name = "txtProteinInputFilePath";
+            txtMaxPeakMatchingResultsPerFeatureToSave.Name = "txtMaxPeakMatchingResultsPerFeatureToSave";
+            txtMinimumSLiCScore.Name = "txtMinimumSLiCScore";
+            chkUseSLiCScoreForUniqueness.Name = "chkUseSLiCScoreForUniqueness";
+            chkAllowSqlServerCaching.Name = "chkAllowSqlServerCaching";
+            chkSqlServerUseIntegratedSecurity.Name = "chkSqlServerUseIntegratedSecurity";
+            chkUseSqlServerDBToCacheData.Name = "chkUseSqlServerDBToCacheData";
+            txtUniquenessBinWidth.Name = "txtUniquenessBinWidth";
+            chkAutoComputeRangeForBinning.Name = "chkAutoComputeRangeForBinning";
+            txtUniquenessBinEndMass.Name = "txtUniquenessBinEndMass";
+            txtUniquenessBinStartMass.Name = "txtUniquenessBinStartMass";
+            cmdGenerateUniquenessStats.Name = "cmdGenerateUniquenessStats";
+            txtProteinScramblingLoopCount.Name = "txtProteinScramblingLoopCount";
+            txtMaxpISequenceLength.Name = "txtMaxpISequenceLength";
+            chkMaxpIModeEnabled.Name = "chkMaxpIModeEnabled";
+            cboHydrophobicityMode.Name = "cboHydrophobicityMode";
+            txtSequenceForpI.Name = "txtSequenceForpI";
+            cboInputFileColumnDelimiter.Name = "cboInputFileColumnDelimiter";
+            txtProteinReversalSamplingPercentage.Name = "txtProteinReversalSamplingPercentage";
+            chkLookForAddnlRefInDescription.Name = "chkLookForAddnlRefInDescription";
+            cboProteinReversalOptions.Name = "cboProteinReversalOptions";
+            chkDigestProteins.Name = "chkDigestProteins";
+            chkCreateFastaOutputFile.Name = "chkCreateFastaOutputFile";
+            cmdNETInfo.Name = "cmdNETInfo";
+            chkComputeSequenceHashValues.Name = "chkComputeSequenceHashValues";
+            cboElementMassMode.Name = "cboElementMassMode";
+            chkComputepIandNET.Name = "chkComputepIandNET";
+            txtDigestProteinsMinimumResidueCount.Name = "txtDigestProteinsMinimumResidueCount";
+            txtDigestProteinsMaximumMissedCleavages.Name = "txtDigestProteinsMaximumMissedCleavages";
+            txtDigestProteinsMaximumMass.Name = "txtDigestProteinsMaximumMass";
+            txtDigestProteinsMinimumMass.Name = "txtDigestProteinsMinimumMass";
+            cmdParseInputFile.Name = "cmdParseInputFile";
+            chkAutoDefineSLiCScoreTolerances.Name = "chkAutoDefineSLiCScoreTolerances";
+            cmdPastePMThresholdsList.Name = "cmdPastePMThresholdsList";
+            cmdPMThresholdsAutoPopulate.Name = "cmdPMThresholdsAutoPopulate";
+            cmdClearPMThresholdsList.Name = "cmdClearPMThresholdsList";
+            cmdAbortProcessing.Name = "cmdAbortProcessing";
+            cboInputFileFormat.Name = "cboInputFileFormat";
+            cmdSelectFile.Name = "cmdSelectFile";
+            cmdValidateFastaFile.Name = "cmdValidateFastaFile";
+            cmdSelectOutputFile.Name = "cmdSelectOutputFile";
+            cboOutputFileFieldDelimiter.Name = "cboOutputFileFieldDelimiter";
         }
 
         private const string XML_SETTINGS_FILE_NAME = "ProteinDigestionSimulatorOptions.xml";
@@ -173,99 +173,9 @@ namespace ProteinDigestionSimulator
         private readonly Dictionary<int, InSilicoDigest.CleavageRuleConstants> mCleavageRuleComboboxIndexToType;
         private int mTabPageIndexSaved = 0;
         private FastaValidation.FastaValidationOptions mFastaValidationOptions;
-        private ProteinFileParser _mParseProteinFile;
-
-        private ProteinFileParser mParseProteinFile
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get
-            {
-                return _mParseProteinFile;
-            }
-
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set
-            {
-                if (_mParseProteinFile != null)
-                {
-                    _mParseProteinFile.ErrorEvent -= ParseProteinFile_ErrorEvent;
-                    _mParseProteinFile.ProgressUpdate -= ParseProteinFile_ProgressChanged;
-                    _mParseProteinFile.ProgressComplete -= ParseProteinFile_ProgressComplete;
-                    _mParseProteinFile.ProgressReset -= ParseProteinFile_ProgressReset;
-                    _mParseProteinFile.SubtaskProgressChanged -= ParseProteinFile_SubtaskProgressChanged;
-                }
-
-                _mParseProteinFile = value;
-                if (_mParseProteinFile != null)
-                {
-                    _mParseProteinFile.ErrorEvent += ParseProteinFile_ErrorEvent;
-                    _mParseProteinFile.ProgressUpdate += ParseProteinFile_ProgressChanged;
-                    _mParseProteinFile.ProgressComplete += ParseProteinFile_ProgressComplete;
-                    _mParseProteinFile.ProgressReset += ParseProteinFile_ProgressReset;
-                    _mParseProteinFile.SubtaskProgressChanged += ParseProteinFile_SubtaskProgressChanged;
-                }
-            }
-        }
-
-        private DigestionSimulator _mProteinDigestionSimulator;
-
-        private DigestionSimulator mProteinDigestionSimulator
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get
-            {
-                return _mProteinDigestionSimulator;
-            }
-
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set
-            {
-                if (_mProteinDigestionSimulator != null)
-                {
-                    _mProteinDigestionSimulator.ErrorEvent -= ProteinDigestionSimulator_ErrorEvent;
-                    _mProteinDigestionSimulator.ProgressUpdate -= ProteinDigestionSimulator_ProgressChanged;
-                    _mProteinDigestionSimulator.ProgressComplete -= ProteinDigestionSimulator_ProgressComplete;
-                    _mProteinDigestionSimulator.ProgressReset -= ProteinDigestionSimulator_ProgressReset;
-                    _mProteinDigestionSimulator.SubtaskProgressChanged -= ProteinDigestionSimulator_SubtaskProgressChanged;
-                }
-
-                _mProteinDigestionSimulator = value;
-                if (_mProteinDigestionSimulator != null)
-                {
-                    _mProteinDigestionSimulator.ErrorEvent += ProteinDigestionSimulator_ErrorEvent;
-                    _mProteinDigestionSimulator.ProgressUpdate += ProteinDigestionSimulator_ProgressChanged;
-                    _mProteinDigestionSimulator.ProgressComplete += ProteinDigestionSimulator_ProgressComplete;
-                    _mProteinDigestionSimulator.ProgressReset += ProteinDigestionSimulator_ProgressReset;
-                    _mProteinDigestionSimulator.SubtaskProgressChanged += ProteinDigestionSimulator_SubtaskProgressChanged;
-                }
-            }
-        }
-
-        private FastaValidation _mFastaValidation;
-
-        private FastaValidation mFastaValidation
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get
-            {
-                return _mFastaValidation;
-            }
-
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set
-            {
-                if (_mFastaValidation != null)
-                {
-                    _mFastaValidation.FastaValidationStarted -= FastaValidation_FastaValidationStarted;
-                }
-
-                _mFastaValidation = value;
-                if (_mFastaValidation != null)
-                {
-                    _mFastaValidation.FastaValidationStarted += FastaValidation_FastaValidationStarted;
-                }
-            }
-        }
+        private ProteinFileParser mParseProteinFile;
+        private DigestionSimulator mProteinDigestionSimulator;
+        private FastaValidation mFastaValidation;
 
         private void AbortProcessingNow()
         {
@@ -650,6 +560,12 @@ namespace ProteinDigestionSimulator
                     }
 
                     mProteinDigestionSimulator = new DigestionSimulator();
+                    mProteinDigestionSimulator.ErrorEvent += ProteinDigestionSimulator_ErrorEvent;
+                    mProteinDigestionSimulator.ProgressUpdate += ProteinDigestionSimulator_ProgressChanged;
+                    mProteinDigestionSimulator.ProgressComplete += ProteinDigestionSimulator_ProgressComplete;
+                    mProteinDigestionSimulator.ProgressReset += ProteinDigestionSimulator_ProgressReset;
+                    mProteinDigestionSimulator.SubtaskProgressChanged += ProteinDigestionSimulator_SubtaskProgressChanged;
+
                     if (chkEnableLogging.Checked)
                     {
                         mProteinDigestionSimulator.LogMessagesToFile = true;
@@ -777,6 +693,11 @@ namespace ProteinDigestionSimulator
                 {
                     mWorking = false;
                     cmdGenerateUniquenessStats.Enabled = true;
+                    mProteinDigestionSimulator.ErrorEvent -= ProteinDigestionSimulator_ErrorEvent;
+                    mProteinDigestionSimulator.ProgressUpdate -= ProteinDigestionSimulator_ProgressChanged;
+                    mProteinDigestionSimulator.ProgressComplete -= ProteinDigestionSimulator_ProgressComplete;
+                    mProteinDigestionSimulator.ProgressReset -= ProteinDigestionSimulator_ProgressReset;
+                    mProteinDigestionSimulator.SubtaskProgressChanged -= ProteinDigestionSimulator_SubtaskProgressChanged;
                     mProteinDigestionSimulator = null;
                 }
             }
@@ -1381,6 +1302,11 @@ namespace ProteinDigestionSimulator
                     if (mParseProteinFile == null)
                     {
                         mParseProteinFile = new ProteinFileParser();
+                        mParseProteinFile.ErrorEvent += ParseProteinFile_ErrorEvent;
+                        mParseProteinFile.ProgressUpdate += ParseProteinFile_ProgressChanged;
+                        mParseProteinFile.ProgressComplete += ParseProteinFile_ProgressComplete;
+                        mParseProteinFile.ProgressReset += ParseProteinFile_ProgressReset;
+                        mParseProteinFile.SubtaskProgressChanged += ParseProteinFile_SubtaskProgressChanged;
                     }
 
                     success = InitializeProteinFileParserGeneralOptions(mParseProteinFile);
@@ -1435,6 +1361,11 @@ namespace ProteinDigestionSimulator
                     mWorking = false;
                     cmdParseInputFile.Enabled = true;
                     mParseProteinFile.CloseLogFileNow();
+                    mParseProteinFile.ErrorEvent -= ParseProteinFile_ErrorEvent;
+                    mParseProteinFile.ProgressUpdate -= ParseProteinFile_ProgressChanged;
+                    mParseProteinFile.ProgressComplete -= ParseProteinFile_ProgressComplete;
+                    mParseProteinFile.ProgressReset -= ParseProteinFile_ProgressReset;
+                    mParseProteinFile.SubtaskProgressChanged -= ParseProteinFile_SubtaskProgressChanged;
                     mParseProteinFile = null;
                 }
             }
@@ -2098,6 +2029,7 @@ namespace ProteinDigestionSimulator
                     if (mFastaValidation == null)
                     {
                         mFastaValidation = new FastaValidation(fastaFilePath);
+                        mFastaValidation.FastaValidationStarted += FastaValidation_FastaValidationStarted;
                     }
                     else
                     {

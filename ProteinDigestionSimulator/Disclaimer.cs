@@ -9,7 +9,7 @@ namespace ProteinDigestionSimulator
 {
     public class Disclaimer : Form
     {
-        #region  Windows Form Designer generated code 
+        #region  Windows Form Designer generated code
 
         public Disclaimer() : base()
         {
@@ -41,42 +41,18 @@ namespace ProteinDigestionSimulator
         // It can be modified using the Windows Form Designer.
         // Do not modify it using the code editor.
         internal TextBox txtNotice;
-        private Button _cmdOK;
-
-        internal Button cmdOK
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get
-            {
-                return _cmdOK;
-            }
-
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set
-            {
-                if (_cmdOK != null)
-                {
-                    _cmdOK.Click -= cmdOK_Click;
-                }
-
-                _cmdOK = value;
-                if (_cmdOK != null)
-                {
-                    _cmdOK.Click += cmdOK_Click;
-                }
-            }
-        }
+        private Button cmdOK;
 
         [DebuggerStepThrough()]
         private void InitializeComponent()
         {
             txtNotice = new TextBox();
-            _cmdOK = new Button();
-            _cmdOK.Click += new EventHandler(cmdOK_Click);
+            cmdOK = new Button();
+            cmdOK.Click += new EventHandler(cmdOK_Click);
             SuspendLayout();
-            // 
+            //
             // txtNotice
-            // 
+            //
             txtNotice.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             txtNotice.Location = new Point(8, 16);
             txtNotice.Multiline = true;
@@ -84,21 +60,21 @@ namespace ProteinDigestionSimulator
             txtNotice.ReadOnly = true;
             txtNotice.Size = new Size(440, 176);
             txtNotice.TabIndex = 2;
-            // 
+            //
             // cmdOK
-            // 
-            _cmdOK.Location = new Point(168, 200);
-            _cmdOK.Name = "_cmdOK";
-            _cmdOK.Size = new Size(104, 24);
-            _cmdOK.TabIndex = 7;
-            _cmdOK.Text = "&OK";
-            // 
+            //
+            cmdOK.Location = new Point(168, 200);
+            cmdOK.Name = "cmdOK";
+            cmdOK.Size = new Size(104, 24);
+            cmdOK.TabIndex = 7;
+            cmdOK.Text = "&OK";
+            //
             // frmDisclaimer
-            // 
+            //
             AutoScaleBaseSize = new Size(5, 13);
             ClientSize = new Size(456, 238);
             ControlBox = false;
-            Controls.Add(_cmdOK);
+            Controls.Add(cmdOK);
             Controls.Add(txtNotice);
             MaximizeBox = false;
             MinimizeBox = false;
@@ -114,31 +90,7 @@ namespace ProteinDigestionSimulator
         // Ignore Spelling: Kangas, Petritis, cmd, chk, txt, frm
 
         private const int FORM_CLOSE_DELAY_SECONDS = 2;
-        private System.Timers.Timer _mCloseDelayTimer;
-
-        protected System.Timers.Timer mCloseDelayTimer
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get
-            {
-                return _mCloseDelayTimer;
-            }
-
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set
-            {
-                if (_mCloseDelayTimer != null)
-                {
-                    _mCloseDelayTimer.Elapsed -= mCloseDelayTimer_Elapsed;
-                }
-
-                _mCloseDelayTimer = value;
-                if (_mCloseDelayTimer != null)
-                {
-                    _mCloseDelayTimer.Elapsed += mCloseDelayTimer_Elapsed;
-                }
-            }
-        }
+        protected System.Timers.Timer mCloseDelayTimer;
 
         protected DateTime mTimerStartTime;
 
@@ -167,6 +119,7 @@ namespace ProteinDigestionSimulator
             cmdOK.Enabled = false;
             mTimerStartTime = DateTime.UtcNow;
             mCloseDelayTimer = new System.Timers.Timer(250d);
+            mCloseDelayTimer.Elapsed += mCloseDelayTimer_Elapsed;
             mCloseDelayTimer.SynchronizingObject = this;
             mCloseDelayTimer.Start();
         }
