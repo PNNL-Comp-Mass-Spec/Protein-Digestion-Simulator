@@ -115,8 +115,7 @@ namespace ProteinDigestionSimulator
 
         private double CalculateCharge(double pH, int numC, int numD, int numE, int numH, int numK, int numR, int numY)
         {
-            double value;
-            value = 0d;
+            var value = 0d;
             value += CalculateNp(pH, Ck, numC);
             value += CalculateNp(pH, Dk, numD);
             value += CalculateNp(pH, Ek, numE);
@@ -193,9 +192,8 @@ namespace ProteinDigestionSimulator
         // ReSharper disable once UnusedMember.Global
         public int CalculateSequenceChargeState(string seq, double pH)
         {
-            int li;
             int chargeState;
-            if (seq == null || seq.Length == 0)
+            if (string.IsNullOrEmpty(seq))
             {
                 return 0;
             }
@@ -203,6 +201,7 @@ namespace ProteinDigestionSimulator
             try
             {
                 chargeState = 0;
+                int li;
                 for (li = 1; li <= seq.Length; li++)
                 {
                     switch (char.ToUpper(seq[li - 1]))
@@ -252,7 +251,7 @@ namespace ProteinDigestionSimulator
 
         public float CalculateSequenceHydrophobicity(string seq)
         {
-            if (seq == null || seq.Length == 0)
+            if (string.IsNullOrEmpty(seq))
             {
                 return 0f;
             }
@@ -286,33 +285,22 @@ namespace ProteinDigestionSimulator
 
         public float CalculateSequencepI(string seq)
         {
-            int i;
-            int numC;
-            int numD;
-            int numE;
-            int numH;
-            int numK;
-            int numR;
-            int numY;
-            double Value;
-            double value1;
             double pH;
-            double delta;
-            if (seq == null || seq.Length == 0)
+            if (string.IsNullOrEmpty(seq))
             {
                 return 0f;
             }
 
             try
             {
-                numC = 0;
-                numD = 0;
-                numE = 0;
-                numH = 0;
-                numK = 0;
-                numR = 0;
-                numY = 0;
-                for (i = 1; i <= seq.Length; i++)
+                var numC = 0;
+                var numD = 0;
+                var numE = 0;
+                var numH = 0;
+                var numK = 0;
+                var numR = 0;
+                var numY = 0;
+                for (var i = 1; i <= seq.Length; i++)
                 {
                     switch (char.ToUpper(seq[i - 1]))
                     {
@@ -341,11 +329,11 @@ namespace ProteinDigestionSimulator
                 }
 
                 pH = 1d;
-                delta = 1d;
-                Value = CalculateCharge(pH, numC, numD, numE, numH, numK, numR, numY) + 1d;
+                var delta = 1d;
+                var Value = CalculateCharge(pH, numC, numD, numE, numH, numK, numR, numY) + 1d;
                 do
                 {
-                    value1 = CalculateCharge(pH, numC, numD, numE, numH, numK, numR, numY);
+                    var value1 = CalculateCharge(pH, numC, numD, numE, numH, numK, numR, numY);
                     if (Math.Abs(value1) <= Math.Abs(Value))
                     {
                         Value = value1;

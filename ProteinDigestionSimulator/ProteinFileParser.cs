@@ -806,13 +806,11 @@ namespace ProteinDigestionSimulator
         private bool InitializeScrambledOutput(FilePathInfo pathInfo, ScramblingResidueCache residueCache, ProteinScramblingModeConstants scramblingMode, out StreamWriter scrambledFileWriter, out Random randomNumberGenerator)
         {
             bool success;
-            int randomNumberSeed;
             string suffix;
-            string scrambledFastaOutputFilePath;
 
             // Wait to allow the timer to advance.
             Thread.Sleep(1);
-            randomNumberSeed = Environment.TickCount;
+            var randomNumberSeed = Environment.TickCount;
             randomNumberGenerator = new Random(randomNumberSeed);
             if (scramblingMode == ProteinScramblingModeConstants.Reversed)
             {
@@ -833,7 +831,7 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            scrambledFastaOutputFilePath = Path.Combine(pathInfo.OutputFolderPath, Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath) + suffix + ".fasta");
+            var scrambledFastaOutputFilePath = Path.Combine(pathInfo.OutputFolderPath, Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath) + suffix + ".fasta");
 
             // Define the abbreviated name of the input file; used in the protein names
             mFileNameAbbreviated = Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath);
@@ -875,10 +873,9 @@ namespace ProteinDigestionSimulator
         public bool LoadParameterFileSettings(string parameterFilePath)
         {
             var settingsFile = new XmlSettingsFileAccessor();
-            bool cysPeptidesOnly;
             try
             {
-                if (parameterFilePath == null || parameterFilePath.Length == 0)
+                if (string.IsNullOrEmpty(parameterFilePath))
                 {
                     // No parameter file specified; nothing to load
                     return true;
@@ -931,7 +928,7 @@ namespace ProteinDigestionSimulator
                         ProteinScramblingLoopCount = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinScramblingLoopCount", ProteinScramblingLoopCount);
                         DigestionOptions.CleavageRuleID = (InSilicoDigest.CleavageRuleConstants)Conversions.ToInteger(settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CleavageRuleTypeIndex", (int)DigestionOptions.CleavageRuleID));
                         DigestionOptions.RemoveDuplicateSequences = !settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "IncludeDuplicateSequences", !DigestionOptions.RemoveDuplicateSequences);
-                        cysPeptidesOnly = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CysPeptidesOnly", false);
+                        var cysPeptidesOnly = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CysPeptidesOnly", false);
                         if (cysPeptidesOnly)
                         {
                             DigestionOptions.AminoAcidResidueFilterChars = new char[] { 'C' };
@@ -1011,15 +1008,11 @@ namespace ProteinDigestionSimulator
             StreamWriter digestFileWriter = null;
             StreamWriter scrambledFileWriter = null;
             bool success;
-            bool inputProteinFound;
             var headerChecked = default(bool);
-            bool allowLookForAddnlRefInDescription;
             var lookForAddnlRefInDescription = default(bool);
-            SortedSet<string> addnlRefMasterNames;
             AddnlRef[] addnlRefsToOutput = null;
             var generateUniqueSequenceID = default(bool);
             Random randomNumberGenerator = null;
-            ProteinScramblingModeConstants scramblingMode;
             var residueCache = new ScramblingResidueCache();
             var startTime = default(DateTime);
             ProcessingSummary = string.Empty;
@@ -1110,6 +1103,8 @@ namespace ProteinDigestionSimulator
                 }
 
                 int loopCount = 1;
+                bool
+                    allowLookForAddnlRefInDescription;
                 if (ProteinScramblingMode == ProteinScramblingModeConstants.Randomized)
                 {
                     loopCount = ProteinScramblingLoopCount;
@@ -1135,6 +1130,7 @@ namespace ProteinDigestionSimulator
                         break;
                     }
 
+                    ProteinScramblingModeConstants scramblingMode;
                     if (CreateProteinOutputFile)
                     {
                         scramblingMode = ProteinScramblingMode;
@@ -1164,7 +1160,7 @@ namespace ProteinDigestionSimulator
                     {
                         // Need to pre-scan the FASTA file to find all of the possible additional reference values
 
-                        addnlRefMasterNames = new SortedSet<string>(StringComparer.CurrentCultureIgnoreCase);
+                        var addnlRefMasterNames = new SortedSet<string>(StringComparer.CurrentCultureIgnoreCase);
                         PreScanProteinFileForAddnlRefsInDescription(pathInfo.ProteinInputFilePath, addnlRefMasterNames);
                         if (addnlRefMasterNames.Count > 0)
                         {
@@ -1249,6 +1245,7 @@ namespace ProteinDigestionSimulator
                     mInputFileProteinsProcessed = 0;
                     mInputFileLineSkipCount = 0;
                     mInputFileLinesRead = 0;
+                    bool inputProteinFound;
                     do
                     {
                         inputProteinFound = proteinFileReader.ReadNextProteinEntry();
@@ -1879,9 +1876,7 @@ namespace ProteinDigestionSimulator
         {
             FastaFileReader reader = null;
             ProteinInfo protein = new ProteinInfo();
-            int index;
             bool success;
-            bool inputProteinFound;
             try
             {
                 reader = new FastaFileReader();
@@ -1909,6 +1904,7 @@ namespace ProteinDigestionSimulator
                 ResetProgress("Pre-reading FASTA file; looking for possible additional reference names");
 
                 // Read each protein in the output file and process appropriately
+                bool inputProteinFound;
                 do
                 {
                     inputProteinFound = reader.ReadNextProteinEntry();
@@ -1921,6 +1917,7 @@ namespace ProteinDigestionSimulator
                         ExtractAlternateProteinNamesFromDescription(protein);
 
                         // Make sure each of the names in .AlternateNames[] is in addnlRefMasterNames
+                        int index;
                         for (index = 0; index < protein.AlternateNameCount; index++)
                         {
                             if (!addnlRefMasterNames.Contains(protein.AlternateNames[index].RefName))
@@ -1995,11 +1992,9 @@ namespace ProteinDigestionSimulator
 
         private void WriteFastaAppendToCache(TextWriter scrambledFileWriter, ScramblingResidueCache residueCache, string proteinNamePrefix, bool flushResiduesToWrite)
         {
-            int residueCount;
-            int residuesToAppend;
             if (residueCache.Cache.Length > 0)
             {
-                residueCount = (int)Math.Round(Math.Round(residueCache.Cache.Length * residueCache.SamplingPercentage / 100.0d, 0));
+                var residueCount = (int)Math.Round(Math.Round(residueCache.Cache.Length * residueCache.SamplingPercentage / 100.0d, 0));
                 if (residueCount < 1)
                     residueCount = 1;
                 if (residueCount > residueCache.Cache.Length)
@@ -2014,7 +2009,7 @@ namespace ProteinDigestionSimulator
                     }
                     else
                     {
-                        residuesToAppend = residueCache.CacheLength - residueCache.ResiduesToWrite.Length;
+                        var residuesToAppend = residueCache.CacheLength - residueCache.ResiduesToWrite.Length;
                         residueCache.ResiduesToWrite += residueCache.Cache.Substring(0, residuesToAppend);
                         residueCache.Cache = residueCache.Cache.Substring(residuesToAppend);
                         residueCount -= residuesToAppend;
@@ -2036,12 +2031,10 @@ namespace ProteinDigestionSimulator
 
         private void WriteFastaEmptyCache(TextWriter scrambledFileWriter, ScramblingResidueCache residueCache, string proteinNamePrefix, int samplingPercentage)
         {
-            string proteinName;
-            string headerLine;
             if (residueCache.ResiduesToWrite.Length > 0)
             {
                 residueCache.OutputCount += 1;
-                proteinName = proteinNamePrefix + mFileNameAbbreviated;
+                var proteinName = proteinNamePrefix + mFileNameAbbreviated;
                 if (samplingPercentage < 100)
                 {
                     proteinName = ValidateProteinName(proteinName, MAXIMUM_PROTEIN_NAME_LENGTH - 7 - Math.Max(5, residueCache.OutputCount.ToString().Length));
@@ -2061,7 +2054,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 proteinName += residueCache.OutputCount.ToString();
-                headerLine = FastaFileOptions.ProteinLineStartChar + proteinName + FastaFileOptions.ProteinLineAccessionEndChar + proteinName;
+                var headerLine = FastaFileOptions.ProteinLineStartChar + proteinName + FastaFileOptions.ProteinLineAccessionEndChar + proteinName;
                 WriteFastaProteinAndResidues(scrambledFileWriter, headerLine, residueCache.ResiduesToWrite);
                 residueCache.ResiduesToWrite = string.Empty;
             }
@@ -2087,12 +2080,8 @@ namespace ProteinDigestionSimulator
 
         private void WriteScrambledFasta(TextWriter scrambledFileWriter, ref Random randomNumberGenerator, ProteinInfo protein, ProteinScramblingModeConstants scramblingMode, ScramblingResidueCache residueCache)
         {
-            string sequence;
             string scrambledSequence;
-            string headerLine;
             string proteinNamePrefix;
-            string proteinName;
-            int index;
             int residueCount;
             if (scramblingMode == ProteinScramblingModeConstants.Reversed)
             {
@@ -2103,7 +2092,7 @@ namespace ProteinDigestionSimulator
             {
                 proteinNamePrefix = PROTEIN_PREFIX_SCRAMBLED;
                 scrambledSequence = string.Empty;
-                sequence = string.Copy(protein.Sequence);
+                var sequence = string.Copy(protein.Sequence);
                 residueCount = sequence.Length;
                 while (residueCount > 0)
                 {
@@ -2113,7 +2102,7 @@ namespace ProteinDigestionSimulator
                     }
 
                     // Randomly extract residues from sequence
-                    index = randomNumberGenerator.Next(residueCount);
+                    var index = randomNumberGenerator.Next(residueCount);
                     scrambledSequence += sequence.Substring(index, 1);
                     if (index > 0)
                     {
@@ -2137,8 +2126,8 @@ namespace ProteinDigestionSimulator
 
             if (residueCache.SamplingPercentage >= 100)
             {
-                proteinName = ValidateProteinName(proteinNamePrefix + protein.Name, MAXIMUM_PROTEIN_NAME_LENGTH);
-                headerLine = FastaFileOptions.ProteinLineStartChar + proteinName + FastaFileOptions.ProteinLineAccessionEndChar + protein.Description;
+                var proteinName = ValidateProteinName(proteinNamePrefix + protein.Name, MAXIMUM_PROTEIN_NAME_LENGTH);
+                var headerLine = FastaFileOptions.ProteinLineStartChar + proteinName + FastaFileOptions.ProteinLineAccessionEndChar + protein.Description;
                 WriteFastaProteinAndResidues(scrambledFileWriter, headerLine, scrambledSequence);
             }
             else
@@ -2181,9 +2170,6 @@ namespace ProteinDigestionSimulator
         {
             // Returns True if success, False if failure
 
-            FileInfo inputFile;
-            string inputFilePathFull;
-            string statusMessage;
             var success = default(bool);
             if (resetErrorCode)
             {
@@ -2192,7 +2178,7 @@ namespace ProteinDigestionSimulator
 
             if (!LoadParameterFileSettings(parameterFilePath))
             {
-                statusMessage = "Parameter file load error: " + parameterFilePath;
+                var statusMessage = "Parameter file load error: " + parameterFilePath;
                 ShowErrorMessage(statusMessage);
                 if (ErrorCode == ProcessFilesErrorCodes.NoError)
                 {
@@ -2204,7 +2190,7 @@ namespace ProteinDigestionSimulator
 
             try
             {
-                if (inputFilePath == null || inputFilePath.Length == 0)
+                if (string.IsNullOrEmpty(inputFilePath))
                 {
                     ShowErrorMessage("Input file name is empty");
                     SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidInputFilePath);
@@ -2222,8 +2208,8 @@ namespace ProteinDigestionSimulator
                         try
                         {
                             // Obtain the full path to the input file
-                            inputFile = new FileInfo(inputFilePath);
-                            inputFilePathFull = inputFile.FullName;
+                            var inputFile = new FileInfo(inputFilePath);
+                            var inputFilePathFull = inputFile.FullName;
                             success = ParseProteinFile(inputFilePathFull, outputFolderPath);
                         }
                         catch (Exception ex)
@@ -2369,8 +2355,8 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            public char ProteinLineStartChar { get; private set; } = '>';
-            public char ProteinLineAccessionEndChar { get; private set; } = ' ';
+            public char ProteinLineStartChar { get; } = '>';
+            public char ProteinLineAccessionEndChar { get; } = ' ';
 
             public bool LookForAddnlRefInDescription
             {

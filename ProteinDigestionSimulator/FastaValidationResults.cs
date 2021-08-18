@@ -340,8 +340,7 @@ namespace ProteinDigestionSimulator
 
         private void EnableDisableControls()
         {
-            bool enableFixedFastaOptions;
-            enableFixedFastaOptions = chkGenerateFixedFastaFile.Checked;
+            var enableFixedFastaOptions = chkGenerateFixedFastaFile.Checked;
             txtLongProteinNameSplitChars.Enabled = enableFixedFastaOptions;
             txtInvalidProteinNameCharsToRemove.Enabled = enableFixedFastaOptions;
             txtResiduesPerLineForWrap.Enabled = enableFixedFastaOptions && chkWrapLongResidueLines.Checked;
@@ -390,12 +389,10 @@ namespace ProteinDigestionSimulator
         {
             const char sepChar = ControlChars.Tab;
             string flattenedText = string.Empty;
-            int index;
-            int columnCount;
             try
             {
-                columnCount = dvDataView.Table.Columns.Count;
-                for (index = 0; index < columnCount; index++)
+                var columnCount = dvDataView.Table.Columns.Count;
+                for (var index = 0; index < columnCount; index++)
                 {
                     if (index < columnCount - 1)
                     {
@@ -409,7 +406,7 @@ namespace ProteinDigestionSimulator
 
                 foreach (DataRow currentRow in dvDataView.Table.Rows)
                 {
-                    for (index = 0; index < columnCount; index++)
+                    for (var index = 0; index < columnCount; index++)
                     {
                         if (index < columnCount - 1)
                         {
@@ -442,10 +439,9 @@ namespace ProteinDigestionSimulator
 
         private void FilterLists()
         {
-            string filter;
             try
             {
-                filter = string.Empty;
+                var filter = string.Empty;
                 if (txtFilterData.TextLength > 0)
                 {
                     filter = "[" + COL_NAME_PROTEIN + "] LIKE '%" + txtFilterData.Text + "%' OR [" + COL_NAME_DESCRIPTION + "] LIKE '%" + txtFilterData.Text + "%' OR [" + COL_NAME_CONTEXT + "] LIKE '%" + txtFilterData.Text + "%'";
@@ -511,10 +507,7 @@ namespace ProteinDigestionSimulator
 
         private void InitializeDataGrid(DataGrid dgDataGrid, ref DataSet dsDataset, ref DataView dvDataView, FastaValidator.MsgTypeConstants msgType)
         {
-            DataTable dtDataTable;
             string msgColumnName;
-            string datasetName;
-            string dataTableName;
             if (msgType == FastaValidator.MsgTypeConstants.WarningMsg)
             {
                 msgColumnName = "Warnings";
@@ -528,11 +521,11 @@ namespace ProteinDigestionSimulator
                 msgColumnName = "Status";
             }
 
-            datasetName = "ds" + msgColumnName;
-            dataTableName = "T_" + msgColumnName;
+            var datasetName = "ds" + msgColumnName;
+            var dataTableName = "T_" + msgColumnName;
 
             // Create a DataTable
-            dtDataTable = new DataTable(dataTableName);
+            var dtDataTable = new DataTable(dataTableName);
 
             // Add the columns to the DataTable
             DBUtils.AppendColumnIntegerToTable(dtDataTable, COL_NAME_LINE);
@@ -589,7 +582,7 @@ namespace ProteinDigestionSimulator
                 var currentRow = dsDataset.Tables[0].NewRow();
                 currentRow[COL_NAME_LINE] = item.LineNumber;
                 currentRow[COL_NAME_COLUMN] = item.ColNumber;
-                if (item.ProteinName == null || item.ProteinName.Length == 0)
+                if (string.IsNullOrEmpty(item.ProteinName))
                 {
                     currentRow[COL_NAME_PROTEIN] = "N/A";
                 }
@@ -819,9 +812,6 @@ namespace ProteinDigestionSimulator
 
         private void StartValidation()
         {
-            string parameterFilePath;
-            bool fileExists;
-            bool success;
             try
             {
                 mValidatorErrorMessage = string.Empty;
@@ -839,16 +829,17 @@ namespace ProteinDigestionSimulator
                 mValidateFastaFile.MaximumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "Maximum protein name length should be a number", out _, 34, false);
                 if (chkGenerateFixedFastaFile.Checked && chkWrapLongResidueLines.Checked)
                 {
-                mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "Residues per line for wrapping should be a number", out _, 60, false);
+                    mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "Residues per line for wrapping should be a number", out _, 60, false);
                 }
                 else
                 {
                     mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "Maximum residues per line should be a number", out _, 120, false);
                 }
 
-                parameterFilePath = txtCustomValidationRulesFilePath.Text;
+                var parameterFilePath = txtCustomValidationRulesFilePath.Text;
                 if (parameterFilePath.Length > 0)
                 {
+                    bool fileExists;
                     try
                     {
                         fileExists = File.Exists(parameterFilePath);
@@ -909,7 +900,7 @@ namespace ProteinDigestionSimulator
                 pbarProgress.Value = 0;
 
                 // Analyze the FASTA file; returns true if the analysis was successful (even if the file contains errors or warnings)
-                success = mValidateFastaFile.ProcessFile(FastaFilePath, string.Empty, string.Empty);
+                var success = mValidateFastaFile.ProcessFile(FastaFilePath, string.Empty, string.Empty);
                 cmdCancel.Enabled = false;
                 if (success)
                 {

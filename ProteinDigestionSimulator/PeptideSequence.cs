@@ -296,7 +296,7 @@ namespace ProteinDigestionSimulator
             // First, make sure the sequence is in the form A.BCDEFG.H or A.BCDEFG or BCDEFG.H
             // If it isn't, then we can't check it (we'll return true)
 
-            if (cleavageRule.CleavageResidues == null || cleavageRule.CleavageResidues.Length == 0)
+            if (string.IsNullOrEmpty(cleavageRule.CleavageResidues))
             {
                 // No rules
                 return true;
@@ -656,7 +656,7 @@ namespace ProteinDigestionSimulator
         public int GetResidueCountSpecificResidue(string residueSymbol, bool use3LetterCode = false)
         {
             char searchResidue1Letter;
-            if (mResidues == null || mResidues.Length == 0)
+            if (string.IsNullOrEmpty(mResidues))
                 return 0;
             try
             {
@@ -958,8 +958,6 @@ namespace ProteinDigestionSimulator
         /// <remarks>See GetTrypticName for additional information</remarks>
         public string GetTrypticNameMultipleMatches(string proteinResidues, string peptideResidues, CleavageRule cleavageRule, [Optional, DefaultParameterValue(1)] out int returnMatchCount, [Optional, DefaultParameterValue(0)] out int returnResidueStart, [Optional, DefaultParameterValue(0)] out int returnResidueEnd, bool icr2LSCompatible = false, char terminiiSymbol = TERMINII_SYMBOL, bool ignoreCase = true, int proteinSearchStartLoc = 1, string listDelimiter = ", ")
         {
-            int currentResidueStart;
-            int currentResidueEnd;
             returnMatchCount = 0;
             returnResidueStart = 0;
             returnResidueEnd = 0;
@@ -967,7 +965,7 @@ namespace ProteinDigestionSimulator
             string nameList = string.Empty;
             do
             {
-                string currentName = GetTrypticName(proteinResidues, peptideResidues, cleavageRule, out currentResidueStart, out currentResidueEnd, icr2LSCompatible, terminiiSymbol, ignoreCase, currentSearchLoc);
+                string currentName = GetTrypticName(proteinResidues, peptideResidues, cleavageRule, out var currentResidueStart, out var currentResidueEnd, icr2LSCompatible, terminiiSymbol, ignoreCase, currentSearchLoc);
                 if (currentName.Length > 0)
                 {
                     if (nameList.Length > 0)

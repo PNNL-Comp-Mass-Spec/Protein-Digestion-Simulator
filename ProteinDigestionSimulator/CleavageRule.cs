@@ -8,36 +8,36 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Cleavage rule description
         /// </summary>
-        public string Description { get; private set; }
+        public string Description { get; }
 
         /// <summary>
         /// Residues to cleave after (or before if ReversedCleavageDirection is true)
         /// Will not cleave after the residue if it is followed by any of the ExceptionResidues (or preceded by if ReversedCleavageDirection is true)
         /// </summary>
-        public string CleavageResidues { get; private set; }
+        public string CleavageResidues { get; }
 
         /// <summary>
         /// Adjacent residue(s) that prevent cleavage
         /// </summary>
-        public string ExceptionResidues { get; private set; }
+        public string ExceptionResidues { get; }
 
         /// <summary>
         /// When false, cleave after the CleavageResidues, unless followed by the ExceptionResidues, e.g. Trypsin, CNBr, GluC
         /// When true, cleave before the CleavageResidues, unless preceded by the ExceptionResidues, e.g. Asp-N
         /// </summary>
-        public bool ReversedCleavageDirection { get; private set; }
+        public bool ReversedCleavageDirection { get; }
 
         /// <summary>
         /// When true, allow for either end of a peptide to match the cleavage rules
         /// When false, both ends must match the cleavage rules
         /// </summary>
-        public bool AllowPartialCleavage { get; private set; }
+        public bool AllowPartialCleavage { get; }
 
         /// <summary>
         /// Additional cleavage rules to also consider when checking for cleavage points in a peptide
         /// </summary>
         /// <returns></returns>
-        public List<CleavageRule> AdditionalCleavageRules { get; private set; }
+        public List<CleavageRule> AdditionalCleavageRules { get; }
 
         /// <summary>
         /// Constructor

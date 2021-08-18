@@ -126,8 +126,7 @@ namespace ProteinDigestionSimulator
 
         private void mCloseDelayTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            int secondsRemaining;
-            secondsRemaining = (int)Math.Round(Math.Round(FORM_CLOSE_DELAY_SECONDS - DateTime.UtcNow.Subtract(mTimerStartTime).TotalSeconds, 0));
+            var secondsRemaining = (int)Math.Round(Math.Round(FORM_CLOSE_DELAY_SECONDS - DateTime.UtcNow.Subtract(mTimerStartTime).TotalSeconds, 0));
             if (secondsRemaining < 0)
                 secondsRemaining = 0;
             if (secondsRemaining > 0)

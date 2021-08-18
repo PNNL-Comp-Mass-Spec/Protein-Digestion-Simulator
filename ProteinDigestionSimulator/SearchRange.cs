@@ -118,12 +118,9 @@ namespace ProteinDigestionSimulator
         {
             // Recursive search function
 
-            int indexMidpoint;
             var leftDone = default(bool);
             var rightDone = default(bool);
-            int leftIndex;
-            int rightIndex;
-            indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
+            var indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
             if (indexMidpoint == matchIndexStart)
             {
                 // Min and Max are next to each other
@@ -149,7 +146,7 @@ namespace ProteinDigestionSimulator
             else
             {
                 // Inside range; figure out the borders
-                leftIndex = indexMidpoint;
+                var leftIndex = indexMidpoint;
                 do
                 {
                     leftIndex -= 1;
@@ -161,7 +158,7 @@ namespace ProteinDigestionSimulator
                         leftDone = true;
                 }
                 while (!leftDone);
-                rightIndex = indexMidpoint;
+                var rightIndex = indexMidpoint;
                 do
                 {
                     rightIndex += 1;
@@ -182,12 +179,9 @@ namespace ProteinDigestionSimulator
         {
             // Recursive search function
 
-            int indexMidpoint;
             var leftDone = default(bool);
             var rightDone = default(bool);
-            int leftIndex;
-            int rightIndex;
-            indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
+            var indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
             if (indexMidpoint == matchIndexStart)
             {
                 // Min and Max are next to each other
@@ -213,7 +207,7 @@ namespace ProteinDigestionSimulator
             else
             {
                 // Inside range; figure out the borders
-                leftIndex = indexMidpoint;
+                var leftIndex = indexMidpoint;
                 do
                 {
                     leftIndex -= 1;
@@ -225,7 +219,7 @@ namespace ProteinDigestionSimulator
                         leftDone = true;
                 }
                 while (!leftDone);
-                rightIndex = indexMidpoint;
+                var rightIndex = indexMidpoint;
                 do
                 {
                     rightIndex += 1;
@@ -246,12 +240,9 @@ namespace ProteinDigestionSimulator
         {
             // Recursive search function
 
-            int indexMidpoint;
             var leftDone = default(bool);
             var rightDone = default(bool);
-            int leftIndex;
-            int rightIndex;
-            indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
+            var indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
             if (indexMidpoint == matchIndexStart)
             {
                 // Min and Max are next to each other
@@ -277,7 +268,7 @@ namespace ProteinDigestionSimulator
             else
             {
                 // Inside range; figure out the borders
-                leftIndex = indexMidpoint;
+                var leftIndex = indexMidpoint;
                 do
                 {
                     leftIndex -= 1;
@@ -289,7 +280,7 @@ namespace ProteinDigestionSimulator
                         leftDone = true;
                 }
                 while (!leftDone);
-                rightIndex = indexMidpoint;
+                var rightIndex = indexMidpoint;
                 do
                 {
                     rightIndex += 1;
@@ -1037,7 +1028,6 @@ namespace ProteinDigestionSimulator
 
         public double GetValueByOriginalIndex(int indexOriginal)
         {
-            int index;
             if (!mPointerArrayIsValid || mDataType == DataTypeToUse.NoDataPresent)
             {
                 return 0d;
@@ -1046,7 +1036,7 @@ namespace ProteinDigestionSimulator
             {
                 try
                 {
-                    index = Array.IndexOf(mPointerIndices, indexOriginal);
+                    var index = Array.IndexOf(mPointerIndices, indexOriginal);
                     if (index >= 0)
                     {
                         switch (mDataType)

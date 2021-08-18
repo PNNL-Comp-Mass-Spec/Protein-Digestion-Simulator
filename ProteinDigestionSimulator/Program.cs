@@ -74,7 +74,6 @@ namespace ProteinDigestionSimulator
 
             int returnCode;
             var commandLineParser = new clsParseCommandLine();
-            bool proceed;
             mInputFilePath = string.Empty;
             mAssumeFastaFile = false;
             mCreateDigestedProteinOutputFile = false;
@@ -89,7 +88,7 @@ namespace ProteinDigestionSimulator
             mLogDirectoryPath = string.Empty;
             try
             {
-                proceed = false;
+                var proceed = false;
                 if (commandLineParser.ParseCommandLine())
                 {
                     if (SetOptionsUsingCommandLineParameters(commandLineParser))
@@ -186,7 +185,6 @@ namespace ProteinDigestionSimulator
 
             string value = string.Empty;
             var validParameters = new List<string>() { "I", "F", "D", "M", "AD", "O", "P", "S", "A", "R", "DEBUG" };
-            int valueInt;
             try
             {
                 // Make sure no invalid parameters are present
@@ -223,7 +221,7 @@ namespace ProteinDigestionSimulator
                     if (commandLineParser.RetrieveValueForParameter("S", out value))
                     {
                         mRecurseDirectories = true;
-                        if (int.TryParse(value, out valueInt))
+                        if (int.TryParse(value, out var valueInt))
                         {
                             mMaxLevelsToRecurse = valueInt;
                         }

@@ -280,9 +280,6 @@ namespace ProteinDigestionSimulator
         public int DigestSequence(string proteinSequence, out List<PeptideSequenceWithNET> peptideFragments, DigestionOptions digestionOptions, bool filterByIsoelectricPoint, string proteinName)
         {
             var fragmentsUniqueList = new SortedSet<string>();
-            string[] trypticFragCache;                      // 0-based array
-            int[] trypticFragStartLocations;            // 0-based array, parallel to trypticFragmentCache()
-            int[] trypticFragEndLocations;              // 0-based array, parallel to trypticFragmentCache()
             peptideFragments = new List<PeptideSequenceWithNET>();
             if (string.IsNullOrWhiteSpace(proteinSequence))
             {
@@ -303,9 +300,9 @@ namespace ProteinDigestionSimulator
                 // We initially count the number of tryptic peptides in the sequence (regardless of the cleavage rule)
                 // ReSharper disable once UnusedVariable
                 int trypticFragmentCount = CountTrypticsInSequence(proteinSequence);
-                trypticFragCache = new string[10];
-                trypticFragEndLocations = new int[10];
-                trypticFragStartLocations = new int[10];
+                var trypticFragCache = new string[10];                  // 0-based array
+                var trypticFragEndLocations = new int[10];              // 0-based array, parallel to trypticFragmentCache()
+                var trypticFragStartLocations = new int[10];            // 0-based array, parallel to trypticFragmentCache()
                 int trypticFragCacheCount = 0;
                 int searchStartLoc = 1;
 
@@ -359,7 +356,6 @@ namespace ProteinDigestionSimulator
                     string peptideSequenceBase = string.Empty;
                     string peptideSequence = string.Empty;
                     int residueStartLoc = trypticFragStartLocations[trypticIndex];
-                    int residueEndLoc;
                     for (int index = 0; index <= digestionOptions.MaxMissedCleavages; index++)
                     {
                         if (trypticIndex + index >= trypticFragCacheCount)
@@ -367,6 +363,7 @@ namespace ProteinDigestionSimulator
                             break;
                         }
 
+                        int residueEndLoc;
                         if (digestionOptions.CleavageRuleID == CleavageRuleConstants.KROneEnd)
                         {
                             // Partially tryptic cleavage rule: Add all partially tryptic fragments
@@ -537,8 +534,7 @@ namespace ProteinDigestionSimulator
 
         public void InitializepICalculator()
         {
-            var argpICalculator = new ComputePeptideProperties();
-            InitializepICalculator(argpICalculator);
+            InitializepICalculator(new ComputePeptideProperties());
         }
 
         public void InitializepICalculator(ComputePeptideProperties pICalculator)
@@ -676,7 +672,7 @@ namespace ProteinDigestionSimulator
             try
             {
                 string errorMessage;
-                if (functionName != null && functionName.Length > 0)
+                if (!string.IsNullOrEmpty(functionName))
                 {
                     errorMessage = "Error in " + functionName + ": " + ex.Message;
                 }
@@ -818,7 +814,7 @@ namespace ProteinDigestionSimulator
 
                 set
                 {
-                    if (value != null && value.Length > 0)
+                    if (!string.IsNullOrEmpty(value))
                     {
                         mPrefixResidue = Conversions.ToString(value[0]);
                     }
@@ -871,7 +867,7 @@ namespace ProteinDigestionSimulator
 
                 set
                 {
-                    if (value != null && value.Length > 0)
+                    if (!string.IsNullOrEmpty(value))
                     {
                         mSuffixResidue = Conversions.ToString(value[0]);
                     }
@@ -894,8 +890,7 @@ namespace ProteinDigestionSimulator
             /// <returns></returns>
             public override int SetSequence(string sequence, NTerminusGroupConstants nTerminus = NTerminusGroupConstants.Hydrogen, CTerminusGroupConstants cTerminus = CTerminusGroupConstants.Hydroxyl, bool is3LetterCode = false, bool oneLetterCheckForPrefixAndSuffixResidues = true, bool threeLetterCheckForPrefixHandSuffixOH = true)
             {
-                int returnVal;
-                returnVal = base.SetSequence(sequence, nTerminus, cTerminus, is3LetterCode, oneLetterCheckForPrefixAndSuffixResidues, threeLetterCheckForPrefixHandSuffixOH);
+                var returnVal = base.SetSequence(sequence, nTerminus, cTerminus, is3LetterCode, oneLetterCheckForPrefixAndSuffixResidues, threeLetterCheckForPrefixHandSuffixOH);
                 if (mAutoComputeNET)
                     UpdateNET();
                 return returnVal;
