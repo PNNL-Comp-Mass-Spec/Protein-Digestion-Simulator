@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace ProteinDigestionSimulator
 {
@@ -218,7 +216,7 @@ namespace ProteinDigestionSimulator
                 {
                     if (featureIDToRowIndex.ContainsKey(featureID))
                     {
-                        rowIndex = Conversions.ToInteger(featureIDToRowIndex[featureID]);
+                        rowIndex = featureIDToRowIndex[featureID];
                     }
                     else
                     {

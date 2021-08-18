@@ -1,5 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
+using NETPrediction;
+using PRISM;
+using PRISM.FileProcessor;
+using ProteinFileReader;
+using ValidateFastaFile;
 
 // -------------------------------------------------------------------------------
 // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004
@@ -13,21 +23,6 @@ using System.Collections.Generic;
 // https://opensource.org/licenses/BSD-2-Clause
 //
 // Copyright 2018 Battelle Memorial Institute
-
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Windows.Forms;
-using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
-using NETPrediction;
-using PRISM;
-using PRISM.FileProcessor;
-using ProteinFileReader;
-using ValidateFastaFile;
 
 namespace ProteinDigestionSimulator
 {
@@ -612,12 +607,12 @@ namespace ProteinDigestionSimulator
             ShowDebugPrompts = false;
             AssumeDelimitedFile = false;
             AssumeFastaFile = false;
-            mInputFileDelimiter = ControlChars.Tab;
+            mInputFileDelimiter = '\t';
             DelimitedFileFormatCode = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence;
             mInputFileProteinsProcessed = 0;
             mInputFileLinesRead = 0;
             mInputFileLineSkipCount = 0;
-            mOutputFileDelimiter = ControlChars.Tab;
+            mOutputFileDelimiter = '\t';
             ExcludeProteinSequence = false;
             ComputeProteinMass = true;
             ComputepI = true;
@@ -862,11 +857,11 @@ namespace ProteinDigestionSimulator
                         // ComparisonFastaFile = settingsFile.GetParam(XML_SECTION_OPTIONS, "ComparisonFastaFile", ComparisonFastaFile)
 
                         int inputFileColumnDelimiterIndex = settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiterIndex", (int)DelimiterCharConstants.Tab);
-                        string customInputFileColumnDelimiter = settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiter", Conversions.ToString(ControlChars.Tab));
+                        string customInputFileColumnDelimiter = settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiter", "\t");
                         InputFileDelimiter = LookupColumnDelimiterChar(inputFileColumnDelimiterIndex, customInputFileColumnDelimiter, InputFileDelimiter);
-                        DelimitedFileFormatCode = (DelimitedProteinFileReader.ProteinFileFormatCode)Conversions.ToInteger(settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnOrdering", (int)DelimitedFileFormatCode));
+                        DelimitedFileFormatCode = (DelimitedProteinFileReader.ProteinFileFormatCode)Convert.ToInt32(settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnOrdering", (int)DelimitedFileFormatCode));
                         int outputFileFieldDelimiterIndex = settingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimiterIndex", (int)DelimiterCharConstants.Tab);
-                        string outputFileFieldDelimiter = settingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimiter", Conversions.ToString(ControlChars.Tab));
+                        string outputFileFieldDelimiter = settingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimiter", "\t");
                         OutputFileDelimiter = LookupColumnDelimiterChar(outputFileFieldDelimiterIndex, outputFileFieldDelimiter, OutputFileDelimiter);
                         DigestionOptions.IncludePrefixAndSuffixResidues = settingsFile.GetParam(XML_SECTION_OPTIONS, "IncludePrefixAndSuffixResidues", DigestionOptions.IncludePrefixAndSuffixResidues);
                         FastaFileOptions.LookForAddnlRefInDescription = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "LookForAddnlRefInDescription", FastaFileOptions.LookForAddnlRefInDescription);
@@ -875,14 +870,14 @@ namespace ProteinDigestionSimulator
                         ExcludeProteinSequence = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ExcludeProteinSequence", ExcludeProteinSequence);
                         ComputeProteinMass = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeProteinMass", ComputeProteinMass);
                         IncludeXResiduesInMass = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "IncludeXResidues", IncludeXResiduesInMass);
-                        ElementMassMode = (PeptideSequence.ElementModeConstants)Conversions.ToInteger(settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ElementMassMode", (int)ElementMassMode));
+                        ElementMassMode = (PeptideSequence.ElementModeConstants)Convert.ToInt32(settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ElementMassMode", (int)ElementMassMode));
                         ComputepI = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputepI", ComputepI);
                         ComputeNET = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeNET", ComputeNET);
                         ComputeSCXNET = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeSCX", ComputeSCXNET);
                         CreateDigestedProteinOutputFile = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "DigestProteins", CreateDigestedProteinOutputFile);
-                        ProteinScramblingMode = (ProteinScramblingModeConstants)Conversions.ToInteger(settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinReversalIndex", (int)ProteinScramblingMode));
+                        ProteinScramblingMode = (ProteinScramblingModeConstants)Convert.ToInt32(settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinReversalIndex", (int)ProteinScramblingMode));
                         ProteinScramblingLoopCount = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinScramblingLoopCount", ProteinScramblingLoopCount);
-                        DigestionOptions.CleavageRuleID = (InSilicoDigest.CleavageRuleConstants)Conversions.ToInteger(settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CleavageRuleTypeIndex", (int)DigestionOptions.CleavageRuleID));
+                        DigestionOptions.CleavageRuleID = (InSilicoDigest.CleavageRuleConstants)Convert.ToInt32(settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CleavageRuleTypeIndex", (int)DigestionOptions.CleavageRuleID));
                         DigestionOptions.RemoveDuplicateSequences = !settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "IncludeDuplicateSequences", !DigestionOptions.RemoveDuplicateSequences);
                         var cysPeptidesOnly = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CysPeptidesOnly", false);
                         if (cysPeptidesOnly)
@@ -919,7 +914,7 @@ namespace ProteinDigestionSimulator
                     delimiter = " ";
                     break;
                 case (int)DelimiterCharConstants.Tab:
-                    delimiter = Conversions.ToString(ControlChars.Tab);
+                    delimiter = "\t";
                     break;
                 case (int)DelimiterCharConstants.Comma:
                     delimiter = ",";
@@ -932,7 +927,7 @@ namespace ProteinDigestionSimulator
 
             if (delimiter == null || delimiter.Length == 0)
             {
-                delimiter = string.Copy(Conversions.ToString(defaultDelimiter));
+                delimiter = defaultDelimiter.ToString();
             }
 
             try
@@ -941,7 +936,7 @@ namespace ProteinDigestionSimulator
             }
             catch (Exception ex)
             {
-                return ControlChars.Tab;
+                return '\t';
             }
         }
 
@@ -1314,14 +1309,14 @@ namespace ProteinDigestionSimulator
 
                 if (ShowDebugPrompts)
                 {
-                    string statusMessage = string.Format("{0}{1}Elapsed time: {2:F2} seconds", Path.GetFileName(pathInfo.ProteinInputFilePath), ControlChars.NewLine, DateTime.UtcNow.Subtract(startTime).TotalSeconds);
+                    string statusMessage = string.Format("{0}{1}Elapsed time: {2:F2} seconds", Path.GetFileName(pathInfo.ProteinInputFilePath), Environment.NewLine, DateTime.UtcNow.Subtract(startTime).TotalSeconds);
                     MessageBox.Show(statusMessage, "Status", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
                 string message = "Done: Processed " + mInputFileProteinsProcessed.ToString("###,##0") + " proteins (" + mInputFileLinesRead.ToString("###,###,##0") + " lines)";
                 if (mInputFileLineSkipCount > 0)
                 {
-                    message += ControlChars.NewLine + "Note that " + mInputFileLineSkipCount.ToString("###,##0") + " lines were skipped in the input file due to having an unexpected format. ";
+                    message += Environment.NewLine + "Note that " + mInputFileLineSkipCount.ToString("###,##0") + " lines were skipped in the input file due to having an unexpected format. ";
                     if (mParsedFileIsFastaFile)
                     {
                         message += "This is an unexpected error for FASTA files.";
@@ -1334,7 +1329,7 @@ namespace ProteinDigestionSimulator
 
                 if (loopCount > 1)
                 {
-                    message += ControlChars.NewLine + "Created " + loopCount.ToString() + " replicates of the scrambled output file";
+                    message += Environment.NewLine + "Created " + loopCount.ToString() + " replicates of the scrambled output file";
                 }
 
                 ProcessingSummary = message;
@@ -1453,7 +1448,7 @@ namespace ProteinDigestionSimulator
                     {
                         if (mMasterSequencesDictionary.ContainsKey(peptideFragment.SequenceOneLetter))
                         {
-                            uniqueSeqID = Conversions.ToInteger(mMasterSequencesDictionary[peptideFragment.SequenceOneLetter]);
+                            uniqueSeqID = mMasterSequencesDictionary[peptideFragment.SequenceOneLetter];
                         }
                         else
                         {
@@ -2042,7 +2037,9 @@ namespace ProteinDigestionSimulator
             if (scramblingMode == ProteinScramblingModeConstants.Reversed)
             {
                 proteinNamePrefix = PROTEIN_PREFIX_REVERSED;
-                scrambledSequence = Strings.StrReverse(protein.Sequence);
+                var seqArray = protein.Sequence.ToCharArray();
+                Array.Reverse(seqArray);
+                scrambledSequence = new string(seqArray);
             }
             else
             {
@@ -2239,11 +2236,11 @@ namespace ProteinDigestionSimulator
             {
                 if (Math.Abs(mSubtaskProgressPercentComplete - 0f) < float.Epsilon)
                 {
-                    LogMessage(mSubtaskProgressStepDescription.Replace(ControlChars.NewLine, "; "));
+                    LogMessage(mSubtaskProgressStepDescription.Replace(Environment.NewLine, "; "));
                 }
                 else
                 {
-                    LogMessage(mSubtaskProgressStepDescription + " (" + mSubtaskProgressPercentComplete.ToString("0.0") + "% complete)".Replace(ControlChars.NewLine, "; "));
+                    LogMessage(mSubtaskProgressStepDescription + " (" + mSubtaskProgressPercentComplete.ToString("0.0") + "% complete)".Replace(Environment.NewLine, "; "));
                 }
             }
 
@@ -2255,19 +2252,19 @@ namespace ProteinDigestionSimulator
         {
             public int Compare(AddnlRef x, AddnlRef y)
             {
-                if (Operators.CompareString(x.RefName, y.RefName, false) > 0)
+                if (string.CompareOrdinal(x.RefName, y.RefName) > 0)
                 {
                     return 1;
                 }
-                else if (Operators.CompareString(x.RefName, y.RefName, false) < 0)
+                else if (string.CompareOrdinal(x.RefName, y.RefName) < 0)
                 {
                     return -1;
                 }
-                else if (Operators.CompareString(x.RefAccession, y.RefAccession, false) > 0)
+                else if (string.CompareOrdinal(x.RefAccession, y.RefAccession) > 0)
                 {
                     return 1;
                 }
-                else if (Operators.CompareString(x.RefAccession, y.RefAccession, false) < 0)
+                else if (string.CompareOrdinal(x.RefAccession, y.RefAccession) < 0)
                 {
                     return -1;
                 }

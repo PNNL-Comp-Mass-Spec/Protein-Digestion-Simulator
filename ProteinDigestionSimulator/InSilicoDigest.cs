@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace ProteinDigestionSimulator
 {
@@ -129,7 +128,7 @@ namespace ProteinDigestionSimulator
         /// Percent complete, value between 0 and 100, but can contain decimal percentage values
         /// </summary>
         /// <returns></returns>
-        public float ProgressPercentComplete => Conversions.ToSingle(Math.Round(mProgressPercentComplete, 2));
+        public float ProgressPercentComplete => (float) Math.Round(mProgressPercentComplete, 2);
 
         private CleavageRule AddCleavageRule(CleavageRuleConstants ruleId, string description, string cleavageResidues, string exceptionResidues, bool reversedCleavageDirection, bool allowPartialCleavage = false, IReadOnlyCollection<CleavageRule> additionalCleavageRules = null)
         {
@@ -774,7 +773,7 @@ namespace ProteinDigestionSimulator
                 {
                     if (!string.IsNullOrEmpty(value))
                     {
-                        mPrefixResidue = Conversions.ToString(value[0]);
+                        mPrefixResidue = value[0].ToString();
                     }
                     else
                     {
@@ -810,7 +809,7 @@ namespace ProteinDigestionSimulator
                 {
                     if (!string.IsNullOrEmpty(value))
                     {
-                        mSuffixResidue = Conversions.ToString(value[0]);
+                        mSuffixResidue = value[0].ToString();
                     }
                     else
                     {

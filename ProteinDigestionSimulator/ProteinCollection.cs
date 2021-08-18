@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace ProteinDigestionSimulator
 {
@@ -142,12 +140,12 @@ namespace ProteinDigestionSimulator
                     midIndex = firstIndex;
                 while (firstIndex <= lastIndex && (mProteins[midIndex].Name ?? "") != (proteinName ?? ""))
                 {
-                    if (Operators.CompareString(proteinName, mProteins[midIndex].Name, false) < 0)
+                    if (string.CompareOrdinal(proteinName, mProteins[midIndex].Name) < 0)
                     {
                         // Search the lower half
                         lastIndex = midIndex - 1;
                     }
-                    else if (Operators.CompareString(proteinName, mProteins[midIndex].Name, false) > 0)
+                    else if (string.CompareOrdinal(proteinName, mProteins[midIndex].Name) > 0)
                     {
                         // Search the upper half
                         firstIndex = midIndex + 1;
@@ -250,7 +248,7 @@ namespace ProteinDigestionSimulator
             {
                 if (mProteinNameToRowIndex.ContainsKey(proteinName))
                 {
-                    rowIndex = Conversions.ToInteger(mProteinNameToRowIndex[proteinName]);
+                    rowIndex = mProteinNameToRowIndex[proteinName];
                 }
                 else
                 {
@@ -329,11 +327,11 @@ namespace ProteinDigestionSimulator
             {
                 // Sort by Protein Name, ascending
 
-                if (Operators.CompareString(x.Name, y.Name, false) > 0)
+                if (string.CompareOrdinal(x.Name, y.Name) > 0)
                 {
                     return 1;
                 }
-                else if (Operators.CompareString(x.Name, y.Name, false) < 0)
+                else if (string.CompareOrdinal(x.Name, y.Name) < 0)
                 {
                     return -1;
                 }

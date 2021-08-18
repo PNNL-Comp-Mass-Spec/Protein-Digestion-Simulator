@@ -5,8 +5,6 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
-using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
 using PRISM.Logging;
 using DBUtils = PRISMDatabaseUtils.DataTableUtils;
 using PRISMWin;
@@ -182,7 +180,7 @@ namespace ProteinDigestionSimulator
 
         private void CopyAllResults()
         {
-            Clipboard.SetDataObject(txtResults.Text + ControlChars.NewLine + FlattenDataView(mErrorsDataView) + ControlChars.NewLine + FlattenDataView(mWarningsDataView), true);
+            Clipboard.SetDataObject(txtResults.Text + Environment.NewLine + FlattenDataView(mErrorsDataView) + Environment.NewLine + FlattenDataView(mWarningsDataView), true);
         }
 
         private void CopyErrorsDataView()
@@ -210,7 +208,7 @@ namespace ProteinDigestionSimulator
                 Filter = "XML Settings Files (*.xml)|*.xml|All files (*.*)|*.*",
                 FilterIndex = 1
             };
-            if (Strings.Len(txtCustomValidationRulesFilePath.Text.Length) > 0)
+            if (txtCustomValidationRulesFilePath.Text.Length > 0)
             {
                 try
                 {
@@ -244,7 +242,7 @@ namespace ProteinDigestionSimulator
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error creating/updating file: " + customRuleDefinitionsFilePath + ControlChars.NewLine + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show("Error creating/updating file: " + customRuleDefinitionsFilePath + Environment.NewLine + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
             }
         }
@@ -255,7 +253,7 @@ namespace ProteinDigestionSimulator
         /// <param name="parameterFilePath"></param>
         private void DisplayResults(string parameterFilePath)
         {
-            const char sepChar = ControlChars.Tab;
+            const char sepChar = '\t';
             var results = new List<string>() { "Results for file " + mValidateFastaFile.FastaFilePath };
             AppendToString(results, "Protein count = " + mValidateFastaFile.ProteinCount + sepChar + sepChar + "Residue count = ", mValidateFastaFile.ResidueCount);
             AppendToString(results, "Error count = " + mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.ErrorMsg, FastaValidator.ErrorWarningCountTypes.Total));
@@ -297,7 +295,7 @@ namespace ProteinDigestionSimulator
             }
 
             AppendValidatorErrors(results);
-            txtResults.Text = string.Join(ControlChars.NewLine, results);
+            txtResults.Text = string.Join(Environment.NewLine, results);
             txtResults.SelectionStart = 0;
             txtResults.SelectionLength = 0;
 
@@ -376,7 +374,7 @@ namespace ProteinDigestionSimulator
         /// <returns></returns>
         private string FlattenDataView(DataView dvDataView)
         {
-            const char sepChar = ControlChars.Tab;
+            const char sepChar = '\t';
             string flattenedText = string.Empty;
             try
             {
@@ -389,7 +387,7 @@ namespace ProteinDigestionSimulator
                     }
                     else
                     {
-                        flattenedText += dvDataView.Table.Columns[index].ColumnName.ToString() + ControlChars.NewLine;
+                        flattenedText += dvDataView.Table.Columns[index].ColumnName.ToString() + Environment.NewLine;
                     }
                 }
 
@@ -403,14 +401,14 @@ namespace ProteinDigestionSimulator
                         }
                         else
                         {
-                            flattenedText += currentRow[index].ToString() + ControlChars.NewLine;
+                            flattenedText += currentRow[index].ToString() + Environment.NewLine;
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                flattenedText += ControlChars.NewLine + ControlChars.NewLine + "Error copying data: " + ex.Message;
+                flattenedText += Environment.NewLine + Environment.NewLine + "Error copying data: " + ex.Message;
             }
 
             return flattenedText;
@@ -658,7 +656,7 @@ namespace ProteinDigestionSimulator
             txtMaximumResiduesPerLine.Text = "120";
             txtProteinNameLengthMinimum.Text = "3";
             txtProteinNameLengthMaximum.Text = "34";
-            txtLongProteinNameSplitChars.Text = Conversions.ToString(FastaValidator.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR);
+            txtLongProteinNameSplitChars.Text = FastaValidator.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR.ToString();
             txtInvalidProteinNameCharsToRemove.Text = "";
             txtResiduesPerLineForWrap.Text = "60";
             chkAllowAsteriskInResidues.Checked = false;
@@ -694,7 +692,7 @@ namespace ProteinDigestionSimulator
                 Filter = "XML Settings Files (*.xml)|*.xml|All files (*.*)|*.*",
                 FilterIndex = 1
             };
-            if (Strings.Len(txtCustomValidationRulesFilePath.Text.Length) > 0)
+            if (txtCustomValidationRulesFilePath.Text.Length > 0)
             {
                 try
                 {
@@ -840,7 +838,7 @@ namespace ProteinDigestionSimulator
 
                     if (!fileExists)
                     {
-                        MessageBox.Show("Custom rules validation file not found: " + ControlChars.NewLine + parameterFilePath + ControlChars.NewLine + "The default validation rules will be used instead.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        MessageBox.Show("Custom rules validation file not found: " + Environment.NewLine + parameterFilePath + Environment.NewLine + "The default validation rules will be used instead.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         parameterFilePath = string.Empty;
                     }
                     else
@@ -880,7 +878,7 @@ namespace ProteinDigestionSimulator
                 }
                 else
                 {
-                    mValidateFastaFile.LongProteinNameSplitChars = Conversions.ToString(FastaValidator.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR);
+                    mValidateFastaFile.LongProteinNameSplitChars = FastaValidator.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR.ToString();
                 }
 
                 mValidateFastaFile.ProteinNameInvalidCharsToRemove = txtInvalidProteinNameCharsToRemove.Text;
@@ -899,16 +897,16 @@ namespace ProteinDigestionSimulator
                 {
                     var results = new List<string>() { "Error calling mValidateFastaFile.ProcessFile: " + mValidateFastaFile.GetErrorMessage() };
                     AppendValidatorErrors(results);
-                    txtResults.Text = string.Join(ControlChars.NewLine, results);
+                    txtResults.Text = string.Join(Environment.NewLine, results);
                     if (!string.IsNullOrEmpty(mValidatorErrorMessage))
                     {
-                        txtResults.AppendText(ControlChars.NewLine + mValidatorErrorMessage);
+                        txtResults.AppendText(Environment.NewLine + mValidatorErrorMessage);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error validating FASTA file: " + FastaFilePath + ControlChars.NewLine + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Error validating FASTA file: " + FastaFilePath + Environment.NewLine + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
             finally
             {
@@ -1175,7 +1173,7 @@ namespace ProteinDigestionSimulator
         {
             try
             {
-                pbarProgress.Value = Conversions.ToInteger(percentComplete);
+                pbarProgress.Value = (int)Math.Round(percentComplete);
                 Application.DoEvents();
             }
             catch (Exception ex)

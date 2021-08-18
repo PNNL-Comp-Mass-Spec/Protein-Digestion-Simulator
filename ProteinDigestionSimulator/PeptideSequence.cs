@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace ProteinDigestionSimulator
 {
@@ -229,25 +226,25 @@ namespace ProteinDigestionSimulator
             // If so, then need to strip out the preceding A and Z residues since they aren't really part of the sequence
             if (sequence.Length > 1 && sequence.IndexOf(".", StringComparison.Ordinal) >= 0)
             {
-                if (Conversions.ToString(sequence[1]) == "." && sequence.Length > 2)
+                if (sequence[1].ToString() == "." && sequence.Length > 2)
                 {
-                    prefix = Conversions.ToString(sequence[0]);
+                    prefix = sequence[0].ToString();
                     sequence = sequence.Substring(2);
                 }
 
-                if (sequence.Length > 2 && Conversions.ToString(sequence[sequence.Length - 2]) == ".")
+                if (sequence.Length > 2 && sequence[sequence.Length - 2].ToString() == ".")
                 {
-                    prefix = Conversions.ToString(sequence[sequence.Length - 1]);
+                    prefix = sequence[sequence.Length - 1].ToString();
                     sequence = sequence.Substring(0, sequence.Length - 2);
                 }
 
                 // Also check for starting with a . or ending with a .
-                if (sequence.Length > 0 && Conversions.ToString(sequence[0]) == ".")
+                if (sequence.Length > 0 && sequence[0].ToString() == ".")
                 {
                     sequence = sequence.Substring(1);
                 }
 
-                if (sequence.Length > 0 && Conversions.ToString(sequence[sequence.Length - 1]) == ".")
+                if (sequence.Length > 0 && sequence[sequence.Length - 1].ToString() == ".")
                 {
                     sequence = sequence.Substring(0, sequence.Length - 1);
                 }
@@ -339,7 +336,7 @@ namespace ProteinDigestionSimulator
                 sequenceEnd = sequence[sequence.Length - 1];
             }
 
-            if (cleavageRule.CleavageResidues == Conversions.ToString(terminiiSymbol))
+            if (cleavageRule.CleavageResidues == terminiiSymbol.ToString())
             {
                 // Peptide database rules
                 // See if prefix and suffix are both "" or are both terminiiSymbol
@@ -483,7 +480,7 @@ namespace ProteinDigestionSimulator
             {
                 if (char.IsNumber(formula[index]))
                 {
-                    multiplier += Conversions.ToString(formula[index]);
+                    multiplier += formula[index].ToString();
                 }
                 else
                 {
@@ -589,9 +586,9 @@ namespace ProteinDigestionSimulator
                 symbolToParse = symbolToParse.ToUpper();
                 while (myEnumerator.MoveNext())
                 {
-                    if ((Conversions.ToString(myEnumerator.Value).ToUpper() ?? "") == (symbolToParse ?? ""))
+                    if ((myEnumerator.Value.ToString().ToUpper() ?? "") == (symbolToParse ?? ""))
                     {
-                        return Conversions.ToString(myEnumerator.Key);
+                        return myEnumerator.Key.ToString();
                     }
                 }
 
@@ -612,11 +609,11 @@ namespace ProteinDigestionSimulator
             {
                 if (use3LetterCode)
                 {
-                    return GetAminoAcidSymbolConversion(Conversions.ToString(mResidues[residueNumber - 1]), true);
+                    return GetAminoAcidSymbolConversion(mResidues[residueNumber - 1].ToString(), true);
                 }
                 else
                 {
-                    return Conversions.ToString(mResidues[residueNumber - 1]);
+                    return mResidues[residueNumber - 1].ToString();
                 }
             }
             else
@@ -713,14 +710,14 @@ namespace ProteinDigestionSimulator
                 {
                     if (use3LetterCode)
                     {
-                        string symbol3Letter = GetAminoAcidSymbolConversion(Conversions.ToString(mResidues[index]), true);
+                        string symbol3Letter = GetAminoAcidSymbolConversion(mResidues[index].ToString(), true);
                         if ((symbol3Letter ?? "") == (string.Empty ?? ""))
                             symbol3Letter = UNKNOWN_SYMBOL_THREE_LETTERS;
                         sequence += symbol3Letter;
                     }
                     else
                     {
-                        sequence += Conversions.ToString(mResidues[index]);
+                        sequence += mResidues[index].ToString();
                     }
 
                     if (index < lastIndex)
@@ -857,7 +854,7 @@ namespace ProteinDigestionSimulator
 
                 // We can set ignoreCase to false when calling CheckSequenceAgainstCleavageRule
                 // since proteinResidues and peptideResidues are already uppercase
-                bool matchesCleavageRule = CheckSequenceAgainstCleavageRule(prefix + "." + peptideResidues + "." + suffix, cleavageRule, out ruleMatchCount, Conversions.ToString('.'), terminiiSymbol, false);
+                bool matchesCleavageRule = CheckSequenceAgainstCleavageRule(prefix + "." + peptideResidues + "." + suffix, cleavageRule, out ruleMatchCount, ".", terminiiSymbol, false);
                 string trypticName;
                 if (matchesCleavageRule)
                 {
@@ -878,7 +875,7 @@ namespace ProteinDigestionSimulator
                         int ruleResidueNumForProtein = 0;
                         do
                         {
-                            ruleResidueNumForProtein = GetTrypticNameFindNextCleavageLoc(proteinResiduesBeforeStartLoc, Conversions.ToString(residueFollowingSearchResidues), ruleResidueNumForProtein + 1, cleavageRule, terminiiSymbol);
+                            ruleResidueNumForProtein = GetTrypticNameFindNextCleavageLoc(proteinResiduesBeforeStartLoc, residueFollowingSearchResidues.ToString(), ruleResidueNumForProtein + 1, cleavageRule, terminiiSymbol);
                             if (ruleResidueNumForProtein > 0)
                             {
                                 trypticResidueNumber += 1;
@@ -894,7 +891,7 @@ namespace ProteinDigestionSimulator
                     int ruleResidueNumForPeptide = 0;
                     do
                     {
-                        ruleResidueNumForPeptide = GetTrypticNameFindNextCleavageLoc(peptideResidues, Conversions.ToString(suffix), ruleResidueNumForPeptide + 1, cleavageRule, terminiiSymbol);
+                        ruleResidueNumForPeptide = GetTrypticNameFindNextCleavageLoc(peptideResidues, suffix.ToString(), ruleResidueNumForPeptide + 1, cleavageRule, terminiiSymbol);
                         if (ruleResidueNumForPeptide > 0)
                         {
                             ruleResidueMatchCount += 1;
@@ -904,7 +901,7 @@ namespace ProteinDigestionSimulator
                     trypticName = "t" + trypticResidueNumber.ToString();
                     if (ruleResidueMatchCount > 1)
                     {
-                        trypticName += "." + Strings.Trim(Conversion.Str(ruleResidueMatchCount));
+                        trypticName += "." + ruleResidueMatchCount;
                     }
                 }
                 else if (icr2LSCompatible)
@@ -972,7 +969,7 @@ namespace ProteinDigestionSimulator
                     }
 
                     returnResidueEnd = currentResidueEnd;
-                    if (currentSearchLoc > Strings.Len(proteinResidues))
+                    if (currentSearchLoc > proteinResidues.Length)
                         break;
                 }
                 else
@@ -1082,7 +1079,7 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            if (minCleavedResidueNum < 0 && residueFollowingSearchResidues == Conversions.ToString(terminiiSymbol))
+            if (minCleavedResidueNum < 0 && residueFollowingSearchResidues == terminiiSymbol.ToString())
             {
                 minCleavedResidueNum = searchResidues.Length + 1;
             }
@@ -1146,7 +1143,7 @@ namespace ProteinDigestionSimulator
                 return string.Empty;
             }
 
-            int ruleResidueNum = GetTrypticNameFindNextCleavageLoc(proteinResidues, Conversions.ToString(terminiiSymbol), searchStartLoc, cleavageRule, terminiiSymbol);
+            int ruleResidueNum = GetTrypticNameFindNextCleavageLoc(proteinResidues, terminiiSymbol.ToString(), searchStartLoc, cleavageRule, terminiiSymbol);
             if (ruleResidueNum > 0)
             {
                 returnResidueStart = searchStartLoc;
@@ -1210,7 +1207,7 @@ namespace ProteinDigestionSimulator
             int currentTrypticPeptideNumber = 0;
             do
             {
-                ruleResidueNum = GetTrypticNameFindNextCleavageLoc(proteinResidues, Conversions.ToString(terminiiSymbol), startLoc, cleavageRule, terminiiSymbol);
+                ruleResidueNum = GetTrypticNameFindNextCleavageLoc(proteinResidues, terminiiSymbol.ToString(), startLoc, cleavageRule, terminiiSymbol);
                 if (ruleResidueNum > 0)
                 {
                     currentTrypticPeptideNumber += 1;
@@ -1602,7 +1599,7 @@ namespace ProteinDigestionSimulator
                     if (char.IsLetter(sequence[index]))
                     {
                         // Character found
-                        mResidues += Conversions.ToString(sequence[index]);
+                        mResidues += sequence[index].ToString();
                     }
                     else
                     {
@@ -1635,7 +1632,7 @@ namespace ProteinDigestionSimulator
                             {
                                 // 3 letter symbol not found
                                 // Add anyway, but mark as X
-                                oneLetterSymbol = Conversions.ToString(UNKNOWN_SYMBOL_ONE_LETTER);
+                                oneLetterSymbol = UNKNOWN_SYMBOL_ONE_LETTER.ToString();
                             }
 
                             mResidues += oneLetterSymbol;

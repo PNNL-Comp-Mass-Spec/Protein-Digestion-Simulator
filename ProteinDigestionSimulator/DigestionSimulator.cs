@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.Reflection;
+using DBUtils = PRISMDatabaseUtils.DataTableUtils;
+using ProteinFileReader;
 
 // -------------------------------------------------------------------------------
 // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004
@@ -14,14 +18,6 @@ using System.Data;
 // https://opensource.org/licenses/BSD-2-Clause
 //
 // Copyright 2018 Battelle Memorial Institute
-
-using System.IO;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
-using DBUtils = PRISMDatabaseUtils.DataTableUtils;
-using ProteinFileReader;
 
 namespace ProteinDigestionSimulator
 {
@@ -913,7 +909,7 @@ namespace ProteinDigestionSimulator
 
             if (!string.IsNullOrEmpty(mLastErrorMessage))
             {
-                errorMessage += ControlChars.NewLine + mLastErrorMessage;
+                errorMessage += Environment.NewLine + mLastErrorMessage;
             }
 
             return errorMessage;
@@ -926,7 +922,7 @@ namespace ProteinDigestionSimulator
             {
                 if (masterSequences.ContainsKey(sequence))
                 {
-                    uniqueSeqID = Conversions.ToInteger(masterSequences[sequence]);
+                    uniqueSeqID = masterSequences[sequence];
                 }
                 else
                 {
@@ -1043,7 +1039,7 @@ namespace ProteinDigestionSimulator
         {
             DigestSequences = false;
             CysPeptidesOnly = false;
-            mOutputFileDelimiter = ControlChars.Tab;
+            mOutputFileDelimiter = '\t';
             SavePeakMatchingResults = false;
             mMaxPeakMatchingResultsPerFeatureToSave = 3;
             mPeptideUniquenessBinningSettings.AutoDetermineMassRange = true;
@@ -2019,11 +2015,11 @@ namespace ProteinDigestionSimulator
             {
                 if (Math.Abs(mSubtaskProgressPercentComplete - 0f) < float.Epsilon)
                 {
-                    LogMessage(mSubtaskProgressStepDescription.Replace(ControlChars.NewLine, "; "));
+                    LogMessage(mSubtaskProgressStepDescription.Replace(Environment.NewLine, "; "));
                 }
                 else
                 {
-                    LogMessage(mSubtaskProgressStepDescription + " (" + mSubtaskProgressPercentComplete.ToString("0.0") + "% complete)".Replace(ControlChars.NewLine, "; "));
+                    LogMessage(mSubtaskProgressStepDescription + " (" + mSubtaskProgressPercentComplete.ToString("0.0") + "% complete)".Replace(Environment.NewLine, "; "));
                 }
             }
 

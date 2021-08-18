@@ -1,5 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
+using NETPrediction;
+using PRISM;
+using PRISM.FileProcessor;
+using DBUtils = PRISMDatabaseUtils.DataTableUtils;
+using PRISMWin;
+using ProteinFileReader;
 
 // -------------------------------------------------------------------------------
 // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004
@@ -13,23 +25,6 @@ using System.Collections.Generic;
 // https://opensource.org/licenses/BSD-2-Clause
 //
 // Copyright 2018 Battelle Memorial Institute
-
-using System.ComponentModel;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Windows.Forms;
-using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
-using NETPrediction;
-using PRISM;
-using PRISM.FileProcessor;
-using DBUtils = PRISMDatabaseUtils.DataTableUtils;
-using PRISMWin;
-using ProteinFileReader;
 
 namespace ProteinDigestionSimulator
 {
@@ -207,7 +202,7 @@ namespace ProteinDigestionSimulator
             existingRowFound = false;
             foreach (DataRow myDataRow in mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].Rows)
             {
-                if (Math.Abs(Conversions.ToDouble(myDataRow[0]) - massThreshold) < 0.000001d && Math.Abs(Conversions.ToDouble(myDataRow[1]) - netThreshold) < 0.000001d)
+                if (Math.Abs(Convert.ToDouble(myDataRow[0]) - massThreshold) < 0.000001d && Math.Abs(Convert.ToDouble(myDataRow[1]) - netThreshold) < 0.000001d)
                 {
                     existingRowFound = true;
                     break;
@@ -348,7 +343,7 @@ namespace ProteinDigestionSimulator
             {
                 if (cboHydrophobicityMode.SelectedIndex >= 0)
                 {
-                    pICalculator.HydrophobicityType = (ComputePeptideProperties.HydrophobicityTypeConstants)Conversions.ToInteger(cboHydrophobicityMode.SelectedIndex);
+                    pICalculator.HydrophobicityType = (ComputePeptideProperties.HydrophobicityTypeConstants) cboHydrophobicityMode.SelectedIndex;
                 }
 
                 pICalculator.ReportMaximumpI = chkMaxpIModeEnabled.Checked;
@@ -370,8 +365,8 @@ namespace ProteinDigestionSimulator
                 scxNET = SCXNETCalculator.GetElutionTime(sequence);
             }
 
-            string message = "pI = " + pI.ToString() + ControlChars.NewLine + "Hydrophobicity = " + hydrophobicity.ToString() + ControlChars.NewLine + "Predicted LC NET = " + lcNET.ToString("0.000") + ControlChars.NewLine + "Predicted SCX NET = " + scxNET.ToString("0.000");
-            // "Predicted charge state = " & ControlChars.NewLine & charge.ToString() & " at pH = " & pI.ToString()
+            string message = "pI = " + pI.ToString() + Environment.NewLine + "Hydrophobicity = " + hydrophobicity.ToString() + Environment.NewLine + "Predicted LC NET = " + lcNET.ToString("0.000") + Environment.NewLine + "Predicted SCX NET = " + scxNET.ToString("0.000");
+            // "Predicted charge state = " & Environment.NewLine & charge.ToString() & " at pH = " & pI.ToString()
 
             txtpIStats.Text = message;
         }
@@ -608,7 +603,7 @@ namespace ProteinDigestionSimulator
                     var massToleranceType = default(PeakMatching.SearchThresholds.MassToleranceConstants);
                     if (cboMassTolType.SelectedIndex >= 0)
                     {
-                        massToleranceType = (PeakMatching.SearchThresholds.MassToleranceConstants)Conversions.ToInteger(cboMassTolType.SelectedIndex);
+                        massToleranceType = (PeakMatching.SearchThresholds.MassToleranceConstants) cboMassTolType.SelectedIndex;
                     }
 
                     bool autoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked;
@@ -617,11 +612,11 @@ namespace ProteinDigestionSimulator
                     {
                         if (autoDefineSLiCScoreThresholds)
                         {
-                            mProteinDigestionSimulator.AddSearchThresholdLevel(massToleranceType, Conversions.ToDouble(myDataRow[0]), Conversions.ToDouble(myDataRow[1]), clearExisting);
+                            mProteinDigestionSimulator.AddSearchThresholdLevel(massToleranceType, Convert.ToDouble(myDataRow[0]), Convert.ToDouble(myDataRow[1]), clearExisting);
                         }
                         else
                         {
-                            mProteinDigestionSimulator.AddSearchThresholdLevel(massToleranceType, Conversions.ToDouble(myDataRow[0]), Conversions.ToDouble(myDataRow[1]), false, Conversions.ToDouble(myDataRow[2]), Conversions.ToDouble(myDataRow[3]), true, clearExisting);
+                            mProteinDigestionSimulator.AddSearchThresholdLevel(massToleranceType, Convert.ToDouble(myDataRow[0]), Convert.ToDouble(myDataRow[1]), false, Convert.ToDouble(myDataRow[2]), Convert.ToDouble(myDataRow[3]), true, clearExisting);
                         }
 
                         clearExisting = false;
@@ -631,7 +626,7 @@ namespace ProteinDigestionSimulator
                     mProteinDigestionSimulator.CysPeptidesOnly = chkCysPeptidesOnly.Checked;
                     if (cboElementMassMode.SelectedIndex >= 0)
                     {
-                        mProteinDigestionSimulator.ElementMassMode = (PeptideSequence.ElementModeConstants)Conversions.ToInteger(cboElementMassMode.SelectedIndex);
+                        mProteinDigestionSimulator.ElementMassMode = (PeptideSequence.ElementModeConstants) cboElementMassMode.SelectedIndex;
                     }
 
                     mProteinDigestionSimulator.AutoDetermineMassRangeForBinning = chkAutoComputeRangeForBinning.Checked;
@@ -734,7 +729,7 @@ namespace ProteinDigestionSimulator
             const string PMOptions = DigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS;
             const int MAX_AUTO_WINDOW_HEIGHT = 775;
             var xmlSettings = new XmlSettingsFileAccessor();
-            var columnDelimiters = new char[] { ControlChars.Tab, ',' };
+            var columnDelimiters = new char[] { '\t', ',' };
             ResetToDefaults(false);
             string settingsFilePath = GetSettingsFilePath();
             try
@@ -809,7 +804,7 @@ namespace ProteinDigestionSimulator
                         {
                             try
                             {
-                                InSilicoDigest.CleavageRuleConstants cleavageRule = (InSilicoDigest.CleavageRuleConstants)Conversions.ToInteger(legacyCleavageRuleIndexSetting);
+                                InSilicoDigest.CleavageRuleConstants cleavageRule = (InSilicoDigest.CleavageRuleConstants) legacyCleavageRuleIndexSetting;
                                 SetSelectedCleavageRule(cleavageRule);
                             }
                             catch (Exception ex)
@@ -881,16 +876,16 @@ namespace ProteinDigestionSimulator
                                 var thresholdDetails = thresholds[index].Split(columnDelimiters);
                                 if (thresholdDetails.Length > 2 && !autoDefineSLiCScoreThresholds)
                                 {
-                                    if (Information.IsNumeric(thresholdDetails[0]) && Information.IsNumeric(thresholdDetails[1]) && Information.IsNumeric(thresholdDetails[2]) && Information.IsNumeric(thresholdDetails[3]))
+                                    if (double.TryParse(thresholdDetails[0], out _) && double.TryParse(thresholdDetails[1], out _) && double.TryParse(thresholdDetails[2], out _) && double.TryParse(thresholdDetails[3], out _))
                                     {
-                                        AddPMThresholdRow(Conversions.ToDouble(thresholdDetails[0]), Conversions.ToDouble(thresholdDetails[1]), Conversions.ToDouble(thresholdDetails[2]), Conversions.ToDouble(thresholdDetails[3]), out _);
+                                        AddPMThresholdRow(double.Parse(thresholdDetails[0]), double.Parse(thresholdDetails[1]), double.Parse(thresholdDetails[2]), double.Parse(thresholdDetails[3]), out _);
                                     }
                                 }
                                 else if (thresholdDetails.Length >= 2)
                                 {
-                                    if (Information.IsNumeric(thresholdDetails[0]) && Information.IsNumeric(thresholdDetails[1]))
+                                    if (double.TryParse(thresholdDetails[0], out _) && double.TryParse(thresholdDetails[1], out _))
                                     {
-                                        AddPMThresholdRow(Conversions.ToDouble(thresholdDetails[0]), Conversions.ToDouble(thresholdDetails[1]), out _);
+                                        AddPMThresholdRow(double.Parse(thresholdDetails[0]), double.Parse(thresholdDetails[1]), out _);
                                     }
                                 }
                             }
@@ -1018,11 +1013,11 @@ namespace ProteinDigestionSimulator
                                 thresholdData += "; ";
                             if (autoDefineSLiCScoreThresholds)
                             {
-                                thresholdData += Conversions.ToString(myDataRow[0]) + "," + Conversions.ToString(myDataRow[1]);
+                                thresholdData += myDataRow[0].ToString() + "," + myDataRow[1].ToString();
                             }
                             else
                             {
-                                thresholdData += Conversions.ToString(myDataRow[0]) + "," + Conversions.ToString(myDataRow[1]) + "," + Conversions.ToString(myDataRow[2]) + "," + Conversions.ToString(myDataRow[3]);
+                                thresholdData += myDataRow[0].ToString() + "," + myDataRow[1].ToString() + "," + myDataRow[2].ToString() + "," + myDataRow[3].ToString();
                             }
                         }
 
@@ -1147,14 +1142,14 @@ namespace ProteinDigestionSimulator
 
             if (cboInputFileColumnOrdering.SelectedIndex >= 0)
             {
-                parseProteinFile.DelimitedFileFormatCode = (DelimitedProteinFileReader.ProteinFileFormatCode)Conversions.ToInteger(cboInputFileColumnOrdering.SelectedIndex);
+                parseProteinFile.DelimitedFileFormatCode = (DelimitedProteinFileReader.ProteinFileFormatCode) cboInputFileColumnOrdering.SelectedIndex;
             }
 
-            parseProteinFile.InputFileDelimiter = LookupColumnDelimiter(cboInputFileColumnDelimiter, txtInputFileColumnDelimiter, ControlChars.Tab);
-            parseProteinFile.OutputFileDelimiter = LookupColumnDelimiter(cboOutputFileFieldDelimiter, txtOutputFileFieldDelimiter, ControlChars.Tab);
+            parseProteinFile.InputFileDelimiter = LookupColumnDelimiter(cboInputFileColumnDelimiter, txtInputFileColumnDelimiter, '\t');
+            parseProteinFile.OutputFileDelimiter = LookupColumnDelimiter(cboOutputFileFieldDelimiter, txtOutputFileFieldDelimiter, '\t');
             parseProteinFile.FastaFileOptions.LookForAddnlRefInDescription = chkLookForAddnlRefInDescription.Checked;
-            ValidateTextBox(txtAddnlRefSepChar, Conversions.ToString(mDefaultFastaFileOptions.AddnlRefSepChar));
-            ValidateTextBox(txtAddnlRefAccessionSepChar, Conversions.ToString(mDefaultFastaFileOptions.AddnlRefAccessionSepChar));
+            ValidateTextBox(txtAddnlRefSepChar, mDefaultFastaFileOptions.AddnlRefSepChar.ToString());
+            ValidateTextBox(txtAddnlRefAccessionSepChar, mDefaultFastaFileOptions.AddnlRefAccessionSepChar.ToString());
             parseProteinFile.FastaFileOptions.AddnlRefSepChar = txtAddnlRefSepChar.Text[0];
             parseProteinFile.FastaFileOptions.AddnlRefAccessionSepChar = txtAddnlRefAccessionSepChar.Text[0];
             parseProteinFile.ExcludeProteinSequence = chkExcludeProteinSequence.Checked;
@@ -1168,7 +1163,7 @@ namespace ProteinDigestionSimulator
             parseProteinFile.ExcludeProteinDescription = chkExcludeProteinDescription.Checked;
             if (cboHydrophobicityMode.SelectedIndex >= 0)
             {
-                parseProteinFile.HydrophobicityType = (ComputePeptideProperties.HydrophobicityTypeConstants)Conversions.ToInteger(cboHydrophobicityMode.SelectedIndex);
+                parseProteinFile.HydrophobicityType = (ComputePeptideProperties.HydrophobicityTypeConstants) cboHydrophobicityMode.SelectedIndex;
             }
 
             parseProteinFile.ReportMaximumpI = chkMaxpIModeEnabled.Checked;
@@ -1201,12 +1196,12 @@ namespace ProteinDigestionSimulator
                 return false;
             if (cboCysTreatmentMode.SelectedIndex >= 0)
             {
-                parseProteinFile.DigestionOptions.CysTreatmentMode = (PeptideSequence.CysTreatmentModeConstants)Conversions.ToInteger(cboCysTreatmentMode.SelectedIndex);
+                parseProteinFile.DigestionOptions.CysTreatmentMode = (PeptideSequence.CysTreatmentModeConstants) cboCysTreatmentMode.SelectedIndex;
             }
 
             if (cboFragmentMassMode.SelectedIndex >= 0)
             {
-                parseProteinFile.DigestionOptions.FragmentMassMode = (InSilicoDigest.FragmentMassConstants)Conversions.ToInteger(cboFragmentMassMode.SelectedIndex);
+                parseProteinFile.DigestionOptions.FragmentMassMode = (InSilicoDigest.FragmentMassConstants) cboFragmentMassMode.SelectedIndex;
             }
 
             parseProteinFile.DigestionOptions.RemoveDuplicateSequences = !chkIncludeDuplicateSequences.Checked;
@@ -1230,7 +1225,7 @@ namespace ProteinDigestionSimulator
             }
             catch (Exception ex)
             {
-                return ControlChars.Tab;
+                return '\t';
             }
         }
 
@@ -1298,7 +1293,7 @@ namespace ProteinDigestionSimulator
                     mParseProteinFile.CreateProteinOutputFile = true;
                     if (cboProteinReversalOptions.SelectedIndex >= 0)
                     {
-                        mParseProteinFile.ProteinScramblingMode = (ProteinFileParser.ProteinScramblingModeConstants)Conversions.ToInteger(cboProteinReversalOptions.SelectedIndex);
+                        mParseProteinFile.ProteinScramblingMode = (ProteinFileParser.ProteinScramblingModeConstants) cboProteinReversalOptions.SelectedIndex;
                     }
 
                     mParseProteinFile.ProteinScramblingSamplingPercentage = TextBoxUtils.ParseTextBoxValueInt(txtProteinReversalSamplingPercentage, "", out _, 100, false);
@@ -1307,7 +1302,7 @@ namespace ProteinDigestionSimulator
                     mParseProteinFile.CreateFastaOutputFile = chkCreateFastaOutputFile.Checked;
                     if (cboElementMassMode.SelectedIndex >= 0)
                     {
-                        mParseProteinFile.ElementMassMode = (PeptideSequence.ElementModeConstants)Conversions.ToInteger(cboElementMassMode.SelectedIndex);
+                        mParseProteinFile.ElementMassMode = (PeptideSequence.ElementModeConstants) cboElementMassMode.SelectedIndex;
                     }
 
                     Cursor.Current = Cursors.WaitCursor;
@@ -1386,8 +1381,8 @@ namespace ProteinDigestionSimulator
 
         private void PastePMThresholdsValues(bool clearList)
         {
-            var lineDelimiters = new char[] { ControlChars.Cr, ControlChars.Lf };
-            var columnDelimiters = new char[] { ControlChars.Tab, ',' };
+            var lineDelimiters = new char[] { '\r', '\n' };
+            var columnDelimiters = new char[] { '\t', ',' };
 
             // Examine the clipboard contents
             var clipboardObject = Clipboard.GetDataObject();
@@ -1395,7 +1390,7 @@ namespace ProteinDigestionSimulator
             {
                 if (clipboardObject.GetDataPresent(DataFormats.StringFormat, true))
                 {
-                    string clipboardData = Conversions.ToString(clipboardObject.GetData(DataFormats.StringFormat, true));
+                    string clipboardData = clipboardObject.GetData(DataFormats.StringFormat, true).ToString();
 
                     // Split clipboardData on carriage return or line feed characters
                     // Lines that end in CrLf will give two separate lines; one with the text, and one blank; that's OK
@@ -1645,14 +1640,14 @@ namespace ProteinDigestionSimulator
 
             cboInputFileFormat.SelectedIndex = (int)InputFileFormatConstants.AutoDetermine;
             cboInputFileColumnDelimiter.SelectedIndex = (int)ProteinFileParser.DelimiterCharConstants.Tab;
-            txtInputFileColumnDelimiter.Text = Conversions.ToString(';');
+            txtInputFileColumnDelimiter.Text = ";";
             cboOutputFileFieldDelimiter.SelectedIndex = (int)ProteinFileParser.DelimiterCharConstants.Tab;
-            txtOutputFileFieldDelimiter.Text = Conversions.ToString(';');
+            txtOutputFileFieldDelimiter.Text = ";";
             chkEnableLogging.Checked = false;
             chkIncludePrefixAndSuffixResidues.Checked = false;
             chkLookForAddnlRefInDescription.Checked = false;
-            txtAddnlRefSepChar.Text = Conversions.ToString(mDefaultFastaFileOptions.AddnlRefSepChar);                      // "|"
-            txtAddnlRefAccessionSepChar.Text = Conversions.ToString(mDefaultFastaFileOptions.AddnlRefAccessionSepChar);    // ":"
+            txtAddnlRefSepChar.Text = mDefaultFastaFileOptions.AddnlRefSepChar.ToString();                      // "|"
+            txtAddnlRefAccessionSepChar.Text = mDefaultFastaFileOptions.AddnlRefAccessionSepChar.ToString();    // ":"
             chkExcludeProteinSequence.Checked = false;
             chkComputeProteinMass.Checked = false;
             cboElementMassMode.SelectedIndex = (int)PeptideSequence.ElementModeConstants.IsotopicMass;
@@ -1747,7 +1742,7 @@ namespace ProteinDigestionSimulator
                 openFile.FilterIndex = 1;
             }
 
-            if (Strings.Len(GetProteinInputFilePath().Length) > 0)
+            if (GetProteinInputFilePath().Length > 0)
             {
                 try
                 {
@@ -1786,7 +1781,7 @@ namespace ProteinDigestionSimulator
                 Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
                 FilterIndex = 1
             };
-            if (Strings.Len(txtProteinOutputFilePath.Text.Length) > 0)
+            if (txtProteinOutputFilePath.Text.Length > 0)
             {
                 try
                 {
@@ -1884,81 +1879,19 @@ namespace ProteinDigestionSimulator
         private void ShowSplashScreen()
         {
             // See if the user has been shown the splash screen sometime in the last 6 months (SPLASH_INTERVAL_DAYS)
-            // Keep track of the last splash screen display date using the registry
-            // The data is stored in key HKEY_CURRENT_USER\Software\VB and VBA Program Settings\PNNL_ProteinDigestionSimulator\Options
-            //
-            // If the current user cannot update the registry due to permissions errors, then we will not show
-            // the splash screen (so that they don't end up seeing the splash every time the program runs)
+            // Keep track of the last splash screen display date using the program user settings (stored in the user's AppData\Local\PNNL\... folder)
 
-            const string APP_NAME_IN_REGISTRY = "PNNL_ProteinDigestionSimulator";
-            const string REG_SECTION_OPTIONS = "Options";
-            const string REG_KEY_SPLASH_DATE = "SplashDate";
-            DateTime DEFAULT_DATE = DateTime.Parse("2000-01-01");
+            var DEFAULT_DATE = DateTime.Parse("2000-01-01");
             const int SPLASH_INTERVAL_DAYS = 182;
-            string lastSplashDateText;
             var lastSplashDate = DEFAULT_DATE;
             var currentDateTime = DateTime.Now;
-            try
-            {
-                lastSplashDateText = Interaction.GetSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASH_DATE, "");
-            }
-            catch (Exception ex)
-            {
-                // Error looking up the last splash date; don't continue
-                return;
-            }
-
-            if (!string.IsNullOrWhiteSpace(lastSplashDateText))
-            {
-                try
-                {
-                    // Convert the text to a date
-                    lastSplashDate = DateTime.Parse(lastSplashDateText);
-                }
-                catch (Exception ex)
-                {
-                    // Conversion failed
-                    lastSplashDateText = string.Empty;
-                    lastSplashDate = DEFAULT_DATE;
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(lastSplashDateText))
-            {
-                // Entry isn't present (or it is present, but isn't the correct format)
-                // Try to add it
-                try
-                {
-                    Interaction.SaveSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASH_DATE, lastSplashDate.ToShortDateString());
-                }
-                catch (Exception ex)
-                {
-                    // Error adding the splash date; don't continue
-                    return;
-                }
-            }
+            lastSplashDate = Properties.Settings.Default.LastSplashDate;
 
             if (currentDateTime.Subtract(lastSplashDate).TotalDays >= SPLASH_INTERVAL_DAYS)
             {
-                try
-                {
-                    lastSplashDate = currentDateTime;
-                    Interaction.SaveSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASH_DATE, lastSplashDate.ToShortDateString());
-
-                    // Now make sure the setting actually saved
-                    lastSplashDateText = Interaction.GetSetting(APP_NAME_IN_REGISTRY, REG_SECTION_OPTIONS, REG_KEY_SPLASH_DATE, "");
-                    lastSplashDate = DateTime.Parse(lastSplashDateText);
-                    if ((lastSplashDate.ToShortDateString() ?? "") != (currentDateTime.ToShortDateString() ?? ""))
-                    {
-                        // Error saving/retrieving date; don't continue
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Error saving the new splash date; don't continue
-                    return;
-                }
+                lastSplashDate = currentDateTime;
+                Properties.Settings.Default.LastSplashDate = lastSplashDate;
+                Properties.Settings.Default.Save();
 
                 var splashForm = new Disclaimer();
                 splashForm.ShowDialog();
@@ -2074,7 +2007,7 @@ namespace ProteinDigestionSimulator
 
             // Lookup the file size
             var inputFile = new FileInfo(inputFilePath);
-            int fileSizeKB = Conversions.ToInteger(inputFile.Length / 1024.0d);
+            int fileSizeKB = (int) Math.Round(inputFile.Length / 1024.0d);
             if (isFastaFile)
             {
                 if (proteinFileParser.DigestionOptions.CleavageRuleID == InSilicoDigest.CleavageRuleConstants.KROneEnd || proteinFileParser.DigestionOptions.CleavageRuleID == InSilicoDigest.CleavageRuleConstants.NoRule)
@@ -2316,7 +2249,7 @@ namespace ProteinDigestionSimulator
         {
             if (cboPMPredefinedThresholds.SelectedIndex >= 0)
             {
-                AutoPopulatePMThresholdsByID((PredefinedPMThresholdsConstants)Conversions.ToInteger(cboPMPredefinedThresholds.SelectedIndex), true);
+                AutoPopulatePMThresholdsByID((PredefinedPMThresholdsConstants) cboPMPredefinedThresholds.SelectedIndex, true);
             }
         }
 

@@ -1,5 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Windows.Forms;
+using PRISM;
+using PRISM.FileProcessor;
+using ProteinFileReader;
 
 // -------------------------------------------------------------------------------
 // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004
@@ -13,16 +21,6 @@ using System.Collections.Generic;
 // https://opensource.org/licenses/BSD-2-Clause
 //
 // Copyright 2018 Battelle Memorial Institute
-
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Windows.Forms;
-using Microsoft.VisualBasic;
-using PRISM;
-using PRISM.FileProcessor;
-using ProteinFileReader;
 
 namespace ProteinDigestionSimulator
 {
@@ -78,7 +76,7 @@ namespace ProteinDigestionSimulator
             mAssumeFastaFile = false;
             mCreateDigestedProteinOutputFile = false;
             mComputeProteinMass = false;
-            mInputFileDelimiter = ControlChars.Tab;
+            mInputFileDelimiter = '\t';
             mOutputDirectoryPath = string.Empty;
             mParameterFilePath = string.Empty;
             mRecurseDirectories = false;
