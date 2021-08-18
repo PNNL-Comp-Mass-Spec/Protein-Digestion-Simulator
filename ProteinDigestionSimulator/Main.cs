@@ -1566,9 +1566,7 @@ namespace ProteinDigestionSimulator
                     additionalRulesToAppend.Add(cleavageRuleId, cleavageRule.Value.Description);
                 }
 
-                foreach (var ruleToAdd in from item in additionalRulesToAppend
-                                          orderby item.Value
-                                          select item.Key)
+                foreach (var ruleToAdd in additionalRulesToAppend.OrderBy(x => x.Value).Select(x => x.Key))
                 {
                     if (ruleToAdd == InSilicoDigest.CleavageRuleConstants.EricPartialTrypsin)
                         continue;
@@ -1810,9 +1808,7 @@ namespace ProteinDigestionSimulator
 
         private void SetSelectedCleavageRule(InSilicoDigest.CleavageRuleConstants cleavageRule)
         {
-            var query = from item in mCleavageRuleComboboxIndexToType
-                        where item.Value == cleavageRule
-                        select item.Key;
+            var query = mCleavageRuleComboboxIndexToType.Where(x => x.Value == cleavageRule).Select(x => x.Key);
             foreach (var item in query.Take(1))
                 cboCleavageRuleType.SelectedIndex = item;
         }

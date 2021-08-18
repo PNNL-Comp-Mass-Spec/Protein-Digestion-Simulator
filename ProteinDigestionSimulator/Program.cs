@@ -187,8 +187,7 @@ namespace ProteinDigestionSimulator
                 // Make sure no invalid parameters are present
                 if (commandLineParser.InvalidParametersPresent(validParameters))
                 {
-                    ConsoleMsgUtils.ShowErrors("Invalid command line parameters", (from item in commandLineParser.InvalidParameters(validParameters)
-                                                                                   select "/" + item).ToList());
+                    ConsoleMsgUtils.ShowErrors("Invalid command line parameters", commandLineParser.InvalidParameters(validParameters).Select(x => "/" + x).ToList());
                     return false;
                 }
 
