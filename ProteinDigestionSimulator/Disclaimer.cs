@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
-using System.Runtime.CompilerServices;
 using System.Windows.Forms;
-using Microsoft.VisualBasic;
 
 namespace ProteinDigestionSimulator
 {
     public class Disclaimer : Form
     {
-        #region  Windows Form Designer generated code
-
         public Disclaimer() : base()
         {
             // This call is required by the Windows Form Designer.
@@ -20,30 +15,31 @@ namespace ProteinDigestionSimulator
             InitializeControls();
         }
 
-        // Form overrides dispose to clean up the component list.
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && (components != null))
             {
-                if (components != null)
-                {
-                    components.Dispose();
-                }
+                components.Dispose();
             }
-
             base.Dispose(disposing);
         }
 
-        // Required by the Windows Form Designer
-        private System.ComponentModel.IContainer components;
-
-        // NOTE: The following procedure is required by the Windows Form Designer
-        // It can be modified using the Windows Form Designer.
-        // Do not modify it using the code editor.
         private TextBox txtNotice;
         private Button cmdOK;
 
-        [DebuggerStepThrough()]
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
         private void InitializeComponent()
         {
             txtNotice = new TextBox();
@@ -85,8 +81,6 @@ namespace ProteinDigestionSimulator
             PerformLayout();
         }
 
-        #endregion
-
         // Ignore Spelling: Kangas, Petritis, cmd, chk, txt, frm
 
         private const int FORM_CLOSE_DELAY_SECONDS = 2;
@@ -99,7 +93,7 @@ namespace ProteinDigestionSimulator
             string newlineText;
             if (addNewlines)
             {
-                newlineText = ControlChars.NewLine + ControlChars.NewLine;
+                newlineText = Environment.NewLine + Environment.NewLine;
             }
             else
             {

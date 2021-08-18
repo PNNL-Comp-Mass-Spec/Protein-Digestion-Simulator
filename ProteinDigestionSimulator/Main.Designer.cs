@@ -1,39 +1,33 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
-using System.Runtime.CompilerServices;
 using System.Windows.Forms;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace ProteinDigestionSimulator
 {
-    [DesignerGenerated()]
     public partial class Main : Form
     {
-        // Form overrides dispose to clean up the component list.
-        [DebuggerNonUserCode()]
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            try
+            if (disposing && (components != null))
             {
-                if (disposing && components != null)
-                {
-                    components.Dispose();
-                }
+                components.Dispose();
             }
-            finally
-            {
-                base.Dispose(disposing);
-            }
+            base.Dispose(disposing);
         }
 
-        // Required by the Windows Form Designer
-        private System.ComponentModel.IContainer components;
-
-        // NOTE: The following procedure is required by the Windows Form Designer
-        // It can be modified using the Windows Form Designer.
-        // Do not modify it using the code editor.
-        [DebuggerStepThrough()]
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
@@ -261,25 +255,25 @@ namespace ProteinDigestionSimulator
             fraInputFilePath.SuspendLayout();
             fraOutputTextOptions.SuspendLayout();
             SuspendLayout();
-            // 
+            //
             // txtProteinInputFilePath
-            // 
+            //
             txtProteinInputFilePath.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             txtProteinInputFilePath.Location = new Point(104, 26);
             txtProteinInputFilePath.Name = "txtProteinInputFilePath";
             txtProteinInputFilePath.Size = new Size(611, 20);
             txtProteinInputFilePath.TabIndex = 1;
-            // 
+            //
             // optUseRectangleSearchRegion
-            // 
+            //
             optUseRectangleSearchRegion.Location = new Point(232, 96);
             optUseRectangleSearchRegion.Name = "optUseRectangleSearchRegion";
             optUseRectangleSearchRegion.Size = new Size(136, 16);
             optUseRectangleSearchRegion.TabIndex = 7;
             optUseRectangleSearchRegion.Text = "Use rectangle region";
-            // 
+            //
             // optUseEllipseSearchRegion
-            // 
+            //
             optUseEllipseSearchRegion.Checked = true;
             optUseEllipseSearchRegion.Location = new Point(232, 72);
             optUseEllipseSearchRegion.Name = "optUseEllipseSearchRegion";
@@ -287,25 +281,25 @@ namespace ProteinDigestionSimulator
             optUseEllipseSearchRegion.TabIndex = 6;
             optUseEllipseSearchRegion.TabStop = true;
             optUseEllipseSearchRegion.Text = "Use ellipse search region";
-            // 
+            //
             // lblUniquenessCalculationsNote
-            // 
+            //
             lblUniquenessCalculationsNote.Location = new Point(240, 192);
             lblUniquenessCalculationsNote.Name = "lblUniquenessCalculationsNote";
             lblUniquenessCalculationsNote.Size = new Size(384, 88);
             lblUniquenessCalculationsNote.TabIndex = 6;
-            // 
+            //
             // lblProteinScramblingLoopCount
-            // 
+            //
             lblProteinScramblingLoopCount.Location = new Point(232, 42);
             lblProteinScramblingLoopCount.Name = "lblProteinScramblingLoopCount";
             lblProteinScramblingLoopCount.Size = new Size(72, 16);
             lblProteinScramblingLoopCount.TabIndex = 12;
             lblProteinScramblingLoopCount.Text = "Loop Count";
             lblProteinScramblingLoopCount.TextAlign = ContentAlignment.TopRight;
-            // 
+            //
             // fraPeakMatchingOptions
-            // 
+            //
             fraPeakMatchingOptions.Controls.Add(optUseRectangleSearchRegion);
             fraPeakMatchingOptions.Controls.Add(optUseEllipseSearchRegion);
             fraPeakMatchingOptions.Controls.Add(txtMaxPeakMatchingResultsPerFeatureToSave);
@@ -320,49 +314,49 @@ namespace ProteinDigestionSimulator
             fraPeakMatchingOptions.TabIndex = 2;
             fraPeakMatchingOptions.TabStop = false;
             fraPeakMatchingOptions.Text = "Peak Matching Options";
-            // 
+            //
             // txtMaxPeakMatchingResultsPerFeatureToSave
-            // 
+            //
             txtMaxPeakMatchingResultsPerFeatureToSave.Location = new Point(272, 16);
             txtMaxPeakMatchingResultsPerFeatureToSave.Name = "txtMaxPeakMatchingResultsPerFeatureToSave";
             txtMaxPeakMatchingResultsPerFeatureToSave.Size = new Size(40, 20);
             txtMaxPeakMatchingResultsPerFeatureToSave.TabIndex = 1;
             txtMaxPeakMatchingResultsPerFeatureToSave.Text = "3";
-            // 
+            //
             // lblMaxPeakMatchingResultsPerFeatureToSave
-            // 
+            //
             lblMaxPeakMatchingResultsPerFeatureToSave.Location = new Point(16, 18);
             lblMaxPeakMatchingResultsPerFeatureToSave.Name = "lblMaxPeakMatchingResultsPerFeatureToSave";
             lblMaxPeakMatchingResultsPerFeatureToSave.Size = new Size(256, 16);
             lblMaxPeakMatchingResultsPerFeatureToSave.TabIndex = 0;
             lblMaxPeakMatchingResultsPerFeatureToSave.Text = "Max Peak Matching Results Per Feature To Save";
-            // 
+            //
             // chkExportPeakMatchingResults
-            // 
+            //
             chkExportPeakMatchingResults.Location = new Point(32, 36);
             chkExportPeakMatchingResults.Name = "chkExportPeakMatchingResults";
             chkExportPeakMatchingResults.Size = new Size(192, 17);
             chkExportPeakMatchingResults.TabIndex = 2;
             chkExportPeakMatchingResults.Text = "Export peak matching results";
-            // 
+            //
             // txtMinimumSLiCScore
-            // 
+            //
             txtMinimumSLiCScore.Location = new Point(144, 104);
             txtMinimumSLiCScore.Name = "txtMinimumSLiCScore";
             txtMinimumSLiCScore.Size = new Size(40, 20);
             txtMinimumSLiCScore.TabIndex = 5;
             txtMinimumSLiCScore.Text = "0.99";
-            // 
+            //
             // lblMinimumSLiCScore
-            // 
+            //
             lblMinimumSLiCScore.Location = new Point(16, 96);
             lblMinimumSLiCScore.Name = "lblMinimumSLiCScore";
             lblMinimumSLiCScore.Size = new Size(128, 32);
             lblMinimumSLiCScore.TabIndex = 4;
             lblMinimumSLiCScore.Text = "Minimum SLiC score to be considered unique";
-            // 
+            //
             // chkUseSLiCScoreForUniqueness
-            // 
+            //
             chkUseSLiCScoreForUniqueness.Checked = true;
             chkUseSLiCScoreForUniqueness.CheckState = CheckState.Checked;
             chkUseSLiCScoreForUniqueness.Location = new Point(16, 60);
@@ -370,9 +364,9 @@ namespace ProteinDigestionSimulator
             chkUseSLiCScoreForUniqueness.Size = new Size(168, 32);
             chkUseSLiCScoreForUniqueness.TabIndex = 3;
             chkUseSLiCScoreForUniqueness.Text = "Use SLiC Score when gauging peptide uniqueness";
-            // 
+            //
             // TabPageUniquenessStats
-            // 
+            //
             TabPageUniquenessStats.Controls.Add(lblUniquenessCalculationsNote);
             TabPageUniquenessStats.Controls.Add(fraPeakMatchingOptions);
             TabPageUniquenessStats.Controls.Add(fraSqlServerOptions);
@@ -386,9 +380,9 @@ namespace ProteinDigestionSimulator
             TabPageUniquenessStats.TabIndex = 1;
             TabPageUniquenessStats.Text = "Peptide Uniqueness Options";
             TabPageUniquenessStats.UseVisualStyleBackColor = true;
-            // 
+            //
             // fraSqlServerOptions
-            // 
+            //
             fraSqlServerOptions.Controls.Add(chkSqlServerUseExistingData);
             fraSqlServerOptions.Controls.Add(chkAllowSqlServerCaching);
             fraSqlServerOptions.Controls.Add(lblSqlServerPassword);
@@ -408,9 +402,9 @@ namespace ProteinDigestionSimulator
             fraSqlServerOptions.TabStop = false;
             fraSqlServerOptions.Text = "Sql Server Options";
             fraSqlServerOptions.Visible = false;
-            // 
+            //
             // chkSqlServerUseExistingData
-            // 
+            //
             chkSqlServerUseExistingData.Checked = true;
             chkSqlServerUseExistingData.CheckState = CheckState.Checked;
             chkSqlServerUseExistingData.Location = new Point(8, 88);
@@ -418,66 +412,66 @@ namespace ProteinDigestionSimulator
             chkSqlServerUseExistingData.Size = new Size(144, 16);
             chkSqlServerUseExistingData.TabIndex = 11;
             chkSqlServerUseExistingData.Text = "Use Existing Data";
-            // 
+            //
             // chkAllowSqlServerCaching
-            // 
+            //
             chkAllowSqlServerCaching.Location = new Point(8, 16);
             chkAllowSqlServerCaching.Name = "chkAllowSqlServerCaching";
             chkAllowSqlServerCaching.Size = new Size(144, 32);
             chkAllowSqlServerCaching.TabIndex = 0;
             chkAllowSqlServerCaching.Text = "Allow data caching using Sql Server";
-            // 
+            //
             // lblSqlServerPassword
-            // 
+            //
             lblSqlServerPassword.Location = new Point(264, 64);
             lblSqlServerPassword.Name = "lblSqlServerPassword";
             lblSqlServerPassword.Size = new Size(56, 16);
             lblSqlServerPassword.TabIndex = 9;
             lblSqlServerPassword.Text = "Password";
-            // 
+            //
             // lblSqlServerUsername
-            // 
+            //
             lblSqlServerUsername.Location = new Point(184, 64);
             lblSqlServerUsername.Name = "lblSqlServerUsername";
             lblSqlServerUsername.Size = new Size(56, 16);
             lblSqlServerUsername.TabIndex = 7;
             lblSqlServerUsername.Text = "Username";
-            // 
+            //
             // txtSqlServerPassword
-            // 
+            //
             txtSqlServerPassword.Location = new Point(264, 80);
             txtSqlServerPassword.Name = "txtSqlServerPassword";
             txtSqlServerPassword.PasswordChar = '*';
             txtSqlServerPassword.Size = new Size(88, 20);
             txtSqlServerPassword.TabIndex = 10;
             txtSqlServerPassword.Text = "pw";
-            // 
+            //
             // txtSqlServerUsername
-            // 
+            //
             txtSqlServerUsername.Location = new Point(184, 80);
             txtSqlServerUsername.Name = "txtSqlServerUsername";
             txtSqlServerUsername.Size = new Size(72, 20);
             txtSqlServerUsername.TabIndex = 8;
             txtSqlServerUsername.Text = "user";
-            // 
+            //
             // lblSqlServerDatabase
-            // 
+            //
             lblSqlServerDatabase.Location = new Point(264, 16);
             lblSqlServerDatabase.Name = "lblSqlServerDatabase";
             lblSqlServerDatabase.Size = new Size(56, 16);
             lblSqlServerDatabase.TabIndex = 4;
             lblSqlServerDatabase.Text = "Database";
-            // 
+            //
             // lblSqlServerServerName
-            // 
+            //
             lblSqlServerServerName.Location = new Point(184, 16);
             lblSqlServerServerName.Name = "lblSqlServerServerName";
             lblSqlServerServerName.Size = new Size(56, 16);
             lblSqlServerServerName.TabIndex = 2;
             lblSqlServerServerName.Text = "Server";
-            // 
+            //
             // chkSqlServerUseIntegratedSecurity
-            // 
+            //
             chkSqlServerUseIntegratedSecurity.Checked = true;
             chkSqlServerUseIntegratedSecurity.CheckState = CheckState.Checked;
             chkSqlServerUseIntegratedSecurity.Location = new Point(8, 72);
@@ -485,25 +479,25 @@ namespace ProteinDigestionSimulator
             chkSqlServerUseIntegratedSecurity.Size = new Size(144, 16);
             chkSqlServerUseIntegratedSecurity.TabIndex = 6;
             chkSqlServerUseIntegratedSecurity.Text = "Use Integrated Security";
-            // 
+            //
             // txtSqlServerDatabase
-            // 
+            //
             txtSqlServerDatabase.Location = new Point(264, 32);
             txtSqlServerDatabase.Name = "txtSqlServerDatabase";
             txtSqlServerDatabase.Size = new Size(88, 20);
             txtSqlServerDatabase.TabIndex = 5;
             txtSqlServerDatabase.Text = "TempDB";
-            // 
+            //
             // txtSqlServerName
-            // 
+            //
             txtSqlServerName.Location = new Point(184, 32);
             txtSqlServerName.Name = "txtSqlServerName";
             txtSqlServerName.Size = new Size(72, 20);
             txtSqlServerName.TabIndex = 3;
             txtSqlServerName.Text = "Monroe";
-            // 
+            //
             // chkUseSqlServerDBToCacheData
-            // 
+            //
             chkUseSqlServerDBToCacheData.Checked = true;
             chkUseSqlServerDBToCacheData.CheckState = CheckState.Checked;
             chkUseSqlServerDBToCacheData.Location = new Point(8, 56);
@@ -511,9 +505,9 @@ namespace ProteinDigestionSimulator
             chkUseSqlServerDBToCacheData.Size = new Size(144, 16);
             chkUseSqlServerDBToCacheData.TabIndex = 1;
             chkUseSqlServerDBToCacheData.Text = "Enable data caching";
-            // 
+            //
             // fraUniquenessBinningOptions
-            // 
+            //
             fraUniquenessBinningOptions.Controls.Add(lblPeptideUniquenessMassMode);
             fraUniquenessBinningOptions.Controls.Add(txtUniquenessBinWidth);
             fraUniquenessBinningOptions.Controls.Add(lblUniquenessBinWidth);
@@ -528,33 +522,33 @@ namespace ProteinDigestionSimulator
             fraUniquenessBinningOptions.TabIndex = 3;
             fraUniquenessBinningOptions.TabStop = false;
             fraUniquenessBinningOptions.Text = "Binning Options";
-            // 
+            //
             // lblPeptideUniquenessMassMode
-            // 
+            //
             lblPeptideUniquenessMassMode.Location = new Point(16, 136);
             lblPeptideUniquenessMassMode.Name = "lblPeptideUniquenessMassMode";
             lblPeptideUniquenessMassMode.Size = new Size(176, 16);
             lblPeptideUniquenessMassMode.TabIndex = 7;
             lblPeptideUniquenessMassMode.Text = "Using monoisotopic masses";
-            // 
+            //
             // txtUniquenessBinWidth
-            // 
+            //
             txtUniquenessBinWidth.Location = new Point(80, 24);
             txtUniquenessBinWidth.Name = "txtUniquenessBinWidth";
             txtUniquenessBinWidth.Size = new Size(40, 20);
             txtUniquenessBinWidth.TabIndex = 1;
             txtUniquenessBinWidth.Text = "25";
-            // 
+            //
             // lblUniquenessBinWidth
-            // 
+            //
             lblUniquenessBinWidth.Location = new Point(16, 26);
             lblUniquenessBinWidth.Name = "lblUniquenessBinWidth";
             lblUniquenessBinWidth.Size = new Size(64, 16);
             lblUniquenessBinWidth.TabIndex = 0;
             lblUniquenessBinWidth.Text = "Bin Width";
-            // 
+            //
             // chkAutoComputeRangeForBinning
-            // 
+            //
             chkAutoComputeRangeForBinning.Checked = true;
             chkAutoComputeRangeForBinning.CheckState = CheckState.Checked;
             chkAutoComputeRangeForBinning.Location = new Point(16, 56);
@@ -562,115 +556,115 @@ namespace ProteinDigestionSimulator
             chkAutoComputeRangeForBinning.Size = new Size(184, 17);
             chkAutoComputeRangeForBinning.TabIndex = 2;
             chkAutoComputeRangeForBinning.Text = "Auto compute range for binning";
-            // 
+            //
             // txtUniquenessBinEndMass
-            // 
+            //
             txtUniquenessBinEndMass.Location = new Point(80, 104);
             txtUniquenessBinEndMass.Name = "txtUniquenessBinEndMass";
             txtUniquenessBinEndMass.Size = new Size(40, 20);
             txtUniquenessBinEndMass.TabIndex = 6;
             txtUniquenessBinEndMass.Text = "6000";
-            // 
+            //
             // lblUniquenessBinEndMass
-            // 
+            //
             lblUniquenessBinEndMass.Location = new Point(16, 106);
             lblUniquenessBinEndMass.Name = "lblUniquenessBinEndMass";
             lblUniquenessBinEndMass.Size = new Size(64, 16);
             lblUniquenessBinEndMass.TabIndex = 5;
             lblUniquenessBinEndMass.Text = "End Mass";
-            // 
+            //
             // txtUniquenessBinStartMass
-            // 
+            //
             txtUniquenessBinStartMass.Location = new Point(80, 80);
             txtUniquenessBinStartMass.Name = "txtUniquenessBinStartMass";
             txtUniquenessBinStartMass.Size = new Size(40, 20);
             txtUniquenessBinStartMass.TabIndex = 4;
             txtUniquenessBinStartMass.Text = "400";
-            // 
+            //
             // lblUniquenessBinStartMass
-            // 
+            //
             lblUniquenessBinStartMass.Location = new Point(16, 82);
             lblUniquenessBinStartMass.Name = "lblUniquenessBinStartMass";
             lblUniquenessBinStartMass.Size = new Size(64, 16);
             lblUniquenessBinStartMass.TabIndex = 3;
             lblUniquenessBinStartMass.Text = "Start Mass";
-            // 
+            //
             // lblUniquenessStatsNote
-            // 
+            //
             lblUniquenessStatsNote.Location = new Point(8, 56);
             lblUniquenessStatsNote.Name = "lblUniquenessStatsNote";
             lblUniquenessStatsNote.Size = new Size(200, 48);
             lblUniquenessStatsNote.TabIndex = 1;
             lblUniquenessStatsNote.Text = "Note that Digestion Options and Mass Calculation Options also apply for uniquenes" + "s stats generation.";
-            // 
+            //
             // cmdGenerateUniquenessStats
-            // 
+            //
             cmdGenerateUniquenessStats.Location = new Point(232, 16);
             cmdGenerateUniquenessStats.Name = "cmdGenerateUniquenessStats";
             cmdGenerateUniquenessStats.Size = new Size(176, 24);
             cmdGenerateUniquenessStats.TabIndex = 5;
             cmdGenerateUniquenessStats.Text = "&Generate Uniqueness Stats";
-            // 
+            //
             // chkAssumeInputFileIsDigested
-            // 
+            //
             chkAssumeInputFileIsDigested.Location = new Point(8, 16);
             chkAssumeInputFileIsDigested.Name = "chkAssumeInputFileIsDigested";
             chkAssumeInputFileIsDigested.Size = new Size(192, 32);
             chkAssumeInputFileIsDigested.TabIndex = 0;
             chkAssumeInputFileIsDigested.Text = "Assume input file is already digested (for Delimited files only)";
-            // 
+            //
             // txtProteinScramblingLoopCount
-            // 
+            //
             txtProteinScramblingLoopCount.Location = new Point(312, 40);
             txtProteinScramblingLoopCount.MaxLength = 3;
             txtProteinScramblingLoopCount.Name = "txtProteinScramblingLoopCount";
             txtProteinScramblingLoopCount.Size = new Size(32, 20);
             txtProteinScramblingLoopCount.TabIndex = 13;
             txtProteinScramblingLoopCount.Text = "1";
-            // 
+            //
             // lblSamplingPercentageUnits
-            // 
+            //
             lblSamplingPercentageUnits.Location = new Point(208, 42);
             lblSamplingPercentageUnits.Name = "lblSamplingPercentageUnits";
             lblSamplingPercentageUnits.Size = new Size(16, 16);
             lblSamplingPercentageUnits.TabIndex = 4;
             lblSamplingPercentageUnits.Text = "%";
-            // 
+            //
             // txtMaxpISequenceLength
-            // 
+            //
             txtMaxpISequenceLength.Location = new Point(168, 70);
             txtMaxpISequenceLength.Name = "txtMaxpISequenceLength";
             txtMaxpISequenceLength.Size = new Size(40, 20);
             txtMaxpISequenceLength.TabIndex = 4;
             txtMaxpISequenceLength.Text = "10";
-            // 
+            //
             // lblProteinReversalSamplingPercentage
-            // 
+            //
             lblProteinReversalSamplingPercentage.Location = new Point(48, 42);
             lblProteinReversalSamplingPercentage.Name = "lblProteinReversalSamplingPercentage";
             lblProteinReversalSamplingPercentage.Size = new Size(112, 16);
             lblProteinReversalSamplingPercentage.TabIndex = 2;
             lblProteinReversalSamplingPercentage.Text = "Sampling Percentage";
             lblProteinReversalSamplingPercentage.TextAlign = ContentAlignment.TopRight;
-            // 
+            //
             // lblMaxpISequenceLength
-            // 
+            //
             lblMaxpISequenceLength.Location = new Point(32, 72);
             lblMaxpISequenceLength.Name = "lblMaxpISequenceLength";
             lblMaxpISequenceLength.Size = new Size(144, 16);
             lblMaxpISequenceLength.TabIndex = 3;
             lblMaxpISequenceLength.Text = "Sub-sequence Length";
-            // 
+            //
             // chkMaxpIModeEnabled
-            // 
+            //
             chkMaxpIModeEnabled.Location = new Point(8, 48);
             chkMaxpIModeEnabled.Name = "chkMaxpIModeEnabled";
             chkMaxpIModeEnabled.Size = new Size(224, 16);
             chkMaxpIModeEnabled.TabIndex = 2;
             chkMaxpIModeEnabled.Text = "Report maximum of all sub-sequences";
-            // 
+            //
             // frapIAndHydrophobicity
-            // 
+            //
             frapIAndHydrophobicity.Controls.Add(txtMaxpISequenceLength);
             frapIAndHydrophobicity.Controls.Add(lblMaxpISequenceLength);
             frapIAndHydrophobicity.Controls.Add(chkMaxpIModeEnabled);
@@ -685,26 +679,26 @@ namespace ProteinDigestionSimulator
             frapIAndHydrophobicity.TabIndex = 2;
             frapIAndHydrophobicity.TabStop = false;
             frapIAndHydrophobicity.Text = "pI And Hydrophobicity";
-            // 
+            //
             // lblHydrophobicityMode
-            // 
+            //
             lblHydrophobicityMode.Location = new Point(8, 24);
             lblHydrophobicityMode.Name = "lblHydrophobicityMode";
             lblHydrophobicityMode.Size = new Size(120, 16);
             lblHydrophobicityMode.TabIndex = 0;
             lblHydrophobicityMode.Text = "Hydrophobicity Mode";
-            // 
+            //
             // cboHydrophobicityMode
-            // 
+            //
             cboHydrophobicityMode.DropDownStyle = ComboBoxStyle.DropDownList;
             cboHydrophobicityMode.DropDownWidth = 70;
             cboHydrophobicityMode.Location = new Point(128, 18);
             cboHydrophobicityMode.Name = "cboHydrophobicityMode";
             cboHydrophobicityMode.Size = new Size(184, 21);
             cboHydrophobicityMode.TabIndex = 1;
-            // 
+            //
             // txtpIStats
-            // 
+            //
             txtpIStats.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             txtpIStats.Location = new Point(336, 48);
             txtpIStats.MaxLength = 1;
@@ -713,25 +707,25 @@ namespace ProteinDigestionSimulator
             txtpIStats.ReadOnly = true;
             txtpIStats.Size = new Size(272, 80);
             txtpIStats.TabIndex = 7;
-            // 
+            //
             // txtSequenceForpI
-            // 
+            //
             txtSequenceForpI.Location = new Point(400, 16);
             txtSequenceForpI.Name = "txtSequenceForpI";
             txtSequenceForpI.Size = new Size(208, 20);
             txtSequenceForpI.TabIndex = 6;
             txtSequenceForpI.Text = "FKDLGEEQFK";
-            // 
+            //
             // lblSequenceForpI
-            // 
+            //
             lblSequenceForpI.Location = new Point(328, 20);
             lblSequenceForpI.Name = "lblSequenceForpI";
             lblSequenceForpI.Size = new Size(72, 16);
             lblSequenceForpI.TabIndex = 5;
             lblSequenceForpI.Text = "Sequence";
-            // 
+            //
             // fraDelimitedFileOptions
-            // 
+            //
             fraDelimitedFileOptions.Controls.Add(cboInputFileColumnOrdering);
             fraDelimitedFileOptions.Controls.Add(lblInputFileColumnOrdering);
             fraDelimitedFileOptions.Controls.Add(txtInputFileColumnDelimiter);
@@ -743,52 +737,52 @@ namespace ProteinDigestionSimulator
             fraDelimitedFileOptions.TabIndex = 1;
             fraDelimitedFileOptions.TabStop = false;
             fraDelimitedFileOptions.Text = "Delimited Input File Options";
-            // 
+            //
             // cboInputFileColumnOrdering
-            // 
+            //
             cboInputFileColumnOrdering.DropDownStyle = ComboBoxStyle.DropDownList;
             cboInputFileColumnOrdering.DropDownWidth = 70;
             cboInputFileColumnOrdering.Location = new Point(88, 24);
             cboInputFileColumnOrdering.Name = "cboInputFileColumnOrdering";
             cboInputFileColumnOrdering.Size = new Size(392, 21);
             cboInputFileColumnOrdering.TabIndex = 1;
-            // 
+            //
             // lblInputFileColumnOrdering
-            // 
+            //
             lblInputFileColumnOrdering.Location = new Point(8, 26);
             lblInputFileColumnOrdering.Name = "lblInputFileColumnOrdering";
             lblInputFileColumnOrdering.Size = new Size(80, 16);
             lblInputFileColumnOrdering.TabIndex = 0;
             lblInputFileColumnOrdering.Text = "Column Order";
-            // 
+            //
             // txtInputFileColumnDelimiter
-            // 
+            //
             txtInputFileColumnDelimiter.Location = new Point(192, 56);
             txtInputFileColumnDelimiter.MaxLength = 1;
             txtInputFileColumnDelimiter.Name = "txtInputFileColumnDelimiter";
             txtInputFileColumnDelimiter.Size = new Size(32, 20);
             txtInputFileColumnDelimiter.TabIndex = 4;
             txtInputFileColumnDelimiter.Text = ";";
-            // 
+            //
             // lblInputFileColumnDelimiter
-            // 
+            //
             lblInputFileColumnDelimiter.Location = new Point(8, 58);
             lblInputFileColumnDelimiter.Name = "lblInputFileColumnDelimiter";
             lblInputFileColumnDelimiter.Size = new Size(96, 16);
             lblInputFileColumnDelimiter.TabIndex = 2;
             lblInputFileColumnDelimiter.Text = "Column Delimiter";
-            // 
+            //
             // cboInputFileColumnDelimiter
-            // 
+            //
             cboInputFileColumnDelimiter.DropDownStyle = ComboBoxStyle.DropDownList;
             cboInputFileColumnDelimiter.DropDownWidth = 70;
             cboInputFileColumnDelimiter.Location = new Point(112, 56);
             cboInputFileColumnDelimiter.Name = "cboInputFileColumnDelimiter";
             cboInputFileColumnDelimiter.Size = new Size(70, 21);
             cboInputFileColumnDelimiter.TabIndex = 3;
-            // 
+            //
             // TabPageFileFormatOptions
-            // 
+            //
             TabPageFileFormatOptions.Controls.Add(frapIAndHydrophobicity);
             TabPageFileFormatOptions.Controls.Add(fraDelimitedFileOptions);
             TabPageFileFormatOptions.Location = new Point(4, 22);
@@ -797,9 +791,9 @@ namespace ProteinDigestionSimulator
             TabPageFileFormatOptions.TabIndex = 2;
             TabPageFileFormatOptions.Text = "File Format Options";
             TabPageFileFormatOptions.UseVisualStyleBackColor = true;
-            // 
+            //
             // tbsOptions
-            // 
+            //
             tbsOptions.Controls.Add(TabPageFileFormatOptions);
             tbsOptions.Controls.Add(TabPageParseAndDigest);
             tbsOptions.Controls.Add(TabPageUniquenessStats);
@@ -810,9 +804,9 @@ namespace ProteinDigestionSimulator
             tbsOptions.SelectedIndex = 0;
             tbsOptions.Size = new Size(704, 354);
             tbsOptions.TabIndex = 5;
-            // 
+            //
             // TabPageParseAndDigest
-            // 
+            //
             TabPageParseAndDigest.Controls.Add(fraProcessingOptions);
             TabPageParseAndDigest.Controls.Add(fraCalculationOptions);
             TabPageParseAndDigest.Controls.Add(fraDigestionOptions);
@@ -823,9 +817,9 @@ namespace ProteinDigestionSimulator
             TabPageParseAndDigest.TabIndex = 0;
             TabPageParseAndDigest.Text = "Parse and Digest File Options";
             TabPageParseAndDigest.UseVisualStyleBackColor = true;
-            // 
+            //
             // fraProcessingOptions
-            // 
+            //
             fraProcessingOptions.Controls.Add(lblProteinScramblingLoopCount);
             fraProcessingOptions.Controls.Add(txtProteinScramblingLoopCount);
             fraProcessingOptions.Controls.Add(lblSamplingPercentageUnits);
@@ -846,94 +840,94 @@ namespace ProteinDigestionSimulator
             fraProcessingOptions.TabIndex = 0;
             fraProcessingOptions.TabStop = false;
             fraProcessingOptions.Text = "Processing Options";
-            // 
+            //
             // txtProteinReversalSamplingPercentage
-            // 
+            //
             txtProteinReversalSamplingPercentage.Location = new Point(168, 40);
             txtProteinReversalSamplingPercentage.MaxLength = 3;
             txtProteinReversalSamplingPercentage.Name = "txtProteinReversalSamplingPercentage";
             txtProteinReversalSamplingPercentage.Size = new Size(32, 20);
             txtProteinReversalSamplingPercentage.TabIndex = 3;
             txtProteinReversalSamplingPercentage.Text = "100";
-            // 
+            //
             // lbltxtAddnlRefAccessionSepChar
-            // 
+            //
             lbltxtAddnlRefAccessionSepChar.Location = new Point(96, 96);
             lbltxtAddnlRefAccessionSepChar.Name = "lbltxtAddnlRefAccessionSepChar";
             lbltxtAddnlRefAccessionSepChar.Size = new Size(160, 16);
             lbltxtAddnlRefAccessionSepChar.TabIndex = 8;
             lbltxtAddnlRefAccessionSepChar.Text = "Addnl Ref Accession Sep Char";
             lbltxtAddnlRefAccessionSepChar.TextAlign = ContentAlignment.TopRight;
-            // 
+            //
             // chkLookForAddnlRefInDescription
-            // 
+            //
             chkLookForAddnlRefInDescription.Location = new Point(16, 72);
             chkLookForAddnlRefInDescription.Name = "chkLookForAddnlRefInDescription";
             chkLookForAddnlRefInDescription.Size = new Size(120, 32);
             chkLookForAddnlRefInDescription.TabIndex = 5;
             chkLookForAddnlRefInDescription.Text = "Look for addnl Ref in description";
-            // 
+            //
             // cboProteinReversalOptions
-            // 
+            //
             cboProteinReversalOptions.DropDownStyle = ComboBoxStyle.DropDownList;
             cboProteinReversalOptions.Location = new Point(168, 16);
             cboProteinReversalOptions.Name = "cboProteinReversalOptions";
             cboProteinReversalOptions.Size = new Size(184, 21);
             cboProteinReversalOptions.TabIndex = 1;
-            // 
+            //
             // lblProteinReversalOptions
-            // 
+            //
             lblProteinReversalOptions.Location = new Point(16, 20);
             lblProteinReversalOptions.Name = "lblProteinReversalOptions";
             lblProteinReversalOptions.Size = new Size(160, 16);
             lblProteinReversalOptions.TabIndex = 0;
             lblProteinReversalOptions.Text = "Protein Reversal / Scrambling";
-            // 
+            //
             // chkDigestProteins
-            // 
+            //
             chkDigestProteins.Location = new Point(16, 115);
             chkDigestProteins.Name = "chkDigestProteins";
             chkDigestProteins.Size = new Size(160, 32);
             chkDigestProteins.TabIndex = 10;
             chkDigestProteins.Text = "In Silico digest of all proteins in input file";
-            // 
+            //
             // lblAddnlRefSepChar
-            // 
+            //
             lblAddnlRefSepChar.Location = new Point(144, 72);
             lblAddnlRefSepChar.Name = "lblAddnlRefSepChar";
             lblAddnlRefSepChar.Size = new Size(112, 16);
             lblAddnlRefSepChar.TabIndex = 6;
             lblAddnlRefSepChar.Text = "Addnl Ref Sep Char";
             lblAddnlRefSepChar.TextAlign = ContentAlignment.TopRight;
-            // 
+            //
             // txtAddnlRefAccessionSepChar
-            // 
+            //
             txtAddnlRefAccessionSepChar.Location = new Point(264, 96);
             txtAddnlRefAccessionSepChar.MaxLength = 1;
             txtAddnlRefAccessionSepChar.Name = "txtAddnlRefAccessionSepChar";
             txtAddnlRefAccessionSepChar.Size = new Size(32, 20);
             txtAddnlRefAccessionSepChar.TabIndex = 9;
             txtAddnlRefAccessionSepChar.Text = ":";
-            // 
+            //
             // txtAddnlRefSepChar
-            // 
+            //
             txtAddnlRefSepChar.Location = new Point(264, 72);
             txtAddnlRefSepChar.MaxLength = 1;
             txtAddnlRefSepChar.Name = "txtAddnlRefSepChar";
             txtAddnlRefSepChar.Size = new Size(32, 20);
             txtAddnlRefSepChar.TabIndex = 7;
             txtAddnlRefSepChar.Text = "|";
-            // 
+            //
             // chkCreateFastaOutputFile
-            // 
+            //
             chkCreateFastaOutputFile.Location = new Point(192, 128);
             chkCreateFastaOutputFile.Name = "chkCreateFastaOutputFile";
             chkCreateFastaOutputFile.Size = new Size(160, 16);
             chkCreateFastaOutputFile.TabIndex = 11;
             chkCreateFastaOutputFile.Text = "Create FASTA Output File";
-            // 
+            //
             // fraCalculationOptions
-            // 
+            //
             fraCalculationOptions.Controls.Add(cmdNETInfo);
             fraCalculationOptions.Controls.Add(chkExcludeProteinDescription);
             fraCalculationOptions.Controls.Add(chkComputeSequenceHashIgnoreILDiff);
@@ -951,26 +945,26 @@ namespace ProteinDigestionSimulator
             fraCalculationOptions.TabIndex = 1;
             fraCalculationOptions.TabStop = false;
             fraCalculationOptions.Text = "Calculation Options";
-            // 
+            //
             // cmdNETInfo
-            // 
+            //
             cmdNETInfo.Location = new Point(268, 87);
             cmdNETInfo.Margin = new Padding(1);
             cmdNETInfo.Name = "cmdNETInfo";
             cmdNETInfo.Size = new Size(34, 20);
             cmdNETInfo.TabIndex = 4;
             cmdNETInfo.Text = "Info";
-            // 
+            //
             // chkExcludeProteinDescription
-            // 
+            //
             chkExcludeProteinDescription.Location = new Point(185, 128);
             chkExcludeProteinDescription.Name = "chkExcludeProteinDescription";
             chkExcludeProteinDescription.Size = new Size(120, 19);
             chkExcludeProteinDescription.TabIndex = 9;
             chkExcludeProteinDescription.Text = "Exclude Description";
-            // 
+            //
             // chkComputeSequenceHashIgnoreILDiff
-            // 
+            //
             chkComputeSequenceHashIgnoreILDiff.Checked = true;
             chkComputeSequenceHashIgnoreILDiff.CheckState = CheckState.Checked;
             chkComputeSequenceHashIgnoreILDiff.Location = new Point(185, 107);
@@ -978,9 +972,9 @@ namespace ProteinDigestionSimulator
             chkComputeSequenceHashIgnoreILDiff.Size = new Size(104, 19);
             chkComputeSequenceHashIgnoreILDiff.TabIndex = 8;
             chkComputeSequenceHashIgnoreILDiff.Text = "Ignore I/L Diff";
-            // 
+            //
             // chkTruncateProteinDescription
-            // 
+            //
             chkTruncateProteinDescription.Checked = true;
             chkTruncateProteinDescription.CheckState = CheckState.Checked;
             chkTruncateProteinDescription.Location = new Point(16, 128);
@@ -988,9 +982,9 @@ namespace ProteinDigestionSimulator
             chkTruncateProteinDescription.Size = new Size(164, 19);
             chkTruncateProteinDescription.TabIndex = 7;
             chkTruncateProteinDescription.Text = "Truncate long description";
-            // 
+            //
             // chkComputeSequenceHashValues
-            // 
+            //
             chkComputeSequenceHashValues.Checked = true;
             chkComputeSequenceHashValues.CheckState = CheckState.Checked;
             chkComputeSequenceHashValues.Location = new Point(16, 107);
@@ -998,58 +992,58 @@ namespace ProteinDigestionSimulator
             chkComputeSequenceHashValues.Size = new Size(164, 19);
             chkComputeSequenceHashValues.TabIndex = 6;
             chkComputeSequenceHashValues.Text = "Compute sequence hashes";
-            // 
+            //
             // lblMassMode
-            // 
+            //
             lblMassMode.Location = new Point(16, 66);
             lblMassMode.Name = "lblMassMode";
             lblMassMode.Size = new Size(64, 16);
             lblMassMode.TabIndex = 5;
             lblMassMode.Text = "Mass type";
             lblMassMode.TextAlign = ContentAlignment.TopRight;
-            // 
+            //
             // cboElementMassMode
-            // 
+            //
             cboElementMassMode.DropDownStyle = ComboBoxStyle.DropDownList;
             cboElementMassMode.Location = new Point(88, 65);
             cboElementMassMode.Name = "cboElementMassMode";
             cboElementMassMode.Size = new Size(144, 21);
             cboElementMassMode.TabIndex = 4;
-            // 
+            //
             // chkExcludeProteinSequence
-            // 
+            //
             chkExcludeProteinSequence.Location = new Point(16, 16);
             chkExcludeProteinSequence.Name = "chkExcludeProteinSequence";
             chkExcludeProteinSequence.Size = new Size(192, 16);
             chkExcludeProteinSequence.TabIndex = 0;
             chkExcludeProteinSequence.Text = "Exclude Protein Sequence";
-            // 
+            //
             // chkComputepIandNET
-            // 
+            //
             chkComputepIandNET.Location = new Point(16, 89);
             chkComputepIandNET.Name = "chkComputepIandNET";
             chkComputepIandNET.Size = new Size(252, 18);
             chkComputepIandNET.TabIndex = 3;
             chkComputepIandNET.Text = "Compute pI and Normalized Elution Time (NET)";
-            // 
+            //
             // chkIncludeXResidues
-            // 
+            //
             chkIncludeXResidues.Location = new Point(16, 49);
             chkIncludeXResidues.Name = "chkIncludeXResidues";
             chkIncludeXResidues.Size = new Size(216, 16);
             chkIncludeXResidues.TabIndex = 2;
             chkIncludeXResidues.Text = "Include X Residues in Mass (113 Da)";
-            // 
+            //
             // chkComputeProteinMass
-            // 
+            //
             chkComputeProteinMass.Location = new Point(16, 33);
             chkComputeProteinMass.Name = "chkComputeProteinMass";
             chkComputeProteinMass.Size = new Size(144, 16);
             chkComputeProteinMass.TabIndex = 1;
             chkComputeProteinMass.Text = "Compute Protein Mass";
-            // 
+            //
             // fraDigestionOptions
-            // 
+            //
             fraDigestionOptions.Controls.Add(cboFragmentMassMode);
             fraDigestionOptions.Controls.Add(lblFragmentMassMode);
             fraDigestionOptions.Controls.Add(cboCysTreatmentMode);
@@ -1076,73 +1070,73 @@ namespace ProteinDigestionSimulator
             fraDigestionOptions.TabIndex = 2;
             fraDigestionOptions.TabStop = false;
             fraDigestionOptions.Text = "Digestion Options";
-            // 
+            //
             // cboFragmentMassMode
-            // 
+            //
             cboFragmentMassMode.DropDownStyle = ComboBoxStyle.DropDownList;
             cboFragmentMassMode.Location = new Point(75, 104);
             cboFragmentMassMode.Name = "cboFragmentMassMode";
             cboFragmentMassMode.Size = new Size(117, 21);
             cboFragmentMassMode.TabIndex = 19;
-            // 
+            //
             // lblFragmentMassMode
-            // 
+            //
             lblFragmentMassMode.Location = new Point(8, 106);
             lblFragmentMassMode.Name = "lblFragmentMassMode";
             lblFragmentMassMode.Size = new Size(68, 16);
             lblFragmentMassMode.TabIndex = 18;
             lblFragmentMassMode.Text = "Mass Mode";
-            // 
+            //
             // cboCysTreatmentMode
-            // 
+            //
             cboCysTreatmentMode.DropDownStyle = ComboBoxStyle.DropDownList;
             cboCysTreatmentMode.Location = new Point(553, 76);
             cboCysTreatmentMode.Name = "cboCysTreatmentMode";
             cboCysTreatmentMode.Size = new Size(117, 21);
             cboCysTreatmentMode.TabIndex = 17;
-            // 
+            //
             // lblCysTreatment
-            // 
+            //
             lblCysTreatment.Location = new Point(553, 56);
             lblCysTreatment.Name = "lblCysTreatment";
             lblCysTreatment.Size = new Size(104, 21);
             lblCysTreatment.TabIndex = 16;
             lblCysTreatment.Text = "Cys treatment:";
-            // 
+            //
             // txtDigestProteinsMaximumpI
-            // 
+            //
             txtDigestProteinsMaximumpI.Location = new Point(497, 80);
             txtDigestProteinsMaximumpI.Name = "txtDigestProteinsMaximumpI";
             txtDigestProteinsMaximumpI.Size = new Size(40, 20);
             txtDigestProteinsMaximumpI.TabIndex = 13;
             txtDigestProteinsMaximumpI.Text = "14";
-            // 
+            //
             // lblDigestProteinsMaximumpI
-            // 
+            //
             lblDigestProteinsMaximumpI.Location = new Point(420, 80);
             lblDigestProteinsMaximumpI.Name = "lblDigestProteinsMaximumpI";
             lblDigestProteinsMaximumpI.Size = new Size(72, 16);
             lblDigestProteinsMaximumpI.TabIndex = 12;
             lblDigestProteinsMaximumpI.Text = "Maximum pI";
-            // 
+            //
             // txtDigestProteinsMinimumpI
-            // 
+            //
             txtDigestProteinsMinimumpI.Location = new Point(497, 56);
             txtDigestProteinsMinimumpI.Name = "txtDigestProteinsMinimumpI";
             txtDigestProteinsMinimumpI.Size = new Size(40, 20);
             txtDigestProteinsMinimumpI.TabIndex = 11;
             txtDigestProteinsMinimumpI.Text = "0";
-            // 
+            //
             // lblDigestProteinsMinimumpI
-            // 
+            //
             lblDigestProteinsMinimumpI.Location = new Point(420, 56);
             lblDigestProteinsMinimumpI.Name = "lblDigestProteinsMinimumpI";
             lblDigestProteinsMinimumpI.Size = new Size(72, 16);
             lblDigestProteinsMinimumpI.TabIndex = 10;
             lblDigestProteinsMinimumpI.Text = "Minimum pI";
-            // 
+            //
             // chkGenerateUniqueIDValues
-            // 
+            //
             chkGenerateUniqueIDValues.Checked = true;
             chkGenerateUniqueIDValues.CheckState = CheckState.Checked;
             chkGenerateUniqueIDValues.Location = new Point(218, 102);
@@ -1150,105 +1144,105 @@ namespace ProteinDigestionSimulator
             chkGenerateUniqueIDValues.Size = new Size(176, 16);
             chkGenerateUniqueIDValues.TabIndex = 14;
             chkGenerateUniqueIDValues.Text = "Generate UniqueID Values";
-            // 
+            //
             // chkCysPeptidesOnly
-            // 
+            //
             chkCysPeptidesOnly.Location = new Point(486, 16);
             chkCysPeptidesOnly.Name = "chkCysPeptidesOnly";
             chkCysPeptidesOnly.Size = new Size(112, 32);
             chkCysPeptidesOnly.TabIndex = 15;
             chkCysPeptidesOnly.Text = "Include cysteine peptides only";
-            // 
+            //
             // txtDigestProteinsMinimumResidueCount
-            // 
+            //
             txtDigestProteinsMinimumResidueCount.Location = new Point(359, 56);
             txtDigestProteinsMinimumResidueCount.Name = "txtDigestProteinsMinimumResidueCount";
             txtDigestProteinsMinimumResidueCount.Size = new Size(32, 20);
             txtDigestProteinsMinimumResidueCount.TabIndex = 7;
             txtDigestProteinsMinimumResidueCount.Text = "0";
-            // 
+            //
             // lblDigestProteinsMinimumResidueCount
-            // 
+            //
             lblDigestProteinsMinimumResidueCount.Location = new Point(216, 58);
             lblDigestProteinsMinimumResidueCount.Name = "lblDigestProteinsMinimumResidueCount";
             lblDigestProteinsMinimumResidueCount.Size = new Size(136, 16);
             lblDigestProteinsMinimumResidueCount.TabIndex = 6;
             lblDigestProteinsMinimumResidueCount.Text = "Minimum Residue Count";
-            // 
+            //
             // txtDigestProteinsMaximumMissedCleavages
-            // 
+            //
             txtDigestProteinsMaximumMissedCleavages.Location = new Point(359, 80);
             txtDigestProteinsMaximumMissedCleavages.Name = "txtDigestProteinsMaximumMissedCleavages";
             txtDigestProteinsMaximumMissedCleavages.Size = new Size(32, 20);
             txtDigestProteinsMaximumMissedCleavages.TabIndex = 9;
             txtDigestProteinsMaximumMissedCleavages.Text = "3";
-            // 
+            //
             // lblDigestProteinsMaximumMissedCleavages
-            // 
+            //
             lblDigestProteinsMaximumMissedCleavages.Location = new Point(216, 82);
             lblDigestProteinsMaximumMissedCleavages.Name = "lblDigestProteinsMaximumMissedCleavages";
             lblDigestProteinsMaximumMissedCleavages.Size = new Size(136, 16);
             lblDigestProteinsMaximumMissedCleavages.TabIndex = 8;
             lblDigestProteinsMaximumMissedCleavages.Text = "Max Missed Cleavages";
-            // 
+            //
             // txtDigestProteinsMaximumMass
-            // 
+            //
             txtDigestProteinsMaximumMass.Location = new Point(152, 80);
             txtDigestProteinsMaximumMass.Name = "txtDigestProteinsMaximumMass";
             txtDigestProteinsMaximumMass.Size = new Size(40, 20);
             txtDigestProteinsMaximumMass.TabIndex = 5;
             txtDigestProteinsMaximumMass.Text = "6000";
-            // 
+            //
             // lblDigestProteinsMaximumMass
-            // 
+            //
             lblDigestProteinsMaximumMass.Location = new Point(8, 82);
             lblDigestProteinsMaximumMass.Name = "lblDigestProteinsMaximumMass";
             lblDigestProteinsMaximumMass.Size = new Size(144, 16);
             lblDigestProteinsMaximumMass.TabIndex = 4;
             lblDigestProteinsMaximumMass.Text = "Maximum Fragment Mass";
-            // 
+            //
             // txtDigestProteinsMinimumMass
-            // 
+            //
             txtDigestProteinsMinimumMass.Location = new Point(152, 56);
             txtDigestProteinsMinimumMass.Name = "txtDigestProteinsMinimumMass";
             txtDigestProteinsMinimumMass.Size = new Size(40, 20);
             txtDigestProteinsMinimumMass.TabIndex = 3;
             txtDigestProteinsMinimumMass.Text = "400";
-            // 
+            //
             // lblDigestProteinsMinimumMass
-            // 
+            //
             lblDigestProteinsMinimumMass.Location = new Point(8, 58);
             lblDigestProteinsMinimumMass.Name = "lblDigestProteinsMinimumMass";
             lblDigestProteinsMinimumMass.Size = new Size(144, 16);
             lblDigestProteinsMinimumMass.TabIndex = 2;
             lblDigestProteinsMinimumMass.Text = "Minimum Fragment Mass";
-            // 
+            //
             // cboCleavageRuleType
-            // 
+            //
             cboCleavageRuleType.DropDownStyle = ComboBoxStyle.DropDownList;
             cboCleavageRuleType.Location = new Point(8, 24);
             cboCleavageRuleType.Name = "cboCleavageRuleType";
             cboCleavageRuleType.Size = new Size(288, 21);
             cboCleavageRuleType.TabIndex = 0;
-            // 
+            //
             // chkIncludeDuplicateSequences
-            // 
+            //
             chkIncludeDuplicateSequences.Location = new Point(312, 16);
             chkIncludeDuplicateSequences.Name = "chkIncludeDuplicateSequences";
             chkIncludeDuplicateSequences.Size = new Size(168, 32);
             chkIncludeDuplicateSequences.TabIndex = 1;
             chkIncludeDuplicateSequences.Text = "Include duplicate sequences for given protein";
-            // 
+            //
             // cmdParseInputFile
-            // 
+            //
             cmdParseInputFile.Location = new Point(384, 8);
             cmdParseInputFile.Name = "cmdParseInputFile";
             cmdParseInputFile.Size = new Size(112, 24);
             cmdParseInputFile.TabIndex = 3;
             cmdParseInputFile.Text = "&Parse and Digest";
-            // 
+            //
             // TabPagePeakMatchingThresholds
-            // 
+            //
             TabPagePeakMatchingThresholds.Controls.Add(chkAutoDefineSLiCScoreTolerances);
             TabPagePeakMatchingThresholds.Controls.Add(cmdPastePMThresholdsList);
             TabPagePeakMatchingThresholds.Controls.Add(cboPMPredefinedThresholds);
@@ -1263,9 +1257,9 @@ namespace ProteinDigestionSimulator
             TabPagePeakMatchingThresholds.TabIndex = 3;
             TabPagePeakMatchingThresholds.Text = "Peak Matching Thresholds";
             TabPagePeakMatchingThresholds.UseVisualStyleBackColor = true;
-            // 
+            //
             // chkAutoDefineSLiCScoreTolerances
-            // 
+            //
             chkAutoDefineSLiCScoreTolerances.Checked = true;
             chkAutoDefineSLiCScoreTolerances.CheckState = CheckState.Checked;
             chkAutoDefineSLiCScoreTolerances.Location = new Point(16, 256);
@@ -1273,57 +1267,57 @@ namespace ProteinDigestionSimulator
             chkAutoDefineSLiCScoreTolerances.Size = new Size(208, 16);
             chkAutoDefineSLiCScoreTolerances.TabIndex = 3;
             chkAutoDefineSLiCScoreTolerances.Text = "Auto Define SLiC Score Tolerances";
-            // 
+            //
             // cmdPastePMThresholdsList
-            // 
+            //
             cmdPastePMThresholdsList.Location = new Point(456, 96);
             cmdPastePMThresholdsList.Name = "cmdPastePMThresholdsList";
             cmdPastePMThresholdsList.Size = new Size(104, 24);
             cmdPastePMThresholdsList.TabIndex = 6;
             cmdPastePMThresholdsList.Text = "Paste Values";
-            // 
+            //
             // cboPMPredefinedThresholds
-            // 
+            //
             cboPMPredefinedThresholds.DropDownStyle = ComboBoxStyle.DropDownList;
             cboPMPredefinedThresholds.Location = new Point(336, 256);
             cboPMPredefinedThresholds.Name = "cboPMPredefinedThresholds";
             cboPMPredefinedThresholds.Size = new Size(264, 21);
             cboPMPredefinedThresholds.TabIndex = 5;
-            // 
+            //
             // cmdPMThresholdsAutoPopulate
-            // 
+            //
             cmdPMThresholdsAutoPopulate.Location = new Point(336, 224);
             cmdPMThresholdsAutoPopulate.Name = "cmdPMThresholdsAutoPopulate";
             cmdPMThresholdsAutoPopulate.Size = new Size(104, 24);
             cmdPMThresholdsAutoPopulate.TabIndex = 4;
             cmdPMThresholdsAutoPopulate.Text = "Auto-Populate";
-            // 
+            //
             // cmdClearPMThresholdsList
-            // 
+            //
             cmdClearPMThresholdsList.Location = new Point(456, 128);
             cmdClearPMThresholdsList.Name = "cmdClearPMThresholdsList";
             cmdClearPMThresholdsList.Size = new Size(104, 24);
             cmdClearPMThresholdsList.TabIndex = 7;
             cmdClearPMThresholdsList.Text = "Clear List";
-            // 
+            //
             // cboMassTolType
-            // 
+            //
             cboMassTolType.DropDownStyle = ComboBoxStyle.DropDownList;
             cboMassTolType.Location = new Point(144, 224);
             cboMassTolType.Name = "cboMassTolType";
             cboMassTolType.Size = new Size(136, 21);
             cboMassTolType.TabIndex = 2;
-            // 
+            //
             // lblMassTolType
-            // 
+            //
             lblMassTolType.Location = new Point(16, 226);
             lblMassTolType.Name = "lblMassTolType";
             lblMassTolType.Size = new Size(136, 16);
             lblMassTolType.TabIndex = 1;
             lblMassTolType.Text = "Mass Tolerance Type";
-            // 
+            //
             // dgPeakMatchingThresholds
-            // 
+            //
             dgPeakMatchingThresholds.CaptionText = "Peak Matching Thresholds";
             dgPeakMatchingThresholds.DataMember = "";
             dgPeakMatchingThresholds.HeaderForeColor = SystemColors.ControlText;
@@ -1331,9 +1325,9 @@ namespace ProteinDigestionSimulator
             dgPeakMatchingThresholds.Name = "dgPeakMatchingThresholds";
             dgPeakMatchingThresholds.Size = new Size(424, 208);
             dgPeakMatchingThresholds.TabIndex = 0;
-            // 
+            //
             // TabPageProgress
-            // 
+            //
             TabPageProgress.Controls.Add(pbarProgress);
             TabPageProgress.Controls.Add(lblErrorMessage);
             TabPageProgress.Controls.Add(lblSubtaskProgress);
@@ -1347,16 +1341,16 @@ namespace ProteinDigestionSimulator
             TabPageProgress.TabIndex = 4;
             TabPageProgress.Text = "Progress";
             TabPageProgress.UseVisualStyleBackColor = true;
-            // 
+            //
             // pbarProgress
-            // 
+            //
             pbarProgress.Location = new Point(13, 12);
             pbarProgress.Name = "pbarProgress";
             pbarProgress.Size = new Size(122, 20);
             pbarProgress.TabIndex = 12;
-            // 
+            //
             // lblErrorMessage
-            // 
+            //
             lblErrorMessage.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             lblErrorMessage.Location = new Point(137, 112);
             lblErrorMessage.Name = "lblErrorMessage";
@@ -1364,26 +1358,26 @@ namespace ProteinDigestionSimulator
             lblErrorMessage.TabIndex = 11;
             lblErrorMessage.Text = "Error message ...";
             lblErrorMessage.Visible = false;
-            // 
+            //
             // lblSubtaskProgress
-            // 
+            //
             lblSubtaskProgress.Location = new Point(13, 61);
             lblSubtaskProgress.Name = "lblSubtaskProgress";
             lblSubtaskProgress.Size = new Size(118, 18);
             lblSubtaskProgress.TabIndex = 8;
             lblSubtaskProgress.Text = "0";
             lblSubtaskProgress.Visible = false;
-            // 
+            //
             // lblProgress
-            // 
+            //
             lblProgress.Location = new Point(13, 35);
             lblProgress.Name = "lblProgress";
             lblProgress.Size = new Size(118, 18);
             lblProgress.TabIndex = 7;
             lblProgress.Text = "0";
-            // 
+            //
             // lblSubtaskProgressDescription
-            // 
+            //
             lblSubtaskProgressDescription.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             lblSubtaskProgressDescription.Location = new Point(140, 61);
             lblSubtaskProgressDescription.Name = "lblSubtaskProgressDescription";
@@ -1391,55 +1385,55 @@ namespace ProteinDigestionSimulator
             lblSubtaskProgressDescription.TabIndex = 6;
             lblSubtaskProgressDescription.Text = "Subtask progress description ...";
             lblSubtaskProgressDescription.Visible = false;
-            // 
+            //
             // lblProgressDescription
-            // 
+            //
             lblProgressDescription.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             lblProgressDescription.Location = new Point(140, 12);
             lblProgressDescription.Name = "lblProgressDescription";
             lblProgressDescription.Size = new Size(515, 32);
             lblProgressDescription.TabIndex = 5;
             lblProgressDescription.Text = "Progress description ...";
-            // 
+            //
             // cmdAbortProcessing
-            // 
+            //
             cmdAbortProcessing.Location = new Point(10, 106);
             cmdAbortProcessing.Name = "cmdAbortProcessing";
             cmdAbortProcessing.Size = new Size(121, 24);
             cmdAbortProcessing.TabIndex = 4;
             cmdAbortProcessing.Text = "Abort Processing";
-            // 
+            //
             // mnuHelpAboutElutionTime
-            // 
+            //
             mnuHelpAboutElutionTime.Index = 1;
             mnuHelpAboutElutionTime.Text = "About &Elution Time Prediction";
-            // 
+            //
             // cboInputFileFormat
-            // 
+            //
             cboInputFileFormat.DropDownStyle = ComboBoxStyle.DropDownList;
             cboInputFileFormat.Location = new Point(112, 56);
             cboInputFileFormat.Name = "cboInputFileFormat";
             cboInputFileFormat.Size = new Size(112, 21);
             cboInputFileFormat.TabIndex = 3;
-            // 
+            //
             // lblInputFileFormat
-            // 
+            //
             lblInputFileFormat.Location = new Point(8, 58);
             lblInputFileFormat.Name = "lblInputFileFormat";
             lblInputFileFormat.Size = new Size(104, 16);
             lblInputFileFormat.TabIndex = 2;
             lblInputFileFormat.Text = "Input File Format";
-            // 
+            //
             // cmdSelectFile
-            // 
+            //
             cmdSelectFile.Location = new Point(8, 24);
             cmdSelectFile.Name = "cmdSelectFile";
             cmdSelectFile.Size = new Size(80, 24);
             cmdSelectFile.TabIndex = 0;
             cmdSelectFile.Text = "&Select file";
-            // 
+            //
             // fraInputFilePath
-            // 
+            //
             fraInputFilePath.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             fraInputFilePath.Controls.Add(cmdValidateFastaFile);
             fraInputFilePath.Controls.Add(cboInputFileFormat);
@@ -1452,18 +1446,18 @@ namespace ProteinDigestionSimulator
             fraInputFilePath.TabIndex = 3;
             fraInputFilePath.TabStop = false;
             fraInputFilePath.Text = "Protein Input File Path (FASTA or Tab-delimited)";
-            // 
+            //
             // cmdValidateFastaFile
-            // 
+            //
             cmdValidateFastaFile.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             cmdValidateFastaFile.Location = new Point(595, 56);
             cmdValidateFastaFile.Name = "cmdValidateFastaFile";
             cmdValidateFastaFile.Size = new Size(120, 24);
             cmdValidateFastaFile.TabIndex = 4;
             cmdValidateFastaFile.Text = "&Validate FASTA File";
-            // 
+            //
             // chkEnableLogging
-            // 
+            //
             chkEnableLogging.Checked = true;
             chkEnableLogging.CheckState = CheckState.Checked;
             chkEnableLogging.Location = new Point(422, 19);
@@ -1471,135 +1465,135 @@ namespace ProteinDigestionSimulator
             chkEnableLogging.Size = new Size(112, 24);
             chkEnableLogging.TabIndex = 4;
             chkEnableLogging.Text = "Enable logging";
-            // 
+            //
             // mnuFileSelectOutputFile
-            // 
+            //
             mnuFileSelectOutputFile.Index = 1;
             mnuFileSelectOutputFile.Text = "Select &Output File...";
-            // 
+            //
             // cmdSelectOutputFile
-            // 
+            //
             cmdSelectOutputFile.Location = new Point(8, 56);
             cmdSelectOutputFile.Name = "cmdSelectOutputFile";
             cmdSelectOutputFile.Size = new Size(88, 33);
             cmdSelectOutputFile.TabIndex = 5;
             cmdSelectOutputFile.Text = "Select / &Create File";
-            // 
+            //
             // mnuFileSep1
-            // 
+            //
             mnuFileSep1.Index = 2;
             mnuFileSep1.Text = "-";
-            // 
+            //
             // mnuFile
-            // 
+            //
             mnuFile.Index = 0;
             mnuFile.MenuItems.AddRange(new MenuItem[] { mnuFileSelectInputFile, mnuFileSelectOutputFile, mnuFileSep1, mnuFileSaveDefaultOptions, mnuFileSep2, mnuFileExit });
             mnuFile.Text = "&File";
-            // 
+            //
             // mnuFileSelectInputFile
-            // 
+            //
             mnuFileSelectInputFile.Index = 0;
             mnuFileSelectInputFile.Text = "Select &Input File...";
-            // 
+            //
             // mnuFileSaveDefaultOptions
-            // 
+            //
             mnuFileSaveDefaultOptions.Index = 3;
             mnuFileSaveDefaultOptions.Text = "Save &Default Options";
-            // 
+            //
             // mnuFileSep2
-            // 
+            //
             mnuFileSep2.Index = 4;
             mnuFileSep2.Text = "-";
-            // 
+            //
             // mnuFileExit
-            // 
+            //
             mnuFileExit.Index = 5;
             mnuFileExit.Text = "E&xit";
-            // 
+            //
             // txtProteinOutputFilePath
-            // 
+            //
             txtProteinOutputFilePath.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             txtProteinOutputFilePath.Location = new Point(104, 62);
             txtProteinOutputFilePath.Name = "txtProteinOutputFilePath";
             txtProteinOutputFilePath.Size = new Size(611, 20);
             txtProteinOutputFilePath.TabIndex = 6;
-            // 
+            //
             // chkIncludePrefixAndSuffixResidues
-            // 
+            //
             chkIncludePrefixAndSuffixResidues.Location = new Point(256, 16);
             chkIncludePrefixAndSuffixResidues.Name = "chkIncludePrefixAndSuffixResidues";
             chkIncludePrefixAndSuffixResidues.Size = new Size(160, 32);
             chkIncludePrefixAndSuffixResidues.TabIndex = 3;
             chkIncludePrefixAndSuffixResidues.Text = "Include prefix and suffix residues for the sequences";
-            // 
+            //
             // mnuEditResetOptions
-            // 
+            //
             mnuEditResetOptions.Index = 3;
             mnuEditResetOptions.Text = "&Reset options to Defaults...";
-            // 
+            //
             // mnuHelp
-            // 
+            //
             mnuHelp.Index = 2;
             mnuHelp.MenuItems.AddRange(new MenuItem[] { mnuHelpAbout, mnuHelpAboutElutionTime });
             mnuHelp.Text = "&Help";
-            // 
+            //
             // mnuHelpAbout
-            // 
+            //
             mnuHelpAbout.Index = 0;
             mnuHelpAbout.Text = "&About";
-            // 
+            //
             // mnuEditSep1
-            // 
+            //
             mnuEditSep1.Index = 2;
             mnuEditSep1.Text = "-";
-            // 
+            //
             // mnuEditMakeUniquenessStats
-            // 
+            //
             mnuEditMakeUniquenessStats.Index = 1;
             mnuEditMakeUniquenessStats.Text = "&Make Uniqueness Stats";
-            // 
+            //
             // mnuEdit
-            // 
+            //
             mnuEdit.Index = 1;
             mnuEdit.MenuItems.AddRange(new MenuItem[] { mnuEditParseFile, mnuEditMakeUniquenessStats, mnuEditSep1, mnuEditResetOptions });
             mnuEdit.Text = "&Edit";
-            // 
+            //
             // mnuEditParseFile
-            // 
+            //
             mnuEditParseFile.Index = 0;
             mnuEditParseFile.Text = "&Parse File";
-            // 
+            //
             // MainMenuControl
-            // 
+            //
             MainMenuControl.MenuItems.AddRange(new MenuItem[] { mnuFile, mnuEdit, mnuHelp });
-            // 
+            //
             // lblOutputFileFieldDelimiter
-            // 
+            //
             lblOutputFileFieldDelimiter.Location = new Point(8, 26);
             lblOutputFileFieldDelimiter.Name = "lblOutputFileFieldDelimiter";
             lblOutputFileFieldDelimiter.Size = new Size(112, 18);
             lblOutputFileFieldDelimiter.TabIndex = 0;
             lblOutputFileFieldDelimiter.Text = "Field delimiter";
-            // 
+            //
             // cboOutputFileFieldDelimiter
-            // 
+            //
             cboOutputFileFieldDelimiter.DropDownStyle = ComboBoxStyle.DropDownList;
             cboOutputFileFieldDelimiter.Location = new Point(128, 24);
             cboOutputFileFieldDelimiter.Name = "cboOutputFileFieldDelimiter";
             cboOutputFileFieldDelimiter.Size = new Size(70, 21);
             cboOutputFileFieldDelimiter.TabIndex = 1;
-            // 
+            //
             // txtOutputFileFieldDelimiter
-            // 
+            //
             txtOutputFileFieldDelimiter.Location = new Point(208, 24);
             txtOutputFileFieldDelimiter.MaxLength = 1;
             txtOutputFileFieldDelimiter.Name = "txtOutputFileFieldDelimiter";
             txtOutputFileFieldDelimiter.Size = new Size(32, 20);
             txtOutputFileFieldDelimiter.TabIndex = 2;
             txtOutputFileFieldDelimiter.Text = ";";
-            // 
+            //
             // fraOutputTextOptions
-            // 
+            //
             fraOutputTextOptions.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             fraOutputTextOptions.Controls.Add(chkEnableLogging);
             fraOutputTextOptions.Controls.Add(cmdSelectOutputFile);
@@ -1614,9 +1608,9 @@ namespace ProteinDigestionSimulator
             fraOutputTextOptions.TabIndex = 4;
             fraOutputTextOptions.TabStop = false;
             fraOutputTextOptions.Text = "Output Options";
-            // 
+            //
             // frmMain
-            // 
+            //
             AutoScaleDimensions = new SizeF(6.0f, 13.0f);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(754, 577);
