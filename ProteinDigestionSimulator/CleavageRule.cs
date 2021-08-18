@@ -47,6 +47,7 @@ namespace ProteinDigestionSimulator
         /// <param name="exceptionResidueList"></param>
         /// <param name="reversedCleavage"></param>
         /// <param name="allowPartial"></param>
+        /// <param name="additionalRules"></param>
         public CleavageRule(string ruleDescription, string cleavageResidueList, string exceptionResidueList, bool reversedCleavage, bool allowPartial = false, IReadOnlyCollection<CleavageRule> additionalRules = null)
         {
             Description = ruleDescription;

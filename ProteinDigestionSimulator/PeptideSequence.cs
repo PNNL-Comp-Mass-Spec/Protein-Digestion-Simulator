@@ -230,7 +230,7 @@ namespace ProteinDigestionSimulator
         /// <param name="suffix">Output: suffix residue</param>
         /// <returns></returns>
         /// <remarks>This function is only applicable for sequences in one-letter notation</remarks>
-        private string CheckForAndRemovePrefixAndSuffixResidues(string sequence, [Optional, DefaultParameterValue("")] out string prefix, [Optional, DefaultParameterValue("")] out string suffix)
+        private string CheckForAndRemovePrefixAndSuffixResidues(string sequence, out string prefix, out string suffix)
         {
             prefix = string.Empty;
             suffix = string.Empty;
@@ -780,7 +780,7 @@ namespace ProteinDigestionSimulator
         /// <param name="ignoreCase"></param>
         /// <param name="proteinSearchStartLoc"></param>
         /// <returns></returns>
-        public string GetTrypticName(string proteinResidues, string peptideResidues, CleavageRule cleavageRule, [Optional, DefaultParameterValue(0)] out int returnResidueStart, [Optional, DefaultParameterValue(0)] out int returnResidueEnd, bool icr2LSCompatible = false, char terminiiSymbol = TERMINII_SYMBOL, bool ignoreCase = true, int proteinSearchStartLoc = 1)
+        public string GetTrypticName(string proteinResidues, string peptideResidues, CleavageRule cleavageRule, out int returnResidueStart, out int returnResidueEnd, bool icr2LSCompatible = false, char terminiiSymbol = TERMINII_SYMBOL, bool ignoreCase = true, int proteinSearchStartLoc = 1)
         {
             // Examines peptideResidues to see where they exist in proteinResidues
             // Constructs a name string based on their position and based on whether the fragment is truly tryptic
@@ -956,7 +956,7 @@ namespace ProteinDigestionSimulator
         /// <param name="listDelimiter"></param>
         /// <returns>Comma separated list of tryptic names</returns>
         /// <remarks>See GetTrypticName for additional information</remarks>
-        public string GetTrypticNameMultipleMatches(string proteinResidues, string peptideResidues, CleavageRule cleavageRule, [Optional, DefaultParameterValue(1)] out int returnMatchCount, [Optional, DefaultParameterValue(0)] out int returnResidueStart, [Optional, DefaultParameterValue(0)] out int returnResidueEnd, bool icr2LSCompatible = false, char terminiiSymbol = TERMINII_SYMBOL, bool ignoreCase = true, int proteinSearchStartLoc = 1, string listDelimiter = ", ")
+        public string GetTrypticNameMultipleMatches(string proteinResidues, string peptideResidues, CleavageRule cleavageRule, out int returnMatchCount, out int returnResidueStart, out int returnResidueEnd, bool icr2LSCompatible = false, char terminiiSymbol = TERMINII_SYMBOL, bool ignoreCase = true, int proteinSearchStartLoc = 1, string listDelimiter = ", ")
         {
             returnMatchCount = 0;
             returnResidueStart = 0;
@@ -1116,7 +1116,7 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        public string GetTrypticPeptideNext(string proteinResidues, int searchStartLoc, [Optional, DefaultParameterValue(0)] out int returnResidueStart, [Optional, DefaultParameterValue(0)] out int returnResidueEnd)
+        public string GetTrypticPeptideNext(string proteinResidues, int searchStartLoc, out int returnResidueStart, out int returnResidueEnd)
         {
             return GetTrypticPeptideNext(proteinResidues, searchStartLoc, mTrypticCleavageRule, out returnResidueStart, out returnResidueEnd);
         }
@@ -1196,7 +1196,7 @@ namespace ProteinDigestionSimulator
         /// when desiredPeptideNumber = 2, returns "ANR"
         /// when desiredPeptideNumber = 3, returns "MTFGL"
         /// </remarks>
-        public string GetTrypticPeptideByFragmentNumber(string proteinResidues, int desiredPeptideNumber, CleavageRule cleavageRule, [Optional, DefaultParameterValue(0)] out int returnResidueStart, [Optional, DefaultParameterValue(0)] out int returnResidueEnd, char terminiiSymbol = TERMINII_SYMBOL, bool ignoreCase = true)
+        public string GetTrypticPeptideByFragmentNumber(string proteinResidues, int desiredPeptideNumber, CleavageRule cleavageRule, out int returnResidueStart, out int returnResidueEnd, char terminiiSymbol = TERMINII_SYMBOL, bool ignoreCase = true)
         {
             string matchingFragment;
             if (desiredPeptideNumber < 1)

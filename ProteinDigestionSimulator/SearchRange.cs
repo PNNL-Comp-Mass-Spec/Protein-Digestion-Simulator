@@ -759,7 +759,7 @@ namespace ProteinDigestionSimulator
             return success;
         }
 
-        public bool FindValueRange(int searchValue, int toleranceHalfWidth, [Optional, DefaultParameterValue(0)] ref int matchIndexStart, [Optional, DefaultParameterValue(0)] ref int matchIndexEnd)
+        public bool FindValueRange(int searchValue, int toleranceHalfWidth, ref int matchIndexStart, ref int matchIndexEnd)
         {
             // Searches the loaded data for searchValue with a tolerance of +-tolerance
             // Returns True if a match is found; in addition, populates matchIndexStart and matchIndexEnd
@@ -825,7 +825,7 @@ namespace ProteinDigestionSimulator
             return matchFound;
         }
 
-        public bool FindValueRange(double searchValue, double toleranceHalfWidth, [Optional, DefaultParameterValue(0)] ref int matchIndexStart, [Optional, DefaultParameterValue(0)] ref int matchIndexEnd)
+        public bool FindValueRange(double searchValue, double toleranceHalfWidth, ref int matchIndexStart, ref int matchIndexEnd)
         {
             // Searches the loaded data for searchValue with a tolerance of +-tolerance
             // Returns True if a match is found; in addition, populates matchIndexStart and matchIndexEnd
@@ -891,7 +891,7 @@ namespace ProteinDigestionSimulator
             return matchFound;
         }
 
-        public bool FindValueRange(float searchValue, float toleranceHalfWidth, [Optional, DefaultParameterValue(0)] ref int matchIndexStart, [Optional, DefaultParameterValue(0)] ref int matchIndexEnd)
+        public bool FindValueRange(float searchValue, float toleranceHalfWidth, ref int matchIndexStart, ref int matchIndexEnd)
         {
             // Searches the loaded data for searchValue with a tolerance of +-tolerance
             // Returns True if a match is found; in addition, populates matchIndexStart and matchIndexEnd

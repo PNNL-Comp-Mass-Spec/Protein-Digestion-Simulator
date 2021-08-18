@@ -78,14 +78,14 @@ namespace ProteinDigestionSimulator
         public event ProgressResetEventHandler ProgressReset;
 
         public delegate void ProgressResetEventHandler();
+        public event ProgressChangedEventHandler ProgressChanged;
+
 
         /// <summary>
         /// Progress changed event
         /// </summary>
         /// <param name="taskDescription"></param>
         /// <param name="percentComplete">ranges from 0 to 100, but can contain decimal percentage values</param>
-        public event ProgressChangedEventHandler ProgressChanged;
-
         public delegate void ProgressChangedEventHandler(string taskDescription, float percentComplete);
 
         protected string mProgressStepDescription;

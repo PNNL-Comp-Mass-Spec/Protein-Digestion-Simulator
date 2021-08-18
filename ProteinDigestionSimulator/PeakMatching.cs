@@ -1040,7 +1040,7 @@ namespace ProteinDigestionSimulator
             return success;
         }
 
-        internal bool IdentifySequences(SearchThresholds searchThresholds, ref PMFeatureInfo featuresToIdentify, PMComparisonFeatureInfo comparisonFeatures, out PMFeatureMatchResults featureMatchResults, [Optional, DefaultParameterValue(null)] ref SearchRange rangeSearch)
+        internal bool IdentifySequences(SearchThresholds searchThresholds, ref PMFeatureInfo featuresToIdentify, PMComparisonFeatureInfo comparisonFeatures, out PMFeatureMatchResults featureMatchResults, ref SearchRange rangeSearch)
         {
             // Returns True if success, False if the search is canceled
             // Will return true even if none of the features match any of the comparison features
