@@ -94,7 +94,7 @@ namespace ProteinDigestionSimulator
             Other = 3
         }
 
-        public class AddnlRef
+        public class AddnlRef : IComparable<AddnlRef>
         {
             public string RefName { get; set; }                // e.g. in gi:12334  the RefName is "gi" and the RefAccession is "1234"
             public string RefAccession { get; set; }
@@ -105,6 +105,16 @@ namespace ProteinDigestionSimulator
             {
                 RefName = refName;
                 RefAccession = refAccession;
+            }
+
+            public int CompareTo(AddnlRef other)
+            {
+                // IComparable implementation to allow comparison of additional protein references
+                if (ReferenceEquals(this, other)) return 0;
+                if (ReferenceEquals(null, other)) return 1;
+                var refNameComparison = string.Compare(RefName, other.RefName, StringComparison.Ordinal);
+                if (refNameComparison != 0) return refNameComparison;
+                return string.Compare(RefAccession, other.RefAccession, StringComparison.Ordinal);
             }
         }
 
@@ -1125,8 +1135,7 @@ namespace ProteinDigestionSimulator
                                 index += 1;
                             }
 
-                            var iAddnlRefComparer = new AddnlRefComparer();
-                            Array.Sort(addnlRefsToOutput, iAddnlRefComparer);
+                            Array.Sort(addnlRefsToOutput);
                         }
                         else
                         {
@@ -2245,34 +2254,6 @@ namespace ProteinDigestionSimulator
             }
 
             SubtaskProgressChanged?.Invoke(description, percentComplete);
-        }
-
-        // IComparer class to allow comparison of additional protein references
-        private class AddnlRefComparer : IComparer<AddnlRef>
-        {
-            public int Compare(AddnlRef x, AddnlRef y)
-            {
-                if (string.CompareOrdinal(x.RefName, y.RefName) > 0)
-                {
-                    return 1;
-                }
-                else if (string.CompareOrdinal(x.RefName, y.RefName) < 0)
-                {
-                    return -1;
-                }
-                else if (string.CompareOrdinal(x.RefAccession, y.RefAccession) > 0)
-                {
-                    return 1;
-                }
-                else if (string.CompareOrdinal(x.RefAccession, y.RefAccession) < 0)
-                {
-                    return -1;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
         }
 
         // Options class

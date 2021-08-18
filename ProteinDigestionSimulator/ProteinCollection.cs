@@ -13,7 +13,7 @@ namespace ProteinDigestionSimulator
             Unknown = -1
         }
 
-        protected class ProteinEntry
+        protected class ProteinEntry : IComparable<ProteinEntry>
         {
             public string Name { get; }
             public int ProteinID { get; }
@@ -22,6 +22,14 @@ namespace ProteinDigestionSimulator
             {
                 Name = name;
                 ProteinID = proteinId;
+            }
+
+            public int CompareTo(ProteinEntry other)
+            {
+                // Sort by Protein Name, ascending
+                if (ReferenceEquals(this, other)) return 0;
+                if (ReferenceEquals(null, other)) return 1;
+                return string.Compare(Name, other.Name, StringComparison.Ordinal);
             }
         }
 
@@ -296,8 +304,7 @@ namespace ProteinDigestionSimulator
                 SortingList?.Invoke();
                 try
                 {
-                    var comparer = new ProteinEntryComparer();
-                    Array.Sort(mProteins, 0, mProteinCount, comparer);
+                    Array.Sort(mProteins, 0, mProteinCount);
                 }
                 catch
                 {
@@ -321,30 +328,9 @@ namespace ProteinDigestionSimulator
             SortingMappings?.Invoke();
         }
 
-        private class ProteinEntryComparer : IComparer<ProteinEntry>
-        {
-            public int Compare(ProteinEntry x, ProteinEntry y)
-            {
-                // Sort by Protein Name, ascending
-
-                if (string.CompareOrdinal(x.Name, y.Name) > 0)
-                {
-                    return 1;
-                }
-                else if (string.CompareOrdinal(x.Name, y.Name) < 0)
-                {
-                    return -1;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-        }
-
         protected class ProteinToPeptideMappingInfo
         {
-            public class ProteinToPeptideMappingEntry
+            public class ProteinToPeptideMappingEntry : IComparable<ProteinToPeptideMappingEntry>
             {
                 public readonly int ProteinID;
                 public readonly int PeptideID;
@@ -355,6 +341,16 @@ namespace ProteinDigestionSimulator
                     ProteinID = proteinId;
                     PeptideID = peptideId;
                     CleavageState = cleavageState;
+                }
+
+                public int CompareTo(ProteinToPeptideMappingEntry other)
+                {
+                    if (ReferenceEquals(this, other)) return 0;
+                    if (ReferenceEquals(null, other)) return 1;
+                    // Sort by ProteinID, then by PeptideID
+                    var proteinIdComparison = ProteinID.CompareTo(other.ProteinID);
+                    if (proteinIdComparison != 0) return proteinIdComparison;
+                    return PeptideID.CompareTo(other.PeptideID);
                 }
             }
 
@@ -602,8 +598,7 @@ namespace ProteinDigestionSimulator
                     SortingList?.Invoke();
                     try
                     {
-                        var comparer = new ProteinToPeptideMappingsComparer();
-                        Array.Sort(mMappings, 0, mMappingCount, comparer);
+                        Array.Sort(mMappings, 0, mMappingCount);
                     }
                     catch
                     {
@@ -614,35 +609,6 @@ namespace ProteinDigestionSimulator
                 }
 
                 return mMappingArrayIsSorted;
-            }
-
-            private class ProteinToPeptideMappingsComparer : IComparer<ProteinToPeptideMappingEntry>
-            {
-                public int Compare(ProteinToPeptideMappingEntry x, ProteinToPeptideMappingEntry y)
-                {
-                    // Sort by ProteinID, then by PeptideID
-
-                    if (x.ProteinID > y.ProteinID)
-                    {
-                        return 1;
-                    }
-                    else if (x.ProteinID < y.ProteinID)
-                    {
-                        return -1;
-                    }
-                    else if (x.PeptideID > y.PeptideID)
-                    {
-                        return 1;
-                    }
-                    else if (x.PeptideID < y.PeptideID)
-                    {
-                        return -1;
-                    }
-                    else
-                    {
-                        return 0;
-                    }
-                }
             }
         }
     }

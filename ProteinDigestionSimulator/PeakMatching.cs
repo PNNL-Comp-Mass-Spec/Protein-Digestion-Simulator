@@ -24,7 +24,7 @@ namespace ProteinDigestionSimulator
             Health = 3
         }
 
-        public readonly struct FeatureInfo
+        public readonly struct FeatureInfo : IComparable<FeatureInfo>
         {
             public int FeatureID { get; }                                   // Each feature should have a unique ID
             public string FeatureName { get; }                                // Optional
@@ -43,9 +43,15 @@ namespace ProteinDigestionSimulator
             {
                 return new FeatureInfo(0, string.Empty, 0, 0);
             }
+
+            public int CompareTo(FeatureInfo other)
+            {
+                // Sort by Feature ID, ascending
+                return FeatureID.CompareTo(other.FeatureID);
+            }
         }
 
-        private class PeakMatchingRawMatches
+        private class PeakMatchingRawMatches : IComparable<PeakMatchingRawMatches>
         {
             public int MatchingIDIndex { get; }               // Pointer into comparison features (RowIndex in PMComparisonFeatureInfo)
             public double StandardizedSquaredDistance { get; set; }
@@ -58,6 +64,16 @@ namespace ProteinDigestionSimulator
             public PeakMatchingRawMatches(int matchingIdIndex)
             {
                 MatchingIDIndex = matchingIdIndex;
+            }
+
+            public int CompareTo(PeakMatchingRawMatches other)
+            {
+                // Sort by .SLiCScore descending, and by MatchingIDIndexOriginal Ascending
+                if (ReferenceEquals(this, other)) return 0;
+                if (ReferenceEquals(null, other)) return 1;
+                var sLiCScoreComparison = other.SLiCScore.CompareTo(SLiCScore);
+                if (sLiCScoreComparison != 0) return sLiCScoreComparison;
+                return MatchingIDIndex.CompareTo(other.MatchingIDIndex);
             }
         }
 
@@ -330,8 +346,7 @@ namespace ProteinDigestionSimulator
                     SortingList?.Invoke();
                     try
                     {
-                        var comparer = new FeatureInfoComparer();
-                        Array.Sort(mFeatures, 0, mFeatureCount, comparer);
+                        Array.Sort(mFeatures, 0, mFeatureCount);
                     }
                     catch (Exception ex)
                     {
@@ -348,27 +363,6 @@ namespace ProteinDigestionSimulator
             {
                 get => mUseFeatureIDDictionary;
                 set => mUseFeatureIDDictionary = value;
-            }
-
-            private class FeatureInfoComparer : IComparer<FeatureInfo>
-            {
-                public int Compare(FeatureInfo x, FeatureInfo y)
-                {
-                    // Sort by Feature ID, ascending
-
-                    if (x.FeatureID > y.FeatureID)
-                    {
-                        return 1;
-                    }
-                    else if (x.FeatureID < y.FeatureID)
-                    {
-                        return -1;
-                    }
-                    else
-                    {
-                        return 0;
-                    }
-                }
             }
         }
 
@@ -505,7 +499,7 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            protected readonly struct PeakMatchingResults
+            protected readonly struct PeakMatchingResults : IComparable<PeakMatchingResults>
             {
                 public int FeatureID { get; }
                 public PeakMatchingResult Details { get; }
@@ -514,6 +508,14 @@ namespace ProteinDigestionSimulator
                 {
                     FeatureID = featureId;
                     Details = details;
+                }
+
+                public int CompareTo(PeakMatchingResults other)
+                {
+                    // Sort by .FeatureID ascending, and by .Details.MatchingID ascending
+                    var featureIdComparison = FeatureID.CompareTo(other.FeatureID);
+                    if (featureIdComparison != 0) return featureIdComparison;
+                    return Details.MatchingID.CompareTo(other.Details.MatchingID);
                 }
             }
 
@@ -710,8 +712,7 @@ namespace ProteinDigestionSimulator
                     SortingList?.Invoke();
                     try
                     {
-                        var comparer = new PeakMatchingResultsComparer();
-                        mPMResults.Sort(comparer);
+                        mPMResults.Sort();
                     }
                     catch (Exception ex)
                     {
@@ -722,35 +723,6 @@ namespace ProteinDigestionSimulator
                 }
 
                 return mPMResultsIsSorted;
-            }
-
-            private class PeakMatchingResultsComparer : IComparer<PeakMatchingResults>
-            {
-                public int Compare(PeakMatchingResults x, PeakMatchingResults y)
-                {
-                    // Sort by .SLiCScore descending, and by MatchingIDIndexOriginal ascending
-
-                    if (x.FeatureID > y.FeatureID)
-                    {
-                        return 1;
-                    }
-                    else if (x.FeatureID < y.FeatureID)
-                    {
-                        return -1;
-                    }
-                    else if (x.Details.MatchingID > y.Details.MatchingID)
-                    {
-                        return 1;
-                    }
-                    else if (x.Details.MatchingID < y.Details.MatchingID)
-                    {
-                        return -1;
-                    }
-                    else
-                    {
-                        return 0;
-                    }
-                }
             }
         }
 
@@ -891,8 +863,7 @@ namespace ProteinDigestionSimulator
             if (rawMatches.Count > 1)
             {
                 // Sort by SLiCScore descending
-                var iPeakMatchingRawMatchesComparer = new PeakMatchingRawMatchesComparer();
-                rawMatches.Sort(iPeakMatchingRawMatchesComparer);
+                rawMatches.Sort();
             }
 
             if (rawMatches.Count > 0)
@@ -1208,35 +1179,6 @@ namespace ProteinDigestionSimulator
             mProgressDescription = description;
             mProgressPercent = progressPercent;
             ProgressContinues?.Invoke();
-        }
-
-        private class PeakMatchingRawMatchesComparer : IComparer<PeakMatchingRawMatches>
-        {
-            public int Compare(PeakMatchingRawMatches x, PeakMatchingRawMatches y)
-            {
-                // Sort by .SLiCScore descending, and by MatchingIDIndexOriginal Ascending
-
-                if (x.SLiCScore > y.SLiCScore)
-                {
-                    return -1;
-                }
-                else if (x.SLiCScore < y.SLiCScore)
-                {
-                    return 1;
-                }
-                else if (x.MatchingIDIndex > y.MatchingIDIndex)
-                {
-                    return 1;
-                }
-                else if (x.MatchingIDIndex < y.MatchingIDIndex)
-                {
-                    return -1;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
         }
 
         public class SearchThresholds
