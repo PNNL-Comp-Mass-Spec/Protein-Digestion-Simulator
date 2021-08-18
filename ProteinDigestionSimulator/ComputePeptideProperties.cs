@@ -130,12 +130,12 @@ namespace ProteinDigestionSimulator
 
         private double CalculateHydrophobicity(string seq, HydrophobicityTypeConstants HT)
         {
-            double runningSum = 0d;
-            int residueCount = 0;
+            var runningSum = 0d;
+            var residueCount = 0;
             var aaInfo = new AA();
-            for (int li = 1; li <= seq.Length; li++)
+            for (var li = 1; li <= seq.Length; li++)
             {
-                char residue = char.ToUpper(seq[li - 1]);
+                var residue = char.ToUpper(seq[li - 1]);
                 try
                 {
                     if (!mAminoAcids.TryGetValue(residue, out aaInfo))
@@ -167,7 +167,7 @@ namespace ProteinDigestionSimulator
 
                     residueCount += 1;
                 }
-                catch (Exception ex)
+                catch
                 {
                     // Residue is not present so ignore it
                 }
@@ -177,10 +177,8 @@ namespace ProteinDigestionSimulator
             {
                 return runningSum / residueCount;
             }
-            else
-            {
-                return 0d;
-            }
+
+            return 0d;
         }
 
         private double CalculateNp(double pH, double k, int n)
@@ -239,7 +237,7 @@ namespace ProteinDigestionSimulator
                 if (chargeState == 0)
                     chargeState = 1;
             }
-            catch (Exception ex)
+            catch
             {
                 // Error occurred
                 chargeState = 1;
@@ -259,23 +257,21 @@ namespace ProteinDigestionSimulator
             {
                 if (ReportMaximumpI && seq.Length > SequenceWidthToExamineForMaximumpI)
                 {
-                    double maxHydrophobicity = 0d;
-                    for (int index = 1; index <= seq.Length - SequenceWidthToExamineForMaximumpI; index++)
+                    var maxHydrophobicity = 0d;
+                    for (var index = 1; index <= seq.Length - SequenceWidthToExamineForMaximumpI; index++)
                     {
-                        double segmentHydrophobicity = CalculateHydrophobicity(seq.Substring(index - 1, SequenceWidthToExamineForMaximumpI), HydrophobicityType);
+                        var segmentHydrophobicity = CalculateHydrophobicity(seq.Substring(index - 1, SequenceWidthToExamineForMaximumpI), HydrophobicityType);
                         if (segmentHydrophobicity > maxHydrophobicity)
                             maxHydrophobicity = segmentHydrophobicity;
                     }
 
                     return (float)maxHydrophobicity;
                 }
-                else
-                {
-                    double hydrophobicity = CalculateHydrophobicity(seq, HydrophobicityType);
-                    return (float)hydrophobicity;
-                }
+
+                var hydrophobicity = CalculateHydrophobicity(seq, HydrophobicityType);
+                return (float)hydrophobicity;
             }
-            catch (Exception ex)
+            catch
             {
                 // Error occurred
                 return 0f;
@@ -349,7 +345,7 @@ namespace ProteinDigestionSimulator
                 }
                 while (true);
             }
-            catch (Exception ex)
+            catch
             {
                 // Error occurred
                 pH = 0d;

@@ -33,7 +33,6 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        protected const int MEMORY_RESERVE_CHUNK = 100000;
         protected int mProteinCount;
         protected ProteinEntry[] mProteins;
         protected bool mProteinArrayIsSorted;
@@ -133,9 +132,9 @@ namespace ProteinDigestionSimulator
         {
             // Looks through mProteins() for proteinName, returning the index of the item if found, or -1 if not found
 
-            int firstIndex = 0;
-            int lastIndex = mProteinCount - 1;
-            int matchingRowIndex = -1;
+            var firstIndex = 0;
+            var lastIndex = mProteinCount - 1;
+            var matchingRowIndex = -1;
             if (mProteinCount <= 0 || !SortProteins())
             {
                 return matchingRowIndex;
@@ -172,7 +171,7 @@ namespace ProteinDigestionSimulator
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 matchingRowIndex = -1;
             }
@@ -229,7 +228,7 @@ namespace ProteinDigestionSimulator
         {
             // Since mProteins is sorted by Protein Name, we must fully search the array to obtain the protein name for proteinID
 
-            bool matchFound = false;
+            var matchFound = false;
             int index;
             proteinName = string.Empty;
             for (index = 0; index < mProteinCount; index++)
@@ -274,11 +273,9 @@ namespace ProteinDigestionSimulator
                 proteinID = mProteins[rowIndex].ProteinID;
                 return true;
             }
-            else
-            {
-                proteinID = -1;
-                return false;
-            }
+
+            proteinID = -1;
+            return false;
         }
 
         public bool GetProteinInfoByRowIndex(int rowIndex, out int proteinID, out string proteinName)
@@ -289,12 +286,10 @@ namespace ProteinDigestionSimulator
                 proteinID = mProteins[rowIndex].ProteinID;
                 return true;
             }
-            else
-            {
-                proteinName = string.Empty;
-                proteinID = -1;
-                return false;
-            }
+
+            proteinName = string.Empty;
+            proteinID = -1;
+            return false;
         }
 
         private bool SortProteins(bool forceSort = false)
@@ -302,14 +297,7 @@ namespace ProteinDigestionSimulator
             if (!mProteinArrayIsSorted || forceSort)
             {
                 SortingList?.Invoke();
-                try
-                {
-                    Array.Sort(mProteins, 0, mProteinCount);
-                }
-                catch
-                {
-                    throw;
-                }
+                Array.Sort(mProteins, 0, mProteinCount);
 
                 mProteinArrayIsSorted = true;
             }
@@ -354,7 +342,6 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            protected const int MEMORY_RESERVE_CHUNK = 100000;
             protected int mMappingCount;
             protected ProteinToPeptideMappingEntry[] mMappings;
             protected bool mMappingArrayIsSorted;
@@ -415,9 +402,9 @@ namespace ProteinDigestionSimulator
                 // Looks through mMappings() for proteinIDToFind, returning the index of the item if found, or -1 if not found
                 // Since mMappings() can contain multiple entries for a given Protein, this function returns the first entry found
 
-                int firstIndex = 0;
-                int lastIndex = mMappingCount - 1;
-                int matchingRowIndex = -1;
+                var firstIndex = 0;
+                var lastIndex = mMappingCount - 1;
+                var matchingRowIndex = -1;
                 if (mMappingCount <= 0 || !SortMappings())
                 {
                     return matchingRowIndex;
@@ -454,7 +441,7 @@ namespace ProteinDigestionSimulator
                         }
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     matchingRowIndex = -1;
                 }
@@ -522,10 +509,10 @@ namespace ProteinDigestionSimulator
             {
                 // Since mMappings is sorted by Protein ID, we must fully search the array to obtain the ProteinIDs for peptideID
 
-                int ARRAY_ALLOCATION_CHUNK = 10;
+                var ARRAY_ALLOCATION_CHUNK = 10;
                 var matchingIDs = new int[ARRAY_ALLOCATION_CHUNK];
                 var matchCount = 0;
-                for (int index = 0; index < mMappingCount; index++)
+                for (var index = 0; index < mMappingCount; index++)
                 {
                     if (mMappings[index].PeptideID == peptideID)
                     {
@@ -569,12 +556,10 @@ namespace ProteinDigestionSimulator
                         indexLast += 1;
                     return true;
                 }
-                else
-                {
-                    indexFirst = -1;
-                    indexLast = -1;
-                    return false;
-                }
+
+                indexFirst = -1;
+                indexLast = -1;
+                return false;
             }
 
             public int get_PeptideCountForProteinID(int proteinID)
@@ -585,10 +570,8 @@ namespace ProteinDigestionSimulator
                 {
                     return indexLast - indexFirst + 1;
                 }
-                else
-                {
-                    return 0;
-                }
+
+                return 0;
             }
 
             private bool SortMappings(bool forceSort = false)
@@ -596,14 +579,7 @@ namespace ProteinDigestionSimulator
                 if (!mMappingArrayIsSorted || forceSort)
                 {
                     SortingList?.Invoke();
-                    try
-                    {
-                        Array.Sort(mMappings, 0, mMappingCount);
-                    }
-                    catch
-                    {
-                        throw;
-                    }
+                    Array.Sort(mMappings, 0, mMappingCount);
 
                     mMappingArrayIsSorted = true;
                 }

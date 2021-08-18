@@ -34,7 +34,7 @@ namespace ProteinDigestionSimulator
     ///
     /// Example command line: /I:Yeast_2003-01-06.fasta /debug /d /p:ProteinDigestionSettings.xml
     /// </summary>
-    static class Program
+    internal static class Program
     {
         // Ignore Spelling: silico
 
@@ -105,7 +105,7 @@ namespace ProteinDigestionSimulator
                     return -1;
                 }
 
-                mParseProteinFile = new ProteinFileParser() { ShowDebugPrompts = mShowDebugPrompts };
+                mParseProteinFile = new ProteinFileParser { ShowDebugPrompts = mShowDebugPrompts };
                 mParseProteinFile.ProgressUpdate += Processing_ProgressChanged;
                 mParseProteinFile.ProgressReset += Processing_ProgressReset;
 
@@ -165,7 +165,7 @@ namespace ProteinDigestionSimulator
 
             if (percentComplete > 100)
                 percentComplete = 100;
-            Console.Write("Processing: " + percentComplete.ToString() + "% ");
+            Console.Write("Processing: " + percentComplete + "% ");
             if (addCarriageReturn)
             {
                 Console.WriteLine();
@@ -181,8 +181,8 @@ namespace ProteinDigestionSimulator
         {
             // Returns True if no problems; otherwise, returns false
 
-            string value = string.Empty;
-            var validParameters = new List<string>() { "I", "F", "D", "M", "AD", "O", "P", "S", "A", "R", "DEBUG" };
+            var value = string.Empty;
+            var validParameters = new List<string> { "I", "F", "D", "M", "AD", "O", "P", "S", "A", "R", "DEBUG" };
             try
             {
                 // Make sure no invalid parameters are present
@@ -192,62 +192,60 @@ namespace ProteinDigestionSimulator
                                                                                    select ("/" + item)).ToList());
                     return false;
                 }
-                else
+
+                // Query commandLineParser to see if various parameters are present
+                if (commandLineParser.RetrieveValueForParameter("I", out value))
                 {
-                    // Query commandLineParser to see if various parameters are present
-                    if (commandLineParser.RetrieveValueForParameter("I", out value))
-                    {
-                        mInputFilePath = value;
-                    }
-                    else if (commandLineParser.NonSwitchParameterCount > 0)
-                    {
-                        mInputFilePath = commandLineParser.RetrieveNonSwitchParameter(0);
-                    }
-
-                    if (commandLineParser.RetrieveValueForParameter("F", out value))
-                        mAssumeFastaFile = true;
-                    if (commandLineParser.RetrieveValueForParameter("D", out value))
-                        mCreateDigestedProteinOutputFile = true;
-                    if (commandLineParser.RetrieveValueForParameter("M", out value))
-                        mComputeProteinMass = true;
-                    if (commandLineParser.RetrieveValueForParameter("AD", out value))
-                        mInputFileDelimiter = value[0];
-                    if (commandLineParser.RetrieveValueForParameter("O", out value))
-                        mOutputDirectoryPath = value;
-                    if (commandLineParser.RetrieveValueForParameter("P", out value))
-                        mParameterFilePath = value;
-                    if (commandLineParser.RetrieveValueForParameter("S", out value))
-                    {
-                        mRecurseDirectories = true;
-                        if (int.TryParse(value, out var valueInt))
-                        {
-                            mMaxLevelsToRecurse = valueInt;
-                        }
-                    }
-
-                    if (commandLineParser.RetrieveValueForParameter("A", out value))
-                        mOutputDirectoryAlternatePath = value;
-                    if (commandLineParser.RetrieveValueForParameter("R", out value))
-                        mRecreateDirectoryHierarchyInAlternatePath = true;
-
-                    // If commandLineParser.RetrieveValueForParameter("L", value) Then
-                    // mLogMessagesToFile = True
-                    // If Not String.IsNullOrEmpty(value) Then
-                    // mLogFilePath = value
-                    // End If
-                    // End If
-
-                    // If commandLineParser.RetrieveValueForParameter("LogDir", value) Then
-                    // mLogMessagesToFile = True
-                    // If Not String.IsNullOrEmpty(value) Then
-                    // mLogDirectoryPath = value
-                    // End If
-                    // End If
-
-                    if (commandLineParser.RetrieveValueForParameter("DEBUG", out value))
-                        mShowDebugPrompts = true;
-                    return true;
+                    mInputFilePath = value;
                 }
+                else if (commandLineParser.NonSwitchParameterCount > 0)
+                {
+                    mInputFilePath = commandLineParser.RetrieveNonSwitchParameter(0);
+                }
+
+                if (commandLineParser.RetrieveValueForParameter("F", out value))
+                    mAssumeFastaFile = true;
+                if (commandLineParser.RetrieveValueForParameter("D", out value))
+                    mCreateDigestedProteinOutputFile = true;
+                if (commandLineParser.RetrieveValueForParameter("M", out value))
+                    mComputeProteinMass = true;
+                if (commandLineParser.RetrieveValueForParameter("AD", out value))
+                    mInputFileDelimiter = value[0];
+                if (commandLineParser.RetrieveValueForParameter("O", out value))
+                    mOutputDirectoryPath = value;
+                if (commandLineParser.RetrieveValueForParameter("P", out value))
+                    mParameterFilePath = value;
+                if (commandLineParser.RetrieveValueForParameter("S", out value))
+                {
+                    mRecurseDirectories = true;
+                    if (int.TryParse(value, out var valueInt))
+                    {
+                        mMaxLevelsToRecurse = valueInt;
+                    }
+                }
+
+                if (commandLineParser.RetrieveValueForParameter("A", out value))
+                    mOutputDirectoryAlternatePath = value;
+                if (commandLineParser.RetrieveValueForParameter("R", out value))
+                    mRecreateDirectoryHierarchyInAlternatePath = true;
+
+                // If commandLineParser.RetrieveValueForParameter("L", value) Then
+                // mLogMessagesToFile = True
+                // If Not String.IsNullOrEmpty(value) Then
+                // mLogFilePath = value
+                // End If
+                // End If
+
+                // If commandLineParser.RetrieveValueForParameter("LogDir", value) Then
+                // mLogMessagesToFile = True
+                // If Not String.IsNullOrEmpty(value) Then
+                // mLogDirectoryPath = value
+                // End If
+                // End If
+
+                if (commandLineParser.RetrieveValueForParameter("DEBUG", out value))
+                    mShowDebugPrompts = true;
+                return true;
             }
             catch (Exception ex)
             {
@@ -265,7 +263,7 @@ namespace ProteinDigestionSimulator
 
         public static void ShowGUI()
         {
-            IntPtr hWndConsole = IntPtr.Zero;
+            var hWndConsole = IntPtr.Zero;
             try
             {
                 // Hide the console
@@ -345,7 +343,7 @@ namespace ProteinDigestionSimulator
                     errorStream.WriteLine(errorMessage);
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 // Ignore errors here
             }

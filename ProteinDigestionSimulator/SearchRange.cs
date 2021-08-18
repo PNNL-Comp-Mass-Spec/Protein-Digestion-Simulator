@@ -67,7 +67,7 @@ namespace ProteinDigestionSimulator
                     case DataTypeToUse.NoDataPresent:
                         return 0;
                     default:
-                        Console.WriteLine("Unknown data type encountered: " + mDataType.ToString());
+                        Console.WriteLine("Unknown data type encountered: " + mDataType);
                         return 0;
                 }
             }
@@ -83,20 +83,16 @@ namespace ProteinDigestionSimulator
                     {
                         return mPointerIndices[index];
                     }
-                    else
-                    {
-                        return -1;
-                    }
+
+                    return -1;
                 }
-                catch (Exception ex)
+                catch
                 {
                     return -1;
                 }
             }
-            else
-            {
-                return -1;
-            }
+
+            return -1;
         }
 
         // ReSharper disable once UnusedMember.Global
@@ -379,7 +375,7 @@ namespace ProteinDigestionSimulator
                     success = true;
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 success = false;
             }
@@ -425,7 +421,7 @@ namespace ProteinDigestionSimulator
                     success = true;
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 success = false;
             }
@@ -471,7 +467,7 @@ namespace ProteinDigestionSimulator
                     success = true;
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 success = false;
             }
@@ -507,7 +503,7 @@ namespace ProteinDigestionSimulator
             // mPointByPointFillCount += 1
             // Next index
 
-            catch (Exception ex)
+            catch
             {
                 success = false;
             }
@@ -528,7 +524,7 @@ namespace ProteinDigestionSimulator
                 Array.Copy(valuesToAdd, 0, mDataSingle, mPointByPointFillCount - 1, valuesToAdd.Length);
                 mPointByPointFillCount += valuesToAdd.Length;
             }
-            catch (Exception ex)
+            catch
             {
                 success = false;
             }
@@ -549,7 +545,7 @@ namespace ProteinDigestionSimulator
                 Array.Copy(valuesToAdd, 0, mDataDouble, mPointByPointFillCount, valuesToAdd.Length);
                 mPointByPointFillCount += valuesToAdd.Length;
             }
-            catch (Exception ex)
+            catch
             {
                 success = false;
             }
@@ -588,7 +584,7 @@ namespace ProteinDigestionSimulator
                     mPointByPointFillCount += 1;
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 success = false;
             }
@@ -627,7 +623,7 @@ namespace ProteinDigestionSimulator
                     mPointByPointFillCount += 1;
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 success = false;
             }
@@ -666,7 +662,7 @@ namespace ProteinDigestionSimulator
                     mPointByPointFillCount += 1;
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 success = false;
             }
@@ -743,7 +739,7 @@ namespace ProteinDigestionSimulator
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 success = false;
             }
@@ -955,7 +951,7 @@ namespace ProteinDigestionSimulator
             {
                 return (int)Math.Round(GetValueByIndex(index));
             }
-            catch (Exception ex)
+            catch
             {
                 return 0;
             }
@@ -969,23 +965,21 @@ namespace ProteinDigestionSimulator
                 {
                     return 0d;
                 }
-                else
+
+                switch (mDataType)
                 {
-                    switch (mDataType)
-                    {
-                        case DataTypeToUse.IntegerType:
-                        case DataTypeToUse.FillingIntegerType:
-                            return mDataInt[index];
-                        case DataTypeToUse.SingleType:
-                        case DataTypeToUse.FillingSingleType:
-                            return mDataSingle[index];
-                        case DataTypeToUse.DoubleType:
-                        case DataTypeToUse.FillingDoubleType:
-                            return mDataDouble[index];
-                    }
+                    case DataTypeToUse.IntegerType:
+                    case DataTypeToUse.FillingIntegerType:
+                        return mDataInt[index];
+                    case DataTypeToUse.SingleType:
+                    case DataTypeToUse.FillingSingleType:
+                        return mDataSingle[index];
+                    case DataTypeToUse.DoubleType:
+                    case DataTypeToUse.FillingDoubleType:
+                        return mDataDouble[index];
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 // index is probably out of range
                 return 0d;
@@ -1000,7 +994,7 @@ namespace ProteinDigestionSimulator
             {
                 return (float)GetValueByIndex(index);
             }
-            catch (Exception ex)
+            catch
             {
                 return 0f;
             }
@@ -1012,7 +1006,7 @@ namespace ProteinDigestionSimulator
             {
                 return (int)Math.Round(GetValueByOriginalIndex(index));
             }
-            catch (Exception ex)
+            catch
             {
                 return 0;
             }
@@ -1024,32 +1018,30 @@ namespace ProteinDigestionSimulator
             {
                 return 0d;
             }
-            else
+
+            try
             {
-                try
+                var index = Array.IndexOf(mPointerIndices, indexOriginal);
+                if (index >= 0)
                 {
-                    var index = Array.IndexOf(mPointerIndices, indexOriginal);
-                    if (index >= 0)
+                    switch (mDataType)
                     {
-                        switch (mDataType)
-                        {
-                            case DataTypeToUse.IntegerType:
-                                return mDataInt[mPointerIndices[index]];
-                            case DataTypeToUse.SingleType:
-                                return mDataSingle[mPointerIndices[index]];
-                            case DataTypeToUse.DoubleType:
-                                return mDataDouble[mPointerIndices[index]];
-                        }
-                    }
-                    else
-                    {
-                        return 0d;
+                        case DataTypeToUse.IntegerType:
+                            return mDataInt[mPointerIndices[index]];
+                        case DataTypeToUse.SingleType:
+                            return mDataSingle[mPointerIndices[index]];
+                        case DataTypeToUse.DoubleType:
+                            return mDataDouble[mPointerIndices[index]];
                     }
                 }
-                catch (Exception ex)
+                else
                 {
                     return 0d;
                 }
+            }
+            catch
+            {
+                return 0d;
             }
 
             return 0d;
@@ -1061,7 +1053,7 @@ namespace ProteinDigestionSimulator
             {
                 return (float)GetValueByOriginalIndex(index);
             }
-            catch (Exception ex)
+            catch
             {
                 return 0f;
             }

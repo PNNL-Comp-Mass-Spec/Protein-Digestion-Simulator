@@ -85,7 +85,6 @@ namespace ProteinDigestionSimulator
 
         internal class PMFeatureInfo
         {
-            protected const int MEMORY_RESERVE_CHUNK = 100000;
             protected int mFeatureCount;
             protected FeatureInfo[] mFeatures;
             protected bool mFeaturesArrayIsSorted;
@@ -115,37 +114,35 @@ namespace ProteinDigestionSimulator
                 {
                     return false;
                 }
-                else
+
+                // Add the feature
+                if (mFeatureCount >= mFeatures.Length)
                 {
-                    // Add the feature
-                    if (mFeatureCount >= mFeatures.Length)
-                    {
-                        Array.Resize(ref mFeatures, mFeatures.Length * 2);
-                        // ReDim Preserve mFeatures(mFeatures.Length + MEMORY_RESERVE_CHUNK - 1)
-                    }
-
-                    mFeatures[mFeatureCount] = new FeatureInfo(featureID, peptideName, peptideMass, peptideNET);
-
-                    if (mUseFeatureIDDictionary)
-                    {
-                        featureIDToRowIndex.Add(featureID, mFeatureCount);
-                    }
-
-                    mFeatureCount += 1;
-                    mFeaturesArrayIsSorted = false;
-
-                    // If we get here, all went well
-                    return true;
+                    Array.Resize(ref mFeatures, mFeatures.Length * 2);
+                    // ReDim Preserve mFeatures(mFeatures.Length + MEMORY_RESERVE_CHUNK - 1)
                 }
+
+                mFeatures[mFeatureCount] = new FeatureInfo(featureID, peptideName, peptideMass, peptideNET);
+
+                if (mUseFeatureIDDictionary)
+                {
+                    featureIDToRowIndex.Add(featureID, mFeatureCount);
+                }
+
+                mFeatureCount += 1;
+                mFeaturesArrayIsSorted = false;
+
+                // If we get here, all went well
+                return true;
             }
 
             protected int BinarySearchFindFeature(int featureIDToFind)
             {
                 // Looks through mFeatures() for featureIDToFind, returning the index of the item if found, or -1 if not found
 
-                int firstIndex = 0;
-                int lastIndex = mFeatureCount - 1;
-                int matchingRowIndex = -1;
+                var firstIndex = 0;
+                var lastIndex = mFeatureCount - 1;
+                var matchingRowIndex = -1;
                 if (mFeatureCount <= 0 || !SortFeatures())
                 {
                     return matchingRowIndex;
@@ -182,7 +179,7 @@ namespace ProteinDigestionSimulator
                         }
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     matchingRowIndex = -1;
                 }
@@ -249,10 +246,8 @@ namespace ProteinDigestionSimulator
                 {
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
 
             public int Count => mFeatureCount;
@@ -262,17 +257,15 @@ namespace ProteinDigestionSimulator
                 // Return the feature info for featureID
 
                 int rowIndex;
-                bool matchFound = ContainsFeature(featureID, out rowIndex);
+                var matchFound = ContainsFeature(featureID, out rowIndex);
                 if (matchFound)
                 {
                     featureInfo = mFeatures[rowIndex];
                     return true;
                 }
-                else
-                {
-                    featureInfo = FeatureInfo.Blank();
-                    return false;
-                }
+
+                featureInfo = FeatureInfo.Blank();
+                return false;
             }
 
             public virtual bool GetFeatureInfoByRowIndex(int rowIndex, out FeatureInfo featureInfo)
@@ -282,11 +275,9 @@ namespace ProteinDigestionSimulator
                     featureInfo = mFeatures[rowIndex];
                     return true;
                 }
-                else
-                {
-                    featureInfo = FeatureInfo.Blank();
-                    return false;
-                }
+
+                featureInfo = FeatureInfo.Blank();
+                return false;
             }
 
             public virtual double[] GetMassArrayByRowRange(int rowIndexStart, int rowIndexEnd)
@@ -300,28 +291,21 @@ namespace ProteinDigestionSimulator
 
                 masses = new double[rowIndexEnd - rowIndexStart + 1];
 
-                try
+                if (rowIndexEnd >= mFeatureCount)
                 {
-                    if (rowIndexEnd >= mFeatureCount)
-                    {
-                        rowIndexEnd = mFeatureCount - 1;
-                    }
-
-                    var matchCount = 0;
-                    for (var index = rowIndexStart; index <= rowIndexEnd; index++)
-                    {
-                        masses[matchCount] = mFeatures[index].Mass;
-                        matchCount += 1;
-                    }
-
-                    if (masses.Length > matchCount)
-                    {
-                        Array.Resize(ref masses, matchCount);
-                    }
+                    rowIndexEnd = mFeatureCount - 1;
                 }
-                catch (Exception ex)
+
+                var matchCount = 0;
+                for (var index = rowIndexStart; index <= rowIndexEnd; index++)
                 {
-                    throw;
+                    masses[matchCount] = mFeatures[index].Mass;
+                    matchCount += 1;
+                }
+
+                if (masses.Length > matchCount)
+                {
+                    Array.Resize(ref masses, matchCount);
                 }
 
                 return masses;
@@ -333,10 +317,8 @@ namespace ProteinDigestionSimulator
                 {
                     return mFeatures[rowIndex].Mass;
                 }
-                else
-                {
-                    return 0d;
-                }
+
+                return 0d;
             }
 
             protected virtual bool SortFeatures(bool forceSort = false)
@@ -344,14 +326,7 @@ namespace ProteinDigestionSimulator
                 if (!mFeaturesArrayIsSorted || forceSort)
                 {
                     SortingList?.Invoke();
-                    try
-                    {
-                        Array.Sort(mFeatures, 0, mFeatureCount);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw;
-                    }
+                    Array.Sort(mFeatures, 0, mFeatureCount);
 
                     mFeaturesArrayIsSorted = true;
                 }
@@ -400,19 +375,17 @@ namespace ProteinDigestionSimulator
                     // The feature already existed, and therefore wasn't added
                     return false;
                 }
-                else
+
+                // Add the extended feature info
+                if (mExtendedInfo.Length < mFeatures.Length)
                 {
-                    // Add the extended feature info
-                    if (mExtendedInfo.Length < mFeatures.Length)
-                    {
-                        Array.Resize(ref mExtendedInfo, mFeatures.Length);
-                    }
-
-                    mExtendedInfo[mFeatureCount - 1] = new ComparisonFeatureInfoExtended(peptideNETStDev, peptideDiscriminantScore);
-
-                    // If we get here, all went well
-                    return true;
+                    Array.Resize(ref mExtendedInfo, mFeatures.Length);
                 }
+
+                mExtendedInfo[mFeatureCount - 1] = new ComparisonFeatureInfoExtended(peptideNETStDev, peptideDiscriminantScore);
+
+                // If we get here, all went well
+                return true;
             }
 
             public new void Clear()
@@ -429,7 +402,7 @@ namespace ProteinDigestionSimulator
                 // Return the feature info for featureID
 
                 int rowIndex;
-                bool matchFound = ContainsFeature(featureID, out rowIndex);
+                var matchFound = ContainsFeature(featureID, out rowIndex);
                 if (matchFound)
                 {
                     featureInfo = mFeatures[rowIndex];
@@ -437,13 +410,11 @@ namespace ProteinDigestionSimulator
                     discriminantScore = mExtendedInfo[rowIndex].DiscriminantScore;
                     return true;
                 }
-                else
-                {
-                    featureInfo = FeatureInfo.Blank();
-                    netStDev = 0f;
-                    discriminantScore = 0f;
-                    return false;
-                }
+
+                featureInfo = FeatureInfo.Blank();
+                netStDev = 0f;
+                discriminantScore = 0f;
+                return false;
             }
 
             public bool GetFeatureInfoByRowIndex(int rowIndex, out FeatureInfo featureInfo, out float netStDev, out float discriminantScore)
@@ -455,13 +426,11 @@ namespace ProteinDigestionSimulator
                     discriminantScore = mExtendedInfo[rowIndex].DiscriminantScore;
                     return true;
                 }
-                else
-                {
-                    featureInfo = FeatureInfo.Blank();
-                    netStDev = 0f;
-                    discriminantScore = 0f;
-                    return false;
-                }
+
+                featureInfo = FeatureInfo.Blank();
+                netStDev = 0f;
+                discriminantScore = 0f;
+                return false;
             }
 
             public virtual float GetNETStDevByRowIndex(int rowIndex)
@@ -470,10 +439,8 @@ namespace ProteinDigestionSimulator
                 {
                     return mExtendedInfo[rowIndex].NETStDev;
                 }
-                else
-                {
-                    return 0f;
-                }
+
+                return 0f;
             }
         }
 
@@ -519,7 +486,6 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            protected const int MEMORY_RESERVE_CHUNK = 100000;
             protected readonly List<PeakMatchingResults> mPMResults = new List<PeakMatchingResults>();
             protected bool mPMResultsIsSorted;
 
@@ -553,9 +519,9 @@ namespace ProteinDigestionSimulator
                 // Looks through mPMResults() for featureIDToFind, returning the index of the item if found, or -1 if not found
                 // Since mPMResults() can contain multiple entries for a given Feature, this function returns the first entry found
 
-                int firstIndex = 0;
-                int lastIndex = mPMResults.Count - 1;
-                int matchingRowIndex = -1;
+                var firstIndex = 0;
+                var lastIndex = mPMResults.Count - 1;
+                var matchingRowIndex = -1;
                 if (mPMResults.Count <= 0 || !SortPMResults())
                 {
                     return matchingRowIndex;
@@ -592,7 +558,7 @@ namespace ProteinDigestionSimulator
                         }
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     matchingRowIndex = -1;
                 }
@@ -614,7 +580,7 @@ namespace ProteinDigestionSimulator
                 // Returns false if the feature has no matches
                 // Note that this function never shrinks matchResults; it only expands it if needed
 
-                bool matchesFound = false;
+                var matchesFound = false;
                 try
                 {
                     var indexFirst = default(int);
@@ -632,7 +598,7 @@ namespace ProteinDigestionSimulator
                         matchesFound = true;
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     matchesFound = false;
                 }
@@ -644,7 +610,7 @@ namespace ProteinDigestionSimulator
             {
                 // Populates featureID and matchResultInfo with the peak matching results for the given row index
 
-                bool matchFound = false;
+                var matchFound = false;
                 try
                 {
                     if (rowIndex < mPMResults.Count)
@@ -654,7 +620,7 @@ namespace ProteinDigestionSimulator
                         matchFound = true;
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     matchFound = false;
                 }
@@ -683,12 +649,10 @@ namespace ProteinDigestionSimulator
                         indexLast += 1;
                     return true;
                 }
-                else
-                {
-                    indexFirst = -1;
-                    indexLast = -1;
-                    return false;
-                }
+
+                indexFirst = -1;
+                indexLast = -1;
+                return false;
             }
 
             public int get_MatchCountForFeatureID(int featureID)
@@ -699,10 +663,8 @@ namespace ProteinDigestionSimulator
                 {
                     return indexLast - indexFirst + 1;
                 }
-                else
-                {
-                    return 0;
-                }
+
+                return 0;
             }
 
             private bool SortPMResults(bool forceSort = false)
@@ -710,14 +672,7 @@ namespace ProteinDigestionSimulator
                 if (!mPMResultsIsSorted || forceSort)
                 {
                     SortingList?.Invoke();
-                    try
-                    {
-                        mPMResults.Sort();
-                    }
-                    catch (Exception ex)
-                    {
-                        throw;
-                    }
+                    mPMResults.Sort();
 
                     mPMResultsIsSorted = true;
                 }
@@ -799,7 +754,6 @@ namespace ProteinDigestionSimulator
         private void ComputeSLiCScores(ref FeatureInfo featureToIdentify, ref PMFeatureMatchResults featureMatchResults, List<PeakMatchingRawMatches> rawMatches, PMComparisonFeatureInfo comparisonFeatures, ref SearchThresholds searchThresholds, SearchThresholds.SearchTolerances computedTolerances)
         {
             int index;
-            int newMatchCount;
             var comparisonFeatureInfo = FeatureInfo.Blank();
             string message;
 
@@ -920,46 +874,38 @@ namespace ProteinDigestionSimulator
 
             const int LOAD_BLOCK_SIZE = 50000;
             bool success;
-            try
+            if (rangeSearch == null)
             {
-                if (rangeSearch == null)
-                {
-                    rangeSearch = new SearchRange();
-                }
-                else
-                {
-                    rangeSearch.ClearData();
-                }
-
-                if (comparisonFeatures.Count <= 0)
-                {
-                    // No comparison features to search against
-                    success = false;
-                }
-                else
-                {
-                    rangeSearch.InitializeDataFillDouble(comparisonFeatures.Count);
-
-                    var index = 0;
-                    // for (index = 0; i < comparisonFeatures.Count; i++)
-                    // {
-                    //     rangeSearch.FillWithDataAddPoint(comparisonFeatures.GetMassByRowIndex(index));
-                    // }
-
-                    var comparisonFeatureCount = comparisonFeatures.Count;
-                    while (index < comparisonFeatureCount)
-                    {
-                        rangeSearch.FillWithDataAddBlock(comparisonFeatures.GetMassArrayByRowRange(index, index + LOAD_BLOCK_SIZE - 1));
-                        index += LOAD_BLOCK_SIZE;
-                    }
-
-                    success = rangeSearch.FinalizeDataFill();
-                }
+                rangeSearch = new SearchRange();
             }
-            catch (Exception ex)
+            else
             {
-                throw;
+                rangeSearch.ClearData();
+            }
+
+            if (comparisonFeatures.Count <= 0)
+            {
+                // No comparison features to search against
                 success = false;
+            }
+            else
+            {
+                rangeSearch.InitializeDataFillDouble(comparisonFeatures.Count);
+
+                var index = 0;
+                // for (index = 0; i < comparisonFeatures.Count; i++)
+                // {
+                //     rangeSearch.FillWithDataAddPoint(comparisonFeatures.GetMassByRowIndex(index));
+                // }
+
+                var comparisonFeatureCount = comparisonFeatures.Count;
+                while (index < comparisonFeatureCount)
+                {
+                    rangeSearch.FillWithDataAddBlock(comparisonFeatures.GetMassArrayByRowRange(index, index + LOAD_BLOCK_SIZE - 1));
+                    index += LOAD_BLOCK_SIZE;
+                }
+
+                success = rangeSearch.FinalizeDataFill();
             }
 
             return success;
@@ -1001,7 +947,7 @@ namespace ProteinDigestionSimulator
                 var featureCount = featuresToIdentify.Count;
                 UpdateProgress("Finding matching peptides for given search thresholds", 0f);
                 mAbortProcessing = false;
-                PostLogEntry("IdentifySequences starting, total feature count = " + featureCount.ToString(), MessageTypeConstants.Normal);
+                PostLogEntry("IdentifySequences starting, total feature count = " + featureCount, MessageTypeConstants.Normal);
                 int featureIndex;
                 for (featureIndex = 0; featureIndex < featureCount; featureIndex++)
                 {
@@ -1086,7 +1032,7 @@ namespace ProteinDigestionSimulator
                     }
                     else
                     {
-                        var message = "Programming error in IdentifySequences: Feature not found in featuresToIdentify using feature index: " + featureIndex.ToString();
+                        var message = "Programming error in IdentifySequences: Feature not found in featuresToIdentify using feature index: " + featureIndex;
                         Console.WriteLine(message);
                         PostLogEntry(message, MessageTypeConstants.ErrorMsg);
                     }
@@ -1100,7 +1046,7 @@ namespace ProteinDigestionSimulator
 
                     if (featureIndex % 10000 == 0 && featureIndex > 0)
                     {
-                        PostLogEntry("IdentifySequences, featureIndex = " + featureIndex.ToString(), MessageTypeConstants.Health);
+                        PostLogEntry("IdentifySequences, featureIndex = " + featureIndex, MessageTypeConstants.Health);
                     }
                 }
 
@@ -1108,7 +1054,7 @@ namespace ProteinDigestionSimulator
                 PostLogEntry("IdentifySequences complete", MessageTypeConstants.Normal);
                 success = !mAbortProcessing;
             }
-            catch (Exception ex)
+            catch
             {
                 success = false;
             }
@@ -1147,12 +1093,10 @@ namespace ProteinDigestionSimulator
                 {
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
-            catch (Exception ex)
+            catch
             {
                 // Error; return false
                 return false;
@@ -1323,7 +1267,7 @@ namespace ProteinDigestionSimulator
 
                         break;
                     default:
-                        Console.WriteLine("Programming error in DefinePeakMatchingTolerances; Unknown MassToleranceType: " + MassTolType.ToString());
+                        Console.WriteLine("Programming error in DefinePeakMatchingTolerances; Unknown MassToleranceType: " + MassTolType);
                         break;
                 }
 

@@ -15,7 +15,7 @@ namespace ProteinDigestionSimulator
 
         public InSilicoDigest()
         {
-            mPeptideSequence = new PeptideSequence() { ElementMode = PeptideSequence.ElementModeConstants.IsotopicMass };
+            mPeptideSequence = new PeptideSequence { ElementMode = PeptideSequence.ElementModeConstants.IsotopicMass };
             InitializeCleavageRules();
             InitializepICalculator();
         }
@@ -106,10 +106,8 @@ namespace ProteinDigestionSimulator
                 {
                     return PeptideSequence.ElementModeConstants.IsotopicMass;
                 }
-                else
-                {
-                    return mPeptideSequence.ElementMode;
-                }
+
+                return mPeptideSequence.ElementMode;
             }
             set
             {
@@ -158,11 +156,9 @@ namespace ProteinDigestionSimulator
                     ruleMatchCount = 2;
                     return true;
                 }
-                else
-                {
-                    bool ruleMatch = mPeptideSequence.CheckSequenceAgainstCleavageRule(sequence, cleavageRule, out ruleMatchCount);
-                    return ruleMatch;
-                }
+
+                var ruleMatch = mPeptideSequence.CheckSequenceAgainstCleavageRule(sequence, cleavageRule, out ruleMatchCount);
+                return ruleMatch;
             }
 
             // No rule selected; assume True
@@ -201,8 +197,8 @@ namespace ProteinDigestionSimulator
 
         public int CountTrypticsInSequence(string sequence)
         {
-            int trypticCount = 0;
-            int startSearchLoc = 1;
+            var trypticCount = 0;
+            var startSearchLoc = 1;
             try
             {
                 if (sequence.Length > 0)
@@ -211,7 +207,7 @@ namespace ProteinDigestionSimulator
                     {
                         int returnResidueStart;
                         int returnResidueEnd;
-                        string fragment = mPeptideSequence.GetTrypticPeptideNext(sequence, startSearchLoc, out returnResidueStart, out returnResidueEnd);
+                        var fragment = mPeptideSequence.GetTrypticPeptideNext(sequence, startSearchLoc, out returnResidueStart, out returnResidueEnd);
                         if (fragment.Length > 0)
                         {
                             trypticCount += 1;
@@ -260,25 +256,25 @@ namespace ProteinDigestionSimulator
                 return 0;
             }
 
-            int proteinSequenceLength = proteinSequence.Length;
+            var proteinSequenceLength = proteinSequence.Length;
             try
             {
                 CleavageRule cleavageRule = null;
-                bool success = GetCleavageRuleById(digestionOptions.CleavageRuleID, out cleavageRule);
+                var success = GetCleavageRuleById(digestionOptions.CleavageRuleID, out cleavageRule);
                 if (!success)
                 {
-                    ReportError("DigestSequence", new Exception("Invalid cleavage rule: " + ((int)digestionOptions.CleavageRuleID).ToString()));
+                    ReportError("DigestSequence", new Exception("Invalid cleavage rule: " + ((int)digestionOptions.CleavageRuleID)));
                     return 0;
                 }
 
                 // We initially count the number of tryptic peptides in the sequence (regardless of the cleavage rule)
                 // ReSharper disable once UnusedVariable
-                int trypticFragmentCount = CountTrypticsInSequence(proteinSequence);
+                var trypticFragmentCount = CountTrypticsInSequence(proteinSequence);
                 var trypticFragCache = new string[10];                  // 0-based array
                 var trypticFragEndLocations = new int[10];              // 0-based array, parallel to trypticFragmentCache()
                 var trypticFragStartLocations = new int[10];            // 0-based array, parallel to trypticFragmentCache()
-                int trypticFragCacheCount = 0;
-                int searchStartLoc = 1;
+                var trypticFragCacheCount = 0;
+                var searchStartLoc = 1;
 
                 // Populate trypticFragCache()
                 //
@@ -288,7 +284,7 @@ namespace ProteinDigestionSimulator
                 {
                     int residueStartLoc;
                     int residueEndLoc;
-                    string peptideSequence = mPeptideSequence.GetTrypticPeptideNext(proteinSequence, searchStartLoc, cleavageRule, out residueStartLoc, out residueEndLoc);
+                    var peptideSequence = mPeptideSequence.GetTrypticPeptideNext(proteinSequence, searchStartLoc, cleavageRule, out residueStartLoc, out residueEndLoc);
                     if (peptideSequence.Length > 0)
                     {
                         trypticFragCache[trypticFragCacheCount] = peptideSequence;
@@ -325,12 +321,12 @@ namespace ProteinDigestionSimulator
                     maxFragmentMass = digestionOptions.MaxFragmentMass;
                 }
 
-                for (int trypticIndex = 0; trypticIndex < trypticFragCacheCount; trypticIndex++)
+                for (var trypticIndex = 0; trypticIndex < trypticFragCacheCount; trypticIndex++)
                 {
-                    string peptideSequenceBase = string.Empty;
-                    string peptideSequence = string.Empty;
-                    int residueStartLoc = trypticFragStartLocations[trypticIndex];
-                    for (int index = 0; index <= digestionOptions.MaxMissedCleavages; index++)
+                    var peptideSequenceBase = string.Empty;
+                    var peptideSequence = string.Empty;
+                    var residueStartLoc = trypticFragStartLocations[trypticIndex];
+                    for (var index = 0; index <= digestionOptions.MaxMissedCleavages; index++)
                     {
                         if (trypticIndex + index >= trypticFragCacheCount)
                         {
@@ -353,7 +349,7 @@ namespace ProteinDigestionSimulator
                                 residueLengthStart = 1;
                             }
 
-                            for (int residueLength = residueLengthStart; residueLength <= trypticFragCache[trypticIndex + index].Length; residueLength++)
+                            for (var residueLength = residueLengthStart; residueLength <= trypticFragCache[trypticIndex + index].Length; residueLength++)
                             {
                                 if (index > 0)
                                 {
@@ -394,11 +390,11 @@ namespace ProteinDigestionSimulator
                 if (digestionOptions.CleavageRuleID == CleavageRuleConstants.KROneEnd)
                 {
                     // Partially tryptic cleavage rule: Add all partially tryptic fragments, working from the end toward the front
-                    for (int trypticIndex = trypticFragCacheCount - 1; trypticIndex >= 0; trypticIndex -= 1)
+                    for (var trypticIndex = trypticFragCacheCount - 1; trypticIndex >= 0; trypticIndex -= 1)
                     {
-                        string peptideSequenceBase = string.Empty;
-                        int residueEndLoc = trypticFragEndLocations[trypticIndex];
-                        for (int index = 0; index <= digestionOptions.MaxMissedCleavages; index++)
+                        var peptideSequenceBase = string.Empty;
+                        var residueEndLoc = trypticFragEndLocations[trypticIndex];
+                        for (var index = 0; index <= digestionOptions.MaxMissedCleavages; index++)
                         {
                             if (trypticIndex - index < 0)
                             {
@@ -416,7 +412,7 @@ namespace ProteinDigestionSimulator
                             }
 
                             // We can limit the following for loop to the peptide length - 1 since those peptides using the full peptide will have already been added above
-                            for (int residueLength = residueLengthStart; residueLength < trypticFragCache[trypticIndex - index].Length; residueLength++)
+                            for (var residueLength = residueLengthStart; residueLength < trypticFragCache[trypticIndex - index].Length; residueLength++)
                             {
                                 int residueStartLoc;
                                 if (index > 0)
@@ -429,7 +425,7 @@ namespace ProteinDigestionSimulator
                                 }
 
                                 // Grab characters from the end of trypticFragCache()
-                                string peptideSequence = trypticFragCache[trypticIndex - index].Substring(trypticFragCache[trypticIndex - index].Length - residueLength, residueLength) + peptideSequenceBase;
+                                var peptideSequence = trypticFragCache[trypticIndex - index].Substring(trypticFragCache[trypticIndex - index].Length - residueLength, residueLength) + peptideSequenceBase;
                                 if (peptideSequence.Length >= digestionOptions.MinFragmentResidueCount)
                                 {
                                     PossiblyAddPeptide(peptideSequence, trypticIndex, index, residueStartLoc, residueEndLoc, ref proteinSequence, proteinSequenceLength, fragmentsUniqueList, peptideFragments, digestionOptions, filterByIsoelectricPoint, minFragmentMass, maxFragmentMass);
@@ -458,11 +454,9 @@ namespace ProteinDigestionSimulator
             {
                 return true;
             }
-            else
-            {
-                cleavageRule = null;
-                return false;
-            }
+
+            cleavageRule = null;
+            return false;
         }
 
         private void InitializeCleavageRules()
@@ -497,10 +491,10 @@ namespace ProteinDigestionSimulator
             AddCleavageRule(CleavageRuleConstants.PepsinC, "PepsinC", "FLWYA", "P", false);
             AddCleavageRule(CleavageRuleConstants.PepsinD, "PepsinD", "FLWYAEQ", string.Empty, false);
             AddCleavageRule(CleavageRuleConstants.AceticAcidD, "Acetic Acid Hydrolysis", "D", string.Empty, false);
-            var additionalRuleLysC = new List<CleavageRule>() { cleavageRuleLysC };
+            var additionalRuleLysC = new List<CleavageRule> { cleavageRuleLysC };
             AddCleavageRule(CleavageRuleConstants.TrypsinPlusLysC, "Trypsin plus Lys-C", "KR", "P", false, false, additionalRuleLysC);
             var cleavageRuleThermolysin = AddCleavageRule(CleavageRuleConstants.Thermolysin, "Thermolysin", "LFVIAM", string.Empty, true);
-            var additionalRuleThermolysin = new List<CleavageRule>() { cleavageRuleThermolysin };
+            var additionalRuleThermolysin = new List<CleavageRule> { cleavageRuleThermolysin };
             AddCleavageRule(CleavageRuleConstants.TrypsinPlusThermolysin, "Trypsin plus Thermolysin", "KR", "P", false, false, additionalRuleThermolysin);
 
             // ReSharper restore StringLiteralTypo
@@ -520,10 +514,8 @@ namespace ProteinDigestionSimulator
                     // Classes are the same instance of the object; no need to update anything
                     return;
                 }
-                else
-                {
-                    mpICalculator = null;
-                }
+
+                mpICalculator = null;
             }
 
             mpICalculator = pICalculator;
@@ -546,7 +538,7 @@ namespace ProteinDigestionSimulator
             // Note: proteinSequence is passed ByRef for speed purposes since passing a reference of a large string is easier than passing it ByVal
             // It is not modified by this function
 
-            bool addFragment = true;
+            var addFragment = true;
             if (digestionOptions.RemoveDuplicateSequences)
             {
                 if (fragmentsUniqueList.Contains(peptideSequence))
@@ -569,7 +561,7 @@ namespace ProteinDigestionSimulator
 
             if (!addFragment)
                 return;
-            var peptideFragment = new PeptideSequenceWithNET()
+            var peptideFragment = new PeptideSequenceWithNET
             {
                 AutoComputeNET = false,
                 CysTreatmentMode = digestionOptions.CysTreatmentMode
@@ -628,11 +620,11 @@ namespace ProteinDigestionSimulator
 
             if (digestionOptions.CleavageRuleID == CleavageRuleConstants.ConventionalTrypsin || digestionOptions.CleavageRuleID == CleavageRuleConstants.TrypsinWithoutProlineException)
             {
-                peptideFragment.PeptideName = "t" + (trypticIndex + 1).ToString() + "." + (missedCleavageCount + 1).ToString();
+                peptideFragment.PeptideName = "t" + (trypticIndex + 1) + "." + (missedCleavageCount + 1);
             }
             else
             {
-                peptideFragment.PeptideName = residueStartLoc.ToString() + "." + residueEndLoc.ToString();
+                peptideFragment.PeptideName = residueStartLoc + "." + residueEndLoc;
             }
 
             if (addFragment)
@@ -659,7 +651,7 @@ namespace ProteinDigestionSimulator
                 Console.WriteLine(PRISM.StackTraceFormatter.GetExceptionStackTraceMultiLine(ex));
                 ErrorEvent?.Invoke(errorMessage);
             }
-            catch (Exception exNew)
+            catch
             {
                 // Ignore errors here
             }
@@ -856,7 +848,7 @@ namespace ProteinDigestionSimulator
             {
                 try
                 {
-                    string sequence = GetSequence(false);
+                    var sequence = GetSequence(false);
                     if (CysTreatmentMode != CysTreatmentModeConstants.Untreated)
                     {
                         // Change cysteine residues to lowercase so that the NET predictor will recognize them as alkylated
@@ -867,7 +859,7 @@ namespace ProteinDigestionSimulator
                         mNET = NETPredictor.GetElutionTime(sequence);
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     mNET = 0f;
                 }

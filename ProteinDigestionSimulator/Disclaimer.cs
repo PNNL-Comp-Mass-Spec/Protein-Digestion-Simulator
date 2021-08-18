@@ -6,7 +6,7 @@ namespace ProteinDigestionSimulator
 {
     public class Disclaimer : Form
     {
-        public Disclaimer() : base()
+        public Disclaimer()
         {
             // This call is required by the Windows Form Designer.
             InitializeComponent();
@@ -26,7 +26,7 @@ namespace ProteinDigestionSimulator
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing && components != null)
             {
                 components.Dispose();
             }

@@ -23,7 +23,7 @@ namespace ProteinDigestionSimulator
 
             // Add any initialization after the InitializeComponent() call
             InitializeForm(fastaFilePath);
-            mValidationTriggerTimer = new Timer()
+            mValidationTriggerTimer = new Timer
             {
                 Interval = 100,
                 Enabled = true
@@ -130,7 +130,7 @@ namespace ProteinDigestionSimulator
                     dgErrors.Font = new Font(txtResults.Font.FontFamily, value);
                     dgWarnings.Font = new Font(txtResults.Font.FontFamily, value);
                 }
-                catch (Exception ex)
+                catch
                 {
                     // Ignore errors here
                 }
@@ -155,7 +155,7 @@ namespace ProteinDigestionSimulator
             }
             else
             {
-                results.Add(numberDescription + number.ToString());
+                results.Add(numberDescription + number);
             }
         }
 
@@ -195,7 +195,7 @@ namespace ProteinDigestionSimulator
 
         private void CreateDefaultValidationRulesFile()
         {
-            var dialog = new SaveFileDialog()
+            var dialog = new SaveFileDialog
             {
                 AddExtension = true,
                 CheckFileExists = false,
@@ -228,7 +228,7 @@ namespace ProteinDigestionSimulator
             dialog.ShowDialog();
             if (dialog.FileName.Length > 0)
             {
-                string customRuleDefinitionsFilePath = dialog.FileName;
+                var customRuleDefinitionsFilePath = dialog.FileName;
                 try
                 {
                     var validateFastaFile = new FastaValidator();
@@ -254,7 +254,7 @@ namespace ProteinDigestionSimulator
         private void DisplayResults(string parameterFilePath)
         {
             const char sepChar = '\t';
-            var results = new List<string>() { "Results for file " + mValidateFastaFile.FastaFilePath };
+            var results = new List<string> { "Results for file " + mValidateFastaFile.FastaFilePath };
             AppendToString(results, "Protein count = " + mValidateFastaFile.ProteinCount + sepChar + sepChar + "Residue count = ", mValidateFastaFile.ResidueCount);
             AppendToString(results, "Error count = " + mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.ErrorMsg, FastaValidator.ErrorWarningCountTypes.Total));
             AppendToString(results, "Warning count = ", mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.WarningMsg, FastaValidator.ErrorWarningCountTypes.Total));
@@ -288,7 +288,7 @@ namespace ProteinDigestionSimulator
                 AppendToString(results, "Default validation rules were used.");
             }
 
-            bool outputStatsEnabled = mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.OutputToStatsFile);
+            var outputStatsEnabled = mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.OutputToStatsFile);
             if (outputStatsEnabled)
             {
                 AppendToString(results, "Results were logged to file: " + mValidateFastaFile.StatsFilePath);
@@ -375,7 +375,7 @@ namespace ProteinDigestionSimulator
         private string FlattenDataView(DataView dvDataView)
         {
             const char sepChar = '\t';
-            string flattenedText = string.Empty;
+            var flattenedText = string.Empty;
             try
             {
                 var columnCount = dvDataView.Table.Columns.Count;
@@ -383,11 +383,11 @@ namespace ProteinDigestionSimulator
                 {
                     if (index < columnCount - 1)
                     {
-                        flattenedText += dvDataView.Table.Columns[index].ColumnName.ToString() + sepChar;
+                        flattenedText += dvDataView.Table.Columns[index].ColumnName + sepChar;
                     }
                     else
                     {
-                        flattenedText += dvDataView.Table.Columns[index].ColumnName.ToString() + Environment.NewLine;
+                        flattenedText += dvDataView.Table.Columns[index].ColumnName + Environment.NewLine;
                     }
                 }
 
@@ -401,7 +401,7 @@ namespace ProteinDigestionSimulator
                         }
                         else
                         {
-                            flattenedText += currentRow[index].ToString() + Environment.NewLine;
+                            flattenedText += currentRow[index] + Environment.NewLine;
                         }
                     }
                 }
@@ -416,8 +416,8 @@ namespace ProteinDigestionSimulator
 
         private void CopySummaryText()
         {
-            int selStart = txtResults.SelectionStart;
-            int selLength = txtResults.SelectionLength;
+            var selStart = txtResults.SelectionStart;
+            var selLength = txtResults.SelectionLength;
             txtResults.SelectAll();
             txtResults.Copy();
             txtResults.SelectionStart = selStart;
@@ -447,7 +447,7 @@ namespace ProteinDigestionSimulator
 
         private string GetApplicationDataFolderPath()
         {
-            string appDataFolderPath = string.Empty;
+            var appDataFolderPath = string.Empty;
             try
             {
                 appDataFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"PAST Toolkit\ProteinDigestionSimulator");
@@ -456,7 +456,7 @@ namespace ProteinDigestionSimulator
                     Directory.CreateDirectory(appDataFolderPath);
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 // Ignore errors here; an exception will likely be thrown by the calling function that is trying to access this non-existent application data folder
             }
@@ -466,7 +466,7 @@ namespace ProteinDigestionSimulator
 
         public FastaValidationOptions GetOptions()
         {
-            var fastaValidationOptions = new FastaValidationOptions()
+            var fastaValidationOptions = new FastaValidationOptions
             {
                 MaximumErrorsToTrackInDetail = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "", out _, 10, false),
                 MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "", out _, 120, false),
@@ -531,7 +531,7 @@ namespace ProteinDigestionSimulator
             dsDataset.Tables.Add(dtDataTable);
 
             // Instantiate the DataView
-            dvDataView = new DataView()
+            dvDataView = new DataView
             {
                 Table = dsDataset.Tables[dataTableName],
                 RowFilter = string.Empty
@@ -593,7 +593,7 @@ namespace ProteinDigestionSimulator
             const float MAX_RATIO = 1.5f;
             const int MENU_HEIGHT = 80;
             int desiredHeight;
-            double errorToWarningsRatio = 1d;
+            var errorToWarningsRatio = 1d;
             try
             {
                 if (mErrorsDataset != null && mWarningsDataset != null)
@@ -624,7 +624,7 @@ namespace ProteinDigestionSimulator
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 errorToWarningsRatio = 1d;
             }
@@ -680,7 +680,7 @@ namespace ProteinDigestionSimulator
 
         private void SelectCustomRulesFile()
         {
-            var dialog = new OpenFileDialog()
+            var dialog = new OpenFileDialog
             {
                 AddExtension = true,
                 CheckFileExists = true,
@@ -831,7 +831,7 @@ namespace ProteinDigestionSimulator
                     {
                         fileExists = File.Exists(parameterFilePath);
                     }
-                    catch (Exception ex)
+                    catch
                     {
                         fileExists = false;
                     }
@@ -895,7 +895,7 @@ namespace ProteinDigestionSimulator
                 }
                 else
                 {
-                    var results = new List<string>() { "Error calling mValidateFastaFile.ProcessFile: " + mValidateFastaFile.GetErrorMessage() };
+                    var results = new List<string> { "Error calling mValidateFastaFile.ProcessFile: " + mValidateFastaFile.GetErrorMessage() };
                     AppendValidatorErrors(results);
                     txtResults.Text = string.Join(Environment.NewLine, results);
                     if (!string.IsNullOrEmpty(mValidatorErrorMessage))
@@ -920,7 +920,7 @@ namespace ProteinDigestionSimulator
         {
             // Instantiate the TableStyle
             // Setting the MappingName of the table style to targetTableName will cause this style to be used with that table
-            var tsTableStyle = new DataGridTableStyle()
+            var tsTableStyle = new DataGridTableStyle
             {
                 MappingName = targetTableName,
                 AllowSorting = true,
@@ -1176,7 +1176,7 @@ namespace ProteinDigestionSimulator
                 pbarProgress.Value = (int)Math.Round(percentComplete);
                 Application.DoEvents();
             }
-            catch (Exception ex)
+            catch
             {
                 // Ignore errors here
             }
