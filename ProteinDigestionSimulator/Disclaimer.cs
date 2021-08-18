@@ -40,7 +40,7 @@ namespace ProteinDigestionSimulator
         // NOTE: The following procedure is required by the Windows Form Designer
         // It can be modified using the Windows Form Designer.
         // Do not modify it using the code editor.
-        internal TextBox txtNotice;
+        private TextBox txtNotice;
         private Button cmdOK;
 
         [DebuggerStepThrough()]
