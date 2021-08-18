@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Microsoft.VisualBasic.CompilerServices;
@@ -36,8 +35,8 @@ namespace ProteinDigestionSimulator
 
         protected ProteinToPeptideMappingInfo mProteinToPeptideMapping;
 
-        protected bool mUseProteinNameHashTable;
-        protected Hashtable mProteinNameToRowIndex;
+        protected bool mUseProteinNameDictionary;
+        protected Dictionary<string, int> mProteinNameToRowIndex;
 
         public event SortingListEventHandler SortingList;
 
@@ -49,7 +48,7 @@ namespace ProteinDigestionSimulator
 
         public ProteinCollection()
         {
-            mUseProteinNameHashTable = true;                       // Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
+            mUseProteinNameDictionary = true;                       // Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
             Clear();
             mProteinToPeptideMapping = new ProteinToPeptideMappingInfo();
             mProteinToPeptideMapping.SortingList += mProteinToPeptideMapping_SortingList;
@@ -90,7 +89,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 mProteins[mProteinCount] = new ProteinEntry(proteinName, proteinID);
-                if (mUseProteinNameHashTable)
+                if (mUseProteinNameDictionary)
                 {
                     mProteinNameToRowIndex.Add(proteinName, mProteinCount);
                 }
@@ -185,11 +184,11 @@ namespace ProteinDigestionSimulator
 
             mProteinArrayIsSorted = false;
             mMaxProteinIDUsed = 0;
-            if (mUseProteinNameHashTable)
+            if (mUseProteinNameDictionary)
             {
                 if (mProteinNameToRowIndex == null)
                 {
-                    mProteinNameToRowIndex = new Hashtable();
+                    mProteinNameToRowIndex = new Dictionary<string, int>();
                 }
                 else
                 {
@@ -253,9 +252,9 @@ namespace ProteinDigestionSimulator
             // Note that the data will be sorted if necessary, which could lead to slow execution if this function is called repeatedly, while adding new data between calls
 
             int rowIndex;
-            if (mUseProteinNameHashTable)
+            if (mUseProteinNameDictionary)
             {
-                if (mProteinNameToRowIndex.Contains(proteinName))
+                if (mProteinNameToRowIndex.ContainsKey(proteinName))
                 {
                     rowIndex = Conversions.ToInteger(mProteinNameToRowIndex[proteinName]);
                 }
@@ -319,16 +318,16 @@ namespace ProteinDigestionSimulator
             return mProteinArrayIsSorted;
         }
 
-        public bool UseProteinNameHashTable
+        public bool UseProteinNameDictionary
         {
             get
             {
-                return mUseProteinNameHashTable;
+                return mUseProteinNameDictionary;
             }
 
             set
             {
-                mUseProteinNameHashTable = value;
+                mUseProteinNameDictionary = value;
             }
         }
 
@@ -497,7 +496,7 @@ namespace ProteinDigestionSimulator
             {
                 // Returns True if the data table contains the mapping of proteinID to peptideID
                 // Note that the data will be sorted if necessary, which could lead to slow execution if this function is called repeatedly, while adding new data between calls
-                
+
                 var indexFirst = default(int);
                 var indexLast = default(int);
                 if (GetRowIndicesForProteinID(proteinID, ref indexFirst, ref indexLast))

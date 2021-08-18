@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 
@@ -953,7 +952,7 @@ namespace ProteinDigestionSimulator
             return errorMessage;
         }
 
-        private int GetNextUniqueSequenceID(string sequence, Hashtable masterSequences, ref int nextUniqueIDForMasterSeqs)
+        private int GetNextUniqueSequenceID(string sequence, Dictionary<string, int> masterSequences, ref int nextUniqueIDForMasterSeqs)
         {
             int uniqueSeqID;
             try
@@ -1460,7 +1459,7 @@ namespace ProteinDigestionSimulator
         private bool LoadProteinsOrPeptidesWork(string proteinInputFilePath)
         {
             bool success;
-            Hashtable masterSequences = null;
+            Dictionary<string, int> masterSequences = null;
             try
             {
                 bool generateUniqueSequenceID;
@@ -1470,7 +1469,7 @@ namespace ProteinDigestionSimulator
                     generateUniqueSequenceID = true;
 
                     // Initialize masterSequences
-                    masterSequences = new Hashtable();
+                    masterSequences = new Dictionary<string, int>();
                 }
                 else
                 {

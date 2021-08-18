@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Microsoft.VisualBasic.CompilerServices;
@@ -76,8 +75,8 @@ namespace ProteinDigestionSimulator
             protected int mFeatureCount;
             protected FeatureInfo[] mFeatures;
             protected bool mFeaturesArrayIsSorted;
-            protected bool mUseFeatureIDHashTable;
-            protected Hashtable featureIDToRowIndex;
+            protected bool mUseFeatureIDDictionary;
+            protected Dictionary<int, int> featureIDToRowIndex;
 
             public event SortingListEventHandler SortingList;
 
@@ -85,7 +84,7 @@ namespace ProteinDigestionSimulator
 
             public PMFeatureInfo()
             {
-                mUseFeatureIDHashTable = true;                       // Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
+                mUseFeatureIDDictionary = true;                       // Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
                 Clear();
             }
 
@@ -113,7 +112,7 @@ namespace ProteinDigestionSimulator
 
                     mFeatures[mFeatureCount] = new FeatureInfo(featureID, peptideName, peptideMass, peptideNET);
 
-                    if (mUseFeatureIDHashTable)
+                    if (mUseFeatureIDDictionary)
                     {
                         featureIDToRowIndex.Add(featureID, mFeatureCount);
                     }
@@ -186,11 +185,11 @@ namespace ProteinDigestionSimulator
                 }
 
                 mFeaturesArrayIsSorted = false;
-                if (mUseFeatureIDHashTable)
+                if (mUseFeatureIDDictionary)
                 {
                     if (featureIDToRowIndex == null)
                     {
-                        featureIDToRowIndex = new Hashtable();
+                        featureIDToRowIndex = new Dictionary<int, int>();
                     }
                     else
                     {
@@ -215,9 +214,9 @@ namespace ProteinDigestionSimulator
                 // If found, returns the row index in rowIndex
                 // Note that the data will be sorted if necessary, which could lead to slow execution if this function is called repeatedly, while adding new data between calls
 
-                if (mUseFeatureIDHashTable)
+                if (mUseFeatureIDDictionary)
                 {
-                    if (featureIDToRowIndex.Contains(featureID))
+                    if (featureIDToRowIndex.ContainsKey(featureID))
                     {
                         rowIndex = Conversions.ToInteger(featureIDToRowIndex[featureID]);
                     }
@@ -353,16 +352,16 @@ namespace ProteinDigestionSimulator
                 return mFeaturesArrayIsSorted;
             }
 
-            public bool UseFeatureIDHashTable
+            public bool UseFeatureIDDictionary
             {
                 get
                 {
-                    return mUseFeatureIDHashTable;
+                    return mUseFeatureIDDictionary;
                 }
 
                 set
                 {
-                    mUseFeatureIDHashTable = value;
+                    mUseFeatureIDDictionary = value;
                 }
             }
 

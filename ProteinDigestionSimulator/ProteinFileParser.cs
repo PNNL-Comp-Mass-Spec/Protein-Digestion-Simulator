@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
 // -------------------------------------------------------------------------------
@@ -164,7 +163,7 @@ namespace ProteinDigestionSimulator
         private readonly List<ProteinInfo> mProteins = new List<ProteinInfo>();
         private bool mParsedFileIsFastaFile;
         private string mFileNameAbbreviated;
-        private Hashtable mMasterSequencesHashTable;
+        private Dictionary<string, int> mMasterSequencesDictionary;
         private int mNextUniqueIDForMasterSeqs;
         private ParseProteinFileErrorCodes mLocalErrorCode;
         private string mSubtaskProgressStepDescription = string.Empty;
@@ -1080,13 +1079,13 @@ namespace ProteinDigestionSimulator
                         return false;
                 }
 
-                if (mMasterSequencesHashTable == null)
+                if (mMasterSequencesDictionary == null)
                 {
-                    mMasterSequencesHashTable = new Hashtable();
+                    mMasterSequencesDictionary = new Dictionary<string, int>();
                 }
                 else
                 {
-                    mMasterSequencesHashTable.Clear();
+                    mMasterSequencesDictionary.Clear();
                 }
 
                 mNextUniqueIDForMasterSeqs = 1;
@@ -1097,7 +1096,7 @@ namespace ProteinDigestionSimulator
                         return false;
                     if (GenerateUniqueIDValuesForPeptides)
                     {
-                        // Initialize mMasterSequencesHashTable
+                        // Initialize mMasterSequencesDictionary
                         generateUniqueSequenceID = true;
                     }
                 }
@@ -1495,13 +1494,13 @@ namespace ProteinDigestionSimulator
                 {
                     try
                     {
-                        if (mMasterSequencesHashTable.ContainsKey(peptideFragment.SequenceOneLetter))
+                        if (mMasterSequencesDictionary.ContainsKey(peptideFragment.SequenceOneLetter))
                         {
-                            uniqueSeqID = Conversions.ToInteger(mMasterSequencesHashTable[peptideFragment.SequenceOneLetter]);
+                            uniqueSeqID = Conversions.ToInteger(mMasterSequencesDictionary[peptideFragment.SequenceOneLetter]);
                         }
                         else
                         {
-                            mMasterSequencesHashTable.Add(peptideFragment.SequenceOneLetter, mNextUniqueIDForMasterSeqs);
+                            mMasterSequencesDictionary.Add(peptideFragment.SequenceOneLetter, mNextUniqueIDForMasterSeqs);
                             uniqueSeqID = mNextUniqueIDForMasterSeqs;
                         }
 
