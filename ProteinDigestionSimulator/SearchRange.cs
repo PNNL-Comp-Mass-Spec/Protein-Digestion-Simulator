@@ -103,15 +103,8 @@ namespace ProteinDigestionSimulator
         // ReSharper disable once UnusedMember.Global
         public bool UsePointerIndexArray
         {
-            get
-            {
-                return mUsePointerIndexArray;
-            }
-
-            set
-            {
-                mUsePointerIndexArray = value;
-            }
+            get => mUsePointerIndexArray;
+            set => mUsePointerIndexArray = value;
         }
 
         private void BinarySearchRangeInt(int searchValue, int toleranceHalfWidth, ref int matchIndexStart, ref int matchIndexEnd)

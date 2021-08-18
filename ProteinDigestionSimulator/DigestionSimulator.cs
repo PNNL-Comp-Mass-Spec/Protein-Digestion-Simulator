@@ -158,15 +158,8 @@ namespace ProteinDigestionSimulator
 
         public bool AutoDetermineMassRangeForBinning
         {
-            get
-            {
-                return mPeptideUniquenessBinningSettings.AutoDetermineMassRange;
-            }
-
-            set
-            {
-                mPeptideUniquenessBinningSettings.AutoDetermineMassRange = value;
-            }
+            get => mPeptideUniquenessBinningSettings.AutoDetermineMassRange;
+            set => mPeptideUniquenessBinningSettings.AutoDetermineMassRange = value;
         }
 
         public bool CreateSeparateOutputFileForEachThreshold { get; set; }
@@ -192,7 +185,6 @@ namespace ProteinDigestionSimulator
                     return mProteinFileParser.ElementMassMode;
                 }
             }
-
             set
             {
                 if (mProteinFileParser == null)
@@ -204,21 +196,11 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        public ErrorCodes LocalErrorCode
-        {
-            get
-            {
-                return mLocalErrorCode;
-            }
-        }
+        public ErrorCodes LocalErrorCode => mLocalErrorCode;
 
         public int MaxPeakMatchingResultsPerFeatureToSave
         {
-            get
-            {
-                return mMaxPeakMatchingResultsPerFeatureToSave;
-            }
-
+            get => mMaxPeakMatchingResultsPerFeatureToSave;
             set
             {
                 if (value < 1)
@@ -229,24 +211,13 @@ namespace ProteinDigestionSimulator
 
         public float MinimumSLiCScoreToBeConsideredUnique
         {
-            get
-            {
-                return mPeptideUniquenessBinningSettings.MinimumSLiCScore;
-            }
-
-            set
-            {
-                mPeptideUniquenessBinningSettings.MinimumSLiCScore = value;
-            }
+            get => mPeptideUniquenessBinningSettings.MinimumSLiCScore;
+            set => mPeptideUniquenessBinningSettings.MinimumSLiCScore = value;
         }
 
         public float PeptideUniquenessMassBinSizeForBinning
         {
-            get
-            {
-                return mPeptideUniquenessBinningSettings.MassBinSizeDa;
-            }
-
+            get => mPeptideUniquenessBinningSettings.MassBinSizeDa;
             set
             {
                 if (value > 0f)
@@ -258,11 +229,7 @@ namespace ProteinDigestionSimulator
 
         public char OutputFileDelimiter
         {
-            get
-            {
-                return mOutputFileDelimiter;
-            }
-
+            get => mOutputFileDelimiter;
             set
             {
                 if (value != default)

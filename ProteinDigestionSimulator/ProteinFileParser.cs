@@ -261,7 +261,6 @@ namespace ProteinDigestionSimulator
                     return mInSilicoDigest.ElementMassMode;
                 }
             }
-
             set
             {
                 if (mInSilicoDigest == null)
@@ -277,11 +276,7 @@ namespace ProteinDigestionSimulator
 
         public char InputFileDelimiter
         {
-            get
-            {
-                return mInputFileDelimiter;
-            }
-
+            get => mInputFileDelimiter;
             set
             {
                 if (value != default)
@@ -291,45 +286,17 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        public int InputFileProteinsProcessed
-        {
-            get
-            {
-                return mInputFileProteinsProcessed;
-            }
-        }
+        public int InputFileProteinsProcessed => mInputFileProteinsProcessed;
 
-        public int InputFileLinesRead
-        {
-            get
-            {
-                return mInputFileLinesRead;
-            }
-        }
+        public int InputFileLinesRead => mInputFileLinesRead;
 
-        public int InputFileLineSkipCount
-        {
-            get
-            {
-                return mInputFileLineSkipCount;
-            }
-        }
+        public int InputFileLineSkipCount => mInputFileLineSkipCount;
 
-        public ParseProteinFileErrorCodes LocalErrorCode
-        {
-            get
-            {
-                return mLocalErrorCode;
-            }
-        }
+        public ParseProteinFileErrorCodes LocalErrorCode => mLocalErrorCode;
 
         public char OutputFileDelimiter
         {
-            get
-            {
-                return mOutputFileDelimiter;
-            }
-
+            get => mOutputFileDelimiter;
             set
             {
                 if (value != default)
@@ -339,13 +306,7 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        public bool ParsedFileIsFastaFile
-        {
-            get
-            {
-                return mParsedFileIsFastaFile;
-            }
-        }
+        public bool ParsedFileIsFastaFile => mParsedFileIsFastaFile;
 
         public int ProteinScramblingLoopCount { get; set; }
         public ProteinScramblingModeConstants ProteinScramblingMode { get; set; }
@@ -353,11 +314,7 @@ namespace ProteinDigestionSimulator
 
         public int SequenceWidthToExamineForMaximumpI
         {
-            get
-            {
-                return mSequenceWidthToExamineForMaximumpI;
-            }
-
+            get => mSequenceWidthToExamineForMaximumpI;
             set
             {
                 if (value < 1)
@@ -2340,11 +2297,7 @@ namespace ProteinDigestionSimulator
 
             public bool ReadonlyClass
             {
-                get
-                {
-                    return mReadonly;
-                }
-
+                get => mReadonly;
                 set
                 {
                     if (!mReadonly)
@@ -2359,11 +2312,7 @@ namespace ProteinDigestionSimulator
 
             public bool LookForAddnlRefInDescription
             {
-                get
-                {
-                    return mLookForAddnlRefInDescription;
-                }
-
+                get => mLookForAddnlRefInDescription;
                 set
                 {
                     if (!mReadonly)
@@ -2375,11 +2324,7 @@ namespace ProteinDigestionSimulator
 
             public char AddnlRefSepChar
             {
-                get
-                {
-                    return mAddnlRefSepChar;
-                }
-
+                get => mAddnlRefSepChar;
                 set
                 {
                     if (value != default && !mReadonly)
@@ -2391,11 +2336,7 @@ namespace ProteinDigestionSimulator
 
             public char AddnlRefAccessionSepChar
             {
-                get
-                {
-                    return mAddnlRefAccessionSepChar;
-                }
-
+                get => mAddnlRefAccessionSepChar;
                 set
                 {
                     if (value != default && !mReadonly)

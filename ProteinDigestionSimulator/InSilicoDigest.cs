@@ -95,21 +95,9 @@ namespace ProteinDigestionSimulator
         /// </summary>
         protected float mProgressPercentComplete;
 
-        public int CleavageRuleCount
-        {
-            get
-            {
-                return mCleavageRules.Count;
-            }
-        }
+        public int CleavageRuleCount => mCleavageRules.Count;
 
-        public IReadOnlyDictionary<CleavageRuleConstants, CleavageRule> CleavageRules
-        {
-            get
-            {
-                return mCleavageRules;
-            }
-        }
+        public IReadOnlyDictionary<CleavageRuleConstants, CleavageRule> CleavageRules => mCleavageRules;
 
         public PeptideSequence.ElementModeConstants ElementMassMode
         {
@@ -124,7 +112,6 @@ namespace ProteinDigestionSimulator
                     return mPeptideSequence.ElementMode;
                 }
             }
-
             set
             {
                 if (mPeptideSequence == null)
@@ -136,25 +123,13 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        public virtual string ProgressStepDescription
-        {
-            get
-            {
-                return mProgressStepDescription;
-            }
-        }
+        public virtual string ProgressStepDescription => mProgressStepDescription;
 
         /// <summary>
         /// Percent complete, value between 0 and 100, but can contain decimal percentage values
         /// </summary>
         /// <returns></returns>
-        public float ProgressPercentComplete
-        {
-            get
-            {
-                return Conversions.ToSingle(Math.Round(mProgressPercentComplete, 2));
-            }
-        }
+        public float ProgressPercentComplete => Conversions.ToSingle(Math.Round(mProgressPercentComplete, 2));
 
         private CleavageRule AddCleavageRule(CleavageRuleConstants ruleId, string description, string cleavageResidues, string exceptionResidues, bool reversedCleavageDirection, bool allowPartialCleavage = false, IReadOnlyCollection<CleavageRule> additionalCleavageRules = null)
         {
@@ -772,15 +747,8 @@ namespace ProteinDigestionSimulator
             /// <returns></returns>
             public bool AutoComputeNET
             {
-                get
-                {
-                    return mAutoComputeNET;
-                }
-
-                set
-                {
-                    mAutoComputeNET = value;
-                }
+                get => mAutoComputeNET;
+                set => mAutoComputeNET = value;
             }
 
             /// <summary>
@@ -793,13 +761,7 @@ namespace ProteinDigestionSimulator
             /// Normalized elution time
             /// </summary>
             /// <returns></returns>
-            public float NET
-            {
-                get
-                {
-                    return mNET;
-                }
-            }
+            public float NET => mNET;
 
             /// <summary>
             /// Prefix residue
@@ -807,11 +769,7 @@ namespace ProteinDigestionSimulator
             /// <returns></returns>
             public string PrefixResidue
             {
-                get
-                {
-                    return mPrefixResidue;
-                }
-
+                get => mPrefixResidue;
                 set
                 {
                     if (!string.IsNullOrEmpty(value))
@@ -831,28 +789,15 @@ namespace ProteinDigestionSimulator
             /// <returns></returns>
             public string SequenceOneLetter
             {
-                get
-                {
-                    return GetSequence(false);
-                }
-
-                set
-                {
-                    SetSequence(value, NTerminusGroupConstants.Hydrogen, CTerminusGroupConstants.Hydroxyl, false);
-                }
+                get => GetSequence(false);
+                set => SetSequence(value, NTerminusGroupConstants.Hydrogen, CTerminusGroupConstants.Hydroxyl, false);
             }
 
             /// <summary>
             /// Sequence with prefix and suffix residues
             /// </summary>
             /// <returns></returns>
-            public string SequenceWithPrefixAndSuffix
-            {
-                get
-                {
-                    return mPrefixResidue + "." + SequenceOneLetter + "." + mSuffixResidue;
-                }
-            }
+            public string SequenceWithPrefixAndSuffix => mPrefixResidue + "." + SequenceOneLetter + "." + mSuffixResidue;
 
             /// <summary>
             /// Suffix residue
@@ -860,11 +805,7 @@ namespace ProteinDigestionSimulator
             /// <returns></returns>
             public string SuffixResidue
             {
-                get
-                {
-                    return mSuffixResidue;
-                }
-
+                get => mSuffixResidue;
                 set
                 {
                     if (!string.IsNullOrEmpty(value))
@@ -966,11 +907,7 @@ namespace ProteinDigestionSimulator
 
             public int MaxMissedCleavages
             {
-                get
-                {
-                    return mMaxMissedCleavages;
-                }
-
+                get => mMaxMissedCleavages;
                 set
                 {
                     if (value < 0)
@@ -987,11 +924,7 @@ namespace ProteinDigestionSimulator
 
             public int MinFragmentResidueCount
             {
-                get
-                {
-                    return mMinFragmentResidueCount;
-                }
-
+                get => mMinFragmentResidueCount;
                 set
                 {
                     if (value < 1)
@@ -1002,11 +935,7 @@ namespace ProteinDigestionSimulator
 
             public int MinFragmentMass
             {
-                get
-                {
-                    return mMinFragmentMass;
-                }
-
+                get => mMinFragmentMass;
                 set
                 {
                     if (value < 0)
@@ -1017,11 +946,7 @@ namespace ProteinDigestionSimulator
 
             public int MaxFragmentMass
             {
-                get
-                {
-                    return mMaxFragmentMass;
-                }
-
+                get => mMaxFragmentMass;
                 set
                 {
                     if (value < 0)
@@ -1032,28 +957,14 @@ namespace ProteinDigestionSimulator
 
             public float MinIsoelectricPoint
             {
-                get
-                {
-                    return mMinIsoelectricPoint;
-                }
-
-                set
-                {
-                    mMinIsoelectricPoint = value;
-                }
+                get => mMinIsoelectricPoint;
+                set => mMinIsoelectricPoint = value;
             }
 
             public float MaxIsoelectricPoint
             {
-                get
-                {
-                    return mMaxIsoelectricPoint;
-                }
-
-                set
-                {
-                    mMaxIsoelectricPoint = value;
-                }
+                get => mMaxIsoelectricPoint;
+                set => mMaxIsoelectricPoint = value;
             }
 
             public bool RemoveDuplicateSequences { get; set; }

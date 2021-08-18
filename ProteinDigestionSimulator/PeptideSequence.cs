@@ -148,13 +148,7 @@ namespace ProteinDigestionSimulator
         /// Charge carrier mass
         /// </summary>
         /// <returns></returns>
-        public static double ChargeCarrierMass
-        {
-            get
-            {
-                return mChargeCarrierMass;
-            }
-        }
+        public static double ChargeCarrierMass => mChargeCarrierMass;
 
         /// <summary>
         /// Cysteine treatment mode
@@ -168,11 +162,7 @@ namespace ProteinDigestionSimulator
         /// <returns></returns>
         public ElementModeConstants ElementMode
         {
-            get
-            {
-                return mCurrentElementMode;
-            }
-
+            get => mCurrentElementMode;
             set
             {
                 mCurrentElementMode = value;

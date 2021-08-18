@@ -106,26 +106,15 @@ namespace ProteinDigestionSimulator
 
         public string CustomRulesFilePath
         {
-            get
-            {
-                return txtCustomValidationRulesFilePath.Text;
-            }
-
-            set
-            {
-                txtCustomValidationRulesFilePath.Text = value;
-            }
+            get => txtCustomValidationRulesFilePath.Text;
+            set => txtCustomValidationRulesFilePath.Text = value;
         }
 
         public string FastaFilePath { get; set; }
 
         public float TextFontSize
         {
-            get
-            {
-                return txtResults.Font.SizeInPoints;
-            }
-
+            get => txtResults.Font.SizeInPoints;
             set
             {
                 if (value < 6f)

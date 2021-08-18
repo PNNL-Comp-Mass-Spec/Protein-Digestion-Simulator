@@ -202,13 +202,7 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        public int Count
-        {
-            get
-            {
-                return mProteinCount;
-            }
-        }
+        public int Count => mProteinCount;
 
         public int[] GetPeptideIDsMappedToProteinID(int proteinID)
         {
@@ -320,15 +314,8 @@ namespace ProteinDigestionSimulator
 
         public bool UseProteinNameDictionary
         {
-            get
-            {
-                return mUseProteinNameDictionary;
-            }
-
-            set
-            {
-                mUseProteinNameDictionary = value;
-            }
+            get => mUseProteinNameDictionary;
+            set => mUseProteinNameDictionary = value;
         }
 
         private void mProteinToPeptideMapping_SortingList()
@@ -514,13 +501,7 @@ namespace ProteinDigestionSimulator
                 return false;
             }
 
-            public int Count
-            {
-                get
-                {
-                    return mMappingCount;
-                }
-            }
+            public int Count => mMappingCount;
 
             public int[] GetPeptideIDsMappedToProteinID(int proteinID)
             {

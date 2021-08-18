@@ -241,13 +241,7 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            public int Count
-            {
-                get
-                {
-                    return mFeatureCount;
-                }
-            }
+            public int Count => mFeatureCount;
 
             public virtual bool GetFeatureInfoByFeatureID(int featureID, out FeatureInfo featureInfo)
             {
@@ -354,15 +348,8 @@ namespace ProteinDigestionSimulator
 
             public bool UseFeatureIDDictionary
             {
-                get
-                {
-                    return mUseFeatureIDDictionary;
-                }
-
-                set
-                {
-                    mUseFeatureIDDictionary = value;
-                }
+                get => mUseFeatureIDDictionary;
+                set => mUseFeatureIDDictionary = value;
             }
 
             private class FeatureInfoComparer : IComparer<FeatureInfo>
@@ -785,11 +772,7 @@ namespace ProteinDigestionSimulator
 
         public int MaxPeakMatchingResultsPerFeatureToSave
         {
-            get
-            {
-                return mMaxPeakMatchingResultsPerFeatureToSave;
-            }
-
+            get => mMaxPeakMatchingResultsPerFeatureToSave;
             set
             {
                 if (value < 0)
@@ -798,46 +781,20 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        public string ProgressDescription
-        {
-            get
-            {
-                return mProgressDescription;
-            }
-        }
+        public string ProgressDescription => mProgressDescription;
 
-        public float ProgressPct
-        {
-            get
-            {
-                return mProgressPercent;
-            }
-        }
+        public float ProgressPct => mProgressPercent;
 
         public bool UseMaxSearchDistanceMultiplierAndSLiCScore
         {
-            get
-            {
-                return mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore;
-            }
-
-            set
-            {
-                mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore = value;
-            }
+            get => mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore;
+            set => mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore = value;
         }
 
         public bool UseEllipseSearchRegion
         {
-            get
-            {
-                return mSearchModeOptions.UseEllipseSearchRegion;
-            }
-
-            set
-            {
-                mSearchModeOptions.UseEllipseSearchRegion = value;
-            }
+            get => mSearchModeOptions.UseEllipseSearchRegion;
+            set => mSearchModeOptions.UseEllipseSearchRegion = value;
         }
 
         // public string SqlServerConnectionString
@@ -1323,13 +1280,7 @@ namespace ProteinDigestionSimulator
 
             public bool AutoDefineSLiCScoreThresholds { get; set; }
 
-            public SearchTolerances ComputedSearchTolerances
-            {
-                get
-                {
-                    return mComputedSearchTolerances;
-                }
-            }
+            public SearchTolerances ComputedSearchTolerances => mComputedSearchTolerances;
 
             public SearchTolerances get_ComputedSearchTolerances(double referenceMass)
             {
@@ -1341,11 +1292,7 @@ namespace ProteinDigestionSimulator
 
             public double MassTolerance
             {
-                get
-                {
-                    return mMassTolerance;
-                }
-
+                get => mMassTolerance;
                 set
                 {
                     mMassTolerance = value;
@@ -1358,11 +1305,7 @@ namespace ProteinDigestionSimulator
 
             public double NETTolerance
             {
-                get
-                {
-                    return mNETTolerance;
-                }
-
+                get => mNETTolerance;
                 set
                 {
                     mNETTolerance = value;
@@ -1375,11 +1318,7 @@ namespace ProteinDigestionSimulator
 
             public double SLiCScoreMassPPMStDev
             {
-                get
-                {
-                    return mSLiCScoreOptions.MassPPMStDev;
-                }
-
+                get => mSLiCScoreOptions.MassPPMStDev;
                 set
                 {
                     if (value < 0d)
@@ -1390,11 +1329,7 @@ namespace ProteinDigestionSimulator
 
             public double SLiCScoreNETStDev
             {
-                get
-                {
-                    return mSLiCScoreOptions.NETStDev;
-                }
-
+                get => mSLiCScoreOptions.NETStDev;
                 set
                 {
                     if (value < 0d)
@@ -1405,24 +1340,13 @@ namespace ProteinDigestionSimulator
 
             public bool SLiCScoreUseAMTNETStDev
             {
-                get
-                {
-                    return mSLiCScoreOptions.UseAMTNETStDev;
-                }
-
-                set
-                {
-                    mSLiCScoreOptions.UseAMTNETStDev = value;
-                }
+                get => mSLiCScoreOptions.UseAMTNETStDev;
+                set => mSLiCScoreOptions.UseAMTNETStDev = value;
             }
 
             public float SLiCScoreMaxSearchDistanceMultiplier
             {
-                get
-                {
-                    return mSLiCScoreMaxSearchDistanceMultiplier;
-                }
-
+                get => mSLiCScoreMaxSearchDistanceMultiplier;
                 set
                 {
                     if (value < 1f)
