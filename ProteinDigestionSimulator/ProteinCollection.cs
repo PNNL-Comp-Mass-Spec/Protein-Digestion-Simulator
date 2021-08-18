@@ -59,13 +59,13 @@ namespace ProteinDigestionSimulator
             mProteinToPeptideMapping.SortingList += mProteinToPeptideMapping_SortingList;
         }
 
-        public bool Add(string proteinName, ref int newProteinID)
+        public bool Add(string proteinName, out int newProteinID)
         {
             // Adds the protein by name, auto-assigning the ID value
-            return Add(proteinName, ref newProteinID, true);
+            return Add(proteinName, out newProteinID, true);
         }
 
-        public bool Add(string proteinName, ref int proteinID, bool autoDefineProteinID)
+        public bool Add(string proteinName, out int proteinID, bool autoDefineProteinID)
         {
             // Adds the protein by name
             // Uses the given protein ID if autoDefineProteinID = False or auto-assigns the ID value if autoDefineProteinID = True
@@ -74,7 +74,7 @@ namespace ProteinDigestionSimulator
 
             // First, look for an existing entry in mProteins
             // Once a protein is present in the table, its ID cannot be updated
-            if (GetProteinIDByProteinName(proteinName, ref proteinID))
+            if (GetProteinIDByProteinName(proteinName, out proteinID))
             {
             }
             // Protein already exists; proteinID now contains the Protein ID
@@ -224,7 +224,7 @@ namespace ProteinDigestionSimulator
             return mProteinToPeptideMapping.GetProteinIDsMappedToPeptideID(peptideID);
         }
 
-        public bool GetProteinNameByProteinID(int proteinID, ref string proteinName)
+        public bool GetProteinNameByProteinID(int proteinID, out string proteinName)
         {
             // Since mProteins is sorted by Protein Name, we must fully search the array to obtain the protein name for proteinID
 
@@ -244,7 +244,7 @@ namespace ProteinDigestionSimulator
             return matchFound;
         }
 
-        public bool GetProteinIDByProteinName(string proteinName, ref int proteinID)
+        public bool GetProteinIDByProteinName(string proteinName, out int proteinID)
         {
             // Returns True if the proteins array contains the protein
             // If found, returns ProteinID in proteinID
@@ -384,11 +384,10 @@ namespace ProteinDigestionSimulator
 
             public bool AddProteinToPeptideMapping(ProteinCollection proteinInfo, string proteinName, int peptideID, CleavageStateConstants cleavageState)
             {
-                var proteinID = default(int);
-                if (!proteinInfo.GetProteinIDByProteinName(proteinName, ref proteinID))
+                if (!proteinInfo.GetProteinIDByProteinName(proteinName, out var proteinID))
                 {
                     // Need to add the protein
-                    if (!proteinInfo.Add(proteinName, ref proteinID))
+                    if (!proteinInfo.Add(proteinName, out proteinID))
                     {
                         return false;
                     }
@@ -465,9 +464,7 @@ namespace ProteinDigestionSimulator
                 // Returns True if the data table contains the mapping of proteinID to peptideID
                 // Note that the data will be sorted if necessary, which could lead to slow execution if this function is called repeatedly, while adding new data between calls
 
-                var indexFirst = default(int);
-                var indexLast = default(int);
-                if (GetRowIndicesForProteinID(proteinID, ref indexFirst, ref indexLast))
+                if (GetRowIndicesForProteinID(proteinID, out var indexFirst, out var indexLast))
                 {
                     for (var index = indexFirst; index <= indexLast; index++)
                     {
@@ -489,9 +486,7 @@ namespace ProteinDigestionSimulator
                 // Returns all of the peptides for the given protein ID
 
                 int[] matchingIDs;
-                var indexFirst = default(int);
-                var indexLast = default(int);
-                if (GetRowIndicesForProteinID(proteinID, ref indexFirst, ref indexLast))
+                if (GetRowIndicesForProteinID(proteinID, out var indexFirst, out var indexLast))
                 {
                     matchingIDs = new int[indexLast - indexFirst + 1];
                     for (var index = indexFirst; index <= indexLast; index++)
@@ -535,7 +530,7 @@ namespace ProteinDigestionSimulator
                 return matchingIDs;
             }
 
-            private bool GetRowIndicesForProteinID(int proteinID, ref int indexFirst, ref int indexLast)
+            private bool GetRowIndicesForProteinID(int proteinID, out int indexFirst, out int indexLast)
             {
                 // Looks for proteinID in mMappings
                 // If found, returns the range of rows that contain matches for proteinID
@@ -564,9 +559,7 @@ namespace ProteinDigestionSimulator
 
             public int get_PeptideCountForProteinID(int proteinID)
             {
-                var indexFirst = default(int);
-                var indexLast = default(int);
-                if (GetRowIndicesForProteinID(proteinID, ref indexFirst, ref indexLast))
+                if (GetRowIndicesForProteinID(proteinID, out var indexFirst, out var indexLast))
                 {
                     return indexLast - indexFirst + 1;
                 }

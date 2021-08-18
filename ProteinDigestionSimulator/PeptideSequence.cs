@@ -285,7 +285,6 @@ namespace ProteinDigestionSimulator
             }
 
             var periodIndex1 = sequence.IndexOf(separationChar, StringComparison.Ordinal);
-            int periodIndex2;
             if (periodIndex1 < 0)
             {
                 // No periods, can't check
@@ -293,7 +292,7 @@ namespace ProteinDigestionSimulator
                 return true;
             }
 
-            periodIndex2 = sequence.IndexOf(separationChar, periodIndex1 + 1, StringComparison.Ordinal);
+            var periodIndex2 = sequence.IndexOf(separationChar, periodIndex1 + 1, StringComparison.Ordinal);
 
             if (ignoreCase)
             {

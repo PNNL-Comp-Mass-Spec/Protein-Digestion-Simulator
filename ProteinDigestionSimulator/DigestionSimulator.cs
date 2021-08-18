@@ -325,10 +325,8 @@ namespace ProteinDigestionSimulator
         /// <returns>The index of the protein in mProteinInfo, or -1 if not found and unable to add it</returns>
         private int AddOrUpdateProtein(string proteinName)
         {
-            var proteinID = default(int);
-
             // Note: proteinID is auto-assigned
-            if (!mProteinInfo.Add(proteinName, ref proteinID))
+            if (!mProteinInfo.Add(proteinName, out var proteinID))
             {
                 proteinID = -1;
             }

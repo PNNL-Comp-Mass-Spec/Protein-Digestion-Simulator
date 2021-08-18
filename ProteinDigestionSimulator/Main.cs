@@ -628,16 +628,15 @@ namespace ProteinDigestionSimulator
                     }
 
                     mProteinDigestionSimulator.AutoDetermineMassRangeForBinning = chkAutoComputeRangeForBinning.Checked;
-                    var invalidValue = default(bool);
-                    mProteinDigestionSimulator.PeptideUniquenessMassBinSizeForBinning = ParseTextBoxValueInt(txtUniquenessBinWidth, lblUniquenessBinWidth.Text + " must be an integer value", ref invalidValue);
+                    mProteinDigestionSimulator.PeptideUniquenessMassBinSizeForBinning = ParseTextBoxValueInt(txtUniquenessBinWidth, lblUniquenessBinWidth.Text + " must be an integer value", out var invalidValue);
                     if (invalidValue)
                         return;
                     if (!mProteinDigestionSimulator.AutoDetermineMassRangeForBinning)
                     {
-                        var binStartMass = ParseTextBoxValueInt(txtUniquenessBinStartMass, "Uniqueness binning start mass must be an integer value", ref invalidValue);
+                        var binStartMass = ParseTextBoxValueInt(txtUniquenessBinStartMass, "Uniqueness binning start mass must be an integer value", out invalidValue);
                         if (invalidValue)
                             return;
-                        var binEndMass = ParseTextBoxValueInt(txtUniquenessBinEndMass, "Uniqueness binning end mass must be an integer value", ref invalidValue);
+                        var binEndMass = ParseTextBoxValueInt(txtUniquenessBinEndMass, "Uniqueness binning end mass must be an integer value", out invalidValue);
                         if (invalidValue)
                             return;
                         if (!mProteinDigestionSimulator.SetPeptideUniquenessMassRangeForBinning(binStartMass, binEndMass))
@@ -646,10 +645,10 @@ namespace ProteinDigestionSimulator
                         }
                     }
 
-                    mProteinDigestionSimulator.MinimumSLiCScoreToBeConsideredUnique = ParseTextBoxValueSng(txtMinimumSLiCScore, lblMinimumSLiCScore.Text + " must be a value", ref invalidValue);
+                    mProteinDigestionSimulator.MinimumSLiCScoreToBeConsideredUnique = ParseTextBoxValueSng(txtMinimumSLiCScore, lblMinimumSLiCScore.Text + " must be a value", out invalidValue);
                     if (invalidValue)
                         return;
-                    mProteinDigestionSimulator.MaxPeakMatchingResultsPerFeatureToSave = ParseTextBoxValueInt(txtMaxPeakMatchingResultsPerFeatureToSave, lblMaxPeakMatchingResultsPerFeatureToSave.Text + " must be an integer value", ref invalidValue);
+                    mProteinDigestionSimulator.MaxPeakMatchingResultsPerFeatureToSave = ParseTextBoxValueInt(txtMaxPeakMatchingResultsPerFeatureToSave, lblMaxPeakMatchingResultsPerFeatureToSave.Text + " must be an integer value", out invalidValue);
                     if (invalidValue)
                         return;
                     mProteinDigestionSimulator.SavePeakMatchingResults = chkExportPeakMatchingResults.Checked;
@@ -1122,7 +1121,6 @@ namespace ProteinDigestionSimulator
         {
             // Returns true if all values were valid
 
-            var invalidValue = default(bool);
             switch (cboInputFileFormat.SelectedIndex)
             {
                 case (int)InputFileFormatConstants.FastaFile:
@@ -1172,22 +1170,22 @@ namespace ProteinDigestionSimulator
             }
 
             parseProteinFile.DigestionOptions.IncludePrefixAndSuffixResidues = chkIncludePrefixAndSuffixResidues.Checked;
-            parseProteinFile.DigestionOptions.MinFragmentMass = ParseTextBoxValueInt(txtDigestProteinsMinimumMass, lblDigestProteinsMinimumMass.Text + " must be an integer value", ref invalidValue);
+            parseProteinFile.DigestionOptions.MinFragmentMass = ParseTextBoxValueInt(txtDigestProteinsMinimumMass, lblDigestProteinsMinimumMass.Text + " must be an integer value", out var invalidValue);
             if (invalidValue)
                 return false;
-            parseProteinFile.DigestionOptions.MaxFragmentMass = ParseTextBoxValueInt(txtDigestProteinsMaximumMass, lblDigestProteinsMaximumMass.Text + " must be an integer value", ref invalidValue);
+            parseProteinFile.DigestionOptions.MaxFragmentMass = ParseTextBoxValueInt(txtDigestProteinsMaximumMass, lblDigestProteinsMaximumMass.Text + " must be an integer value", out invalidValue);
             if (invalidValue)
                 return false;
-            parseProteinFile.DigestionOptions.MaxMissedCleavages = ParseTextBoxValueInt(txtDigestProteinsMaximumMissedCleavages, lblDigestProteinsMaximumMissedCleavages.Text + " must be an integer value", ref invalidValue);
+            parseProteinFile.DigestionOptions.MaxMissedCleavages = ParseTextBoxValueInt(txtDigestProteinsMaximumMissedCleavages, lblDigestProteinsMaximumMissedCleavages.Text + " must be an integer value", out invalidValue);
             if (invalidValue)
                 return false;
-            parseProteinFile.DigestionOptions.MinFragmentResidueCount = ParseTextBoxValueInt(txtDigestProteinsMinimumResidueCount, lblDigestProteinsMinimumResidueCount.Text + " must be an integer value", ref invalidValue);
+            parseProteinFile.DigestionOptions.MinFragmentResidueCount = ParseTextBoxValueInt(txtDigestProteinsMinimumResidueCount, lblDigestProteinsMinimumResidueCount.Text + " must be an integer value", out invalidValue);
             if (invalidValue)
                 return false;
-            parseProteinFile.DigestionOptions.MinIsoelectricPoint = ParseTextBoxValueSng(txtDigestProteinsMinimumpI, lblDigestProteinsMinimumpI.Text + " must be a decimal value", ref invalidValue);
+            parseProteinFile.DigestionOptions.MinIsoelectricPoint = ParseTextBoxValueSng(txtDigestProteinsMinimumpI, lblDigestProteinsMinimumpI.Text + " must be a decimal value", out invalidValue);
             if (invalidValue)
                 return false;
-            parseProteinFile.DigestionOptions.MaxIsoelectricPoint = ParseTextBoxValueSng(txtDigestProteinsMaximumpI, lblDigestProteinsMaximumpI.Text + " must be a decimal value", ref invalidValue);
+            parseProteinFile.DigestionOptions.MaxIsoelectricPoint = ParseTextBoxValueSng(txtDigestProteinsMaximumpI, lblDigestProteinsMaximumpI.Text + " must be a decimal value", out invalidValue);
             if (invalidValue)
                 return false;
             if (cboCysTreatmentMode.SelectedIndex >= 0)
@@ -1344,7 +1342,7 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        private int ParseTextBoxValueInt(Control thisTextBox, string messageIfError, ref bool invalidValue, int valueIfError = 0)
+        private int ParseTextBoxValueInt(Control thisTextBox, string messageIfError, out bool invalidValue, int valueIfError = 0)
         {
             invalidValue = false;
             try
@@ -1359,7 +1357,7 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        private float ParseTextBoxValueSng(Control thisTextBox, string messageIfError, ref bool invalidValue, float valueIfError = 0f)
+        private float ParseTextBoxValueSng(Control thisTextBox, string messageIfError, out bool invalidValue, float valueIfError = 0f)
         {
             invalidValue = false;
             try

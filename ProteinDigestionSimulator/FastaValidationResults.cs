@@ -487,7 +487,7 @@ namespace ProteinDigestionSimulator
             return fastaValidationOptions;
         }
 
-        private void InitializeDataGrid(DataGrid dgDataGrid, ref DataSet dsDataset, ref DataView dvDataView, FastaValidator.MsgTypeConstants msgType)
+        private void InitializeDataGrid(DataGrid dgDataGrid, out DataSet dsDataset, out DataView dvDataView, FastaValidator.MsgTypeConstants msgType)
         {
             string msgColumnName;
             switch (msgType)
@@ -545,8 +545,8 @@ namespace ProteinDigestionSimulator
         {
             txtResults.ReadOnly = true;
             TextFontSize = 10f;
-            InitializeDataGrid(dgErrors, ref mErrorsDataset, ref mErrorsDataView, FastaValidator.MsgTypeConstants.ErrorMsg);
-            InitializeDataGrid(dgWarnings, ref mWarningsDataset, ref mWarningsDataView, FastaValidator.MsgTypeConstants.WarningMsg);
+            InitializeDataGrid(dgErrors, out mErrorsDataset, out mErrorsDataView, FastaValidator.MsgTypeConstants.ErrorMsg);
+            InitializeDataGrid(dgWarnings, out mWarningsDataset, out mWarningsDataView, FastaValidator.MsgTypeConstants.WarningMsg);
             SetNewFastaFile(fastaFilePathToValidate);
             EnableDisableControls();
             SetToolTips();

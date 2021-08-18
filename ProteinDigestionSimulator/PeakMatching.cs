@@ -576,9 +576,7 @@ namespace ProteinDigestionSimulator
                 var matchesFound = false;
                 try
                 {
-                    var indexFirst = default(int);
-                    var indexLast = default(int);
-                    if (GetRowIndicesForFeatureID(featureID, ref indexFirst, ref indexLast))
+                    if (GetRowIndicesForFeatureID(featureID, out var indexFirst, out var indexLast))
                     {
                         matchCount = indexLast - indexFirst + 1;
                         if (matchResults == null || matchCount > matchResults.Length)
@@ -621,7 +619,7 @@ namespace ProteinDigestionSimulator
                 return matchFound;
             }
 
-            private bool GetRowIndicesForFeatureID(int featureID, ref int indexFirst, ref int indexLast)
+            private bool GetRowIndicesForFeatureID(int featureID, out int indexFirst, out int indexLast)
             {
                 // Looks for featureID in mPMResults
                 // If found, returns the range of rows that contain matches for featureID
@@ -650,9 +648,7 @@ namespace ProteinDigestionSimulator
 
             public int get_MatchCountForFeatureID(int featureID)
             {
-                var indexFirst = default(int);
-                var indexLast = default(int);
-                if (GetRowIndicesForFeatureID(featureID, ref indexFirst, ref indexLast))
+                if (GetRowIndicesForFeatureID(featureID, out var indexFirst, out var indexLast))
                 {
                     return indexLast - indexFirst + 1;
                 }
