@@ -71,21 +71,8 @@ namespace ProteinDigestionSimulator
         private ComputePeptideProperties mpICalculator;
 
         public event ErrorEventEventHandler ErrorEvent;
-
-        public delegate void ErrorEventEventHandler(string message);
-
         public event ProgressResetEventHandler ProgressReset;
-
-        public delegate void ProgressResetEventHandler();
         public event ProgressChangedEventHandler ProgressChanged;
-
-
-        /// <summary>
-        /// Progress changed event
-        /// </summary>
-        /// <param name="taskDescription"></param>
-        /// <param name="percentComplete">ranges from 0 to 100, but can contain decimal percentage values</param>
-        public delegate void ProgressChangedEventHandler(string taskDescription, float percentComplete);
 
         protected string mProgressStepDescription;
 

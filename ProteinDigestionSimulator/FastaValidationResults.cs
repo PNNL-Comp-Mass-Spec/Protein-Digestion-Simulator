@@ -12,6 +12,8 @@ using ValidateFastaFile;
 
 namespace ProteinDigestionSimulator
 {
+    public delegate void FastaValidationStartedEventHandler();
+
     public partial class FastaValidation
     {
         // Ignore Spelling: validator, dt, ds, chk
@@ -99,8 +101,6 @@ namespace ProteinDigestionSimulator
         private readonly List<string> mValidateFastaFileWarnings = new List<string>();
 
         public event FastaValidationStartedEventHandler FastaValidationStarted;
-
-        public delegate void FastaValidationStartedEventHandler();
 
         public string CustomRulesFilePath
         {

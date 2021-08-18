@@ -169,9 +169,7 @@ namespace ProteinDigestionSimulator
         private float mSubtaskProgressPercentComplete = 0f;
 
         // PercentComplete ranges from 0 to 100, but can contain decimal percentage values
-        public event SubtaskProgressChangedEventHandler SubtaskProgressChanged;
-
-        public delegate void SubtaskProgressChangedEventHandler(string taskDescription, float percentComplete);
+        public event ProgressChangedEventHandler SubtaskProgressChanged;
 
         public bool AssumeDelimitedFile { get; set; }
         public bool AssumeFastaFile { get; set; }

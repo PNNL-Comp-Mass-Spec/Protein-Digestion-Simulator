@@ -142,14 +142,7 @@ namespace ProteinDigestionSimulator
         private string mSubtaskProgressStepDescription = string.Empty;
         private float mSubtaskProgressPercentComplete = 0f;
 
-        public event SubtaskProgressChangedEventHandler SubtaskProgressChanged;
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="taskDescription"></param>
-        /// <param name="percentComplete">Ranges from 0 to 100, but can contain decimal percentage values</param>
-        public delegate void SubtaskProgressChangedEventHandler(string taskDescription, float percentComplete);
+        public event ProgressChangedEventHandler SubtaskProgressChanged;
 
         public bool AutoDetermineMassRangeForBinning
         {

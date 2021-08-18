@@ -44,12 +44,7 @@ namespace ProteinDigestionSimulator
         protected Dictionary<string, int> mProteinNameToRowIndex;
 
         public event SortingListEventHandler SortingList;
-
-        public delegate void SortingListEventHandler();
-
         public event SortingMappingsEventHandler SortingMappings;
-
-        public delegate void SortingMappingsEventHandler();
 
         public ProteinCollection()
         {
@@ -347,8 +342,6 @@ namespace ProteinDigestionSimulator
             protected bool mMappingArrayIsSorted;
 
             public event SortingListEventHandler SortingList;
-
-            public delegate void SortingListEventHandler();
 
             public ProteinToPeptideMappingInfo()
             {

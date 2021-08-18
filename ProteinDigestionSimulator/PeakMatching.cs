@@ -93,8 +93,6 @@ namespace ProteinDigestionSimulator
 
             public event SortingListEventHandler SortingList;
 
-            public delegate void SortingListEventHandler();
-
             public PMFeatureInfo()
             {
                 mUseFeatureIDDictionary = true;                       // Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
@@ -484,8 +482,6 @@ namespace ProteinDigestionSimulator
 
             public event SortingListEventHandler SortingList;
 
-            public delegate void SortingListEventHandler();
-
             public PMFeatureMatchResults()
             {
                 Clear();
@@ -675,12 +671,7 @@ namespace ProteinDigestionSimulator
         private bool mAbortProcessing;
 
         public event ProgressContinuesEventHandler ProgressContinues;
-
-        public delegate void ProgressContinuesEventHandler();
-
         public event LogEventEventHandler LogEvent;
-
-        public delegate void LogEventEventHandler(string Message, MessageTypeConstants EventType);
 
         public int MaxPeakMatchingResultsPerFeatureToSave
         {
