@@ -120,7 +120,6 @@ namespace ProteinDigestionSimulator
         private int mMaxPeakMatchingResultsPerFeatureToSave;
         private readonly MassBinningOptions mPeptideUniquenessBinningSettings = new MassBinningOptions();
         private string mLastErrorMessage;
-        private PeakMatching mPeakMatching; // TODO: This should just be a local variable (fix ProgressContinues event)
 
         /// <summary>
         /// Comparison peptides to match against
@@ -657,6 +656,7 @@ namespace ProteinDigestionSimulator
             }
             else
             {
+                PeakMatching peakMatching = null;
                 try
                 {
                     // ----------------------------------------------------
@@ -719,15 +719,15 @@ namespace ProteinDigestionSimulator
                             // Initialize the peak matching class
                             // ----------------------------------------------------
 
-                            mPeakMatching = new PeakMatching
+                            peakMatching = new PeakMatching
                             {
                                 MaxPeakMatchingResultsPerFeatureToSave = mMaxPeakMatchingResultsPerFeatureToSave,
                                 UseMaxSearchDistanceMultiplierAndSLiCScore = UseSLiCScoreForUniqueness,
                                 UseEllipseSearchRegion = UseEllipseSearchRegion
                             };
 
-                            mPeakMatching.LogEvent += mPeakMatching_LogEvent;
-                            mPeakMatching.ProgressContinues += mPeakMatching_ProgressContinues;
+                            peakMatching.LogEvent += mPeakMatching_LogEvent;
+                            peakMatching.ProgressChanged += mPeakMatching_ProgressContinues;
 
                             // ----------------------------------------------------
                             // Initialize the output files if combining all results
@@ -750,7 +750,7 @@ namespace ProteinDigestionSimulator
 
                                 // Perform the actual peak matching
                                 LogMessage("Threshold " + (thresholdIndex + 1) + ", IdentifySequences");
-                                success = mPeakMatching.IdentifySequences(mThresholdLevels[thresholdIndex], ref featuresToIdentify, mComparisonPeptideInfo, out var featureMatchResults, ref rangeSearch);
+                                success = peakMatching.IdentifySequences(mThresholdLevels[thresholdIndex], ref featuresToIdentify, mComparisonPeptideInfo, out var featureMatchResults, ref rangeSearch);
                                 mPeptideMatchResults = featureMatchResults;
                                 mPeptideMatchResults.SortingList += mPeptideMatchResults_SortingList;
 
@@ -814,13 +814,13 @@ namespace ProteinDigestionSimulator
                         if (proteinStatsWriter != null)
                             proteinStatsWriter.Close();
 
-                        if (mPeakMatching != null)
+                        if (peakMatching != null)
                         {
-                            mPeakMatching.LogEvent -= mPeakMatching_LogEvent;
-                            mPeakMatching.ProgressContinues -= mPeakMatching_ProgressContinues;
+                            peakMatching.LogEvent -= mPeakMatching_LogEvent;
+                            peakMatching.ProgressChanged -= mPeakMatching_ProgressContinues;
                         }
 
-                        mPeakMatching = null;
+                        peakMatching = null;
                     }
                     catch
                     {
@@ -2043,9 +2043,9 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        private void mPeakMatching_ProgressContinues()
+        private void mPeakMatching_ProgressContinues(string taskDescription, float percentComplete)
         {
-            UpdateSubtaskProgress(mPeakMatching.ProgressPct);
+            UpdateSubtaskProgress(percentComplete);
         }
 
         private void mProteinFileParser_ErrorEvent(string message, Exception ex)

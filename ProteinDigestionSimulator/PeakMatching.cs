@@ -670,7 +670,7 @@ namespace ProteinDigestionSimulator
         private readonly SearchModeOptions mSearchModeOptions = new SearchModeOptions();
         private bool mAbortProcessing;
 
-        public event ProgressContinuesEventHandler ProgressContinues;
+        public event ProgressChangedEventHandler ProgressChanged;
         public event LogEventEventHandler LogEvent;
 
         public int MaxPeakMatchingResultsPerFeatureToSave
@@ -1079,7 +1079,7 @@ namespace ProteinDigestionSimulator
         private void UpdateProgress(float progressPercent)
         {
             ProgressPct = progressPercent;
-            ProgressContinues?.Invoke();
+            ProgressChanged?.Invoke(ProgressDescription, ProgressPct);
         }
 
         /// <summary>
@@ -1091,7 +1091,7 @@ namespace ProteinDigestionSimulator
         {
             ProgressDescription = description;
             ProgressPct = progressPercent;
-            ProgressContinues?.Invoke();
+            ProgressChanged?.Invoke(ProgressDescription, ProgressPct);
         }
 
         public class SearchThresholds
