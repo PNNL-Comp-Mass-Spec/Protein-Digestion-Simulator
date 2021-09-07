@@ -136,7 +136,7 @@ namespace ProteinDigestionSimulator
 
             protected int BinarySearchFindFeature(int featureIDToFind)
             {
-                // Looks through mFeatures() for featureIDToFind, returning the index of the item if found, or -1 if not found
+                // Looks through mFeatures[] for featureIDToFind, returning the index of the item if found, or -1 if not found
 
                 var firstIndex = 0;
                 var lastIndex = mFeatureCount - 1;
@@ -505,8 +505,8 @@ namespace ProteinDigestionSimulator
 
             private int BinarySearchPMResults(int featureIDToFind)
             {
-                // Looks through mPMResults() for featureIDToFind, returning the index of the item if found, or -1 if not found
-                // Since mPMResults() can contain multiple entries for a given Feature, this function returns the first entry found
+                // Looks through mPMResults[] for featureIDToFind, returning the index of the item if found, or -1 if not found
+                // Since mPMResults[] can contain multiple entries for a given Feature, this function returns the first entry found
 
                 var firstIndex = 0;
                 var lastIndex = mPMResults.Count - 1;
@@ -930,7 +930,7 @@ namespace ProteinDigestionSimulator
                     if (featuresToIdentify.GetFeatureInfoByRowIndex(featureIndex, out var currentFeatureToIdentify))
                     {
                         // By Calling .ComputedSearchTolerances() with a mass, the tolerances will be auto re-computed
-                        var computedTolerances = searchThresholds.get_ComputedSearchTolerances(currentFeatureToIdentify.Mass);
+                        var computedTolerances = searchThresholds.GetComputedSearchTolerances(currentFeatureToIdentify.Mass);
                         double netTol;
                         double massTol;
                         if (mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore)
@@ -1134,7 +1134,7 @@ namespace ProteinDigestionSimulator
 
             public SearchTolerances ComputedSearchTolerances { get; } = new SearchTolerances();
 
-            public SearchTolerances get_ComputedSearchTolerances(double referenceMass)
+            public SearchTolerances GetComputedSearchTolerances(double referenceMass)
             {
                 DefinePeakMatchingTolerances(ref referenceMass);
                 return ComputedSearchTolerances;

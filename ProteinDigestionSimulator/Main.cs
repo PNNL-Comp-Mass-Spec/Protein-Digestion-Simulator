@@ -365,7 +365,7 @@ namespace ProteinDigestionSimulator
             }
 
             var message = "pI = " + pI + Environment.NewLine + "Hydrophobicity = " + hydrophobicity + Environment.NewLine + "Predicted LC NET = " + lcNET.ToString("0.000") + Environment.NewLine + "Predicted SCX NET = " + scxNET.ToString("0.000");
-            // "Predicted charge state = " & Environment.NewLine & charge.ToString() & " at pH = " & pI.ToString()
+            // "Predicted charge state = " + Environment.NewLine + charge.ToString() + " at pH = " + pI.ToString();
 
             txtpIStats.Text = message;
         }
@@ -2250,7 +2250,7 @@ namespace ProteinDigestionSimulator
 
         private void frmMain_Load(object sender, EventArgs e)
         {
-            // Note that InitializeControls() is called in Sub New()
+            // Note that InitializeControls() is called in Main()
         }
 
         private void frmMain_Closing(object sender, CancelEventArgs e)

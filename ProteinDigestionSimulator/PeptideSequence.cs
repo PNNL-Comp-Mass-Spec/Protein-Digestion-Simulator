@@ -648,7 +648,7 @@ namespace ProteinDigestionSimulator
         }
 
         /// <summary>
-        /// Construct the peptide sequence using Residues() and the N and C Terminus info
+        /// Construct the peptide sequence using Residues[] and the N and C Terminus info
         /// </summary>
         /// <param name="use3LetterCode"></param>
         /// <param name="addSpaceEvery10Residues"></param>
@@ -1274,7 +1274,7 @@ namespace ProteinDigestionSimulator
         /// <remarks>This is only applicable for sequences in 3 letter notation</remarks>
         private void RemoveLeadingH(ref string workingSequence)
         {
-            if (workingSequence.Substring(0, 1).ToUpper() == "H" && workingSequence.Length >= 4)
+            if (workingSequence.Length >= 4 && workingSequence.Substring(0, 1).ToUpper() == "H")
             {
                 // If next character is not a character, remove the H and the next character
                 if (!char.IsLetter(workingSequence[1]))
@@ -1304,7 +1304,7 @@ namespace ProteinDigestionSimulator
         private void RemoveTrailingOH(ref string workingSequence)
         {
             var stringLength = workingSequence.Length;
-            if (workingSequence.Substring(stringLength - 2, 2).ToUpper() == "OH" && stringLength >= 5)
+            if (stringLength >= 5 && workingSequence.Substring(stringLength - 2, 2).ToUpper() == "OH")
             {
                 // If previous character is not a character, then remove the OH (and the character preceding)
                 if (!char.IsLetter(workingSequence[stringLength - 3]))
@@ -1598,7 +1598,7 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            // By calling SetNTerminus and SetCTerminus, the UpdateSequenceMass() Sub will also be called
+            // By calling SetNTerminus and SetCTerminus, the UpdateSequenceMass() method will also be called
             // We don't want to compute the mass yet
             mDelayUpdateResidueMass = true;
             SetNTerminusGroup(nTerminus);

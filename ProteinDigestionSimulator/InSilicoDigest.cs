@@ -132,7 +132,7 @@ namespace ProteinDigestionSimulator
         /// <remarks>
         /// In order to check for Exception residues, sequence must be in the form "R.ABCDEFGK.L" so that the residue following the final residue of the fragment can be examined.
         /// See method InitializeCleavageRules for a list of the rules</remarks>
-        public bool CheckSequenceAgainstCleavageRule(string sequence, CleavageRuleConstants ruleId, [Optional, DefaultParameterValue(0)] out int ruleMatchCount)
+        public bool CheckSequenceAgainstCleavageRule(string sequence, CleavageRuleConstants ruleId, out int ruleMatchCount)
         {
             if (mCleavageRules.TryGetValue(ruleId, out var cleavageRule))
             {
@@ -270,7 +270,7 @@ namespace ProteinDigestionSimulator
                 var trypticFragCache = new List<TrypticFragment>(10);
                 var searchStartLoc = 1;
 
-                // Populate trypticFragCache()
+                // Populate trypticFragCache[]
                 //
                 // Using the GetTrypticPeptideNext function to retrieve the sequence for each tryptic peptide
                 // is faster than using the GetTrypticPeptideByFragmentNumber function
@@ -406,7 +406,7 @@ namespace ProteinDigestionSimulator
                                     residueStartLoc = residueEndLoc - (residueLength - 1);
                                 }
 
-                                // Grab characters from the end of trypticFragCache()
+                                // Grab characters from the end of trypticFragCache[]
                                 var peptideSequence = trypticFragCache[trypticIndex - index].Sequence.Substring(trypticFragCache[trypticIndex - index].Sequence.Length - residueLength, residueLength) + peptideSequenceBase;
                                 if (peptideSequence.Length >= digestionOptions.MinFragmentResidueCount)
                                 {

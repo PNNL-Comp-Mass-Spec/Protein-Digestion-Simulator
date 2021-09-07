@@ -125,7 +125,7 @@ namespace ProteinDigestionSimulator
 
         private int BinarySearchFindProtein(string proteinName)
         {
-            // Looks through mProteins() for proteinName, returning the index of the item if found, or -1 if not found
+            // Looks through mProteins[] for proteinName, returning the index of the item if found, or -1 if not found
 
             var firstIndex = 0;
             var lastIndex = mProteinCount - 1;
@@ -391,8 +391,8 @@ namespace ProteinDigestionSimulator
 
             private int BinarySearchFindProteinMapping(int proteinIDToFind)
             {
-                // Looks through mMappings() for proteinIDToFind, returning the index of the item if found, or -1 if not found
-                // Since mMappings() can contain multiple entries for a given Protein, this function returns the first entry found
+                // Looks through mMappings[] for proteinIDToFind, returning the index of the item if found, or -1 if not found
+                // Since mMappings[] can contain multiple entries for a given Protein, this function returns the first entry found
 
                 var firstIndex = 0;
                 var lastIndex = mMappingCount - 1;

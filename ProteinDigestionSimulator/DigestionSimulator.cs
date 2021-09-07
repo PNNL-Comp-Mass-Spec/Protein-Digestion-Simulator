@@ -1069,29 +1069,24 @@ namespace ProteinDigestionSimulator
         //    const int MAX_FEATURE_COUNT = 300000;
 
         //    Random randomGenerator = new Random();
-        //    int newFeatureID;
-        //    int index;
-        //    int indexEnd;
 
-        //    System.Data.DataRow newRow;
         //    ProgressFormNET.frmProgress progressForm = new ProgressFormNET.frmProgress();
-        //    DateTime startTime;
 
-        //    indexEnd = System.Convert.ToInt32(MAX_FEATURE_COUNT * 1.5);
+        //    var indexEnd = System.Convert.ToInt32(MAX_FEATURE_COUNT * 1.5);
         //    progressForm.InitializeProgressForm("Populating dataset table", 0, indexEnd, true);
         //    progressForm.Visible = true;
         //    Application.DoEvents();
 
-        //    startTime = System.DateTime.UtcNow;
+        //    var startTime = System.DateTime.UtcNow;
 
-        //    for (index = 0; index <= indexEnd; index++)
+        //    for (var index = 0; index <= indexEnd; index++)
         //    {
-        //        newFeatureID = randomGenerator.Next(0, MAX_FEATURE_COUNT);
+        //        var newFeatureID = randomGenerator.Next(0, MAX_FEATURE_COUNT);
 
         //        // Look for existing entry in table
         //        if (!dsDataset.Tables(PEPTIDE_INFO_TABLE_NAME).Rows.Contains(newFeatureID))
         //        {
-        //            newRow = dsDataset.Tables(PEPTIDE_INFO_TABLE_NAME).NewRow;
+        //            var newRow = dsDataset.Tables(PEPTIDE_INFO_TABLE_NAME).NewRow;
         //            newRow(COMPARISON_FEATURE_ID_COLUMN) = newFeatureID;
         //            newRow(FEATURE_NAME_COLUMN) = "Feature" + newFeatureID.ToString();
         //            newRow(MASS_COLUMN) = newFeatureID / (double)System.Convert.ToSingle(MAX_FEATURE_COUNT) * 1000;

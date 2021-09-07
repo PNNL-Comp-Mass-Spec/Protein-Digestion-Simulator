@@ -132,9 +132,9 @@ namespace ProteinDigestionSimulator
         {
             var runningSum = 0d;
             var residueCount = 0;
-            for (var li = 1; li <= seq.Length; li++)
+            foreach (var c in seq)
             {
-                var residue = char.ToUpper(seq[li - 1]);
+                var residue = char.ToUpper(c);
                 try
                 {
                     if (!mAminoAcids.TryGetValue(residue, out var aaInfo))
@@ -197,10 +197,9 @@ namespace ProteinDigestionSimulator
             try
             {
                 chargeState = 0;
-                int li;
-                for (li = 1; li <= seq.Length; li++)
+                foreach (var c in seq)
                 {
-                    switch (char.ToUpper(seq[li - 1]))
+                    switch (char.ToUpper(c))
                     {
                         case 'C':
                             if (Ck > pH)
@@ -257,9 +256,9 @@ namespace ProteinDigestionSimulator
                 if (ReportMaximumpI && seq.Length > SequenceWidthToExamineForMaximumpI)
                 {
                     var maxHydrophobicity = 0d;
-                    for (var index = 1; index <= seq.Length - SequenceWidthToExamineForMaximumpI; index++)
+                    for (var index = 0; index < seq.Length - SequenceWidthToExamineForMaximumpI; index++)
                     {
-                        var segmentHydrophobicity = CalculateHydrophobicity(seq.Substring(index - 1, SequenceWidthToExamineForMaximumpI), HydrophobicityType);
+                        var segmentHydrophobicity = CalculateHydrophobicity(seq.Substring(index, SequenceWidthToExamineForMaximumpI), HydrophobicityType);
                         if (segmentHydrophobicity > maxHydrophobicity)
                             maxHydrophobicity = segmentHydrophobicity;
                     }
@@ -294,9 +293,9 @@ namespace ProteinDigestionSimulator
                 var numK = 0;
                 var numR = 0;
                 var numY = 0;
-                for (var i = 1; i <= seq.Length; i++)
+                foreach (var c in seq)
                 {
-                    switch (char.ToUpper(seq[i - 1]))
+                    switch (char.ToUpper(c))
                     {
                         case 'C':
                             numC += 1;
