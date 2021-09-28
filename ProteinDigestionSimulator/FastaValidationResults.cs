@@ -25,31 +25,17 @@ namespace ProteinDigestionSimulator
 
             // Add any initialization after the InitializeComponent() call
             InitializeForm(fastaFilePath);
+
             mValidationTriggerTimer = new Timer
             {
                 Interval = 100,
                 Enabled = true
             };
+
             mValidationTriggerTimer.Tick += mValidationTriggerTimer_Tick;
+
             mValidateFastaFile = new FastaValidator();
             RegisterEvents(mValidateFastaFile);
-            chkWrapLongResidueLines.Name = "chkWrapLongResidueLines";
-            txtResults.Name = "txtResults";
-            txtProteinNameLengthMaximum.Name = "txtProteinNameLengthMaximum";
-            txtProteinNameLengthMinimum.Name = "txtProteinNameLengthMinimum";
-            txtMaximumResiduesPerLine.Name = "txtMaximumResiduesPerLine";
-            txtMaxFileErrorsToTrack.Name = "txtMaxFileErrorsToTrack";
-            txtResiduesPerLineForWrap.Name = "txtResiduesPerLineForWrap";
-            chkKeepDuplicateNamedProteins.Name = "chkKeepDuplicateNamedProteins";
-            chkConsolidateDuplicateProteinSeqs.Name = "chkConsolidateDuplicateProteinSeqs";
-            chkRenameDuplicateProteins.Name = "chkRenameDuplicateProteins";
-            chkGenerateFixedFastaFile.Name = "chkGenerateFixedFastaFile";
-            cmdCreateDefaultValidationRulesFile.Name = "cmdCreateDefaultValidationRulesFile";
-            txtCustomValidationRulesFilePath.Name = "txtCustomValidationRulesFilePath";
-            cmdSelectCustomRulesFile.Name = "cmdSelectCustomRulesFile";
-            txtFilterData.Name = "txtFilterData";
-            cmdValidateFastaFile.Name = "cmdValidateFastaFile";
-            cmdCancel.Name = "cmdCancel";
         }
 
         private const string COL_NAME_LINE = "Line";
@@ -61,14 +47,17 @@ namespace ProteinDigestionSimulator
         public class FastaValidationOptions
         {
             public bool Initialized { get; set; }
+
             public int MaximumErrorsToTrackInDetail { get; set; }
             public int MaximumResiduesPerLine { get; set; }
+
             public int ValidProteinNameLengthMinimum { get; set; }
             public int ValidProteinNameLengthMaximum { get; set; }
             public bool AllowAsterisksInResidues { get; set; }
             public bool CheckForDuplicateProteinNames { get; set; }
             public bool LogResultsToFile { get; set; }
             public bool SaveHashInfoFile { get; set; }
+
             public FixedFastaOptions FixedFastaOptions { get; } = new FixedFastaOptions();
         }
 
@@ -89,15 +78,21 @@ namespace ProteinDigestionSimulator
 
         private DataSet mErrorsDataset;
         private DataView mErrorsDataView;
+
         private DataSet mWarningsDataset;
         private DataView mWarningsDataView;
+
         private bool mKeepDuplicateNamedProteinsLastValue = false;
 
         // This timer is used to cause StartValidation to be called after the form becomes visible
         private readonly Timer mValidationTriggerTimer;
+
         private readonly FastaValidator mValidateFastaFile;
+
         private string mValidatorErrorMessage;
+
         private readonly List<string> mValidateFastaFileErrors = new List<string>();
+
         private readonly List<string> mValidateFastaFileWarnings = new List<string>();
 
         public event FastaValidationStartedEventHandler FastaValidationStarted;
@@ -116,17 +111,14 @@ namespace ProteinDigestionSimulator
             set
             {
                 if (value < 6f)
-                {
                     value = 6f;
-                }
                 else if (value > 72f)
-                {
                     value = 72f;
-                }
 
                 try
                 {
                     txtResults.Font = new Font(txtResults.Font.FontFamily, value);
+
                     dgErrors.Font = new Font(txtResults.Font.FontFamily, value);
                     dgWarnings.Font = new Font(txtResults.Font.FontFamily, value);
                 }
@@ -145,13 +137,9 @@ namespace ProteinDigestionSimulator
         private void AppendToString(ICollection<string> results, string numberDescription, long number, bool useCommaSeparator = true)
         {
             if (useCommaSeparator)
-            {
                 results.Add(numberDescription + number.ToString("###,###,###,###,##0"));
-            }
             else
-            {
                 results.Add(numberDescription + number);
-            }
         }
 
         private void AppendValidatorErrors(ICollection<string> results)
@@ -160,6 +148,7 @@ namespace ProteinDigestionSimulator
             {
                 AppendToString(results, string.Empty);
                 AppendToString(results, "Errors from the validator");
+
                 foreach (var item in mValidateFastaFileErrors)
                     AppendToString(results, item);
             }
@@ -168,6 +157,7 @@ namespace ProteinDigestionSimulator
             {
                 AppendToString(results, string.Empty);
                 AppendToString(results, "Warnings from the validator");
+
                 foreach (var item in mValidateFastaFileWarnings)
                     AppendToString(results, item);
             }
@@ -203,6 +193,7 @@ namespace ProteinDigestionSimulator
                 Filter = "XML Settings Files (*.xml)|*.xml|All files (*.*)|*.*",
                 FilterIndex = 1
             };
+
             if (txtCustomValidationRulesFilePath.Text.Length > 0)
             {
                 try
@@ -215,23 +206,22 @@ namespace ProteinDigestionSimulator
                 }
             }
             else
-            {
                 dialog.InitialDirectory = GetApplicationDataFolderPath();
-            }
 
             dialog.Title = "Select/Create file to save custom rule definitions";
+
             dialog.ShowDialog();
             if (dialog.FileName.Length > 0)
             {
                 var customRuleDefinitionsFilePath = dialog.FileName;
+
                 try
                 {
                     var validateFastaFile = new FastaValidator();
                     validateFastaFile.SaveSettingsToParameterFile(customRuleDefinitionsFilePath);
+
                     if (txtCustomValidationRulesFilePath.TextLength == 0)
-                    {
                         txtCustomValidationRulesFilePath.Text = customRuleDefinitionsFilePath;
-                    }
 
                     MessageBox.Show("File " + customRuleDefinitionsFilePath + " now contains the default rule validation settings.", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -249,48 +239,43 @@ namespace ProteinDigestionSimulator
         private void DisplayResults(string parameterFilePath)
         {
             const char sepChar = '\t';
+
             var results = new List<string> { "Results for file " + mValidateFastaFile.FastaFilePath };
+
             AppendToString(results, "Protein count = " + mValidateFastaFile.ProteinCount + sepChar + sepChar + "Residue count = ", mValidateFastaFile.ResidueCount);
             AppendToString(results, "Error count = " + mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.ErrorMsg, FastaValidator.ErrorWarningCountTypes.Total));
             AppendToString(results, "Warning count = ", mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.WarningMsg, FastaValidator.ErrorWarningCountTypes.Total));
+
             if (mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.GenerateFixedFASTAFile))
             {
                 AppendToString(results, "Count of long protein names that were truncated = " + mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.TruncatedProteinNameCount));
                 AppendToString(results, "Count of protein names with invalid chars removed = " + mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.ProteinNamesInvalidCharsReplaced));
                 AppendToString(results, "Count of protein names with multiple refs split out = " + mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.ProteinNamesMultipleRefsRemoved));
                 AppendToString(results, "Count of residue lines with invalid chars removed = " + mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.UpdatedResidueLines));
+
                 if (mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.FixedFastaRenameDuplicateNameProteins))
-                {
                     AppendToString(results, "Count of proteins renamed due to duplicate names = " + mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.DuplicateProteinNamesRenamedCount));
-                }
                 else if (mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.CheckForDuplicateProteinNames))
-                {
                     AppendToString(results, "Count of proteins skipped due to duplicate names = " + mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.DuplicateProteinNamesSkippedCount));
-                }
 
                 if (mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs))
-                {
                     AppendToString(results, "Count of proteins removed due to duplicate sequences = " + mValidateFastaFile.GetFixedFASTAFileStats(FastaValidator.FixedFASTAFileValues.DuplicateProteinSeqsSkippedCount));
-                }
             }
 
             if (parameterFilePath.Length > 0)
-            {
                 AppendToString(results, "Used validation rules from file " + parameterFilePath);
-            }
             else
-            {
                 AppendToString(results, "Default validation rules were used.");
-            }
 
             var outputStatsEnabled = mValidateFastaFile.GetOptionSwitchValue(FastaValidator.SwitchOptions.OutputToStatsFile);
+
             if (outputStatsEnabled)
-            {
                 AppendToString(results, "Results were logged to file: " + mValidateFastaFile.StatsFilePath);
-            }
 
             AppendValidatorErrors(results);
+
             txtResults.Text = string.Join(Environment.NewLine, results);
+
             txtResults.SelectionStart = 0;
             txtResults.SelectionLength = 0;
 
@@ -302,9 +287,7 @@ namespace ProteinDigestionSimulator
                 PopulateMsgResultsDataGrid(dgErrors, mErrorsDataset, mValidateFastaFile.FileErrorList);
             }
             else
-            {
                 mErrorsDataset.Tables[0].Clear();
-            }
 
             if (mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.WarningMsg, FastaValidator.ErrorWarningCountTypes.Specified) > 0)
             {
@@ -312,9 +295,7 @@ namespace ProteinDigestionSimulator
                 PopulateMsgResultsDataGrid(dgWarnings, mWarningsDataset, mValidateFastaFile.FileWarningList);
             }
             else
-            {
                 mWarningsDataset.Tables[0].Clear();
-            }
 
             PositionControls();
             FilterLists();
@@ -323,11 +304,14 @@ namespace ProteinDigestionSimulator
         private void EnableDisableControls()
         {
             var enableFixedFastaOptions = chkGenerateFixedFastaFile.Checked;
+
             txtLongProteinNameSplitChars.Enabled = enableFixedFastaOptions;
             txtInvalidProteinNameCharsToRemove.Enabled = enableFixedFastaOptions;
             txtResiduesPerLineForWrap.Enabled = enableFixedFastaOptions && chkWrapLongResidueLines.Checked;
+
             chkSplitOutMultipleRefsInProteinName.Enabled = enableFixedFastaOptions;
             chkRenameDuplicateProteins.Enabled = enableFixedFastaOptions;
+
             if (enableFixedFastaOptions)
             {
                 if (chkRenameDuplicateProteins.Checked)
@@ -342,24 +326,20 @@ namespace ProteinDigestionSimulator
                 }
             }
             else
-            {
                 chkKeepDuplicateNamedProteins.Enabled = false;
-            }
 
             chkConsolidateDuplicateProteinSeqs.Enabled = enableFixedFastaOptions;
             chkConsolidateDupsIgnoreILDiff.Enabled = enableFixedFastaOptions && chkConsolidateDuplicateProteinSeqs.Checked;
+
             chkTruncateLongProteinNames.Enabled = enableFixedFastaOptions;
             chkSplitOutMultipleRefsForKnownAccession.Enabled = enableFixedFastaOptions;
             chkWrapLongResidueLines.Enabled = enableFixedFastaOptions;
             chkRemoveInvalidResidues.Enabled = enableFixedFastaOptions;
+
             if (txtCustomValidationRulesFilePath.TextLength > 0)
-            {
                 chkAllowAsteriskInResidues.Enabled = false;
-            }
             else
-            {
                 chkAllowAsteriskInResidues.Enabled = true;
-            }
         }
 
         /// <summary>
@@ -370,20 +350,18 @@ namespace ProteinDigestionSimulator
         private string FlattenDataView(DataView dvDataView)
         {
             const char sepChar = '\t';
+
             var flattenedText = string.Empty;
+
             try
             {
                 var columnCount = dvDataView.Table.Columns.Count;
                 for (var index = 0; index < columnCount; index++)
                 {
                     if (index < columnCount - 1)
-                    {
                         flattenedText += dvDataView.Table.Columns[index].ColumnName + sepChar;
-                    }
                     else
-                    {
                         flattenedText += dvDataView.Table.Columns[index].ColumnName + Environment.NewLine;
-                    }
                 }
 
                 foreach (DataRow currentRow in dvDataView.Table.Rows)
@@ -391,13 +369,9 @@ namespace ProteinDigestionSimulator
                     for (var index = 0; index < columnCount; index++)
                     {
                         if (index < columnCount - 1)
-                        {
                             flattenedText += currentRow[index].ToString() + sepChar;
-                        }
                         else
-                        {
                             flattenedText += currentRow[index] + Environment.NewLine;
-                        }
                     }
                 }
             }
@@ -413,8 +387,10 @@ namespace ProteinDigestionSimulator
         {
             var selStart = txtResults.SelectionStart;
             var selLength = txtResults.SelectionLength;
+
             txtResults.SelectAll();
             txtResults.Copy();
+
             txtResults.SelectionStart = selStart;
             txtResults.SelectionLength = selLength;
         }
@@ -425,12 +401,11 @@ namespace ProteinDigestionSimulator
             {
                 var filter = string.Empty;
                 if (txtFilterData.TextLength > 0)
-                {
                     filter = "[" + COL_NAME_PROTEIN + "] LIKE '%" + txtFilterData.Text + "%' OR [" + COL_NAME_DESCRIPTION + "] LIKE '%" + txtFilterData.Text + "%' OR [" + COL_NAME_CONTEXT + "] LIKE '%" + txtFilterData.Text + "%'";
-                }
 
                 mErrorsDataView.RowFilter = filter;
                 dgErrors.Update();
+
                 mWarningsDataView.RowFilter = filter;
                 dgWarnings.Update();
             }
@@ -445,11 +420,12 @@ namespace ProteinDigestionSimulator
             var appDataFolderPath = string.Empty;
             try
             {
-                appDataFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"PAST Toolkit\ProteinDigestionSimulator");
+                appDataFolderPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    @"PAST Toolkit\ProteinDigestionSimulator");
+
                 if (!Directory.Exists(appDataFolderPath))
-                {
                     Directory.CreateDirectory(appDataFolderPath);
-                }
             }
             catch
             {
@@ -472,6 +448,7 @@ namespace ProteinDigestionSimulator
                 LogResultsToFile = chkLogResults.Checked,
                 SaveHashInfoFile = chkSaveBasicProteinHashInfoFile.Checked
             };
+
             fastaValidationOptions.FixedFastaOptions.GenerateFixedFasta = chkGenerateFixedFastaFile.Checked;
             fastaValidationOptions.FixedFastaOptions.TruncateLongProteinName = chkTruncateLongProteinNames.Checked;
             fastaValidationOptions.FixedFastaOptions.RenameProteinWithDuplicateNames = chkRenameDuplicateProteins.Checked;
@@ -483,7 +460,9 @@ namespace ProteinDigestionSimulator
             fastaValidationOptions.FixedFastaOptions.ConsolidateDuplicateProteins = chkConsolidateDuplicateProteinSeqs.Checked;
             fastaValidationOptions.FixedFastaOptions.ConsolidateDupsIgnoreILDiff = chkConsolidateDupsIgnoreILDiff.Checked;
             fastaValidationOptions.FixedFastaOptions.ResiduesPerLineForWrap = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "", out _, 60);
+
             fastaValidationOptions.Initialized = true;
+
             return fastaValidationOptions;
         }
 
@@ -545,11 +524,15 @@ namespace ProteinDigestionSimulator
         {
             txtResults.ReadOnly = true;
             TextFontSize = 10f;
+
             InitializeDataGrid(dgErrors, out mErrorsDataset, out mErrorsDataView, FastaValidator.MsgTypeConstants.ErrorMsg);
             InitializeDataGrid(dgWarnings, out mWarningsDataset, out mWarningsDataView, FastaValidator.MsgTypeConstants.WarningMsg);
+
             SetNewFastaFile(fastaFilePathToValidate);
+
             EnableDisableControls();
             SetToolTips();
+
             ResetOptionsToDefault();
         }
 
@@ -565,13 +548,9 @@ namespace ProteinDigestionSimulator
                 currentRow[COL_NAME_LINE] = item.LineNumber;
                 currentRow[COL_NAME_COLUMN] = item.ColNumber;
                 if (string.IsNullOrEmpty(item.ProteinName))
-                {
                     currentRow[COL_NAME_PROTEIN] = "N/A";
-                }
                 else
-                {
                     currentRow[COL_NAME_PROTEIN] = item.ProteinName;
-                }
 
                 currentRow[COL_NAME_DESCRIPTION] = mValidateFastaFile.LookupMessageDescription(item.MessageCode, item.ExtraInfo);
                 currentRow[COL_NAME_CONTEXT] = item.Context;
@@ -587,35 +566,28 @@ namespace ProteinDigestionSimulator
         {
             const float MAX_RATIO = 1.5f;
             const int MENU_HEIGHT = 80;
+
             int desiredHeight;
+
             var errorToWarningsRatio = 1d;
             try
             {
                 if (mErrorsDataset != null && mWarningsDataset != null)
                 {
                     if (mErrorsDataset.Tables[0].Rows.Count == 0 && mWarningsDataset.Tables[0].Rows.Count == 0)
-                    {
                         errorToWarningsRatio = 1d;
-                    }
                     else if (mErrorsDataset.Tables[0].Rows.Count == 0)
-                    {
                         errorToWarningsRatio = 1f / MAX_RATIO;
-                    }
                     else if (mWarningsDataset.Tables[0].Rows.Count == 0)
-                    {
                         errorToWarningsRatio = MAX_RATIO;
-                    }
                     else
                     {
                         errorToWarningsRatio = mErrorsDataset.Tables[0].Rows.Count / (double)mWarningsDataset.Tables[0].Rows.Count;
+
                         if (errorToWarningsRatio < 1f / MAX_RATIO)
-                        {
                             errorToWarningsRatio = 1f / MAX_RATIO;
-                        }
                         else if (errorToWarningsRatio > MAX_RATIO)
-                        {
                             errorToWarningsRatio = MAX_RATIO;
-                        }
                     }
                 }
             }
@@ -638,7 +610,9 @@ namespace ProteinDigestionSimulator
             if (desiredHeight < 5)
                 desiredHeight = 5;
             dgErrors.Height = desiredHeight;
+
             dgWarnings.Top = dgErrors.Top + dgErrors.Height + 10;
+
             desiredHeight = (int)Math.Round(Math.Round(desiredHeight / errorToWarningsRatio, 0));
             if (desiredHeight < 5)
                 desiredHeight = 5;
@@ -648,15 +622,20 @@ namespace ProteinDigestionSimulator
         private void ResetOptionsToDefault()
         {
             txtMaxFileErrorsToTrack.Text = "10";
+
             txtMaximumResiduesPerLine.Text = "120";
+
             txtProteinNameLengthMinimum.Text = "3";
             txtProteinNameLengthMaximum.Text = "34";
+
             txtLongProteinNameSplitChars.Text = FastaValidator.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR.ToString();
             txtInvalidProteinNameCharsToRemove.Text = "";
             txtResiduesPerLineForWrap.Text = "60";
+
             chkAllowAsteriskInResidues.Checked = false;
             chkCheckForDuplicateProteinInfo.Checked = true;
             chkSaveBasicProteinHashInfoFile.Checked = false;
+
             chkLogResults.Checked = false;
 
             // Note: Leave this option unchanged
@@ -664,6 +643,7 @@ namespace ProteinDigestionSimulator
 
             chkConsolidateDuplicateProteinSeqs.Checked = true;
             chkConsolidateDupsIgnoreILDiff.Checked = true;
+
             chkRemoveInvalidResidues.Checked = false;
             chkRenameDuplicateProteins.Checked = true;
             chkKeepDuplicateNamedProteins.Checked = false;
@@ -687,6 +667,7 @@ namespace ProteinDigestionSimulator
                 Filter = "XML Settings Files (*.xml)|*.xml|All files (*.*)|*.*",
                 FilterIndex = 1
             };
+
             if (txtCustomValidationRulesFilePath.Text.Length > 0)
             {
                 try
@@ -699,25 +680,24 @@ namespace ProteinDigestionSimulator
                 }
             }
             else
-            {
                 dialog.InitialDirectory = GetApplicationDataFolderPath();
-            }
 
             dialog.Title = "Select custom rules file";
+
             dialog.ShowDialog();
             if (dialog.FileName.Length > 0)
-            {
                 txtCustomValidationRulesFilePath.Text = dialog.FileName;
-            }
         }
 
         public void SetNewFastaFile(string fastaFilePathToValidate)
         {
             FastaFilePath = fastaFilePathToValidate;
+
             txtResults.Text = string.Empty;
 
             // Clear the filters
             txtFilterData.Text = string.Empty;
+
             mErrorsDataset.Tables[0].Clear();
             mWarningsDataset.Tables[0].Clear();
         }
@@ -725,6 +705,7 @@ namespace ProteinDigestionSimulator
         private void ShowAboutBox()
         {
             var message = new StringBuilder();
+
             message.AppendLine("FASTA File Validation module written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2005");
             message.AppendLine("Copyright 2018 Battelle Memorial Institute");
             message.AppendLine();
@@ -745,16 +726,20 @@ namespace ProteinDigestionSimulator
             message.Append("caused and on any theory of liability, whether in contract, strict liability, ");
             message.Append("or tort (including negligence or otherwise) arising in any way out of the use ");
             message.Append("of this software, even if advised of the possibility of such damage.");
+
             MessageBox.Show(message.ToString(), "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void ShowHideObjectsDuringValidation(bool validating)
         {
             pbarProgress.Visible = validating;
+
             lblFilterData.Visible = !validating;
             txtFilterData.Visible = !validating;
+
             cmdValidateFastaFile.Visible = !validating;
             cmdValidateFastaFile.Enabled = !validating;
+
             cmdCancel.Visible = validating;
             cmdCancel.Enabled = validating;
         }
@@ -763,12 +748,15 @@ namespace ProteinDigestionSimulator
         {
             txtMaxFileErrorsToTrack.Text = fastaValidationOptions.MaximumErrorsToTrackInDetail.ToString();
             txtMaximumResiduesPerLine.Text = fastaValidationOptions.MaximumResiduesPerLine.ToString();
+
             txtProteinNameLengthMinimum.Text = fastaValidationOptions.ValidProteinNameLengthMinimum.ToString();
             txtProteinNameLengthMaximum.Text = fastaValidationOptions.ValidProteinNameLengthMaximum.ToString();
+
             chkAllowAsteriskInResidues.Checked = fastaValidationOptions.AllowAsterisksInResidues;
             chkCheckForDuplicateProteinInfo.Checked = fastaValidationOptions.CheckForDuplicateProteinNames;
             chkLogResults.Checked = fastaValidationOptions.LogResultsToFile;
             chkSaveBasicProteinHashInfoFile.Checked = fastaValidationOptions.SaveHashInfoFile;
+
             chkGenerateFixedFastaFile.Checked = fastaValidationOptions.FixedFastaOptions.GenerateFixedFasta;
             chkTruncateLongProteinNames.Checked = fastaValidationOptions.FixedFastaOptions.TruncateLongProteinName;
             chkRenameDuplicateProteins.Checked = fastaValidationOptions.FixedFastaOptions.RenameProteinWithDuplicateNames;
@@ -780,12 +768,14 @@ namespace ProteinDigestionSimulator
             chkConsolidateDuplicateProteinSeqs.Checked = fastaValidationOptions.FixedFastaOptions.ConsolidateDuplicateProteins;
             chkConsolidateDupsIgnoreILDiff.Checked = fastaValidationOptions.FixedFastaOptions.ConsolidateDupsIgnoreILDiff;
             txtResiduesPerLineForWrap.Text = fastaValidationOptions.FixedFastaOptions.ResiduesPerLineForWrap.ToString();
+
             Application.DoEvents();
         }
 
         private void SetToolTips()
         {
             var toolTipControl = new ToolTip();
+
             toolTipControl.SetToolTip(txtLongProteinNameSplitChars, "Enter one or more characters to look for when truncating long protein names (do not separate the characters by commas).  Default character is a vertical bar.");
             toolTipControl.SetToolTip(txtInvalidProteinNameCharsToRemove, "Enter one or more characters to look and replace with an underscore (do not separate the characters by commas).  Leave blank to not replace any characters.");
             toolTipControl.SetToolTip(chkSplitOutMultipleRefsForKnownAccession, "If a protein name matches the standard IPI, GI, or JGI accession numbers, and if it contains additional reference information, then the additional information will be moved to the protein's description.");
@@ -799,7 +789,9 @@ namespace ProteinDigestionSimulator
                 mValidatorErrorMessage = string.Empty;
                 mValidateFastaFileErrors.Clear();
                 mValidateFastaFileWarnings.Clear();
+
                 FastaValidationStarted?.Invoke();
+
                 ShowHideObjectsDuringValidation(true);
                 Cursor.Current = Cursors.WaitCursor;
                 Application.DoEvents();
@@ -807,16 +799,14 @@ namespace ProteinDigestionSimulator
                 // Note: the following settings will be overridden if a parameter file with these settings defined is provided to .ProcessFile()
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.WarnBlankLinesBetweenProteins, true);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.AllowAsteriskInResidues, chkAllowAsteriskInResidues.Checked);
+
                 mValidateFastaFile.MinimumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "Minimum protein name length should be a number", out _, 3);
                 mValidateFastaFile.MaximumProteinNameLength = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "Maximum protein name length should be a number", out _, 34);
+
                 if (chkGenerateFixedFastaFile.Checked && chkWrapLongResidueLines.Checked)
-                {
                     mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "Residues per line for wrapping should be a number", out _, 60);
-                }
                 else
-                {
                     mValidateFastaFile.MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "Maximum residues per line should be a number", out _, 120);
-                }
 
                 var parameterFilePath = txtCustomValidationRulesFilePath.Text;
                 if (parameterFilePath.Length > 0)
@@ -837,24 +827,24 @@ namespace ProteinDigestionSimulator
                         parameterFilePath = string.Empty;
                     }
                     else
-                    {
                         mValidateFastaFile.LoadParameterFileSettings(parameterFilePath);
-                    }
                 }
 
                 if (parameterFilePath.Length == 0)
-                {
                     mValidateFastaFile.SetDefaultRules();
-                }
 
                 mValidateFastaFile.MaximumFileErrorsToTrack = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "Max file errors or warnings should be a positive number", out _, 10);
+
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.CheckForDuplicateProteinNames, chkCheckForDuplicateProteinInfo.Checked);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.CheckForDuplicateProteinSequences, chkCheckForDuplicateProteinInfo.Checked);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.SaveBasicProteinHashInfoFile, chkSaveBasicProteinHashInfoFile.Checked);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.OutputToStatsFile, chkLogResults.Checked);
+
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.GenerateFixedFASTAFile, chkGenerateFixedFastaFile.Checked);
+
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaSplitOutMultipleRefsForKnownAccession, chkSplitOutMultipleRefsForKnownAccession.Checked);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.SplitOutMultipleRefsInProteinName, chkSplitOutMultipleRefsInProteinName.Checked);
+
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaRenameDuplicateNameProteins, chkRenameDuplicateProteins.Checked);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaKeepDuplicateNamedProteins, chkKeepDuplicateNamedProteins.Checked);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaConsolidateDuplicateProteinSeqs, chkConsolidateDuplicateProteinSeqs.Checked);
@@ -862,41 +852,40 @@ namespace ProteinDigestionSimulator
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaTruncateLongProteinNames, chkTruncateLongProteinNames.Checked);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaWrapLongResidueLines, chkWrapLongResidueLines.Checked);
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.FixedFastaRemoveInvalidResidues, chkRemoveInvalidResidues.Checked);
+
                 mValidateFastaFile.ProteinNameFirstRefSepChars = FastaValidator.DEFAULT_PROTEIN_NAME_FIRST_REF_SEP_CHARS;
                 mValidateFastaFile.ProteinNameSubsequentRefSepChars = FastaValidator.DEFAULT_PROTEIN_NAME_SUBSEQUENT_REF_SEP_CHARS;
 
                 // Also apply chkGenerateFixedFastaFile to SaveProteinSequenceHashInfoFiles
                 mValidateFastaFile.SetOptionSwitch(FastaValidator.SwitchOptions.SaveProteinSequenceHashInfoFiles, chkGenerateFixedFastaFile.Checked);
+
                 if (txtLongProteinNameSplitChars.TextLength > 0)
-                {
                     mValidateFastaFile.LongProteinNameSplitChars = txtLongProteinNameSplitChars.Text;
-                }
                 else
-                {
                     mValidateFastaFile.LongProteinNameSplitChars = FastaValidator.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR.ToString();
-                }
 
                 mValidateFastaFile.ProteinNameInvalidCharsToRemove = txtInvalidProteinNameCharsToRemove.Text;
+
                 pbarProgress.Minimum = 0;
                 pbarProgress.Maximum = 100;
                 pbarProgress.Value = 0;
 
                 // Analyze the FASTA file; returns true if the analysis was successful (even if the file contains errors or warnings)
                 var success = mValidateFastaFile.ProcessFile(FastaFilePath, string.Empty, string.Empty);
+
                 cmdCancel.Enabled = false;
+
                 if (success)
-                {
                     DisplayResults(parameterFilePath);
-                }
                 else
                 {
                     var results = new List<string> { "Error calling mValidateFastaFile.ProcessFile: " + mValidateFastaFile.GetErrorMessage() };
                     AppendValidatorErrors(results);
+
                     txtResults.Text = string.Join(Environment.NewLine, results);
+
                     if (!string.IsNullOrEmpty(mValidatorErrorMessage))
-                    {
                         txtResults.AppendText(Environment.NewLine + mValidatorErrorMessage);
-                    }
                 }
             }
             catch (Exception ex)
@@ -906,6 +895,7 @@ namespace ProteinDigestionSimulator
             finally
             {
                 ShowHideObjectsDuringValidation(false);
+
                 Cursor.Current = Cursors.Default;
                 Application.DoEvents();
             }
@@ -923,16 +913,17 @@ namespace ProteinDigestionSimulator
                 RowHeadersVisible = false,
                 ReadOnly = true
             };
+
             DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_LINE, "Line", 80);
             DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_COLUMN, "Column", 80);
             DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_PROTEIN, "Protein", 200);
             DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_DESCRIPTION, "Value", 550);
             DataGridUtils.AppendColumnToTableStyle(tsTableStyle, COL_NAME_CONTEXT, "Context", 200);
+
             dgDataGrid.TableStyles.Clear();
+
             if (!dgDataGrid.TableStyles.Contains(tsTableStyle))
-            {
                 dgDataGrid.TableStyles.Add(tsTableStyle);
-            }
 
             dgDataGrid.Refresh();
         }
@@ -955,9 +946,7 @@ namespace ProteinDigestionSimulator
         private void chkKeepDuplicateNamedProteins_CheckedChanged(object sender, EventArgs e)
         {
             if (chkKeepDuplicateNamedProteins.Enabled)
-            {
                 mKeepDuplicateNamedProteinsLastValue = chkKeepDuplicateNamedProteins.Checked;
-            }
         }
 
         private void chkWrapLongResidueLines_CheckedChanged(object sender, EventArgs e)
@@ -1007,9 +996,7 @@ namespace ProteinDigestionSimulator
         private void txtFilterData_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
-            {
                 FilterLists();
-            }
         }
 
         private void txtMaxFileErrorsToTrack_KeyPress1(object sender, KeyPressEventArgs e)
@@ -1040,12 +1027,8 @@ namespace ProteinDigestionSimulator
         private void txtResults_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control)
-            {
                 if (e.KeyCode == Keys.A)
-                {
                     txtResults.SelectAll();
-                }
-            }
         }
 
         /// <summary>
@@ -1065,9 +1048,7 @@ namespace ProteinDigestionSimulator
                 if (fastaFile.Exists)
                 {
                     if (fastaFile.Length > 250 * 1024 * 1024)
-                    {
                         chkCheckForDuplicateProteinInfo.Checked = false;
-                    }
 
                     StartValidation();
                 }
@@ -1106,25 +1087,17 @@ namespace ProteinDigestionSimulator
         private void mnuEditFontSizeDecrease_Click(object sender, EventArgs e)
         {
             if (TextFontSize > 14f)
-            {
                 TextFontSize -= 2f;
-            }
             else
-            {
                 TextFontSize -= 1f;
-            }
         }
 
         private void mnuEditFontSizeIncrease_Click(object sender, EventArgs e)
         {
             if (TextFontSize >= 14f)
-            {
                 TextFontSize += 2f;
-            }
             else
-            {
                 TextFontSize += 1f;
-            }
         }
 
         private void mnuEditResetToDefaults_Click(object sender, EventArgs e)
@@ -1148,14 +1121,11 @@ namespace ProteinDigestionSimulator
         private void ErrorEventHandler(string message, Exception ex)
         {
             mValidatorErrorMessage = message;
+
             if (ex != null && !message.Contains(ex.Message))
-            {
                 mValidateFastaFileErrors.Add(message + ": " + ex.Message);
-            }
             else
-            {
                 mValidateFastaFileErrors.Add(message);
-            }
         }
 
         private void MessageEventHandler(string message)

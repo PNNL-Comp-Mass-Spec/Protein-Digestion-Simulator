@@ -36,6 +36,7 @@ namespace ProteinDigestionSimulator
         protected int mProteinCount;
         protected ProteinEntry[] mProteins;
         protected bool mProteinArrayIsSorted;
+
         protected int mMaxProteinIDUsed;
 
         protected ProteinToPeptideMappingInfo mProteinToPeptideMapping;
@@ -71,8 +72,8 @@ namespace ProteinDigestionSimulator
             // Once a protein is present in the table, its ID cannot be updated
             if (GetProteinIDByProteinName(proteinName, out proteinID))
             {
+                // Protein already exists; proteinID now contains the Protein ID
             }
-            // Protein already exists; proteinID now contains the Protein ID
             else
             {
                 // Add to mProteins
@@ -80,7 +81,7 @@ namespace ProteinDigestionSimulator
                 if (mProteinCount >= mProteins.Length)
                 {
                     Array.Resize(ref mProteins, mProteins.Length * 2);
-                    // ReDim Preserve mProteins(mProteins.Length + MEMORY_RESERVE_CHUNK - 1)
+                    //Array.Resize(ref mProteins, mProteins.Length + MEMORY_RESERVE_CHUNK - 1);
                 }
 
                 if (autoDefineProteinID)
@@ -89,13 +90,13 @@ namespace ProteinDigestionSimulator
                 }
 
                 mProteins[mProteinCount] = new ProteinEntry(proteinName, proteinID);
+
                 if (mUseProteinNameDictionary)
-                {
                     mProteinNameToRowIndex.Add(proteinName, mProteinCount);
-                }
 
                 mProteinCount += 1;
                 mProteinArrayIsSorted = false;
+
                 mMaxProteinIDUsed = Math.Max(mMaxProteinIDUsed, proteinID);
             }
 
@@ -129,17 +130,18 @@ namespace ProteinDigestionSimulator
 
             var firstIndex = 0;
             var lastIndex = mProteinCount - 1;
+
             var matchingRowIndex = -1;
+
             if (mProteinCount <= 0 || !SortProteins())
-            {
                 return matchingRowIndex;
-            }
 
             try
             {
                 var midIndex = (firstIndex + lastIndex) / 2;
                 if (midIndex < firstIndex)
                     midIndex = firstIndex;
+
                 while (firstIndex <= lastIndex && (mProteins[midIndex].Name ?? "") != (proteinName ?? ""))
                 {
                     if (string.CompareOrdinal(proteinName, mProteins[midIndex].Name) < 0)
@@ -159,12 +161,8 @@ namespace ProteinDigestionSimulator
                 }
 
                 if (midIndex >= firstIndex && midIndex <= lastIndex)
-                {
                     if ((mProteins[midIndex].Name ?? "") == (proteinName ?? ""))
-                    {
                         matchingRowIndex = midIndex;
-                    }
-                }
             }
             catch
             {
@@ -177,23 +175,19 @@ namespace ProteinDigestionSimulator
         public virtual void Clear()
         {
             mProteinCount = 0;
+
             if (mProteins == null)
-            {
                 mProteins = new ProteinEntry[100000];
-            }
 
             mProteinArrayIsSorted = false;
             mMaxProteinIDUsed = 0;
+
             if (mUseProteinNameDictionary)
             {
                 if (mProteinNameToRowIndex == null)
-                {
                     mProteinNameToRowIndex = new Dictionary<string, int>();
-                }
                 else
-                {
                     mProteinNameToRowIndex.Clear();
-                }
             }
             else if (mProteinNameToRowIndex != null)
             {
@@ -224,8 +218,11 @@ namespace ProteinDigestionSimulator
             // Since mProteins is sorted by Protein Name, we must fully search the array to obtain the protein name for proteinID
 
             var matchFound = false;
+
             int index;
+
             proteinName = string.Empty;
+
             for (index = 0; index < mProteinCount; index++)
             {
                 if (mProteins[index].ProteinID == proteinID)
@@ -246,16 +243,13 @@ namespace ProteinDigestionSimulator
             // Note that the data will be sorted if necessary, which could lead to slow execution if this function is called repeatedly, while adding new data between calls
 
             int rowIndex;
+
             if (mUseProteinNameDictionary)
             {
                 if (mProteinNameToRowIndex.ContainsKey(proteinName))
-                {
                     rowIndex = mProteinNameToRowIndex[proteinName];
-                }
                 else
-                {
                     rowIndex = -1;
-                }
             }
             else
             {
@@ -359,7 +353,7 @@ namespace ProteinDigestionSimulator
                 if (mMappingCount >= mMappings.Length)
                 {
                     Array.Resize(ref mMappings, mMappings.Length * 2);
-                    // ReDim Preserve mMappings(mMappings.Length + MEMORY_RESERVE_CHUNK - 1)
+                    //Array.Resize(ref mMappings, mMappings.Length + MEMORY_RESERVE_CHUNK - 1);
                 }
 
                 mMappings[mMappingCount] = new ProteinToPeptideMappingEntry(proteinID, peptideID, cleavageState);
@@ -381,9 +375,7 @@ namespace ProteinDigestionSimulator
                 {
                     // Need to add the protein
                     if (!proteinInfo.Add(proteinName, out proteinID))
-                    {
                         return false;
-                    }
                 }
 
                 return AddProteinToPeptideMapping(proteinID, peptideID, cleavageState);
@@ -396,17 +388,18 @@ namespace ProteinDigestionSimulator
 
                 var firstIndex = 0;
                 var lastIndex = mMappingCount - 1;
+
                 var matchingRowIndex = -1;
+
                 if (mMappingCount <= 0 || !SortMappings())
-                {
                     return matchingRowIndex;
-                }
 
                 try
                 {
-                    var midIndex = (firstIndex + lastIndex) / 2;
+                    var midIndex = (firstIndex + lastIndex) / 2; // Note: Using Integer division
                     if (midIndex < firstIndex)
                         midIndex = firstIndex;
+
                     while (firstIndex <= lastIndex && mMappings[midIndex].ProteinID != proteinIDToFind)
                     {
                         if (proteinIDToFind < mMappings[midIndex].ProteinID)
@@ -426,12 +419,8 @@ namespace ProteinDigestionSimulator
                     }
 
                     if (midIndex >= firstIndex && midIndex <= lastIndex)
-                    {
                         if (mMappings[midIndex].ProteinID == proteinIDToFind)
-                        {
                             matchingRowIndex = midIndex;
-                        }
-                    }
                 }
                 catch
                 {
@@ -444,10 +433,9 @@ namespace ProteinDigestionSimulator
             public virtual void Clear()
             {
                 mMappingCount = 0;
+
                 if (mMappings == null)
-                {
                     mMappings = new ProteinToPeptideMappingEntry[100000];
-                }
 
                 mMappingArrayIsSorted = false;
             }
@@ -460,12 +448,8 @@ namespace ProteinDigestionSimulator
                 if (GetRowIndicesForProteinID(proteinID, out var indexFirst, out var indexLast))
                 {
                     for (var index = indexFirst; index <= indexLast; index++)
-                    {
                         if (mMappings[index].PeptideID == peptideID)
-                        {
                             return true;
-                        }
-                    }
                 }
 
                 // If we get here, then the mapping wasn't found
@@ -479,9 +463,11 @@ namespace ProteinDigestionSimulator
                 // Returns all of the peptides for the given protein ID
 
                 int[] matchingIDs;
+
                 if (GetRowIndicesForProteinID(proteinID, out var indexFirst, out var indexLast))
                 {
                     matchingIDs = new int[indexLast - indexFirst + 1];
+
                     for (var index = indexFirst; index <= indexLast; index++)
                         matchingIDs[index - indexFirst] = mMappings[index].PeptideID;
                 }
@@ -498,8 +484,10 @@ namespace ProteinDigestionSimulator
                 // Since mMappings is sorted by Protein ID, we must fully search the array to obtain the ProteinIDs for peptideID
 
                 var ARRAY_ALLOCATION_CHUNK = 10;
+
                 var matchingIDs = new int[ARRAY_ALLOCATION_CHUNK];
                 var matchCount = 0;
+
                 for (var index = 0; index < mMappingCount; index++)
                 {
                     if (mMappings[index].PeptideID == peptideID)
@@ -507,7 +495,7 @@ namespace ProteinDigestionSimulator
                         if (matchCount >= matchingIDs.Length)
                         {
                             Array.Resize(ref matchingIDs, matchingIDs.Length * 2);
-                            // ReDim Preserve matchingIDs(matchingIDs.Length + ARRAY_ALLOCATION_CHUNK - 1)
+                            //Array.Resize(ref matchingIDs, matchingIDs.Length + ARRAY_ALLOCATION_CHUNK - 1);
                         }
 
                         matchingIDs[matchCount] = mMappings[index].ProteinID;
@@ -516,9 +504,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 if (matchingIDs.Length > matchCount)
-                {
                     Array.Resize(ref matchingIDs, matchCount);
-                }
 
                 return matchingIDs;
             }
@@ -530,6 +516,7 @@ namespace ProteinDigestionSimulator
 
                 // Perform a binary search of mMappings for proteinID
                 indexFirst = BinarySearchFindProteinMapping(proteinID);
+
                 if (indexFirst >= 0)
                 {
                     // Match found; need to find all of the rows with proteinID
@@ -542,6 +529,7 @@ namespace ProteinDigestionSimulator
                     // Step forward through mMappings to find the last match for proteinID
                     while (indexLast < mMappingCount - 1 && mMappings[indexLast + 1].ProteinID == proteinID)
                         indexLast += 1;
+
                     return true;
                 }
 
@@ -553,9 +541,7 @@ namespace ProteinDigestionSimulator
             public int get_PeptideCountForProteinID(int proteinID)
             {
                 if (GetRowIndicesForProteinID(proteinID, out var indexFirst, out var indexLast))
-                {
                     return indexLast - indexFirst + 1;
-                }
 
                 return 0;
             }

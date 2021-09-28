@@ -41,11 +41,15 @@ namespace ProteinDigestionSimulator
         }
 
         private DataTypeToUse mDataType;
+
         private int[] mDataInt;
         private float[] mDataSingle;
         private double[] mDataDouble;
+
         private int mPointByPointFillCount;
+
         private int[] mPointerIndices;        // Pointers to the original index of the data point in the source array
+
         private bool mPointerArrayIsValid;
 
         public int DataCount
@@ -79,9 +83,7 @@ namespace ProteinDigestionSimulator
                 try
                 {
                     if (index < mPointerIndices.Length)
-                    {
                         return mPointerIndices[index];
-                    }
 
                     return -1;
                 }
@@ -103,6 +105,7 @@ namespace ProteinDigestionSimulator
 
             var leftDone = default(bool);
             var rightDone = default(bool);
+
             var indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
             if (indexMidpoint == matchIndexStart)
             {
@@ -134,25 +137,23 @@ namespace ProteinDigestionSimulator
                 {
                     leftIndex -= 1;
                     if (leftIndex < matchIndexStart)
-                    {
                         leftDone = true;
-                    }
                     else if (Math.Abs(searchValue - mDataInt[leftIndex]) > toleranceHalfWidth)
                         leftDone = true;
                 }
                 while (!leftDone);
                 var rightIndex = indexMidpoint;
+
                 do
                 {
                     rightIndex += 1;
                     if (rightIndex > matchIndexEnd)
-                    {
                         rightDone = true;
-                    }
                     else if (Math.Abs(searchValue - mDataInt[rightIndex]) > toleranceHalfWidth)
                         rightDone = true;
                 }
                 while (!rightDone);
+
                 matchIndexStart = leftIndex + 1;
                 matchIndexEnd = rightIndex - 1;
             }
@@ -164,6 +165,7 @@ namespace ProteinDigestionSimulator
 
             var leftDone = default(bool);
             var rightDone = default(bool);
+
             var indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
             if (indexMidpoint == matchIndexStart)
             {
@@ -195,21 +197,18 @@ namespace ProteinDigestionSimulator
                 {
                     leftIndex -= 1;
                     if (leftIndex < matchIndexStart)
-                    {
                         leftDone = true;
-                    }
                     else if (Math.Abs(searchValue - mDataSingle[leftIndex]) > toleranceHalfWidth)
                         leftDone = true;
                 }
                 while (!leftDone);
                 var rightIndex = indexMidpoint;
+
                 do
                 {
                     rightIndex += 1;
                     if (rightIndex > matchIndexEnd)
-                    {
                         rightDone = true;
-                    }
                     else if (Math.Abs(searchValue - mDataSingle[rightIndex]) > toleranceHalfWidth)
                         rightDone = true;
                 }
@@ -225,6 +224,7 @@ namespace ProteinDigestionSimulator
 
             var leftDone = default(bool);
             var rightDone = default(bool);
+
             var indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
             if (indexMidpoint == matchIndexStart)
             {
@@ -256,25 +256,23 @@ namespace ProteinDigestionSimulator
                 {
                     leftIndex -= 1;
                     if (leftIndex < matchIndexStart)
-                    {
                         leftDone = true;
-                    }
                     else if (Math.Abs(searchValue - mDataDouble[leftIndex]) > toleranceHalfWidth)
                         leftDone = true;
                 }
                 while (!leftDone);
                 var rightIndex = indexMidpoint;
+
                 do
                 {
                     rightIndex += 1;
                     if (rightIndex > matchIndexEnd)
-                    {
                         rightDone = true;
-                    }
                     else if (Math.Abs(searchValue - mDataDouble[rightIndex]) > toleranceHalfWidth)
                         rightDone = true;
                 }
                 while (!rightDone);
+
                 matchIndexStart = leftIndex + 1;
                 matchIndexEnd = rightIndex - 1;
             }
@@ -288,6 +286,7 @@ namespace ProteinDigestionSimulator
                 mDataSingle = new float[0];
             if (mDataType != DataTypeToUse.DoubleType)
                 mDataDouble = new double[0];
+
             if (mDataType == DataTypeToUse.NoDataPresent)
             {
                 mPointerIndices = new int[0];
@@ -310,8 +309,10 @@ namespace ProteinDigestionSimulator
 
             mDataType = DataTypeToUse.NoDataPresent;
             ClearUnusedData();
+
             mDataType = DataTypeToUse.FillingIntegerType;
             mDataInt = new int[expectedDataCount];
+
             mPointByPointFillCount = 0;
         }
 
@@ -324,6 +325,7 @@ namespace ProteinDigestionSimulator
 
             mDataType = DataTypeToUse.NoDataPresent;
             ClearUnusedData();
+
             mDataType = DataTypeToUse.FillingSingleType;
             mDataSingle = new float[dataCountToReserve];
         }
@@ -337,6 +339,7 @@ namespace ProteinDigestionSimulator
 
             mDataType = DataTypeToUse.NoDataPresent;
             ClearUnusedData();
+
             mDataType = DataTypeToUse.FillingDoubleType;
             mDataDouble = new double[dataCountToReserve];
         }
@@ -344,12 +347,11 @@ namespace ProteinDigestionSimulator
         public bool FillWithData(ref int[] values)
         {
             bool success;
+
             try
             {
                 if (values == null || values.Length == 0)
-                {
                     success = false;
-                }
                 else
                 {
                     mDataInt = new int[values.Length];
@@ -376,13 +378,9 @@ namespace ProteinDigestionSimulator
             }
 
             if (success)
-            {
                 ClearUnusedData();
-            }
             else
-            {
                 mDataType = DataTypeToUse.NoDataPresent;
-            }
 
             return success;
         }
@@ -390,12 +388,11 @@ namespace ProteinDigestionSimulator
         public bool FillWithData(ref float[] values)
         {
             bool success;
+
             try
             {
                 if (values == null || values.Length == 0)
-                {
                     success = false;
-                }
                 else
                 {
                     mDataSingle = new float[values.Length];
@@ -422,13 +419,9 @@ namespace ProteinDigestionSimulator
             }
 
             if (success)
-            {
                 ClearUnusedData();
-            }
             else
-            {
                 mDataType = DataTypeToUse.NoDataPresent;
-            }
 
             return success;
         }
@@ -436,16 +429,16 @@ namespace ProteinDigestionSimulator
         public bool FillWithData(ref double[] values)
         {
             bool success;
+
             try
             {
                 if (values == null || values.Length == 0)
-                {
                     success = false;
-                }
                 else
                 {
                     mDataDouble = new double[values.Length];
                     values.CopyTo(mDataDouble, 0);
+
                     if (UsePointerIndexArray)
                     {
                         InitializePointerIndexArray(mDataDouble.Length);
@@ -468,13 +461,9 @@ namespace ProteinDigestionSimulator
             }
 
             if (success)
-            {
                 ClearUnusedData();
-            }
             else
-            {
                 mDataType = DataTypeToUse.NoDataPresent;
-            }
 
             return success;
         }
@@ -482,12 +471,11 @@ namespace ProteinDigestionSimulator
         public bool FillWithDataAddBlock(int[] valuesToAdd)
         {
             var success = true;
+
             try
             {
                 if (mDataInt.Length <= mPointByPointFillCount + valuesToAdd.Length - 1)
-                {
                     Array.Resize(ref mDataInt, mDataInt.Length + valuesToAdd.Length);
-                }
 
                 Array.Copy(valuesToAdd, 0, mDataInt, mPointByPointFillCount - 1, valuesToAdd.Length);
                 mPointByPointFillCount += valuesToAdd.Length;
@@ -509,12 +497,11 @@ namespace ProteinDigestionSimulator
         public bool FillWithDataAddBlock(float[] valuesToAdd)
         {
             var success = true;
+
             try
             {
                 if (mDataSingle.Length <= mPointByPointFillCount + valuesToAdd.Length - 1)
-                {
                     Array.Resize(ref mDataSingle, mDataSingle.Length + valuesToAdd.Length);
-                }
 
                 Array.Copy(valuesToAdd, 0, mDataSingle, mPointByPointFillCount - 1, valuesToAdd.Length);
                 mPointByPointFillCount += valuesToAdd.Length;
@@ -530,12 +517,11 @@ namespace ProteinDigestionSimulator
         public bool FillWithDataAddBlock(double[] valuesToAdd)
         {
             var success = true;
+
             try
             {
                 if (mDataDouble.Length <= mPointByPointFillCount + valuesToAdd.Length - 1)
-                {
                     Array.Resize(ref mDataDouble, mDataDouble.Length + valuesToAdd.Length);
-                }
 
                 Array.Copy(valuesToAdd, 0, mDataDouble, mPointByPointFillCount, valuesToAdd.Length);
                 mPointByPointFillCount += valuesToAdd.Length;
@@ -551,6 +537,7 @@ namespace ProteinDigestionSimulator
         public bool FillWithDataAddPoint(int valueToAdd)
         {
             var success = true;
+
             try
             {
                 if (mDataType != DataTypeToUse.FillingIntegerType)
@@ -571,9 +558,7 @@ namespace ProteinDigestionSimulator
                 else
                 {
                     if (mDataInt.Length <= mPointByPointFillCount)
-                    {
                         Array.Resize(ref mDataInt, (int)Math.Round(mDataInt.Length * 1.1d));
-                    }
 
                     mDataInt[mPointByPointFillCount] = valueToAdd;
                     mPointByPointFillCount += 1;
@@ -590,6 +575,7 @@ namespace ProteinDigestionSimulator
         public bool FillWithDataAddPoint(float valueToAdd)
         {
             var success = true;
+
             try
             {
                 if (mDataType != DataTypeToUse.FillingSingleType)
@@ -610,9 +596,7 @@ namespace ProteinDigestionSimulator
                 else
                 {
                     if (mDataSingle.Length <= mPointByPointFillCount)
-                    {
                         Array.Resize(ref mDataSingle, (int)Math.Round(mDataSingle.Length * 1.1d));
-                    }
 
                     mDataSingle[mPointByPointFillCount] = valueToAdd;
                     mPointByPointFillCount += 1;
@@ -629,6 +613,7 @@ namespace ProteinDigestionSimulator
         public bool FillWithDataAddPoint(double valueToAdd)
         {
             var success = true;
+
             try
             {
                 if (mDataType != DataTypeToUse.FillingDoubleType)
@@ -649,9 +634,7 @@ namespace ProteinDigestionSimulator
                 else
                 {
                     if (mDataDouble.Length <= mPointByPointFillCount)
-                    {
                         Array.Resize(ref mDataDouble, (int)Math.Round(mDataDouble.Length * 1.1d));
-                    }
 
                     mDataDouble[mPointByPointFillCount] = valueToAdd;
                     mPointByPointFillCount += 1;
@@ -672,6 +655,7 @@ namespace ProteinDigestionSimulator
 
             Array DataArray = null;
             bool success;
+
             try
             {
                 success = true;
@@ -682,9 +666,7 @@ namespace ProteinDigestionSimulator
 
                         // Shrink mDataInt if necessary
                         if (mDataInt.Length > mPointByPointFillCount)
-                        {
                             Array.Resize(ref mDataInt, mPointByPointFillCount);
-                        }
 
                         DataArray = mDataInt;
                         break;
@@ -694,9 +676,7 @@ namespace ProteinDigestionSimulator
 
                         // Shrink mDataSingle if necessary
                         if (mDataSingle.Length > mPointByPointFillCount)
-                        {
                             Array.Resize(ref mDataSingle, mPointByPointFillCount);
-                        }
 
                         DataArray = mDataSingle;
                         break;
@@ -706,9 +686,7 @@ namespace ProteinDigestionSimulator
 
                         // Shrink mDataDouble if necessary
                         if (mDataDouble.Length > mPointByPointFillCount)
-                        {
                             Array.Resize(ref mDataDouble, mPointByPointFillCount);
-                        }
 
                         DataArray = mDataDouble;
                         break;
@@ -753,9 +731,7 @@ namespace ProteinDigestionSimulator
             // See if user filled with data, but didn't call Finalize
             // We'll call it for them
             if (mDataType == DataTypeToUse.FillingIntegerType || mDataType == DataTypeToUse.FillingSingleType || mDataType == DataTypeToUse.FillingDoubleType)
-            {
                 FinalizeDataFill();
-            }
 
             if (mDataType != DataTypeToUse.IntegerType)
             {
@@ -776,10 +752,9 @@ namespace ProteinDigestionSimulator
             {
                 matchIndexStart = 0;
                 matchIndexEnd = mDataInt.Length - 1;
+
                 if (mDataInt.Length == 0)
-                {
                     matchIndexEnd = -1;
-                }
                 else if (mDataInt.Length == 1)
                 {
                     if (Math.Abs(searchValue - mDataInt[0]) > toleranceHalfWidth)
@@ -789,9 +764,7 @@ namespace ProteinDigestionSimulator
                     }
                 }
                 else
-                {
                     BinarySearchRangeInt(searchValue, toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
-                }
 
                 if (matchIndexStart > matchIndexEnd)
                 {
@@ -800,9 +773,7 @@ namespace ProteinDigestionSimulator
                     matchFound = false;
                 }
                 else
-                {
                     matchFound = true;
-                }
             }
 
             return matchFound;
@@ -819,9 +790,7 @@ namespace ProteinDigestionSimulator
             // See if user filled with data, but didn't call Finalize
             // We'll call it for them
             if (mDataType == DataTypeToUse.FillingIntegerType || mDataType == DataTypeToUse.FillingSingleType || mDataType == DataTypeToUse.FillingDoubleType)
-            {
                 FinalizeDataFill();
-            }
 
             if (mDataType != DataTypeToUse.DoubleType)
             {
@@ -842,10 +811,9 @@ namespace ProteinDigestionSimulator
             {
                 matchIndexStart = 0;
                 matchIndexEnd = mDataDouble.Length - 1;
+
                 if (mDataDouble.Length == 0)
-                {
                     matchIndexEnd = -1;
-                }
                 else if (mDataDouble.Length == 1)
                 {
                     if (Math.Abs(searchValue - mDataDouble[0]) > toleranceHalfWidth)
@@ -855,9 +823,7 @@ namespace ProteinDigestionSimulator
                     }
                 }
                 else
-                {
                     BinarySearchRangeDbl(searchValue, toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
-                }
 
                 if (matchIndexStart > matchIndexEnd)
                 {
@@ -866,9 +832,7 @@ namespace ProteinDigestionSimulator
                     matchFound = false;
                 }
                 else
-                {
                     matchFound = true;
-                }
             }
 
             return matchFound;
@@ -885,9 +849,7 @@ namespace ProteinDigestionSimulator
             // See if user filled with data, but didn't call Finalize
             // We'll call it for them
             if (mDataType == DataTypeToUse.FillingIntegerType || mDataType == DataTypeToUse.FillingSingleType || mDataType == DataTypeToUse.FillingDoubleType)
-            {
                 FinalizeDataFill();
-            }
 
             if (mDataType != DataTypeToUse.SingleType)
             {
@@ -909,9 +871,7 @@ namespace ProteinDigestionSimulator
                 matchIndexStart = 0;
                 matchIndexEnd = mDataSingle.Length - 1;
                 if (mDataSingle.Length == 0)
-                {
                     matchIndexEnd = -1;
-                }
                 else if (mDataSingle.Length == 1)
                 {
                     if (Math.Abs(searchValue - mDataSingle[0]) > toleranceHalfWidth)
@@ -921,9 +881,7 @@ namespace ProteinDigestionSimulator
                     }
                 }
                 else
-                {
                     BinarySearchRangeSng(searchValue, toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
-                }
 
                 if (matchIndexStart > matchIndexEnd)
                 {
@@ -932,9 +890,7 @@ namespace ProteinDigestionSimulator
                     matchFound = false;
                 }
                 else
-                {
                     matchFound = true;
-                }
             }
 
             return matchFound;
@@ -957,9 +913,7 @@ namespace ProteinDigestionSimulator
             try
             {
                 if (mDataType == DataTypeToUse.NoDataPresent)
-                {
                     return 0d;
-                }
 
                 switch (mDataType)
                 {
@@ -1010,9 +964,7 @@ namespace ProteinDigestionSimulator
         public double GetValueByOriginalIndex(int indexOriginal)
         {
             if (!mPointerArrayIsValid || mDataType == DataTypeToUse.NoDataPresent)
-            {
                 return 0d;
-            }
 
             try
             {
@@ -1030,9 +982,7 @@ namespace ProteinDigestionSimulator
                     }
                 }
                 else
-                {
                     return 0d;
-                }
             }
             catch
             {
@@ -1058,6 +1008,7 @@ namespace ProteinDigestionSimulator
         {
             mDataType = DataTypeToUse.NoDataPresent;
             ClearUnusedData();
+
             UsePointerIndexArray = true;
             InitializePointerIndexArray(0);
         }
@@ -1065,19 +1016,18 @@ namespace ProteinDigestionSimulator
         private void InitializePointerIndexArray(int length)
         {
             int index;
+
             if (length < 0)
                 length = 0;
             mPointerIndices = new int[length];
+
             for (index = 0; index < length; index++)
                 mPointerIndices[index] = index;
+
             if (length > 0)
-            {
                 mPointerArrayIsValid = true;
-            }
             else
-            {
                 mPointerArrayIsValid = false;
-            }
         }
     }
 }

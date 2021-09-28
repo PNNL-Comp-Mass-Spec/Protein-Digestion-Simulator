@@ -132,15 +132,15 @@ namespace ProteinDigestionSimulator
         {
             var runningSum = 0d;
             var residueCount = 0;
+
             foreach (var c in seq)
             {
                 var residue = char.ToUpper(c);
+
                 try
                 {
                     if (!mAminoAcids.TryGetValue(residue, out var aaInfo))
-                    {
                         continue;
-                    }
 
                     switch (HT)
                     {
@@ -173,9 +173,7 @@ namespace ProteinDigestionSimulator
             }
 
             if (residueCount > 0)
-            {
                 return runningSum / residueCount;
-            }
 
             return 0d;
         }
@@ -190,9 +188,7 @@ namespace ProteinDigestionSimulator
         {
             int chargeState;
             if (string.IsNullOrEmpty(seq))
-            {
                 return 0;
-            }
 
             try
             {
@@ -247,9 +243,7 @@ namespace ProteinDigestionSimulator
         public float CalculateSequenceHydrophobicity(string seq)
         {
             if (string.IsNullOrEmpty(seq))
-            {
                 return 0f;
-            }
 
             try
             {
@@ -280,9 +274,7 @@ namespace ProteinDigestionSimulator
         {
             double pH;
             if (string.IsNullOrEmpty(seq))
-            {
                 return 0f;
-            }
 
             try
             {
@@ -362,12 +354,14 @@ namespace ProteinDigestionSimulator
             HydrophobicityType = HydrophobicityTypeConstants.HW;
             ReportMaximumpI = false;
             SequenceWidthToExamineForMaximumpI = 10;
+
             LoadAminoAcids();
         }
 
         private void LoadAminoAcids()
         {
             mAminoAcids.Clear();
+
             AddAminoAcid('A', -0.5d, 1.8d, 0.25d, -1.6d, 0.5d, -0.1d);
             AddAminoAcid('C', -1, 2.5d, 0.04d, -2, -6.8d, -2.2d);
             AddAminoAcid('D', 3d, -3.5d, -0.72d, 9.2d, -8.2d, -2.8d);

@@ -84,37 +84,42 @@ namespace ProteinDigestionSimulator
         // Ignore Spelling: Kangas, Petritis, cmd, chk, txt, frm
 
         private const int FORM_CLOSE_DELAY_SECONDS = 2;
-        protected System.Timers.Timer mCloseDelayTimer;
 
+        protected System.Timers.Timer mCloseDelayTimer;
         protected DateTime mTimerStartTime;
 
         public static string GetKangasPetritisDisclaimerText(bool addNewlines = true)
         {
             string newlineText;
             if (addNewlines)
-            {
                 newlineText = Environment.NewLine + Environment.NewLine;
-            }
             else
-            {
                 newlineText = ": ";
-            }
 
-            return "NOTICE/DISCLAIMER" + newlineText + "The methods embodied in this software to derive the Kangas/Petritis retention time " + "prediction values are covered by U.S. patent 7,136,759 and pending patent 2005-0267688A1.  " + "The software is made available solely for non-commercial research purposes on an " + "\"as is\" basis by Battelle Memorial Institute.  If rights to deploy and distribute  " + "the code for commercial purposes are of interest, please contact proteomics@pnnl.gov";
+            return "NOTICE/DISCLAIMER" +
+                   newlineText +
+                   "The methods embodied in this software to derive the Kangas/Petritis retention time " +
+                   "prediction values are covered by U.S. patent 7,136,759 and pending patent 2005-0267688A1.  " +
+                   "The software is made available solely for non-commercial research purposes on an " +
+                   "\"as is\" basis by Battelle Memorial Institute.  If rights to deploy and distribute  " +
+                   "the code for commercial purposes are of interest, please contact proteomics@pnnl.gov";
         }
 
         public void InitializeControls()
         {
             txtNotice.Text = GetKangasPetritisDisclaimerText();
             txtNotice.SelectionStart = 0;
-            // txtNotice.SelectionLength = 0
+            //txtNotice.SelectionLength = 0;
 
             cmdOK.Text = FORM_CLOSE_DELAY_SECONDS.ToString();
             cmdOK.Enabled = false;
+
             mTimerStartTime = DateTime.UtcNow;
+
             mCloseDelayTimer = new System.Timers.Timer(250d);
             mCloseDelayTimer.Elapsed += mCloseDelayTimer_Elapsed;
             mCloseDelayTimer.SynchronizingObject = this;
+
             mCloseDelayTimer.Start();
         }
 

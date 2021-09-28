@@ -595,7 +595,7 @@ namespace ProteinDigestionSimulator
             lblUniquenessStatsNote.Name = "lblUniquenessStatsNote";
             lblUniquenessStatsNote.Size = new Size(200, 48);
             lblUniquenessStatsNote.TabIndex = 1;
-            lblUniquenessStatsNote.Text = "Note that Digestion Options and Mass Calculation Options also apply for uniquenes" + "s stats generation.";
+            lblUniquenessStatsNote.Text = "Note that Digestion Options and Mass Calculation Options also apply for uniqueness stats generation.";
             //
             // cmdGenerateUniquenessStats
             //

@@ -47,21 +47,29 @@ namespace ProteinDigestionSimulator
 
         private const int SW_HIDE = 0;
         private const int SW_SHOW = 5;
+
         private static string mInputFilePath;
         private static bool mAssumeFastaFile;
         private static bool mCreateDigestedProteinOutputFile;
         private static bool mComputeProteinMass;
+
         private static char mInputFileDelimiter;
+
         private static string mOutputDirectoryPath;              // Optional
         private static string mParameterFilePath;                // Optional
         private static string mOutputDirectoryAlternatePath;     // Optional
+
         private static bool mRecreateDirectoryHierarchyInAlternatePath;  // Optional
+
         private static bool mRecurseDirectories;
         private static int mMaxLevelsToRecurse;
+
         private static bool mLogMessagesToFile;
         private static string mLogFilePath = string.Empty;
         private static string mLogDirectoryPath = string.Empty;
+
         private static bool mShowDebugPrompts;
+
         private static ProteinFileParser mParseProteinFile;
         private static DateTime mLastProgressReportTime;
         private static int mLastProgressReportValue;
@@ -72,18 +80,24 @@ namespace ProteinDigestionSimulator
 
             int returnCode;
             var commandLineParser = new clsParseCommandLine();
+
             mInputFilePath = string.Empty;
             mAssumeFastaFile = false;
             mCreateDigestedProteinOutputFile = false;
             mComputeProteinMass = false;
+
             mInputFileDelimiter = '\t';
+
             mOutputDirectoryPath = string.Empty;
             mParameterFilePath = string.Empty;
+
             mRecurseDirectories = false;
             mMaxLevelsToRecurse = 0;
+
             mLogMessagesToFile = false;
             mLogFilePath = string.Empty;
             mLogDirectoryPath = string.Empty;
+
             try
             {
                 var proceed = false;
@@ -106,6 +120,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 mParseProteinFile = new ProteinFileParser { ShowDebugPrompts = mShowDebugPrompts };
+
                 mParseProteinFile.ProgressUpdate += Processing_ProgressChanged;
                 mParseProteinFile.ProgressReset += Processing_ProgressReset;
 
@@ -114,34 +129,32 @@ namespace ProteinDigestionSimulator
                 mParseProteinFile.CreateProteinOutputFile = true;
                 mParseProteinFile.CreateDigestedProteinOutputFile = mCreateDigestedProteinOutputFile;
                 mParseProteinFile.ComputeProteinMass = mComputeProteinMass;
+
                 mParseProteinFile.InputFileDelimiter = mInputFileDelimiter;
                 mParseProteinFile.DelimitedFileFormatCode = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence;
+
                 mParseProteinFile.DigestionOptions.RemoveDuplicateSequences = false;
+
                 mParseProteinFile.LogMessagesToFile = mLogMessagesToFile;
                 mParseProteinFile.LogFilePath = mLogFilePath;
                 mParseProteinFile.LogDirectoryPath = mLogDirectoryPath;
+
                 if (mRecurseDirectories)
                 {
-                    if (mParseProteinFile.ProcessFilesAndRecurseDirectories(mInputFilePath, mOutputDirectoryPath, mOutputDirectoryAlternatePath, mRecreateDirectoryHierarchyInAlternatePath, mParameterFilePath, mMaxLevelsToRecurse))
-                    {
+                    if (mParseProteinFile.ProcessFilesAndRecurseDirectories(mInputFilePath, mOutputDirectoryPath,
+                                                                            mOutputDirectoryAlternatePath, mRecreateDirectoryHierarchyInAlternatePath,
+                                                                            mParameterFilePath, mMaxLevelsToRecurse))
                         returnCode = 0;
-                    }
                     else
-                    {
                         returnCode = (int)mParseProteinFile.ErrorCode;
-                    }
                 }
                 else if (mParseProteinFile.ProcessFilesWildcard(mInputFilePath, mOutputDirectoryPath, mParameterFilePath))
-                {
                     returnCode = 0;
-                }
                 else
                 {
                     returnCode = (int)mParseProteinFile.ErrorCode;
                     if (returnCode != 0)
-                    {
                         ShowErrorMessage("Error while processing: " + mParseProteinFile.GetErrorMessage());
-                    }
                 }
 
                 DisplayProgressPercent(mLastProgressReportValue, true);
@@ -153,23 +166,20 @@ namespace ProteinDigestionSimulator
             }
 
             Thread.Sleep(1500);
+
             return returnCode;
         }
 
         private static void DisplayProgressPercent(int percentComplete, bool addCarriageReturn)
         {
             if (addCarriageReturn)
-            {
                 Console.WriteLine();
-            }
 
             if (percentComplete > 100)
                 percentComplete = 100;
             Console.Write("Processing: " + percentComplete + "% ");
             if (addCarriageReturn)
-            {
                 Console.WriteLine();
-            }
         }
 
         private static string GetAppVersion()
@@ -182,6 +192,7 @@ namespace ProteinDigestionSimulator
             // Returns True if no problems; otherwise, returns false
 
             var validParameters = new List<string> { "I", "F", "D", "M", "AD", "O", "P", "S", "A", "R", "DEBUG" };
+
             try
             {
                 // Make sure no invalid parameters are present
@@ -193,13 +204,9 @@ namespace ProteinDigestionSimulator
 
                 // Query commandLineParser to see if various parameters are present
                 if (commandLineParser.RetrieveValueForParameter("I", out var value))
-                {
                     mInputFilePath = value;
-                }
                 else if (commandLineParser.NonSwitchParameterCount > 0)
-                {
                     mInputFilePath = commandLineParser.RetrieveNonSwitchParameter(0);
-                }
 
                 if (commandLineParser.RetrieveValueForParameter("F", out value))
                     mAssumeFastaFile = true;
@@ -217,9 +224,7 @@ namespace ProteinDigestionSimulator
                 {
                     mRecurseDirectories = true;
                     if (int.TryParse(value, out var valueInt))
-                    {
                         mMaxLevelsToRecurse = valueInt;
-                    }
                 }
 
                 if (commandLineParser.RetrieveValueForParameter("A", out value))
@@ -227,22 +232,23 @@ namespace ProteinDigestionSimulator
                 if (commandLineParser.RetrieveValueForParameter("R", out value))
                     mRecreateDirectoryHierarchyInAlternatePath = true;
 
-                // If commandLineParser.RetrieveValueForParameter("L", value) Then
-                // mLogMessagesToFile = True
-                // If Not String.IsNullOrEmpty(value) Then
-                // mLogFilePath = value
-                // End If
-                // End If
+                //if (commandLineParser.RetrieveValueForParameter("L", out value))
+                //{
+                //    mLogMessagesToFile = true;
+                //    if (!string.IsNullOrEmpty(value))
+                //        mLogFilePath = value;
+                //}
 
-                // If commandLineParser.RetrieveValueForParameter("LogDir", value) Then
-                // mLogMessagesToFile = True
-                // If Not String.IsNullOrEmpty(value) Then
-                // mLogDirectoryPath = value
-                // End If
-                // End If
+                //if (commandLineParser.RetrieveValueForParameter("LogDir", out value))
+                //{
+                //    mLogMessagesToFile = true;
+                //    if (!string.IsNullOrEmpty(value))
+                //        mLogDirectoryPath = value;
+                //}
 
                 if (commandLineParser.RetrieveValueForParameter("DEBUG", out value))
                     mShowDebugPrompts = true;
+
                 return true;
             }
             catch (Exception ex)
@@ -256,19 +262,23 @@ namespace ProteinDigestionSimulator
         private static void ShowErrorMessage(string message, Exception ex = null)
         {
             ConsoleMsgUtils.ShowError(message, ex);
+
             WriteToErrorStream(message);
         }
 
         public static void ShowGUI()
         {
             var hWndConsole = IntPtr.Zero;
+
             try
             {
                 // Hide the console
                 hWndConsole = GetConsoleWindow();
                 ShowWindow(hWndConsole, SW_HIDE);
+
                 Application.EnableVisualStyles();
                 Application.DoEvents();
+
                 var formMain = new Main();
                 formMain.ShowDialog();
             }
@@ -278,19 +288,25 @@ namespace ProteinDigestionSimulator
             }
 
             if (hWndConsole != IntPtr.Zero)
-            {
                 ShowWindow(hWndConsole, SW_SHOW);
-            }
         }
 
         private static void ShowProgramHelp()
         {
             try
             {
-                Console.WriteLine(WrapParagraph("This program can be used to read a FASTA file or tab delimited file containing protein or peptide sequences, then output " + "the data to a tab-delimited file.  It can optionally digest the input sequences using trypsin or partial trypsin rules, " + "and can add the predicted normalized elution time (NET) values for the peptides.Additionally, it can calculate the " + "number of uniquely identifiable peptides, using only mass, or both mass and NET, with appropriate tolerances."));
+                Console.WriteLine(WrapParagraph(
+                    "This program can be used to read a FASTA file or tab delimited file containing protein or peptide sequences, then output " +
+                    "the data to a tab-delimited file.  It can optionally digest the input sequences using trypsin or partial trypsin rules, " +
+                    "and can add the predicted normalized elution time (NET) values for the peptides.Additionally, it can calculate the " +
+                    "number of uniquely identifiable peptides, using only mass, or both mass and NET, with appropriate tolerances."));
                 Console.WriteLine();
                 Console.WriteLine("Program syntax:");
-                Console.WriteLine(WrapParagraph(Path.GetFileName(ProcessFilesOrDirectoriesBase.GetAppPath()) + " /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimiter] " + "[/O:OutputDirectoryPath] [/P:ParameterFilePath] [/S:[MaxLevel]] " + "[/A:AlternateOutputDirectoryPath] [/R] [/Q]"));
+                Console.WriteLine(WrapParagraph(
+                    Path.GetFileName(ProcessFilesOrDirectoriesBase.GetAppPath()) +
+                    " /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimiter] " +
+                    "[/O:OutputDirectoryPath] [/P:ParameterFilePath] [/S:[MaxLevel]] " +
+                    "[/A:AlternateOutputDirectoryPath] [/R] [/Q]"));
                 Console.WriteLine();
                 Console.WriteLine(WrapParagraph("The input file path can contain the wildcard character * and should point to a FASTA file or tab-delimited text file."));
                 Console.WriteLine();
@@ -319,6 +335,7 @@ namespace ProteinDigestionSimulator
                 Console.WriteLine("Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/");
                 Console.WriteLine();
                 Console.WriteLine(WrapParagraph(Disclaimer.GetKangasPetritisDisclaimerText(false)));
+
                 Thread.Sleep(2000);
             }
             catch (Exception ex)
@@ -337,9 +354,7 @@ namespace ProteinDigestionSimulator
             try
             {
                 using (var errorStream = new StreamWriter(Console.OpenStandardError()))
-                {
                     errorStream.WriteLine(errorMessage);
-                }
             }
             catch
             {
@@ -351,12 +366,11 @@ namespace ProteinDigestionSimulator
         {
             const int PERCENT_REPORT_INTERVAL = 25;
             const int PROGRESS_DOT_INTERVAL_MSEC = 250;
+
             if (percentComplete >= mLastProgressReportValue)
             {
                 if (mLastProgressReportValue > 0)
-                {
                     Console.WriteLine();
-                }
 
                 DisplayProgressPercent(mLastProgressReportValue, false);
                 mLastProgressReportValue += PERCENT_REPORT_INTERVAL;

@@ -48,18 +48,24 @@ namespace ProteinDigestionSimulator
         /// <param name="reversedCleavage"></param>
         /// <param name="allowPartial"></param>
         /// <param name="additionalRules"></param>
-        public CleavageRule(string ruleDescription, string cleavageResidueList, string exceptionResidueList, bool reversedCleavage, bool allowPartial = false, IReadOnlyCollection<CleavageRule> additionalRules = null)
+        public CleavageRule(
+            string ruleDescription,
+            string cleavageResidueList,
+            string exceptionResidueList,
+            bool reversedCleavage,
+            bool allowPartial = false,
+            IReadOnlyCollection<CleavageRule> additionalRules = null)
         {
             Description = ruleDescription;
             CleavageResidues = cleavageResidueList;
             ExceptionResidues = exceptionResidueList;
             ReversedCleavageDirection = reversedCleavage;
             AllowPartialCleavage = allowPartial;
+
             AdditionalCleavageRules = new List<CleavageRule>();
+
             if (additionalRules == null || additionalRules.Count == 0)
-            {
                 return;
-            }
 
             AdditionalCleavageRules.AddRange(additionalRules);
         }
@@ -71,6 +77,7 @@ namespace ProteinDigestionSimulator
         public string GetDetailedRuleDescription(bool includeForwardCleavageDirectionWord = false)
         {
             var detailedDescription = new StringBuilder();
+
             if (ReversedCleavageDirection)
             {
                 detailedDescription.Append("before " + CleavageResidues);
@@ -95,6 +102,7 @@ namespace ProteinDigestionSimulator
 
             foreach (var additionalRule in AdditionalCleavageRules)
                 detailedDescription.Append("; or " + additionalRule.GetDetailedRuleDescription(true));
+
             return detailedDescription.ToString();
         }
 
