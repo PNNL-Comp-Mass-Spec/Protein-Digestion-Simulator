@@ -629,7 +629,7 @@ namespace ProteinDigestionSimulator
 
             var residueIndex = -1;
             var residueCount = 0;
-            do
+            while (true)
             {
                 residueIndex = mResidues.IndexOf(searchResidue1Letter, residueIndex + 1);
                 if (residueIndex >= 0)
@@ -637,7 +637,6 @@ namespace ProteinDigestionSimulator
                 else
                     break;
             }
-            while (true);
 
             return residueCount;
         }
@@ -911,7 +910,7 @@ namespace ProteinDigestionSimulator
             var currentSearchLoc = proteinSearchStartLoc;
             var nameList = string.Empty;
 
-            do
+            while (true)
             {
                 var currentName = GetTrypticName(proteinResidues, peptideResidues, cleavageRule, out var currentResidueStart, out var currentResidueEnd, icr2LSCompatible, terminiiSymbol, ignoreCase, currentSearchLoc);
 
@@ -935,7 +934,6 @@ namespace ProteinDigestionSimulator
                 else
                     break;
             }
-            while (true);
 
             return nameList;
         }
@@ -1160,9 +1158,9 @@ namespace ProteinDigestionSimulator
             var startLoc = 1;
             var prevStartLoc = 0;
 
-            int ruleResidueNum;
+            int ruleResidueNum = 0;
             var currentTrypticPeptideNumber = 0;
-            do
+            while (currentTrypticPeptideNumber < desiredPeptideNumber)
             {
                 ruleResidueNum = GetTrypticNameFindNextCleavageLoc(proteinResidues, terminiiSymbol.ToString(), startLoc, cleavageRule, terminiiSymbol);
                 if (ruleResidueNum > 0)
@@ -1186,7 +1184,6 @@ namespace ProteinDigestionSimulator
                     break;
                 }
             }
-            while (currentTrypticPeptideNumber < desiredPeptideNumber);
 
             if (currentTrypticPeptideNumber > 0 && prevStartLoc > 0)
             {

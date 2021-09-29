@@ -316,7 +316,7 @@ namespace ProteinDigestionSimulator
                 pH = 1d;
                 var delta = 1d;
                 var Value = CalculateCharge(pH, numC, numD, numE, numH, numK, numR, numY) + 1d;
-                do
+                while (true)
                 {
                     var value1 = CalculateCharge(pH, numC, numD, numE, numH, numK, numR, numY);
                     if (Math.Abs(value1) <= Math.Abs(Value))
@@ -333,7 +333,6 @@ namespace ProteinDigestionSimulator
                             break;
                     }
                 }
-                while (true);
             }
             catch
             {

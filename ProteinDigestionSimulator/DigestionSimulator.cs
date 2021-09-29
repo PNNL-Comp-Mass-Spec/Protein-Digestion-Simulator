@@ -1384,39 +1384,38 @@ namespace ProteinDigestionSimulator
                 // However, if delimitedFileHasMassAndNET = True and valid Mass and NET values were read from the text file,
                 // they are passed to AddOrUpdatePeptide rather than the computed values
                 newPeptide.AutoComputeNET = true;
-                int inputFileLinesRead;
-                bool inputPeptideFound;
+                int inputFileLinesRead = 0;
+                var inputPeptideFound = true; // set to true for loop entry
 
-                do
+                while (inputPeptideFound)
                 {
                     inputPeptideFound = delimitedFileReader.ReadNextProteinEntry();
 
                     inputFileLinesRead = delimitedFileReader.LinesRead;
                     inputFileLineSkipCount += delimitedFileReader.LineSkipCount;
 
-                    if (inputPeptideFound)
+                    if (!inputPeptideFound)
+                        continue;
+
+                    newPeptide.SequenceOneLetter = delimitedFileReader.ProteinSequence;
+
+                    if (!delimitedFileHasMassAndNET ||
+                        Math.Abs(delimitedFileReader.PeptideMass - 0d) < float.Epsilon &&
+                        Math.Abs(delimitedFileReader.PeptideNET - 0f) < float.Epsilon)
+                        AddOrUpdatePeptide(delimitedFileReader.EntryUniqueID, newPeptide.Mass, newPeptide.NET, 0f, 0f, delimitedFileReader.ProteinName, ProteinCollection.CleavageStateConstants.Unknown, string.Empty);
+                    else
                     {
-                        newPeptide.SequenceOneLetter = delimitedFileReader.ProteinSequence;
+                        AddOrUpdatePeptide(delimitedFileReader.EntryUniqueID, delimitedFileReader.PeptideMass, delimitedFileReader.PeptideNET,
+                            delimitedFileReader.PeptideNETStDev, delimitedFileReader.PeptideDiscriminantScore,
+                            delimitedFileReader.ProteinName, ProteinCollection.CleavageStateConstants.Unknown, string.Empty);
 
-                        if (!delimitedFileHasMassAndNET ||
-                            Math.Abs(delimitedFileReader.PeptideMass - 0d) < float.Epsilon &&
-                            Math.Abs(delimitedFileReader.PeptideNET - 0f) < float.Epsilon)
-                            AddOrUpdatePeptide(delimitedFileReader.EntryUniqueID, newPeptide.Mass, newPeptide.NET, 0f, 0f, delimitedFileReader.ProteinName, ProteinCollection.CleavageStateConstants.Unknown, string.Empty);
-                        else
-                        {
-                            AddOrUpdatePeptide(delimitedFileReader.EntryUniqueID, delimitedFileReader.PeptideMass, delimitedFileReader.PeptideNET,
-                                               delimitedFileReader.PeptideNETStDev, delimitedFileReader.PeptideDiscriminantScore,
-                                               delimitedFileReader.ProteinName, ProteinCollection.CleavageStateConstants.Unknown, string.Empty);
-
-                            // ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
-                        }
-
-                        UpdateProgress(delimitedFileReader.PercentFileProcessed());
-                        if (AbortProcessing)
-                            break;
+                        // ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
                     }
+
+                    UpdateProgress(delimitedFileReader.PercentFileProcessed());
+                    if (AbortProcessing)
+                        break;
                 }
-                while (inputPeptideFound);
 
                 if (inputFileLineSkipCount > 0)
                 {
@@ -1630,7 +1629,8 @@ namespace ProteinDigestionSimulator
             if (Math.Abs(peptideStatsBinned.Settings.MassBinSizeDa - 0f) < 0.00001d)
                 peptideStatsBinned.Settings.MassBinSizeDa = 1f;
 
-            do
+            peptideStatsBinned.BinCount = 1000000000;
+            while (peptideStatsBinned.BinCount > 1000000)
             {
                 try
                 {
@@ -1643,7 +1643,6 @@ namespace ProteinDigestionSimulator
                     peptideStatsBinned.BinCount = 1000000000;
                 }
             }
-            while (peptideStatsBinned.BinCount > 1000000);
         }
 
         private int MassToBinIndex(double ThisMass, double StartMass, double MassResolution)

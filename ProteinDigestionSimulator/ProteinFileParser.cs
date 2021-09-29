@@ -1172,9 +1172,9 @@ namespace ProteinDigestionSimulator
                     InputFileProteinsProcessed = 0;
                     InputFileLineSkipCount = 0;
                     InputFileLinesRead = 0;
-                    bool inputProteinFound;
+                    var inputProteinFound = true; // set to true for loop entry
 
-                    do
+                    while (inputProteinFound)
                     {
                         inputProteinFound = proteinFileReader.ReadNextProteinEntry();
                         InputFileLineSkipCount += proteinFileReader.LineSkipCount;
@@ -1243,7 +1243,6 @@ namespace ProteinDigestionSimulator
                         if (AbortProcessing)
                             break;
                     }
-                    while (inputProteinFound);
 
                     if (CreateProteinOutputFile && scramblingMode != ProteinScramblingModeConstants.None)
                     {
@@ -1762,8 +1761,8 @@ namespace ProteinDigestionSimulator
                 ResetProgress("Pre-reading FASTA file; looking for possible additional reference names");
 
                 // Read each protein in the output file and process appropriately
-                bool inputProteinFound;
-                do
+                var inputProteinFound = true; // set to true for loop entry
+                while (inputProteinFound)
                 {
                     inputProteinFound = reader.ReadNextProteinEntry();
 
@@ -1787,7 +1786,6 @@ namespace ProteinDigestionSimulator
                             break;
                     }
                 }
-                while (inputProteinFound);
 
                 reader.CloseFile();
             }

@@ -133,7 +133,7 @@ namespace ProteinDigestionSimulator
             {
                 // Inside range; figure out the borders
                 var leftIndex = indexMidpoint;
-                do
+                while (!leftDone)
                 {
                     leftIndex -= 1;
                     if (leftIndex < matchIndexStart)
@@ -141,10 +141,10 @@ namespace ProteinDigestionSimulator
                     else if (Math.Abs(searchValue - mDataInt[leftIndex]) > toleranceHalfWidth)
                         leftDone = true;
                 }
-                while (!leftDone);
+
                 var rightIndex = indexMidpoint;
 
-                do
+                while (!rightDone)
                 {
                     rightIndex += 1;
                     if (rightIndex > matchIndexEnd)
@@ -152,7 +152,6 @@ namespace ProteinDigestionSimulator
                     else if (Math.Abs(searchValue - mDataInt[rightIndex]) > toleranceHalfWidth)
                         rightDone = true;
                 }
-                while (!rightDone);
 
                 matchIndexStart = leftIndex + 1;
                 matchIndexEnd = rightIndex - 1;
@@ -193,7 +192,7 @@ namespace ProteinDigestionSimulator
             {
                 // Inside range; figure out the borders
                 var leftIndex = indexMidpoint;
-                do
+                while (!leftDone)
                 {
                     leftIndex -= 1;
                     if (leftIndex < matchIndexStart)
@@ -201,10 +200,10 @@ namespace ProteinDigestionSimulator
                     else if (Math.Abs(searchValue - mDataSingle[leftIndex]) > toleranceHalfWidth)
                         leftDone = true;
                 }
-                while (!leftDone);
+
                 var rightIndex = indexMidpoint;
 
-                do
+                while (!rightDone)
                 {
                     rightIndex += 1;
                     if (rightIndex > matchIndexEnd)
@@ -212,7 +211,7 @@ namespace ProteinDigestionSimulator
                     else if (Math.Abs(searchValue - mDataSingle[rightIndex]) > toleranceHalfWidth)
                         rightDone = true;
                 }
-                while (!rightDone);
+
                 matchIndexStart = leftIndex + 1;
                 matchIndexEnd = rightIndex - 1;
             }
@@ -252,7 +251,7 @@ namespace ProteinDigestionSimulator
             {
                 // Inside range; figure out the borders
                 var leftIndex = indexMidpoint;
-                do
+                while (!leftDone)
                 {
                     leftIndex -= 1;
                     if (leftIndex < matchIndexStart)
@@ -260,10 +259,10 @@ namespace ProteinDigestionSimulator
                     else if (Math.Abs(searchValue - mDataDouble[leftIndex]) > toleranceHalfWidth)
                         leftDone = true;
                 }
-                while (!leftDone);
+
                 var rightIndex = indexMidpoint;
 
-                do
+                while (!rightDone)
                 {
                     rightIndex += 1;
                     if (rightIndex > matchIndexEnd)
@@ -271,7 +270,6 @@ namespace ProteinDigestionSimulator
                     else if (Math.Abs(searchValue - mDataDouble[rightIndex]) > toleranceHalfWidth)
                         rightDone = true;
                 }
-                while (!rightDone);
 
                 matchIndexStart = leftIndex + 1;
                 matchIndexEnd = rightIndex - 1;

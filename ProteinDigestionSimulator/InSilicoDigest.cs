@@ -202,7 +202,7 @@ namespace ProteinDigestionSimulator
             {
                 if (sequence.Length > 0)
                 {
-                    do
+                    while (true)
                     {
                         var fragment = mPeptideSequence.GetTrypticPeptideNext(sequence, startSearchLoc, out _, out var returnResidueEnd);
                         if (fragment.Length > 0)
@@ -213,7 +213,6 @@ namespace ProteinDigestionSimulator
                         else
                             break;
                     }
-                    while (true);
                 }
 
                 return trypticCount;
@@ -293,7 +292,7 @@ namespace ProteinDigestionSimulator
                 //
                 // Using the GetTrypticPeptideNext function to retrieve the sequence for each tryptic peptide
                 // is faster than using the GetTrypticPeptideByFragmentNumber function
-                do
+                while (true)
                 {
                     var peptideSequence = mPeptideSequence.GetTrypticPeptideNext(proteinSequence, searchStartLoc, cleavageRule, out var residueStartLoc, out var residueEndLoc);
                     if (peptideSequence.Length > 0)
@@ -304,7 +303,6 @@ namespace ProteinDigestionSimulator
                     else
                         break;
                 }
-                while (true);
 
                 ResetProgress("Digesting protein " + proteinName);
 
