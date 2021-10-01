@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.4.7943; October 1, 2021
+	- Converted to C#
+
 Version 2.3.7713; February 12, 2021
 	- Add support for .fasta.gz files
 
@@ -40,7 +43,7 @@ Version 2.2.6862; October 15, 2018
 	- New PRISM.dll with updated class names
 
 Version 2.2.6794; August 8, 2018
-	- Add additional checks when loading the settings file 
+	- Add additional checks when loading the settings file
 
 Version 2.2.6640; March 7, 2018
 	- Trim double quotes from a pasted input file path
@@ -286,7 +289,7 @@ Version 2.1.2049.28765; August 11, 2005
 	- Updated to a new version of SharedVBNetRoutines.dll
 
 Version 2.1.2008.27908; June 30, 2005
- 	- Updated to use new ValidateFastaFile.dll which implements user-editable RegEx-based definitions for the validation rules
+	- Updated to use new ValidateFastaFile.dll which implements user-editable RegEx-based definitions for the validation rules
 
 Version 2.1.1992; June 15, 2005
 	- Updated to use new NETPrediction DLL with 1052 node prediction model
