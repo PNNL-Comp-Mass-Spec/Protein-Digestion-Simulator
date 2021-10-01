@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -1741,8 +1742,8 @@ namespace ProteinDigestionSimulator
             }
 
             if (ComputeProteinMass)
-                outLine.Append(mOutputFileDelimiter + Math.Round(protein.Mass, 5).ToString());
             {
+                outLine.Append(mOutputFileDelimiter + Math.Round(protein.Mass, 5).ToString(CultureInfo.InvariantCulture));
             }
 
             if (ComputepI)
