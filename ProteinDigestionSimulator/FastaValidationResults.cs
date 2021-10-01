@@ -384,7 +384,6 @@ namespace ProteinDigestionSimulator
         /// Copy the contents of the DataGrid to the clipboard
         /// </summary>
         /// <param name="dvDataView"></param>
-        /// <returns></returns>
         private string FlattenDataView(DataView dvDataView)
         {
             const char sepChar = '\t';
@@ -1136,7 +1135,6 @@ namespace ProteinDigestionSimulator
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        /// <remarks></remarks>
         private void mValidationTriggerTimer_Tick(object sender, EventArgs e)
         {
             mValidationTriggerTimer.Enabled = false;

@@ -96,20 +96,17 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Hydrophobicity type
         /// </summary>
-        /// <returns></returns>
         public HydrophobicityTypeConstants HydrophobicityType { get; set; }
 
         /// <summary>
         /// When true, examine the protein residues in chunks of SequenceWidthToExamineForMaximumpI,
         /// compute the pI for each chunk, then report the largest pI
         /// </summary>
-        /// <returns></returns>
         public bool ReportMaximumpI { get; set; }
 
         /// <summary>
         /// Number of residues to use for computation of pI when ReportMaximumpI is true
         /// </summary>
-        /// <returns></returns>
         public int SequenceWidthToExamineForMaximumpI { get; set; }
 
         private double CalculateCharge(double pH, int numC, int numD, int numE, int numH, int numK, int numR, int numY)

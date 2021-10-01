@@ -115,7 +115,6 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Percent complete, value between 0 and 100, but can contain decimal percentage values
         /// </summary>
-        /// <returns></returns>
         public float ProgressPercentComplete => (float) Math.Round(mProgressPercentComplete, 2);
 
         private CleavageRule AddCleavageRule(
@@ -143,13 +142,13 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Checks sequence against the rule given by ruleId
         /// </summary>
+        /// <remarks>
+        /// In order to check for Exception residues, sequence must be in the form "R.ABCDEFGK.L" so that the residue following the final residue of the fragment can be examined.
+        /// See method InitializeCleavageRules for a list of the rules</remarks>
         /// <param name="sequence"></param>
         /// <param name="ruleId"></param>
         /// <param name="ruleMatchCount">Output: 0 if neither end matches, 1 if one end matches, 2 if both ends match</param>
         /// <returns>True if valid, False if invalid</returns>
-        /// <remarks>
-        /// In order to check for Exception residues, sequence must be in the form "R.ABCDEFGK.L" so that the residue following the final residue of the fragment can be examined.
-        /// See method InitializeCleavageRules for a list of the rules</remarks>
         public bool CheckSequenceAgainstCleavageRule(string sequence, CleavageRuleConstants ruleId, out int ruleMatchCount)
         {
             if (mCleavageRules.TryGetValue(ruleId, out var cleavageRule))
@@ -175,7 +174,6 @@ namespace ProteinDigestionSimulator
         /// </summary>
         /// <param name="sequence">Residues in 1-letter notation; automatically be converted to uppercase</param>
         /// <param name="includeXResiduesInMass">When true, treat X residues as Ile/Leu (C6H11NO)</param>
-        /// <returns></returns>
         public double ComputeSequenceMass(string sequence, bool includeXResiduesInMass = true)
         {
             try
@@ -913,25 +911,21 @@ namespace ProteinDigestionSimulator
             /// When true, auto-compute NET when Sequence changes
             /// Set to False to speed things up a little
             /// </summary>
-            /// <returns></returns>
             public bool AutoComputeNET { get; set; }
 
             /// <summary>
             /// Peptide name
             /// </summary>
-            /// <returns></returns>
             public string PeptideName { get; set; }
 
             /// <summary>
             /// Normalized elution time
             /// </summary>
-            /// <returns></returns>
             public float NET { get; private set; }
 
             /// <summary>
             /// Prefix residue
             /// </summary>
-            /// <returns></returns>
             public string PrefixResidue
             {
                 get => mPrefixResidue;
@@ -951,7 +945,6 @@ namespace ProteinDigestionSimulator
             /// <summary>
             /// Peptide sequence in 1-letter format
             /// </summary>
-            /// <returns></returns>
             public string SequenceOneLetter
             {
                 get => GetSequence();
@@ -961,13 +954,11 @@ namespace ProteinDigestionSimulator
             /// <summary>
             /// Sequence with prefix and suffix residues
             /// </summary>
-            /// <returns></returns>
             public string SequenceWithPrefixAndSuffix => mPrefixResidue + "." + SequenceOneLetter + "." + mSuffixResidue;
 
             /// <summary>
             /// Suffix residue
             /// </summary>
-            /// <returns></returns>
             public string SuffixResidue
             {
                 get => mSuffixResidue;
@@ -993,7 +984,6 @@ namespace ProteinDigestionSimulator
             /// <param name="is3LetterCode"></param>
             /// <param name="oneLetterCheckForPrefixAndSuffixResidues"></param>
             /// <param name="threeLetterCheckForPrefixHandSuffixOH"></param>
-            /// <returns></returns>
             public override int SetSequence(
                 string sequence,
                 NTerminusGroupConstants nTerminus = NTerminusGroupConstants.Hydrogen,
@@ -1015,8 +1005,8 @@ namespace ProteinDigestionSimulator
             /// Updates the sequence without performing any error checking
             /// Does not look for or remove prefix or suffix letters
             /// </summary>
-            /// <param name="sequenceNoPrefixOrSuffix"></param>
             /// <remarks>Calls UpdateSequenceMass and UpdateNET</remarks>
+            /// <param name="sequenceNoPrefixOrSuffix"></param>
             public override void SetSequenceOneLetterCharactersOnly(string sequenceNoPrefixOrSuffix)
             {
                 base.SetSequenceOneLetterCharactersOnly(sequenceNoPrefixOrSuffix);

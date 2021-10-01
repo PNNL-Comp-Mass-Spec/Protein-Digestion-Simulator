@@ -214,63 +214,50 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// True to create a FASTA output file; false for a tab-delimited text file
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
         /// <remarks>Only valid if mCreateDigestedProteinOutputFile is False</remarks>
         public bool CreateFastaOutputFile { get; set; }
 
         /// <summary>
         /// When True, then writes the proteins to a file; When false, then caches the results in memory
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
         /// <remarks>Use DigestProteinSequence to obtained digested peptides instead of proteins</remarks>
         public bool CreateProteinOutputFile { get; set; }
 
         /// <summary>
         /// True to in-silico digest the proteins
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
         /// <remarks>Only valid if CreateProteinOutputFile is True</remarks>
         public bool CreateDigestedProteinOutputFile { get; set; }
 
         /// <summary>
         /// When true, do not include protein description in the output file
         /// </summary>
-        /// <returns></returns>
         public bool ExcludeProteinDescription { get; set; }
 
         /// <summary>
         /// When true, do not include protein sequence in the output file
         /// </summary>
-        /// <returns></returns>
         public bool ExcludeProteinSequence { get; set; }
 
         /// <summary>
         /// When true, assign UniqueID values to the digested peptides (requires more memory)
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
         /// <remarks>Only valid if CreateDigestedProteinOutputFile is True</remarks>
         public bool GenerateUniqueIDValuesForPeptides { get; set; }
 
         /// <summary>
         /// When true, include X residues when computing protein mass (using the mass of Ile/Leu)
         /// </summary>
-        /// <returns></returns>
         public bool IncludeXResiduesInMass { get; set; }
 
         /// <summary>
         /// Summary of the result of processing
         /// </summary>
-        /// <returns></returns>
         public string ProcessingSummary { get; set; }
 
         /// <summary>
         /// When true, report the maximum pI
         /// </summary>
-        /// <returns></returns>
         public bool ReportMaximumpI { get; set; }
 
         public bool ShowDebugPrompts { get; set; }
@@ -619,7 +606,7 @@ namespace ProteinDigestionSimulator
         }
 
         /// <summary>
-        ///
+        /// Get the digested peptides for the given protein (by protein index)
         /// </summary>
         /// <param name="index"></param>
         /// <param name="digestedPeptides"></param>
@@ -691,7 +678,6 @@ namespace ProteinDigestionSimulator
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="notifyErrorsWithMessageBox"></param>
-        /// <returns></returns>
         public static bool IsFastaFile(string filePath, bool notifyErrorsWithMessageBox = false)
         {
             try
@@ -1010,7 +996,6 @@ namespace ProteinDigestionSimulator
         /// <param name="proteinInputFilePath"></param>
         /// <param name="outputFolderPath"></param>
         /// <param name="outputFileNameBaseOverride">Name for the protein output filename (auto-defined if empty)</param>
-        /// <returns></returns>
         public bool ParseProteinFile(
             string proteinInputFilePath,
             string outputFolderPath,
@@ -2065,7 +2050,6 @@ namespace ProteinDigestionSimulator
         /// </summary>
         /// <param name="filePath">File name or path</param>
         /// <param name="extension">Extension, with or without the leading period</param>
-        /// <returns></returns>
         public static string StripExtension(string filePath, string extension)
         {
             if (string.IsNullOrWhiteSpace(extension))
@@ -2305,7 +2289,6 @@ namespace ProteinDigestionSimulator
         /// <param name="outputFolderPath"></param>
         /// <param name="parameterFilePath"></param>
         /// <param name="resetErrorCode"></param>
-        /// <returns></returns>
         public override bool ProcessFile(string inputFilePath, string outputFolderPath, string parameterFilePath, bool resetErrorCode)
         {
             // Returns True if success, False if failure

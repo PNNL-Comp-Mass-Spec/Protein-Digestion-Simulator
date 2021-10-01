@@ -158,9 +158,8 @@ namespace ProteinDigestionSimulator
         public bool CysPeptidesOnly { get; set; }
 
         /// <summary>
-        ///
+        /// When true, digest protein sequences
         /// </summary>
-        /// <returns></returns>
         /// <remarks>Ignored for FASTA files; they are always digested</remarks>
         public bool DigestSequences { get; set; }
 
@@ -237,7 +236,6 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Use Ellipse Search Region
         /// </summary>
-        /// <returns></returns>
         /// <remarks>
         /// Only valid if mUseSLiCScoreForUniqueness = False
         /// If both mUseSLiCScoreForUniqueness = False and mUseEllipseSearchRegion = False, uses a rectangle to determine uniqueness
@@ -288,6 +286,10 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Add/update a peptide
         /// </summary>
+        /// <remarks>
+        /// Assures that the peptide is present in mComparisonPeptideInfo and that the protein and protein/peptide mapping is present in mProteinInfo
+        /// Assumes that uniqueSeqID is truly unique for the given peptide
+        /// </remarks>
         /// <param name="uniqueSeqID"></param>
         /// <param name="peptideMass"></param>
         /// <param name="peptideNET"></param>
@@ -296,10 +298,6 @@ namespace ProteinDigestionSimulator
         /// <param name="proteinName"></param>
         /// <param name="cleavageStateInProtein"></param>
         /// <param name="peptideName"></param>
-        /// <remarks>
-        /// Assures that the peptide is present in mComparisonPeptideInfo and that the protein and protein/peptide mapping is present in mProteinInfo
-        /// Assumes that uniqueSeqID is truly unique for the given peptide
-        /// </remarks>
         private void AddOrUpdatePeptide(
             int uniqueSeqID,
             double peptideMass,

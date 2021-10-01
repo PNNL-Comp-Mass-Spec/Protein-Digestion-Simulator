@@ -36,7 +36,6 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Additional cleavage rules to also consider when checking for cleavage points in a peptide
         /// </summary>
-        /// <returns></returns>
         public List<CleavageRule> AdditionalCleavageRules { get; }
 
         /// <summary>
@@ -75,7 +74,6 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Obtain a string describing the cleavage residues and exception residues
         /// </summary>
-        /// <returns></returns>
         public string GetDetailedRuleDescription(bool includeForwardCleavageDirectionWord = false)
         {
             var detailedDescription = new StringBuilder();

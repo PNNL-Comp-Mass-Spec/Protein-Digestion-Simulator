@@ -144,19 +144,16 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Charge carrier mass: hydrogen minus one electron
         /// </summary>
-        /// <returns></returns>
         public static double ChargeCarrierMass { get; private set; }
 
         /// <summary>
         /// Cysteine treatment mode
         /// </summary>
-        /// <returns></returns>
         public CysTreatmentModeConstants CysTreatmentMode { get; set; }
 
         /// <summary>
         /// Element mode
         /// </summary>
-        /// <returns></returns>
         public ElementModeConstants ElementMode
         {
             get => mCurrentElementMode;
@@ -171,7 +168,6 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Sequence mass
         /// </summary>
-        /// <returns></returns>
         public double Mass
         {
             get
@@ -215,11 +211,10 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Remove prefix and suffix residues
         /// </summary>
+        /// <remarks>This function is only applicable for sequences in one-letter notation</remarks>
         /// <param name="sequence">Sequence to examine</param>
         /// <param name="prefix">Output: prefix residue</param>
         /// <param name="suffix">Output: suffix residue</param>
-        /// <returns></returns>
-        /// <remarks>This function is only applicable for sequences in one-letter notation</remarks>
         private string CheckForAndRemovePrefixAndSuffixResidues(
             string sequence,
             out string prefix,
@@ -263,6 +258,7 @@ namespace ProteinDigestionSimulator
         /// Checks a sequence to see if it matches the cleavage rule
         /// Both the prefix residue and the residue at the end of the sequence are tested against ruleResidues and exceptionResidues
         /// </summary>
+        /// <remarks>Returns True if sequence doesn't contain any periods, and thus, can't be examined</remarks>
         /// <param name="sequence"></param>
         /// <param name="cleavageRule"></param>
         /// <param name="ruleMatchCount">Output: the number of ends that matched the rule (0, 1, or 2); terminii are counted as rule matches</param>
@@ -270,7 +266,6 @@ namespace ProteinDigestionSimulator
         /// <param name="terminiiSymbol"></param>
         /// <param name="ignoreCase">When true, will capitalize all letters in sequence; if the calling method has already capitalized them, this can be set to False for a slight speed advantage</param>
         /// <returns>True if a valid match, False if not a match</returns>
-        /// <remarks>Returns True if sequence doesn't contain any periods, and thus, can't be examined</remarks>
         public bool CheckSequenceAgainstCleavageRule(
             string sequence,
             CleavageRule cleavageRule,
@@ -528,7 +523,6 @@ namespace ProteinDigestionSimulator
         /// <param name="oneLetterTo3Letter"></param>
         /// <param name="addSpaceEvery10Residues"></param>
         /// <param name="separateResiduesWithDash"></param>
-        /// <returns></returns>
         public string ConvertAminoAcidSequenceSymbols(
             string sequence,
             bool oneLetterTo3Letter,
@@ -609,7 +603,6 @@ namespace ProteinDigestionSimulator
         /// </summary>
         /// <param name="residueNumber"></param>
         /// <param name="use3LetterCode"></param>
-        /// <returns></returns>
         public string GetResidue(int residueNumber, bool use3LetterCode = false)
         {
             if (mResidues != null && residueNumber > 0 && residueNumber <= mResidues.Length)
@@ -640,7 +633,6 @@ namespace ProteinDigestionSimulator
         /// </summary>
         /// <param name="residueSymbol"></param>
         /// <param name="use3LetterCode"></param>
-        /// <returns></returns>
         public int GetResidueCountSpecificResidue(string residueSymbol, bool use3LetterCode = false)
         {
             char searchResidue1Letter;
@@ -691,7 +683,6 @@ namespace ProteinDigestionSimulator
         /// <param name="addSpaceEvery10Residues"></param>
         /// <param name="separateResiduesWithDash"></param>
         /// <param name="includeNAndCTerminii"></param>
-        /// <returns></returns>
         public string GetSequence(
             bool use3LetterCode = false,
             bool addSpaceEvery10Residues = false,
@@ -787,7 +778,6 @@ namespace ProteinDigestionSimulator
         /// <param name="terminiiSymbol"></param>
         /// <param name="ignoreCase"></param>
         /// <param name="proteinSearchStartLoc"></param>
-        /// <returns></returns>
         public string GetTrypticName(
             string proteinResidues,
             string peptideResidues,
@@ -963,6 +953,7 @@ namespace ProteinDigestionSimulator
         /// Examines peptideResidues to see where they exist in proteinResidues
         /// Looks for all possible matches, returning them as a comma separated list
         /// </summary>
+        /// <remarks>See GetTrypticName for additional information</remarks>
         /// <param name="proteinResidues"></param>
         /// <param name="peptideResidues"></param>
         /// <param name="cleavageRule"></param>
@@ -975,7 +966,6 @@ namespace ProteinDigestionSimulator
         /// <param name="proteinSearchStartLoc"></param>
         /// <param name="listDelimiter"></param>
         /// <returns>Comma separated list of tryptic names</returns>
-        /// <remarks>See GetTrypticName for additional information</remarks>
         public string GetTrypticNameMultipleMatches(
             string proteinResidues,
             string peptideResidues,
@@ -1035,15 +1025,15 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Finds the location of the next cleavage point in searchResidues using the given cleavage rule
         /// </summary>
+        /// <remarks>
+        /// Assumes searchResidues are already upper case
+        /// </remarks>
         /// <param name="searchResidues"></param>
         /// <param name="residueFollowingSearchResidues">Residue following the last residue in searchResidues</param>
         /// <param name="startResidueNum">Starting residue number (value between 1 and length of searchResidues)</param>
         /// <param name="cleavageRule"></param>
         /// <param name="terminiiSymbol"></param>
         /// <returns>Residue number of the next cleavage location (value between 1 and length of searchResidues), or 0 if no match</returns>
-        /// <remarks>
-        /// Assumes searchResidues are already upper case
-        /// </remarks>
         private int GetTrypticNameFindNextCleavageLoc(
             string searchResidues,
             string residueFollowingSearchResidues,
@@ -1173,6 +1163,10 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Finds the next tryptic peptide in proteinResidues, starting the search as searchStartLoc
         /// </summary>
+        /// <remarks>
+        /// Useful when obtaining all of the tryptic peptides for a protein, since this function will operate
+        /// much faster than repeatedly calling GetTrypticPeptideByFragmentNumber()
+        /// </remarks>
         /// <param name="proteinResidues"></param>
         /// <param name="searchStartLoc"></param>
         /// <param name="cleavageRule">Cleavage rule</param>
@@ -1180,10 +1174,6 @@ namespace ProteinDigestionSimulator
         /// <param name="returnResidueEnd">Output: residue in the protein where the peptide ends</param>
         /// <param name="terminiiSymbol"></param>
         /// <returns>The next tryptic peptide in proteinResidues</returns>
-        /// <remarks>
-        /// Useful when obtaining all of the tryptic peptides for a protein, since this function will operate
-        /// much faster than repeatedly calling GetTrypticPeptideByFragmentNumber()
-        /// </remarks>
         public string GetTrypticPeptideNext(
             string proteinResidues,
             int searchStartLoc,
@@ -1238,6 +1228,12 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Finds the desired tryptic peptide from proteinResidues
         /// </summary>
+        /// <remarks>
+        /// For example, if proteinResidues = "IGKANRMTFGL"
+        /// when desiredPeptideNumber = 1, returns "IGK"
+        /// when desiredPeptideNumber = 2, returns "ANR"
+        /// when desiredPeptideNumber = 3, returns "MTFGL"
+        /// </remarks>
         /// <param name="proteinResidues"></param>
         /// <param name="desiredPeptideNumber"></param>
         /// <param name="cleavageRule"></param>
@@ -1246,12 +1242,6 @@ namespace ProteinDigestionSimulator
         /// <param name="terminiiSymbol"></param>
         /// <param name="ignoreCase"></param>
         /// <returns>The desired tryptic peptide from proteinResidues</returns>
-        /// <remarks>
-        /// For example, if proteinResidues = "IGKANRMTFGL"
-        /// when desiredPeptideNumber = 1, returns "IGK"
-        /// when desiredPeptideNumber = 2, returns "ANR"
-        /// when desiredPeptideNumber = 3, returns "MTFGL"
-        /// </remarks>
         public string GetTrypticPeptideByFragmentNumber(
             string proteinResidues,
             int desiredPeptideNumber,
@@ -1400,8 +1390,8 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Removing the leading H, if present
         /// </summary>
-        /// <param name="workingSequence">Amino acids, in 3 letter notation</param>
         /// <remarks>This is only applicable for sequences in 3 letter notation</remarks>
+        /// <param name="workingSequence">Amino acids, in 3 letter notation</param>
         private void RemoveLeadingH(ref string workingSequence)
         {
             if (workingSequence.Length >= 4 && string.Equals(workingSequence.Substring(0, 1), "H", StringComparison.OrdinalIgnoreCase))
@@ -1430,8 +1420,8 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Removing the trailing OH, if present
         /// </summary>
-        /// <param name="workingSequence">Amino acids, in 3 letter notation</param>
         /// <remarks>This is only applicable for sequences in 3 letter notation</remarks>
+        /// <param name="workingSequence">Amino acids, in 3 letter notation</param>
         private void RemoveTrailingOH(ref string workingSequence)
         {
             var stringLength = workingSequence.Length;
@@ -1475,15 +1465,15 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Define the C-terminus using an empirical formula
         /// </summary>
-        /// <param name="formula">Can only contain C, H, N, O, S, or P, and cannot contain any parentheses or other advanced formula features</param>
-        /// <param name="followingResidue"></param>
-        /// <param name="use3LetterCode"></param>
-        /// <returns>0 if success; 1 if error</returns>
         /// <remarks>
         /// Typical C terminus groups
         /// Free Acid = OH
         /// Amide = NH2
         /// </remarks>
+        /// <param name="formula">Can only contain C, H, N, O, S, or P, and cannot contain any parentheses or other advanced formula features</param>
+        /// <param name="followingResidue"></param>
+        /// <param name="use3LetterCode"></param>
+        /// <returns>0 if success; 1 if error</returns>
         private int SetCTerminus(string formula, string followingResidue = "", bool use3LetterCode = false)
         {
             int returnVal;
@@ -1552,10 +1542,6 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Define the N-terminus using an empirical formula
         /// </summary>
-        /// <param name="formula">Can only contain C, H, N, O, S, or P, and cannot contain any parentheses or other advanced formula features</param>
-        /// <param name="precedingResidue"></param>
-        /// <param name="use3LetterCode"></param>
-        /// <returns>0 if success; 1 if error</returns>
         /// <remarks>
         /// Typical N terminus groups
         /// Hydrogen = H
@@ -1564,6 +1550,10 @@ namespace ProteinDigestionSimulator
         /// Carbamyl = CONH2
         /// PTC = C7H6NS
         /// </remarks>
+        /// <param name="formula">Can only contain C, H, N, O, S, or P, and cannot contain any parentheses or other advanced formula features</param>
+        /// <param name="precedingResidue"></param>
+        /// <param name="use3LetterCode"></param>
+        /// <returns>0 if success; 1 if error</returns>
         private int SetNTerminus(string formula, string precedingResidue = "", bool use3LetterCode = false)
         {
             int returnVal;
@@ -1647,6 +1637,7 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Define the peptide sequence
         /// </summary>
+        /// <remarks>Calls UpdateSequenceMass</remarks>
         /// <param name="sequence">Peptide or protein amino acid symbols</param>
         /// <param name="nTerminus">N-terminus type</param>
         /// <param name="cTerminus">C-terminus type</param>
@@ -1663,7 +1654,6 @@ namespace ProteinDigestionSimulator
         /// 0 if success or 1 if an error
         /// Will return 0 if the sequence is blank or if it contains no valid residues
         /// </returns>
-        /// <remarks>Calls UpdateSequenceMass</remarks>
         public virtual int SetSequence(
             string sequence,
             NTerminusGroupConstants nTerminus = NTerminusGroupConstants.Hydrogen,
@@ -1764,8 +1754,8 @@ namespace ProteinDigestionSimulator
         /// Updates the sequence without performing any error checking
         /// Does not look for or remove prefix or suffix letters
         /// </summary>
-        /// <param name="sequenceNoPrefixOrSuffix"></param>
         /// <remarks>Calls UpdateSequenceMass</remarks>
+        /// <param name="sequenceNoPrefixOrSuffix"></param>
         public virtual void SetSequenceOneLetterCharactersOnly(string sequenceNoPrefixOrSuffix)
         {
             mResidues = sequenceNoPrefixOrSuffix;
