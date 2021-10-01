@@ -104,7 +104,9 @@ namespace ProteinDigestionSimulator
                 if (commandLineParser.ParseCommandLine())
                 {
                     if (SetOptionsUsingCommandLineParameters(commandLineParser))
+                    {
                         proceed = true;
+                    }
                 }
 
                 if (commandLineParser.ParameterCount + commandLineParser.NonSwitchParameterCount == 0 && !commandLineParser.NeedToShowHelp)
@@ -144,17 +146,25 @@ namespace ProteinDigestionSimulator
                     if (mParseProteinFile.ProcessFilesAndRecurseDirectories(mInputFilePath, mOutputDirectoryPath,
                                                                             mOutputDirectoryAlternatePath, mRecreateDirectoryHierarchyInAlternatePath,
                                                                             mParameterFilePath, mMaxLevelsToRecurse))
+                    {
                         returnCode = 0;
+                    }
                     else
+                    {
                         returnCode = (int)mParseProteinFile.ErrorCode;
+                    }
                 }
                 else if (mParseProteinFile.ProcessFilesWildcard(mInputFilePath, mOutputDirectoryPath, mParameterFilePath))
+                {
                     returnCode = 0;
+                }
                 else
                 {
                     returnCode = (int)mParseProteinFile.ErrorCode;
                     if (returnCode != 0)
+                    {
                         ShowErrorMessage("Error while processing: " + mParseProteinFile.GetErrorMessage());
+                    }
                 }
 
                 DisplayProgressPercent(mLastProgressReportValue, true);
@@ -173,13 +183,20 @@ namespace ProteinDigestionSimulator
         private static void DisplayProgressPercent(int percentComplete, bool addCarriageReturn)
         {
             if (addCarriageReturn)
+            {
                 Console.WriteLine();
+            }
 
             if (percentComplete > 100)
+            {
                 percentComplete = 100;
+            }
+
             Console.Write("Processing: " + percentComplete + "% ");
             if (addCarriageReturn)
+            {
                 Console.WriteLine();
+            }
         }
 
         private static string GetAppVersion()
@@ -204,33 +221,62 @@ namespace ProteinDigestionSimulator
 
                 // Query commandLineParser to see if various parameters are present
                 if (commandLineParser.RetrieveValueForParameter("I", out var value))
+                {
                     mInputFilePath = value;
+                }
                 else if (commandLineParser.NonSwitchParameterCount > 0)
+                {
                     mInputFilePath = commandLineParser.RetrieveNonSwitchParameter(0);
+                }
 
                 if (commandLineParser.RetrieveValueForParameter("F", out value))
+                {
                     mAssumeFastaFile = true;
+                }
+
                 if (commandLineParser.RetrieveValueForParameter("D", out value))
+                {
                     mCreateDigestedProteinOutputFile = true;
+                }
+
                 if (commandLineParser.RetrieveValueForParameter("M", out value))
+                {
                     mComputeProteinMass = true;
+                }
+
                 if (commandLineParser.RetrieveValueForParameter("AD", out value))
+                {
                     mInputFileDelimiter = value[0];
+                }
+
                 if (commandLineParser.RetrieveValueForParameter("O", out value))
+                {
                     mOutputDirectoryPath = value;
+                }
+
                 if (commandLineParser.RetrieveValueForParameter("P", out value))
+                {
                     mParameterFilePath = value;
+                }
+
                 if (commandLineParser.RetrieveValueForParameter("S", out value))
                 {
                     mRecurseDirectories = true;
                     if (int.TryParse(value, out var valueInt))
+                    {
                         mMaxLevelsToRecurse = valueInt;
+                    }
                 }
 
                 if (commandLineParser.RetrieveValueForParameter("A", out value))
+                {
                     mOutputDirectoryAlternatePath = value;
+                }
+
                 if (commandLineParser.RetrieveValueForParameter("R", out value))
+                {
                     mRecreateDirectoryHierarchyInAlternatePath = true;
+                }
 
                 //if (commandLineParser.RetrieveValueForParameter("L", out value))
                 //{
@@ -247,7 +293,9 @@ namespace ProteinDigestionSimulator
                 //}
 
                 if (commandLineParser.RetrieveValueForParameter("DEBUG", out value))
+                {
                     mShowDebugPrompts = true;
+                }
 
                 return true;
             }
@@ -288,7 +336,9 @@ namespace ProteinDigestionSimulator
             }
 
             if (hWndConsole != IntPtr.Zero)
+            {
                 ShowWindow(hWndConsole, SW_SHOW);
+            }
         }
 
         private static void ShowProgramHelp()
@@ -354,7 +404,9 @@ namespace ProteinDigestionSimulator
             try
             {
                 using (var errorStream = new StreamWriter(Console.OpenStandardError()))
+                {
                     errorStream.WriteLine(errorMessage);
+                }
             }
             catch
             {
@@ -370,7 +422,9 @@ namespace ProteinDigestionSimulator
             if (percentComplete >= mLastProgressReportValue)
             {
                 if (mLastProgressReportValue > 0)
+                {
                     Console.WriteLine();
+                }
 
                 DisplayProgressPercent(mLastProgressReportValue, false);
                 mLastProgressReportValue += PERCENT_REPORT_INTERVAL;

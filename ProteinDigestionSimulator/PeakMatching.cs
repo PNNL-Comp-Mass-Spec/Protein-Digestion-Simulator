@@ -70,10 +70,22 @@ namespace ProteinDigestionSimulator
             public int CompareTo(PeakMatchingRawMatches other)
             {
                 // Sort by .SLiCScore descending, and by MatchingIDIndexOriginal Ascending
-                if (ReferenceEquals(this, other)) return 0;
-                if (ReferenceEquals(null, other)) return 1;
+                if (ReferenceEquals(this, other))
+                {
+                    return 0;
+                }
+
+                if (ReferenceEquals(null, other))
+                {
+                    return 1;
+                }
+
                 var sLiCScoreComparison = other.SLiCScore.CompareTo(SLiCScore);
-                if (sLiCScoreComparison != 0) return sLiCScoreComparison;
+                if (sLiCScoreComparison != 0)
+                {
+                    return sLiCScoreComparison;
+                }
+
                 return MatchingIDIndex.CompareTo(other.MatchingIDIndex);
             }
         }
@@ -111,7 +123,9 @@ namespace ProteinDigestionSimulator
                 // Returns True if the feature was added
 
                 if (ContainsFeature(featureID))
+                {
                     return false;
+                }
 
                 // Add the feature
                 if (mFeatureCount >= mFeatures.Length)
@@ -123,7 +137,9 @@ namespace ProteinDigestionSimulator
                 mFeatures[mFeatureCount] = new FeatureInfo(featureID, peptideName, peptideMass, peptideNET);
 
                 if (mUseFeatureIDDictionary)
+                {
                     featureIDToRowIndex.Add(featureID, mFeatureCount);
+                }
 
                 mFeatureCount += 1;
                 mFeaturesArrayIsSorted = false;
@@ -149,7 +165,9 @@ namespace ProteinDigestionSimulator
                 {
                     var midIndex = (firstIndex + lastIndex) / 2;            // Note: Using Integer division
                     if (midIndex < firstIndex)
+                    {
                         midIndex = firstIndex;
+                    }
 
                     while (firstIndex <= lastIndex && mFeatures[midIndex].FeatureID != featureIDToFind)
                     {
@@ -166,12 +184,18 @@ namespace ProteinDigestionSimulator
                         // Compute the new mid point
                         midIndex = (firstIndex + lastIndex) / 2;
                         if (midIndex < firstIndex)
+                        {
                             break;
+                        }
                     }
 
                     if (midIndex >= firstIndex && midIndex <= lastIndex)
+                    {
                         if (mFeatures[midIndex].FeatureID == featureIDToFind)
+                        {
                             matchingRowIndex = midIndex;
+                        }
+                    }
                 }
                 catch
                 {
@@ -186,16 +210,22 @@ namespace ProteinDigestionSimulator
                 mFeatureCount = 0;
 
                 if (mFeatures == null)
+                {
                     mFeatures = new FeatureInfo[100000];
+                }
 
                 mFeaturesArrayIsSorted = false;
 
                 if (mUseFeatureIDDictionary)
                 {
                     if (featureIDToRowIndex == null)
+                    {
                         featureIDToRowIndex = new Dictionary<int, int>();
+                    }
                     else
+                    {
                         featureIDToRowIndex.Clear();
+                    }
                 }
                 else if (featureIDToRowIndex != null)
                 {
@@ -218,9 +248,13 @@ namespace ProteinDigestionSimulator
                 if (mUseFeatureIDDictionary)
                 {
                     if (featureIDToRowIndex.ContainsKey(featureID))
+                    {
                         rowIndex = featureIDToRowIndex[featureID];
+                    }
                     else
+                    {
                         rowIndex = -1;
+                    }
                 }
                 else
                 {
@@ -274,7 +308,9 @@ namespace ProteinDigestionSimulator
                 masses = new double[rowIndexEnd - rowIndexStart + 1];
 
                 if (rowIndexEnd >= mFeatureCount)
+                {
                     rowIndexEnd = mFeatureCount - 1;
+                }
 
                 var matchCount = 0;
                 for (var index = rowIndexStart; index <= rowIndexEnd; index++)
@@ -284,7 +320,9 @@ namespace ProteinDigestionSimulator
                 }
 
                 if (masses.Length > matchCount)
+                {
                     Array.Resize(ref masses, matchCount);
+                }
 
                 return masses;
             }
@@ -292,7 +330,9 @@ namespace ProteinDigestionSimulator
             public virtual double GetMassByRowIndex(int rowIndex)
             {
                 if (rowIndex >= 0 && rowIndex < mFeatureCount)
+                {
                     return mFeatures[rowIndex].Mass;
+                }
 
                 return 0d;
             }
@@ -354,7 +394,9 @@ namespace ProteinDigestionSimulator
 
                 // Add the extended feature info
                 if (mExtendedInfo.Length < mFeatures.Length)
+                {
                     Array.Resize(ref mExtendedInfo, mFeatures.Length);
+                }
 
                 mExtendedInfo[mFeatureCount - 1] = new ComparisonFeatureInfoExtended(peptideNETStDev, peptideDiscriminantScore);
 
@@ -367,7 +409,9 @@ namespace ProteinDigestionSimulator
                 base.Clear();
 
                 if (mExtendedInfo == null)
+                {
                     mExtendedInfo = new ComparisonFeatureInfoExtended[10000];
+                }
             }
 
             public bool GetFeatureInfoByFeatureID(int featureID, out FeatureInfo featureInfo, out float netStDev, out float discriminantScore)
@@ -411,7 +455,9 @@ namespace ProteinDigestionSimulator
             public virtual float GetNETStDevByRowIndex(int rowIndex)
             {
                 if (rowIndex >= 0 && rowIndex < mFeatureCount)
+                {
                     return mExtendedInfo[rowIndex].NETStDev;
+                }
 
                 return 0f;
             }
@@ -454,7 +500,11 @@ namespace ProteinDigestionSimulator
                 {
                     // Sort by .FeatureID ascending, and by .Details.MatchingID ascending
                     var featureIdComparison = FeatureID.CompareTo(other.FeatureID);
-                    if (featureIdComparison != 0) return featureIdComparison;
+                    if (featureIdComparison != 0)
+                    {
+                        return featureIdComparison;
+                    }
+
                     return Details.MatchingID.CompareTo(other.Details.MatchingID);
                 }
             }
@@ -499,13 +549,17 @@ namespace ProteinDigestionSimulator
                 var matchingRowIndex = -1;
 
                 if (mPMResults.Count <= 0 || !SortPMResults())
+                {
                     return matchingRowIndex;
+                }
 
                 try
                 {
                     var midIndex = (firstIndex + lastIndex) / 2;
                     if (midIndex < firstIndex)
+                    {
                         midIndex = firstIndex;
+                    }
 
                     while (firstIndex <= lastIndex && mPMResults[midIndex].FeatureID != featureIDToFind)
                     {
@@ -522,12 +576,18 @@ namespace ProteinDigestionSimulator
                         // Compute the new mid point
                         midIndex = (firstIndex + lastIndex) / 2;
                         if (midIndex < firstIndex)
+                        {
                             break;
+                        }
                     }
 
                     if (midIndex >= firstIndex && midIndex <= lastIndex)
+                    {
                         if (mPMResults[midIndex].FeatureID == featureIDToFind)
+                        {
                             matchingRowIndex = midIndex;
+                        }
+                    }
                 }
                 catch
                 {
@@ -559,10 +619,15 @@ namespace ProteinDigestionSimulator
                     {
                         matchCount = indexLast - indexFirst + 1;
                         if (matchResults == null || matchCount > matchResults.Length)
+                        {
                             matchResults = new PeakMatchingResult[matchCount];
+                        }
 
                         for (var index = indexFirst; index <= indexLast; index++)
+                        {
                             matchResults[index - indexFirst] = mPMResults[index].Details;
+                        }
+
                         matchesFound = true;
                     }
                 }
@@ -613,11 +678,15 @@ namespace ProteinDigestionSimulator
 
                     // Step backward through mPMResults to find the first match for featureID
                     while (indexFirst > 0 && mPMResults[indexFirst - 1].FeatureID == featureID)
+                    {
                         indexFirst -= 1;
+                    }
 
                     // Step forward through mPMResults to find the last match for featureID
                     while (indexLast < mPMResults.Count - 1 && mPMResults[indexLast + 1].FeatureID == featureID)
+                    {
                         indexLast += 1;
+                    }
 
                     return true;
                 }
@@ -664,7 +733,10 @@ namespace ProteinDigestionSimulator
             set
             {
                 if (value < 0)
+                {
                     value = 0;
+                }
+
                 mMaxPeakMatchingResultsPerFeatureToSave = value;
             }
         }
@@ -723,7 +795,9 @@ namespace ProteinDigestionSimulator
 
             var massStDevPPM = searchThresholds.SLiCScoreMassPPMStDev;
             if (massStDevPPM <= 0d)
+            {
                 massStDevPPM = 3d;
+            }
 
             var massStDevAbs = searchThresholds.PPMToMass(massStDevPPM, featureToIdentify.Mass);
             if (massStDevAbs <= 0d)
@@ -771,9 +845,13 @@ namespace ProteinDigestionSimulator
             for (index = 0; index < rawMatches.Count; index++)
             {
                 if (numeratorSum > 0d)
+                {
                     rawMatches[index].SLiCScore = Math.Round(rawMatches[index].SLiCScoreNumerator / numeratorSum, 5);
+                }
                 else
+                {
                     rawMatches[index].SLiCScore = 0d;
+                }
             }
 
             if (rawMatches.Count > 1)
@@ -797,10 +875,14 @@ namespace ProteinDigestionSimulator
                     rawMatches[0].DelSLiC = rawMatches[0].SLiCScore - rawMatches[1].SLiCScore;
 
                     for (index = 1; index < rawMatches.Count; index++)
+                    {
                         rawMatches[index].DelSLiC = 0d;
+                    }
                 }
                 else
+                {
                     rawMatches[0].DelSLiC = 1d;
+                }
 
                 // Now filter the list using the tighter tolerances:
                 // Since we're shrinking the array, we can copy in place
@@ -811,7 +893,9 @@ namespace ProteinDigestionSimulator
                 for (index = 0; index < rawMatches.Count; index++)
                 {
                     if (TestPointInEllipse(rawMatches[index].NETErr, rawMatches[index].MassErr, computedTolerances.NETTolFinal, computedTolerances.MWTolAbsFinal))
+                    {
                         newMatches.Add(rawMatches[index]);
+                    }
                 }
 
                 rawMatches.Clear();
@@ -838,9 +922,13 @@ namespace ProteinDigestionSimulator
             bool success;
 
             if (rangeSearch == null)
+            {
                 rangeSearch = new SearchRange();
+            }
             else
+            {
                 rangeSearch.ClearData();
+            }
 
             if (comparisonFeatures.Count <= 0)
             {
@@ -886,12 +974,18 @@ namespace ProteinDigestionSimulator
             featureMatchResults = new PMFeatureMatchResults();
 
             if (rangeSearch == null || rangeSearch.DataCount != comparisonFeatures.Count)
+            {
                 success = FillRangeSearchObject(ref rangeSearch, comparisonFeatures);
+            }
             else
+            {
                 success = true;
+            }
 
             if (!success)
+            {
                 return false;
+            }
 
             try
             {
@@ -955,7 +1049,9 @@ namespace ProteinDigestionSimulator
                                             storeMatch = TestPointInEllipse(netDiff, currentFeatureToIdentify.Mass - currentComparisonFeature.Mass, netTol, massTol);
                                         }
                                         else
+                                        {
                                             storeMatch = true;
+                                        }
 
                                         if (storeMatch)
                                         {
@@ -992,11 +1088,15 @@ namespace ProteinDigestionSimulator
                     {
                         UpdateProgress((float)(featureIndex / (double)featureCount * 100d));
                         if (mAbortProcessing)
+                        {
                             break;
+                        }
                     }
 
                     if (featureIndex % 10000 == 0 && featureIndex > 0)
+                    {
                         PostLogEntry("IdentifySequences, featureIndex = " + featureIndex, MessageTypeConstants.Health);
+                    }
                 }
 
                 UpdateProgress("IdentifySequences complete", 100f);
@@ -1128,7 +1228,9 @@ namespace ProteinDigestionSimulator
                 {
                     mMassTolerance = value;
                     if (AutoDefineSLiCScoreThresholds)
+                    {
                         InitializeSLiCScoreOptions(true);
+                    }
                 }
             }
 
@@ -1139,7 +1241,9 @@ namespace ProteinDigestionSimulator
                 {
                     mNETTolerance = value;
                     if (AutoDefineSLiCScoreThresholds)
+                    {
                         InitializeSLiCScoreOptions(true);
+                    }
                 }
             }
 
@@ -1149,7 +1253,10 @@ namespace ProteinDigestionSimulator
                 set
                 {
                     if (value < 0d)
+                    {
                         value = 0d;
+                    }
+
                     mSLiCScoreOptions.MassPPMStDev = value;
                 }
             }
@@ -1160,7 +1267,10 @@ namespace ProteinDigestionSimulator
                 set
                 {
                     if (value < 0d)
+                    {
                         value = 0d;
+                    }
+
                     mSLiCScoreOptions.NETStDev = value;
                 }
             }
@@ -1177,10 +1287,15 @@ namespace ProteinDigestionSimulator
                 set
                 {
                     if (value < 1f)
+                    {
                         value = 1f;
+                    }
+
                     mSLiCScoreMaxSearchDistanceMultiplier = value;
                     if (AutoDefineSLiCScoreThresholds)
+                    {
                         InitializeSLiCScoreOptions(true);
+                    }
                 }
             }
 
@@ -1198,9 +1313,13 @@ namespace ProteinDigestionSimulator
                     case MassToleranceConstants.Absolute:
                         ComputedSearchTolerances.MWTolAbsFinal = mMassTolerance;
                         if (referenceMass > 0d)
+                        {
                             MWTolPPMBroad = MassToPPM(mMassTolerance, referenceMass);
+                        }
                         else
+                        {
                             MWTolPPMBroad = mSLiCScoreOptions.MassPPMStDev;
+                        }
 
                         break;
                     default:
@@ -1209,11 +1328,15 @@ namespace ProteinDigestionSimulator
                 }
 
                 if (MWTolPPMBroad < mSLiCScoreOptions.MassPPMStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR)
+                {
                     MWTolPPMBroad = mSLiCScoreOptions.MassPPMStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR;
+                }
 
                 ComputedSearchTolerances.NETTolBroad = mSLiCScoreOptions.NETStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR;
                 if (ComputedSearchTolerances.NETTolBroad < mNETTolerance)
+                {
                     ComputedSearchTolerances.NETTolBroad = mNETTolerance;
+                }
 
                 ComputedSearchTolerances.NETTolFinal = mNETTolerance;
 
@@ -1252,7 +1375,9 @@ namespace ProteinDigestionSimulator
                 mSLiCScoreOptions.UseAMTNETStDev = false;
                 mSLiCScoreOptions.MaxSearchDistanceMultiplier = mSLiCScoreMaxSearchDistanceMultiplier;
                 if (mSLiCScoreOptions.MaxSearchDistanceMultiplier < 1f)
+                {
                     mSLiCScoreOptions.MaxSearchDistanceMultiplier = DEFAULT_SLIC_MAX_SEARCH_DISTANCE_MULTIPLIER;
+                }
             }
 
             private void InitializeLocalVariables()

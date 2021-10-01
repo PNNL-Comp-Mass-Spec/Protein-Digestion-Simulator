@@ -140,7 +140,9 @@ namespace ProteinDigestionSimulator
                 try
                 {
                     if (!mAminoAcids.TryGetValue(residue, out var aaInfo))
+                    {
                         continue;
+                    }
 
                     switch (HT)
                     {
@@ -173,7 +175,9 @@ namespace ProteinDigestionSimulator
             }
 
             if (residueCount > 0)
+            {
                 return runningSum / residueCount;
+            }
 
             return 0d;
         }
@@ -188,7 +192,9 @@ namespace ProteinDigestionSimulator
         {
             int chargeState;
             if (string.IsNullOrEmpty(seq))
+            {
                 return 0;
+            }
 
             try
             {
@@ -199,37 +205,60 @@ namespace ProteinDigestionSimulator
                     {
                         case 'C':
                             if (Ck > pH)
+                            {
                                 chargeState += 1;
+                            }
+
                             break;
                         case 'D':
                             if (Dk > pH)
+                            {
                                 chargeState += 1;
+                            }
+
                             break;
                         case 'E':
                             if (Ek > pH)
+                            {
                                 chargeState += 1;
+                            }
+
                             break;
                         case 'H':
                             if (Hk > pH)
+                            {
                                 chargeState += 1;
+                            }
+
                             break;
                         case 'K':
                             if (Kk > pH)
+                            {
                                 chargeState += 1 + 1;
+                            }
+
                             break;
                         case 'R':
                             if (Rk > pH)
+                            {
                                 chargeState += 1;
+                            }
+
                             break;
                         case 'Y':
                             if (Yk > pH)
+                            {
                                 chargeState += 1;
+                            }
+
                             break;
                     }
                 }
 
                 if (chargeState == 0)
+                {
                     chargeState = 1;
+                }
             }
             catch
             {
@@ -243,7 +272,9 @@ namespace ProteinDigestionSimulator
         public float CalculateSequenceHydrophobicity(string seq)
         {
             if (string.IsNullOrEmpty(seq))
+            {
                 return 0f;
+            }
 
             try
             {
@@ -254,7 +285,9 @@ namespace ProteinDigestionSimulator
                     {
                         var segmentHydrophobicity = CalculateHydrophobicity(seq.Substring(index, SequenceWidthToExamineForMaximumpI), HydrophobicityType);
                         if (segmentHydrophobicity > maxHydrophobicity)
+                        {
                             maxHydrophobicity = segmentHydrophobicity;
+                        }
                     }
 
                     return (float)maxHydrophobicity;
@@ -274,7 +307,9 @@ namespace ProteinDigestionSimulator
         {
             double pH;
             if (string.IsNullOrEmpty(seq))
+            {
                 return 0f;
+            }
 
             try
             {
@@ -330,7 +365,9 @@ namespace ProteinDigestionSimulator
                         Value = value1;
                         pH += delta;
                         if (Math.Abs(delta) < 0.01d)
+                        {
                             break;
+                        }
                     }
                 }
             }

@@ -153,10 +153,14 @@ namespace ProteinDigestionSimulator
             try
             {
                 if (mParseProteinFile != null)
+                {
                     mParseProteinFile.AbortProcessingNow();
+                }
 
                 if (mProteinDigestionSimulator != null)
+                {
                     mProteinDigestionSimulator.AbortProcessingNow();
+                }
             }
             catch
             {
@@ -197,7 +201,9 @@ namespace ProteinDigestionSimulator
             inSilicoDigest.GetCleavageRuleById(cleavageRuleId, out var cleavageRule);
 
             if (cleavageRule == null)
+            {
                 return;
+            }
 
             var targetIndex = cboCleavageRuleType.Items.Count;
             cboCleavageRuleType.Items.Add(cleavageRule.Description + " (" + cleavageRule.GetDetailedRuleDescription() + ")");
@@ -210,7 +216,9 @@ namespace ProteinDigestionSimulator
             try
             {
                 if (txtProteinInputFilePath.Text.Length > 0)
+                {
                     txtProteinOutputFilePath.Text = AutoDefineOutputFileWork(GetProteinInputFilePath());
+                }
             }
             catch
             {
@@ -227,17 +235,27 @@ namespace ProteinDigestionSimulator
             if (chkCreateFastaOutputFile.Enabled && chkCreateFastaOutputFile.Checked)
             {
                 if (ProteinFileParser.IsFastaFile(inputFilePath, true))
+                {
                     outputFileName = Path.GetFileNameWithoutExtension(inputFileName) + "_new.fasta";
+                }
                 else
+                {
                     outputFileName = Path.ChangeExtension(inputFileName, ".fasta");
+                }
             }
             else if (Path.GetExtension(inputFileName).ToLower() == ".txt")
+            {
                 outputFileName = Path.GetFileNameWithoutExtension(inputFileName) + "_output.txt";
+            }
             else
+            {
                 outputFileName = Path.ChangeExtension(inputFileName, ".txt");
+            }
 
             if (!string.Equals(inputFilePath, txtProteinInputFilePath.Text))
+            {
                 txtProteinInputFilePath.Text = inputFilePath;
+            }
 
             return Path.Combine(Path.GetDirectoryName(inputFilePath), outputFileName);
         }
@@ -249,7 +267,9 @@ namespace ProteinDigestionSimulator
                 cboMassTolType.SelectedIndex = (int)predefinedThresholds.MassTolType;
 
                 foreach (var threshold in predefinedThresholds.Thresholds)
+                {
                     AddPMThresholdRow(threshold.MassTolerance, threshold.NETTolerance, out _);
+                }
             }
         }
 
@@ -276,7 +296,9 @@ namespace ProteinDigestionSimulator
             if (mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].Rows.Count > 0)
             {
                 if (confirmReplaceExistingResults)
+                {
                     result = MessageBox.Show("Are you sure you want to clear the thresholds?", "Clear Thresholds", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                }
 
                 if (result == DialogResult.Yes || !confirmReplaceExistingResults)
                 {
@@ -285,7 +307,9 @@ namespace ProteinDigestionSimulator
                 }
             }
             else
+            {
                 success = true;
+            }
 
             return success;
         }
@@ -293,7 +317,9 @@ namespace ProteinDigestionSimulator
         private void ComputeSequencepI()
         {
             if (txtSequenceForpI.TextLength == 0)
+            {
                 return;
+            }
 
             var sequence = txtSequenceForpI.Text;
             var pI = default(float);
@@ -303,7 +329,9 @@ namespace ProteinDigestionSimulator
             if (pICalculator != null)
             {
                 if (cboHydrophobicityMode.SelectedIndex >= 0)
+                {
                     pICalculator.HydrophobicityType = (ComputePeptideProperties.HydrophobicityTypeConstants) cboHydrophobicityMode.SelectedIndex;
+                }
 
                 pICalculator.ReportMaximumpI = chkMaxpIModeEnabled.Checked;
                 pICalculator.SequenceWidthToExamineForMaximumpI = LookupMaxpISequenceLength();
@@ -362,7 +390,9 @@ namespace ProteinDigestionSimulator
 
             // All of the predefined thresholds have mass tolerances in units of PPM
             for (index = 0; index <= PREDEFINED_PM_THRESHOLDS_COUNT - 1; index++)
+            {
                 mPredefinedPMThresholds[index] = new PredefinedPMThresholds(PeakMatching.SearchThresholds.MassToleranceConstants.PPM);
+            }
 
             var netValues = new double[3];
             netValues[0] = 0.01d;
@@ -381,21 +411,33 @@ namespace ProteinDigestionSimulator
 
             // OneMassThreeNET
             for (netIndex = 0; netIndex < netValues.Length; netIndex++)
+            {
                 DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.OneMassThreeNET], 5d, netValues[netIndex]);
+            }
 
             // ThreeMassOneNET
             for (massIndex = 0; massIndex <= 2; massIndex++)
+            {
                 DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.ThreeMassOneNET], massValues[massIndex], 0.05d);
+            }
 
             // ThreeMassThreeNET
             for (netIndex = 0; netIndex < netValues.Length; netIndex++)
+            {
                 for (massIndex = 0; massIndex <= 2; massIndex++)
+                {
                     DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.ThreeMassThreeNET], massValues[massIndex], netValues[netIndex]);
+                }
+            }
 
             // FiveMassThreeNET
             for (netIndex = 0; netIndex < netValues.Length; netIndex++)
+            {
                 for (massIndex = 0; massIndex < massValues.Length; massIndex++)
+                {
                     DefineDefaultPMThresholdAppendItem(mPredefinedPMThresholds[(int)PredefinedPMThresholdsConstants.FiveMassThreeNET], massValues[massIndex], netValues[netIndex]);
+                }
+            }
         }
 
         private void DefineDefaultPMThresholdAppendItem(PredefinedPMThresholds pmThreshold, double massTolerance, double netTolerance)
@@ -411,7 +453,9 @@ namespace ProteinDigestionSimulator
             var sourceIsFasta = ProteinFileParser.IsFastaFile(inputFilePath, true);
 
             if (cboInputFileFormat.SelectedIndex == (int)InputFileFormatConstants.DelimitedText)
+            {
                 enableDelimitedFileOptions = true;
+            }
             else if (cboInputFileFormat.SelectedIndex == (int)InputFileFormatConstants.FastaFile ||
                      txtProteinInputFilePath.TextLength == 0 ||
                      sourceIsFasta)
@@ -420,7 +464,9 @@ namespace ProteinDigestionSimulator
                 enableDelimitedFileOptions = false;
             }
             else
+            {
                 enableDelimitedFileOptions = true;
+            }
 
             cboInputFileColumnDelimiter.Enabled = enableDelimitedFileOptions;
             lblInputFileColumnDelimiter.Enabled = enableDelimitedFileOptions;
@@ -430,14 +476,22 @@ namespace ProteinDigestionSimulator
 
             var enableDigestionOptions = chkDigestProteins.Checked;
             if (enableDigestionOptions)
+            {
                 cmdParseInputFile.Text = "&Parse and Digest";
+            }
             else
+            {
                 cmdParseInputFile.Text = "&Parse File";
+            }
 
             if (cboInputFileFormat.SelectedIndex == (int)InputFileFormatConstants.FastaFile || sourceIsFasta)
+            {
                 cmdValidateFastaFile.Enabled = true;
+            }
             else
+            {
                 cmdValidateFastaFile.Enabled = false;
+            }
 
             chkCreateFastaOutputFile.Enabled = !enableDigestionOptions;
 
@@ -468,14 +522,22 @@ namespace ProteinDigestionSimulator
             txtSqlServerPassword.Enabled = txtSqlServerUsername.Enabled;
 
             if (cboProteinReversalOptions.SelectedIndex <= 0)
+            {
                 txtProteinReversalSamplingPercentage.Enabled = false;
+            }
             else
+            {
                 txtProteinReversalSamplingPercentage.Enabled = true;
+            }
 
             if (cboProteinReversalOptions.SelectedIndex == 2)
+            {
                 txtProteinScramblingLoopCount.Enabled = true;
+            }
             else
+            {
                 txtProteinScramblingLoopCount.Enabled = false;
+            }
 
             txtMinimumSLiCScore.Enabled = chkUseSLiCScoreForUniqueness.Checked;
             optUseEllipseSearchRegion.Enabled = !chkUseSLiCScoreForUniqueness.Checked;
@@ -522,12 +584,16 @@ namespace ProteinDigestionSimulator
 
                     var success = InitializeProteinFileParserGeneralOptions(mProteinDigestionSimulator.mProteinFileParser);
                     if (!success)
+                    {
                         return;
+                    }
 
                     var outputFilePath = txtProteinOutputFilePath.Text;
 
                     if (!Path.IsPathRooted(outputFilePath))
+                    {
                         outputFilePath = Path.Combine(GetMyDocsFolderPath(), outputFilePath);
+                    }
 
                     if (Directory.Exists(outputFilePath))
                     {
@@ -539,19 +605,29 @@ namespace ProteinDigestionSimulator
                         // Replace _output.txt" in outputFilePath with PEAK_MATCHING_STATS_FILE_SUFFIX
                         var charIndex = outputFilePath.IndexOf(OUTPUT_FILE_SUFFIX, StringComparison.OrdinalIgnoreCase);
                         if (charIndex > 0)
+                        {
                             outputFilePath = outputFilePath.Substring(0, charIndex) + PEAK_MATCHING_STATS_FILE_SUFFIX;
+                        }
                         else
+                        {
                             outputFilePath = Path.Combine(Path.GetDirectoryName(outputFilePath), Path.GetFileNameWithoutExtension(outputFilePath) + PEAK_MATCHING_STATS_FILE_SUFFIX);
+                        }
                     }
 
                     // Check input file size and possibly warn user to enable/disable SQL Server DB Usage
                     if (chkAllowSqlServerCaching.Checked)
+                    {
                         if (!ValidateSqlServerCachingOptionsForInputFile(GetProteinInputFilePath(), chkAssumeInputFileIsDigested.Checked, mProteinDigestionSimulator.mProteinFileParser))
+                        {
                             return;
+                        }
+                    }
 
                     var massToleranceType = default(PeakMatching.SearchThresholds.MassToleranceConstants);
                     if (cboMassTolType.SelectedIndex >= 0)
+                    {
                         massToleranceType = (PeakMatching.SearchThresholds.MassToleranceConstants) cboMassTolType.SelectedIndex;
+                    }
 
                     var autoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked;
 
@@ -559,9 +635,13 @@ namespace ProteinDigestionSimulator
                     foreach (DataRow myDataRow in mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].Rows)
                     {
                         if (autoDefineSLiCScoreThresholds)
+                        {
                             mProteinDigestionSimulator.AddSearchThresholdLevel(massToleranceType, Convert.ToDouble(myDataRow[0]), Convert.ToDouble(myDataRow[1]), clearExisting);
+                        }
                         else
+                        {
                             mProteinDigestionSimulator.AddSearchThresholdLevel(massToleranceType, Convert.ToDouble(myDataRow[0]), Convert.ToDouble(myDataRow[1]), false, Convert.ToDouble(myDataRow[2]), Convert.ToDouble(myDataRow[3]), true, clearExisting);
+                        }
 
                         clearExisting = false;
                     }
@@ -569,35 +649,49 @@ namespace ProteinDigestionSimulator
                     mProteinDigestionSimulator.DigestSequences = !chkAssumeInputFileIsDigested.Checked;
                     mProteinDigestionSimulator.CysPeptidesOnly = chkCysPeptidesOnly.Checked;
                     if (cboElementMassMode.SelectedIndex >= 0)
+                    {
                         mProteinDigestionSimulator.ElementMassMode = (PeptideSequence.ElementModeConstants) cboElementMassMode.SelectedIndex;
+                    }
 
                     mProteinDigestionSimulator.AutoDetermineMassRangeForBinning = chkAutoComputeRangeForBinning.Checked;
 
                     mProteinDigestionSimulator.PeptideUniquenessMassBinSizeForBinning = ParseTextBoxValueInt(txtUniquenessBinWidth, lblUniquenessBinWidth.Text + " must be an integer value", out var invalidValue);
                     if (invalidValue)
+                    {
                         return;
+                    }
 
                     if (!mProteinDigestionSimulator.AutoDetermineMassRangeForBinning)
                     {
                         var binStartMass = ParseTextBoxValueInt(txtUniquenessBinStartMass, "Uniqueness binning start mass must be an integer value", out invalidValue);
                         if (invalidValue)
+                        {
                             return;
+                        }
 
                         var binEndMass = ParseTextBoxValueInt(txtUniquenessBinEndMass, "Uniqueness binning end mass must be an integer value", out invalidValue);
                         if (invalidValue)
+                        {
                             return;
+                        }
 
                         if (!mProteinDigestionSimulator.SetPeptideUniquenessMassRangeForBinning(binStartMass, binEndMass))
+                        {
                             mProteinDigestionSimulator.AutoDetermineMassRangeForBinning = true;
+                        }
                     }
 
                     mProteinDigestionSimulator.MinimumSLiCScoreToBeConsideredUnique = ParseTextBoxValueSng(txtMinimumSLiCScore, lblMinimumSLiCScore.Text + " must be a value", out invalidValue);
                     if (invalidValue)
+                    {
                         return;
+                    }
 
                     mProteinDigestionSimulator.MaxPeakMatchingResultsPerFeatureToSave = ParseTextBoxValueInt(txtMaxPeakMatchingResultsPerFeatureToSave, lblMaxPeakMatchingResultsPerFeatureToSave.Text + " must be an integer value", out invalidValue);
                     if (invalidValue)
+                    {
                         return;
+                    }
 
                     mProteinDigestionSimulator.SavePeakMatchingResults = chkExportPeakMatchingResults.Checked;
                     mProteinDigestionSimulator.UseSLiCScoreForUniqueness = chkUseSLiCScoreForUniqueness.Checked;
@@ -620,7 +714,9 @@ namespace ProteinDigestionSimulator
                         SwitchFromProgressTab();
                     }
                     else
+                    {
                         ShowErrorMessage("Unable to Generate Uniqueness Stats: " + mProteinDigestionSimulator.GetErrorMessage());
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -655,7 +751,9 @@ namespace ProteinDigestionSimulator
             var selectedIndex = cboCleavageRuleType.SelectedIndex;
 
             if (selectedIndex < 0 || !mCleavageRuleComboboxIndexToType.TryGetValue(selectedIndex, out var selectedCleavageRule))
+            {
                 return InSilicoDigest.CleavageRuleConstants.ConventionalTrypsin;
+            }
 
             return selectedCleavageRule;
         }
@@ -716,7 +814,9 @@ namespace ProteinDigestionSimulator
                     Width = xmlSettings.GetParam(OptionsSection, "WindowWidth", Width);
                     var windowHeight = xmlSettings.GetParam(OptionsSection, "WindowHeight", Height);
                     if (windowHeight > MAX_AUTO_WINDOW_HEIGHT)
+                    {
                         windowHeight = MAX_AUTO_WINDOW_HEIGHT;
+                    }
 
                     Height = windowHeight;
 
@@ -757,7 +857,9 @@ namespace ProteinDigestionSimulator
                     var cleavageRuleName = xmlSettings.GetParam(DigestionOptions, "CleavageRuleName", string.Empty);
 
                     if (!string.IsNullOrWhiteSpace(cleavageRuleName))
+                    {
                         SetSelectedCleavageRule(cleavageRuleName);
+                    }
                     else
                     {
                         var legacyCleavageRuleIndexSetting = xmlSettings.GetParam(DigestionOptions, "CleavageRuleTypeIndex", -1);
@@ -802,9 +904,13 @@ namespace ProteinDigestionSimulator
                     txtMinimumSLiCScore.Text = xmlSettings.GetParam(UniquenessStatsOptions, "MinimumSLiCScore", txtMinimumSLiCScore.Text);
                     var radioButtonChecked = xmlSettings.GetParam(UniquenessStatsOptions, "UseEllipseSearchRegion", true);
                     if (radioButtonChecked)
+                    {
                         optUseEllipseSearchRegion.Checked = radioButtonChecked;
+                    }
                     else
+                    {
                         optUseRectangleSearchRegion.Checked = radioButtonChecked;
+                    }
 
                     // chkAllowSqlServerCaching.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "AllowSqlServerCaching", chkAllowSqlServerCaching.Checked);
                     // chkUseSqlServerDBToCacheData.Checked = xmlSettings.GetParam(UniquenessStatsOptions, "UseSqlServerDBToCacheData", chkUseSqlServerDBToCacheData.Checked);
@@ -843,13 +949,17 @@ namespace ProteinDigestionSimulator
                                 {
                                     if (double.TryParse(thresholdDetails[0], out _) && double.TryParse(thresholdDetails[1], out _) &&
                                         double.TryParse(thresholdDetails[2], out _) && double.TryParse(thresholdDetails[3], out _))
+                                    {
                                         AddPMThresholdRow(double.Parse(thresholdDetails[0]), double.Parse(thresholdDetails[1]),
                                             double.Parse(thresholdDetails[2]), double.Parse(thresholdDetails[3]), out _);
+                                    }
                                 }
                                 else if (thresholdDetails.Length >= 2)
                                 {
                                     if (double.TryParse(thresholdDetails[0], out _) && double.TryParse(thresholdDetails[1], out _))
+                                    {
                                         AddPMThresholdRow(double.Parse(thresholdDetails[0]), double.Parse(thresholdDetails[1]), out _);
+                                    }
                                 }
                             }
                         }
@@ -881,7 +991,9 @@ namespace ProteinDigestionSimulator
             {
                 var settingsFile = new FileInfo(settingsFilePath);
                 if (!settingsFile.Exists)
+                {
                     saveWindowDimensionsOnly = false;
+                }
             }
             catch
             {
@@ -991,12 +1103,18 @@ namespace ProteinDigestionSimulator
                         foreach (DataRow myDataRow in mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].Rows)
                         {
                             if (thresholdData.Length > 0)
+                            {
                                 thresholdData += "; ";
+                            }
 
                             if (autoDefineSLiCScoreThresholds)
+                            {
                                 thresholdData += myDataRow[0] + "," + myDataRow[1];
+                            }
                             else
+                            {
                                 thresholdData += myDataRow[0] + "," + myDataRow[1] + "," + myDataRow[2] + "," + myDataRow[3];
+                            }
                         }
 
                         xmlSettings.SetParam(PMOptions, "ThresholdData", thresholdData);
@@ -1010,7 +1128,9 @@ namespace ProteinDigestionSimulator
                 xmlSettings.SaveSettings();
 
                 if (showFilePath)
+                {
                     MessageBox.Show("Saved settings to file " + settingsFilePath, "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             }
             catch
             {
@@ -1092,7 +1212,9 @@ namespace ProteinDigestionSimulator
             DataGridUtils.AppendColumnToTableStyle(tsPMThresholdsTableStyle, COL_NAME_NET_TOLERANCE, "NET Tolerance", 90);
 
             if (chkAutoDefineSLiCScoreTolerances.Checked)
+            {
                 dgPeakMatchingThresholds.Width = 250;
+            }
             else
             {
                 dgPeakMatchingThresholds.Width = 425;
@@ -1106,7 +1228,9 @@ namespace ProteinDigestionSimulator
             dgPeakMatchingThresholds.TableStyles.Clear();
 
             if (!dgPeakMatchingThresholds.TableStyles.Contains(tsPMThresholdsTableStyle))
+            {
                 dgPeakMatchingThresholds.TableStyles.Add(tsPMThresholdsTableStyle);
+            }
 
             dgPeakMatchingThresholds.Refresh();
         }
@@ -1129,7 +1253,9 @@ namespace ProteinDigestionSimulator
             }
 
             if (cboInputFileColumnOrdering.SelectedIndex >= 0)
+            {
                 parseProteinFile.DelimitedFileFormatCode = (DelimitedProteinFileReader.ProteinFileFormatCode) cboInputFileColumnOrdering.SelectedIndex;
+            }
 
             parseProteinFile.InputFileDelimiter = LookupColumnDelimiter(cboInputFileColumnDelimiter, txtInputFileColumnDelimiter, '\t');
             parseProteinFile.OutputFileDelimiter = LookupColumnDelimiter(cboOutputFileFieldDelimiter, txtOutputFileFieldDelimiter, '\t');
@@ -1154,7 +1280,9 @@ namespace ProteinDigestionSimulator
             parseProteinFile.ExcludeProteinDescription = chkExcludeProteinDescription.Checked;
 
             if (cboHydrophobicityMode.SelectedIndex >= 0)
+            {
                 parseProteinFile.HydrophobicityType = (ComputePeptideProperties.HydrophobicityTypeConstants) cboHydrophobicityMode.SelectedIndex;
+            }
 
             parseProteinFile.ReportMaximumpI = chkMaxpIModeEnabled.Checked;
             parseProteinFile.SequenceWidthToExamineForMaximumpI = LookupMaxpISequenceLength();
@@ -1164,45 +1292,67 @@ namespace ProteinDigestionSimulator
             parseProteinFile.GenerateUniqueIDValuesForPeptides = chkGenerateUniqueIDValues.Checked;
 
             if (cboCleavageRuleType.SelectedIndex >= 0)
+            {
                 parseProteinFile.DigestionOptions.CleavageRuleID = GetSelectedCleavageRule();
+            }
 
             parseProteinFile.DigestionOptions.IncludePrefixAndSuffixResidues = chkIncludePrefixAndSuffixResidues.Checked;
 
             parseProteinFile.DigestionOptions.MinFragmentMass = ParseTextBoxValueInt(txtDigestProteinsMinimumMass, lblDigestProteinsMinimumMass.Text + " must be an integer value", out var invalidValue);
             if (invalidValue)
+            {
                 return false;
+            }
 
             parseProteinFile.DigestionOptions.MaxFragmentMass = ParseTextBoxValueInt(txtDigestProteinsMaximumMass, lblDigestProteinsMaximumMass.Text + " must be an integer value", out invalidValue);
             if (invalidValue)
+            {
                 return false;
+            }
 
             parseProteinFile.DigestionOptions.MaxMissedCleavages = ParseTextBoxValueInt(txtDigestProteinsMaximumMissedCleavages, lblDigestProteinsMaximumMissedCleavages.Text + " must be an integer value", out invalidValue);
             if (invalidValue)
+            {
                 return false;
+            }
 
             parseProteinFile.DigestionOptions.MinFragmentResidueCount = ParseTextBoxValueInt(txtDigestProteinsMinimumResidueCount, lblDigestProteinsMinimumResidueCount.Text + " must be an integer value", out invalidValue);
             if (invalidValue)
+            {
                 return false;
+            }
 
             parseProteinFile.DigestionOptions.MinIsoelectricPoint = ParseTextBoxValueSng(txtDigestProteinsMinimumpI, lblDigestProteinsMinimumpI.Text + " must be a decimal value", out invalidValue);
             if (invalidValue)
+            {
                 return false;
+            }
 
             parseProteinFile.DigestionOptions.MaxIsoelectricPoint = ParseTextBoxValueSng(txtDigestProteinsMaximumpI, lblDigestProteinsMaximumpI.Text + " must be a decimal value", out invalidValue);
             if (invalidValue)
+            {
                 return false;
+            }
 
             if (cboCysTreatmentMode.SelectedIndex >= 0)
+            {
                 parseProteinFile.DigestionOptions.CysTreatmentMode = (PeptideSequence.CysTreatmentModeConstants) cboCysTreatmentMode.SelectedIndex;
+            }
 
             if (cboFragmentMassMode.SelectedIndex >= 0)
+            {
                 parseProteinFile.DigestionOptions.FragmentMassMode = (InSilicoDigest.FragmentMassConstants) cboFragmentMassMode.SelectedIndex;
+            }
 
             parseProteinFile.DigestionOptions.RemoveDuplicateSequences = !chkIncludeDuplicateSequences.Checked;
             if (chkCysPeptidesOnly.Checked)
+            {
                 parseProteinFile.DigestionOptions.AminoAcidResidueFilterChars = new char[] { 'C' };
+            }
             else
+            {
                 parseProteinFile.DigestionOptions.AminoAcidResidueFilterChars = new char[] { };
+            }
 
             return true;
         }
@@ -1227,7 +1377,9 @@ namespace ProteinDigestionSimulator
             {
                 length = TextBoxUtils.ParseTextBoxValueInt(txtMaxpISequenceLength, string.Empty, out var invalidValue, 10);
                 if (invalidValue)
+                {
                     txtMaxpISequenceLength.Text = length.ToString();
+                }
             }
             catch
             {
@@ -1235,7 +1387,10 @@ namespace ProteinDigestionSimulator
             }
 
             if (length < 1)
+            {
                 length = 1;
+            }
+
             return length;
         }
 
@@ -1284,12 +1439,16 @@ namespace ProteinDigestionSimulator
 
                     var success = InitializeProteinFileParserGeneralOptions(mParseProteinFile);
                     if (!success)
+                    {
                         return;
+                    }
 
                     mParseProteinFile.CreateProteinOutputFile = true;
 
                     if (cboProteinReversalOptions.SelectedIndex >= 0)
+                    {
                         mParseProteinFile.ProteinScramblingMode = (ProteinFileParser.ProteinScramblingModeConstants) cboProteinReversalOptions.SelectedIndex;
+                    }
 
                     mParseProteinFile.ProteinScramblingSamplingPercentage = TextBoxUtils.ParseTextBoxValueInt(txtProteinReversalSamplingPercentage, "", out _, 100);
                     mParseProteinFile.ProteinScramblingLoopCount = TextBoxUtils.ParseTextBoxValueInt(txtProteinScramblingLoopCount, "", out _, 1);
@@ -1297,7 +1456,9 @@ namespace ProteinDigestionSimulator
                     mParseProteinFile.CreateFastaOutputFile = chkCreateFastaOutputFile.Checked;
 
                     if (cboElementMassMode.SelectedIndex >= 0)
+                    {
                         mParseProteinFile.ElementMassMode = (PeptideSequence.ElementModeConstants) cboElementMassMode.SelectedIndex;
+                    }
 
                     Cursor.Current = Cursors.WaitCursor;
                     mWorking = true;
@@ -1325,7 +1486,9 @@ namespace ProteinDigestionSimulator
                         SwitchFromProgressTab();
                     }
                     else
+                    {
                         ShowErrorMessage("Error parsing protein file: " + mParseProteinFile.GetErrorMessage());
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1401,7 +1564,9 @@ namespace ProteinDigestionSimulator
                         if (clearList)
                         {
                             if (!ClearPMThresholdsList(true))
+                            {
                                 return;
+                            }
                         }
 
                         var rowsAlreadyPresent = 0;
@@ -1423,9 +1588,13 @@ namespace ProteinDigestionSimulator
                                         {
                                             bool useSLiC;
                                             if (!chkAutoDefineSLiCScoreTolerances.Checked && dataColumns.Length >= 4)
+                                            {
                                                 useSLiC = true;
+                                            }
                                             else
+                                            {
                                                 useSLiC = false;
+                                            }
 
                                             var slicMassStDev = default(double);
                                             var slicNETStDev = default(double);
@@ -1445,12 +1614,18 @@ namespace ProteinDigestionSimulator
 
                                             bool existingRowFound;
                                             if (useSLiC)
+                                            {
                                                 AddPMThresholdRow(massThreshold, netThreshold, slicMassStDev, slicNETStDev, out existingRowFound);
+                                            }
                                             else
+                                            {
                                                 AddPMThresholdRow(massThreshold, netThreshold, out existingRowFound);
+                                            }
 
                                             if (existingRowFound)
+                                            {
                                                 rowsAlreadyPresent += 1;
+                                            }
                                         }
                                     }
                                     catch
@@ -1460,7 +1635,9 @@ namespace ProteinDigestionSimulator
                                     }
                                 }
                                 else
+                                {
                                     rowsSkipped += 1;
+                                }
                             }
                         }
 
@@ -1468,9 +1645,13 @@ namespace ProteinDigestionSimulator
                         {
                             string errorMessage;
                             if (rowsAlreadyPresent == 1)
+                            {
                                 errorMessage = "1 row of thresholds was";
+                            }
                             else
+                            {
                                 errorMessage = rowsAlreadyPresent + " rows of thresholds were";
+                            }
 
                             ShowErrorMessage(errorMessage + " already present in the table; duplicate rows are not allowed.", "Warning");
                         }
@@ -1479,9 +1660,13 @@ namespace ProteinDigestionSimulator
                         {
                             string errorMessage;
                             if (rowsSkipped == 1)
+                            {
                                 errorMessage = "1 row was skipped because it";
+                            }
                             else
+                            {
                                 errorMessage = rowsSkipped + " rows were skipped because they";
+                            }
 
                             ShowErrorMessage(errorMessage + " didn't contain two columns of numeric data.", "Warning");
                         }
@@ -1511,7 +1696,9 @@ namespace ProteinDigestionSimulator
 
                 cboOutputFileFieldDelimiter.Items.Clear();
                 for (var index = 0; index < cboInputFileColumnDelimiter.Items.Count; index++)
+                {
                     cboOutputFileFieldDelimiter.Items.Insert(index, cboInputFileColumnDelimiter.Items[index]);
+                }
 
                 cboOutputFileFieldDelimiter.SelectedIndex = (int)ProteinFileParser.DelimiterCharConstants.Space;
 
@@ -1560,7 +1747,9 @@ namespace ProteinDigestionSimulator
                 {
                     var cleavageRuleId = cleavageRule.Key;
                     if (mCleavageRuleComboboxIndexToType.ContainsValue(cleavageRuleId))
+                    {
                         continue;
+                    }
 
                     additionalRulesToAppend.Add(cleavageRuleId, cleavageRule.Value.Description);
                 }
@@ -1568,7 +1757,9 @@ namespace ProteinDigestionSimulator
                 foreach (var ruleToAdd in additionalRulesToAppend.OrderBy(x => x.Value).Select(x => x.Key))
                 {
                     if (ruleToAdd == InSilicoDigest.CleavageRuleConstants.EricPartialTrypsin)
+                    {
                         continue;
+                    }
 
                     AppendEnzymeToCleavageRuleCombobox(inSilicoDigest, ruleToAdd);
                 }
@@ -1636,7 +1827,9 @@ namespace ProteinDigestionSimulator
             {
                 var response = MessageBox.Show("Are you sure you want to reset all settings to their default values?", "Reset to Defaults", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 if (response != DialogResult.Yes)
+                {
                     return;
+                }
             }
 
             cboInputFileFormat.SelectedIndex = (int)InputFileFormatConstants.AutoDetermine;
@@ -1748,13 +1941,21 @@ namespace ProteinDigestionSimulator
             };
 
             if (cboInputFileFormat.SelectedIndex == (int)InputFileFormatConstants.DelimitedText)
+            {
                 openFile.FilterIndex = 3;
+            }
             else if (currentExtension.ToLower() == ".txt")
+            {
                 openFile.FilterIndex = 3;
+            }
             else if (currentExtension.ToLower() == ".gz")
+            {
                 openFile.FilterIndex = 2;
+            }
             else
+            {
                 openFile.FilterIndex = 1;
+            }
 
             if (GetProteinInputFilePath().Length > 0)
             {
@@ -1768,13 +1969,17 @@ namespace ProteinDigestionSimulator
                 }
             }
             else
+            {
                 openFile.InitialDirectory = GetMyDocsFolderPath();
+            }
 
             openFile.Title = "Select input file";
 
             openFile.ShowDialog();
             if (openFile.FileName.Length > 0)
+            {
                 txtProteinInputFilePath.Text = openFile.FileName;
+            }
         }
 
         private void SelectOutputFile()
@@ -1805,19 +2010,25 @@ namespace ProteinDigestionSimulator
                 }
             }
             else
+            {
                 saveFile.InitialDirectory = GetMyDocsFolderPath();
+            }
 
             saveFile.Title = "Select/Create output file";
 
             saveFile.ShowDialog();
             if (saveFile.FileName.Length > 0)
+            {
                 txtProteinOutputFilePath.Text = saveFile.FileName;
+            }
         }
 
         private void SetSelectedCleavageRule(string cleavageRuleName)
         {
             if (Enum.TryParse(cleavageRuleName, true, out InSilicoDigest.CleavageRuleConstants cleavageRule))
+            {
                 SetSelectedCleavageRule(cleavageRule);
+            }
         }
 
         private void SetSelectedCleavageRule(InSilicoDigest.CleavageRuleConstants cleavageRule)
@@ -1825,7 +2036,9 @@ namespace ProteinDigestionSimulator
             var query = mCleavageRuleComboboxIndexToType.Where(x => x.Value == cleavageRule).Select(x => x.Key);
 
             foreach (var item in query.Take(1))
+            {
                 cboCleavageRuleType.SelectedIndex = item;
+            }
         }
 
         private void ShowAboutBox()
@@ -1868,9 +2081,13 @@ namespace ProteinDigestionSimulator
             MessageBoxIcon messageIcon;
 
             if (caption.ToLower().Contains("error"))
+            {
                 messageIcon = MessageBoxIcon.Exclamation;
+            }
             else
+            {
                 messageIcon = MessageBoxIcon.Information;
+            }
 
             MessageBox.Show(message, caption, MessageBoxButtons.OK, messageIcon);
         }
@@ -1921,9 +2138,13 @@ namespace ProteinDigestionSimulator
         private void UpdatePeptideUniquenessMassMode()
         {
             if (cboElementMassMode.SelectedIndex == (int)PeptideSequence.ElementModeConstants.AverageMass)
+            {
                 lblPeptideUniquenessMassMode.Text = "Using average masses";
+            }
             else
+            {
                 lblPeptideUniquenessMassMode.Text = "Using monoisotopic masses";
+            }
         }
 
         private void ValidateFastaFile(string fastaFilePath)
@@ -1932,10 +2153,14 @@ namespace ProteinDigestionSimulator
             {
                 // Make sure an existing file has been chosen
                 if (string.IsNullOrEmpty(fastaFilePath))
+                {
                     return;
+                }
 
                 if (!File.Exists(fastaFilePath))
+                {
                     ShowErrorMessage("File not found: " + fastaFilePath);
+                }
                 else
                 {
                     if (mFastaValidation == null)
@@ -1944,16 +2169,22 @@ namespace ProteinDigestionSimulator
                         mFastaValidation.FastaValidationStarted += FastaValidation_FastaValidationStarted;
                     }
                     else
+                    {
                         mFastaValidation.SetNewFastaFile(fastaFilePath);
+                    }
 
                     try
                     {
                         if (!string.IsNullOrEmpty(mCustomValidationRulesFilePath))
                         {
                             if (File.Exists(mCustomValidationRulesFilePath))
+                            {
                                 mFastaValidation.CustomRulesFilePath = mCustomValidationRulesFilePath;
+                            }
                             else
+                            {
                                 mCustomValidationRulesFilePath = string.Empty;
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -1962,7 +2193,9 @@ namespace ProteinDigestionSimulator
                     }
 
                     if (mFastaValidationOptions.Initialized)
+                    {
                         mFastaValidation.SetOptions(mFastaValidationOptions);
+                    }
 
                     mFastaValidation.ShowDialog();
 
@@ -1976,7 +2209,9 @@ namespace ProteinDigestionSimulator
             finally
             {
                 if (mFastaValidation != null)
+                {
                     mCustomValidationRulesFilePath = mFastaValidation.CustomRulesFilePath;
+                }
             }
         }
 
@@ -2002,11 +2237,17 @@ namespace ProteinDigestionSimulator
             if (isFastaFile)
             {
                 if (proteinFileParser.DigestionOptions.CleavageRuleID == InSilicoDigest.CleavageRuleConstants.KROneEnd || proteinFileParser.DigestionOptions.CleavageRuleID == InSilicoDigest.CleavageRuleConstants.NoRule)
+                {
                     suggestEnableSqlServer = true;
+                }
                 else if (fileSizeKB > 500)
+                {
                     suggestEnableSqlServer = true;
+                }
                 else
+                {
                     suggestDisableSqlServer = true;
+                }
             }
             else
             {
@@ -2026,9 +2267,13 @@ namespace ProteinDigestionSimulator
                         }
 
                         if (lineCount < SAMPLING_LINE_COUNT || bytesRead == 0)
+                        {
                             totalLineCount = lineCount;
+                        }
                         else
+                        {
                             totalLineCount = (int)Math.Round(lineCount * fileSizeKB / (bytesRead / 1024d));
+                        }
                     }
                 }
                 catch
@@ -2039,14 +2284,22 @@ namespace ProteinDigestionSimulator
                 if (assumeDigested)
                 {
                     if (totalLineCount > 50000)
+                    {
                         suggestEnableSqlServer = true;
+                    }
                     else
+                    {
                         suggestDisableSqlServer = true;
+                    }
                 }
                 else if (totalLineCount > 1000)
+                {
                     suggestEnableSqlServer = true;
+                }
                 else
+                {
                     suggestDisableSqlServer = true;
+                }
             }
 
             bool proceed;
@@ -2054,24 +2307,40 @@ namespace ProteinDigestionSimulator
             {
                 var response = MessageBox.Show("Warning, memory usage could be quite large.  Enable Sql Server caching using Server " + txtSqlServerName.Text + "?  If no, then will continue using memory caching.", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 if (response == DialogResult.Yes)
+                {
                     chkUseSqlServerDBToCacheData.Checked = true;
+                }
+
                 if (response == DialogResult.Cancel)
+                {
                     proceed = false;
+                }
                 else
+                {
                     proceed = true;
+                }
             }
             else if (suggestDisableSqlServer && chkUseSqlServerDBToCacheData.Checked)
             {
                 var response = MessageBox.Show("Memory usage is expected to be minimal.  Continue caching data using Server " + txtSqlServerName.Text + "?  If no, then will switch to using memory caching.", "Note", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
                 if (response == DialogResult.No)
+                {
                     chkUseSqlServerDBToCacheData.Checked = false;
+                }
+
                 if (response == DialogResult.Cancel)
+                {
                     proceed = false;
+                }
                 else
+                {
                     proceed = true;
+                }
             }
             else
+            {
                 proceed = true;
+            }
 
             return proceed;
         }
@@ -2079,7 +2348,9 @@ namespace ProteinDigestionSimulator
         private void ValidateTextBox(TextBox thisTextBox, string defaultText)
         {
             if (thisTextBox.TextLength == 0)
+            {
                 thisTextBox.Text = defaultText;
+            }
         }
 
         private void cboElementMassMode_SelectedIndexChanged(object sender, EventArgs e)
@@ -2207,7 +2478,9 @@ namespace ProteinDigestionSimulator
         private void cmdPMThresholdsAutoPopulate_Click(object sender, EventArgs e)
         {
             if (cboPMPredefinedThresholds.SelectedIndex >= 0)
+            {
                 AutoPopulatePMThresholdsByID((PredefinedPMThresholdsConstants) cboPMPredefinedThresholds.SelectedIndex, true);
+            }
         }
 
         private void cmdSelectFile_Click(object sender, EventArgs e)
@@ -2263,14 +2536,19 @@ namespace ProteinDigestionSimulator
         private void txtMaxPeakMatchingResultsPerFeatureToSave_Validating(object sender, CancelEventArgs e)
         {
             if (txtMaxPeakMatchingResultsPerFeatureToSave.Text.Trim() == "0")
+            {
                 txtMaxPeakMatchingResultsPerFeatureToSave.Text = "1";
+            }
+
             TextBoxUtils.ValidateTextBoxInt(txtMaxPeakMatchingResultsPerFeatureToSave, 1, 100, 3);
         }
 
         private void txtMaxpISequenceLength_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter && chkMaxpIModeEnabled.Checked)
+            {
                 ComputeSequencepI();
+            }
         }
 
         private void txtMaxpISequenceLength_KeyPress(object sender, KeyPressEventArgs e)

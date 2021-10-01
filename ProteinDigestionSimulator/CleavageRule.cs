@@ -65,7 +65,9 @@ namespace ProteinDigestionSimulator
             AdditionalCleavageRules = new List<CleavageRule>();
 
             if (additionalRules == null || additionalRules.Count == 0)
+            {
                 return;
+            }
 
             AdditionalCleavageRules.AddRange(additionalRules);
         }
@@ -101,7 +103,9 @@ namespace ProteinDigestionSimulator
             }
 
             foreach (var additionalRule in AdditionalCleavageRules)
+            {
                 detailedDescription.Append("; or " + additionalRule.GetDetailedRuleDescription(true));
+            }
 
             return detailedDescription.ToString();
         }

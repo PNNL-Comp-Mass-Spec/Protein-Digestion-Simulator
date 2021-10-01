@@ -93,14 +93,18 @@ namespace ProteinDigestionSimulator
             get
             {
                 if (mPeptideSequence == null)
+                {
                     return PeptideSequence.ElementModeConstants.IsotopicMass;
+                }
 
                 return mPeptideSequence.ElementMode;
             }
             set
             {
                 if (mPeptideSequence == null)
+                {
                     mPeptideSequence = new PeptideSequence();
+                }
 
                 mPeptideSequence.ElementMode = value;
             }
@@ -177,7 +181,9 @@ namespace ProteinDigestionSimulator
             try
             {
                 if (includeXResiduesInMass)
+                {
                     mPeptideSequence.SetSequence(sequence.ToUpper());
+                }
                 else
                 {
                     // Exclude X residues from sequence when calling .SetSequence
@@ -211,7 +217,9 @@ namespace ProteinDigestionSimulator
                             startSearchLoc = returnResidueEnd + 1;
                         }
                         else
+                        {
                             break;
+                        }
                     }
                 }
 
@@ -268,7 +276,9 @@ namespace ProteinDigestionSimulator
             peptideFragments = new List<PeptideSequenceWithNET>();
 
             if (string.IsNullOrWhiteSpace(proteinSequence))
+            {
                 return 0;
+            }
 
             var proteinSequenceLength = proteinSequence.Length;
 
@@ -301,7 +311,9 @@ namespace ProteinDigestionSimulator
                         searchStartLoc = residueEndLoc + 1;
                     }
                     else
+                    {
                         break;
+                    }
                 }
 
                 ResetProgress("Digesting protein " + proteinName);
@@ -330,7 +342,9 @@ namespace ProteinDigestionSimulator
                     for (var index = 0; index <= digestionOptions.MaxMissedCleavages; index++)
                     {
                         if (trypticIndex + index >= trypticFragCache.Count)
+                        {
                             break;
+                        }
 
                         int residueEndLoc;
                         if (digestionOptions.CleavageRuleID == CleavageRuleConstants.KROneEnd)
@@ -341,27 +355,37 @@ namespace ProteinDigestionSimulator
                             {
                                 residueLengthStart = digestionOptions.MinFragmentResidueCount;
                                 if (residueLengthStart < 1)
+                                {
                                     residueLengthStart = 1;
+                                }
                             }
                             else
+                            {
                                 residueLengthStart = 1;
+                            }
 
                             for (var residueLength = residueLengthStart; residueLength <= trypticFragCache[trypticIndex + index].Sequence.Length; residueLength++)
                             {
                                 if (index > 0)
+                                {
                                     residueEndLoc = trypticFragCache[trypticIndex + index - 1].EndLoc + residueLength;
+                                }
                                 else
+                                {
                                     residueEndLoc = residueStartLoc + residueLength - 1;
+                                }
 
                                 peptideSequence = peptideSequenceBase + trypticFragCache[trypticIndex + index].Sequence.Substring(0, residueLength);
 
                                 if (peptideSequence.Length >= digestionOptions.MinFragmentResidueCount)
+                                {
                                     PossiblyAddPeptide(peptideSequence, trypticIndex, index,
                                                        residueStartLoc, residueEndLoc,
                                                        ref proteinSequence, proteinSequenceLength,
                                                        fragmentsUniqueList, peptideFragments,
                                                        digestionOptions, filterByIsoelectricPoint,
                                                        minFragmentMass, maxFragmentMass);
+                                }
                             }
                         }
                         else
@@ -370,19 +394,23 @@ namespace ProteinDigestionSimulator
                             residueEndLoc = trypticFragCache[trypticIndex + index].EndLoc;
                             peptideSequence += trypticFragCache[trypticIndex + index].Sequence;
                             if (peptideSequence.Length >= digestionOptions.MinFragmentResidueCount)
+                            {
                                 PossiblyAddPeptide(peptideSequence, trypticIndex, index,
                                                    residueStartLoc, residueEndLoc,
                                                    ref proteinSequence, proteinSequenceLength,
                                                    fragmentsUniqueList, peptideFragments,
                                                    digestionOptions, filterByIsoelectricPoint,
                                                    minFragmentMass, maxFragmentMass);
+                            }
                         }
 
                         peptideSequenceBase += trypticFragCache[trypticIndex + index].Sequence;
                     }
 
                     if (digestionOptions.CleavageRuleID == CleavageRuleConstants.KROneEnd)
+                    {
                         UpdateProgress((float)(trypticIndex / (double)(trypticFragCache.Count * 2) * 100.0d));
+                    }
                 }
 
                 if (digestionOptions.CleavageRuleID == CleavageRuleConstants.KROneEnd)
@@ -397,14 +425,20 @@ namespace ProteinDigestionSimulator
                         for (var index = 0; index <= digestionOptions.MaxMissedCleavages; index++)
                         {
                             if (trypticIndex - index < 0)
+                            {
                                 break;
+                            }
 
                             int residueLengthStart;
 
                             if (index == 0)
+                            {
                                 residueLengthStart = digestionOptions.MinFragmentResidueCount;
+                            }
                             else
+                            {
                                 residueLengthStart = 1;
+                            }
 
                             // We can limit the following for loop to the peptide length - 1 since those peptides using the full peptide will have already been added above
                             for (var residueLength = residueLengthStart; residueLength < trypticFragCache[trypticIndex - index].Sequence.Length; residueLength++)
@@ -412,20 +446,26 @@ namespace ProteinDigestionSimulator
                                 int residueStartLoc;
 
                                 if (index > 0)
+                                {
                                     residueStartLoc = trypticFragCache[trypticIndex - index + 1].StartLoc - residueLength;
+                                }
                                 else
+                                {
                                     residueStartLoc = residueEndLoc - (residueLength - 1);
+                                }
 
                                 // Grab characters from the end of trypticFragCache[]
                                 var peptideSequence = trypticFragCache[trypticIndex - index].Sequence.Substring(trypticFragCache[trypticIndex - index].Sequence.Length - residueLength, residueLength) + peptideSequenceBase;
 
                                 if (peptideSequence.Length >= digestionOptions.MinFragmentResidueCount)
+                                {
                                     PossiblyAddPeptide(peptideSequence, trypticIndex, index,
                                     residueStartLoc, residueEndLoc,
                                     ref proteinSequence, proteinSequenceLength,
                                     fragmentsUniqueList, peptideFragments,
                                     digestionOptions, filterByIsoelectricPoint,
                                     minFragmentMass, maxFragmentMass);
+                                }
                             }
 
                             peptideSequenceBase = trypticFragCache[trypticIndex - index].Sequence + peptideSequenceBase;
@@ -642,7 +682,9 @@ namespace ProteinDigestionSimulator
             int sequenceWidthToExamineForMaximumpI)
         {
             if (mpICalculator == null)
+            {
                 mpICalculator = new ComputePeptideProperties();
+            }
 
             mpICalculator.HydrophobicityType = hydrophobicityType;
             mpICalculator.ReportMaximumpI = reportMaximumpI;
@@ -671,17 +713,27 @@ namespace ProteinDigestionSimulator
             if (digestionOptions.RemoveDuplicateSequences)
             {
                 if (fragmentsUniqueList.Contains(peptideSequence))
+                {
                     addFragment = false;
+                }
                 else
+                {
                     fragmentsUniqueList.Add(peptideSequence);
+                }
             }
 
             if (addFragment && digestionOptions.AminoAcidResidueFilterChars.Length > 0)
+            {
                 if (peptideSequence.IndexOfAny(digestionOptions.AminoAcidResidueFilterChars) < 0)
+                {
                     addFragment = false;
+                }
+            }
 
             if (!addFragment)
+            {
                 return;
+            }
 
             var peptideFragment = new PeptideSequenceWithNET
             {
@@ -692,18 +744,24 @@ namespace ProteinDigestionSimulator
 
             if (peptideFragment.Mass < minFragmentMass ||
                 peptideFragment.Mass > maxFragmentMass)
+            {
                 return;
+            }
 
             var isoelectricPoint = default(float);
 
             // Possibly compute the isoelectric point for the peptide
             if (filterByIsoelectricPoint)
+            {
                 isoelectricPoint = mpICalculator.CalculateSequencepI(peptideSequence);
+            }
 
             if (filterByIsoelectricPoint &&
                 (isoelectricPoint < digestionOptions.MinIsoelectricPoint ||
                  isoelectricPoint > digestionOptions.MaxIsoelectricPoint))
+            {
                 return;
+            }
 
             // We can now compute the NET value for the peptide
             peptideFragment.UpdateNET();
@@ -714,14 +772,22 @@ namespace ProteinDigestionSimulator
                 string suffix;
 
                 if (residueStartLoc <= 1)
+                {
                     prefix = PeptideSequenceWithNET.PROTEIN_TERMINUS_SYMBOL;
+                }
                 else
+                {
                     prefix = proteinSequence.Substring(residueStartLoc - 2, 1);
+                }
 
                 if (residueEndLoc >= proteinSequenceLength)
+                {
                     suffix = PeptideSequenceWithNET.PROTEIN_TERMINUS_SYMBOL;
+                }
                 else
+                {
                     suffix = proteinSequence.Substring(residueEndLoc, 1);
+                }
 
                 peptideFragment.PrefixResidue = prefix;
                 peptideFragment.SuffixResidue = suffix;
@@ -734,9 +800,13 @@ namespace ProteinDigestionSimulator
 
             if (digestionOptions.CleavageRuleID == CleavageRuleConstants.ConventionalTrypsin ||
                 digestionOptions.CleavageRuleID == CleavageRuleConstants.TrypsinWithoutProlineException)
+            {
                 peptideFragment.PeptideName = "t" + (trypticIndex + 1) + "." + (missedCleavageCount + 1);
+            }
             else
+            {
                 peptideFragment.PeptideName = residueStartLoc + "." + residueEndLoc;
+            }
 
             peptideFragments.Add(peptideFragment);
         }
@@ -748,9 +818,13 @@ namespace ProteinDigestionSimulator
                 string errorMessage;
 
                 if (!string.IsNullOrEmpty(functionName))
+                {
                     errorMessage = "Error in " + functionName + ": " + ex.Message;
+                }
                 else
+                {
                     errorMessage = "Error: " + ex.Message;
+                }
 
                 Console.WriteLine(errorMessage);
 
@@ -789,9 +863,13 @@ namespace ProteinDigestionSimulator
         {
             mProgressStepDescription = string.Copy(description);
             if (percentComplete < 0f)
+            {
                 percentComplete = 0f;
+            }
             else if (percentComplete > 100f)
+            {
                 percentComplete = 100f;
+            }
 
             mProgressPercentComplete = percentComplete;
 
@@ -805,7 +883,9 @@ namespace ProteinDigestionSimulator
             public PeptideSequenceWithNET()
             {
                 if (NETPredictor == null)
+                {
                     NETPredictor = new NETPrediction.ElutionTimePredictionKangas();
+                }
 
                 // Disable mAutoComputeNET for now so that the call to SetSequence() below doesn't auto-call UpdateNET
                 AutoComputeNET = false;
@@ -858,9 +938,13 @@ namespace ProteinDigestionSimulator
                 set
                 {
                     if (!string.IsNullOrEmpty(value))
+                    {
                         mPrefixResidue = value[0].ToString();
+                    }
                     else
+                    {
                         mPrefixResidue = PROTEIN_TERMINUS_SYMBOL;
+                    }
                 }
             }
 
@@ -890,9 +974,13 @@ namespace ProteinDigestionSimulator
                 set
                 {
                     if (!string.IsNullOrEmpty(value))
+                    {
                         mSuffixResidue = value[0].ToString();
+                    }
                     else
+                    {
                         mSuffixResidue = PROTEIN_TERMINUS_SYMBOL;
+                    }
                 }
             }
 
@@ -916,7 +1004,9 @@ namespace ProteinDigestionSimulator
             {
                 var returnVal = base.SetSequence(sequence, nTerminus, cTerminus, is3LetterCode, oneLetterCheckForPrefixAndSuffixResidues, threeLetterCheckForPrefixHandSuffixOH);
                 if (AutoComputeNET)
+                {
                     UpdateNET();
+                }
 
                 return returnVal;
             }
@@ -931,7 +1021,9 @@ namespace ProteinDigestionSimulator
             {
                 base.SetSequenceOneLetterCharactersOnly(sequenceNoPrefixOrSuffix);
                 if (AutoComputeNET)
+                {
                     UpdateNET();
+                }
             }
 
             /// <summary>
@@ -948,7 +1040,9 @@ namespace ProteinDigestionSimulator
                         NET = NETPredictor.GetElutionTime(sequence.Replace("C", "c"));
                     }
                     else
+                    {
                         NET = NETPredictor.GetElutionTime(sequence);
+                    }
                 }
                 catch
                 {
@@ -996,9 +1090,15 @@ namespace ProteinDigestionSimulator
                 set
                 {
                     if (value < 0)
+                    {
                         value = 0;
+                    }
+
                     if (value > 500000)
+                    {
                         value = 500000;
+                    }
+
                     mMaxMissedCleavages = value;
                 }
             }
@@ -1015,7 +1115,10 @@ namespace ProteinDigestionSimulator
                 set
                 {
                     if (value < 1)
+                    {
                         value = 1;
+                    }
+
                     mMinFragmentResidueCount = value;
                 }
             }
@@ -1026,7 +1129,10 @@ namespace ProteinDigestionSimulator
                 set
                 {
                     if (value < 0)
+                    {
                         value = 0;
+                    }
+
                     mMinFragmentMass = value;
                 }
             }
@@ -1037,7 +1143,10 @@ namespace ProteinDigestionSimulator
                 set
                 {
                     if (value < 0)
+                    {
                         value = 0;
+                    }
+
                     mMaxFragmentMass = value;
                 }
             }
@@ -1052,10 +1161,14 @@ namespace ProteinDigestionSimulator
             public void ValidateOptions()
             {
                 if (mMaxFragmentMass < mMinFragmentMass)
+                {
                     mMaxFragmentMass = mMinFragmentMass;
+                }
 
                 if (MaxIsoelectricPoint < MinIsoelectricPoint)
+                {
                     MaxIsoelectricPoint = MinIsoelectricPoint;
+                }
             }
         }
     }

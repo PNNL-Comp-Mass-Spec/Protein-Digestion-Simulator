@@ -92,9 +92,13 @@ namespace ProteinDigestionSimulator
         {
             string newlineText;
             if (addNewlines)
+            {
                 newlineText = Environment.NewLine + Environment.NewLine;
+            }
             else
+            {
                 newlineText = ": ";
+            }
 
             return "NOTICE/DISCLAIMER" +
                    newlineText +
@@ -127,7 +131,10 @@ namespace ProteinDigestionSimulator
         {
             var secondsRemaining = (int)Math.Round(Math.Round(FORM_CLOSE_DELAY_SECONDS - DateTime.UtcNow.Subtract(mTimerStartTime).TotalSeconds, 0));
             if (secondsRemaining < 0)
+            {
                 secondsRemaining = 0;
+            }
+
             if (secondsRemaining > 0)
             {
                 cmdOK.Text = secondsRemaining.ToString();
