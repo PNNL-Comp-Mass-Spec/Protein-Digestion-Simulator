@@ -40,7 +40,7 @@ namespace ProteinDigestionSimulator
 
         public ProteinFileParser()
         {
-            mFileDate = "August 6, 2021";
+            mFileDate = "October 1, 2021";
             InitializeLocalVariables();
         }
 
