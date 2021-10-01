@@ -243,7 +243,7 @@ namespace ProteinDigestionSimulator
                     outputFileName = Path.ChangeExtension(inputFileName, ".fasta");
                 }
             }
-            else if (Path.GetExtension(inputFileName).ToLower() == ".txt")
+            else if (string.Equals(Path.GetExtension(inputFileName), ".txt", StringComparison.OrdinalIgnoreCase))
             {
                 outputFileName = Path.GetFileNameWithoutExtension(inputFileName) + "_output.txt";
             }
@@ -1944,11 +1944,11 @@ namespace ProteinDigestionSimulator
             {
                 openFile.FilterIndex = 3;
             }
-            else if (currentExtension.ToLower() == ".txt")
+            else if (string.Equals(currentExtension, ".txt", StringComparison.OrdinalIgnoreCase))
             {
                 openFile.FilterIndex = 3;
             }
-            else if (currentExtension.ToLower() == ".gz")
+            else if (string.Equals(currentExtension, ".gz", StringComparison.OrdinalIgnoreCase))
             {
                 openFile.FilterIndex = 2;
             }
@@ -2080,7 +2080,7 @@ namespace ProteinDigestionSimulator
         {
             MessageBoxIcon messageIcon;
 
-            if (caption.ToLower().Contains("error"))
+            if (caption.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 messageIcon = MessageBoxIcon.Exclamation;
             }

@@ -1404,7 +1404,7 @@ namespace ProteinDigestionSimulator
         /// <remarks>This is only applicable for sequences in 3 letter notation</remarks>
         private void RemoveLeadingH(ref string workingSequence)
         {
-            if (workingSequence.Length >= 4 && workingSequence.Substring(0, 1).ToUpper() == "H")
+            if (workingSequence.Length >= 4 && string.Equals(workingSequence.Substring(0, 1), "H", StringComparison.OrdinalIgnoreCase))
             {
                 // If next character is not a character, remove the H and the next character
                 if (!char.IsLetter(workingSequence[1]))
@@ -1435,7 +1435,7 @@ namespace ProteinDigestionSimulator
         private void RemoveTrailingOH(ref string workingSequence)
         {
             var stringLength = workingSequence.Length;
-            if (stringLength >= 5 && workingSequence.Substring(stringLength - 2, 2).ToUpper() == "OH")
+            if (stringLength >= 5 && string.Equals(workingSequence.Substring(stringLength - 2, 2), "OH", StringComparison.OrdinalIgnoreCase))
             {
                 // If previous character is not a character, then remove the OH (and the character preceding)
                 if (!char.IsLetter(workingSequence[stringLength - 3]))
@@ -1796,7 +1796,7 @@ namespace ProteinDigestionSimulator
                 ValidateTerminusMasses();
 
                 runningTotal = mNTerminus.Mass;
-                if (mNTerminus.Formula.ToUpper() == "HH")
+                if (string.Equals(mNTerminus.Formula, "HH", StringComparison.OrdinalIgnoreCase))
                 {
                     // ntgNTerminusGroupConstants.HydrogenPlusProton; since we add back in the proton below when computing the fragment masses,
                     // we need to subtract it out here

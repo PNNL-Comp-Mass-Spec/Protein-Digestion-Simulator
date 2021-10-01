@@ -1317,10 +1317,10 @@ namespace ProteinDigestionSimulator
                                 headerChecked = true;
 
                                 // This may be a header line; possibly skip it
-                                if (proteinFileReader.ProteinName.ToLower().StartsWith("protein"))
+                                if (proteinFileReader.ProteinName.StartsWith("protein", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    if (proteinFileReader.ProteinDescription.ToLower().Contains("description") &&
-                                        proteinFileReader.ProteinSequence.ToLower().Contains("sequence"))
+                                    if (proteinFileReader.ProteinDescription.IndexOf("description", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                                        proteinFileReader.ProteinSequence.IndexOf("sequence", StringComparison.OrdinalIgnoreCase) >= 0)
                                     {
                                         // Skip this entry since it's a header line, for example:
                                         // ProteinName    Description    Sequence
@@ -1328,7 +1328,7 @@ namespace ProteinDigestionSimulator
                                     }
                                 }
 
-                                if (proteinFileReader.ProteinName.ToLower().Contains("protein") &&
+                                if (proteinFileReader.ProteinName.IndexOf("protein", StringComparison.OrdinalIgnoreCase) >= 0 &&
                                     FractionLowercase(proteinFileReader.ProteinSequence) > 0.2d)
                                 {
                                     // Skip this entry since it's a header line, for example:
@@ -1703,7 +1703,7 @@ namespace ProteinDigestionSimulator
                 {
                     foreach (var addnlRef in addnlRefsToOutput)
                     {
-                        if (addnlRef.RefName.ToUpper() == protein.AlternateNames[index].RefName.ToUpper())
+                        if (string.Equals(addnlRef.RefName, protein.AlternateNames[index].RefName, StringComparison.OrdinalIgnoreCase))
                         {
                             addnlRef.RefAccession = protein.AlternateNames[index].RefAccession;
                             break;
@@ -1904,7 +1904,7 @@ namespace ProteinDigestionSimulator
             }
 
             // Make sure the output file isn't the same as the input file
-            if (Path.GetFileName(pathInfo.ProteinInputFilePath).ToLower() == Path.GetFileName(outputFileName).ToLower())
+            if (string.Equals(Path.GetFileName(pathInfo.ProteinInputFilePath), Path.GetFileName(outputFileName), StringComparison.OrdinalIgnoreCase))
             {
                 outputFileName = Path.GetFileNameWithoutExtension(outputFileName) + "_new" + Path.GetExtension(outputFileName);
             }
