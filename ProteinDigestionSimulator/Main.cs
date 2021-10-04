@@ -17,7 +17,7 @@ using ProteinFileReader;
 // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004
 //
 // E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
-// Website: https://omics.pnl.gov/ or https://www.pnnl.gov/sysbio/ or https://panomics.pnnl.gov/
+// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
 // -------------------------------------------------------------------------------
 //
 // Licensed under the 2-Clause BSD License; you may not use this file except
@@ -2051,7 +2051,7 @@ namespace ProteinDigestionSimulator
             message.AppendLine("This is version " + Application.ProductVersion + " (" + Program.PROGRAM_DATE + ")");
             message.AppendLine();
             message.AppendLine("E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov");
-            message.AppendLine("Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/");
+            message.AppendLine("Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics");
             message.AppendLine();
             message.AppendLine(Disclaimer.GetKangasPetritisDisclaimerText());
             message.AppendLine();
