@@ -13,8 +13,8 @@ The release page also includes a .zip file with ProteinDigestionSimulator.exe
 
 ### Continuous Integration
 
-The latest version of the application is available on the [AppVeyor CI server](https://ci.appveyor.com/project/PNNLCompMassSpec/protein-digestion-simulator/build/artifacts)
-though builds are deleted after 6 months. \
+The latest version of the application may be available on the [AppVeyor CI server](https://ci.appveyor.com/project/PNNLCompMassSpec/protein-digestion-simulator/build/artifacts), 
+but builds are deleted after 6 months. \
 Otherwise, see the [GitHub release page](https://github.com/PNNL-Comp-Mass-Spec/Protein-Digestion-Simulator/releases)
 
 [![Build status](https://ci.appveyor.com/api/projects/status/j6kerul55ql8cd54?svg=true)](https://ci.appveyor.com/project/PNNLCompMassSpec/protein-digestion-simulator)
