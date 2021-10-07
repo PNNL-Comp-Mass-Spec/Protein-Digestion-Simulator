@@ -1,0 +1,4 @@
+# Jekyll configuration
+name: Protein-Digestion-Simulator
+description: The Protein Digestion Simulator can be used to read a text file containing protein or peptide sequences (FASTA format or delimited text) then output the data to a tab-delimited file.
+url: https://pnnl-comp-mass-spec.github.io/Protein-Digestion-Simulator/
