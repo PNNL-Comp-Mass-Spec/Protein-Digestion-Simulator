@@ -850,7 +850,7 @@ namespace ProteinDigestionSimulator
                                     }
                                 }
 
-                                progressStep += 1;
+                                progressStep++;
                                 UpdateProgress((float)(progressStep / (double)progressStepCount * 100d));
 
                                 // Summarize the results by peptide
@@ -861,7 +861,7 @@ namespace ProteinDigestionSimulator
                                     break;
                                 }
 
-                                progressStep += 1;
+                                progressStep++;
                                 UpdateProgress((float)(progressStep / (double)progressStepCount * 100d));
 
                                 // Summarize the results by protein
@@ -872,7 +872,7 @@ namespace ProteinDigestionSimulator
                                     break;
                                 }
 
-                                progressStep += 1;
+                                progressStep++;
                                 UpdateProgress((float)(progressStep / (double)progressStepCount * 100d));
                                 if (AbortProcessing)
                                 {
@@ -1005,7 +1005,7 @@ namespace ProteinDigestionSimulator
                     uniqueSeqID = nextUniqueIDForMasterSeqs;
                 }
 
-                nextUniqueIDForMasterSeqs += 1;
+                nextUniqueIDForMasterSeqs++;
             }
             catch
             {
@@ -1652,7 +1652,7 @@ namespace ProteinDigestionSimulator
                                 {
                                     // Must assume each sequence is unique; probably an incorrect assumption
                                     uniqueSeqID = nextUniqueIDForMasterSeqs;
-                                    nextUniqueIDForMasterSeqs += 1;
+                                    nextUniqueIDForMasterSeqs++;
                                 }
 
                                 AddOrUpdatePeptide(uniqueSeqID,
@@ -1924,24 +1924,24 @@ namespace ProteinDigestionSimulator
                         if (binIndex < 0 || binIndex > peptideStatsBinned.BinCount - 1)
                         {
                             // Peptide mass is out-of-range, ignore the result
-                            peptideSkipCount += 1;
+                            peptideSkipCount++;
                         }
                         else if (FeatureContainsUniqueMatch(featureInfo, peptideMatchResults, ref matchCount, UseSLiCScoreForUniqueness, peptideStatsBinned.Settings.MinimumSLiCScore))
                         {
-                            peptideStatsBinned.Bins[binIndex].UniqueResultIDCount += 1;
-                            peptideStatsBinned.Bins[binIndex].ResultIDCountDistribution[1] += 1;
+                            peptideStatsBinned.Bins[binIndex].UniqueResultIDCount++;
+                            peptideStatsBinned.Bins[binIndex].ResultIDCountDistribution[1]++;
                         }
                         else if (matchCount > 0)
                         {
                             // Feature has 1 or more matches, but they're not unique
-                            peptideStatsBinned.Bins[binIndex].NonUniqueResultIDCount += 1;
+                            peptideStatsBinned.Bins[binIndex].NonUniqueResultIDCount++;
                             if (matchCount < maxMatchCount)
                             {
-                                peptideStatsBinned.Bins[binIndex].ResultIDCountDistribution[matchCount] += 1;
+                                peptideStatsBinned.Bins[binIndex].ResultIDCountDistribution[matchCount]++;
                             }
                             else
                             {
-                                peptideStatsBinned.Bins[binIndex].ResultIDCountDistribution[maxMatchCount] += 1;
+                                peptideStatsBinned.Bins[binIndex].ResultIDCountDistribution[maxMatchCount]++;
                             }
                         }
                     }
@@ -2229,7 +2229,7 @@ namespace ProteinDigestionSimulator
 
         private void mProteinInfo_SortingList()
         {
-            sortingListCount += 1;
+            sortingListCount++;
             if (DateTime.UtcNow.Subtract(sortingListLastPostTime).TotalSeconds >= 10d)
             {
                 LogMessage("Sorting protein list (SortCount = " + sortingListCount + ")");
@@ -2242,7 +2242,7 @@ namespace ProteinDigestionSimulator
 
         private void mProteinInfo_SortingMappings()
         {
-            sortingMappingsCount += 1;
+            sortingMappingsCount++;
             if (DateTime.UtcNow.Subtract(sortingMappingsLastPostTime).TotalSeconds >= 10d)
             {
                 LogMessage("Sorting protein to peptide mapping info (SortCount = " + sortingMappingsCount + ")");
@@ -2255,7 +2255,7 @@ namespace ProteinDigestionSimulator
 
         private void mPeptideMatchResults_SortingList()
         {
-            resultsSortingListCount += 1;
+            resultsSortingListCount++;
             if (DateTime.UtcNow.Subtract(resultsSortingListLastPostTime).TotalSeconds >= 10d)
             {
                 LogMessage("Sorting peptide match results list (SortCount = " + resultsSortingListCount + ")");

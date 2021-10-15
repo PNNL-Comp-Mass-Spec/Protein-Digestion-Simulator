@@ -141,7 +141,7 @@ namespace ProteinDigestionSimulator
                     featureIDToRowIndex.Add(featureID, mFeatureCount);
                 }
 
-                mFeatureCount += 1;
+                mFeatureCount++;
                 mFeaturesArrayIsSorted = false;
 
                 // If we get here, all went well
@@ -316,7 +316,7 @@ namespace ProteinDigestionSimulator
                 for (var index = rowIndexStart; index <= rowIndexEnd; index++)
                 {
                     masses[matchCount] = mFeatures[index].Mass;
-                    matchCount += 1;
+                    matchCount++;
                 }
 
                 if (masses.Length > matchCount)
@@ -679,13 +679,13 @@ namespace ProteinDigestionSimulator
                     // Step backward through mPMResults to find the first match for featureID
                     while (indexFirst > 0 && mPMResults[indexFirst - 1].FeatureID == featureID)
                     {
-                        indexFirst -= 1;
+                        indexFirst--;
                     }
 
                     // Step forward through mPMResults to find the last match for featureID
                     while (indexLast < mPMResults.Count - 1 && mPMResults[indexLast + 1].FeatureID == featureID)
                     {
-                        indexLast += 1;
+                        indexLast++;
                     }
 
                     return true;

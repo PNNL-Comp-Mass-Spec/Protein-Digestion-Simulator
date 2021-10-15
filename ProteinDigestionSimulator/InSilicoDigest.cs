@@ -211,7 +211,7 @@ namespace ProteinDigestionSimulator
                         var fragment = mPeptideSequence.GetTrypticPeptideNext(sequence, startSearchLoc, out _, out var returnResidueEnd);
                         if (fragment.Length > 0)
                         {
-                            trypticCount += 1;
+                            trypticCount++;
                             startSearchLoc = returnResidueEnd + 1;
                         }
                         else
@@ -414,7 +414,7 @@ namespace ProteinDigestionSimulator
                 if (digestionOptions.CleavageRuleID == CleavageRuleConstants.KROneEnd)
                 {
                     // Partially tryptic cleavage rule: Add all partially tryptic fragments, working from the end toward the front
-                    for (var trypticIndex = trypticFragCache.Count - 1; trypticIndex >= 0; trypticIndex -= 1)
+                    for (var trypticIndex = trypticFragCache.Count - 1; trypticIndex >= 0; --trypticIndex)
                     {
                         var peptideSequenceBase = string.Empty;
 

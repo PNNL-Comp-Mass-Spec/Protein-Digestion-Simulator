@@ -143,7 +143,7 @@ namespace ProteinDigestionSimulator
                 var leftIndex = indexMidpoint;
                 while (!leftDone)
                 {
-                    leftIndex -= 1;
+                    leftIndex--;
                     if (leftIndex < matchIndexStart)
                     {
                         leftDone = true;
@@ -158,7 +158,7 @@ namespace ProteinDigestionSimulator
 
                 while (!rightDone)
                 {
-                    rightIndex += 1;
+                    rightIndex++;
                     if (rightIndex > matchIndexEnd)
                     {
                         rightDone = true;
@@ -216,7 +216,7 @@ namespace ProteinDigestionSimulator
                 var leftIndex = indexMidpoint;
                 while (!leftDone)
                 {
-                    leftIndex -= 1;
+                    leftIndex--;
                     if (leftIndex < matchIndexStart)
                     {
                         leftDone = true;
@@ -231,7 +231,7 @@ namespace ProteinDigestionSimulator
 
                 while (!rightDone)
                 {
-                    rightIndex += 1;
+                    rightIndex++;
                     if (rightIndex > matchIndexEnd)
                     {
                         rightDone = true;
@@ -289,7 +289,7 @@ namespace ProteinDigestionSimulator
                 var leftIndex = indexMidpoint;
                 while (!leftDone)
                 {
-                    leftIndex -= 1;
+                    leftIndex--;
                     if (leftIndex < matchIndexStart)
                     {
                         leftDone = true;
@@ -304,7 +304,7 @@ namespace ProteinDigestionSimulator
 
                 while (!rightDone)
                 {
-                    rightIndex += 1;
+                    rightIndex++;
                     if (rightIndex > matchIndexEnd)
                     {
                         rightDone = true;
@@ -637,7 +637,7 @@ namespace ProteinDigestionSimulator
                     }
 
                     mDataInt[mPointByPointFillCount] = valueToAdd;
-                    mPointByPointFillCount += 1;
+                    mPointByPointFillCount++;
                 }
             }
             catch
@@ -677,7 +677,7 @@ namespace ProteinDigestionSimulator
                     }
 
                     mDataSingle[mPointByPointFillCount] = valueToAdd;
-                    mPointByPointFillCount += 1;
+                    mPointByPointFillCount++;
                 }
             }
             catch
@@ -717,7 +717,7 @@ namespace ProteinDigestionSimulator
                     }
 
                     mDataDouble[mPointByPointFillCount] = valueToAdd;
-                    mPointByPointFillCount += 1;
+                    mPointByPointFillCount++;
                 }
             }
             catch

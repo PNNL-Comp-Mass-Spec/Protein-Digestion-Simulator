@@ -163,7 +163,7 @@ namespace ProteinDigestionSimulator
                             break;
                     }
 
-                    residueCount += 1;
+                    residueCount++;
                 }
                 catch
                 {
@@ -203,28 +203,28 @@ namespace ProteinDigestionSimulator
                         case 'C':
                             if (Ck > pH)
                             {
-                                chargeState += 1;
+                                chargeState++;
                             }
 
                             break;
                         case 'D':
                             if (Dk > pH)
                             {
-                                chargeState += 1;
+                                chargeState++;
                             }
 
                             break;
                         case 'E':
                             if (Ek > pH)
                             {
-                                chargeState += 1;
+                                chargeState++;
                             }
 
                             break;
                         case 'H':
                             if (Hk > pH)
                             {
-                                chargeState += 1;
+                                chargeState++;
                             }
 
                             break;
@@ -238,14 +238,14 @@ namespace ProteinDigestionSimulator
                         case 'R':
                             if (Rk > pH)
                             {
-                                chargeState += 1;
+                                chargeState++;
                             }
 
                             break;
                         case 'Y':
                             if (Yk > pH)
                             {
-                                chargeState += 1;
+                                chargeState++;
                             }
 
                             break;
@@ -322,25 +322,25 @@ namespace ProteinDigestionSimulator
                     switch (char.ToUpper(c))
                     {
                         case 'C':
-                            numC += 1;
+                            numC++;
                             break;
                         case 'D':
-                            numD += 1;
+                            numD++;
                             break;
                         case 'E':
-                            numE += 1;
+                            numE++;
                             break;
                         case 'H':
-                            numH += 1;
+                            numH++;
                             break;
                         case 'K':
-                            numK += 1;
+                            numK++;
                             break;
                         case 'R':
-                            numR += 1;
+                            numR++;
                             break;
                         case 'Y':
-                            numY += 1;
+                            numY++;
                             break;
                     }
                 }

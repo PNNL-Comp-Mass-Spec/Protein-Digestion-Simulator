@@ -369,7 +369,7 @@ namespace ProteinDigestionSimulator
                     // N terminus
                     if (prefix == terminiiSymbol)
                     {
-                        terminusCount += 1;
+                        terminusCount++;
                         skipThisEnd = true;
                     }
                     else if (cleavageRule.ReversedCleavageDirection)
@@ -386,7 +386,7 @@ namespace ProteinDigestionSimulator
                 // C terminus
                 else if (suffix == terminiiSymbol)
                 {
-                    terminusCount += 1;
+                    terminusCount++;
                     skipThisEnd = true;
                 }
                 else if (cleavageRule.ReversedCleavageDirection)
@@ -409,7 +409,7 @@ namespace ProteinDigestionSimulator
 
                 if (ruleMatch)
                 {
-                    ruleMatchCount += 1;
+                    ruleMatchCount++;
                 }
                 else
                 {
@@ -418,7 +418,7 @@ namespace ProteinDigestionSimulator
                         var altRuleMatch = ResiduesMatchCleavageRule(testResidue, exceptionResidue, additionalRule);
                         if (altRuleMatch)
                         {
-                            ruleMatchCount += 1;
+                            ruleMatchCount++;
                             break;
                         }
                     }
@@ -665,7 +665,7 @@ namespace ProteinDigestionSimulator
                 residueIndex = mResidues.IndexOf(searchResidue1Letter, residueIndex + 1);
                 if (residueIndex >= 0)
                 {
-                    residueCount += 1;
+                    residueCount++;
                 }
                 else
                 {
@@ -902,11 +902,11 @@ namespace ProteinDigestionSimulator
                             ruleResidueNumForProtein = GetTrypticNameFindNextCleavageLoc(proteinResiduesBeforeStartLoc, residueFollowingSearchResidues.ToString(), ruleResidueNumForProtein + 1, cleavageRule, terminiiSymbol);
                             if (ruleResidueNumForProtein > 0)
                             {
-                                trypticResidueNumber += 1;
+                                trypticResidueNumber++;
                             }
                         }
                         while (ruleResidueNumForProtein > 0 && ruleResidueNumForProtein + 1 < startLoc);
-                        trypticResidueNumber += 1;
+                        trypticResidueNumber++;
                     }
 
                     // Determine number of K or R residues in peptideResidues
@@ -918,7 +918,7 @@ namespace ProteinDigestionSimulator
                         ruleResidueNumForPeptide = GetTrypticNameFindNextCleavageLoc(peptideResidues, suffix.ToString(), ruleResidueNumForPeptide + 1, cleavageRule, terminiiSymbol);
                         if (ruleResidueNumForPeptide > 0)
                         {
-                            ruleResidueMatchCount += 1;
+                            ruleResidueMatchCount++;
                         }
                     }
                     while (ruleResidueNumForPeptide > 0 && ruleResidueNumForPeptide < peptideResiduesLength);
@@ -999,7 +999,7 @@ namespace ProteinDigestionSimulator
 
                     nameList += currentName;
                     currentSearchLoc = currentResidueEnd + 1;
-                    returnMatchCount += 1;
+                    returnMatchCount++;
 
                     if (returnMatchCount == 1)
                     {
@@ -1278,7 +1278,7 @@ namespace ProteinDigestionSimulator
                 ruleResidueNum = GetTrypticNameFindNextCleavageLoc(proteinResidues, terminiiSymbol.ToString(), startLoc, cleavageRule, terminiiSymbol);
                 if (ruleResidueNum > 0)
                 {
-                    currentTrypticPeptideNumber += 1;
+                    currentTrypticPeptideNumber++;
                     prevStartLoc = startLoc;
                     startLoc = ruleResidueNum + 1;
 
@@ -1727,13 +1727,13 @@ namespace ProteinDigestionSimulator
                         else
                         {
                             // First letter is a character, but next two are not; ignore it
-                            index += 1;
+                            index++;
                         }
                     }
                     else
                     {
                         // Ignore anything else
-                        index += 1;
+                        index++;
                     }
                 }
             }

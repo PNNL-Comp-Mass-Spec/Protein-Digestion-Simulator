@@ -513,11 +513,11 @@ namespace ProteinDigestionSimulator
             {
                 if (char.IsLower(residue))
                 {
-                    lowerCount += 1;
+                    lowerCount++;
                 }
                 else if (char.IsUpper(residue))
                 {
-                    upperCount += 1;
+                    upperCount++;
                 }
             }
 
@@ -1204,7 +1204,7 @@ namespace ProteinDigestionSimulator
                             foreach (var addnlRef in addnlRefMasterNames)
                             {
                                 addnlRefsToOutput[index].RefName = string.Copy(addnlRef);
-                                index += 1;
+                                index++;
                             }
 
                             Array.Sort(addnlRefsToOutput);
@@ -1323,7 +1323,7 @@ namespace ProteinDigestionSimulator
                             }
                         }
 
-                        InputFileProteinsProcessed += 1;
+                        InputFileProteinsProcessed++;
                         InputFileLinesRead = proteinFileReader.LinesRead;
 
                         var protein = ParseProteinFileStoreProtein(proteinFileReader, lookForAddnlRefInDescription);
@@ -1571,7 +1571,7 @@ namespace ProteinDigestionSimulator
                             uniqueSeqID = mNextUniqueIDForMasterSeqs;
                         }
 
-                        mNextUniqueIDForMasterSeqs += 1;
+                        mNextUniqueIDForMasterSeqs++;
                     }
                     catch
                     {
@@ -2144,7 +2144,7 @@ namespace ProteinDigestionSimulator
         {
             if (residueCache.ResiduesToWrite.Length > 0)
             {
-                residueCache.OutputCount += 1;
+                residueCache.OutputCount++;
 
                 var proteinName = proteinNamePrefix + mFileNameAbbreviated;
 
@@ -2243,7 +2243,7 @@ namespace ProteinDigestionSimulator
                         sequence = sequence.Substring(index + 1);
                     }
 
-                    residueCount -= 1;
+                    residueCount--;
                 }
             }
 

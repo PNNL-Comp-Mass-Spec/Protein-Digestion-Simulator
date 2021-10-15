@@ -1624,19 +1624,19 @@ namespace ProteinDigestionSimulator
 
                                             if (existingRowFound)
                                             {
-                                                rowsAlreadyPresent += 1;
+                                                rowsAlreadyPresent++;
                                             }
                                         }
                                     }
                                     catch
                                     {
                                         // Skip this row
-                                        rowsSkipped += 1;
+                                        rowsSkipped++;
                                     }
                                 }
                                 else
                                 {
-                                    rowsSkipped += 1;
+                                    rowsSkipped++;
                                 }
                             }
                         }
@@ -2262,7 +2262,7 @@ namespace ProteinDigestionSimulator
                         while (!reader.EndOfStream && lineCount < SAMPLING_LINE_COUNT)
                         {
                             var dataLine = reader.ReadLine();
-                            lineCount += 1;
+                            lineCount++;
                             bytesRead += dataLine.Length + 2;
                         }
 

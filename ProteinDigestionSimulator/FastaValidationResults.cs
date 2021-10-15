@@ -1192,7 +1192,7 @@ namespace ProteinDigestionSimulator
             }
             else
             {
-                TextFontSize -= 1f;
+                TextFontSize--;
             }
         }
 
@@ -1204,7 +1204,7 @@ namespace ProteinDigestionSimulator
             }
             else
             {
-                TextFontSize += 1f;
+                TextFontSize++;
             }
         }
 

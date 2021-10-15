@@ -104,7 +104,7 @@ namespace ProteinDigestionSimulator
                     mProteinNameToRowIndex.Add(proteinName, mProteinCount);
                 }
 
-                mProteinCount += 1;
+                mProteinCount++;
                 mProteinArrayIsSorted = false;
 
                 mMaxProteinIDUsed = Math.Max(mMaxProteinIDUsed, proteinID);
@@ -398,7 +398,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 mMappings[mMappingCount] = new ProteinToPeptideMappingEntry(proteinID, peptideID, cleavageState);
-                mMappingCount += 1;
+                mMappingCount++;
                 mMappingArrayIsSorted = false;
 
                 // If we get here, all went well
@@ -560,7 +560,7 @@ namespace ProteinDigestionSimulator
                         }
 
                         matchingIDs[matchCount] = mMappings[index].ProteinID;
-                        matchCount += 1;
+                        matchCount++;
                     }
                 }
 
@@ -588,13 +588,13 @@ namespace ProteinDigestionSimulator
                     // Step backward through mMappings to find the first match for proteinID
                     while (indexFirst > 0 && mMappings[indexFirst - 1].ProteinID == proteinID)
                     {
-                        indexFirst -= 1;
+                        indexFirst--;
                     }
 
                     // Step forward through mMappings to find the last match for proteinID
                     while (indexLast < mMappingCount - 1 && mMappings[indexLast + 1].ProteinID == proteinID)
                     {
-                        indexLast += 1;
+                        indexLast++;
                     }
 
                     return true;
