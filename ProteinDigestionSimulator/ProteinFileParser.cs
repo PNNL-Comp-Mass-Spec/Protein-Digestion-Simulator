@@ -145,6 +145,7 @@ namespace ProteinDigestionSimulator
             public string Sequence { get; set; }
             public string SequenceHash { get; set; }                   // Only populated if ComputeSequenceHashValues=true
             public double Mass { get; set; }
+            // ReSharper disable once InconsistentNaming
             public float pI { get; set; }
             public float Hydrophobicity { get; set; }
             public float ProteinNET { get; set; }
