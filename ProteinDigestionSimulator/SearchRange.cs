@@ -16,11 +16,14 @@ namespace ProteinDigestionSimulator
     // Copyright 2018 Battelle Memorial Institute
 
     /// <summary>
+    /// <para>
     /// This class can be used to search a list of values for a given value, plus or minus a given tolerance
     /// The input list need not be sorted, since mPointerIndices[] will be populated when the data is loaded,
     /// after which the data array will be sorted
-    ///
+    /// </para>
+    /// <para>
     /// To prevent this behavior, and save memory by not populating mPointerIndices, set mUsePointerIndexArray = False
+    /// </para>
     /// </summary>
     public class SearchRange
     {
