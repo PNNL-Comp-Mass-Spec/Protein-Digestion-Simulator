@@ -870,11 +870,10 @@ namespace ProteinDigestionSimulator
                     suffix = proteinResidues[endLoc];
                 }
 
-                int ruleMatchCount;
-
                 // We can set ignoreCase to false when calling CheckSequenceAgainstCleavageRule
                 // since proteinResidues and peptideResidues are already uppercase
-                var matchesCleavageRule = CheckSequenceAgainstCleavageRule(prefix + "." + peptideResidues + "." + suffix, cleavageRule, out ruleMatchCount, ".", terminiiSymbol, false);
+                var matchesCleavageRule = CheckSequenceAgainstCleavageRule(
+                    prefix + "." + peptideResidues + "." + suffix, cleavageRule, out _, ".", terminiiSymbol, false);
 
                 string trypticName;
 
