@@ -906,8 +906,7 @@ namespace ProteinDigestionSimulator
 
             string errorMessage;
 
-            if (ErrorCode == ProcessFilesErrorCodes.LocalizedError ||
-                ErrorCode == ProcessFilesErrorCodes.NoError)
+            if (ErrorCode is ProcessFilesErrorCodes.LocalizedError or ProcessFilesErrorCodes.NoError)
             {
                 errorMessage = LocalErrorCode switch
                 {

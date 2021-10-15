@@ -2202,7 +2202,7 @@ namespace ProteinDigestionSimulator
 
             if (isFastaFile)
             {
-                if (proteinFileParser.DigestionOptions.CleavageRuleID == InSilicoDigest.CleavageRuleConstants.KROneEnd || proteinFileParser.DigestionOptions.CleavageRuleID == InSilicoDigest.CleavageRuleConstants.NoRule)
+                if (proteinFileParser.DigestionOptions.CleavageRuleID is InSilicoDigest.CleavageRuleConstants.KROneEnd or InSilicoDigest.CleavageRuleConstants.NoRule)
                 {
                     suggestEnableSqlServer = true;
                 }

@@ -801,7 +801,7 @@ namespace ProteinDigestionSimulator
 
             // See if user filled with data, but didn't call Finalize
             // We'll call it for them
-            if (mDataType == DataTypeToUse.FillingIntegerType || mDataType == DataTypeToUse.FillingSingleType || mDataType == DataTypeToUse.FillingDoubleType)
+            if (mDataType is DataTypeToUse.FillingIntegerType or DataTypeToUse.FillingSingleType or DataTypeToUse.FillingDoubleType)
             {
                 FinalizeDataFill();
             }
@@ -862,7 +862,7 @@ namespace ProteinDigestionSimulator
 
             // See if user filled with data, but didn't call Finalize
             // We'll call it for them
-            if (mDataType == DataTypeToUse.FillingIntegerType || mDataType == DataTypeToUse.FillingSingleType || mDataType == DataTypeToUse.FillingDoubleType)
+            if (mDataType is DataTypeToUse.FillingIntegerType or DataTypeToUse.FillingSingleType or DataTypeToUse.FillingDoubleType)
             {
                 FinalizeDataFill();
             }
@@ -923,7 +923,7 @@ namespace ProteinDigestionSimulator
 
             // See if user filled with data, but didn't call Finalize
             // We'll call it for them
-            if (mDataType == DataTypeToUse.FillingIntegerType || mDataType == DataTypeToUse.FillingSingleType || mDataType == DataTypeToUse.FillingDoubleType)
+            if (mDataType is DataTypeToUse.FillingIntegerType or DataTypeToUse.FillingSingleType or DataTypeToUse.FillingDoubleType)
             {
                 FinalizeDataFill();
             }

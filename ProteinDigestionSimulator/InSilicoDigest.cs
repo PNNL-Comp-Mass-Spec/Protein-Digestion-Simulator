@@ -795,8 +795,7 @@ namespace ProteinDigestionSimulator
                 peptideFragment.SuffixResidue = PeptideSequenceWithNET.PROTEIN_TERMINUS_SYMBOL;
             }
 
-            if (digestionOptions.CleavageRuleID == CleavageRuleConstants.ConventionalTrypsin ||
-                digestionOptions.CleavageRuleID == CleavageRuleConstants.TrypsinWithoutProlineException)
+            if (digestionOptions.CleavageRuleID is CleavageRuleConstants.ConventionalTrypsin or CleavageRuleConstants.TrypsinWithoutProlineException)
             {
                 peptideFragment.PeptideName = "t" + (trypticIndex + 1) + "." + (missedCleavageCount + 1);
             }
