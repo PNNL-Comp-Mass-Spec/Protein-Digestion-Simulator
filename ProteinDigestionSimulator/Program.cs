@@ -411,10 +411,8 @@ namespace ProteinDigestionSimulator
         {
             try
             {
-                using (var errorStream = new StreamWriter(Console.OpenStandardError()))
-                {
-                    errorStream.WriteLine(errorMessage);
-                }
+                using var errorStream = new StreamWriter(Console.OpenStandardError());
+                errorStream.WriteLine(errorMessage);
             }
             catch
             {

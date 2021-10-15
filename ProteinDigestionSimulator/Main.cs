@@ -2221,25 +2221,28 @@ namespace ProteinDigestionSimulator
                 // Estimate the total line count by reading the first SAMPLING_LINE_COUNT lines
                 try
                 {
-                    using (var reader = new StreamReader(inputFilePath))
+                    using var reader = new StreamReader(inputFilePath);
+
+                    var bytesRead = 0;
+                    var lineCount = 0;
+                    while (!reader.EndOfStream && lineCount < SAMPLING_LINE_COUNT)
                     {
-                        var bytesRead = 0;
-                        var lineCount = 0;
-                        while (!reader.EndOfStream && lineCount < SAMPLING_LINE_COUNT)
+                        var dataLine = reader.ReadLine();
+                        lineCount++;
+
+                        if (dataLine != null)
                         {
-                            var dataLine = reader.ReadLine();
-                            lineCount++;
                             bytesRead += dataLine.Length + 2;
                         }
+                    }
 
-                        if (lineCount < SAMPLING_LINE_COUNT || bytesRead == 0)
-                        {
-                            totalLineCount = lineCount;
-                        }
-                        else
-                        {
-                            totalLineCount = (int)Math.Round(lineCount * fileSizeKB / (bytesRead / 1024d));
-                        }
+                    if (lineCount < SAMPLING_LINE_COUNT || bytesRead == 0)
+                    {
+                        totalLineCount = lineCount;
+                    }
+                    else
+                    {
+                        totalLineCount = (int)Math.Round(lineCount * fileSizeKB / (bytesRead / 1024d));
                     }
                 }
                 catch
