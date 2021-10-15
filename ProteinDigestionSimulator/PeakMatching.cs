@@ -506,7 +506,7 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            protected readonly List<PeakMatchingResults> mPMResults = new List<PeakMatchingResults>();
+            protected readonly List<PeakMatchingResults> mPMResults = new();
             protected bool mPMResultsIsSorted;
 
             public event SortingListEventHandler SortingList;
@@ -718,7 +718,7 @@ namespace ProteinDigestionSimulator
         }
 
         private int mMaxPeakMatchingResultsPerFeatureToSave;
-        private readonly SearchModeOptions mSearchModeOptions = new SearchModeOptions();
+        private readonly SearchModeOptions mSearchModeOptions = new();
         private bool mAbortProcessing;
 
         public event ProgressChangedEventHandler ProgressChanged;
@@ -1170,7 +1170,7 @@ namespace ProteinDigestionSimulator
             private double mNETTolerance;           // NET search tolerance, +- this value
             private float mSLiCScoreMaxSearchDistanceMultiplier;
 
-            private readonly SLiCScoreOptions mSLiCScoreOptions = new SLiCScoreOptions();
+            private readonly SLiCScoreOptions mSLiCScoreOptions = new();
 
             public bool AutoDefineSLiCScoreThresholds { get; set; }
 

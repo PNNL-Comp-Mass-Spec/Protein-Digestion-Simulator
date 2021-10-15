@@ -122,7 +122,7 @@ namespace ProteinDigestionSimulator
         private char mOutputFileDelimiter;
         private int mMaxPeakMatchingResultsPerFeatureToSave;
 
-        private readonly MassBinningOptions mPeptideUniquenessBinningSettings = new MassBinningOptions();
+        private readonly MassBinningOptions mPeptideUniquenessBinningSettings = new();
 
         private string mLastErrorMessage;
 

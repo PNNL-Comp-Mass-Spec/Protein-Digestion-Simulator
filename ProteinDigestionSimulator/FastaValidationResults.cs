@@ -91,9 +91,9 @@ namespace ProteinDigestionSimulator
 
         private string mValidatorErrorMessage;
 
-        private readonly List<string> mValidateFastaFileErrors = new List<string>();
+        private readonly List<string> mValidateFastaFileErrors = new();
 
-        private readonly List<string> mValidateFastaFileWarnings = new List<string>();
+        private readonly List<string> mValidateFastaFileWarnings = new();
 
         public event FastaValidationStartedEventHandler FastaValidationStarted;
 

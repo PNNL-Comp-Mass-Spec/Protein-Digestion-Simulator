@@ -128,12 +128,12 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Formula on the N-Terminus
         /// </summary>
-        private readonly TerminusInfo mNTerminus = new TerminusInfo();
+        private readonly TerminusInfo mNTerminus = new();
 
         /// <summary>
         /// Formula on the C-Terminus
         /// </summary>
-        private readonly TerminusInfo mCTerminus = new TerminusInfo();
+        private readonly TerminusInfo mCTerminus = new();
 
         private double mTotalMass;
         private ElementModeConstants mTotalMassElementMode;

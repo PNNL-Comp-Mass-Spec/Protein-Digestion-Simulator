@@ -186,7 +186,7 @@ namespace ProteinDigestionSimulator
         private ElutionTimePredictionKangas mNETCalculator;
         private SCXElutionTimePredictionKangas mSCXNETCalculator;
 
-        private readonly List<ProteinInfo> mProteins = new List<ProteinInfo>();
+        private readonly List<ProteinInfo> mProteins = new();
 
         private string mFileNameAbbreviated;
         private Dictionary<string, int> mMasterSequencesDictionary;

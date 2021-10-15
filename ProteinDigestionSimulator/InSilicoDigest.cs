@@ -61,7 +61,7 @@ namespace ProteinDigestionSimulator
             MH = 1
         }
 
-        private readonly Dictionary<CleavageRuleConstants, CleavageRule> mCleavageRules = new Dictionary<CleavageRuleConstants, CleavageRule>();
+        private readonly Dictionary<CleavageRuleConstants, CleavageRule> mCleavageRules = new();
 
         /// <summary>
         /// General purpose object for computing mass and calling cleavage and digestion functions
