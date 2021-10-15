@@ -115,7 +115,7 @@ namespace ProteinDigestionSimulator
         /// <summary>
         /// Percent complete, value between 0 and 100, but can contain decimal percentage values
         /// </summary>
-        public float ProgressPercentComplete => (float) Math.Round(mProgressPercentComplete, 2);
+        public float ProgressPercentComplete => (float)Math.Round(mProgressPercentComplete, 2);
 
         private CleavageRule AddCleavageRule(
             CleavageRuleConstants ruleId,

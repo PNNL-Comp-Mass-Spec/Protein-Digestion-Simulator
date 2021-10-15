@@ -324,7 +324,7 @@ namespace ProteinDigestionSimulator
             {
                 if (cboHydrophobicityMode.SelectedIndex >= 0)
                 {
-                    pICalculator.HydrophobicityType = (ComputePeptideProperties.HydrophobicityTypeConstants) cboHydrophobicityMode.SelectedIndex;
+                    pICalculator.HydrophobicityType = (ComputePeptideProperties.HydrophobicityTypeConstants)cboHydrophobicityMode.SelectedIndex;
                 }
 
                 pICalculator.ReportMaximumpI = chkMaxpIModeEnabled.Checked;
@@ -599,7 +599,7 @@ namespace ProteinDigestionSimulator
                     var massToleranceType = default(PeakMatching.SearchThresholds.MassToleranceConstants);
                     if (cboMassTolType.SelectedIndex >= 0)
                     {
-                        massToleranceType = (PeakMatching.SearchThresholds.MassToleranceConstants) cboMassTolType.SelectedIndex;
+                        massToleranceType = (PeakMatching.SearchThresholds.MassToleranceConstants)cboMassTolType.SelectedIndex;
                     }
 
                     var autoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked;
@@ -623,7 +623,7 @@ namespace ProteinDigestionSimulator
                     mProteinDigestionSimulator.CysPeptidesOnly = chkCysPeptidesOnly.Checked;
                     if (cboElementMassMode.SelectedIndex >= 0)
                     {
-                        mProteinDigestionSimulator.ElementMassMode = (PeptideSequence.ElementModeConstants) cboElementMassMode.SelectedIndex;
+                        mProteinDigestionSimulator.ElementMassMode = (PeptideSequence.ElementModeConstants)cboElementMassMode.SelectedIndex;
                     }
 
                     mProteinDigestionSimulator.AutoDetermineMassRangeForBinning = chkAutoComputeRangeForBinning.Checked;
@@ -840,7 +840,7 @@ namespace ProteinDigestionSimulator
                         {
                             try
                             {
-                                var cleavageRule = (InSilicoDigest.CleavageRuleConstants) legacyCleavageRuleIndexSetting;
+                                var cleavageRule = (InSilicoDigest.CleavageRuleConstants)legacyCleavageRuleIndexSetting;
                                 SetSelectedCleavageRule(cleavageRule);
                             }
                             catch
@@ -1227,7 +1227,7 @@ namespace ProteinDigestionSimulator
 
             if (cboInputFileColumnOrdering.SelectedIndex >= 0)
             {
-                parseProteinFile.DelimitedFileFormatCode = (DelimitedProteinFileReader.ProteinFileFormatCode) cboInputFileColumnOrdering.SelectedIndex;
+                parseProteinFile.DelimitedFileFormatCode = (DelimitedProteinFileReader.ProteinFileFormatCode)cboInputFileColumnOrdering.SelectedIndex;
             }
 
             parseProteinFile.InputFileDelimiter = LookupColumnDelimiter(cboInputFileColumnDelimiter, txtInputFileColumnDelimiter, '\t');
@@ -1254,7 +1254,7 @@ namespace ProteinDigestionSimulator
 
             if (cboHydrophobicityMode.SelectedIndex >= 0)
             {
-                parseProteinFile.HydrophobicityType = (ComputePeptideProperties.HydrophobicityTypeConstants) cboHydrophobicityMode.SelectedIndex;
+                parseProteinFile.HydrophobicityType = (ComputePeptideProperties.HydrophobicityTypeConstants)cboHydrophobicityMode.SelectedIndex;
             }
 
             parseProteinFile.ReportMaximumpI = chkMaxpIModeEnabled.Checked;
@@ -1309,12 +1309,12 @@ namespace ProteinDigestionSimulator
 
             if (cboCysTreatmentMode.SelectedIndex >= 0)
             {
-                parseProteinFile.DigestionOptions.CysTreatmentMode = (PeptideSequence.CysTreatmentModeConstants) cboCysTreatmentMode.SelectedIndex;
+                parseProteinFile.DigestionOptions.CysTreatmentMode = (PeptideSequence.CysTreatmentModeConstants)cboCysTreatmentMode.SelectedIndex;
             }
 
             if (cboFragmentMassMode.SelectedIndex >= 0)
             {
-                parseProteinFile.DigestionOptions.FragmentMassMode = (InSilicoDigest.FragmentMassConstants) cboFragmentMassMode.SelectedIndex;
+                parseProteinFile.DigestionOptions.FragmentMassMode = (InSilicoDigest.FragmentMassConstants)cboFragmentMassMode.SelectedIndex;
             }
 
             parseProteinFile.DigestionOptions.RemoveDuplicateSequences = !chkIncludeDuplicateSequences.Checked;
@@ -1420,7 +1420,7 @@ namespace ProteinDigestionSimulator
 
                     if (cboProteinReversalOptions.SelectedIndex >= 0)
                     {
-                        mParseProteinFile.ProteinScramblingMode = (ProteinFileParser.ProteinScramblingModeConstants) cboProteinReversalOptions.SelectedIndex;
+                        mParseProteinFile.ProteinScramblingMode = (ProteinFileParser.ProteinScramblingModeConstants)cboProteinReversalOptions.SelectedIndex;
                     }
 
                     mParseProteinFile.ProteinScramblingSamplingPercentage = TextBoxUtils.ParseTextBoxValueInt(txtProteinReversalSamplingPercentage, "", out _, 100);
@@ -1430,7 +1430,7 @@ namespace ProteinDigestionSimulator
 
                     if (cboElementMassMode.SelectedIndex >= 0)
                     {
-                        mParseProteinFile.ElementMassMode = (PeptideSequence.ElementModeConstants) cboElementMassMode.SelectedIndex;
+                        mParseProteinFile.ElementMassMode = (PeptideSequence.ElementModeConstants)cboElementMassMode.SelectedIndex;
                     }
 
                     Cursor.Current = Cursors.WaitCursor;
@@ -2198,7 +2198,7 @@ namespace ProteinDigestionSimulator
 
             // Lookup the file size
             var inputFile = new FileInfo(inputFilePath);
-            var fileSizeKB = (int) Math.Round(inputFile.Length / 1024.0d);
+            var fileSizeKB = (int)Math.Round(inputFile.Length / 1024.0d);
 
             if (isFastaFile)
             {
@@ -2293,7 +2293,7 @@ namespace ProteinDigestionSimulator
             return true;
         }
 
-        private void ValidateTextBox(TextBox thisTextBox, string defaultText)
+        private void ValidateTextBox(TextBoxBase thisTextBox, string defaultText)
         {
             if (thisTextBox.TextLength == 0)
             {
@@ -2427,7 +2427,7 @@ namespace ProteinDigestionSimulator
         {
             if (cboPMPredefinedThresholds.SelectedIndex >= 0)
             {
-                AutoPopulatePMThresholdsByID((PredefinedPMThresholdsConstants) cboPMPredefinedThresholds.SelectedIndex, true);
+                AutoPopulatePMThresholdsByID((PredefinedPMThresholdsConstants)cboPMPredefinedThresholds.SelectedIndex, true);
             }
         }
 

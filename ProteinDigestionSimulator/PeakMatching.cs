@@ -1018,7 +1018,7 @@ namespace ProteinDigestionSimulator
 
                                         if (storeMatch)
                                         {
-                                            var rawMatch =  new PeakMatchingRawMatches(comparisonFeaturesOriginalRowIndex)
+                                            var rawMatch = new PeakMatchingRawMatches(comparisonFeaturesOriginalRowIndex)
                                             {
                                                 SLiCScore = -1,
                                                 MassErr = currentFeatureToIdentify.Mass - currentComparisonFeature.Mass,

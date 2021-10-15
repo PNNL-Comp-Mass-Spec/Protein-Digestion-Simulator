@@ -95,7 +95,7 @@ namespace ProteinDigestionSimulator
 
             public MassBinningOptions Clone()
             {
-                return (MassBinningOptions) MemberwiseClone();
+                return (MassBinningOptions)MemberwiseClone();
             }
         }
 
