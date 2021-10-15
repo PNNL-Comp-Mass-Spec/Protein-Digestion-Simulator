@@ -28,11 +28,14 @@ using ValidateFastaFile;
 namespace ProteinDigestionSimulator
 {
     /// <summary>
+    /// <para>
     /// This class will read a protein FASTA file or delimited protein info file and parse it
     /// to create a delimited protein list output file, and optionally an in-silico digested output file
-    ///
+    /// </para>
+    /// <para>
     /// It can also create a FASTA file containing reversed or scrambled sequences, and these can
     /// be based on all of the proteins in the input file, or a sampling of the proteins in the input file
+    /// </para>
     /// </summary>
     public class ProteinFileParser : ProcessFilesBase
     {
