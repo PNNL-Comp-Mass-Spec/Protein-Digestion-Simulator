@@ -1143,7 +1143,7 @@ namespace ProteinDigestionSimulator
                 DBUtils.AppendColumnStringToTable(mProteinToIdentifiedPeptideMappingTable, PEPTIDE_ID_MATCH_COLUMN);
 
                 // Define the PROTEIN_ID_COLUMN AND PEPTIDE_ID_COLUMN columns to be the primary key
-                mProteinToIdentifiedPeptideMappingTable.PrimaryKey = new DataColumn[]
+                mProteinToIdentifiedPeptideMappingTable.PrimaryKey = new[]
                 {
                     mProteinToIdentifiedPeptideMappingTable.Columns[PROTEIN_ID_COLUMN],
                     mProteinToIdentifiedPeptideMappingTable.Columns[PEPTIDE_ID_MATCH_COLUMN]
@@ -1535,7 +1535,7 @@ namespace ProteinDigestionSimulator
 
                 if (CysPeptidesOnly)
                 {
-                    mProteinFileParser.DigestionOptions.AminoAcidResidueFilterChars = new char[] { 'C' };
+                    mProteinFileParser.DigestionOptions.AminoAcidResidueFilterChars = new[] { 'C' };
                 }
                 else
                 {

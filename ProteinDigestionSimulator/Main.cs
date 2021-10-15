@@ -749,7 +749,7 @@ namespace ProteinDigestionSimulator
 
             var xmlSettings = new XmlSettingsFileAccessor();
 
-            var columnDelimiters = new char[] { '\t', ',' };
+            var columnDelimiters = new[] { '\t', ',' };
 
             ResetToDefaults(false);
             var settingsFilePath = GetSettingsFilePath();
@@ -1148,7 +1148,7 @@ namespace ProteinDigestionSimulator
             DBUtils.AppendColumnDoubleToTable(pmThresholds, COL_NAME_SLIC_NET_STDEV, DEFAULT_SLIC_NET_STDEV);
             DBUtils.AppendColumnIntegerToTable(pmThresholds, COL_NAME_PM_THRESHOLD_ROW_ID, 0, true, true);
 
-            var PrimaryKeyColumn = new DataColumn[] { pmThresholds.Columns[COL_NAME_PM_THRESHOLD_ROW_ID] };
+            var PrimaryKeyColumn = new[] { pmThresholds.Columns[COL_NAME_PM_THRESHOLD_ROW_ID] };
             pmThresholds.PrimaryKey = PrimaryKeyColumn;
 
             // Instantiate the dataset
@@ -1320,7 +1320,7 @@ namespace ProteinDigestionSimulator
             parseProteinFile.DigestionOptions.RemoveDuplicateSequences = !chkIncludeDuplicateSequences.Checked;
             if (chkCysPeptidesOnly.Checked)
             {
-                parseProteinFile.DigestionOptions.AminoAcidResidueFilterChars = new char[] { 'C' };
+                parseProteinFile.DigestionOptions.AminoAcidResidueFilterChars = new[] { 'C' };
             }
             else
             {
@@ -1516,8 +1516,8 @@ namespace ProteinDigestionSimulator
 
         private void PastePMThresholdsValues(bool clearList)
         {
-            var lineDelimiters = new char[] { '\r', '\n' };
-            var columnDelimiters = new char[] { '\t', ',' };
+            var lineDelimiters = new[] { '\r', '\n' };
+            var columnDelimiters = new[] { '\t', ',' };
 
             // Examine the clipboard contents
             var clipboardObject = Clipboard.GetDataObject();

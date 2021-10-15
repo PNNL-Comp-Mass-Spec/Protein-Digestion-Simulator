@@ -931,7 +931,7 @@ namespace ProteinDigestionSimulator
                     var cysPeptidesOnly = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CysPeptidesOnly", false);
                     if (cysPeptidesOnly)
                     {
-                        DigestionOptions.AminoAcidResidueFilterChars = new char[] { 'C' };
+                        DigestionOptions.AminoAcidResidueFilterChars = new[] { 'C' };
                     }
                     else
                     {
@@ -2046,7 +2046,7 @@ namespace ProteinDigestionSimulator
 
         private string ValidateProteinName(string proteinName, int maximumLength)
         {
-            var sepChars = new char[] { ' ', ',', ';', ':', '_', '-', '|', '/' };
+            var sepChars = new[] { ' ', ',', ';', ':', '_', '-', '|', '/' };
 
             if (maximumLength < 1)
             {
