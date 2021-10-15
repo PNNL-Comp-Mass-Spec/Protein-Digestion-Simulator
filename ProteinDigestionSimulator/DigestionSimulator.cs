@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using DBUtils = PRISMDatabaseUtils.DataTableUtils;
 using ProteinFileReader;
 
@@ -611,40 +612,44 @@ namespace ProteinDigestionSimulator
             int thresholdIndex,
             PeakMatching.SearchThresholds searchThresholds)
         {
-            var delimiter = "; ";
+            const string delimiter = "; ";
 
             // Write the thresholds
-            var lineOut = "Threshold Index: " + (thresholdIndex + 1);
-            lineOut += delimiter + "Mass Tolerance: +- ";
+            var outline = new StringBuilder();
+
+            outline.AppendFormat("Threshold Index: {0}{1}", thresholdIndex + 1, delimiter);
+            outline.Append("Mass Tolerance: +- ");
+
             switch (searchThresholds.MassTolType)
             {
                 case PeakMatching.SearchThresholds.MassToleranceConstants.Absolute:
-                    lineOut += Math.Round(searchThresholds.MassTolerance, 5) + " Da";
+                    outline.AppendFormat("{0} Da", Math.Round(searchThresholds.MassTolerance, 5));
                     break;
                 case PeakMatching.SearchThresholds.MassToleranceConstants.PPM:
-                    lineOut += Math.Round(searchThresholds.MassTolerance, 2) + " ppm";
+                    outline.AppendFormat("{0} ppm", Math.Round(searchThresholds.MassTolerance, 2));
                     break;
                 default:
-                    lineOut += "Unknown mass tolerance mode";
+                    outline.Append("Unknown mass tolerance mode");
                     break;
             }
 
-            lineOut += delimiter + "NET Tolerance: +- " + Math.Round(searchThresholds.NETTolerance, 4);
+            outline.AppendFormat("{0}NET Tolerance: +- {1}", delimiter, Math.Round(searchThresholds.NETTolerance, 4));
 
             if (UseSLiCScoreForUniqueness)
             {
-                lineOut += delimiter + "Minimum SLiC Score: " + Math.Round(mPeptideUniquenessBinningSettings.MinimumSLiCScore, 3) + "; " + "Max search distance multiplier: " + Math.Round(searchThresholds.SLiCScoreMaxSearchDistanceMultiplier, 1);
+                outline.AppendFormat("{0}Minimum SLiC Score: {1}", delimiter, Math.Round(mPeptideUniquenessBinningSettings.MinimumSLiCScore, 3));
+                outline.AppendFormat("; Max search distance multiplier: {0}", Math.Round(searchThresholds.SLiCScoreMaxSearchDistanceMultiplier, 1));
             }
             else if (UseEllipseSearchRegion)
             {
-                lineOut += delimiter + "Minimum SLiC Score: N/A; using ellipse to find matching features";
+                outline.AppendFormat("{0}Minimum SLiC Score: N/A; using ellipse to find matching features", delimiter);
             }
             else
             {
-                lineOut += delimiter + "Minimum SLiC Score: N/A; using rectangle to find matching features";
+                outline.AppendFormat("{0}Minimum SLiC Score: N/A; using rectangle to find matching features", delimiter);
             }
 
-            writer.WriteLine(lineOut);
+            writer.WriteLine(outline.ToString());
         }
 
         public bool GenerateUniquenessStats(string proteinInputFilePath, string outputFolderPath, string outputFilenameBase)
