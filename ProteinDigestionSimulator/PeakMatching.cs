@@ -1312,19 +1312,12 @@ namespace ProteinDigestionSimulator
                 if (computeUsingSearchThresholds)
                 {
                     // Define the Mass StDev (in ppm) using the narrow mass tolerance divided by 2 = STDEV_SCALING_FACTOR
-                    switch (MassTolType)
+                    mSLiCScoreOptions.MassPPMStDev = MassTolType switch
                     {
-                        case MassToleranceConstants.Absolute:
-                            mSLiCScoreOptions.MassPPMStDev = MassToPPM(mMassTolerance, 1000d) / STDEV_SCALING_FACTOR;
-                            break;
-                        case MassToleranceConstants.PPM:
-                            mSLiCScoreOptions.MassPPMStDev = mMassTolerance / STDEV_SCALING_FACTOR;
-                            break;
-                        default:
-                            // Unknown type
-                            mSLiCScoreOptions.MassPPMStDev = 3d;
-                            break;
-                    }
+                        MassToleranceConstants.Absolute => MassToPPM(mMassTolerance, 1000d) / STDEV_SCALING_FACTOR,
+                        MassToleranceConstants.PPM => mMassTolerance / STDEV_SCALING_FACTOR,
+                        _ => 3    // Unknown type
+                    };
 
                     // Define the Net StDev using the narrow NET tolerance divided by 2 = STDEV_SCALING_FACTOR
                     mSLiCScoreOptions.NETStDev = mNETTolerance / STDEV_SCALING_FACTOR;

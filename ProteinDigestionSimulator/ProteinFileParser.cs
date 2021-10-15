@@ -548,43 +548,20 @@ namespace ProteinDigestionSimulator
             if (ErrorCode == ProcessFilesErrorCodes.LocalizedError ||
                 ErrorCode == ProcessFilesErrorCodes.NoError)
             {
-                switch (LocalErrorCode)
+                errorMessage = LocalErrorCode switch
                 {
-                    case ParseProteinFileErrorCodes.NoError:
-                        errorMessage = "";
-                        break;
-                    case ParseProteinFileErrorCodes.ProteinFileParsingOptionsSectionNotFound:
-                        errorMessage = "The section " + XML_SECTION_OPTIONS + " was not found in the parameter file";
-                        break;
-                    case ParseProteinFileErrorCodes.ErrorReadingInputFile:
-                        errorMessage = "Error reading input file";
-                        break;
-                    case ParseProteinFileErrorCodes.ErrorCreatingProteinOutputFile:
-                        errorMessage = "Error creating parsed proteins output file";
-                        break;
-                    case ParseProteinFileErrorCodes.ErrorCreatingDigestedProteinOutputFile:
-                        errorMessage = "Error creating digested proteins output file";
-                        break;
-                    case ParseProteinFileErrorCodes.ErrorCreatingScrambledProteinOutputFile:
-                        errorMessage = "Error creating scrambled proteins output file";
-                        break;
-                    case ParseProteinFileErrorCodes.ErrorWritingOutputFile:
-                        errorMessage = "Error writing to one of the output files";
-                        break;
-                    case ParseProteinFileErrorCodes.ErrorInitializingObjectVariables:
-                        errorMessage = "Error initializing In Silico Digester class";
-                        break;
-                    case ParseProteinFileErrorCodes.DigestProteinSequenceError:
-                        errorMessage = "Error in DigestProteinSequence function";
-                        break;
-                    case ParseProteinFileErrorCodes.UnspecifiedError:
-                        errorMessage = "Unspecified localized error";
-                        break;
-                    default:
-                        // This shouldn't happen
-                        errorMessage = "Unknown error state";
-                        break;
-                }
+                    ParseProteinFileErrorCodes.NoError => "",
+                    ParseProteinFileErrorCodes.ProteinFileParsingOptionsSectionNotFound => "The section " + XML_SECTION_OPTIONS + " was not found in the parameter file",
+                    ParseProteinFileErrorCodes.ErrorReadingInputFile => "Error reading input file",
+                    ParseProteinFileErrorCodes.ErrorCreatingProteinOutputFile => "Error creating parsed proteins output file",
+                    ParseProteinFileErrorCodes.ErrorCreatingDigestedProteinOutputFile => "Error creating digested proteins output file",
+                    ParseProteinFileErrorCodes.ErrorCreatingScrambledProteinOutputFile => "Error creating scrambled proteins output file",
+                    ParseProteinFileErrorCodes.ErrorWritingOutputFile => "Error writing to one of the output files",
+                    ParseProteinFileErrorCodes.ErrorInitializingObjectVariables => "Error initializing In Silico Digester class",
+                    ParseProteinFileErrorCodes.DigestProteinSequenceError => "Error in DigestProteinSequence function",
+                    ParseProteinFileErrorCodes.UnspecifiedError => "Unspecified localized error",
+                    _ => "Unknown error state",// This shouldn't happen
+                };
             }
             else
             {
@@ -955,25 +932,13 @@ namespace ProteinDigestionSimulator
 
         public static char LookupColumnDelimiterChar(int delimiterIndex, string customDelimiter, char defaultDelimiter)
         {
-            string delimiter;
-
-            switch (delimiterIndex)
+            string delimiter = delimiterIndex switch
             {
-                case (int)DelimiterCharConstants.Space:
-                    delimiter = " ";
-                    break;
-                case (int)DelimiterCharConstants.Tab:
-                    delimiter = "\t";
-                    break;
-                case (int)DelimiterCharConstants.Comma:
-                    delimiter = ",";
-                    break;
-                default:
-                    // Includes DelimiterCharConstants.Other
-                    delimiter = string.Copy(customDelimiter);
-                    break;
-            }
-
+                (int)DelimiterCharConstants.Space => " ",
+                (int)DelimiterCharConstants.Tab => "\t",
+                (int)DelimiterCharConstants.Comma => ",",
+                _ => string.Copy(customDelimiter),// Includes DelimiterCharConstants.Other
+            };
             if (delimiter.Length == 0)
             {
                 delimiter = defaultDelimiter.ToString();

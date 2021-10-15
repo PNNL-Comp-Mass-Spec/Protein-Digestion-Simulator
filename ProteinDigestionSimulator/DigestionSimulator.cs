@@ -909,37 +909,18 @@ namespace ProteinDigestionSimulator
             if (ErrorCode == ProcessFilesErrorCodes.LocalizedError ||
                 ErrorCode == ProcessFilesErrorCodes.NoError)
             {
-                switch (LocalErrorCode)
+                errorMessage = LocalErrorCode switch
                 {
-                    case ErrorCodes.NoError:
-                        errorMessage = "";
-                        break;
-                    case ErrorCodes.ProteinDigestionSimulatorSectionNotFound:
-                        errorMessage = "The section " + ProteinFileParser.XML_SECTION_OPTIONS + " was not found in the parameter file";
-                        break;
-                    case ErrorCodes.ErrorReadingInputFile:
-                        errorMessage = "Error reading input file";
-                        break;
-                    case ErrorCodes.ProteinsNotFoundInInputFile:
-                        errorMessage = "No proteins were found in the input file (make sure the Column Order is correct on the File Format Options tab)";
-                        break;
-                    case ErrorCodes.ErrorIdentifyingSequences:
-                        errorMessage = "Error identifying sequences";
-                        break;
-                    case ErrorCodes.ErrorWritingOutputFile:
-                        errorMessage = "Error writing to one of the output files";
-                        break;
-                    case ErrorCodes.UserAbortedSearch:
-                        errorMessage = "User aborted search";
-                        break;
-                    case ErrorCodes.UnspecifiedError:
-                        errorMessage = "Unspecified localized error";
-                        break;
-                    default:
-                        // This shouldn't happen
-                        errorMessage = "Unknown error state";
-                        break;
-                }
+                    ErrorCodes.NoError => "",
+                    ErrorCodes.ProteinDigestionSimulatorSectionNotFound => "The section " + ProteinFileParser.XML_SECTION_OPTIONS + " was not found in the parameter file",
+                    ErrorCodes.ErrorReadingInputFile => "Error reading input file",
+                    ErrorCodes.ProteinsNotFoundInInputFile => "No proteins were found in the input file (make sure the Column Order is correct on the File Format Options tab)",
+                    ErrorCodes.ErrorIdentifyingSequences => "Error identifying sequences",
+                    ErrorCodes.ErrorWritingOutputFile => "Error writing to one of the output files",
+                    ErrorCodes.UserAbortedSearch => "User aborted search",
+                    ErrorCodes.UnspecifiedError => "Unspecified localized error",
+                    _ => "Unknown error state",// This shouldn't happen
+                };
             }
             else
             {
@@ -1423,20 +1404,12 @@ namespace ProteinDigestionSimulator
 
                 // Also need to initialize newPeptide
                 var newPeptide = new InSilicoDigest.PeptideSequenceWithNET();
-                bool delimitedFileHasMassAndNET;
 
-                switch (delimitedFileReader.DelimitedFileFormatCode)
+                var delimitedFileHasMassAndNET = delimitedFileReader.DelimitedFileFormatCode switch
                 {
-                    case DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET:
-                    case DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore:
-                    case DelimitedProteinFileReader.ProteinFileFormatCode.UniqueID_Sequence_Mass_NET:
-                        // Do not use the computed mass and NET
-                        delimitedFileHasMassAndNET = true;
-                        break;
-                    default:
-                        delimitedFileHasMassAndNET = false;
-                        break;
-                }
+                    DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET or DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore or DelimitedProteinFileReader.ProteinFileFormatCode.UniqueID_Sequence_Mass_NET => true,
+                    _ => false,
+                };
 
                 // Always auto compute the NET and Mass in the newPeptide class
                 // However, if delimitedFileHasMassAndNET = True and valid Mass and NET values were read from the text file,

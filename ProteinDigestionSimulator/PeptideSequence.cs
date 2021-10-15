@@ -1517,25 +1517,13 @@ namespace ProteinDigestionSimulator
         /// <returns>0 if success; 1 if error</returns>
         public int SetCTerminusGroup(CTerminusGroupConstants cTerminusGroup, string followingResidue = "", bool use3LetterCode = false)
         {
-            int errorCode;
-
-            switch (cTerminusGroup)
+            return cTerminusGroup switch
             {
-                case CTerminusGroupConstants.Hydroxyl:
-                    errorCode = SetCTerminus("OH", followingResidue, use3LetterCode);
-                    break;
-                case CTerminusGroupConstants.Amide:
-                    errorCode = SetCTerminus("NH2", followingResidue, use3LetterCode);
-                    break;
-                case CTerminusGroupConstants.None:
-                    errorCode = SetCTerminus(string.Empty, followingResidue, use3LetterCode);
-                    break;
-                default:
-                    errorCode = 1;
-                    break;
-            }
-
-            return errorCode;
+                CTerminusGroupConstants.Hydroxyl => SetCTerminus("OH", followingResidue, use3LetterCode),
+                CTerminusGroupConstants.Amide => SetCTerminus("NH2", followingResidue, use3LetterCode),
+                CTerminusGroupConstants.None => SetCTerminus(string.Empty, followingResidue, use3LetterCode),
+                _ => 1,
+            };
         }
 
         /// <summary>
@@ -1599,38 +1587,18 @@ namespace ProteinDigestionSimulator
         /// <returns>0 if success; 1 if error</returns>
         public int SetNTerminusGroup(NTerminusGroupConstants nTerminusGroup, string precedingResidue = "", bool use3LetterCode = false)
         {
-            int errorCode;
-
-            switch (nTerminusGroup)
+            return nTerminusGroup switch
             {
-                case NTerminusGroupConstants.Hydrogen:
-                    errorCode = SetNTerminus("H", precedingResidue, use3LetterCode);
-                    break;
-                case NTerminusGroupConstants.HydrogenPlusProton:
-                    errorCode = SetNTerminus("HH", precedingResidue, use3LetterCode);
-                    break;
-                case NTerminusGroupConstants.Acetyl:
-                    errorCode = SetNTerminus("C2OH3", precedingResidue, use3LetterCode);
-                    break;
-                case NTerminusGroupConstants.PyroGlu:
-                    errorCode = SetNTerminus("C5O2NH6", precedingResidue, use3LetterCode);
-                    break;
+                NTerminusGroupConstants.Hydrogen => SetNTerminus("H", precedingResidue, use3LetterCode),
+                NTerminusGroupConstants.HydrogenPlusProton => SetNTerminus("HH", precedingResidue, use3LetterCode),
+                NTerminusGroupConstants.Acetyl => SetNTerminus("C2OH3", precedingResidue, use3LetterCode),
+                NTerminusGroupConstants.PyroGlu => SetNTerminus("C5O2NH6", precedingResidue, use3LetterCode),
                 // ReSharper disable once StringLiteralTypo
-                case NTerminusGroupConstants.Carbamyl:
-                    errorCode = SetNTerminus("CONH2", precedingResidue, use3LetterCode);
-                    break;
-                case NTerminusGroupConstants.PTC:
-                    errorCode = SetNTerminus("C7H6NS", precedingResidue, use3LetterCode);
-                    break;
-                case NTerminusGroupConstants.None:
-                    errorCode = SetNTerminus("", precedingResidue, use3LetterCode);
-                    break;
-                default:
-                    errorCode = 1;
-                    break;
-            }
-
-            return errorCode;
+                NTerminusGroupConstants.Carbamyl => SetNTerminus("CONH2", precedingResidue, use3LetterCode),
+                NTerminusGroupConstants.PTC => SetNTerminus("C7H6NS", precedingResidue, use3LetterCode),
+                NTerminusGroupConstants.None => SetNTerminus("", precedingResidue, use3LetterCode),
+                _ => 1,
+            };
         }
 
         /// <summary>

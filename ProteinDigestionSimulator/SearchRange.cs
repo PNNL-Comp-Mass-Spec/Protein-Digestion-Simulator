@@ -619,18 +619,12 @@ namespace ProteinDigestionSimulator
             {
                 if (mDataType != DataTypeToUse.FillingIntegerType)
                 {
-                    switch (mDataType)
+                    success = mDataType switch
                     {
-                        case DataTypeToUse.FillingSingleType:
-                            success = FillWithDataAddPoint((float)valueToAdd);
-                            break;
-                        case DataTypeToUse.FillingDoubleType:
-                            success = FillWithDataAddPoint((double)valueToAdd);
-                            break;
-                        default:
-                            success = false;
-                            break;
-                    }
+                        DataTypeToUse.FillingSingleType => FillWithDataAddPoint((float)valueToAdd),
+                        DataTypeToUse.FillingDoubleType => FillWithDataAddPoint((double)valueToAdd),
+                        _ => false,
+                    };
                 }
                 else
                 {
@@ -659,18 +653,12 @@ namespace ProteinDigestionSimulator
             {
                 if (mDataType != DataTypeToUse.FillingSingleType)
                 {
-                    switch (mDataType)
+                    success = mDataType switch
                     {
-                        case DataTypeToUse.FillingIntegerType:
-                            success = FillWithDataAddPoint((int)Math.Round(valueToAdd));
-                            break;
-                        case DataTypeToUse.FillingDoubleType:
-                            success = FillWithDataAddPoint((double)valueToAdd);
-                            break;
-                        default:
-                            success = false;
-                            break;
-                    }
+                        DataTypeToUse.FillingIntegerType => FillWithDataAddPoint((int)Math.Round(valueToAdd)),
+                        DataTypeToUse.FillingDoubleType => FillWithDataAddPoint((double)valueToAdd),
+                        _ => false,
+                    };
                 }
                 else
                 {
@@ -699,18 +687,12 @@ namespace ProteinDigestionSimulator
             {
                 if (mDataType != DataTypeToUse.FillingDoubleType)
                 {
-                    switch (mDataType)
+                    success = mDataType switch
                     {
-                        case DataTypeToUse.FillingIntegerType:
-                            success = FillWithDataAddPoint((int)Math.Round(valueToAdd));
-                            break;
-                        case DataTypeToUse.FillingSingleType:
-                            success = FillWithDataAddPoint((float)valueToAdd);
-                            break;
-                        default:
-                            success = false;
-                            break;
-                    }
+                        DataTypeToUse.FillingIntegerType => FillWithDataAddPoint((int)Math.Round(valueToAdd)),
+                        DataTypeToUse.FillingSingleType => FillWithDataAddPoint((float)valueToAdd),
+                        _ => false,
+                    };
                 }
                 else
                 {
@@ -826,18 +808,12 @@ namespace ProteinDigestionSimulator
 
             if (mDataType != DataTypeToUse.IntegerType)
             {
-                switch (mDataType)
+                matchFound = mDataType switch
                 {
-                    case DataTypeToUse.SingleType:
-                        matchFound = FindValueRange(searchValue, (float)toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
-                        break;
-                    case DataTypeToUse.DoubleType:
-                        matchFound = FindValueRange(searchValue, (double)toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
-                        break;
-                    default:
-                        matchFound = false;
-                        break;
-                }
+                    DataTypeToUse.SingleType => FindValueRange(searchValue, (float)toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd),
+                    DataTypeToUse.DoubleType => FindValueRange(searchValue, (double)toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd),
+                    _ => false,
+                };
             }
             else
             {
@@ -893,18 +869,12 @@ namespace ProteinDigestionSimulator
 
             if (mDataType != DataTypeToUse.DoubleType)
             {
-                switch (mDataType)
+                matchFound = mDataType switch
                 {
-                    case DataTypeToUse.IntegerType:
-                        matchFound = FindValueRange((int)Math.Round(searchValue), (int)Math.Round(toleranceHalfWidth), ref matchIndexStart, ref matchIndexEnd);
-                        break;
-                    case DataTypeToUse.SingleType:
-                        matchFound = FindValueRange((float)searchValue, (float)toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
-                        break;
-                    default:
-                        matchFound = false;
-                        break;
-                }
+                    DataTypeToUse.IntegerType => FindValueRange((int)Math.Round(searchValue), (int)Math.Round(toleranceHalfWidth), ref matchIndexStart, ref matchIndexEnd),
+                    DataTypeToUse.SingleType => FindValueRange((float)searchValue, (float)toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd),
+                    _ => false,
+                };
             }
             else
             {
@@ -960,18 +930,12 @@ namespace ProteinDigestionSimulator
 
             if (mDataType != DataTypeToUse.SingleType)
             {
-                switch (mDataType)
+                matchFound = mDataType switch
                 {
-                    case DataTypeToUse.IntegerType:
-                        matchFound = FindValueRange((int)Math.Round(searchValue), (int)Math.Round(toleranceHalfWidth), ref matchIndexStart, ref matchIndexEnd);
-                        break;
-                    case DataTypeToUse.DoubleType:
-                        matchFound = FindValueRange(searchValue, (double)toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd);
-                        break;
-                    default:
-                        matchFound = false;
-                        break;
-                }
+                    DataTypeToUse.IntegerType => FindValueRange((int)Math.Round(searchValue), (int)Math.Round(toleranceHalfWidth), ref matchIndexStart, ref matchIndexEnd),
+                    DataTypeToUse.DoubleType => FindValueRange(searchValue, (double)toleranceHalfWidth, ref matchIndexStart, ref matchIndexEnd),
+                    _ => false,
+                };
             }
             else
             {

@@ -510,20 +510,12 @@ namespace ProteinDigestionSimulator
 
         private void InitializeDataGrid(DataGrid dgDataGrid, out DataSet dsDataset, out DataView dvDataView, FastaValidator.MsgTypeConstants msgType)
         {
-            string msgColumnName;
-            switch (msgType)
+            string msgColumnName = msgType switch
             {
-                case FastaValidator.MsgTypeConstants.WarningMsg:
-                    msgColumnName = "Warnings";
-                    break;
-                case FastaValidator.MsgTypeConstants.ErrorMsg:
-                    msgColumnName = "Errors";
-                    break;
-                default:
-                    msgColumnName = "Status";
-                    break;
-            }
-
+                FastaValidator.MsgTypeConstants.WarningMsg => "Warnings",
+                FastaValidator.MsgTypeConstants.ErrorMsg => "Errors",
+                _ => "Status",
+            };
             var datasetName = "ds" + msgColumnName;
             var dataTableName = "T_" + msgColumnName;
 
