@@ -81,7 +81,8 @@ namespace ProteinDigestionSimulator
         private static DateTime mLastProgressReportTime;
         private static int mLastProgressReportValue;
 
-        public static int Main()
+        [STAThread]
+        private static int Main()
         {
             // Returns 0 if no error, error code if an error
 
