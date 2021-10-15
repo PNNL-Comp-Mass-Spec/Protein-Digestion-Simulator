@@ -478,14 +478,7 @@ namespace ProteinDigestionSimulator
                 cmdParseInputFile.Text = "&Parse File";
             }
 
-            if (cboInputFileFormat.SelectedIndex == (int)InputFileFormatConstants.FastaFile || sourceIsFasta)
-            {
-                cmdValidateFastaFile.Enabled = true;
-            }
-            else
-            {
-                cmdValidateFastaFile.Enabled = false;
-            }
+            cmdValidateFastaFile.Enabled = cboInputFileFormat.SelectedIndex == (int)InputFileFormatConstants.FastaFile || sourceIsFasta;
 
             chkCreateFastaOutputFile.Enabled = !enableDigestionOptions;
 
@@ -515,23 +508,9 @@ namespace ProteinDigestionSimulator
             txtSqlServerUsername.Enabled = chkUseSqlServerDBToCacheData.Checked && !chkSqlServerUseIntegratedSecurity.Checked && allowSqlServerCaching;
             txtSqlServerPassword.Enabled = txtSqlServerUsername.Enabled;
 
-            if (cboProteinReversalOptions.SelectedIndex <= 0)
-            {
-                txtProteinReversalSamplingPercentage.Enabled = false;
-            }
-            else
-            {
-                txtProteinReversalSamplingPercentage.Enabled = true;
-            }
+            txtProteinReversalSamplingPercentage.Enabled = cboProteinReversalOptions.SelectedIndex > 0;
 
-            if (cboProteinReversalOptions.SelectedIndex == 2)
-            {
-                txtProteinScramblingLoopCount.Enabled = true;
-            }
-            else
-            {
-                txtProteinScramblingLoopCount.Enabled = false;
-            }
+            txtProteinScramblingLoopCount.Enabled = cboProteinReversalOptions.SelectedIndex == 2;
 
             txtMinimumSLiCScore.Enabled = chkUseSLiCScoreForUniqueness.Checked;
             optUseEllipseSearchRegion.Enabled = !chkUseSLiCScoreForUniqueness.Checked;
@@ -2304,14 +2283,7 @@ namespace ProteinDigestionSimulator
                     chkUseSqlServerDBToCacheData.Checked = true;
                 }
 
-                if (response == DialogResult.Cancel)
-                {
-                    proceed = false;
-                }
-                else
-                {
-                    proceed = true;
-                }
+                proceed = response != DialogResult.Cancel;
             }
             else if (suggestDisableSqlServer && chkUseSqlServerDBToCacheData.Checked)
             {
@@ -2321,14 +2293,7 @@ namespace ProteinDigestionSimulator
                     chkUseSqlServerDBToCacheData.Checked = false;
                 }
 
-                if (response == DialogResult.Cancel)
-                {
-                    proceed = false;
-                }
-                else
-                {
-                    proceed = true;
-                }
+                proceed = response != DialogResult.Cancel;
             }
             else
             {

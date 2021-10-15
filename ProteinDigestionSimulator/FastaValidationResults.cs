@@ -370,14 +370,7 @@ namespace ProteinDigestionSimulator
             chkWrapLongResidueLines.Enabled = enableFixedFastaOptions;
             chkRemoveInvalidResidues.Enabled = enableFixedFastaOptions;
 
-            if (txtCustomValidationRulesFilePath.TextLength > 0)
-            {
-                chkAllowAsteriskInResidues.Enabled = false;
-            }
-            else
-            {
-                chkAllowAsteriskInResidues.Enabled = true;
-            }
+            chkAllowAsteriskInResidues.Enabled = txtCustomValidationRulesFilePath.TextLength == 0;
         }
 
         /// <summary>
