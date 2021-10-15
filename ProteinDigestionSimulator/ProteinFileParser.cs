@@ -2132,7 +2132,7 @@ namespace ProteinDigestionSimulator
 
                 if (samplingPercentage < 100)
                 {
-                    proteinName += "_" + samplingPercentage + "pct" + "_";
+                    proteinName += "_" + samplingPercentage + "pct_";
                 }
                 else
                 {
