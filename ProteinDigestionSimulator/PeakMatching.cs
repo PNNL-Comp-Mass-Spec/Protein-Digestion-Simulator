@@ -754,35 +754,6 @@ namespace ProteinDigestionSimulator
             set => mSearchModeOptions.UseEllipseSearchRegion = value;
         }
 
-        // public string SqlServerConnectionString
-        // {
-        //     get => mSqlServerConnectionString;
-        //     set => mSqlServerConnectionString = value;
-        // }
-
-        // public string SqlServerTableNameFeatureMatchResults
-        // {
-        //     get => mTableNameFeatureMatchResults;
-        //     set => mTableNameFeatureMatchResults = value;
-        // }
-
-        // public bool UseSqlServerDBToCacheData
-        // {
-        //     get => mUseSqlServerDBToCacheData;
-        //     set => mUseSqlServerDBToCacheData = value;
-        // }
-
-        // public bool UseSqlServerForMatchResults
-        // {
-        //     get => mUseSqlServerForMatchResults;
-        //     set => mUseSqlServerForMatchResults = value;
-        // }
-
-        public void AbortProcessingNow()
-        {
-            mAbortProcessing = true;
-        }
-
         private void ComputeSLiCScores(ref FeatureInfo featureToIdentify, ref PMFeatureMatchResults featureMatchResults, List<PeakMatchingRawMatches> rawMatches, PMComparisonFeatureInfo comparisonFeatures, ref SearchThresholds searchThresholds, SearchThresholds.SearchTolerances computedTolerances)
         {
             int index;
