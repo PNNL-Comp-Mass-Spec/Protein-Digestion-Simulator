@@ -548,7 +548,7 @@ namespace ProteinDigestionSimulator
 
                 var matchingRowIndex = -1;
 
-                if (mPMResults.Count <= 0 || !SortPMResults())
+                if (mPMResults.Count == 0 || !SortPMResults())
                 {
                     return matchingRowIndex;
                 }
@@ -930,7 +930,7 @@ namespace ProteinDigestionSimulator
                 rangeSearch.ClearData();
             }
 
-            if (comparisonFeatures.Count <= 0)
+            if (comparisonFeatures.Count == 0)
             {
                 // No comparison features to search against
                 success = false;

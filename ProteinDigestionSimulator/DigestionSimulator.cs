@@ -760,7 +760,7 @@ namespace ProteinDigestionSimulator
                         // Validate mThresholdLevels to assure at least one threshold exists
                         // ----------------------------------------------------
 
-                        if (mThresholdLevels.Length <= 0)
+                        if (mThresholdLevels.Length == 0)
                         {
                             InitializeThresholdLevels(ref mThresholdLevels, 1, false);
                         }
