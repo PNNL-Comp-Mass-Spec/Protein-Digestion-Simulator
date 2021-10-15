@@ -719,7 +719,8 @@ namespace ProteinDigestionSimulator
                     if (use3LetterCode)
                     {
                         var symbol3Letter = GetAminoAcidSymbolConversion(mResidues[index].ToString(), true);
-                        if ((symbol3Letter ?? "") == string.Empty)
+
+                        if (string.IsNullOrWhiteSpace(symbol3Letter))
                         {
                             symbol3Letter = UNKNOWN_SYMBOL_THREE_LETTERS;
                         }
