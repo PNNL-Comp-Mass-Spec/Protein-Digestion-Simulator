@@ -1223,13 +1223,13 @@ namespace ProteinDigestionSimulator
                         outLine.Clear();
 
                         // Write the header line to the output file
-                        outLine.Append("ProteinName" + mOutputFileDelimiter);
+                        outLine.AppendFormat("{0}{1}", "ProteinName", mOutputFileDelimiter);
 
                         if (lookForAddnlRefInDescription)
                         {
                             foreach (var addnlRef in addnlRefsToOutput)
                             {
-                                outLine.Append(addnlRef.RefName + mOutputFileDelimiter);
+                                outLine.AppendFormat("{0}{1}", addnlRef.RefName, mOutputFileDelimiter);
                             }
                         }
 
@@ -1238,39 +1238,39 @@ namespace ProteinDigestionSimulator
 
                         if (ComputeSequenceHashValues)
                         {
-                            outLine.Append(mOutputFileDelimiter + "SequenceHash");
+                            outLine.AppendFormat("{0}{1}", mOutputFileDelimiter , "SequenceHash");
                         }
 
                         if (!ExcludeProteinSequence)
                         {
-                            outLine.Append(mOutputFileDelimiter + "Sequence");
+                            outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, "Sequence");
                         }
 
                         if (ComputeProteinMass)
                         {
                             if (ElementMassMode == PeptideSequence.ElementModeConstants.AverageMass)
                             {
-                                outLine.Append(mOutputFileDelimiter + "Average Mass");
+                                outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, "Average Mass");
                             }
                             else
                             {
-                                outLine.Append(mOutputFileDelimiter + "Mass");
+                                outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, "Mass");
                             }
                         }
 
                         if (ComputepI)
                         {
-                            outLine.Append(mOutputFileDelimiter + "pI" + mOutputFileDelimiter + "Hydrophobicity");
+                            outLine.AppendFormat("{0}{1}{0}{2}", mOutputFileDelimiter, "pI", "Hydrophobicity");
                         }
 
                         if (ComputeNET)
                         {
-                            outLine.Append(mOutputFileDelimiter + "LC_NET");
+                            outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, "LC_NET");
                         }
 
                         if (ComputeSCXNET)
                         {
-                            outLine.Append(mOutputFileDelimiter + "SCX_NET");
+                            outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, "SCX_NET");
                         }
 
                         proteinFileWriter.WriteLine(outLine.ToString());
@@ -1588,43 +1588,41 @@ namespace ProteinDigestionSimulator
 
                 if (!ExcludeProteinSequence)
                 {
-                    outLine.Append(protein.Name + mOutputFileDelimiter);
+                    outLine.AppendFormat("{0}{1}", protein.Name, mOutputFileDelimiter);
+
                     if (DigestionOptions.IncludePrefixAndSuffixResidues)
                     {
-                        outLine.Append(peptideFragment.PrefixResidue + "." + baseSequence + "." + peptideFragment.SuffixResidue + mOutputFileDelimiter);
+                        outLine.AppendFormat("{0}.{1}.{2}{3}", peptideFragment.PrefixResidue, baseSequence, peptideFragment.SuffixResidue, mOutputFileDelimiter);
                     }
                     else
                     {
-                        outLine.Append(baseSequence + mOutputFileDelimiter);
+                        outLine.AppendFormat("{0}{1}", baseSequence, mOutputFileDelimiter);
                     }
                 }
 
-                outLine.Append(uniqueSeqID.ToString() + mOutputFileDelimiter +
-                               peptideFragment.Mass + mOutputFileDelimiter +
-                               Math.Round(peptideFragment.NET, 4) + mOutputFileDelimiter +
-                               peptideFragment.PeptideName);
+                outLine.AppendFormat("{1}{0}{2}{0}{3}{0}{4}",
+                    mOutputFileDelimiter, uniqueSeqID.ToString(), peptideFragment.Mass, Math.Round(peptideFragment.NET, 4), peptideFragment.PeptideName);
 
                 if (ComputepI)
                 {
                     var pI = ComputeSequencepI(baseSequence);
                     var hydrophobicity = ComputeSequenceHydrophobicity(baseSequence);
 
-                    outLine.Append(mOutputFileDelimiter + pI.ToString("0.000") +
-                                   mOutputFileDelimiter + hydrophobicity.ToString("0.0000"));
+                    outLine.AppendFormat("{0}{1:0.000}{0}{2:0.0000}", mOutputFileDelimiter, pI, hydrophobicity);
                 }
 
                 if (ComputeNET)
                 {
                     var lcNET = ComputeSequenceNET(baseSequence);
 
-                    outLine.Append(mOutputFileDelimiter + lcNET.ToString("0.0000"));
+                    outLine.AppendFormat("{0}{1:0.0000}", mOutputFileDelimiter, lcNET);
                 }
 
                 if (ComputeSCXNET)
                 {
                     var scxNET = ComputeSequenceSCXNET(baseSequence);
 
-                    outLine.Append(mOutputFileDelimiter + scxNET.ToString("0.0000"));
+                    outLine.AppendFormat("{0}{1:0.0000}", mOutputFileDelimiter, scxNET);
                 }
 
                 digestFileWriter.WriteLine(outLine.ToString());
@@ -1644,10 +1642,10 @@ namespace ProteinDigestionSimulator
             }
 
             outLine.Clear();
-            outLine.Append(FastaFileOptions.ProteinLineStartChar + protein.Name);
+            outLine.AppendFormat("{0}{1}", FastaFileOptions.ProteinLineStartChar, protein.Name);
             if (!ExcludeProteinDescription)
             {
-                outLine.Append(FastaFileOptions.ProteinLineAccessionEndChar + protein.Description);
+                outLine.AppendFormat("{0}{1}", FastaFileOptions.ProteinLineAccessionEndChar, protein.Description);
             }
 
             proteinFileWriter.WriteLine(outLine.ToString());
@@ -1696,10 +1694,10 @@ namespace ProteinDigestionSimulator
                     }
                 }
 
-                outLine.Append(protein.Name + mOutputFileDelimiter);
+                outLine.AppendFormat("{0}{1}", protein.Name, mOutputFileDelimiter);
                 foreach (var addnlRef in addnlRefsToOutput)
                 {
-                    outLine.Append(addnlRef.RefAccession + mOutputFileDelimiter);
+                    outLine.AppendFormat("{0}{1}", addnlRef.RefAccession, mOutputFileDelimiter);
                 }
 
                 if (!ExcludeProteinDescription)
@@ -1709,7 +1707,7 @@ namespace ProteinDigestionSimulator
             }
             else
             {
-                outLine.Append(protein.Name + mOutputFileDelimiter);
+                outLine.AppendFormat("{0}{1}", protein.Name + mOutputFileDelimiter);
                 if (!ExcludeProteinDescription)
                 {
                     outLine.Append(protein.Description);
@@ -1718,33 +1716,32 @@ namespace ProteinDigestionSimulator
 
             if (ComputeSequenceHashValues)
             {
-                outLine.Append(mOutputFileDelimiter + protein.SequenceHash);
+                outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, protein.SequenceHash);
             }
 
             if (!ExcludeProteinSequence)
             {
-                outLine.Append(mOutputFileDelimiter + protein.Sequence);
+                outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, protein.Sequence);
             }
 
             if (ComputeProteinMass)
             {
-                outLine.Append(mOutputFileDelimiter + Math.Round(protein.Mass, 5).ToString(CultureInfo.InvariantCulture));
+                outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, Math.Round(protein.Mass, 5).ToString(CultureInfo.InvariantCulture));
             }
 
             if (ComputepI)
             {
-                outLine.Append(mOutputFileDelimiter + protein.pI.ToString("0.000") +
-                               mOutputFileDelimiter + protein.Hydrophobicity.ToString("0.0000"));
+                outLine.AppendFormat("{0}{1:0.000}{0}{2:0.0000}", mOutputFileDelimiter, protein.pI, protein.Hydrophobicity);
             }
 
             if (ComputeNET)
             {
-                outLine.Append(mOutputFileDelimiter + protein.ProteinNET.ToString("0.0000"));
+                outLine.AppendFormat("{0}{1:0.0000}", mOutputFileDelimiter, protein.ProteinNET);
             }
 
             if (ComputeSCXNET)
             {
-                outLine.Append(mOutputFileDelimiter + protein.ProteinSCXNET.ToString("0.0000"));
+                outLine.AppendFormat("{0}{1:0.0000}", mOutputFileDelimiter, protein.ProteinSCXNET);
             }
 
             proteinFileWriter.WriteLine(outLine.ToString());

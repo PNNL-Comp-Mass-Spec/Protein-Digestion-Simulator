@@ -80,10 +80,10 @@ namespace ProteinDigestionSimulator
 
             if (ReversedCleavageDirection)
             {
-                detailedDescription.Append("before " + CleavageResidues);
+                detailedDescription.AppendFormat("before {0}", CleavageResidues);
                 if (ExceptionResidues.Length > 0)
                 {
-                    detailedDescription.Append(" not preceded by " + ExceptionResidues);
+                    detailedDescription.AppendFormat(" not preceded by {0}", ExceptionResidues);
                 }
             }
             else
@@ -96,13 +96,13 @@ namespace ProteinDigestionSimulator
                 detailedDescription.Append(CleavageResidues);
                 if (ExceptionResidues.Length > 0)
                 {
-                    detailedDescription.Append(" not " + ExceptionResidues);
+                    detailedDescription.AppendFormat(" not {0}", ExceptionResidues);
                 }
             }
 
             foreach (var additionalRule in AdditionalCleavageRules)
             {
-                detailedDescription.Append("; or " + additionalRule.GetDetailedRuleDescription(true));
+                detailedDescription.AppendFormat("; or {0}", additionalRule.GetDetailedRuleDescription(true));
             }
 
             return detailedDescription.ToString();

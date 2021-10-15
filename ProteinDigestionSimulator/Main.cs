@@ -2048,7 +2048,8 @@ namespace ProteinDigestionSimulator
             message.AppendLine("Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004");
             message.AppendLine("Copyright 2018 Battelle Memorial Institute");
             message.AppendLine();
-            message.AppendLine("This is version " + Application.ProductVersion + " (" + Program.PROGRAM_DATE + ")");
+            message.AppendFormat("This is version {0} ({1})", Application.ProductVersion, Program.PROGRAM_DATE);
+            message.AppendLine();
             message.AppendLine();
             message.AppendLine("E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov");
             message.AppendLine("Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics");
