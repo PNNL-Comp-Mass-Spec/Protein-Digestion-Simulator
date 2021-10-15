@@ -121,13 +121,13 @@ namespace ProteinDigestionSimulator
             mTimerStartTime = DateTime.UtcNow;
 
             mCloseDelayTimer = new System.Timers.Timer(250d);
-            mCloseDelayTimer.Elapsed += mCloseDelayTimer_Elapsed;
+            mCloseDelayTimer.Elapsed += CloseDelayTimer_Elapsed;
             mCloseDelayTimer.SynchronizingObject = this;
 
             mCloseDelayTimer.Start();
         }
 
-        private void mCloseDelayTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private void CloseDelayTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             var secondsRemaining = (int)Math.Round(Math.Round(FORM_CLOSE_DELAY_SECONDS - DateTime.UtcNow.Subtract(mTimerStartTime).TotalSeconds, 0));
             if (secondsRemaining < 0)

@@ -405,7 +405,7 @@ namespace ProteinDigestionSimulator
                     {
                         if (currentFeatureID != cachedMatchCountFeatureID)
                         {
-                            cachedMatchCount = peptideMatchResults.get_MatchCountForFeatureID(currentFeatureID);
+                            cachedMatchCount = peptideMatchResults.GetMatchCountForFeatureID(currentFeatureID);
                             cachedMatchCountFeatureID = currentFeatureID;
                         }
 
@@ -779,8 +779,8 @@ namespace ProteinDigestionSimulator
                                 UseEllipseSearchRegion = UseEllipseSearchRegion
                             };
 
-                            peakMatching.LogEvent += mPeakMatching_LogEvent;
-                            peakMatching.ProgressChanged += mPeakMatching_ProgressContinues;
+                            peakMatching.LogEvent += PeakMatching_LogEvent;
+                            peakMatching.ProgressChanged += PeakMatching_ProgressContinues;
 
                             // ----------------------------------------------------
                             // Initialize the output files if combining all results
@@ -807,7 +807,7 @@ namespace ProteinDigestionSimulator
                                 LogMessage("Threshold " + (thresholdIndex + 1) + ", IdentifySequences");
                                 success = peakMatching.IdentifySequences(mThresholdLevels[thresholdIndex], ref featuresToIdentify, mComparisonPeptideInfo, out var featureMatchResults, ref rangeSearch);
                                 mPeptideMatchResults = featureMatchResults;
-                                mPeptideMatchResults.SortingList += mPeptideMatchResults_SortingList;
+                                mPeptideMatchResults.SortingList += PeptideMatchResults_SortingList;
 
                                 if (!success)
                                 {
@@ -1206,7 +1206,7 @@ namespace ProteinDigestionSimulator
             if (mProteinFileParser == null)
             {
                 mProteinFileParser = new ProteinFileParser();
-                mProteinFileParser.ErrorEvent += mProteinFileParser_ErrorEvent;
+                mProteinFileParser.ErrorEvent += ProteinFileParser_ErrorEvent;
                 resetToDefaults = true;
             }
 
@@ -1307,14 +1307,14 @@ namespace ProteinDigestionSimulator
                 mComparisonPeptideInfo = new PeakMatching.PMComparisonFeatureInfo();
                 if (mProteinInfo != null)
                 {
-                    mProteinInfo.SortingList -= mProteinInfo_SortingList;
-                    mProteinInfo.SortingMappings -= mProteinInfo_SortingMappings;
+                    mProteinInfo.SortingList -= ProteinInfo_SortingList;
+                    mProteinInfo.SortingMappings -= ProteinInfo_SortingMappings;
                     mProteinInfo = null;
                 }
 
                 mProteinInfo = new ProteinCollection();
-                mProteinInfo.SortingList += mProteinInfo_SortingList;
-                mProteinInfo.SortingMappings += mProteinInfo_SortingMappings;
+                mProteinInfo.SortingList += ProteinInfo_SortingList;
+                mProteinInfo.SortingMappings += ProteinInfo_SortingMappings;
 
                 // Possibly initialize the ProteinFileParser object
                 if (mProteinFileParser == null)
@@ -2180,46 +2180,46 @@ namespace ProteinDigestionSimulator
             SubtaskProgressChanged?.Invoke(description, ProgressPercentComplete);
         }
 
-        private int sortingListCount = 0;
-        private DateTime sortingListLastPostTime = DateTime.UtcNow;
+        private int mSortingListCount = 0;
+        private DateTime mSortingListLastPostTime = DateTime.UtcNow;
 
-        private void mProteinInfo_SortingList()
+        private void ProteinInfo_SortingList()
         {
-            sortingListCount++;
-            if (DateTime.UtcNow.Subtract(sortingListLastPostTime).TotalSeconds >= 10d)
+            mSortingListCount++;
+            if (DateTime.UtcNow.Subtract(mSortingListLastPostTime).TotalSeconds >= 10d)
             {
-                LogMessage("Sorting protein list (SortCount = " + sortingListCount + ")");
-                sortingListLastPostTime = DateTime.UtcNow;
+                LogMessage("Sorting protein list (SortCount = " + mSortingListCount + ")");
+                mSortingListLastPostTime = DateTime.UtcNow;
             }
         }
 
-        private int sortingMappingsCount = 0;
-        private DateTime sortingMappingsLastPostTime = DateTime.UtcNow;
+        private int mSortingMappingsCount = 0;
+        private DateTime mSortingMappingsLastPostTime = DateTime.UtcNow;
 
-        private void mProteinInfo_SortingMappings()
+        private void ProteinInfo_SortingMappings()
         {
-            sortingMappingsCount++;
-            if (DateTime.UtcNow.Subtract(sortingMappingsLastPostTime).TotalSeconds >= 10d)
+            mSortingMappingsCount++;
+            if (DateTime.UtcNow.Subtract(mSortingMappingsLastPostTime).TotalSeconds >= 10d)
             {
-                LogMessage("Sorting protein to peptide mapping info (SortCount = " + sortingMappingsCount + ")");
-                sortingMappingsLastPostTime = DateTime.UtcNow;
+                LogMessage("Sorting protein to peptide mapping info (SortCount = " + mSortingMappingsCount + ")");
+                mSortingMappingsLastPostTime = DateTime.UtcNow;
             }
         }
 
-        private int resultsSortingListCount = 0;
-        private DateTime resultsSortingListLastPostTime = DateTime.UtcNow;
+        private int mResultsSortingListCount = 0;
+        private DateTime mResultsSortingListLastPostTime = DateTime.UtcNow;
 
-        private void mPeptideMatchResults_SortingList()
+        private void PeptideMatchResults_SortingList()
         {
-            resultsSortingListCount++;
-            if (DateTime.UtcNow.Subtract(resultsSortingListLastPostTime).TotalSeconds >= 10d)
+            mResultsSortingListCount++;
+            if (DateTime.UtcNow.Subtract(mResultsSortingListLastPostTime).TotalSeconds >= 10d)
             {
-                LogMessage("Sorting peptide match results list (SortCount = " + resultsSortingListCount + ")");
-                resultsSortingListLastPostTime = DateTime.UtcNow;
+                LogMessage("Sorting peptide match results list (SortCount = " + mResultsSortingListCount + ")");
+                mResultsSortingListLastPostTime = DateTime.UtcNow;
             }
         }
 
-        private void mPeakMatching_LogEvent(string Message, PeakMatching.MessageTypeConstants EventType)
+        private void PeakMatching_LogEvent(string Message, PeakMatching.MessageTypeConstants EventType)
         {
             switch (EventType)
             {
@@ -2238,12 +2238,12 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        private void mPeakMatching_ProgressContinues(string taskDescription, float percentComplete)
+        private void PeakMatching_ProgressContinues(string taskDescription, float percentComplete)
         {
             UpdateSubtaskProgress(percentComplete);
         }
 
-        private void mProteinFileParser_ErrorEvent(string message, Exception ex)
+        private void ProteinFileParser_ErrorEvent(string message, Exception ex)
         {
             ShowErrorMessage("Error in mProteinFileParser: " + message);
         }

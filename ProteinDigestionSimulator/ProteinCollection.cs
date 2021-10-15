@@ -60,7 +60,7 @@ namespace ProteinDigestionSimulator
             mUseProteinNameDictionary = true;                       // Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
             Clear();
             mProteinToPeptideMapping = new ProteinToPeptideMappingInfo();
-            mProteinToPeptideMapping.SortingList += mProteinToPeptideMapping_SortingList;
+            mProteinToPeptideMapping.SortingList += ProteinToPeptideMapping_SortingList;
         }
 
         public bool Add(string proteinName, out int newProteinID)
@@ -231,7 +231,7 @@ namespace ProteinDigestionSimulator
 
         public int GetPeptideCountForProteinByID(int proteinID)
         {
-            return mProteinToPeptideMapping.get_PeptideCountForProteinID(proteinID);
+            return mProteinToPeptideMapping.GetPeptideCountForProteinID(proteinID);
         }
 
         public int[] GetProteinIDsMappedToPeptideID(int peptideID)
@@ -330,7 +330,7 @@ namespace ProteinDigestionSimulator
             set => mUseProteinNameDictionary = value;
         }
 
-        private void mProteinToPeptideMapping_SortingList()
+        private void ProteinToPeptideMapping_SortingList()
         {
             SortingMappings?.Invoke();
         }
@@ -605,7 +605,7 @@ namespace ProteinDigestionSimulator
                 return false;
             }
 
-            public int get_PeptideCountForProteinID(int proteinID)
+            public int GetPeptideCountForProteinID(int proteinID)
             {
                 if (GetRowIndicesForProteinID(proteinID, out var indexFirst, out var indexLast))
                 {

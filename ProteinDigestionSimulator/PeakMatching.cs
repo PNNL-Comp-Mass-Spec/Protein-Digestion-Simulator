@@ -696,7 +696,7 @@ namespace ProteinDigestionSimulator
                 return false;
             }
 
-            public int get_MatchCountForFeatureID(int featureID)
+            public int GetMatchCountForFeatureID(int featureID)
             {
                 if (GetRowIndicesForFeatureID(featureID, out var indexFirst, out var indexLast))
                 {

@@ -32,7 +32,7 @@ namespace ProteinDigestionSimulator
                 Enabled = true
             };
 
-            mValidationTriggerTimer.Tick += mValidationTriggerTimer_Tick;
+            mValidationTriggerTimer.Tick += ValidationTriggerTimer_Tick;
 
             mValidateFastaFile = new FastaValidator();
             RegisterEvents(mValidateFastaFile);
@@ -1136,7 +1136,7 @@ namespace ProteinDigestionSimulator
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void mValidationTriggerTimer_Tick(object sender, EventArgs e)
+        private void ValidationTriggerTimer_Tick(object sender, EventArgs e)
         {
             mValidationTriggerTimer.Enabled = false;
             try
