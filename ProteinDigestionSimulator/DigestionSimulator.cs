@@ -252,7 +252,7 @@ namespace ProteinDigestionSimulator
 
         public void AddSearchThresholdLevel(PeakMatching.SearchThresholds.MassToleranceConstants massToleranceType, double massTolerance, double netTolerance, bool autoDefineSLiCScoreThresholds, double slicScoreMassPPMStDev, double slicScoreNETStDev, bool slicScoreUseAMTNETStDev, bool clearExistingThresholds)
         {
-            AddSearchThresholdLevel(massToleranceType, massTolerance, netTolerance, true, 0d, 0d, true, clearExistingThresholds, PeakMatching.DEFAULT_SLIC_MAX_SEARCH_DISTANCE_MULTIPLIER);
+            AddSearchThresholdLevel(massToleranceType, massTolerance, netTolerance, autoDefineSLiCScoreThresholds, slicScoreMassPPMStDev, slicScoreNETStDev, slicScoreUseAMTNETStDev, clearExistingThresholds, PeakMatching.DEFAULT_SLIC_MAX_SEARCH_DISTANCE_MULTIPLIER);
         }
 
         public void AddSearchThresholdLevel(PeakMatching.SearchThresholds.MassToleranceConstants massToleranceType, double massTolerance, double netTolerance, bool autoDefineSLiCScoreThresholds, double slicScoreMassPPMStDev, double slicScoreNETStDev, bool slicScoreUseAMTNETStDev, bool clearExistingThresholds, float slicScoreMaxSearchDistanceMultiplier)
