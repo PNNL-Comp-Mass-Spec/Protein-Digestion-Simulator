@@ -543,7 +543,7 @@ namespace ProteinDigestionSimulator
 
                 var sequenceOut = peptide.GetSequence(oneLetterTo3Letter, addSpaceEvery10Residues, separateResiduesWithDash);
 
-                if (oneLetterTo3Letter && prefix.Length > 0 | suffix.Length > 0)
+                if (oneLetterTo3Letter && prefix.Length > 0 || suffix.Length > 0)
                 {
                     peptide.SetSequence(prefix, NTerminusGroupConstants.None, CTerminusGroupConstants.None);
                     sequenceOut = peptide.GetSequence(true) + "." + sequenceOut;
