@@ -658,7 +658,6 @@ namespace ProteinDigestionSimulator
             var progressStep = default(int);
 
             bool success;
-            var searchAborted = false;
 
             SearchRange rangeSearch = null;
 
@@ -887,7 +886,7 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            if (!searchAborted && success)
+            if (success)
             {
                 LogMessage("Uniqueness Stats processing complete");
             }
