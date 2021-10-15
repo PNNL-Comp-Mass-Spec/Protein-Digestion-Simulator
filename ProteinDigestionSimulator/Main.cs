@@ -2092,8 +2092,6 @@ namespace ProteinDigestionSimulator
             // See if the user has been shown the splash screen sometime in the last 6 months (SPLASH_INTERVAL_DAYS)
             // Keep track of the last splash screen display date using the program user settings (stored in the user's AppData\Local\PNNL\... folder)
 
-            var DEFAULT_DATE = DateTime.Parse("2000-01-01");
-
             const int SPLASH_INTERVAL_DAYS = 182;
 
             var currentDateTime = DateTime.Now;

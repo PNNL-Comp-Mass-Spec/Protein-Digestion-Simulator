@@ -561,36 +561,6 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        private string ExtractServerFromConnectionString(string connectionString)
-        {
-            const string DATA_SOURCE_TEXT = "data source";
-
-            var serverName = string.Empty;
-
-            try
-            {
-                var charLoc = connectionString.IndexOf(DATA_SOURCE_TEXT, StringComparison.OrdinalIgnoreCase);
-                if (charLoc >= 0)
-                {
-                    charLoc += DATA_SOURCE_TEXT.Length;
-                    var charLoc2 = connectionString.ToLower().IndexOf(';', charLoc + 1);
-
-                    if (charLoc2 <= charLoc)
-                    {
-                        charLoc2 = connectionString.Length - 1;
-                    }
-
-                    serverName = connectionString.Substring(charLoc + 1, charLoc2 - charLoc - 1);
-                }
-            }
-            catch
-            {
-                // Intentionally empty
-            }
-
-            return serverName;
-        }
-
         private bool FeatureContainsUniqueMatch(
             PeakMatching.FeatureInfo featureInfo,
             PeakMatching.PMFeatureMatchResults peptideMatchResults,
@@ -1675,7 +1645,6 @@ namespace ProteinDigestionSimulator
         }
 
         private void InitializeBinningRanges(
-            PeakMatching.SearchThresholds thresholds,
             PeakMatching.PMFeatureInfo featuresToIdentify,
             PeakMatching.PMFeatureMatchResults peptideMatchResults,
             BinnedPeptideCountStats peptideStatsBinned)
@@ -1883,7 +1852,7 @@ namespace ProteinDigestionSimulator
                 var peptideStatsBinned = new BinnedPeptideCountStats(mPeptideUniquenessBinningSettings.Clone());
 
                 // Define the minimum and maximum mass ranges, plus the number of bins required
-                InitializeBinningRanges(thresholds, featuresToIdentify, peptideMatchResults, peptideStatsBinned);
+                InitializeBinningRanges(featuresToIdentify, peptideMatchResults, peptideStatsBinned);
 
                 var featuresToIdentifyCount = featuresToIdentify.Count;
 
