@@ -2187,7 +2187,7 @@ namespace ProteinDigestionSimulator
                         ShowErrorMessage("Error trying to validate or set the custom validation rules file path: " + mCustomValidationRulesFilePath + "; " + ex.Message);
                     }
 
-                    if (mFastaValidationOptions.Initialized)
+                    if (mFastaValidationOptions != null && mFastaValidationOptions.Initialized)
                     {
                         mFastaValidation.SetOptions(mFastaValidationOptions);
                     }
