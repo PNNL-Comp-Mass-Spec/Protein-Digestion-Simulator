@@ -1270,7 +1270,7 @@ namespace ProteinDigestionSimulator
             var startLoc = 1;
             var prevStartLoc = 0;
 
-            int ruleResidueNum = 0;
+            var ruleResidueNum = 0;
             var currentTrypticPeptideNumber = 0;
             while (currentTrypticPeptideNumber < desiredPeptideNumber)
             {

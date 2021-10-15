@@ -924,7 +924,7 @@ namespace ProteinDigestionSimulator
 
         public static char LookupColumnDelimiterChar(int delimiterIndex, string customDelimiter, char defaultDelimiter)
         {
-            string delimiter = delimiterIndex switch
+            var delimiter = delimiterIndex switch
             {
                 (int)DelimiterCharConstants.Space => " ",
                 (int)DelimiterCharConstants.Tab => "\t",

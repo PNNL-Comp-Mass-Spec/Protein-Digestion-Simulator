@@ -1414,7 +1414,7 @@ namespace ProteinDigestionSimulator
                 // However, if delimitedFileHasMassAndNET = True and valid Mass and NET values were read from the text file,
                 // they are passed to AddOrUpdatePeptide rather than the computed values
                 newPeptide.AutoComputeNET = true;
-                int inputFileLinesRead = 0;
+                var inputFileLinesRead = 0;
                 var inputPeptideFound = true; // set to true for loop entry
 
                 while (inputPeptideFound)
