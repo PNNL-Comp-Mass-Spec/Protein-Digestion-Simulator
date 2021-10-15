@@ -991,7 +991,7 @@ namespace ProteinDigestionSimulator
 
                             for (var matchIndex = matchInd1; matchIndex <= matchInd2; matchIndex++)
                             {
-                                var comparisonFeaturesOriginalRowIndex = rangeSearch.get_OriginalIndex(matchIndex);
+                                var comparisonFeaturesOriginalRowIndex = rangeSearch.GetOriginalIndex(matchIndex);
 
                                 if (comparisonFeatures.GetFeatureInfoByRowIndex(comparisonFeaturesOriginalRowIndex, out var currentComparisonFeature))
                                 {

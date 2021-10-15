@@ -79,7 +79,7 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        public int get_OriginalIndex(int index)
+        public int GetOriginalIndex(int index)
         {
             if (mPointerArrayIsValid)
             {
