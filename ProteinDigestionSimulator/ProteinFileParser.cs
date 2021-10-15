@@ -126,13 +126,13 @@ namespace ProteinDigestionSimulator
                     return 1;
                 }
 
-                var refNameComparison = string.Compare(RefName, other.RefName, StringComparison.Ordinal);
+                var refNameComparison = string.CompareOrdinal(RefName, other.RefName);
                 if (refNameComparison != 0)
                 {
                     return refNameComparison;
                 }
 
-                return string.Compare(RefAccession, other.RefAccession, StringComparison.Ordinal);
+                return string.CompareOrdinal(RefAccession, other.RefAccession);
             }
         }
 
