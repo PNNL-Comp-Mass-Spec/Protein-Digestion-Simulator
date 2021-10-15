@@ -1391,20 +1391,11 @@ namespace ProteinDigestionSimulator
 
                     proteinFileReader.CloseFile();
 
-                    if (proteinFileWriter != null)
-                    {
-                        proteinFileWriter.Close();
-                    }
+                    proteinFileWriter?.Close();
 
-                    if (digestFileWriter != null)
-                    {
-                        digestFileWriter.Close();
-                    }
+                    digestFileWriter?.Close();
 
-                    if (scrambledFileWriter != null)
-                    {
-                        scrambledFileWriter.Close();
-                    }
+                    scrambledFileWriter?.Close();
                 }
 
                 if (ShowDebugPrompts)
@@ -1456,20 +1447,11 @@ namespace ProteinDigestionSimulator
             }
             finally
             {
-                if (proteinFileWriter != null)
-                {
-                    proteinFileWriter.Close();
-                }
+                proteinFileWriter?.Close();
 
-                if (digestFileWriter != null)
-                {
-                    digestFileWriter.Close();
-                }
+                digestFileWriter?.Close();
 
-                if (scrambledFileWriter != null)
-                {
-                    scrambledFileWriter.Close();
-                }
+                scrambledFileWriter?.Close();
             }
 
             return success;

@@ -899,20 +899,11 @@ namespace ProteinDigestionSimulator
                 {
                     try
                     {
-                        if (pmResultsWriter != null)
-                        {
-                            pmResultsWriter.Close();
-                        }
+                        pmResultsWriter?.Close();
 
-                        if (peptideUniquenessWriter != null)
-                        {
-                            peptideUniquenessWriter.Close();
-                        }
+                        peptideUniquenessWriter?.Close();
 
-                        if (proteinStatsWriter != null)
-                        {
-                            proteinStatsWriter.Close();
-                        }
+                        proteinStatsWriter?.Close();
                     }
                     catch
                     {

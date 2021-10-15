@@ -152,15 +152,9 @@ namespace ProteinDigestionSimulator
         {
             try
             {
-                if (mParseProteinFile != null)
-                {
-                    mParseProteinFile.AbortProcessingNow();
-                }
+                mParseProteinFile?.AbortProcessingNow();
 
-                if (mProteinDigestionSimulator != null)
-                {
-                    mProteinDigestionSimulator.AbortProcessingNow();
-                }
+                mProteinDigestionSimulator?.AbortProcessingNow();
             }
             catch
             {
