@@ -1145,14 +1145,7 @@ namespace ProteinDigestionSimulator
                 mPointerIndices[index] = index;
             }
 
-            if (length > 0)
-            {
-                mPointerArrayIsValid = true;
-            }
-            else
-            {
-                mPointerArrayIsValid = false;
-            }
+            mPointerArrayIsValid = length > 0;
         }
     }
 }

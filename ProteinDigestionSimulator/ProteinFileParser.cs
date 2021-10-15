@@ -2055,18 +2055,19 @@ namespace ProteinDigestionSimulator
 
             if (proteinName == null)
             {
-                proteinName = string.Empty;
+                return string.Empty;
             }
-            else if (proteinName.Length > maximumLength)
+
+            if (proteinName.Length <= maximumLength)
             {
-                // Truncate protein name to maximum length
-                proteinName = proteinName.Substring(0, maximumLength);
-
-                // Make sure the protein name doesn't end in a space, dash, underscore, semicolon, colon, etc.
-                proteinName = proteinName.TrimEnd(sepChars);
+                return proteinName;
             }
 
-            return proteinName;
+            // Truncate protein name to maximum length
+            var truncatedName = proteinName.Substring(0, maximumLength);
+
+            // Make sure the protein name doesn't end in a space, dash, underscore, semicolon, colon, etc.
+            return truncatedName.TrimEnd(sepChars);
         }
 
         private void WriteFastaAppendToCache(TextWriter scrambledFileWriter, ScramblingResidueCache residueCache, string proteinNamePrefix, bool flushResiduesToWrite)

@@ -1557,48 +1557,42 @@ namespace ProteinDigestionSimulator
                                         var massThreshold = double.Parse(dataColumns[0]);
                                         var netThreshold = double.Parse(dataColumns[1]);
 
-                                        if (massThreshold >= 0d && netThreshold >= 0d)
+                                        if (massThreshold < 0 || netThreshold < 0)
                                         {
-                                            bool useSLiC;
-                                            if (!chkAutoDefineSLiCScoreTolerances.Checked && dataColumns.Length >= 4)
+                                            continue;
+                                        }
+
+                                        var useSLiC = !chkAutoDefineSLiCScoreTolerances.Checked && dataColumns.Length >= 4;
+
+                                        var slicMassStDev = default(double);
+                                        var slicNETStDev = default(double);
+
+                                        if (useSLiC)
+                                        {
+                                            try
                                             {
-                                                useSLiC = true;
+                                                slicMassStDev = double.Parse(dataColumns[2]);
+                                                slicNETStDev = double.Parse(dataColumns[3]);
                                             }
-                                            else
+                                            catch
                                             {
                                                 useSLiC = false;
                                             }
+                                        }
 
-                                            var slicMassStDev = default(double);
-                                            var slicNETStDev = default(double);
+                                        bool existingRowFound;
+                                        if (useSLiC)
+                                        {
+                                            AddPMThresholdRow(massThreshold, netThreshold, slicMassStDev, slicNETStDev, out existingRowFound);
+                                        }
+                                        else
+                                        {
+                                            AddPMThresholdRow(massThreshold, netThreshold, out existingRowFound);
+                                        }
 
-                                            if (useSLiC)
-                                            {
-                                                try
-                                                {
-                                                    slicMassStDev = double.Parse(dataColumns[2]);
-                                                    slicNETStDev = double.Parse(dataColumns[3]);
-                                                }
-                                                catch
-                                                {
-                                                    useSLiC = false;
-                                                }
-                                            }
-
-                                            bool existingRowFound;
-                                            if (useSLiC)
-                                            {
-                                                AddPMThresholdRow(massThreshold, netThreshold, slicMassStDev, slicNETStDev, out existingRowFound);
-                                            }
-                                            else
-                                            {
-                                                AddPMThresholdRow(massThreshold, netThreshold, out existingRowFound);
-                                            }
-
-                                            if (existingRowFound)
-                                            {
-                                                rowsAlreadyPresent++;
-                                            }
+                                        if (existingRowFound)
+                                        {
+                                            rowsAlreadyPresent++;
                                         }
                                     }
                                     catch
@@ -2274,7 +2268,6 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            bool proceed;
             if (suggestEnableSqlServer && !chkUseSqlServerDBToCacheData.Checked)
             {
                 var response = MessageBox.Show("Warning, memory usage could be quite large.  Enable Sql Server caching using Server " + txtSqlServerName.Text + "?  If no, then will continue using memory caching.", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
@@ -2283,9 +2276,10 @@ namespace ProteinDigestionSimulator
                     chkUseSqlServerDBToCacheData.Checked = true;
                 }
 
-                proceed = response != DialogResult.Cancel;
+                return response != DialogResult.Cancel;
             }
-            else if (suggestDisableSqlServer && chkUseSqlServerDBToCacheData.Checked)
+
+            if (suggestDisableSqlServer && chkUseSqlServerDBToCacheData.Checked)
             {
                 var response = MessageBox.Show("Memory usage is expected to be minimal.  Continue caching data using Server " + txtSqlServerName.Text + "?  If no, then will switch to using memory caching.", "Note", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
                 if (response == DialogResult.No)
@@ -2293,14 +2287,10 @@ namespace ProteinDigestionSimulator
                     chkUseSqlServerDBToCacheData.Checked = false;
                 }
 
-                proceed = response != DialogResult.Cancel;
-            }
-            else
-            {
-                proceed = true;
+                return response != DialogResult.Cancel;
             }
 
-            return proceed;
+            return true;
         }
 
         private void ValidateTextBox(TextBox thisTextBox, string defaultText)

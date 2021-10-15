@@ -916,7 +916,6 @@ namespace ProteinDigestionSimulator
             // Initialize the range searching class
 
             const int LOAD_BLOCK_SIZE = 50000;
-            bool success;
 
             if (rangeSearch == null)
             {
@@ -930,27 +929,23 @@ namespace ProteinDigestionSimulator
             if (comparisonFeatures.Count == 0)
             {
                 // No comparison features to search against
-                success = false;
+                return false;
             }
-            else
+
+            rangeSearch.InitializeDataFillDouble(comparisonFeatures.Count);
+
+            var index = 0;
+            // for (index = 0; i < comparisonFeatures.Count; i++)
+            //     rangeSearch.FillWithDataAddPoint(comparisonFeatures.GetMassByRowIndex(index));
+
+            var comparisonFeatureCount = comparisonFeatures.Count;
+            while (index < comparisonFeatureCount)
             {
-                rangeSearch.InitializeDataFillDouble(comparisonFeatures.Count);
-
-                var index = 0;
-                // for (index = 0; i < comparisonFeatures.Count; i++)
-                //     rangeSearch.FillWithDataAddPoint(comparisonFeatures.GetMassByRowIndex(index));
-
-                var comparisonFeatureCount = comparisonFeatures.Count;
-                while (index < comparisonFeatureCount)
-                {
-                    rangeSearch.FillWithDataAddBlock(comparisonFeatures.GetMassArrayByRowRange(index, index + LOAD_BLOCK_SIZE - 1));
-                    index += LOAD_BLOCK_SIZE;
-                }
-
-                success = rangeSearch.FinalizeDataFill();
+                rangeSearch.FillWithDataAddBlock(comparisonFeatures.GetMassArrayByRowRange(index, index + LOAD_BLOCK_SIZE - 1));
+                index += LOAD_BLOCK_SIZE;
             }
 
-            return success;
+            return rangeSearch.FinalizeDataFill();
         }
 
         internal bool IdentifySequences(SearchThresholds searchThresholds, ref PMFeatureInfo featuresToIdentify, PMComparisonFeatureInfo comparisonFeatures, out PMFeatureMatchResults featureMatchResults, ref SearchRange rangeSearch)
