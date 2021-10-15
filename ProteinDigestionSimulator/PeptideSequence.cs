@@ -347,8 +347,8 @@ namespace ProteinDigestionSimulator
                 if (prefix == terminiiSymbol && suffix == terminiiSymbol ||
                     prefix == default(char) && suffix == default(char))
                 {
-                    ruleMatchCount = 2;
                     // Count this as a match to the cleavage rule
+                    ruleMatchCount = 2;
                     return true;
                 }
 
