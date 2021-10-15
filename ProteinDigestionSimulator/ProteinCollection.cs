@@ -544,7 +544,7 @@ namespace ProteinDigestionSimulator
             {
                 // Since mMappings is sorted by Protein ID, we must fully search the array to obtain the ProteinIDs for peptideID
 
-                var ARRAY_ALLOCATION_CHUNK = 10;
+                const int ARRAY_ALLOCATION_CHUNK = 10;
 
                 var matchingIDs = new int[ARRAY_ALLOCATION_CHUNK];
                 var matchCount = 0;
