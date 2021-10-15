@@ -297,15 +297,12 @@ namespace ProteinDigestionSimulator
 
             public virtual double[] GetMassArrayByRowRange(int rowIndexStart, int rowIndexEnd)
             {
-                double[] masses;
-
                 if (rowIndexEnd < rowIndexStart)
                 {
-                    masses = new double[0];
-                    return masses;
+                    return Array.Empty<double>();
                 }
 
-                masses = new double[rowIndexEnd - rowIndexStart + 1];
+                var masses = new double[rowIndexEnd - rowIndexStart + 1];
 
                 if (rowIndexEnd >= mFeatureCount)
                 {
