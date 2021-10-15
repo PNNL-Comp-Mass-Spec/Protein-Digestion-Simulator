@@ -75,7 +75,7 @@ namespace ProteinDigestionSimulator
                     return 0;
                 }
 
-                if (ReferenceEquals(null, other))
+                if (other is null)
                 {
                     return 1;
                 }

@@ -32,12 +32,12 @@ namespace ProteinDigestionSimulator
                     return 0;
                 }
 
-                if (ReferenceEquals(null, other))
+                if (other is null)
                 {
                     return 1;
                 }
 
-                return string.Compare(Name, other.Name, StringComparison.Ordinal);
+                return string.CompareOrdinal(Name, other.Name);
             }
         }
 
@@ -357,7 +357,7 @@ namespace ProteinDigestionSimulator
                         return 0;
                     }
 
-                    if (ReferenceEquals(null, other))
+                    if (other is null)
                     {
                         return 1;
                     }
