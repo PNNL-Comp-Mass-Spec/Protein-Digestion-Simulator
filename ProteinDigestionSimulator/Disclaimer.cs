@@ -44,7 +44,7 @@ namespace ProteinDigestionSimulator
         {
             txtNotice = new TextBox();
             cmdOK = new Button();
-            cmdOK.Click += new EventHandler(cmdOK_Click);
+            cmdOK.Click += cmdOK_Click;
             SuspendLayout();
             //
             // txtNotice

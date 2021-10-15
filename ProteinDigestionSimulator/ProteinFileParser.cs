@@ -1740,14 +1740,7 @@ namespace ProteinDigestionSimulator
 
             if (AssumeFastaFile || IsFastaFile(pathInfo.ProteinInputFilePath, true))
             {
-                if (AssumeDelimitedFile)
-                {
-                    ParsedFileIsFastaFile = false;
-                }
-                else
-                {
-                    ParsedFileIsFastaFile = true;
-                }
+                ParsedFileIsFastaFile = !AssumeDelimitedFile;
             }
             else
             {
@@ -1794,17 +1787,15 @@ namespace ProteinDigestionSimulator
 
             if (ParsedFileIsFastaFile)
             {
-                var reader = new FastaFileReader();
-                proteinFileReader = reader;
+                proteinFileReader = new FastaFileReader();
             }
             else
             {
-                var reader = new DelimitedProteinFileReader
+                proteinFileReader = new DelimitedProteinFileReader
                 {
                     Delimiter = mInputFileDelimiter,
                     DelimitedFileFormatCode = DelimitedFileFormatCode
                 };
-                proteinFileReader = reader;
             }
 
             // Verify that the input file exists
@@ -2341,7 +2332,6 @@ namespace ProteinDigestionSimulator
             {
                 // An error code is already defined; do not change it
             }
-
             else
             {
                 LocalErrorCode = newErrorCode;

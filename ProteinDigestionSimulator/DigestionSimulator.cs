@@ -1522,16 +1522,8 @@ namespace ProteinDigestionSimulator
                 }
 
                 var nextUniqueIDForMasterSeqs = 1;
-                bool isFastaFile;
 
-                if (ProteinFileParser.IsFastaFile(proteinInputFilePath) || mProteinFileParser.AssumeFastaFile)
-                {
-                    isFastaFile = true;
-                }
-                else
-                {
-                    isFastaFile = false;
-                }
+                var isFastaFile = ProteinFileParser.IsFastaFile(proteinInputFilePath) || mProteinFileParser.AssumeFastaFile;
 
                 // Disable mass calculation
                 mProteinFileParser.ComputeProteinMass = false;
