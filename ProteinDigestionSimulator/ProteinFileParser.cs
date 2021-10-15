@@ -541,33 +541,26 @@ namespace ProteinDigestionSimulator
 
         public override string GetErrorMessage()
         {
-            // Returns "" if no error
-
-            string errorMessage;
-
-            if (ErrorCode is ProcessFilesErrorCodes.LocalizedError or ProcessFilesErrorCodes.NoError)
+            if (ErrorCode is not (ProcessFilesErrorCodes.LocalizedError or ProcessFilesErrorCodes.NoError))
             {
-                errorMessage = LocalErrorCode switch
-                {
-                    ParseProteinFileErrorCodes.NoError => "",
-                    ParseProteinFileErrorCodes.ProteinFileParsingOptionsSectionNotFound => "The section " + XML_SECTION_OPTIONS + " was not found in the parameter file",
-                    ParseProteinFileErrorCodes.ErrorReadingInputFile => "Error reading input file",
-                    ParseProteinFileErrorCodes.ErrorCreatingProteinOutputFile => "Error creating parsed proteins output file",
-                    ParseProteinFileErrorCodes.ErrorCreatingDigestedProteinOutputFile => "Error creating digested proteins output file",
-                    ParseProteinFileErrorCodes.ErrorCreatingScrambledProteinOutputFile => "Error creating scrambled proteins output file",
-                    ParseProteinFileErrorCodes.ErrorWritingOutputFile => "Error writing to one of the output files",
-                    ParseProteinFileErrorCodes.ErrorInitializingObjectVariables => "Error initializing In Silico Digester class",
-                    ParseProteinFileErrorCodes.DigestProteinSequenceError => "Error in DigestProteinSequence function",
-                    ParseProteinFileErrorCodes.UnspecifiedError => "Unspecified localized error",
-                    _ => "Unknown error state",// This shouldn't happen
-                };
-            }
-            else
-            {
-                errorMessage = GetBaseClassErrorMessage();
+                return GetBaseClassErrorMessage();
             }
 
-            return errorMessage;
+            return LocalErrorCode switch
+            {
+                ParseProteinFileErrorCodes.NoError => "",
+                ParseProteinFileErrorCodes.ProteinFileParsingOptionsSectionNotFound => "The section " + XML_SECTION_OPTIONS +
+                                                                                       " was not found in the parameter file",
+                ParseProteinFileErrorCodes.ErrorReadingInputFile => "Error reading input file",
+                ParseProteinFileErrorCodes.ErrorCreatingProteinOutputFile => "Error creating parsed proteins output file",
+                ParseProteinFileErrorCodes.ErrorCreatingDigestedProteinOutputFile => "Error creating digested proteins output file",
+                ParseProteinFileErrorCodes.ErrorCreatingScrambledProteinOutputFile => "Error creating scrambled proteins output file",
+                ParseProteinFileErrorCodes.ErrorWritingOutputFile => "Error writing to one of the output files",
+                ParseProteinFileErrorCodes.ErrorInitializingObjectVariables => "Error initializing In Silico Digester class",
+                ParseProteinFileErrorCodes.DigestProteinSequenceError => "Error in DigestProteinSequence function",
+                ParseProteinFileErrorCodes.UnspecifiedError => "Unspecified localized error",
+                _ => "Unknown error state", // This shouldn't happen
+            };
         }
 
         public int GetProteinCountCached()
