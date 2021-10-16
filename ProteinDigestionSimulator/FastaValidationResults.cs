@@ -58,7 +58,16 @@ namespace ProteinDigestionSimulator
             public bool LogResultsToFile { get; set; }
             public bool SaveHashInfoFile { get; set; }
 
-            public FixedFastaOptions FixedFastaOptions { get; } = new FixedFastaOptions();
+            public FixedFastaOptions FixedFastaOptions { get; }
+
+            /// <summary>
+            /// Constructor
+            /// </summary>
+            /// <param name="fixedFastaOptions"></param>
+            public FastaValidationOptions(FixedFastaOptions fixedFastaOptions)
+            {
+                FixedFastaOptions = fixedFastaOptions;
+            }
         }
 
         public class FixedFastaOptions
@@ -479,33 +488,33 @@ namespace ProteinDigestionSimulator
 
         public FastaValidationOptions GetOptions()
         {
-            var fastaValidationOptions = new FastaValidationOptions
+            var fixedFastaOptions = new FixedFastaOptions
             {
-                MaximumErrorsToTrackInDetail = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, "", out _, 10),
-                MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, "", out _, 120),
-                ValidProteinNameLengthMinimum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, "", out _, 3),
-                ValidProteinNameLengthMaximum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, "", out _, 34),
+                GenerateFixedFasta = chkGenerateFixedFastaFile.Checked,
+                TruncateLongProteinName = chkTruncateLongProteinNames.Checked,
+                RenameProteinWithDuplicateNames = chkRenameDuplicateProteins.Checked,
+                KeepDuplicateNamedProteins = chkKeepDuplicateNamedProteins.Checked,
+                WrapLongResidueLines = chkWrapLongResidueLines.Checked,
+                RemoveInvalidResidues = chkRemoveInvalidResidues.Checked,
+                SplitOutMultipleRefsForKnownAccession = chkSplitOutMultipleRefsForKnownAccession.Checked,
+                SplitOutMultipleRefsInProteinName = chkSplitOutMultipleRefsInProteinName.Checked,
+                ConsolidateDuplicateProteins = chkConsolidateDuplicateProteinSeqs.Checked,
+                ConsolidateDupsIgnoreILDiff = chkConsolidateDupsIgnoreILDiff.Checked,
+                ResiduesPerLineForWrap = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, string.Empty, out _, 60)
+            };
+
+            return new FastaValidationOptions(fixedFastaOptions)
+            {
+                MaximumErrorsToTrackInDetail = TextBoxUtils.ParseTextBoxValueInt(txtMaxFileErrorsToTrack, string.Empty, out _, 10),
+                MaximumResiduesPerLine = TextBoxUtils.ParseTextBoxValueInt(txtMaximumResiduesPerLine, string.Empty, out _, 120),
+                ValidProteinNameLengthMinimum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMinimum, string.Empty, out _, 3),
+                ValidProteinNameLengthMaximum = TextBoxUtils.ParseTextBoxValueInt(txtProteinNameLengthMaximum, string.Empty, out _, 34),
                 AllowAsterisksInResidues = chkAllowAsteriskInResidues.Checked,
                 CheckForDuplicateProteinNames = chkCheckForDuplicateProteinInfo.Checked,
                 LogResultsToFile = chkLogResults.Checked,
-                SaveHashInfoFile = chkSaveBasicProteinHashInfoFile.Checked
+                SaveHashInfoFile = chkSaveBasicProteinHashInfoFile.Checked,
+                Initialized = true
             };
-
-            fastaValidationOptions.FixedFastaOptions.GenerateFixedFasta = chkGenerateFixedFastaFile.Checked;
-            fastaValidationOptions.FixedFastaOptions.TruncateLongProteinName = chkTruncateLongProteinNames.Checked;
-            fastaValidationOptions.FixedFastaOptions.RenameProteinWithDuplicateNames = chkRenameDuplicateProteins.Checked;
-            fastaValidationOptions.FixedFastaOptions.KeepDuplicateNamedProteins = chkKeepDuplicateNamedProteins.Checked;
-            fastaValidationOptions.FixedFastaOptions.WrapLongResidueLines = chkWrapLongResidueLines.Checked;
-            fastaValidationOptions.FixedFastaOptions.RemoveInvalidResidues = chkRemoveInvalidResidues.Checked;
-            fastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsForKnownAccession = chkSplitOutMultipleRefsForKnownAccession.Checked;
-            fastaValidationOptions.FixedFastaOptions.SplitOutMultipleRefsInProteinName = chkSplitOutMultipleRefsInProteinName.Checked;
-            fastaValidationOptions.FixedFastaOptions.ConsolidateDuplicateProteins = chkConsolidateDuplicateProteinSeqs.Checked;
-            fastaValidationOptions.FixedFastaOptions.ConsolidateDupsIgnoreILDiff = chkConsolidateDupsIgnoreILDiff.Checked;
-            fastaValidationOptions.FixedFastaOptions.ResiduesPerLineForWrap = TextBoxUtils.ParseTextBoxValueInt(txtResiduesPerLineForWrap, "", out _, 60);
-
-            fastaValidationOptions.Initialized = true;
-
-            return fastaValidationOptions;
         }
 
         private void InitializeDataGrid(DataGrid dgDataGrid, out DataSet dsDataset, out DataView dvDataView, FastaValidator.MsgTypeConstants msgType)
