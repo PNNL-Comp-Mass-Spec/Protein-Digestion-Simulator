@@ -900,10 +900,12 @@ namespace ProteinDigestionSimulator
             return extensionsToParse;
         }
 
+        /// <summary>
+        /// Get a description of the most recent error
+        /// </summary>
+        /// <returns>Error message, or an empty string if no error</returns>
         public override string GetErrorMessage()
         {
-            // Returns "" if no error
-
             string errorMessage;
 
             if (ErrorCode is ProcessFilesErrorCodes.LocalizedError or ProcessFilesErrorCodes.NoError)
@@ -2102,7 +2104,6 @@ namespace ProteinDigestionSimulator
                 mLastErrorMessage = string.Empty;
             }
         }
-
 
         private void UpdateSubtaskProgress(float percentComplete)
         {
