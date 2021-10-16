@@ -49,7 +49,9 @@ namespace ProteinDigestionSimulator
 
         private readonly ProteinToPeptideMappingInfo mProteinToPeptideMapping;
 
-        private bool mUseProteinNameDictionary;
+        /// <summary>
+        /// Mapping from protein to index in mProteins
+        /// </summary>
         private Dictionary<string, int> mProteinNameToRowIndex;
 
         public event SortingListEventHandler SortingList;
@@ -57,7 +59,8 @@ namespace ProteinDigestionSimulator
 
         public ProteinCollection()
         {
-            mUseProteinNameDictionary = true;                       // Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
+            // Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
+            UseProteinNameDictionary = true;
             Clear();
             mProteinToPeptideMapping = new ProteinToPeptideMappingInfo();
             mProteinToPeptideMapping.SortingList += ProteinToPeptideMapping_SortingList;
@@ -99,7 +102,7 @@ namespace ProteinDigestionSimulator
 
                 mProteins[mProteinCount] = new ProteinEntry(proteinName, proteinID);
 
-                if (mUseProteinNameDictionary)
+                if (UseProteinNameDictionary)
                 {
                     mProteinNameToRowIndex.Add(proteinName, mProteinCount);
                 }
@@ -201,7 +204,7 @@ namespace ProteinDigestionSimulator
             mProteinArrayIsSorted = false;
             mMaxProteinIDUsed = 0;
 
-            if (mUseProteinNameDictionary)
+            if (UseProteinNameDictionary)
             {
                 if (mProteinNameToRowIndex == null)
                 {
@@ -267,7 +270,7 @@ namespace ProteinDigestionSimulator
 
             int rowIndex;
 
-            if (mUseProteinNameDictionary)
+            if (UseProteinNameDictionary)
             {
                 if (mProteinNameToRowIndex.ContainsKey(proteinName))
                 {
@@ -321,11 +324,13 @@ namespace ProteinDigestionSimulator
             return mProteinArrayIsSorted;
         }
 
-        public bool UseProteinNameDictionary
-        {
-            get => mUseProteinNameDictionary;
-            set => mUseProteinNameDictionary = value;
-        }
+        /// <summary>
+        /// When true, store protein names in a dictionary
+        /// </summary>
+        /// <remarks>
+        /// Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
+        /// </remarks>
+        public bool UseProteinNameDictionary { get; set; }
 
         private void ProteinToPeptideMapping_SortingList()
         {

@@ -101,15 +101,13 @@ namespace ProteinDigestionSimulator
             protected int mFeatureCount;
             protected FeatureInfo[] mFeatures;
             private bool mFeaturesArrayIsSorted;
-
-            private bool mUseFeatureIDDictionary;
             private Dictionary<int, int> featureIDToRowIndex;
 
             public event SortingListEventHandler SortingList;
 
             public PMFeatureInfo()
             {
-                mUseFeatureIDDictionary = true;                       // Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
+                UseFeatureIDDictionary = true;                       // Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
                 Clear();
             }
 
@@ -136,7 +134,7 @@ namespace ProteinDigestionSimulator
 
                 mFeatures[mFeatureCount] = new FeatureInfo(featureID, peptideName, peptideMass, peptideNET);
 
-                if (mUseFeatureIDDictionary)
+                if (UseFeatureIDDictionary)
                 {
                     featureIDToRowIndex.Add(featureID, mFeatureCount);
                 }
@@ -213,7 +211,7 @@ namespace ProteinDigestionSimulator
 
                 mFeaturesArrayIsSorted = false;
 
-                if (mUseFeatureIDDictionary)
+                if (UseFeatureIDDictionary)
                 {
                     if (featureIDToRowIndex == null)
                     {
@@ -242,7 +240,7 @@ namespace ProteinDigestionSimulator
                 // If found, returns the row index in rowIndex
                 // Note that the data will be sorted if necessary, which could lead to slow execution if this function is called repeatedly, while adding new data between calls
 
-                if (mUseFeatureIDDictionary)
+                if (UseFeatureIDDictionary)
                 {
                     if (featureIDToRowIndex.ContainsKey(featureID))
                     {
@@ -344,11 +342,7 @@ namespace ProteinDigestionSimulator
                 return mFeaturesArrayIsSorted;
             }
 
-            public bool UseFeatureIDDictionary
-            {
-                get => mUseFeatureIDDictionary;
-                set => mUseFeatureIDDictionary = value;
-            }
+            public bool UseFeatureIDDictionary { get; set; }
         }
 
         internal class PMComparisonFeatureInfo : PMFeatureInfo
