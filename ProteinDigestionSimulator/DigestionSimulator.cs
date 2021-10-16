@@ -981,7 +981,7 @@ namespace ProteinDigestionSimulator
 
             for (binIndex = 0; binIndex < statsBinned.BinCount; binIndex++)
             {
-                var stats = new SingleBinStats(
+                statsBinned.Bins[binIndex] = new SingleBinStats(
                     statsBinned.Settings.MassMinimum + statsBinned.Settings.MassBinSizeDa * binIndex,
                     statsBinned.Settings.MassMinimum + statsBinned.Settings.MassBinSizeDa * (binIndex + 1))
                 {
@@ -990,8 +990,6 @@ namespace ProteinDigestionSimulator
                     NonUniqueResultIDCount = 0,
                     ResultIDCountDistribution = new int[Math.Min(ID_COUNT_DISTRIBUTION_MAX, mMaxPeakMatchingResultsPerFeatureToSave) + 1]
                 };
-
-                statsBinned.Bins[binIndex] = stats;
             }
         }
 
