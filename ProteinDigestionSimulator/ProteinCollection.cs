@@ -153,7 +153,7 @@ namespace ProteinDigestionSimulator
 
             try
             {
-                var midIndex = (firstIndex + lastIndex) / 2;
+                var midIndex = lastIndex / 2;
                 if (midIndex < firstIndex)
                 {
                     midIndex = firstIndex;
