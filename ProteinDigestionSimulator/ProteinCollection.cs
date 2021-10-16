@@ -196,10 +196,7 @@ namespace ProteinDigestionSimulator
         {
             mProteinCount = 0;
 
-            if (mProteins == null)
-            {
-                mProteins = new ProteinEntry[100000];
-            }
+            mProteins ??= new ProteinEntry[100000];
 
             mProteinArrayIsSorted = false;
             mMaxProteinIDUsed = 0;
@@ -487,10 +484,7 @@ namespace ProteinDigestionSimulator
             {
                 mMappingCount = 0;
 
-                if (mMappings == null)
-                {
-                    mMappings = new ProteinToPeptideMappingEntry[100000];
-                }
+                mMappings ??= new ProteinToPeptideMappingEntry[100000];
 
                 mMappingArrayIsSorted = false;
             }

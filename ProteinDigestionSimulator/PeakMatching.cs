@@ -209,10 +209,7 @@ namespace ProteinDigestionSimulator
             {
                 mFeatureCount = 0;
 
-                if (mFeatures == null)
-                {
-                    mFeatures = new FeatureInfo[100000];
-                }
+                mFeatures ??= new FeatureInfo[100000];
 
                 mFeaturesArrayIsSorted = false;
 
