@@ -1598,7 +1598,7 @@ namespace ProteinDigestionSimulator
                 // ReSharper disable once StringLiteralTypo
                 NTerminusGroupConstants.Carbamyl => SetNTerminus("CONH2", precedingResidue, use3LetterCode),
                 NTerminusGroupConstants.PTC => SetNTerminus("C7H6NS", precedingResidue, use3LetterCode),
-                NTerminusGroupConstants.None => SetNTerminus("", precedingResidue, use3LetterCode),
+                NTerminusGroupConstants.None => SetNTerminus(string.Empty, precedingResidue, use3LetterCode),
                 _ => 1,
             };
         }

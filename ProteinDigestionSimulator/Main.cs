@@ -1423,8 +1423,8 @@ namespace ProteinDigestionSimulator
                         mParseProteinFile.ProteinScramblingMode = (ProteinFileParser.ProteinScramblingModeConstants)cboProteinReversalOptions.SelectedIndex;
                     }
 
-                    mParseProteinFile.ProteinScramblingSamplingPercentage = TextBoxUtils.ParseTextBoxValueInt(txtProteinReversalSamplingPercentage, "", out _, 100);
-                    mParseProteinFile.ProteinScramblingLoopCount = TextBoxUtils.ParseTextBoxValueInt(txtProteinScramblingLoopCount, "", out _, 1);
+                    mParseProteinFile.ProteinScramblingSamplingPercentage = TextBoxUtils.ParseTextBoxValueInt(txtProteinReversalSamplingPercentage, string.Empty, out _, 100);
+                    mParseProteinFile.ProteinScramblingLoopCount = TextBoxUtils.ParseTextBoxValueInt(txtProteinScramblingLoopCount, string.Empty, out _, 1);
                     mParseProteinFile.CreateDigestedProteinOutputFile = chkDigestProteins.Checked;
                     mParseProteinFile.CreateFastaOutputFile = chkCreateFastaOutputFile.Checked;
 
@@ -2634,8 +2634,8 @@ namespace ProteinDigestionSimulator
             lblProgress.Text = FormatPercentComplete(100f);
             pbarProgress.Value = 100;
 
-            lblSubtaskProgress.Text = "";
-            lblSubtaskProgressDescription.Text = "";
+            lblSubtaskProgress.Text = string.Empty;
+            lblSubtaskProgressDescription.Text = string.Empty;
 
             Application.DoEvents();
         }
@@ -2672,8 +2672,8 @@ namespace ProteinDigestionSimulator
             lblProgress.Text = FormatPercentComplete(100f);
             pbarProgress.Value = 100;
 
-            lblSubtaskProgress.Text = "";
-            lblSubtaskProgressDescription.Text = "";
+            lblSubtaskProgress.Text = string.Empty;
+            lblSubtaskProgressDescription.Text = string.Empty;
 
             Application.DoEvents();
         }

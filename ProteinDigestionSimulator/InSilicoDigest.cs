@@ -184,7 +184,7 @@ namespace ProteinDigestionSimulator
                 else
                 {
                     // Exclude X residues from sequence when calling .SetSequence
-                    mPeptideSequence.SetSequence(sequence.ToUpper().Replace("X", ""));
+                    mPeptideSequence.SetSequence(sequence.ToUpper().Replace("X", string.Empty));
                 }
 
                 return mPeptideSequence.Mass;
@@ -236,7 +236,7 @@ namespace ProteinDigestionSimulator
                                   DigestionOptions digestionOptions,
                                   bool filterByIsoelectricPoint)
         {
-            return DigestSequence(proteinSequence, out peptideFragments, digestionOptions, filterByIsoelectricPoint, "");
+            return DigestSequence(proteinSequence, out peptideFragments, digestionOptions, filterByIsoelectricPoint, string.Empty);
         }
 
         internal readonly struct TrypticFragment

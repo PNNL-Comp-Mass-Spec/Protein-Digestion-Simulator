@@ -159,7 +159,7 @@ namespace ProteinDigestionSimulator
                     midIndex = firstIndex;
                 }
 
-                while (firstIndex <= lastIndex && (mProteins[midIndex].Name ?? "") != (proteinName ?? ""))
+                while (firstIndex <= lastIndex && (mProteins[midIndex].Name ?? string.Empty) != (proteinName ?? string.Empty))
                 {
                     if (string.CompareOrdinal(proteinName, mProteins[midIndex].Name) < 0)
                     {
@@ -181,7 +181,7 @@ namespace ProteinDigestionSimulator
 
                 if (midIndex >= firstIndex && midIndex <= lastIndex)
                 {
-                    if ((mProteins[midIndex].Name ?? "") == (proteinName ?? ""))
+                    if ((mProteins[midIndex].Name ?? string.Empty) == (proteinName ?? string.Empty))
                     {
                         matchingRowIndex = midIndex;
                     }

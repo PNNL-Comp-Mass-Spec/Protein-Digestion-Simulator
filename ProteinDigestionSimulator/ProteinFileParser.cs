@@ -548,7 +548,7 @@ namespace ProteinDigestionSimulator
 
             return LocalErrorCode switch
             {
-                ParseProteinFileErrorCodes.NoError => "",
+                ParseProteinFileErrorCodes.NoError => string.Empty,
                 ParseProteinFileErrorCodes.ProteinFileParsingOptionsSectionNotFound => "The section " + XML_SECTION_OPTIONS +
                                                                                        " was not found in the parameter file",
                 ParseProteinFileErrorCodes.ErrorReadingInputFile => "Error reading input file",

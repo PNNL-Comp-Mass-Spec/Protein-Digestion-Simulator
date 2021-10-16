@@ -683,7 +683,7 @@ namespace ProteinDigestionSimulator
             txtProteinNameLengthMaximum.Text = "34";
 
             txtLongProteinNameSplitChars.Text = FastaValidator.DEFAULT_LONG_PROTEIN_NAME_SPLIT_CHAR.ToString();
-            txtInvalidProteinNameCharsToRemove.Text = "";
+            txtInvalidProteinNameCharsToRemove.Text = string.Empty;
             txtResiduesPerLineForWrap.Text = "60";
 
             chkAllowAsteriskInResidues.Checked = false;

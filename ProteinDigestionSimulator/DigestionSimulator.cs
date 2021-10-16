@@ -910,7 +910,7 @@ namespace ProteinDigestionSimulator
             {
                 errorMessage = LocalErrorCode switch
                 {
-                    ErrorCodes.NoError => "",
+                    ErrorCodes.NoError => string.Empty,
                     ErrorCodes.ProteinDigestionSimulatorSectionNotFound => "The section " + ProteinFileParser.XML_SECTION_OPTIONS + " was not found in the parameter file",
                     ErrorCodes.ErrorReadingInputFile => "Error reading input file",
                     ErrorCodes.ProteinsNotFoundInInputFile => "No proteins were found in the input file (make sure the Column Order is correct on the File Format Options tab)",
@@ -1513,7 +1513,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 // Load the proteins in the input file into memory
-                success = mProteinFileParser.ParseProteinFile(proteinInputFilePath, "");
+                success = mProteinFileParser.ParseProteinFile(proteinInputFilePath, string.Empty);
 
                 var skipMessage = string.Empty;
                 if (mProteinFileParser.InputFileLineSkipCount > 0 && !isFastaFile)
