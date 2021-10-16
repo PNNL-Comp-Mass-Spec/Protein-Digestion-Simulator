@@ -76,12 +76,12 @@ namespace ProteinDigestionSimulator
 
         public event ProgressChangedEventHandler ProgressChanged;
 
-        protected string mProgressStepDescription;
+        private string mProgressStepDescription;
 
         /// <summary>
         /// Percent complete, ranges from 0 to 100, but can contain decimal percentage values
         /// </summary>
-        protected float mProgressPercentComplete;
+        private float mProgressPercentComplete;
 
         public int CleavageRuleCount => mCleavageRules.Count;
 
@@ -109,7 +109,7 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        public virtual string ProgressStepDescription => mProgressStepDescription;
+        public string ProgressStepDescription => mProgressStepDescription;
 
         /// <summary>
         /// Percent complete, value between 0 and 100, but can contain decimal percentage values
@@ -834,28 +834,28 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        protected void ResetProgress()
+        private void ResetProgress()
         {
             ProgressReset?.Invoke();
         }
 
-        protected void ResetProgress(string description)
+        private void ResetProgress(string description)
         {
             UpdateProgress(description, 0f);
             ProgressReset?.Invoke();
         }
 
-        protected void UpdateProgress(string description)
+        private void UpdateProgress(string description)
         {
             UpdateProgress(description, mProgressPercentComplete);
         }
 
-        protected void UpdateProgress(float percentComplete)
+        private void UpdateProgress(float percentComplete)
         {
             UpdateProgress(ProgressStepDescription, percentComplete);
         }
 
-        protected void UpdateProgress(string description, float percentComplete)
+        private void UpdateProgress(string description, float percentComplete)
         {
             mProgressStepDescription = string.Copy(description);
             if (percentComplete < 0f)

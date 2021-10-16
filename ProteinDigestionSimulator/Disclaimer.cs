@@ -85,8 +85,8 @@ namespace ProteinDigestionSimulator
 
         private const int FORM_CLOSE_DELAY_SECONDS = 2;
 
-        protected System.Timers.Timer mCloseDelayTimer;
-        protected DateTime mTimerStartTime;
+        private System.Timers.Timer mCloseDelayTimer;
+        private DateTime mTimerStartTime;
 
         public static string GetKangasPetritisDisclaimerText(bool addNewlines = true)
         {

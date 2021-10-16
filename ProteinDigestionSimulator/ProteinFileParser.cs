@@ -2309,17 +2309,17 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        protected void UpdateSubtaskProgress(string description)
+        private void UpdateSubtaskProgress(string description)
         {
             UpdateProgress(description, mProgressPercentComplete);
         }
 
-        protected void UpdateSubtaskProgress(float percentComplete)
+        private void UpdateSubtaskProgress(float percentComplete)
         {
             UpdateProgress(ProgressStepDescription, percentComplete);
         }
 
-        protected void UpdateSubtaskProgress(string description, float percentComplete)
+        private void UpdateSubtaskProgress(string description, float percentComplete)
         {
             var descriptionChanged = (description ?? "") != (mSubtaskProgressStepDescription ?? "");
 

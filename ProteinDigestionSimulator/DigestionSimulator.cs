@@ -1773,13 +1773,13 @@ namespace ProteinDigestionSimulator
             return success;
         }
 
-        protected new void ResetProgress()
+        private new void ResetProgress()
         {
             AbortProcessing = false;
             base.ResetProgress();
         }
 
-        protected new void ResetProgress(string description)
+        private new void ResetProgress(string description)
         {
             AbortProcessing = false;
             base.ResetProgress(description);
@@ -2109,17 +2109,17 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        protected void UpdateSubtaskProgress(string description)
+        private void UpdateSubtaskProgress(string description)
         {
             UpdateProgress(description, mProgressPercentComplete);
         }
 
-        protected void UpdateSubtaskProgress(float percentComplete)
+        private void UpdateSubtaskProgress(float percentComplete)
         {
             UpdateProgress(ProgressStepDescription, percentComplete);
         }
 
-        protected void UpdateSubtaskProgress(string description, float percentComplete)
+        private void UpdateSubtaskProgress(string description, float percentComplete)
         {
             var descriptionChanged = (description ?? "") != (mSubtaskProgressStepDescription ?? "");
 

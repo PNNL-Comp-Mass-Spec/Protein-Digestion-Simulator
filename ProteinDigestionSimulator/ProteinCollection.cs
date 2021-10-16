@@ -41,16 +41,16 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        protected int mProteinCount;
-        protected ProteinEntry[] mProteins;
-        protected bool mProteinArrayIsSorted;
+        private int mProteinCount;
+        private ProteinEntry[] mProteins;
+        private bool mProteinArrayIsSorted;
 
-        protected int mMaxProteinIDUsed;
+        private int mMaxProteinIDUsed;
 
-        protected ProteinToPeptideMappingInfo mProteinToPeptideMapping;
+        private readonly ProteinToPeptideMappingInfo mProteinToPeptideMapping;
 
-        protected bool mUseProteinNameDictionary;
-        protected Dictionary<string, int> mProteinNameToRowIndex;
+        private bool mUseProteinNameDictionary;
+        private Dictionary<string, int> mProteinNameToRowIndex;
 
         public event SortingListEventHandler SortingList;
         public event SortingMappingsEventHandler SortingMappings;
@@ -335,7 +335,7 @@ namespace ProteinDigestionSimulator
             SortingMappings?.Invoke();
         }
 
-        protected class ProteinToPeptideMappingInfo
+        private class ProteinToPeptideMappingInfo
         {
             public class ProteinToPeptideMappingEntry : IComparable<ProteinToPeptideMappingEntry>
             {
@@ -372,9 +372,9 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            protected int mMappingCount;
-            protected ProteinToPeptideMappingEntry[] mMappings;
-            protected bool mMappingArrayIsSorted;
+            private int mMappingCount;
+            private ProteinToPeptideMappingEntry[] mMappings;
+            private bool mMappingArrayIsSorted;
 
             public event SortingListEventHandler SortingList;
 
@@ -483,7 +483,7 @@ namespace ProteinDigestionSimulator
                 return matchingRowIndex;
             }
 
-            public virtual void Clear()
+            private void Clear()
             {
                 mMappingCount = 0;
 
@@ -495,7 +495,7 @@ namespace ProteinDigestionSimulator
                 mMappingArrayIsSorted = false;
             }
 
-            protected bool ContainsMapping(int proteinID, int peptideID)
+            private bool ContainsMapping(int proteinID, int peptideID)
             {
                 // Returns True if the data table contains the mapping of proteinID to peptideID
                 // Note that the data will be sorted if necessary, which could lead to slow execution if this function is called repeatedly, while adding new data between calls

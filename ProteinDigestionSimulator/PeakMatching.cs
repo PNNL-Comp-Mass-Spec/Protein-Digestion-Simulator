@@ -100,10 +100,10 @@ namespace ProteinDigestionSimulator
         {
             protected int mFeatureCount;
             protected FeatureInfo[] mFeatures;
-            protected bool mFeaturesArrayIsSorted;
+            private bool mFeaturesArrayIsSorted;
 
-            protected bool mUseFeatureIDDictionary;
-            protected Dictionary<int, int> featureIDToRowIndex;
+            private bool mUseFeatureIDDictionary;
+            private Dictionary<int, int> featureIDToRowIndex;
 
             public event SortingListEventHandler SortingList;
 
@@ -148,7 +148,7 @@ namespace ProteinDigestionSimulator
                 return true;
             }
 
-            protected int BinarySearchFindFeature(int featureIDToFind)
+            private int BinarySearchFindFeature(int featureIDToFind)
             {
                 // Looks through mFeatures[] for featureIDToFind, returning the index of the item if found, or -1 if not found
 
@@ -334,7 +334,7 @@ namespace ProteinDigestionSimulator
                 return 0d;
             }
 
-            protected virtual bool SortFeatures(bool forceSort = false)
+            private bool SortFeatures(bool forceSort = false)
             {
                 if (!mFeaturesArrayIsSorted || forceSort)
                 {
@@ -356,7 +356,7 @@ namespace ProteinDigestionSimulator
 
         internal class PMComparisonFeatureInfo : PMFeatureInfo
         {
-            protected readonly struct ComparisonFeatureInfoExtended
+            private readonly struct ComparisonFeatureInfoExtended
             {
                 public float NETStDev { get; }
                 public float DiscriminantScore { get; }
@@ -368,7 +368,7 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            protected ComparisonFeatureInfoExtended[] mExtendedInfo;
+            private ComparisonFeatureInfoExtended[] mExtendedInfo;
 
             public PMComparisonFeatureInfo()
             {
@@ -482,7 +482,7 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            protected readonly struct PeakMatchingResults : IComparable<PeakMatchingResults>
+            private readonly struct PeakMatchingResults : IComparable<PeakMatchingResults>
             {
                 public int FeatureID { get; }
                 public PeakMatchingResult Details { get; }
@@ -506,8 +506,8 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            protected readonly List<PeakMatchingResults> mPMResults = new();
-            protected bool mPMResultsIsSorted;
+            private readonly List<PeakMatchingResults> mPMResults = new();
+            private bool mPMResultsIsSorted;
 
             public event SortingListEventHandler SortingList;
 
@@ -594,7 +594,7 @@ namespace ProteinDigestionSimulator
                 return matchingRowIndex;
             }
 
-            public virtual void Clear()
+            private void Clear()
             {
                 mPMResults.Clear();
                 mPMResultsIsSorted = false;
