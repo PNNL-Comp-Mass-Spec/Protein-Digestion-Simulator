@@ -1773,12 +1773,6 @@ namespace ProteinDigestionSimulator
             return success;
         }
 
-        private new void ResetProgress()
-        {
-            AbortProcessing = false;
-            base.ResetProgress();
-        }
-
         private new void ResetProgress(string description)
         {
             AbortProcessing = false;
@@ -2109,10 +2103,6 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        private void UpdateSubtaskProgress(string description)
-        {
-            UpdateProgress(description, mProgressPercentComplete);
-        }
 
         private void UpdateSubtaskProgress(float percentComplete)
         {
