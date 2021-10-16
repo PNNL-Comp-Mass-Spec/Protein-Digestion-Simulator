@@ -109,7 +109,7 @@ namespace ProteinDigestionSimulator
             {
                 Settings = settings;
                 BinCount = 0;
-                Bins = new SingleBinStats[0];
+                Bins = Array.Empty<SingleBinStats>();
             }
         }
 

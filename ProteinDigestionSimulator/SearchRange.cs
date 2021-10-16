@@ -327,22 +327,22 @@ namespace ProteinDigestionSimulator
         {
             if (mDataType != DataTypeToUse.IntegerType)
             {
-                mDataInt = new int[0];
+                mDataInt = Array.Empty<int>();
             }
 
             if (mDataType != DataTypeToUse.SingleType)
             {
-                mDataSingle = new float[0];
+                mDataSingle = Array.Empty<float>();
             }
 
             if (mDataType != DataTypeToUse.DoubleType)
             {
-                mDataDouble = new double[0];
+                mDataDouble = Array.Empty<double>();
             }
 
             if (mDataType == DataTypeToUse.NoDataPresent)
             {
-                mPointerIndices = new int[0];
+                mPointerIndices = Array.Empty<int>();
                 mPointerArrayIsValid = false;
             }
         }
@@ -419,7 +419,7 @@ namespace ProteinDigestionSimulator
                     else
                     {
                         Array.Sort(mDataInt);
-                        mPointerIndices = new int[0];
+                        mPointerIndices = Array.Empty<int>();
                         mPointerArrayIsValid = false;
                     }
 
@@ -466,7 +466,7 @@ namespace ProteinDigestionSimulator
                     else
                     {
                         Array.Sort(mDataSingle);
-                        mPointerIndices = new int[0];
+                        mPointerIndices = Array.Empty<int>();
                         mPointerArrayIsValid = false;
                     }
 
@@ -514,7 +514,7 @@ namespace ProteinDigestionSimulator
                     else
                     {
                         Array.Sort(mDataDouble);
-                        mPointerIndices = new int[0];
+                        mPointerIndices = Array.Empty<int>();
                         mPointerArrayIsValid = false;
                     }
 
@@ -778,7 +778,7 @@ namespace ProteinDigestionSimulator
                     else
                     {
                         Array.Sort(DataArray);
-                        mPointerIndices = new int[0];
+                        mPointerIndices = Array.Empty<int>();
                         mPointerArrayIsValid = false;
                     }
                 }

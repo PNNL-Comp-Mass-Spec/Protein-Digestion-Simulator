@@ -1062,7 +1062,7 @@ namespace ProteinDigestionSimulator
 
                 RemoveDuplicateSequences = false;
                 IncludePrefixAndSuffixResidues = false;
-                AminoAcidResidueFilterChars = new char[0];
+                AminoAcidResidueFilterChars = Array.Empty<char>();
             }
 
             private int mMaxMissedCleavages;

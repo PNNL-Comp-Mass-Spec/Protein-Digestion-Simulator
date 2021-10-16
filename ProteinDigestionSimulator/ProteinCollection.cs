@@ -534,7 +534,7 @@ namespace ProteinDigestionSimulator
                 }
                 else
                 {
-                    matchingIDs = new int[0];
+                    matchingIDs = Array.Empty<int>();
                 }
 
                 return matchingIDs;
