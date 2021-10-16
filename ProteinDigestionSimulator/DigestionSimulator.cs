@@ -2111,9 +2111,13 @@ namespace ProteinDigestionSimulator
 
         private void UpdateSubtaskProgress(string description, float percentComplete)
         {
-            var descriptionChanged = (description ?? "") != (mSubtaskProgressStepDescription ?? "");
+            var descriptionChanged = (description ?? string.Empty) != (mSubtaskProgressStepDescription ?? string.Empty);
 
-            mSubtaskProgressStepDescription = string.Copy(description);
+            if (descriptionChanged)
+            {
+                mSubtaskProgressStepDescription = string.Copy(description ?? string.Empty);
+            }
+
             if (percentComplete < 0f)
             {
                 percentComplete = 0f;
