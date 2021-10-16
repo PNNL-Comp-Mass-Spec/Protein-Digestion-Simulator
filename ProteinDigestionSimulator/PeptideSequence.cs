@@ -9,6 +9,8 @@ namespace ProteinDigestionSimulator
     /// </summary>
     public class PeptideSequence
     {
+        // Ignore Spelling: acetyl, alkylated, carbamyl, cys, cysteine, Da, iodoacetamide, proline, terminii, tryptic, xxx
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -55,7 +57,7 @@ namespace ProteinDigestionSimulator
         public enum CysTreatmentModeConstants
         {
             Untreated = 0,
-            Iodoacetamide = 1,       // +57.0215 (alkylated)
+            Iodoacetamide = 1,      // +57.0215 (alkylated)
             IodoaceticAcid = 2      // +58.0055
         }
 
