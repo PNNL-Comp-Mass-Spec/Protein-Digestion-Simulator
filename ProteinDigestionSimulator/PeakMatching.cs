@@ -113,12 +113,12 @@ namespace ProteinDigestionSimulator
                 Clear();
             }
 
-            public virtual bool Add(ref FeatureInfo featureInfo)
+            public bool Add(ref FeatureInfo featureInfo)
             {
                 return Add(featureInfo.FeatureID, featureInfo.FeatureName, featureInfo.Mass, featureInfo.NET);
             }
 
-            public virtual bool Add(int featureID, string peptideName, double peptideMass, float peptideNET)
+            public bool Add(int featureID, string peptideName, double peptideMass, float peptideNET)
             {
                 // Returns True if the feature was added
 
@@ -205,7 +205,7 @@ namespace ProteinDigestionSimulator
                 return matchingRowIndex;
             }
 
-            public virtual void Clear()
+            public void Clear()
             {
                 mFeatureCount = 0;
 
@@ -267,7 +267,7 @@ namespace ProteinDigestionSimulator
 
             public int Count => mFeatureCount;
 
-            public virtual bool GetFeatureInfoByFeatureID(int featureID, out FeatureInfo featureInfo)
+            public bool GetFeatureInfoByFeatureID(int featureID, out FeatureInfo featureInfo)
             {
                 // Return the feature info for featureID
 
@@ -283,7 +283,7 @@ namespace ProteinDigestionSimulator
                 return false;
             }
 
-            public virtual bool GetFeatureInfoByRowIndex(int rowIndex, out FeatureInfo featureInfo)
+            public bool GetFeatureInfoByRowIndex(int rowIndex, out FeatureInfo featureInfo)
             {
                 if (rowIndex >= 0 && rowIndex < mFeatureCount)
                 {
@@ -295,7 +295,7 @@ namespace ProteinDigestionSimulator
                 return false;
             }
 
-            public virtual double[] GetMassArrayByRowRange(int rowIndexStart, int rowIndexEnd)
+            public double[] GetMassArrayByRowRange(int rowIndexStart, int rowIndexEnd)
             {
                 if (rowIndexEnd < rowIndexStart)
                 {
@@ -324,7 +324,7 @@ namespace ProteinDigestionSimulator
                 return masses;
             }
 
-            public virtual double GetMassByRowIndex(int rowIndex)
+            public double GetMassByRowIndex(int rowIndex)
             {
                 if (rowIndex >= 0 && rowIndex < mFeatureCount)
                 {
@@ -449,7 +449,7 @@ namespace ProteinDigestionSimulator
                 return false;
             }
 
-            public virtual float GetNETStDevByRowIndex(int rowIndex)
+            public float GetNETStDevByRowIndex(int rowIndex)
             {
                 if (rowIndex >= 0 && rowIndex < mFeatureCount)
                 {

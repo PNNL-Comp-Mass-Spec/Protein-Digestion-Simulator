@@ -192,7 +192,7 @@ namespace ProteinDigestionSimulator
             return matchingRowIndex;
         }
 
-        public virtual void Clear()
+        public void Clear()
         {
             mProteinCount = 0;
 
