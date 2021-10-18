@@ -402,7 +402,7 @@ namespace ProteinDigestionSimulator
             fraSqlServerOptions.Size = new Size(376, 112);
             fraSqlServerOptions.TabIndex = 4;
             fraSqlServerOptions.TabStop = false;
-            fraSqlServerOptions.Text = "Sql Server Options";
+            fraSqlServerOptions.Text = "SQL Server Options";
             fraSqlServerOptions.Visible = false;
             //
             // chkSqlServerUseExistingData
@@ -421,7 +421,7 @@ namespace ProteinDigestionSimulator
             chkAllowSqlServerCaching.Name = "chkAllowSqlServerCaching";
             chkAllowSqlServerCaching.Size = new Size(144, 32);
             chkAllowSqlServerCaching.TabIndex = 0;
-            chkAllowSqlServerCaching.Text = "Allow data caching using Sql Server";
+            chkAllowSqlServerCaching.Text = "Allow data caching using SQL Server";
             //
             // lblSqlServerPassword
             //
@@ -446,7 +446,7 @@ namespace ProteinDigestionSimulator
             txtSqlServerPassword.PasswordChar = '*';
             txtSqlServerPassword.Size = new Size(88, 20);
             txtSqlServerPassword.TabIndex = 10;
-            txtSqlServerPassword.Text = "pw";
+            txtSqlServerPassword.Text = "Password";
             //
             // txtSqlServerUsername
             //
