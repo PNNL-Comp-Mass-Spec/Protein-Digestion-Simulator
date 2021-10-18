@@ -1585,10 +1585,10 @@ namespace ProteinDigestionSimulator
             }
 
             outLine.Clear();
-            outLine.AppendFormat("{0}{1}", FastaFileOptions.ProteinLineStartChar, protein.Name);
+            outLine.AppendFormat("{0}{1}", FastaFileReader.PROTEIN_LINE_START_CHAR, protein.Name);
             if (!ExcludeProteinDescription)
             {
-                outLine.AppendFormat("{0}{1}", FastaFileOptions.ProteinLineAccessionEndChar, protein.Description);
+                outLine.AppendFormat("{0}{1}", FastaFileReader.PROTEIN_LINE_ACCESSION_TERMINATOR, protein.Description);
             }
 
             proteinFileWriter.WriteLine(outLine.ToString());
@@ -2100,7 +2100,9 @@ namespace ProteinDigestionSimulator
 
                 proteinName += residueCache.OutputCount.ToString();
 
-                var headerLine = FastaFileOptions.ProteinLineStartChar + proteinName + FastaFileOptions.ProteinLineAccessionEndChar + proteinName;
+                var headerLine = string.Format("{0}{1}{2}{3}",
+                    FastaFileReader.PROTEIN_LINE_START_CHAR, proteinName,
+                    FastaFileReader.PROTEIN_LINE_ACCESSION_TERMINATOR, proteinName);
 
                 WriteFastaProteinAndResidues(scrambledFileWriter, headerLine, residueCache.ResiduesToWrite);
                 residueCache.ResiduesToWrite = string.Empty;
@@ -2182,7 +2184,9 @@ namespace ProteinDigestionSimulator
             if (residueCache.SamplingPercentage >= 100)
             {
                 var proteinName = ValidateProteinName(proteinNamePrefix + protein.Name, MAXIMUM_PROTEIN_NAME_LENGTH);
-                var headerLine = FastaFileOptions.ProteinLineStartChar + proteinName + FastaFileOptions.ProteinLineAccessionEndChar + protein.Description;
+                var headerLine = string.Format("{0}{1}{2}{3}",
+                    FastaFileReader.PROTEIN_LINE_START_CHAR, proteinName,
+                    FastaFileReader.PROTEIN_LINE_ACCESSION_TERMINATOR, protein.Description);
 
                 WriteFastaProteinAndResidues(scrambledFileWriter, headerLine, scrambledSequence);
             }
@@ -2345,9 +2349,6 @@ namespace ProteinDigestionSimulator
         {
             public FastaFileParseOptions()
             {
-                ProteinLineStartChar = '>';
-                ProteinLineAccessionEndChar = ' ';
-
                 mLookForAddnlRefInDescription = false;
                 mAddnlRefSepChar = '|';
                 mAddnlRefAccessionSepChar = ':';
@@ -2371,10 +2372,6 @@ namespace ProteinDigestionSimulator
                     }
                 }
             }
-
-            public char ProteinLineStartChar { get; } = '>';
-
-            public char ProteinLineAccessionEndChar { get; } = ' ';
 
             public bool LookForAddnlRefInDescription
             {
