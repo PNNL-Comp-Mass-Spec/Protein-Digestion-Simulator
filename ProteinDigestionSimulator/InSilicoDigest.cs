@@ -834,20 +834,10 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        private void ResetProgress()
-        {
-            ProgressReset?.Invoke();
-        }
-
         private void ResetProgress(string description)
         {
             UpdateProgress(description, 0f);
             ProgressReset?.Invoke();
-        }
-
-        private void UpdateProgress(string description)
-        {
-            UpdateProgress(description, mProgressPercentComplete);
         }
 
         private void UpdateProgress(float percentComplete)

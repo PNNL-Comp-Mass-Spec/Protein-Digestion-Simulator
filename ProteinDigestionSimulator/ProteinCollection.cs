@@ -494,28 +494,6 @@ namespace ProteinDigestionSimulator
                 mMappingArrayIsSorted = false;
             }
 
-            private bool ContainsMapping(int proteinID, int peptideID)
-            {
-                // Returns True if the data table contains the mapping of proteinID to peptideID
-                // Note that the data will be sorted if necessary, which could lead to slow execution if this function is called repeatedly, while adding new data between calls
-
-                if (GetRowIndicesForProteinID(proteinID, out var indexFirst, out var indexLast))
-                {
-                    for (var index = indexFirst; index <= indexLast; index++)
-                    {
-                        if (mMappings[index].PeptideID == peptideID)
-                        {
-                            return true;
-                        }
-                    }
-                }
-
-                // If we get here, then the mapping wasn't found
-                return false;
-            }
-
-            public int Count => mMappingCount;
-
             public int[] GetPeptideIDsMappedToProteinID(int proteinID)
             {
                 // Returns all of the peptides for the given protein ID
