@@ -18,7 +18,7 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: validator, dt, ds, chk
 
-        public FastaValidation(string fastaFilePath) : base()
+        public FastaValidation(string fastaFilePath)
         {
             // This call is required by the Windows Form Designer.
             InitializeComponent();

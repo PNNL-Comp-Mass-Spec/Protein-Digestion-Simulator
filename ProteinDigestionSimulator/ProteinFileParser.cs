@@ -192,7 +192,7 @@ namespace ProteinDigestionSimulator
         private int mNextUniqueIDForMasterSeqs;
 
         private string mSubtaskProgressStepDescription = string.Empty;
-        private float mSubtaskProgressPercentComplete = 0f;
+        private float mSubtaskProgressPercentComplete;
 
         // PercentComplete ranges from 0 to 100, but can contain decimal percentage values
         public event ProgressChangedEventHandler SubtaskProgressChanged;

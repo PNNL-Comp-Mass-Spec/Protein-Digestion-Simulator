@@ -20,6 +20,7 @@ namespace ProteinDigestionSimulator
     /// This class will compute the pI (isoelectric point) and hydrophobicity for a peptide or protein sequence
     /// Code originally written by Gordon Anderson for the application ICR-2LS
     /// Ported to VB.NET by Matthew Monroe in August 2005
+    /// Ported to C# by Bryson Gibbons in 2021
     /// </summary>
     public class ComputePeptideProperties
     {
@@ -44,14 +45,14 @@ namespace ProteinDigestionSimulator
         ///        Intrinsic Amino Acid Side-Chain Hydrophilicity/Hydrophobicity Coefficients Determined
         ///        by Reversed-Phase High-Performance Liquid Chromatography of Model Peptides
         /// </remarks>
-        public enum HydrophobicityTypeConstants : int
+        public enum HydrophobicityTypeConstants
         {
-            HW = 0,                  // Hopp and Woods, values available at references 1 and 2
-            KD = 1,                  // Kyte and Doolittle, values available t references 1 and 2
-            Eisenberg = 2,           // Eisenberg, values available t references 1 and 2
-            GES = 3,                 // Engleman et. al., values available at reference 1
-            MeekPH7p4 = 4,           // Meek, pH 7.4; column 14 in table 3 of reference 3
-            MeekPH2p1 = 5           // Meek, pH 2.1; column 3  in table 3 of reference 3
+            HW = 0,             // Hopp and Woods, values available at references 1 and 2
+            KD = 1,             // Kyte and Doolittle, values available t references 1 and 2
+            Eisenberg = 2,      // Eisenberg, values available t references 1 and 2
+            GES = 3,            // Engleman et. al., values available at reference 1
+            MeekPH7p4 = 4,      // Meek, pH 7.4; column 14 in table 3 of reference 3
+            MeekPH2p1 = 5       // Meek, pH 2.1; column 3  in table 3 of reference 3
         }
 
         // Dissociation constants                ' Alternate values

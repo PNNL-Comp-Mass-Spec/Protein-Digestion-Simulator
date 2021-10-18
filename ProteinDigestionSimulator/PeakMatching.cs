@@ -457,12 +457,12 @@ namespace ProteinDigestionSimulator
         {
             public readonly struct PeakMatchingResult
             {
-                public int MatchingID { get; }                // ID of the comparison feature (this is the real ID, and not a RowIndex)
-                public double SLiCScore { get; }                  // SLiC Score (Spatially Localized Confidence score)
-                public double DelSLiC { get; }                    // Similar to DelCN, difference in SLiC score between top match and match with score value one less than this score
-                public double MassErr { get; }                    // Observed difference (error) between comparison mass and feature mass (in Da)
-                public double NETErr { get; }                     // Observed difference (error) between comparison NET and feature NET
-                public int MultiAMTHitCount { get; }          // The number of Unique mass tag hits for each UMC; only applies to AMT's
+                public int MatchingID { get; }              // ID of the comparison feature (this is the real ID, and not a RowIndex)
+                public double SLiCScore { get; }            // SLiC Score (Spatially Localized Confidence score)
+                public double DelSLiC { get; }              // Similar to DelCN, difference in SLiC score between top match and match with score value one less than this score
+                public double MassErr { get; }              // Observed difference (error) between comparison mass and feature mass (in Da)
+                public double NETErr { get; }               // Observed difference (error) between comparison NET and feature NET
+                public int MultiAMTHitCount { get; }        // The number of Unique mass tag hits for each UMC; only applies to AMT's
 
                 public PeakMatchingResult(int matchingId, double sliCScore, double delSLiC, double massErr, double netErr, int multiAmtHitCount)
                 {
