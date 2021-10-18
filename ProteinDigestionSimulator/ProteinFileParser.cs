@@ -2318,16 +2318,12 @@ namespace ProteinDigestionSimulator
                 mSubtaskProgressStepDescription = string.Copy(description ?? string.Empty);
             }
 
-            if (percentComplete < 0f)
+            mSubtaskProgressPercentComplete = percentComplete switch
             {
-                percentComplete = 0f;
-            }
-            else if (percentComplete > 100f)
-            {
-                percentComplete = 100f;
-            }
-
-            mSubtaskProgressPercentComplete = percentComplete;
+                < 0f => 0f,
+                > 100f => 100f,
+                _ => percentComplete
+            };
 
             if (descriptionChanged)
             {
@@ -2341,7 +2337,7 @@ namespace ProteinDigestionSimulator
                 }
             }
 
-            SubtaskProgressChanged?.Invoke(description, percentComplete);
+            SubtaskProgressChanged?.Invoke(description, mSubtaskProgressPercentComplete);
         }
 
         // Options class
