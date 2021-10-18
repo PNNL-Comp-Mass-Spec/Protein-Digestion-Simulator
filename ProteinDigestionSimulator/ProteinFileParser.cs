@@ -790,7 +790,8 @@ namespace ProteinDigestionSimulator
             var scrambledFastaOutputFilePath = Path.Combine(pathInfo.OutputFolderPath, Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath) + suffix + ".fasta");
 
             // Define the abbreviated name of the input file; used in the protein names
-            mFileNameAbbreviated = Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath);
+            mFileNameAbbreviated = Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath) ?? "InputFile";
+
             if (mFileNameAbbreviated.Length > MAX_ABBREVIATED_FILENAME_LENGTH)
             {
                 mFileNameAbbreviated = mFileNameAbbreviated.Substring(0, MAX_ABBREVIATED_FILENAME_LENGTH);
@@ -842,7 +843,7 @@ namespace ProteinDigestionSimulator
                 if (!File.Exists(parameterFilePath))
                 {
                     // See if parameterFilePath points to a file in the same directory as the application
-                    parameterFilePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Path.GetFileName(parameterFilePath));
+                    parameterFilePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? ".", Path.GetFileName(parameterFilePath));
                     if (!File.Exists(parameterFilePath))
                     {
                         SetBaseClassErrorCode(ProcessFilesErrorCodes.ParameterFileNotFound);

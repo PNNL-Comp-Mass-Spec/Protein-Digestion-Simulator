@@ -251,7 +251,7 @@ namespace ProteinDigestionSimulator
                 txtProteinInputFilePath.Text = inputFilePath;
             }
 
-            return Path.Combine(Path.GetDirectoryName(inputFilePath), outputFileName);
+            return Path.Combine(Path.GetDirectoryName(inputFilePath) ?? ".", outputFileName);
         }
 
         private void AutoPopulatePMThresholds(PredefinedPMThresholds predefinedThresholds, bool confirmReplaceExistingResults)
@@ -583,7 +583,7 @@ namespace ProteinDigestionSimulator
                         }
                         else
                         {
-                            outputFilePath = Path.Combine(Path.GetDirectoryName(outputFilePath), Path.GetFileNameWithoutExtension(outputFilePath) + PEAK_MATCHING_STATS_FILE_SUFFIX);
+                            outputFilePath = Path.Combine(Path.GetDirectoryName(outputFilePath) ?? ".", Path.GetFileNameWithoutExtension(outputFilePath) + PEAK_MATCHING_STATS_FILE_SUFFIX);
                         }
                     }
 
@@ -1471,12 +1471,16 @@ namespace ProteinDigestionSimulator
                 {
                     mWorking = false;
                     cmdParseInputFile.Enabled = true;
-                    mParseProteinFile.CloseLogFileNow();
-                    mParseProteinFile.ErrorEvent -= ParseProteinFile_ErrorEvent;
-                    mParseProteinFile.ProgressUpdate -= ParseProteinFile_ProgressChanged;
-                    mParseProteinFile.ProgressComplete -= ParseProteinFile_ProgressComplete;
-                    mParseProteinFile.ProgressReset -= ParseProteinFile_ProgressReset;
-                    mParseProteinFile.SubtaskProgressChanged -= ParseProteinFile_SubtaskProgressChanged;
+                    if (mParseProteinFile != null)
+                    {
+                        mParseProteinFile.CloseLogFileNow();
+                        mParseProteinFile.ErrorEvent -= ParseProteinFile_ErrorEvent;
+                        mParseProteinFile.ProgressUpdate -= ParseProteinFile_ProgressChanged;
+                        mParseProteinFile.ProgressComplete -= ParseProteinFile_ProgressComplete;
+                        mParseProteinFile.ProgressReset -= ParseProteinFile_ProgressReset;
+                        mParseProteinFile.SubtaskProgressChanged -= ParseProteinFile_SubtaskProgressChanged;
+                    }
+
                     mParseProteinFile = null;
                 }
             }
@@ -1928,7 +1932,7 @@ namespace ProteinDigestionSimulator
             {
                 try
                 {
-                    openFile.InitialDirectory = Directory.GetParent(GetProteinInputFilePath()).FullName;
+                    openFile.InitialDirectory = Directory.GetParent(GetProteinInputFilePath())?.FullName;
                 }
                 catch
                 {
@@ -1969,7 +1973,7 @@ namespace ProteinDigestionSimulator
             {
                 try
                 {
-                    saveFile.InitialDirectory = Directory.GetParent(txtProteinOutputFilePath.Text).ToString();
+                    saveFile.InitialDirectory = Directory.GetParent(txtProteinOutputFilePath.Text)?.ToString();
                 }
                 catch
                 {

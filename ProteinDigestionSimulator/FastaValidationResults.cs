@@ -220,7 +220,7 @@ namespace ProteinDigestionSimulator
             {
                 try
                 {
-                    dialog.InitialDirectory = Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString();
+                    dialog.InitialDirectory = Directory.GetParent(txtCustomValidationRulesFilePath.Text)?.ToString();
                 }
                 catch
                 {
@@ -736,7 +736,7 @@ namespace ProteinDigestionSimulator
             {
                 try
                 {
-                    dialog.InitialDirectory = Directory.GetParent(txtCustomValidationRulesFilePath.Text).ToString();
+                    dialog.InitialDirectory = Directory.GetParent(txtCustomValidationRulesFilePath.Text)?.ToString();
                 }
                 catch
                 {
