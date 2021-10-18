@@ -1167,7 +1167,7 @@ namespace ProteinDigestionSimulator
 
             public bool AutoDefineSLiCScoreThresholds { get; set; }
 
-            public SearchTolerances ComputedSearchTolerances { get; } = new SearchTolerances();
+            public SearchTolerances ComputedSearchTolerances { get; } = new();
 
             public SearchTolerances GetComputedSearchTolerances(double referenceMass)
             {

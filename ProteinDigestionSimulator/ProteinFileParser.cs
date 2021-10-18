@@ -140,7 +140,7 @@ namespace ProteinDigestionSimulator
         {
             public string Name { get; set; }
             public int AlternateNameCount => AlternateNames.Count;
-            public List<AddnlRef> AlternateNames { get; } = new List<AddnlRef>();
+            public List<AddnlRef> AlternateNames { get; } = new();
             public string Description { get; set; }
             public string Sequence { get; set; }
             public string SequenceHash { get; set; }                   // Only populated if ComputeSequenceHashValues=true
