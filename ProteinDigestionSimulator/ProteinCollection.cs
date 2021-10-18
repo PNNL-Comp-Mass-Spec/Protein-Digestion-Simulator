@@ -393,12 +393,7 @@ namespace ProteinDigestionSimulator
                 Clear();
             }
 
-            public bool AddProteinToPeptideMapping(int proteinID, int peptideID)
-            {
-                return AddProteinToPeptideMapping(proteinID, peptideID, CleavageStateConstants.Unknown);
-            }
-
-            public bool AddProteinToPeptideMapping(int proteinID, int peptideID, CleavageStateConstants cleavageState)
+            public bool AddProteinToPeptideMapping(int proteinID, int peptideID, CleavageStateConstants cleavageState = CleavageStateConstants.Unknown)
             {
                 // Add the mapping
                 if (mMappingCount >= mMappings.Length)
