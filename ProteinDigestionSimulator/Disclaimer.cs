@@ -74,7 +74,7 @@ namespace ProteinDigestionSimulator
             Controls.Add(txtNotice);
             MaximizeBox = false;
             MinimizeBox = false;
-            Name = "frmDisclaimer";
+            Name = "Disclaimer";
             Text = "Normalized Elution Time (NET) Prediction Utility";
             TopMost = true;
             ResumeLayout(false);
