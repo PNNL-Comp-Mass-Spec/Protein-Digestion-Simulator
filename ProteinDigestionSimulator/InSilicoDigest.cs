@@ -952,7 +952,7 @@ namespace ProteinDigestionSimulator
             /// <param name="is3LetterCode"></param>
             /// <param name="oneLetterCheckForPrefixAndSuffixResidues"></param>
             /// <param name="threeLetterCheckForPrefixHandSuffixOH"></param>
-            public override int SetSequence(
+            public sealed override int SetSequence(
                 string sequence,
                 NTerminusGroupConstants nTerminus = NTerminusGroupConstants.Hydrogen,
                 CTerminusGroupConstants cTerminus = CTerminusGroupConstants.Hydroxyl,
