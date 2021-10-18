@@ -83,8 +83,6 @@ namespace ProteinDigestionSimulator
         /// </summary>
         private float mProgressPercentComplete;
 
-        public int CleavageRuleCount => mCleavageRules.Count;
-
         /// <summary>
         /// Dictionary mapping cleavage rule types to cleavage rule definitions
         /// </summary>
@@ -234,14 +232,6 @@ namespace ProteinDigestionSimulator
                 Console.WriteLine("Current startSearchLoc is " + startSearchLoc);
                 return 0;
             }
-        }
-
-        public int DigestSequence(string proteinSequence,
-                                  out List<PeptideSequenceWithNET> peptideFragments,
-                                  DigestionOptions digestionOptions,
-                                  bool filterByIsoelectricPoint)
-        {
-            return DigestSequence(proteinSequence, out peptideFragments, digestionOptions, filterByIsoelectricPoint, string.Empty);
         }
 
         internal readonly struct TrypticFragment

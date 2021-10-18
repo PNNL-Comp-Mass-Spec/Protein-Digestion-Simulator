@@ -105,8 +105,6 @@ namespace ProteinDigestionSimulator
             public string RefName { get; set; }                // e.g. in gi:12334  the RefName is "gi" and the RefAccession is "1234"
             public string RefAccession { get; set; }
 
-            public AddnlRef() { }
-
             public AddnlRef(string refName, string refAccession)
             {
                 RefName = refName;
