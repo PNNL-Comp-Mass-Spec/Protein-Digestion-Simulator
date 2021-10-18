@@ -1649,7 +1649,7 @@ namespace ProteinDigestionSimulator
             }
             else
             {
-                outLine.AppendFormat("{0}{1}", protein.Name + mOutputFileDelimiter);
+                outLine.AppendFormat("{0}{1}", protein.Name, mOutputFileDelimiter);
                 if (!ExcludeProteinDescription)
                 {
                     outLine.Append(protein.Description);
