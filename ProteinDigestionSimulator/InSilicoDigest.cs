@@ -91,21 +91,10 @@ namespace ProteinDigestionSimulator
 
         public PeptideSequence.ElementModeConstants ElementMassMode
         {
-            get
-            {
-                if (mPeptideSequence == null)
-                {
-                    return PeptideSequence.ElementModeConstants.IsotopicMass;
-                }
-
-                return mPeptideSequence.ElementMode;
-            }
+            get => mPeptideSequence?.ElementMode ?? PeptideSequence.ElementModeConstants.IsotopicMass;
             set
             {
-                if (mPeptideSequence == null)
-                {
-                    mPeptideSequence = new PeptideSequence();
-                }
+                mPeptideSequence ??= new PeptideSequence();
 
                 mPeptideSequence.ElementMode = value;
             }
@@ -674,10 +663,7 @@ namespace ProteinDigestionSimulator
             bool reportMaximumpI,
             int sequenceWidthToExamineForMaximumpI)
         {
-            if (mpICalculator == null)
-            {
-                mpICalculator = new ComputePeptideProperties();
-            }
+            mpICalculator ??= new ComputePeptideProperties();
 
             mpICalculator.HydrophobicityType = hydrophobicityType;
             mpICalculator.ReportMaximumpI = reportMaximumpI;
@@ -864,10 +850,7 @@ namespace ProteinDigestionSimulator
 
             public PeptideSequenceWithNET()
             {
-                if (NETPredictor == null)
-                {
-                    NETPredictor = new NETPrediction.ElutionTimePredictionKangas();
-                }
+                NETPredictor ??= new NETPrediction.ElutionTimePredictionKangas();
 
                 // Disable mAutoComputeNET for now so that the call to SetSequence() below doesn't auto-call UpdateNET
                 AutoComputeNET = false;

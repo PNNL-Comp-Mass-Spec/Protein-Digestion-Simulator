@@ -398,10 +398,7 @@ namespace ProteinDigestionSimulator
             {
                 base.Clear();
 
-                if (mExtendedInfo == null)
-                {
-                    mExtendedInfo = new ComparisonFeatureInfoExtended[10000];
-                }
+                mExtendedInfo ??= new ComparisonFeatureInfoExtended[10000];
             }
 
             public bool GetFeatureInfoByFeatureID(int featureID, out FeatureInfo featureInfo, out float netStDev, out float discriminantScore)
