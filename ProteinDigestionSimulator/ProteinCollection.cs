@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 
+// ReSharper disable UnusedMember.Global
+
 namespace ProteinDigestionSimulator
 {
     internal class ProteinCollection
     {
         public enum CleavageStateConstants
         {
+            // ReSharper disable UnusedMember.Global
             None = 0,
             Partial = 1,
             Full = 2,
             Unknown = -1
+            // ReSharper restore UnusedMember.Global
         }
 
         protected class ProteinEntry : IComparable<ProteinEntry>
@@ -342,7 +346,11 @@ namespace ProteinDigestionSimulator
             public class ProteinToPeptideMappingEntry : IComparable<ProteinToPeptideMappingEntry>
             {
                 public readonly int ProteinID;
+
                 public readonly int PeptideID;
+
+                // ReSharper disable once MemberCanBePrivate.Local
+                // ReSharper disable once NotAccessedField.Local
                 public readonly CleavageStateConstants CleavageState;
 
                 public ProteinToPeptideMappingEntry(int proteinId, int peptideId, CleavageStateConstants cleavageState)
@@ -407,6 +415,7 @@ namespace ProteinDigestionSimulator
                 return true;
             }
 
+            // ReSharper disable once UnusedMember.Local
             public bool AddProteinToPeptideMapping(ProteinCollection proteinInfo, string proteinName, int peptideID)
             {
                 return AddProteinToPeptideMapping(proteinInfo, proteinName, peptideID, CleavageStateConstants.Unknown);

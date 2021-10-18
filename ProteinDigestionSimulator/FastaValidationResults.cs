@@ -82,6 +82,7 @@ namespace ProteinDigestionSimulator
             public bool SplitOutMultipleRefsForKnownAccession { get; set; }
             public bool SplitOutMultipleRefsInProteinName { get; set; }
             public bool ConsolidateDuplicateProteins { get; set; }
+            // ReSharper disable once IdentifierTypo
             public bool ConsolidateDupsIgnoreILDiff { get; set; }
         }
 

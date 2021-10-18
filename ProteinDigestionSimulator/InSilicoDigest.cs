@@ -85,6 +85,10 @@ namespace ProteinDigestionSimulator
 
         public int CleavageRuleCount => mCleavageRules.Count;
 
+        /// <summary>
+        /// Dictionary mapping cleavage rule types to cleavage rule definitions
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public IReadOnlyDictionary<CleavageRuleConstants, CleavageRule> CleavageRules => mCleavageRules;
 
         public PeptideSequence.ElementModeConstants ElementMassMode
@@ -148,6 +152,7 @@ namespace ProteinDigestionSimulator
         /// <param name="ruleId"></param>
         /// <param name="ruleMatchCount">Output: 0 if neither end matches, 1 if one end matches, 2 if both ends match</param>
         /// <returns>True if valid, False if invalid</returns>
+        // ReSharper disable once UnusedMember.Global
         public bool CheckSequenceAgainstCleavageRule(string sequence, CleavageRuleConstants ruleId, out int ruleMatchCount)
         {
             if (mCleavageRules.TryGetValue(ruleId, out var cleavageRule))
@@ -673,6 +678,7 @@ namespace ProteinDigestionSimulator
             mpICalculator = pICalculator;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public void InitializepICalculator(
             ComputePeptideProperties.HydrophobicityTypeConstants hydrophobicityType,
             bool reportMaximumpI,
@@ -942,6 +948,7 @@ namespace ProteinDigestionSimulator
             /// <summary>
             /// Sequence with prefix and suffix residues
             /// </summary>
+            // ReSharper disable once UnusedMember.Global
             public string SequenceWithPrefixAndSuffix => mPrefixResidue + "." + SequenceOneLetter + "." + mSuffixResidue;
 
             /// <summary>
@@ -1136,6 +1143,7 @@ namespace ProteinDigestionSimulator
             public bool RemoveDuplicateSequences { get; set; }
             public bool IncludePrefixAndSuffixResidues { get; set; }
 
+            // ReSharper disable once UnusedMember.Global
             public void ValidateOptions()
             {
                 if (mMaxFragmentMass < mMinFragmentMass)

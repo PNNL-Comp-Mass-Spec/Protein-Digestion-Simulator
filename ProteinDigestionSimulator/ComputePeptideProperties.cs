@@ -70,7 +70,8 @@ namespace ProteinDigestionSimulator
             /// <summary>
             /// One letter abbreviation for the amino acid
             /// </summary>
-            // ReSharper disable once NotAccessedField.Local
+            // ReSharper disable once MemberCanBePrivate.Local
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string Symbol { get; }
             public double HW { get; }
             public double KD { get; }
