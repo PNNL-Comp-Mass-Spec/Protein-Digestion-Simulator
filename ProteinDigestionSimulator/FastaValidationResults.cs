@@ -32,6 +32,8 @@ namespace ProteinDigestionSimulator
                 Enabled = true
             };
 
+            mKeepDuplicateNamedProteinsLastValue = false;
+
             mValidationTriggerTimer.Tick += ValidationTriggerTimer_Tick;
 
             mValidateFastaFile = new FastaValidator();
@@ -92,7 +94,7 @@ namespace ProteinDigestionSimulator
         private DataSet mWarningsDataset;
         private DataView mWarningsDataView;
 
-        private bool mKeepDuplicateNamedProteinsLastValue = false;
+        private bool mKeepDuplicateNamedProteinsLastValue;
 
         // This timer is used to cause StartValidation to be called after the form becomes visible
         private readonly Timer mValidationTriggerTimer;

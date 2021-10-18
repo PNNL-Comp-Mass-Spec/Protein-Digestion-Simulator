@@ -48,6 +48,7 @@ namespace ProteinDigestionSimulator
             SCXNETCalculator = new SCXElutionTimePredictionKangas();
 
             mCleavageRuleComboboxIndexToType = new Dictionary<int, InSilicoDigest.CleavageRuleConstants>();
+            mTabPageIndexSaved = 0;
 
             InitializeControls();
         }
@@ -138,7 +139,7 @@ namespace ProteinDigestionSimulator
         /// </summary>
         private readonly Dictionary<int, InSilicoDigest.CleavageRuleConstants> mCleavageRuleComboboxIndexToType;
 
-        private int mTabPageIndexSaved = 0;
+        private int mTabPageIndexSaved;
 
         private FastaValidation.FastaValidationOptions mFastaValidationOptions;
 
