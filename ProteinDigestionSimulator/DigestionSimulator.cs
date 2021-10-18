@@ -496,7 +496,7 @@ namespace ProteinDigestionSimulator
 
                     var peptideCountTotal = binResults.Bins[binIndex].NonUniqueResultIDCount + binResults.Bins[binIndex].UniqueResultIDCount;
 
-                    lineOut += Math.Round(binResults.Bins[binIndex].MassBinStart, 2).ToString() + mOutputFileDelimiter +
+                    lineOut += Math.Round(binResults.Bins[binIndex].MassBinStart, 2).ToString(CultureInfo.InvariantCulture) + mOutputFileDelimiter +
                                Math.Round(binResults.Bins[binIndex].PercentUnique, 3) + mOutputFileDelimiter +
                                peptideCountTotal;
 
@@ -937,7 +937,7 @@ namespace ProteinDigestionSimulator
             return errorMessage;
         }
 
-        private int GetNextUniqueSequenceID(string sequence, Dictionary<string, int> masterSequences, ref int nextUniqueIDForMasterSeqs)
+        private int GetNextUniqueSequenceID(string sequence, IDictionary<string, int> masterSequences, ref int nextUniqueIDForMasterSeqs)
         {
             int uniqueSeqID;
 
