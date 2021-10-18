@@ -44,10 +44,11 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: silico
 
-        public const string PROGRAM_DATE = "October 1, 2021";
+        public const string PROGRAM_DATE = "October 18, 2021";
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
         private static extern IntPtr GetConsoleWindow();
 
@@ -327,9 +328,12 @@ namespace ProteinDigestionSimulator
 
             try
             {
-                // Hide the console
-                hWndConsole = GetConsoleWindow();
-                ShowWindow(hWndConsole, SW_HIDE);
+                if (!SystemInfo.IsLinux)
+                {
+                    // Hide the console
+                    hWndConsole = GetConsoleWindow();
+                    ShowWindow(hWndConsole, SW_HIDE);
+                }
 
                 Application.EnableVisualStyles();
                 Application.DoEvents();
@@ -342,7 +346,7 @@ namespace ProteinDigestionSimulator
                 ShowErrorMessage("Exception with the GUI", ex);
             }
 
-            if (hWndConsole != IntPtr.Zero)
+            if (hWndConsole != IntPtr.Zero && !SystemInfo.IsLinux)
             {
                 ShowWindow(hWndConsole, SW_SHOW);
             }

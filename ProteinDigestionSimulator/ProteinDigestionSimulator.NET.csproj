@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{50E90535-A587-4B20-B519-922B055580E1}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <StartupObject>ProteinDigestionSimulator.Program</StartupObject>
     <RootNamespace>ProteinDigestionSimulator</RootNamespace>
     <AssemblyName>ProteinDigestionSimulator</AssemblyName>
