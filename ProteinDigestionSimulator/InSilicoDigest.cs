@@ -9,8 +9,8 @@ namespace ProteinDigestionSimulator
     /// </summary>
     public class InSilicoDigest
     {
-        // Ignore Spelling: silico, Ile, Leu, Tryptics, frag, terminii
-        // Ignore Spelling: Chymotrypsin, Glu, Lys, Arg, Proteinase, Thermolysin, isoelectric, alkylated
+        // Ignore Spelling: alkylated, Arg, Chymotrypsin, cysteine, frag, Glu, Ile, isoelectric
+        // Ignore Spelling: Leu, Lys, proline, Proteinase, silico, terminii, Thermolysin, tryptic, tryptics
 
         public InSilicoDigest()
         {

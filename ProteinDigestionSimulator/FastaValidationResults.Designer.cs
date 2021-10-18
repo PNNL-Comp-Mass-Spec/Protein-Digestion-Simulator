@@ -6,6 +6,8 @@ namespace ProteinDigestionSimulator
 {
     public partial class FastaValidation : Form
     {
+        // Ignore Spelling: diffs
+
         /// <summary>
         /// Required designer variable.
         /// </summary>

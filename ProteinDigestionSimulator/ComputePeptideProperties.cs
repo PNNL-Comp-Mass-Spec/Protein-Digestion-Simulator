@@ -23,8 +23,8 @@ namespace ProteinDigestionSimulator
     /// </summary>
     public class ComputePeptideProperties
     {
-        // Ignore Spelling: MaximumpI, hydrophobicity, hydrophilicity
-        // Ignore Spelling: Mant, Hopp, Kyte, Eisenberg, Engleman, al
+        // Ignore Spelling: al, Bryson, Eisenberg, Engleman, Hopp, hydrophilicity, hydrophobicity,
+        // Ignore Spelling: isoelectric, Kyte, Mant, MaximumpI
 
         public ComputePeptideProperties()
         {

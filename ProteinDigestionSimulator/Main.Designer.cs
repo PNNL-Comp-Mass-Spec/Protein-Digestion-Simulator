@@ -6,6 +6,8 @@ namespace ProteinDigestionSimulator
 {
     public partial class Main : Form
     {
+        // Ignore Spelling: addnl, cys, cysteine, Da, diff, diffs, gauging, Hydrophobicity, sep, silico, Username
+
         /// <summary>
         /// Required designer variable.
         /// </summary>
