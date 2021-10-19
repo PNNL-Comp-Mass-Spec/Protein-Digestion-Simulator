@@ -212,6 +212,11 @@ namespace ProteinDigestionSimulator
             return ProcessFilesOrDirectoriesBase.GetAppVersion(PROGRAM_DATE);
         }
 
+        private static string GetExecutableName()
+        {
+            return Path.GetFileName(ProcessFilesOrDirectoriesBase.GetAppPath());
+        }
+
         private static bool SetOptionsUsingCommandLineParameters(clsParseCommandLine commandLineParser)
         {
             // Returns True if no problems; otherwise, returns false
@@ -335,15 +340,53 @@ namespace ProteinDigestionSimulator
                     ShowWindow(hWndConsole, SW_HIDE);
                 }
 
-                Application.EnableVisualStyles();
-                Application.DoEvents();
+                try
+                {
+                    Application.EnableVisualStyles();
+                    Application.DoEvents();
+                }
+                catch (Exception ex)
+                {
+                    ConsoleMsgUtils.ShowWarning("Exception enabling visual styles: " + ex.Message);
+                }
 
                 var formMain = new Main();
                 formMain.ShowDialog();
             }
             catch (Exception ex)
             {
-                ShowErrorMessage("Exception with the GUI", ex);
+                if (SystemInfo.IsLinux)
+                {
+                    if (ex.InnerException != null)
+                    {
+                        if (ex.InnerException.InnerException != null && ex.InnerException.Message.Contains("X-Server required"))
+                        {
+                            ConsoleMsgUtils.ShowWarning("Unable to show the GUI, most likely since the console is not running under X-Windows: " +
+                                                        ex.InnerException.InnerException.Message);
+                        }
+                        else
+                        {
+                            ConsoleMsgUtils.ShowWarning("Unable to show the GUI, most likely since the console is not running under X-Windows: " +
+                                                        ex.InnerException.Message);
+                        }
+                    }
+                    else
+                    {
+                        ConsoleMsgUtils.ShowWarning("Unable to show the GUI: " + ex.Message);
+                        ConsoleMsgUtils.ShowDebug(StackTraceFormatter.GetExceptionStackTraceMultiLine(ex));
+                    }
+                }
+                else
+                {
+                    ShowErrorMessage("Exception with the GUI", ex);
+                }
+
+                Console.WriteLine();
+                Console.WriteLine("The Protein Digestion Simulator can be run as a console application (no GUI).");
+                Console.WriteLine("To see supported arguments, use the --help argument:");
+                Console.WriteLine();
+                Console.WriteLine("{0}{1} --help", SystemInfo.IsLinux ? "mono " : string.Empty, GetExecutableName());
+                Console.WriteLine();
             }
 
             if (hWndConsole != IntPtr.Zero && !SystemInfo.IsLinux)
