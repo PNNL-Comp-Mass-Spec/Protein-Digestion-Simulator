@@ -59,6 +59,14 @@ namespace ProteinDigestionSimulator
                 // Sort by Feature ID, ascending
                 return FeatureID.CompareTo(other.FeatureID);
             }
+
+            /// <summary>
+            /// Show feature ID, feature name, mass, and NET
+            /// </summary>
+            public override string ToString()
+            {
+                return string.Format("{0}: {1,-10}, {2:F3} Da, {3:F2} NET", FeatureID, FeatureName, Mass, NET);
+            }
         }
 
         private class PeakMatchingRawMatches : IComparable<PeakMatchingRawMatches>
