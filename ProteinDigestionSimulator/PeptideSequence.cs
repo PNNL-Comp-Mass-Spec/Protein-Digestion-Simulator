@@ -41,9 +41,20 @@ namespace ProteinDigestionSimulator
         /// </summary>
         public enum CysTreatmentModeConstants
         {
+            /// <summary>
+            /// Untreated
+            /// </summary>
             Untreated = 0,
-            Iodoacetamide = 1,      // +57.0215 (alkylated)
-            IodoaceticAcid = 2      // +58.0055
+
+            /// <summary>
+            /// +57.0215 (alkylated)
+            /// </summary>
+            Iodoacetamide = 1,
+
+            /// <summary>
+            /// +58.0055
+            /// </summary>
+            IodoaceticAcid = 2
         }
 
         public enum ElementModeConstants

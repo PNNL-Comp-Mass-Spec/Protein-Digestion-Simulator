@@ -41,7 +41,7 @@ namespace ProteinDigestionSimulator.Options
         public PeptideSequence.CysTreatmentModeConstants CysTreatmentMode { get; set; }
 
         /// <summary>
-        /// When true, digest protein sequences
+        /// When true, digest protein sequences when computing uniqueness stats
         /// </summary>
         /// <remarks>Ignored for FASTA files; they are always digested</remarks>
         public bool DigestSequences { get; set; }

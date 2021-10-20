@@ -44,6 +44,9 @@ namespace ProteinDigestionSimulator.PeakMatching
             NET = net;
         }
 
+        /// <summary>
+        /// Obtain a blank feature (id= 0, no name, mass 0 and NET 0)
+        /// </summary>
         public static FeatureInfo Blank()
         {
             return new FeatureInfo(0, string.Empty, 0, 0);

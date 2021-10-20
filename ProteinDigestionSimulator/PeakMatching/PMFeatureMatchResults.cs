@@ -36,6 +36,9 @@ namespace ProteinDigestionSimulator.PeakMatching
 
         public event SortingListEventHandler SortingList;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public PMFeatureMatchResults()
         {
             Clear();

@@ -4,8 +4,15 @@ namespace ProteinDigestionSimulator.PeakMatching
 {
     public enum MassToleranceConstants
     {
-        PPM = 0,     // parts per million
-        Absolute = 1 // absolute (Da)
+        /// <summary>
+        /// Parts per million
+        /// </summary>
+        PPM = 0,
+
+        /// <summary>
+        /// Absolute mass (Da)
+        /// </summary>
+        Absolute = 1
     }
 
     public class SearchThresholds

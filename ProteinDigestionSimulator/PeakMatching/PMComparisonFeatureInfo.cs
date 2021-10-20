@@ -18,6 +18,9 @@ namespace ProteinDigestionSimulator.PeakMatching
 
         private ComparisonFeatureInfoExtended[] mExtendedInfo;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public PMComparisonFeatureInfo()
         {
             Clear();

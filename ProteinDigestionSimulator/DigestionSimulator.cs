@@ -25,8 +25,9 @@ using ProteinFileReader;
 namespace ProteinDigestionSimulator
 {
     /// <summary>
-    /// This class will read two FASTA files and look for overlap in protein sequence between the proteins of
-    /// the first FASTA file and the second FASTA file
+    /// This class reads proteins from an input file, optionally digests them,
+    /// then determine uniqueness of each peptide by looking for matching peptides
+    /// within the defined mass and NET tolerances
     /// </summary>
     public class DigestionSimulator : PRISM.FileProcessor.ProcessFilesBase
     {
@@ -578,6 +579,13 @@ namespace ProteinDigestionSimulator
             writer.WriteLine(outline.ToString());
         }
 
+        /// <summary>
+        /// Read proteins from the input file, optionally digest them, then determine uniqueness of each peptide based on mass and NET tolerances
+        /// </summary>
+        /// <param name="proteinInputFilePath"></param>
+        /// <param name="outputFolderPath"></param>
+        /// <param name="outputFilenameBase"></param>
+        /// <returns>True if successful, false if an error or processing is aborted</returns>
         public bool GenerateUniquenessStats(string proteinInputFilePath, string outputFolderPath, string outputFilenameBase)
         {
             var progressStepCount = 0;
@@ -1063,6 +1071,12 @@ namespace ProteinDigestionSimulator
             }
         }
 
+        /// <summary>
+        /// Load proteins or peptides, possibly digesting them
+        /// </summary>
+        /// <remarks>This method is called from GenerateUniquenessStats</remarks>
+        /// <param name="proteinInputFilePath"></param>
+        /// <returns>True if data was loaded, false if an error</returns>
         private bool LoadProteinsOrPeptides(string proteinInputFilePath)
         {
             bool success;
@@ -1260,6 +1274,12 @@ namespace ProteinDigestionSimulator
             return success;
         }
 
+        /// <summary>
+        /// Load proteins and digest them
+        /// </summary>
+        /// <remarks>This method is called when GenerateUniquenessStats calls LoadProteinsOrPeptides</remarks>
+        /// <param name="proteinInputFilePath"></param>
+        /// <returns>True if successful, false if an error or if processing is aborted</returns>
         private bool LoadProteinsOrPeptidesWork(string proteinInputFilePath)
         {
             bool success;
@@ -1483,8 +1503,9 @@ namespace ProteinDigestionSimulator
         }
 
         /// <summary>
-        /// Main processing function
+        /// Main processing function for generating uniqueness stats
         /// </summary>
+        /// <remarks>This method is not actually used; instead, the GUI calls GenerateUniquenessStats directly</remarks>
         /// <param name="inputFilePath"></param>
         /// <param name="outputFolderPath"></param>
         /// <param name="parameterFilePath">Ignored, since options are loaded from a Key=Value parameter file by the CommandLineParser</param>

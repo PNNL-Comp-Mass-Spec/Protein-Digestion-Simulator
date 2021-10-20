@@ -61,6 +61,9 @@ namespace ProteinDigestionSimulator
         public event SortingListEventHandler SortingList;
         public event SortingMappingsEventHandler SortingMappings;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public ProteinCollection()
         {
             // Set this to False to conserve memory; you must call Clear() after changing this for it to take effect

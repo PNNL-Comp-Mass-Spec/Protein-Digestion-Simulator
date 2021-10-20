@@ -55,6 +55,9 @@
 
         public class MassBinningOptions
         {
+            /// <summary>
+            /// When true, auto-determine the mass range for binning
+            /// </summary>
             public bool AutoDetermineMassRange { get; set; }
             public float MassBinSizeDa { get; set; }
             public float MassMinimum { get; set; } // This is ignored if AutoDetermineMassRange = True

@@ -63,11 +63,52 @@
     /// </remarks>
     public enum HydrophobicityTypeConstants
     {
-        HW = 0,        // Hopp and Woods, values available at references 1 and 2;    see also https://pubmed.ncbi.nlm.nih.gov/6191210/
-        KD = 1,        // Kyte and Doolittle, values available t references 1 and 2; see also https://pubmed.ncbi.nlm.nih.gov/7108955/
-        Eisenberg = 2, // Eisenberg, values available at references 1 and 2;         see also https://pubmed.ncbi.nlm.nih.gov/6502707/
-        GES = 3,       // Engelman et. al., values available at reference 1;         see also https://pubmed.ncbi.nlm.nih.gov/3521657/
-        MeekPH7p4 = 4, // Meek, pH 7.4; column 14 in table 3 of reference 3;         see also https://pubmed.ncbi.nlm.nih.gov/19795449/
-        MeekPH2p1 = 5  // Meek, pH 2.1; column 3  in table 3 of reference 3
+        /// <summary>
+        /// Hopp and Woods, values available at references 1 and 2
+        /// </summary>
+        /// <remarks>
+        /// See also https://pubmed.ncbi.nlm.nih.gov/6191210/
+        /// </remarks>
+        HW = 0,
+
+        /// <summary>
+        /// Kyte and Doolittle, values available at references 1 and 2
+        /// </summary>
+        /// <remarks>
+        /// See also https://pubmed.ncbi.nlm.nih.gov/7108955/
+        /// </remarks>
+        KD = 1,
+
+        /// <summary>
+        /// Eisenberg, values available at references 1 and 2
+        /// </summary>
+        /// <remarks>
+        /// See also https://pubmed.ncbi.nlm.nih.gov/6502707/
+        /// </remarks>
+        Eisenberg = 2,
+
+        /// <summary>
+        /// Engelman et. al., values available at reference 1
+        /// </summary>
+        /// <remarks>
+        /// See also https://pubmed.ncbi.nlm.nih.gov/3521657/
+        /// </remarks>
+        GES = 3,
+
+        /// <summary>
+        /// Meek, pH 7.4; column 14 in table 3 of reference 3;
+        /// </summary>
+        /// <remarks>
+        /// See also https://pubmed.ncbi.nlm.nih.gov/19795449/
+        /// </remarks>
+        MeekPH7p4 = 4,
+
+        /// <summary>
+        /// Meek, pH 2.1; column 3  in table 3 of reference 3
+        /// </summary>
+        /// <remarks>
+        /// See also https://pubmed.ncbi.nlm.nih.gov/19795449/
+        /// </remarks>
+        MeekPH2p1 = 5
     }
 }

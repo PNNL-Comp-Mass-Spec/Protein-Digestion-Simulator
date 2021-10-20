@@ -12,6 +12,9 @@ namespace ProteinDigestionSimulator.PeakMatching
 
         public event SortingListEventHandler SortingList;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public PMFeatureInfo()
         {
             UseFeatureIDDictionary = true;                       // Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
@@ -23,10 +26,16 @@ namespace ProteinDigestionSimulator.PeakMatching
             return Add(featureInfo.FeatureID, featureInfo.FeatureName, featureInfo.Mass, featureInfo.NET);
         }
 
+        /// <summary>
+        /// Add the feature to mFeatures
+        /// </summary>
+        /// <param name="featureID"></param>
+        /// <param name="peptideName"></param>
+        /// <param name="peptideMass"></param>
+        /// <param name="peptideNET"></param>
+        /// <returns>True if the feature was added, false if it already exists (by featureID)</returns>
         public bool Add(int featureID, string peptideName, double peptideMass, float peptideNET)
         {
-            // Returns True if the feature was added
-
             if (ContainsFeature(featureID))
             {
                 return false;
@@ -48,7 +57,6 @@ namespace ProteinDigestionSimulator.PeakMatching
             mFeatureCount++;
             mFeaturesArrayIsSorted = false;
 
-            // If we get here, all went well
             return true;
         }
 
