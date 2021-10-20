@@ -115,8 +115,7 @@ namespace ProteinDigestionSimulator
                     return true;
                 }
 
-                var ruleMatch = mPeptideSequence.CheckSequenceAgainstCleavageRule(sequence, cleavageRule, out ruleMatchCount);
-                return ruleMatch;
+                return mPeptideSequence.CheckSequenceAgainstCleavageRule(sequence, cleavageRule, out ruleMatchCount);
             }
 
             // No rule selected; assume True

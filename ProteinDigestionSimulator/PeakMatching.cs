@@ -631,8 +631,6 @@ namespace ProteinDigestionSimulator
             {
                 // Populates featureID and matchResultInfo with the peak matching results for the given row index
 
-                var matchFound = false;
-
                 try
                 {
                     if (rowIndex < mPMResults.Count)
@@ -640,15 +638,17 @@ namespace ProteinDigestionSimulator
                         featureID = mPMResults[rowIndex].FeatureID;
                         matchResultInfo = mPMResults[rowIndex].Details;
 
-                        matchFound = true;
+                        return true;
                     }
                 }
                 catch
                 {
-                    matchFound = false;
+                    // Ignore errors here
                 }
 
-                return matchFound;
+                featureID = 0;
+                matchResultInfo = new PeakMatchingResult();
+                return false;
             }
 
             private bool GetRowIndicesForFeatureID(int featureID, out int indexFirst, out int indexLast)
