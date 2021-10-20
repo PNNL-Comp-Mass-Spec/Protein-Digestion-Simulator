@@ -610,19 +610,17 @@ namespace ProteinDigestionSimulator
 
                     var autoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked;
 
-                    var clearExisting = true;
+                    const bool clearExistingThresholds = true;
                     foreach (DataRow myDataRow in mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].Rows)
                     {
                         if (autoDefineSLiCScoreThresholds)
                         {
-                            mProteinDigestionSimulator.AddSearchThresholdLevel(massToleranceType, Convert.ToDouble(myDataRow[0]), Convert.ToDouble(myDataRow[1]), clearExisting);
+                            mProteinDigestionSimulator.AddSearchThresholdLevel(massToleranceType, Convert.ToDouble(myDataRow[0]), Convert.ToDouble(myDataRow[1]), clearExistingThresholds);
                         }
                         else
                         {
-                            mProteinDigestionSimulator.AddSearchThresholdLevel(massToleranceType, Convert.ToDouble(myDataRow[0]), Convert.ToDouble(myDataRow[1]), false, Convert.ToDouble(myDataRow[2]), Convert.ToDouble(myDataRow[3]), true, clearExisting);
+                            mProteinDigestionSimulator.AddSearchThresholdLevel(massToleranceType, Convert.ToDouble(myDataRow[0]), Convert.ToDouble(myDataRow[1]), false, Convert.ToDouble(myDataRow[2]), Convert.ToDouble(myDataRow[3]), true, clearExistingThresholds);
                         }
-
-                        clearExisting = false;
                     }
 
                     mProteinDigestionSimulator.ProcessingOptions.DigestionOptions.DigestSequences = !chkAssumeInputFileIsDigested.Checked;
