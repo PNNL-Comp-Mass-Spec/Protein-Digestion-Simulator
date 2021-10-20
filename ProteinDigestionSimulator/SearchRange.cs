@@ -27,11 +27,6 @@ namespace ProteinDigestionSimulator
     /// </summary>
     public class SearchRange
     {
-        public SearchRange()
-        {
-            InitializeLocalVariables();
-        }
-
         private enum DataTypeToUse
         {
             NoDataPresent = 0,
@@ -81,6 +76,14 @@ namespace ProteinDigestionSimulator
                         return 0;
                 }
             }
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public SearchRange()
+        {
+            InitializeLocalVariables();
         }
 
         public int GetOriginalIndex(int index)

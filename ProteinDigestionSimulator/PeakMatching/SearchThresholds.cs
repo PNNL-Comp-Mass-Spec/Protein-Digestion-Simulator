@@ -17,11 +17,6 @@ namespace ProteinDigestionSimulator.PeakMatching
         private const int STDEV_SCALING_FACTOR = 2;
         private const double ONE_PART_PER_MILLION = 1000000.0d;
 
-        public SearchThresholds()
-        {
-            InitializeLocalVariables();
-        }
-
         // The following defines how the SLiC scores (aka match scores) are computed
         private class SLiCScoreOptions
         {
@@ -50,12 +45,6 @@ namespace ProteinDigestionSimulator.PeakMatching
         public bool AutoDefineSLiCScoreThresholds { get; set; }
 
         public SearchTolerances ComputedSearchTolerances { get; } = new();
-
-        public SearchTolerances GetComputedSearchTolerances(double referenceMass)
-        {
-            DefinePeakMatchingTolerances(ref referenceMass);
-            return ComputedSearchTolerances;
-        }
 
         public MassToleranceConstants MassTolType { get; set; }
 
@@ -137,6 +126,14 @@ namespace ProteinDigestionSimulator.PeakMatching
             }
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public SearchThresholds()
+        {
+            InitializeLocalVariables();
+        }
+
         public void DefinePeakMatchingTolerances(ref double referenceMass)
         {
             // Thresholds are all half-widths; i.e. tolerance +- comparison value
@@ -189,6 +186,12 @@ namespace ProteinDigestionSimulator.PeakMatching
 
             // Convert from PPM to Absolute mass
             ComputedSearchTolerances.MWTolAbsBroad = PPMToMass(massToleranceToUse, referenceMass);
+        }
+
+        public SearchTolerances GetComputedSearchTolerances(double referenceMass)
+        {
+            DefinePeakMatchingTolerances(ref referenceMass);
+            return ComputedSearchTolerances;
         }
 
         private void InitializeSLiCScoreOptions(bool computeUsingSearchThresholds)

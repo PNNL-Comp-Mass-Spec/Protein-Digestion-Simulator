@@ -16,20 +16,6 @@ namespace ProteinDigestionSimulator
 
         private DigestionOptions DigestionOptions { get; }
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public InSilicoDigest(DigestionSimulatorOptions options)
-        {
-            DigestionOptions = options.DigestionOptions;
-
-            mPeptideSequence = new PeptideSequence { ElementMode = options.ElementMassMode };
-
-            IsoelectricPointCalculator = new ComputePeptideProperties(options);
-
-            InitializeCleavageRules();
-        }
-
         private readonly Dictionary<CleavageRuleConstants, CleavageRule> mCleavageRules = new();
 
         /// <summary>
@@ -70,6 +56,20 @@ namespace ProteinDigestionSimulator
         /// Percent complete, value between 0 and 100, but can contain decimal percentage values
         /// </summary>
         public float ProgressPercentComplete => (float)Math.Round(mProgressPercentComplete, 2);
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public InSilicoDigest(DigestionSimulatorOptions options)
+        {
+            DigestionOptions = options.DigestionOptions;
+
+            mPeptideSequence = new PeptideSequence { ElementMode = options.ElementMassMode };
+
+            IsoelectricPointCalculator = new ComputePeptideProperties(options);
+
+            InitializeCleavageRules();
+        }
 
         private CleavageRule AddCleavageRule(
             CleavageRuleConstants ruleId,

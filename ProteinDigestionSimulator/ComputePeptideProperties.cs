@@ -28,19 +28,7 @@ namespace ProteinDigestionSimulator
         // Ignore Spelling: al, Bryson, Eisenberg, Engleman, Hopp, hydrophilicity, hydrophobicity,
         // Ignore Spelling: isoelectric, Kyte, Mant, MaximumpI
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="options"></param>
-        public ComputePeptideProperties(DigestionSimulatorOptions options)
-        {
-            ProcessingOptions = options;
-
-            mAminoAcids = new Dictionary<char, AA>();
-            InitializeLocalVariables();
-        }
-
-        // Dissociation constants                ' Alternate values
+        // Dissociation constants              // Alternate values
         private const double Ck = 9.3d;        // 8.3
         private const double Dk = 4.5d;        // 3.91
         private const double Ek = 4.6d;        // 4.25
@@ -81,6 +69,18 @@ namespace ProteinDigestionSimulator
         private readonly Dictionary<char, AA> mAminoAcids;
 
         private DigestionSimulatorOptions ProcessingOptions { get; }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="options"></param>
+        public ComputePeptideProperties(DigestionSimulatorOptions options)
+        {
+            ProcessingOptions = options;
+
+            mAminoAcids = new Dictionary<char, AA>();
+            InitializeLocalVariables();
+        }
 
         private double CalculateCharge(double pH, int numC, int numD, int numE, int numH, int numK, int numR, int numY)
         {

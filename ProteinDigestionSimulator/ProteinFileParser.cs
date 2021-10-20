@@ -44,45 +44,7 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: ComputepI, Cys, gi, hydrophobicity, Ile, Leu, pre, SepChar, silico, varchar
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="options"></param>
-        public ProteinFileParser(DigestionSimulatorOptions options)
-        {
-            mFileDate = "October 19, 2021";
-
-            ProcessingOptions = options;
-            InitializeLocalVariables();
-
-            InSilicoDigester = new InSilicoDigest(ProcessingOptions);
-
-            InSilicoDigester.ErrorEvent += InSilicoDigest_ErrorEvent;
-            InSilicoDigester.ProgressChanged += InSilicoDigest_ProgressChanged;
-            InSilicoDigester.ProgressReset += InSilicoDigest_ProgressReset;
-
-            try
-            {
-                mNETCalculator = new ElutionTimePredictionKangas();
-                mNETCalculator.ErrorEvent += NETCalculator_ErrorEvent;
-            }
-            catch
-            {
-                ShowErrorMessage("Error initializing LC NET Calculation class");
-                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables);
-            }
-
-            try
-            {
-                mSCXNETCalculator = new SCXElutionTimePredictionKangas();
-                mSCXNETCalculator.ErrorEvent += SCXNETCalculator_ErrorEvent;
-            }
-            catch
-            {
-                ShowErrorMessage("Error initializing SCX NET Calculation class");
-                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables);
-            }
-        }
+        private const string PROGRAM_DATE = "October 20, 2021";
 
         public const string XML_SECTION_OPTIONS = "ProteinDigestionSimulatorOptions";
         public const string XML_SECTION_FASTA_OPTIONS = "FastaInputOptions";
@@ -251,6 +213,46 @@ namespace ProteinDigestionSimulator
         public ParseProteinFileErrorCodes LocalErrorCode { get; private set; }
 
         public bool ParsedFileIsFastaFile { get; private set; }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="options"></param>
+        public ProteinFileParser(DigestionSimulatorOptions options)
+        {
+            mFileDate = PROGRAM_DATE;
+
+            ProcessingOptions = options;
+            InitializeLocalVariables();
+
+            InSilicoDigester = new InSilicoDigest(ProcessingOptions);
+
+            InSilicoDigester.ErrorEvent += InSilicoDigest_ErrorEvent;
+            InSilicoDigester.ProgressChanged += InSilicoDigest_ProgressChanged;
+            InSilicoDigester.ProgressReset += InSilicoDigest_ProgressReset;
+
+            try
+            {
+                mNETCalculator = new ElutionTimePredictionKangas();
+                mNETCalculator.ErrorEvent += NETCalculator_ErrorEvent;
+            }
+            catch
+            {
+                ShowErrorMessage("Error initializing LC NET Calculation class");
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables);
+            }
+
+            try
+            {
+                mSCXNETCalculator = new SCXElutionTimePredictionKangas();
+                mSCXNETCalculator.ErrorEvent += SCXNETCalculator_ErrorEvent;
+            }
+            catch
+            {
+                ShowErrorMessage("Error initializing SCX NET Calculation class");
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables);
+            }
+        }
 
         private float ComputeSequenceHydrophobicity(string peptideSequence)
         {
@@ -2083,13 +2085,6 @@ namespace ProteinDigestionSimulator
         // Options class
         public class FastaFileParseOptions
         {
-            public FastaFileParseOptions()
-            {
-                mLookForAddnlRefInDescription = false;
-                mAddnlRefSepChar = '|';
-                mAddnlRefAccessionSepChar = ':';
-            }
-
             private bool mReadonly;
 
             private bool mLookForAddnlRefInDescription;
@@ -2161,6 +2156,16 @@ namespace ProteinDigestionSimulator
                         mAddnlRefAccessionSepChar = value;
                     }
                 }
+            }
+
+            /// <summary>
+            /// Constructor
+            /// </summary>
+            public FastaFileParseOptions()
+            {
+                mLookForAddnlRefInDescription = false;
+                mAddnlRefSepChar = '|';
+                mAddnlRefAccessionSepChar = ':';
             }
         }
 

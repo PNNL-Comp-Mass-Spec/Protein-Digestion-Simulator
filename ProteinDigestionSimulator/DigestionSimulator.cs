@@ -32,27 +32,7 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: Da, pre
 
-        /// <summary>
-        /// Parameterless Constructor
-        /// </summary>
-        public DigestionSimulator() : this(new DigestionSimulatorOptions())
-        {
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public DigestionSimulator(DigestionSimulatorOptions options)
-        {
-            mFileDate = "October 19, 2021";
-
-            ProcessingOptions = options;
-
-            ProteinFileParser = new ProteinFileParser(options);
-            ProteinFileParser.ErrorEvent += ProteinFileParser_ErrorEvent;
-
-            InitializeLocalVariables();
-        }
+        private const string PROGRAM_DATE = "October 20, 2021";
 
         public const string XML_SECTION_PEAK_MATCHING_OPTIONS = "PeakMatchingOptions";
 
@@ -144,6 +124,28 @@ namespace ProteinDigestionSimulator
         /// Protein file parser
         /// </summary>
         public ProteinFileParser ProteinFileParser { get; }
+
+        /// <summary>
+        /// Parameterless Constructor
+        /// </summary>
+        public DigestionSimulator() : this(new DigestionSimulatorOptions())
+        {
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public DigestionSimulator(DigestionSimulatorOptions options)
+        {
+            mFileDate = PROGRAM_DATE;
+
+            ProcessingOptions = options;
+
+            ProteinFileParser = new ProteinFileParser(options);
+            ProteinFileParser.ErrorEvent += ProteinFileParser_ErrorEvent;
+
+            InitializeLocalVariables();
+        }
 
         public void AddSearchThresholdLevel(
             PeakMatching.MassToleranceConstants massToleranceType,

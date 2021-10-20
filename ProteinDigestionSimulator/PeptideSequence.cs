@@ -11,21 +11,6 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: acetyl, alkylated, carbamyl, cys, cysteine, Da, iodoacetamide, proline, terminii, tryptic, xxx
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public PeptideSequence()
-        {
-            if (!mSharedArraysInitialized)
-            {
-                mCurrentElementMode = ElementModeConstants.IsotopicMass;
-                InitializeSharedData();
-                mSharedArraysInitialized = true;
-            }
-
-            mResidues = string.Empty;
-        }
-
         private const char UNKNOWN_SYMBOL_ONE_LETTER = 'X';
         private const string UNKNOWN_SYMBOL_THREE_LETTERS = "Xxx";
 
@@ -180,6 +165,21 @@ namespace ProteinDigestionSimulator
 
                 return mTotalMass;
             }
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public PeptideSequence()
+        {
+            if (!mSharedArraysInitialized)
+            {
+                mCurrentElementMode = ElementModeConstants.IsotopicMass;
+                InitializeSharedData();
+                mSharedArraysInitialized = true;
+            }
+
+            mResidues = string.Empty;
         }
 
         /// <summary>

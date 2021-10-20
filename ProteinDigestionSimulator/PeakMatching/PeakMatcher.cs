@@ -18,7 +18,16 @@ namespace ProteinDigestionSimulator.PeakMatching
     {
         // Ignore Spelling: Da, Sql, tol
 
+        private bool mAbortProcessing;
+
+        public event ProgressChangedEventHandler ProgressChanged;
+        public event LogEventEventHandler LogEvent;
+
         private PeakMatchingOptions PeakMatchingOptions { get; }
+
+        public string ProgressDescription { get; private set; }
+
+        public float ProgressPct { get; private set; }
 
         /// <summary>
         /// Constructor
@@ -28,16 +37,6 @@ namespace ProteinDigestionSimulator.PeakMatching
         {
             PeakMatchingOptions = peakMatchingOptions;
         }
-
-        private bool mAbortProcessing;
-
-        public event ProgressChangedEventHandler ProgressChanged;
-        public event LogEventEventHandler LogEvent;
-
-        public string ProgressDescription { get; private set; }
-
-        public float ProgressPct { get; private set; }
-
         private void ComputeSLiCScores(
             FeatureInfo featureToIdentify,
             PMFeatureMatchResults featureMatchResults,
