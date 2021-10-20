@@ -36,7 +36,6 @@ namespace ProteinDigestionSimulator.PeakMatching
             if (mFeatureCount >= mFeatures.Length)
             {
                 Array.Resize(ref mFeatures, mFeatures.Length * 2);
-                //Array.Resize(ref mFeatures, mFeatures.Length + MEMORY_RESERVE_CHUNK - 1);
             }
 
             mFeatures[mFeatureCount] = new FeatureInfo(featureID, peptideName, peptideMass, peptideNET);

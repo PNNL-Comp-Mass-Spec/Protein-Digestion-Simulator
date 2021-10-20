@@ -29,7 +29,7 @@ namespace ProteinDigestionSimulator
     /// </summary>
     public class DigestionSimulator : PRISM.FileProcessor.ProcessFilesBase
     {
-        // Ignore Spelling: const, Da, pre
+        // Ignore Spelling: Da, pre
 
         /// <summary>
         /// Parameterless Constructor
@@ -1027,52 +1027,6 @@ namespace ProteinDigestionSimulator
                 mProteinToIdentifiedPeptideMappingTable.Clear();
             }
         }
-
-        //// The following was created to test the speed and performance when dealing with large dataset tables
-        //private void FillWithLotsOfData(ref System.Data.DataSet targetDataset)
-        //{
-        //    const int MAX_FEATURE_COUNT = 300000;
-
-        //    Random randomGenerator = new Random();
-
-        //    ProgressFormNET.frmProgress progressForm = new ProgressFormNET.frmProgress();
-
-        //    var indexEnd = System.Convert.ToInt32(MAX_FEATURE_COUNT * 1.5);
-        //    progressForm.InitializeProgressForm("Populating dataset table", 0, indexEnd, true);
-        //    progressForm.Visible = true;
-        //    Application.DoEvents();
-
-        //    var startTime = System.DateTime.UtcNow;
-
-        //    for (var index = 0; index <= indexEnd; index++)
-        //    {
-        //        var newFeatureID = randomGenerator.Next(0, MAX_FEATURE_COUNT);
-
-        //        // Look for existing entry in table
-        //        if (!dsDataset.Tables(PEPTIDE_INFO_TABLE_NAME).Rows.Contains(newFeatureID))
-        //        {
-        //            var newRow = dsDataset.Tables(PEPTIDE_INFO_TABLE_NAME).NewRow;
-        //            newRow(COMPARISON_FEATURE_ID_COLUMN) = newFeatureID;
-        //            newRow(FEATURE_NAME_COLUMN) = "Feature" + newFeatureID.ToString();
-        //            newRow(MASS_COLUMN) = newFeatureID / (double)System.Convert.ToSingle(MAX_FEATURE_COUNT) * 1000;
-        //            newRow(NET_COLUMN) = randomGenerator.Next(0, 1000) / 1000.0;
-        //            newRow(NET_STDEV_COLUMN) = randomGenerator.Next(0, 1000) / 10000.0;
-        //            newRow(DISCRIMINANT_SCORE_COLUMN) = randomGenerator.Next(0, 1000) / 1000.0;
-        //            dsDataset.Tables(PEPTIDE_INFO_TABLE_NAME).Rows.Add(newRow);
-        //        }
-
-        //        if (index % 100 == 0)
-        //        {
-        //            progressForm.UpdateProgressBar(index);
-        //            Application.DoEvents();
-
-        //            if (progressForm.KeyPressAbortProcess)
-        //                break;
-        //        }
-        //    }
-
-        //    MessageBox.Show("Elapsed time: " + Math.Round(System.DateTime.UtcNow.Subtract(startTime).TotalSeconds, 2).ToString() + " seconds", "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        //}
 
         private void InitializeThresholdLevels(ref PeakMatching.SearchThresholds[] thresholds, int levels, bool preserveData)
         {
