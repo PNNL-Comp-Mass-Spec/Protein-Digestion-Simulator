@@ -409,6 +409,5 @@ namespace ProteinDigestionSimulator.PeakMatching
             ProgressPct = progressPercent;
             ProgressChanged?.Invoke(ProgressDescription, ProgressPct);
         }
-
     }
 }
