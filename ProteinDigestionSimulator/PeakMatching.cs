@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ProteinDigestionSimulator.Options;
 
 // ReSharper disable UnusedMember.Global
 
@@ -9,9 +10,15 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: Da, Sql, tol
 
-        public PeakMatching()
+        private PeakMatchingOptions PeakMatchingOptions { get; }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="peakMatchingOptions"></param>
+        public PeakMatching(PeakMatchingOptions peakMatchingOptions)
         {
-            InitializeLocalVariables();
+            PeakMatchingOptions = peakMatchingOptions;
         }
 
         public const float DEFAULT_SLIC_MAX_SEARCH_DISTANCE_MULTIPLIER = 2f;
@@ -90,12 +97,6 @@ namespace ProteinDigestionSimulator
 
                 return MatchingIDIndex.CompareTo(other.MatchingIDIndex);
             }
-        }
-
-        private class SearchModeOptions
-        {
-            public bool UseMaxSearchDistanceMultiplierAndSLiCScore { get; set; }
-            public bool UseEllipseSearchRegion { get; set; }        // Only valid if UseMaxSearchDistanceMultiplierAndSLiCScore = False; if both UseMaxSearchDistanceMultiplierAndSLiCScore = False and UseEllipseSearchRegion = False, then uses a rectangle for peak matching
         }
 
         internal class PMFeatureInfo
@@ -707,44 +708,22 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        private int mMaxPeakMatchingResultsPerFeatureToSave;
-        private readonly SearchModeOptions mSearchModeOptions = new();
         private bool mAbortProcessing;
 
         public event ProgressChangedEventHandler ProgressChanged;
         public event LogEventEventHandler LogEvent;
 
-        public int MaxPeakMatchingResultsPerFeatureToSave
-        {
-            get => mMaxPeakMatchingResultsPerFeatureToSave;
-            set
-            {
-                if (value < 0)
-                {
-                    value = 0;
-                }
-
-                mMaxPeakMatchingResultsPerFeatureToSave = value;
-            }
-        }
-
         public string ProgressDescription { get; private set; }
 
         public float ProgressPct { get; private set; }
 
-        public bool UseMaxSearchDistanceMultiplierAndSLiCScore
-        {
-            get => mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore;
-            set => mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore = value;
-        }
-
-        public bool UseEllipseSearchRegion
-        {
-            get => mSearchModeOptions.UseEllipseSearchRegion;
-            set => mSearchModeOptions.UseEllipseSearchRegion = value;
-        }
-
-        private void ComputeSLiCScores(ref FeatureInfo featureToIdentify, ref PMFeatureMatchResults featureMatchResults, List<PeakMatchingRawMatches> rawMatches, PMComparisonFeatureInfo comparisonFeatures, ref SearchThresholds searchThresholds, SearchThresholds.SearchTolerances computedTolerances)
+        private void ComputeSLiCScores(
+            ref FeatureInfo featureToIdentify,
+            PMFeatureMatchResults featureMatchResults,
+            List<PeakMatchingRawMatches> rawMatches,
+            PMComparisonFeatureInfo comparisonFeatures,
+            SearchThresholds searchThresholds,
+            SearchThresholds.SearchTolerances computedTolerances)
         {
             int index;
             string message;
@@ -861,7 +840,7 @@ namespace ProteinDigestionSimulator
 
                 // Add new match results to featureMatchResults
                 // Record, at most, mMaxPeakMatchingResultsPerFeatureToSave entries
-                for (index = 0; index < Math.Min(mMaxPeakMatchingResultsPerFeatureToSave, rawMatches.Count); index++)
+                for (index = 0; index < Math.Min(PeakMatchingOptions.MaxPeakMatchingResultsPerFeatureToSave, rawMatches.Count); index++)
                 {
                     comparisonFeatures.GetFeatureInfoByRowIndex(rawMatches[index].MatchingIDIndex, out var comparisonFeatureInfo);
                     featureMatchResults.AddMatch(featureToIdentify.FeatureID, comparisonFeatureInfo.FeatureID,
@@ -960,7 +939,7 @@ namespace ProteinDigestionSimulator
 
                         double netTol;
                         double massTol;
-                        if (mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore)
+                        if (PeakMatchingOptions.UseMaxSearchDistanceMultiplierAndSLiCScore)
                         {
                             massTol = computedTolerances.MWTolAbsBroad;
                             netTol = computedTolerances.NETTolBroad;
@@ -973,6 +952,7 @@ namespace ProteinDigestionSimulator
 
                         var matchInd1 = 0;
                         var matchInd2 = -1;
+
                         if (rangeSearch.FindValueRange(currentFeatureToIdentify.Mass, massTol, ref matchInd1, ref matchInd2))
                         {
                             // The following hold the matches using the broad search tolerances (if .UseMaxSearchDistanceMultiplierAndSLiCScore = True, otherwise, simply holds the matches)
@@ -989,13 +969,13 @@ namespace ProteinDigestionSimulator
                                     if (Math.Abs(netDiff) <= netTol)
                                     {
                                         bool storeMatch;
-                                        if (mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore)
+                                        if (PeakMatchingOptions.UseMaxSearchDistanceMultiplierAndSLiCScore)
                                         {
                                             // Store this match
                                             storeMatch = true;
                                         }
                                         // The match is within a rectangle defined by computedTolerances.MWTolAbsBroad and computedTolerances.NETTolBroad
-                                        else if (mSearchModeOptions.UseEllipseSearchRegion)
+                                        else if (PeakMatchingOptions.UseEllipseSearchRegion)
                                         {
                                             // Only keep the match if it's within the ellipse defined by the search tolerances
                                             // Note that the search tolerances we send to TestPointInEllipse should be half-widths (i.e. tolerance +- comparison value), not full widths
@@ -1063,19 +1043,6 @@ namespace ProteinDigestionSimulator
             }
 
             return success;
-        }
-
-        private void InitializeLocalVariables()
-        {
-            mMaxPeakMatchingResultsPerFeatureToSave = 20;
-
-            mSearchModeOptions.UseMaxSearchDistanceMultiplierAndSLiCScore = true;
-            mSearchModeOptions.UseEllipseSearchRegion = true;
-
-            // mUseSqlServerDBToCacheData = false
-            // mUseSqlServerForMatchResults = false
-            // mSqlServerConnectionString = SharedADONetFunctions.DEFAULT_CONNECTION_STRING_NO_PROVIDER;
-            // mTableNameFeatureMatchResults = PMFeatureMatchResults.DEFAULT_FEATURE_MATCH_RESULTS_TABLE_NAME;
         }
 
         private void PostLogEntry(string message, MessageTypeConstants EntryType)

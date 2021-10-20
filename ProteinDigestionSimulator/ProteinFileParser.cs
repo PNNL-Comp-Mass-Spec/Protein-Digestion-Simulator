@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -9,6 +10,7 @@ using System.Windows.Forms;
 using NETPrediction;
 using PRISM;
 using PRISM.FileProcessor;
+using ProteinDigestionSimulator.Options;
 using ProteinFileReader;
 using ValidateFastaFile;
 
@@ -41,10 +43,44 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: ComputepI, Cys, gi, hydrophobicity, Ile, Leu, pre, SepChar, silico, varchar
 
-        public ProteinFileParser()
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="options"></param>
+        public ProteinFileParser(DigestionSimulatorOptions options)
         {
-            mFileDate = "October 1, 2021";
+            mFileDate = "October 19, 2021";
+
+            ProcessingOptions = options;
             InitializeLocalVariables();
+
+            InSilicoDigester = new InSilicoDigest(ProcessingOptions);
+
+            InSilicoDigester.ErrorEvent += InSilicoDigest_ErrorEvent;
+            InSilicoDigester.ProgressChanged += InSilicoDigest_ProgressChanged;
+            InSilicoDigester.ProgressReset += InSilicoDigest_ProgressReset;
+
+            try
+            {
+                mNETCalculator = new ElutionTimePredictionKangas();
+                mNETCalculator.ErrorEvent += NETCalculator_ErrorEvent;
+            }
+            catch
+            {
+                ShowErrorMessage("Error initializing LC NET Calculation class");
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables);
+            }
+
+            try
+            {
+                mSCXNETCalculator = new SCXElutionTimePredictionKangas();
+                mSCXNETCalculator.ErrorEvent += SCXNETCalculator_ErrorEvent;
+            }
+            catch
+            {
+                ShowErrorMessage("Error initializing SCX NET Calculation class");
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables);
+            }
         }
 
         public const string XML_SECTION_OPTIONS = "ProteinDigestionSimulatorOptions";
@@ -134,6 +170,9 @@ namespace ProteinDigestionSimulator
             }
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public class ProteinInfo
         {
             public string Name { get; set; }
@@ -163,26 +202,26 @@ namespace ProteinDigestionSimulator
         {
             public string Cache { get; set; }                          // Cache of residues parsed; when this reaches 4000 characters, then a portion of this text is appended to ResiduesToWrite
             public int CacheLength { get; set; }
-            public int SamplingPercentage { get; set; }
+            public int SamplingPercentage { get; }
             public int OutputCount { get; set; }
             public string ResiduesToWrite { get; set; }
+
+            public ScramblingResidueCache(DigestionSimulatorOptions options)
+            {
+                SamplingPercentage = options.ProteinScramblingSamplingPercentage switch
+                {
+                    <= 0 or > 100 => 100,
+                    _ => options.ProteinScramblingSamplingPercentage,
+                };
+            }
         }
 
-        private char mInputFileDelimiter;                              // Only used for delimited protein input files, not for FASTA files
+        public DigestionSimulatorOptions ProcessingOptions { get; }
 
-        private char mOutputFileDelimiter;
+        public InSilicoDigest InSilicoDigester { get; }
 
-        private int mSequenceWidthToExamineForMaximumpI;
-
-        public InSilicoDigest.DigestionOptions DigestionOptions;
-
-        public FastaFileParseOptions FastaFileOptions;
-        private bool mObjectVariablesLoaded;
-        private InSilicoDigest mInSilicoDigest;
-        private ComputePeptideProperties mpICalculator;
-
-        private ElutionTimePredictionKangas mNETCalculator;
-        private SCXElutionTimePredictionKangas mSCXNETCalculator;
+        private readonly ElutionTimePredictionKangas mNETCalculator;
+        private readonly SCXElutionTimePredictionKangas mSCXNETCalculator;
 
         private readonly List<ProteinInfo> mProteins = new();
 
@@ -197,112 +236,10 @@ namespace ProteinDigestionSimulator
         // PercentComplete ranges from 0 to 100, but can contain decimal percentage values
         public event ProgressChangedEventHandler SubtaskProgressChanged;
 
-        public bool AssumeDelimitedFile { get; set; }
-
-        public bool AssumeFastaFile { get; set; }
-
-        public bool ComputeNET { get; set; }
-
-        public bool ComputepI { get; set; }
-
-        public bool ComputeProteinMass { get; set; }
-
-        public bool ComputeSequenceHashValues { get; set; }
-
-        public bool ComputeSequenceHashIgnoreILDiff { get; set; }
-
-        public bool ComputeSCXNET { get; set; }
-
-        /// <summary>
-        /// True to create a FASTA output file; false for a tab-delimited text file
-        /// </summary>
-        /// <remarks>Only valid if mCreateDigestedProteinOutputFile is False</remarks>
-        public bool CreateFastaOutputFile { get; set; }
-
-        /// <summary>
-        /// When True, then writes the proteins to a file; When false, then caches the results in memory
-        /// </summary>
-        /// <remarks>Use DigestProteinSequence to obtained digested peptides instead of proteins</remarks>
-        public bool CreateProteinOutputFile { get; set; }
-
-        /// <summary>
-        /// True to in-silico digest the proteins
-        /// </summary>
-        /// <remarks>Only valid if CreateProteinOutputFile is True</remarks>
-        public bool CreateDigestedProteinOutputFile { get; set; }
-
-        /// <summary>
-        /// When true, do not include protein description in the output file
-        /// </summary>
-        public bool ExcludeProteinDescription { get; set; }
-
-        /// <summary>
-        /// When true, do not include protein sequence in the output file
-        /// </summary>
-        public bool ExcludeProteinSequence { get; set; }
-
-        /// <summary>
-        /// When true, assign UniqueID values to the digested peptides (requires more memory)
-        /// </summary>
-        /// <remarks>Only valid if CreateDigestedProteinOutputFile is True</remarks>
-        public bool GenerateUniqueIDValuesForPeptides { get; set; }
-
-        /// <summary>
-        /// When true, include X residues when computing protein mass (using the mass of Ile/Leu)
-        /// </summary>
-        public bool IncludeXResiduesInMass { get; set; }
-
         /// <summary>
         /// Summary of the result of processing
         /// </summary>
         public string ProcessingSummary { get; set; }
-
-        /// <summary>
-        /// When true, report the maximum pI
-        /// </summary>
-        public bool ReportMaximumpI { get; set; }
-
-        public bool ShowDebugPrompts { get; set; }
-
-        public bool TruncateProteinDescription { get; set; }
-
-        public DelimitedProteinFileReader.ProteinFileFormatCode DelimitedFileFormatCode { get; set; }
-
-        public PeptideSequence.ElementModeConstants ElementMassMode
-        {
-            get
-            {
-                if (mInSilicoDigest == null)
-                {
-                    return PeptideSequence.ElementModeConstants.IsotopicMass;
-                }
-
-                return mInSilicoDigest.ElementMassMode;
-            }
-            set
-            {
-                if (mInSilicoDigest == null)
-                {
-                    InitializeObjectVariables();
-                }
-
-                mInSilicoDigest.ElementMassMode = value;
-            }
-        }
-
-        public ComputePeptideProperties.HydrophobicityTypeConstants HydrophobicityType { get; set; }
-
-        public char InputFileDelimiter
-        {
-            get => mInputFileDelimiter;
-            set
-            {
-                if (value != default)
-                {
-                    mInputFileDelimiter = value;
-                }
-            }
-        }
 
         public int InputFileProteinsProcessed { get; private set; }
 
@@ -312,74 +249,21 @@ namespace ProteinDigestionSimulator
 
         public ParseProteinFileErrorCodes LocalErrorCode { get; private set; }
 
-        public char OutputFileDelimiter
-        {
-            get => mOutputFileDelimiter;
-            set
-            {
-                if (value != default)
-                {
-                    mOutputFileDelimiter = value;
-                }
-            }
-        }
-
         public bool ParsedFileIsFastaFile { get; private set; }
-
-        public int ProteinScramblingLoopCount { get; set; }
-
-        public ProteinScramblingModeConstants ProteinScramblingMode { get; set; }
-
-        public int ProteinScramblingSamplingPercentage { get; set; }
-
-        public int SequenceWidthToExamineForMaximumpI
-        {
-            get => mSequenceWidthToExamineForMaximumpI;
-            set
-            {
-                if (value < 1)
-                {
-                    mSequenceWidthToExamineForMaximumpI = 1;
-                }
-
-                mSequenceWidthToExamineForMaximumpI = value;
-            }
-        }
 
         private float ComputeSequenceHydrophobicity(string peptideSequence)
         {
-            // Be sure to call InitializeObjectVariables before calling this function for the first time
-            // Otherwise, mpICalculator will be nothing
-            if (mpICalculator == null)
-            {
-                return 0f;
-            }
-
-            return mpICalculator.CalculateSequenceHydrophobicity(peptideSequence);
+            return InSilicoDigester.IsoelectricPointCalculator.CalculateSequenceHydrophobicity(peptideSequence);
         }
 
         private float ComputeSequencepI(string peptideSequence)
         {
-            // Be sure to call InitializeObjectVariables before calling this function for the first time
-            // Otherwise, mpICalculator will be nothing
-            if (mpICalculator == null)
-            {
-                return 0f;
-            }
-
-            return mpICalculator.CalculateSequencepI(peptideSequence);
+            return InSilicoDigester.IsoelectricPointCalculator.CalculateSequencepI(peptideSequence);
         }
 
         private double ComputeSequenceMass(string peptideSequence)
         {
-            // Be sure to call InitializeObjectVariables before calling this function for the first time
-            // Otherwise, mInSilicoDigest will be nothing
-            if (mInSilicoDigest == null)
-            {
-                return 0d;
-            }
-
-            return mInSilicoDigest.ComputeSequenceMass(peptideSequence, IncludeXResiduesInMass);
+            return InSilicoDigester.ComputeSequenceMass(peptideSequence, ProcessingOptions.IncludeXResiduesInMass);
         }
 
         private float ComputeSequenceNET(string peptideSequence)
@@ -411,26 +295,21 @@ namespace ProteinDigestionSimulator
         /// </summary>
         /// <param name="peptideSequence"></param>
         /// <param name="peptideFragments"></param>
-        /// <param name="options"></param>
         /// <param name="proteinName"></param>
         /// <returns>The number of digested peptides in peptideFragments</returns>
         public int DigestProteinSequence(
             string peptideSequence,
             out List<InSilicoDigest.PeptideSequenceWithNET> peptideFragments,
-            InSilicoDigest.DigestionOptions options,
             string proteinName = "")
         {
-            // Make sure the object variables are initialized
-            if (!InitializeObjectVariables())
-            {
-                peptideFragments = new List<InSilicoDigest.PeptideSequenceWithNET>();
-                return 0;
-            }
-
             try
             {
-                var peptideCount = mInSilicoDigest.DigestSequence(peptideSequence, out peptideFragments, options, ComputepI, proteinName);
-                return peptideCount;
+                if (InSilicoDigester.ElementMassMode != ProcessingOptions.ElementMassMode)
+                {
+                    InSilicoDigester.ElementMassMode = ProcessingOptions.ElementMassMode;
+                }
+
+                return InSilicoDigester.DigestSequence(peptideSequence, out peptideFragments, ProcessingOptions.ComputepI, proteinName);
             }
             catch
             {
@@ -440,22 +319,23 @@ namespace ProteinDigestionSimulator
             }
         }
 
+        /// <summary>
+        /// Searches in the protein description for additional protein names
+        /// </summary>
+        /// <param name="protein"></param>
         private void ExtractAlternateProteinNamesFromDescription(ProteinInfo protein)
         {
-            // Searches in description for additional protein Ref names
-            // description is updated as the additional protein references are removed from it
-
             protein.AlternateNames.Clear();
 
             try
             {
-                var proteinNames = protein.Description.Split(FastaFileOptions.AddnlRefSepChar);
+                var proteinNames = protein.Description.Split(ProcessingOptions.FastaFileOptions.AddnlRefSepChar);
 
                 if (proteinNames.Length > 0)
                 {
                     for (var index = 0; index < proteinNames.Length; index++)
                     {
-                        var charIndex = proteinNames[index].IndexOf(FastaFileOptions.AddnlRefAccessionSepChar);
+                        var charIndex = proteinNames[index].IndexOf(ProcessingOptions.FastaFileOptions.AddnlRefAccessionSepChar);
 
                         if (charIndex > 0)
                         {
@@ -581,16 +461,14 @@ namespace ProteinDigestionSimulator
         /// </summary>
         /// <param name="index"></param>
         /// <param name="digestedPeptides"></param>
-        /// <param name="options"></param>
         /// <returns>The number of peptides in digestedPeptides</returns>
         public int GetDigestedPeptidesForCachedProtein(
             int index,
-            out List<InSilicoDigest.PeptideSequenceWithNET> digestedPeptides,
-            InSilicoDigest.DigestionOptions options)
+            out List<InSilicoDigest.PeptideSequenceWithNET> digestedPeptides)
         {
             if (index < mProteins.Count)
             {
-                return DigestProteinSequence(mProteins[index].Sequence, out digestedPeptides, options, mProteins[index].Name);
+                return DigestProteinSequence(mProteins[index].Sequence, out digestedPeptides, mProteins[index].Name);
             }
 
             digestedPeptides = new List<InSilicoDigest.PeptideSequenceWithNET>();
@@ -600,48 +478,18 @@ namespace ProteinDigestionSimulator
         private void InitializeLocalVariables()
         {
             LocalErrorCode = ParseProteinFileErrorCodes.NoError;
-            ShowDebugPrompts = false;
-
-            AssumeDelimitedFile = false;
-            AssumeFastaFile = false;
-            mInputFileDelimiter = '\t';
-            DelimitedFileFormatCode = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence;
 
             InputFileProteinsProcessed = 0;
             InputFileLinesRead = 0;
             InputFileLineSkipCount = 0;
 
-            mOutputFileDelimiter = '\t';
-            ExcludeProteinSequence = false;
-            ComputeProteinMass = true;
-            ComputepI = true;
-            ComputeNET = true;
-            ComputeSCXNET = true;
-
-            ComputeSequenceHashValues = false;
-            ComputeSequenceHashIgnoreILDiff = true;
-            TruncateProteinDescription = true;
-
-            IncludeXResiduesInMass = false;
-            ProteinScramblingMode = ProteinScramblingModeConstants.None;
-            ProteinScramblingSamplingPercentage = 100;
-            ProteinScramblingLoopCount = 1;
-
-            CreateFastaOutputFile = false;
-            CreateProteinOutputFile = false;
-            CreateDigestedProteinOutputFile = false;
-            GenerateUniqueIDValuesForPeptides = true;
-
-            DigestionOptions = new InSilicoDigest.DigestionOptions();
-            FastaFileOptions = new FastaFileParseOptions();
-
             ProcessingSummary = string.Empty;
 
             mFileNameAbbreviated = string.Empty;
 
-            HydrophobicityType = ComputePeptideProperties.HydrophobicityTypeConstants.HW;
-            ReportMaximumpI = false;
-            mSequenceWidthToExamineForMaximumpI = 10;
+            ProcessingSummary = string.Empty;
+
+            mFileNameAbbreviated = string.Empty;
         }
 
         /// <summary>
@@ -673,81 +521,6 @@ namespace ProteinDigestionSimulator
 
                 return false;
             }
-        }
-
-        private bool InitializeObjectVariables()
-        {
-            var errorMessage = string.Empty;
-
-            if (!mObjectVariablesLoaded)
-            {
-                // Need to initialize the object variables
-
-                try
-                {
-                    mInSilicoDigest = new InSilicoDigest();
-                    mInSilicoDigest.ErrorEvent += InSilicoDigest_ErrorEvent;
-                    mInSilicoDigest.ProgressChanged += InSilicoDigest_ProgressChanged;
-                    mInSilicoDigest.ProgressReset += InSilicoDigest_ProgressReset;
-                }
-                catch
-                {
-                    errorMessage = "Error initializing InSilicoDigest class";
-                    SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables);
-                }
-
-                try
-                {
-                    mpICalculator = new ComputePeptideProperties();
-                }
-                catch
-                {
-                    errorMessage = "Error initializing pI Calculation class";
-                    ShowErrorMessage(errorMessage);
-                    SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables);
-                }
-
-                try
-                {
-                    mNETCalculator = new ElutionTimePredictionKangas();
-                    mNETCalculator.ErrorEvent += NETCalculator_ErrorEvent;
-                }
-                catch
-                {
-                    errorMessage = "Error initializing LC NET Calculation class";
-                    ShowErrorMessage(errorMessage);
-                    SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables);
-                }
-
-                try
-                {
-                    mSCXNETCalculator = new SCXElutionTimePredictionKangas();
-                    mSCXNETCalculator.ErrorEvent += SCXNETCalculator_ErrorEvent;
-                }
-                catch
-                {
-                    errorMessage = "Error initializing SCX NET Calculation class";
-                    ShowErrorMessage(errorMessage);
-                    SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables);
-                }
-
-                if (errorMessage.Length > 0)
-                {
-                    ShowErrorMessage(errorMessage);
-                    mObjectVariablesLoaded = false;
-                }
-                else
-                {
-                    mObjectVariablesLoaded = true;
-                }
-            }
-
-            if (mInSilicoDigest != null && mpICalculator != null)
-            {
-                mInSilicoDigest.InitializepICalculator(mpICalculator);
-            }
-
-            return mObjectVariablesLoaded;
         }
 
         private bool InitializeScrambledOutput(
@@ -864,52 +637,52 @@ namespace ProteinDigestionSimulator
                     var inputFileColumnDelimiterIndex = settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiterIndex", (int)DelimiterCharConstants.Tab);
                     var customInputFileColumnDelimiter = settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnDelimiter", "\t");
 
-                    InputFileDelimiter = LookupColumnDelimiterChar(inputFileColumnDelimiterIndex, customInputFileColumnDelimiter, InputFileDelimiter);
+                    ProcessingOptions.InputFileDelimiter = LookupColumnDelimiterChar(inputFileColumnDelimiterIndex, customInputFileColumnDelimiter, ProcessingOptions.InputFileDelimiter);
 
-                    DelimitedFileFormatCode = (DelimitedProteinFileReader.ProteinFileFormatCode)Convert.ToInt32(settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnOrdering", (int)DelimitedFileFormatCode));
+                    var delimitedFileFormatCode = settingsFile.GetParam(XML_SECTION_OPTIONS, "InputFileColumnOrdering", (int)ProcessingOptions.DelimitedFileFormatCode);
+                    ProcessingOptions.DelimitedFileFormatCode = (DelimitedProteinFileReader.ProteinFileFormatCode)delimitedFileFormatCode;
 
                     var outputFileFieldDelimiterIndex = settingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimiterIndex", (int)DelimiterCharConstants.Tab);
                     var outputFileFieldDelimiter = settingsFile.GetParam(XML_SECTION_OPTIONS, "OutputFileFieldDelimiter", "\t");
 
-                    OutputFileDelimiter = LookupColumnDelimiterChar(outputFileFieldDelimiterIndex, outputFileFieldDelimiter, OutputFileDelimiter);
+                    ProcessingOptions.OutputFileDelimiter = LookupColumnDelimiterChar(outputFileFieldDelimiterIndex, outputFileFieldDelimiter, ProcessingOptions.OutputFileDelimiter);
 
-                    DigestionOptions.IncludePrefixAndSuffixResidues = settingsFile.GetParam(XML_SECTION_OPTIONS, "IncludePrefixAndSuffixResidues", DigestionOptions.IncludePrefixAndSuffixResidues);
+                    ProcessingOptions.DigestionOptions.IncludePrefixAndSuffixResidues = settingsFile.GetParam(XML_SECTION_OPTIONS, "IncludePrefixAndSuffixResidues", ProcessingOptions.DigestionOptions.IncludePrefixAndSuffixResidues);
 
-                    FastaFileOptions.LookForAddnlRefInDescription = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "LookForAddnlRefInDescription", FastaFileOptions.LookForAddnlRefInDescription);
+                    ProcessingOptions.FastaFileOptions.LookForAddnlRefInDescription = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "LookForAddnlRefInDescription", ProcessingOptions.FastaFileOptions.LookForAddnlRefInDescription);
 
-                    FastaFileOptions.AddnlRefSepChar = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "AddnlRefSepChar", FastaFileOptions.AddnlRefSepChar.ToString())[0];
-                    FastaFileOptions.AddnlRefAccessionSepChar = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "AddnlRefAccessionSepChar", FastaFileOptions.AddnlRefAccessionSepChar.ToString())[0];
+                    ProcessingOptions.FastaFileOptions.AddnlRefSepChar = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "AddnlRefSepChar", ProcessingOptions.FastaFileOptions.AddnlRefSepChar.ToString())[0];
+                    ProcessingOptions.FastaFileOptions.AddnlRefAccessionSepChar = settingsFile.GetParam(XML_SECTION_FASTA_OPTIONS, "AddnlRefAccessionSepChar", ProcessingOptions.FastaFileOptions.AddnlRefAccessionSepChar.ToString())[0];
 
-                    ExcludeProteinSequence = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ExcludeProteinSequence", ExcludeProteinSequence);
-                    ComputeProteinMass = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeProteinMass", ComputeProteinMass);
-                    IncludeXResiduesInMass = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "IncludeXResidues", IncludeXResiduesInMass);
-                    ElementMassMode = (PeptideSequence.ElementModeConstants)Convert.ToInt32(settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ElementMassMode", (int)ElementMassMode));
+                    ProcessingOptions.ExcludeProteinSequence = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ExcludeProteinSequence", ProcessingOptions.ExcludeProteinSequence);
+                    ProcessingOptions.ComputeProteinMass = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeProteinMass", ProcessingOptions.ComputeProteinMass);
+                    ProcessingOptions.IncludeXResiduesInMass = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "IncludeXResidues", ProcessingOptions.IncludeXResiduesInMass);
 
-                    ComputepI = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputepI", ComputepI);
-                    ComputeNET = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeNET", ComputeNET);
-                    ComputeSCXNET = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeSCX", ComputeSCXNET);
+                    var elementMassMode = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ElementMassMode", (int)ProcessingOptions.ElementMassMode);
+                    ProcessingOptions.ElementMassMode = (PeptideSequence.ElementModeConstants)elementMassMode;
 
-                    CreateDigestedProteinOutputFile = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "DigestProteins", CreateDigestedProteinOutputFile);
-                    ProteinScramblingMode = (ProteinScramblingModeConstants)Convert.ToInt32(settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinReversalIndex", (int)ProteinScramblingMode));
-                    ProteinScramblingLoopCount = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinScramblingLoopCount", ProteinScramblingLoopCount);
+                    ProcessingOptions.ComputepI = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputepI", ProcessingOptions.ComputepI);
+                    ProcessingOptions.ComputeNET = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeNET", ProcessingOptions.ComputeNET);
+                    ProcessingOptions.ComputeSCXNET = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ComputeSCX", ProcessingOptions.ComputeSCXNET);
 
-                    DigestionOptions.CleavageRuleID = (InSilicoDigest.CleavageRuleConstants)Convert.ToInt32(settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CleavageRuleTypeIndex", (int)DigestionOptions.CleavageRuleID));
-                    DigestionOptions.RemoveDuplicateSequences = !settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "IncludeDuplicateSequences", !DigestionOptions.RemoveDuplicateSequences);
+                    ProcessingOptions.CreateDigestedProteinOutputFile = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "DigestProteins", ProcessingOptions.CreateDigestedProteinOutputFile);
 
-                    var cysPeptidesOnly = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CysPeptidesOnly", false);
-                    if (cysPeptidesOnly)
-                    {
-                        DigestionOptions.AminoAcidResidueFilterChars = new[] { 'C' };
-                    }
-                    else
-                    {
-                        DigestionOptions.AminoAcidResidueFilterChars = new char[] { };
-                    }
+                    var proteinScramblingMode = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinReversalIndex", (int)ProcessingOptions.ProteinScramblingMode);
+                    ProcessingOptions.ProteinScramblingMode = (ProteinScramblingModeConstants)proteinScramblingMode;
 
-                    DigestionOptions.MinFragmentMass = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMinimumMass", DigestionOptions.MinFragmentMass);
-                    DigestionOptions.MaxFragmentMass = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMaximumMass", DigestionOptions.MaxFragmentMass);
-                    DigestionOptions.MinFragmentResidueCount = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMinimumResidueCount", DigestionOptions.MinFragmentResidueCount);
-                    DigestionOptions.MaxMissedCleavages = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMaximumMissedCleavages", DigestionOptions.MaxMissedCleavages);
+                    ProcessingOptions.ProteinScramblingLoopCount = settingsFile.GetParam(XML_SECTION_PROCESSING_OPTIONS, "ProteinScramblingLoopCount", ProcessingOptions.ProteinScramblingLoopCount);
+
+                    var cleavageRuleID = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CleavageRuleTypeIndex", (int)ProcessingOptions.DigestionOptions.CleavageRuleID);
+                    ProcessingOptions.DigestionOptions.CleavageRuleID = (CleavageRuleConstants)cleavageRuleID;
+
+                    ProcessingOptions.DigestionOptions.RemoveDuplicateSequences = !settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "IncludeDuplicateSequences", !ProcessingOptions.DigestionOptions.RemoveDuplicateSequences);
+
+                    ProcessingOptions.DigestionOptions.CysPeptidesOnly = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "CysPeptidesOnly", false);
+
+                    ProcessingOptions.DigestionOptions.MinFragmentMass = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMinimumMass", ProcessingOptions.DigestionOptions.MinFragmentMass);
+                    ProcessingOptions.DigestionOptions.MaxFragmentMass = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMaximumMass", ProcessingOptions.DigestionOptions.MaxFragmentMass);
+                    ProcessingOptions.DigestionOptions.MinFragmentResidueCount = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMinimumResidueCount", ProcessingOptions.DigestionOptions.MinFragmentResidueCount);
+                    ProcessingOptions.DigestionOptions.MaxMissedCleavages = settingsFile.GetParam(XML_SECTION_DIGESTION_OPTIONS, "DigestProteinsMaximumMissedCleavages", ProcessingOptions.DigestionOptions.MaxMissedCleavages);
                 }
             }
             catch (Exception ex)
@@ -978,7 +751,7 @@ namespace ProteinDigestionSimulator
 
             Random randomNumberGenerator = null;
 
-            var residueCache = new ScramblingResidueCache();
+            var residueCache = new ScramblingResidueCache(ProcessingOptions);
 
             var startTime = default(DateTime);
 
@@ -1001,12 +774,6 @@ namespace ProteinDigestionSimulator
                     return false;
                 }
 
-                // Make sure the object variables are initialized
-                if (!InitializeObjectVariables())
-                {
-                    return false;
-                }
-
                 success = ParseProteinFileCreateOutputFile(pathInfo, out proteinFileReader);
             }
             catch
@@ -1023,16 +790,7 @@ namespace ProteinDigestionSimulator
 
             try
             {
-                // Set the options for mpICalculator
-                // Note that this will also update the pICalculator object in mInSilicoDigest
-                if (mpICalculator != null)
-                {
-                    mpICalculator.HydrophobicityType = HydrophobicityType;
-                    mpICalculator.ReportMaximumpI = ReportMaximumpI;
-                    mpICalculator.SequenceWidthToExamineForMaximumpI = mSequenceWidthToExamineForMaximumpI;
-                }
-
-                if (CreateProteinOutputFile)
+                if (ProcessingOptions.CreateProteinOutputFile)
                 {
                     try
                     {
@@ -1062,16 +820,19 @@ namespace ProteinDigestionSimulator
                 }
 
                 mNextUniqueIDForMasterSeqs = 1;
+                var outputFileDelimiter = ProcessingOptions.OutputFileDelimiter;
 
-                if (CreateProteinOutputFile && CreateDigestedProteinOutputFile && !CreateFastaOutputFile)
+                if (ProcessingOptions.CreateProteinOutputFile &&
+                    ProcessingOptions.CreateDigestedProteinOutputFile &&
+                    !ProcessingOptions.CreateFastaOutputFile)
                 {
-                    success = ParseProteinFileCreateDigestedProteinOutputFile(pathInfo.DigestedProteinOutputFilePath, ref digestFileWriter);
+                    success = ParseProteinFileCreateDigestedProteinOutputFile(pathInfo.DigestedProteinOutputFilePath, ref digestFileWriter, outputFileDelimiter);
                     if (!success)
                     {
                         return false;
                     }
 
-                    if (GenerateUniqueIDValuesForPeptides)
+                    if (ProcessingOptions.GenerateUniqueIDValuesForPeptides)
                     {
                         // Initialize mMasterSequencesDictionary
                         generateUniqueSequenceID = true;
@@ -1080,9 +841,9 @@ namespace ProteinDigestionSimulator
 
                 var loopCount = 1;
                 bool allowLookForAddnlRefInDescription;
-                if (ProteinScramblingMode == ProteinScramblingModeConstants.Randomized)
+                if (ProcessingOptions.ProteinScramblingMode == ProteinScramblingModeConstants.Randomized)
                 {
-                    loopCount = ProteinScramblingLoopCount;
+                    loopCount = ProcessingOptions.ProteinScramblingLoopCount;
                     if (loopCount < 1)
                     {
                         loopCount = 1;
@@ -1097,7 +858,7 @@ namespace ProteinDigestionSimulator
                 }
                 else
                 {
-                    allowLookForAddnlRefInDescription = FastaFileOptions.LookForAddnlRefInDescription;
+                    allowLookForAddnlRefInDescription = ProcessingOptions.FastaFileOptions.LookForAddnlRefInDescription;
                 }
 
                 var outLine = new StringBuilder();
@@ -1112,19 +873,9 @@ namespace ProteinDigestionSimulator
                     }
 
                     ProteinScramblingModeConstants scramblingMode;
-                    if (CreateProteinOutputFile)
+                    if (ProcessingOptions.CreateProteinOutputFile)
                     {
-                        scramblingMode = ProteinScramblingMode;
-                        residueCache.SamplingPercentage = ProteinScramblingSamplingPercentage;
-                        if (residueCache.SamplingPercentage <= 0)
-                        {
-                            residueCache.SamplingPercentage = 100;
-                        }
-
-                        if (residueCache.SamplingPercentage > 100)
-                        {
-                            residueCache.SamplingPercentage = 100;
-                        }
+                        scramblingMode = ProcessingOptions.ProteinScramblingMode;
 
                         residueCache.Cache = string.Empty;
                         residueCache.CacheLength = SCRAMBLING_CACHE_LENGTH;
@@ -1147,7 +898,7 @@ namespace ProteinDigestionSimulator
 
                     startTime = DateTime.UtcNow;
 
-                    if (CreateProteinOutputFile && ParsedFileIsFastaFile && allowLookForAddnlRefInDescription)
+                    if (ProcessingOptions.CreateProteinOutputFile && ParsedFileIsFastaFile && allowLookForAddnlRefInDescription)
                     {
                         // Need to pre-scan the FASTA file to find all of the possible additional reference values
 
@@ -1178,59 +929,59 @@ namespace ProteinDigestionSimulator
 
                     ResetProgress("Parsing protein input file");
 
-                    if (CreateProteinOutputFile && !CreateFastaOutputFile)
+                    if (ProcessingOptions.CreateProteinOutputFile && !ProcessingOptions.CreateFastaOutputFile)
                     {
                         outLine.Clear();
 
                         // Write the header line to the output file
-                        outLine.AppendFormat("{0}{1}", "ProteinName", mOutputFileDelimiter);
+                        outLine.AppendFormat("{0}{1}", "ProteinName", outputFileDelimiter);
 
                         if (lookForAddnlRefInDescription)
                         {
                             foreach (var addnlRef in addnlRefsToOutput)
                             {
-                                outLine.AppendFormat("{0}{1}", addnlRef.RefName, mOutputFileDelimiter);
+                                outLine.AppendFormat("{0}{1}", addnlRef.RefName, outputFileDelimiter);
                             }
                         }
 
                         // Include Description in the header line, even if we are excluding the description for all proteins
                         outLine.Append("Description");
 
-                        if (ComputeSequenceHashValues)
+                        if (ProcessingOptions.ComputeSequenceHashValues)
                         {
-                            outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, "SequenceHash");
+                            outLine.AppendFormat("{0}{1}", outputFileDelimiter, "SequenceHash");
                         }
 
-                        if (!ExcludeProteinSequence)
+                        if (!ProcessingOptions.ExcludeProteinSequence)
                         {
-                            outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, "Sequence");
+                            outLine.AppendFormat("{0}{1}", outputFileDelimiter, "Sequence");
                         }
 
-                        if (ComputeProteinMass)
+                        if (ProcessingOptions.ComputeProteinMass)
                         {
-                            if (ElementMassMode == PeptideSequence.ElementModeConstants.AverageMass)
+                            if (ProcessingOptions.ElementMassMode == PeptideSequence.ElementModeConstants.AverageMass)
                             {
-                                outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, "Average Mass");
+                                outLine.AppendFormat("{0}{1}", outputFileDelimiter, "Average Mass");
                             }
                             else
                             {
-                                outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, "Mass");
+                                outLine.AppendFormat("{0}{1}", outputFileDelimiter, "Mass");
                             }
                         }
 
-                        if (ComputepI)
+                        if (ProcessingOptions.ComputepI)
                         {
-                            outLine.AppendFormat("{0}{1}{0}{2}", mOutputFileDelimiter, "pI", "Hydrophobicity");
+                            outLine.AppendFormat("{0}{1}{0}{2}", outputFileDelimiter, "pI", "Hydrophobicity");
                         }
 
-                        if (ComputeNET)
+                        if (ProcessingOptions.ComputeNET)
                         {
-                            outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, "LC_NET");
+                            outLine.AppendFormat("{0}{1}", outputFileDelimiter, "LC_NET");
                         }
 
-                        if (ComputeSCXNET)
+                        if (ProcessingOptions.ComputeSCXNET)
                         {
-                            outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, "SCX_NET");
+                            outLine.AppendFormat("{0}{1}", outputFileDelimiter, "SCX_NET");
                         }
 
                         proteinFileWriter.WriteLine(outLine.ToString());
@@ -1288,23 +1039,23 @@ namespace ProteinDigestionSimulator
 
                         var protein = ParseProteinFileStoreProtein(proteinFileReader, lookForAddnlRefInDescription);
 
-                        if (CreateProteinOutputFile)
+                        if (ProcessingOptions.CreateProteinOutputFile)
                         {
                             if (loopIndex == 1)
                             {
-                                if (CreateFastaOutputFile)
+                                if (ProcessingOptions.CreateFastaOutputFile)
                                 {
                                     ParseProteinFileWriteFasta(proteinFileWriter, protein, outLine);
                                 }
                                 else
                                 {
-                                    ParseProteinFileWriteTextDelimited(proteinFileWriter, protein, outLine, lookForAddnlRefInDescription, ref addnlRefsToOutput);
+                                    ParseProteinFileWriteTextDelimited(proteinFileWriter, outputFileDelimiter, protein, outLine, lookForAddnlRefInDescription, addnlRefsToOutput);
                                 }
                             }
 
                             if (loopIndex == 1 && digestFileWriter != null)
                             {
-                                ParseProteinFileWriteDigested(digestFileWriter, protein, outLine, generateUniqueSequenceID);
+                                ParseProteinFileWriteDigested(digestFileWriter, outputFileDelimiter, protein, outLine, generateUniqueSequenceID);
                             }
 
                             if (scramblingMode != ProteinScramblingModeConstants.None)
@@ -1327,7 +1078,7 @@ namespace ProteinDigestionSimulator
                         }
                     }
 
-                    if (CreateProteinOutputFile && scramblingMode != ProteinScramblingModeConstants.None)
+                    if (ProcessingOptions.CreateProteinOutputFile && scramblingMode != ProteinScramblingModeConstants.None)
                     {
                         // Write out anything remaining in the cache
 
@@ -1358,15 +1109,6 @@ namespace ProteinDigestionSimulator
                     scrambledFileWriter?.Close();
                 }
 
-                if (ShowDebugPrompts)
-                {
-                    var statusMessage = string.Format("{0}{1}Elapsed time: {2:F2} seconds",
-                                                      Path.GetFileName(pathInfo.ProteinInputFilePath), Environment.NewLine,
-                                                      DateTime.UtcNow.Subtract(startTime).TotalSeconds);
-
-                    MessageBox.Show(statusMessage, "Status", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-
                 var message = "Done: Processed " + InputFileProteinsProcessed.ToString("###,##0") + " proteins (" + InputFileLinesRead.ToString("###,###,##0") + " lines)";
                 if (InputFileLineSkipCount > 0)
                 {
@@ -1377,7 +1119,7 @@ namespace ProteinDigestionSimulator
                     }
                     else
                     {
-                        message += "Make sure that " + DelimitedFileFormatCode + " is the appropriate format for this file (see the File Format Options tab).";
+                        message += "Make sure that " + ProcessingOptions.DelimitedFileFormatCode + " is the appropriate format for this file (see the File Format Options tab).";
                     }
                 }
 
@@ -1394,7 +1136,7 @@ namespace ProteinDigestionSimulator
             catch (Exception ex)
             {
                 ShowErrorMessage("Error in ParseProteinFile: " + ex.Message);
-                if (CreateProteinOutputFile || CreateDigestedProteinOutputFile)
+                if (ProcessingOptions.CreateProteinOutputFile || ProcessingOptions.CreateDigestedProteinOutputFile)
                 {
                     SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorWritingOutputFile);
                     success = false;
@@ -1427,7 +1169,7 @@ namespace ProteinDigestionSimulator
                 Description = proteinFileReader.ProteinDescription
             };
 
-            if (TruncateProteinDescription && protein.Description.Length > MAX_PROTEIN_DESCRIPTION_LENGTH)
+            if (ProcessingOptions.TruncateProteinDescription && protein.Description.Length > MAX_PROTEIN_DESCRIPTION_LENGTH)
             {
                 protein.Description = protein.Description.Substring(0, MAX_PROTEIN_DESCRIPTION_LENGTH - 3) + "...";
             }
@@ -1445,7 +1187,7 @@ namespace ProteinDigestionSimulator
             var sequence = proteinFileReader.ProteinSequence;
             protein.Sequence = sequence;
 
-            if (ComputeSequenceHashIgnoreILDiff)
+            if (ProcessingOptions.ComputeSequenceHashIgnoreILDiff)
             {
                 protein.SequenceHash = HashUtilities.ComputeStringHashSha1(sequence.Replace('L', 'I')).ToUpper();
             }
@@ -1454,7 +1196,7 @@ namespace ProteinDigestionSimulator
                 protein.SequenceHash = HashUtilities.ComputeStringHashSha1(sequence).ToUpper();
             }
 
-            if (ComputeProteinMass)
+            if (ProcessingOptions.ComputeProteinMass)
             {
                 protein.Mass = ComputeSequenceMass(sequence);
             }
@@ -1463,7 +1205,7 @@ namespace ProteinDigestionSimulator
                 protein.Mass = 0d;
             }
 
-            if (ComputepI)
+            if (ProcessingOptions.ComputepI)
             {
                 protein.pI = ComputeSequencepI(sequence);
                 protein.Hydrophobicity = ComputeSequenceHydrophobicity(sequence);
@@ -1474,12 +1216,12 @@ namespace ProteinDigestionSimulator
                 protein.Hydrophobicity = 0f;
             }
 
-            if (ComputeNET)
+            if (ProcessingOptions.ComputeNET)
             {
                 protein.ProteinNET = ComputeSequenceNET(sequence);
             }
 
-            if (ComputeSCXNET)
+            if (ProcessingOptions.ComputeSCXNET)
             {
                 protein.ProteinSCXNET = ComputeSequenceSCXNET(sequence);
             }
@@ -1489,11 +1231,12 @@ namespace ProteinDigestionSimulator
 
         private void ParseProteinFileWriteDigested(
             TextWriter digestFileWriter,
+            char outputFileDelimiter,
             ProteinInfo protein,
             StringBuilder outLine,
             bool generateUniqueSequenceID)
         {
-            DigestProteinSequence(protein.Sequence, out var peptideFragments, DigestionOptions, protein.Name);
+            DigestProteinSequence(protein.Sequence, out var peptideFragments, protein.Name);
 
             foreach (var peptideFragment in peptideFragments)
             {
@@ -1528,43 +1271,43 @@ namespace ProteinDigestionSimulator
                 var baseSequence = peptideFragment.SequenceOneLetter;
                 outLine.Clear();
 
-                if (!ExcludeProteinSequence)
+                if (!ProcessingOptions.ExcludeProteinSequence)
                 {
-                    outLine.AppendFormat("{0}{1}", protein.Name, mOutputFileDelimiter);
+                    outLine.AppendFormat("{0}{1}", protein.Name, outputFileDelimiter);
 
-                    if (DigestionOptions.IncludePrefixAndSuffixResidues)
+                    if (ProcessingOptions.DigestionOptions.IncludePrefixAndSuffixResidues)
                     {
-                        outLine.AppendFormat("{0}.{1}.{2}{3}", peptideFragment.PrefixResidue, baseSequence, peptideFragment.SuffixResidue, mOutputFileDelimiter);
+                        outLine.AppendFormat("{0}.{1}.{2}{3}", peptideFragment.PrefixResidue, baseSequence, peptideFragment.SuffixResidue, outputFileDelimiter);
                     }
                     else
                     {
-                        outLine.AppendFormat("{0}{1}", baseSequence, mOutputFileDelimiter);
+                        outLine.AppendFormat("{0}{1}", baseSequence, outputFileDelimiter);
                     }
                 }
 
                 outLine.AppendFormat("{1}{0}{2}{0}{3}{0}{4}",
-                    mOutputFileDelimiter, uniqueSeqID.ToString(), peptideFragment.Mass, Math.Round(peptideFragment.NET, 4), peptideFragment.PeptideName);
+                    outputFileDelimiter, uniqueSeqID.ToString(), peptideFragment.Mass, Math.Round(peptideFragment.NET, 4), peptideFragment.PeptideName);
 
-                if (ComputepI)
+                if (ProcessingOptions.ComputepI)
                 {
                     var pI = ComputeSequencepI(baseSequence);
                     var hydrophobicity = ComputeSequenceHydrophobicity(baseSequence);
 
-                    outLine.AppendFormat("{0}{1:0.000}{0}{2:0.0000}", mOutputFileDelimiter, pI, hydrophobicity);
+                    outLine.AppendFormat("{0}{1:0.000}{0}{2:0.0000}", outputFileDelimiter, pI, hydrophobicity);
                 }
 
-                if (ComputeNET)
+                if (ProcessingOptions.ComputeNET)
                 {
                     var lcNET = ComputeSequenceNET(baseSequence);
 
-                    outLine.AppendFormat("{0}{1:0.0000}", mOutputFileDelimiter, lcNET);
+                    outLine.AppendFormat("{0}{1:0.0000}", outputFileDelimiter, lcNET);
                 }
 
-                if (ComputeSCXNET)
+                if (ProcessingOptions.ComputeSCXNET)
                 {
                     var scxNET = ComputeSequenceSCXNET(baseSequence);
 
-                    outLine.AppendFormat("{0}{1:0.0000}", mOutputFileDelimiter, scxNET);
+                    outLine.AppendFormat("{0}{1:0.0000}", outputFileDelimiter, scxNET);
                 }
 
                 digestFileWriter.WriteLine(outLine.ToString());
@@ -1585,14 +1328,14 @@ namespace ProteinDigestionSimulator
 
             outLine.Clear();
             outLine.AppendFormat("{0}{1}", FastaFileReader.PROTEIN_LINE_START_CHAR, protein.Name);
-            if (!ExcludeProteinDescription)
+            if (!ProcessingOptions.ExcludeProteinDescription)
             {
                 outLine.AppendFormat("{0}{1}", FastaFileReader.PROTEIN_LINE_ACCESSION_TERMINATOR, protein.Description);
             }
 
             proteinFileWriter.WriteLine(outLine.ToString());
 
-            if (!ExcludeProteinSequence)
+            if (!ProcessingOptions.ExcludeProteinSequence)
             {
                 var index = 0;
                 while (index < protein.Sequence.Length)
@@ -1606,6 +1349,7 @@ namespace ProteinDigestionSimulator
 
         private void ParseProteinFileWriteTextDelimited(
             TextWriter proteinFileWriter,
+            char outputFileDelimiter,
             ProteinInfo protein,
             StringBuilder outLine,
             bool lookForAddnlRefInDescription,
@@ -1642,48 +1386,48 @@ namespace ProteinDigestionSimulator
                     outLine.AppendFormat("{0}{1}", addnlRef.RefAccession, mOutputFileDelimiter);
                 }
 
-                if (!ExcludeProteinDescription)
+                if (!ProcessingOptions.ExcludeProteinDescription)
                 {
                     outLine.Append(protein.Description);
                 }
             }
             else
             {
-                outLine.AppendFormat("{0}{1}", protein.Name, mOutputFileDelimiter);
-                if (!ExcludeProteinDescription)
+                outLine.AppendFormat("{0}{1}", protein.Name, outputFileDelimiter);
+                if (!ProcessingOptions.ExcludeProteinDescription)
                 {
                     outLine.Append(protein.Description);
                 }
             }
 
-            if (ComputeSequenceHashValues)
+            if (ProcessingOptions.ComputeSequenceHashValues)
             {
-                outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, protein.SequenceHash);
+                outLine.AppendFormat("{0}{1}", outputFileDelimiter, protein.SequenceHash);
             }
 
-            if (!ExcludeProteinSequence)
+            if (!ProcessingOptions.ExcludeProteinSequence)
             {
-                outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, protein.Sequence);
+                outLine.AppendFormat("{0}{1}", outputFileDelimiter, protein.Sequence);
             }
 
-            if (ComputeProteinMass)
+            if (ProcessingOptions.ComputeProteinMass)
             {
-                outLine.AppendFormat("{0}{1}", mOutputFileDelimiter, Math.Round(protein.Mass, 5).ToString(CultureInfo.InvariantCulture));
+                outLine.AppendFormat("{0}{1}", outputFileDelimiter, Math.Round(protein.Mass, 5).ToString(CultureInfo.InvariantCulture));
             }
 
-            if (ComputepI)
+            if (ProcessingOptions.ComputepI)
             {
-                outLine.AppendFormat("{0}{1:0.000}{0}{2:0.0000}", mOutputFileDelimiter, protein.pI, protein.Hydrophobicity);
+                outLine.AppendFormat("{0}{1:0.000}{0}{2:0.0000}", outputFileDelimiter, protein.pI, protein.Hydrophobicity);
             }
 
-            if (ComputeNET)
+            if (ProcessingOptions.ComputeNET)
             {
-                outLine.AppendFormat("{0}{1:0.0000}", mOutputFileDelimiter, protein.ProteinNET);
+                outLine.AppendFormat("{0}{1:0.0000}", outputFileDelimiter, protein.ProteinNET);
             }
 
-            if (ComputeSCXNET)
+            if (ProcessingOptions.ComputeSCXNET)
             {
-                outLine.AppendFormat("{0}{1:0.0000}", mOutputFileDelimiter, protein.ProteinSCXNET);
+                outLine.AppendFormat("{0}{1:0.0000}", outputFileDelimiter, protein.ProteinSCXNET);
             }
 
             proteinFileWriter.WriteLine(outLine.ToString());
@@ -1695,19 +1439,19 @@ namespace ProteinDigestionSimulator
         {
             string outputFileName;
 
-            if (AssumeFastaFile || IsFastaFile(pathInfo.ProteinInputFilePath, true))
+            if (ProcessingOptions.AssumeFastaFile || IsFastaFile(pathInfo.ProteinInputFilePath, true))
             {
-                ParsedFileIsFastaFile = !AssumeDelimitedFile;
+                ParsedFileIsFastaFile = !ProcessingOptions.AssumeDelimitedFile;
             }
             else
             {
                 ParsedFileIsFastaFile = false;
             }
 
-            if (CreateDigestedProteinOutputFile)
+            if (ProcessingOptions.CreateDigestedProteinOutputFile)
             {
                 // Make sure mCreateFastaOutputFile is false
-                CreateFastaOutputFile = false;
+                ProcessingOptions.CreateFastaOutputFile = false;
             }
 
             if (!string.IsNullOrEmpty(pathInfo.OutputFileNameBaseOverride))
@@ -1716,7 +1460,7 @@ namespace ProteinDigestionSimulator
                 {
                     outputFileName = string.Copy(pathInfo.OutputFileNameBaseOverride);
 
-                    if (CreateFastaOutputFile)
+                    if (ProcessingOptions.CreateFastaOutputFile)
                     {
                         if (!Path.GetExtension(outputFileName).Equals(".fasta", StringComparison.OrdinalIgnoreCase))
                         {
@@ -1728,7 +1472,7 @@ namespace ProteinDigestionSimulator
                         outputFileName += ".txt";
                     }
                 }
-                else if (CreateFastaOutputFile)
+                else if (ProcessingOptions.CreateFastaOutputFile)
                 {
                     outputFileName = pathInfo.OutputFileNameBaseOverride + ".fasta";
                 }
@@ -1750,8 +1494,8 @@ namespace ProteinDigestionSimulator
             {
                 proteinFileReader = new DelimitedProteinFileReader
                 {
-                    Delimiter = mInputFileDelimiter,
-                    DelimitedFileFormatCode = DelimitedFileFormatCode
+                    Delimiter = ProcessingOptions.InputFileDelimiter,
+                    DelimitedFileFormatCode = ProcessingOptions.DelimitedFileFormatCode
                 };
             }
 
@@ -1796,7 +1540,7 @@ namespace ProteinDigestionSimulator
                         }
                     }
 
-                    if (CreateFastaOutputFile)
+                    if (ProcessingOptions.CreateFastaOutputFile)
                     {
                         outputFileName = Path.GetFileNameWithoutExtension(outputFileName) + "_new.fasta";
                     }
@@ -1808,7 +1552,7 @@ namespace ProteinDigestionSimulator
             }
             else if (outputFileName.Length == 0)
             {
-                if (CreateFastaOutputFile)
+                if (ProcessingOptions.CreateFastaOutputFile)
                 {
                     outputFileName = Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath) + ".fasta";
                 }
@@ -1836,11 +1580,12 @@ namespace ProteinDigestionSimulator
                 outputFileName = Path.GetFileNameWithoutExtension(outputFileName) + "_digested";
             }
 
-            outputFileName += "_Mass" + Math.Round((decimal)DigestionOptions.MinFragmentMass, 0) + "to" + Math.Round((decimal)DigestionOptions.MaxFragmentMass, 0);
+            outputFileName += "_Mass" + Math.Round((decimal)ProcessingOptions.DigestionOptions.MinFragmentMass, 0) + "to" + Math.Round((decimal)ProcessingOptions.DigestionOptions.MaxFragmentMass, 0);
 
-            if (ComputepI && (DigestionOptions.MinIsoelectricPoint > 0f || DigestionOptions.MaxIsoelectricPoint < 14f))
+            if (ProcessingOptions.ComputepI && (ProcessingOptions.DigestionOptions.MinIsoelectricPoint > 0f || ProcessingOptions.DigestionOptions.MaxIsoelectricPoint < 14f))
             {
-                outputFileName += "_pI" + Math.Round(DigestionOptions.MinIsoelectricPoint, 1) + "to" + Math.Round(DigestionOptions.MaxIsoelectricPoint, 2);
+                outputFileName += "_pI" + Math.Round(ProcessingOptions.DigestionOptions.MinIsoelectricPoint, 1) +
+                                  "to" + Math.Round(ProcessingOptions.DigestionOptions.MaxIsoelectricPoint, 2);
             }
 
             outputFileName += ".txt";
@@ -1851,7 +1596,7 @@ namespace ProteinDigestionSimulator
             return true;
         }
 
-        private bool ParseProteinFileCreateDigestedProteinOutputFile(string digestedProteinOutputFilePath, ref StreamWriter digestFileWriter)
+        private bool ParseProteinFileCreateDigestedProteinOutputFile(string digestedProteinOutputFilePath, ref StreamWriter digestFileWriter, char outputFileDelimiter)
         {
             try
             {
@@ -1859,30 +1604,30 @@ namespace ProteinDigestionSimulator
                 digestFileWriter = new StreamWriter(digestedProteinOutputFilePath);
 
                 string lineOut;
-                if (!ExcludeProteinSequence)
+                if (!ProcessingOptions.ExcludeProteinSequence)
                 {
-                    lineOut = "Protein_Name" + mOutputFileDelimiter + "Sequence" + mOutputFileDelimiter;
+                    lineOut = "Protein_Name" + outputFileDelimiter + "Sequence" + outputFileDelimiter;
                 }
                 else
                 {
                     lineOut = string.Empty;
                 }
 
-                lineOut += "Unique_ID" + mOutputFileDelimiter + "Monoisotopic_Mass" + mOutputFileDelimiter + "Predicted_NET" + mOutputFileDelimiter + "Tryptic_Name";
+                lineOut += "Unique_ID" + outputFileDelimiter + "Monoisotopic_Mass" + outputFileDelimiter + "Predicted_NET" + outputFileDelimiter + "Tryptic_Name";
 
-                if (ComputepI)
+                if (ProcessingOptions.ComputepI)
                 {
-                    lineOut += mOutputFileDelimiter + "pI" + mOutputFileDelimiter + "Hydrophobicity";
+                    lineOut += outputFileDelimiter + "pI" + outputFileDelimiter + "Hydrophobicity";
                 }
 
-                if (ComputeNET)
+                if (ProcessingOptions.ComputeNET)
                 {
-                    lineOut += mOutputFileDelimiter + "LC_NET";
+                    lineOut += outputFileDelimiter + "LC_NET";
                 }
 
-                if (ComputeSCXNET)
+                if (ProcessingOptions.ComputeSCXNET)
                 {
-                    lineOut += mOutputFileDelimiter + "SCX_NET";
+                    lineOut += outputFileDelimiter + "SCX_NET";
                 }
 
                 digestFileWriter.WriteLine(lineOut);
@@ -2228,7 +1973,7 @@ namespace ProteinDigestionSimulator
         {
             // Returns True if success, False if failure
 
-            var success = default(bool);
+            var success = false;
 
             if (resetErrorCode)
             {
@@ -2411,7 +2156,7 @@ namespace ProteinDigestionSimulator
 
         private void InSilicoDigest_ErrorEvent(string message)
         {
-            ShowErrorMessage("Error in mInSilicoDigest: " + message);
+            ShowErrorMessage("Error in InSilicoDigester: " + message);
         }
 
         private void InSilicoDigest_ProgressChanged(string taskDescription, float percentComplete)

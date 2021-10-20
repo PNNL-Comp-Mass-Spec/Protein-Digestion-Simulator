@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ProteinDigestionSimulator.Options;
 
 namespace ProteinDigestionSimulator
 {
@@ -27,32 +28,16 @@ namespace ProteinDigestionSimulator
         // Ignore Spelling: al, Bryson, Eisenberg, Engleman, Hopp, hydrophilicity, hydrophobicity,
         // Ignore Spelling: isoelectric, Kyte, Mant, MaximumpI
 
-        public ComputePeptideProperties()
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="options"></param>
+        public ComputePeptideProperties(DigestionSimulatorOptions options)
         {
+            ProcessingOptions = options;
+
             mAminoAcids = new Dictionary<char, AA>();
             InitializeLocalVariables();
-        }
-
-        /// <summary>
-        /// Hydrophobicity values for each amino acid
-        /// </summary>
-        /// <remarks>
-        /// Originally from ICR-2LS
-        /// Values confirmed via various resources:
-        /// Ref 1: http://resources.qiagenbioinformatics.com/manuals/clcgenomicsworkbench/650/Hydrophobicity_scales.html
-        /// Ref 2: https://web.expasy.org/protscale/
-        /// Ref 3: Manuscript by Mant and Hodges at https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2792893/
-        ///        Intrinsic Amino Acid Side-Chain Hydrophilicity/Hydrophobicity Coefficients Determined
-        ///        by Reversed-Phase High-Performance Liquid Chromatography of Model Peptides
-        /// </remarks>
-        public enum HydrophobicityTypeConstants
-        {
-            HW = 0,             // Hopp and Woods, values available at references 1 and 2
-            KD = 1,             // Kyte and Doolittle, values available t references 1 and 2
-            Eisenberg = 2,      // Eisenberg, values available t references 1 and 2
-            GES = 3,            // Engleman et. al., values available at reference 1
-            MeekPH7p4 = 4,      // Meek, pH 7.4; column 14 in table 3 of reference 3
-            MeekPH2p1 = 5       // Meek, pH 2.1; column 3  in table 3 of reference 3
         }
 
         // Dissociation constants                ' Alternate values
@@ -95,21 +80,7 @@ namespace ProteinDigestionSimulator
 
         private readonly Dictionary<char, AA> mAminoAcids;
 
-        /// <summary>
-        /// Hydrophobicity type
-        /// </summary>
-        public HydrophobicityTypeConstants HydrophobicityType { get; set; }
-
-        /// <summary>
-        /// When true, examine the protein residues in chunks of SequenceWidthToExamineForMaximumpI,
-        /// compute the pI for each chunk, then report the largest pI
-        /// </summary>
-        public bool ReportMaximumpI { get; set; }
-
-        /// <summary>
-        /// Number of residues to use for computation of pI when ReportMaximumpI is true
-        /// </summary>
-        public int SequenceWidthToExamineForMaximumpI { get; set; }
+        private DigestionSimulatorOptions ProcessingOptions { get; }
 
         private double CalculateCharge(double pH, int numC, int numD, int numE, int numH, int numK, int numR, int numY)
         {
@@ -277,12 +248,12 @@ namespace ProteinDigestionSimulator
 
             try
             {
-                if (ReportMaximumpI && seq.Length > SequenceWidthToExamineForMaximumpI)
+                if (ProcessingOptions.ReportMaximumpI && seq.Length > ProcessingOptions.SequenceWidthToExamineForMaximumpI)
                 {
                     var maxHydrophobicity = 0d;
-                    for (var index = 0; index < seq.Length - SequenceWidthToExamineForMaximumpI; index++)
+                    for (var index = 0; index < seq.Length - ProcessingOptions.SequenceWidthToExamineForMaximumpI; index++)
                     {
-                        var segmentHydrophobicity = CalculateHydrophobicity(seq.Substring(index, SequenceWidthToExamineForMaximumpI), HydrophobicityType);
+                        var segmentHydrophobicity = CalculateHydrophobicity(seq.Substring(index, ProcessingOptions.SequenceWidthToExamineForMaximumpI), ProcessingOptions.HydrophobicityMode);
                         if (segmentHydrophobicity > maxHydrophobicity)
                         {
                             maxHydrophobicity = segmentHydrophobicity;
@@ -292,7 +263,7 @@ namespace ProteinDigestionSimulator
                     return (float)maxHydrophobicity;
                 }
 
-                var hydrophobicity = CalculateHydrophobicity(seq, HydrophobicityType);
+                var hydrophobicity = CalculateHydrophobicity(seq, ProcessingOptions.HydrophobicityMode);
                 return (float)hydrophobicity;
             }
             catch
@@ -386,10 +357,6 @@ namespace ProteinDigestionSimulator
 
         private void InitializeLocalVariables()
         {
-            HydrophobicityType = HydrophobicityTypeConstants.HW;
-            ReportMaximumpI = false;
-            SequenceWidthToExamineForMaximumpI = 10;
-
             LoadAminoAcids();
         }
 

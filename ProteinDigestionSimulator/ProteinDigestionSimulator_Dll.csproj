@@ -58,6 +58,11 @@
   <ItemGroup>
     <Compile Include="Delegates.cs" />
     <Compile Include="GlobalSuppressions2.cs" />
+    <Compile Include="Options\DigestionOptions.cs" />
+    <Compile Include="Options\DigestionSimulatorOptions.cs" />
+    <Compile Include="Options\DigestionSimulatorOptionsGUI.cs" />
+    <Compile Include="Options\Enums.cs" />
+    <Compile Include="Options\PeakMatchingOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CleavageRule.cs" />
     <Compile Include="ComputePeptideProperties.cs" />
@@ -80,5 +85,6 @@
       <Version>2.0.7</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

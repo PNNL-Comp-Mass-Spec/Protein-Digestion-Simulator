@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows.Forms;
 using PRISM;
 using PRISM.FileProcessor;
-using ProteinFileReader;
+using PRISM.Logging;
+using ProteinDigestionSimulator.Options;
 
 // ReSharper disable LocalizableElement
 
@@ -44,9 +43,9 @@ namespace ProteinDigestionSimulator
     /// </remarks>
     internal static class Program
     {
-        // Ignore Spelling: silico
+        // Ignore Spelling: conf, silico
 
-        public const string PROGRAM_DATE = "October 18, 2021";
+        public const string PROGRAM_DATE = "October 19, 2021";
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
@@ -57,137 +56,132 @@ namespace ProteinDigestionSimulator
         private const int SW_HIDE = 0;
         private const int SW_SHOW = 5;
 
-        private static string mInputFilePath;
-        private static bool mAssumeFastaFile;
-        private static bool mCreateDigestedProteinOutputFile;
-        private static bool mComputeProteinMass;
-
-        private static char mInputFileDelimiter;
-
-        private static string mOutputDirectoryPath;              // Optional
-        private static string mParameterFilePath;                // Optional
-        private static string mOutputDirectoryAlternatePath;     // Optional
-
-        private static bool mRecreateDirectoryHierarchyInAlternatePath;  // Optional
-
-        private static bool mRecurseDirectories;
-        private static int mMaxLevelsToRecurse;
-
-        private static bool mLogMessagesToFile;
-        private static string mLogFilePath = string.Empty;
-        private static string mLogDirectoryPath = string.Empty;
-
-        private static bool mShowDebugPrompts;
-
-        private static ProteinFileParser mParseProteinFile;
         private static DateTime mLastProgressReportTime;
         private static int mLastProgressReportValue;
 
+        /// <summary>
+        /// Program entry method
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns>0 if no error, error code if an error</returns>
         [STAThread]
-        private static int Main()
+        private static int Main(string[] args)
         {
-            // Returns 0 if no error, error code if an error
-
-            int returnCode;
-            var commandLineParser = new clsParseCommandLine();
-
-            mInputFilePath = string.Empty;
-            mAssumeFastaFile = false;
-            mCreateDigestedProteinOutputFile = false;
-            mComputeProteinMass = false;
-
-            mInputFileDelimiter = '\t';
-
-            mOutputDirectoryPath = string.Empty;
-            mParameterFilePath = string.Empty;
-
-            mRecurseDirectories = false;
-            mMaxLevelsToRecurse = 0;
-
-            mLogMessagesToFile = false;
-            mLogFilePath = string.Empty;
-            mLogDirectoryPath = string.Empty;
-
             try
             {
-                var proceed = false;
-                if (commandLineParser.ParseCommandLine())
-                {
-                    if (SetOptionsUsingCommandLineParameters(commandLineParser))
-                    {
-                        proceed = true;
-                    }
-                }
-
-                if (commandLineParser.ParameterCount + commandLineParser.NonSwitchParameterCount == 0 && !commandLineParser.NeedToShowHelp)
+                if (args?.Length == 0)
                 {
                     ShowGUI();
                     return 0;
                 }
 
-                if (!proceed || commandLineParser.NeedToShowHelp || mInputFilePath.Length == 0)
+                var programName = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name;
+                var exePath = ProcessFilesOrDirectoriesBase.GetAppPath();
+                var exeName = Path.GetFileName(exePath);
+                var cmdLineParser = new CommandLineParser<DigestionSimulatorOptions>(programName, GetAppVersion())
                 {
-                    ShowProgramHelp();
+                    ProgramInfo = "This program can be used to read a FASTA file or tab delimited file containing protein or peptide sequences, then output " +
+                                  "the data to a tab-delimited file. It can optionally digest the input sequences using trypsin or partial trypsin rules, " +
+                                  "and can add the predicted normalized elution time (NET) values for the peptides. Additionally, it can calculate the " +
+                                  "number of uniquely identifiable peptides, using only mass, or both mass and NET, with appropriate tolerances.",
+                    ContactInfo = "Program written by Matthew Monroe for PNNL (Richland, WA) in 2004" + Environment.NewLine +
+                                  "E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov" + Environment.NewLine +
+                                  "Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics"
+                };
+
+                cmdLineParser.UsageExamples.Add("Program mode #1:\n" + exeName + " SourceFile.fasta");
+                cmdLineParser.UsageExamples.Add("Program mode #1:\n" + exeName + " SourceFile.fasta /O:OutputDirectoryPath");
+                cmdLineParser.UsageExamples.Add("Program mode #1:\n" + exeName + " SourceFile.fasta /P:ParameterFilePath");
+
+                // The default argument name for parameter files is /ParamFile or -ParamFile
+                // Also allow /Conf or /P
+                cmdLineParser.AddParamFileKey("Conf");
+                cmdLineParser.AddParamFileKey("P");
+
+                var result = cmdLineParser.ParseArgs(args);
+                var options = result.ParsedResults;
+                RegisterEvents(options);
+
+                if (!result.Success || !options.Validate())
+                {
+                    // Delay for 750 msec in case the user double clicked this file from within Windows Explorer (or started the program via a shortcut)
+                    Thread.Sleep(750);
                     return -1;
                 }
 
-                mParseProteinFile = new ProteinFileParser { ShowDebugPrompts = mShowDebugPrompts };
-
-                mParseProteinFile.ProgressUpdate += Processing_ProgressChanged;
-                mParseProteinFile.ProgressReset += Processing_ProgressReset;
-
-                // Note: the following settings will be overridden if mParameterFilePath points to a valid parameter file that has these settings defined
-                mParseProteinFile.AssumeFastaFile = mAssumeFastaFile;
-                mParseProteinFile.CreateProteinOutputFile = true;
-                mParseProteinFile.CreateDigestedProteinOutputFile = mCreateDigestedProteinOutputFile;
-                mParseProteinFile.ComputeProteinMass = mComputeProteinMass;
-
-                mParseProteinFile.InputFileDelimiter = mInputFileDelimiter;
-                mParseProteinFile.DelimitedFileFormatCode = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence;
-
-                mParseProteinFile.DigestionOptions.RemoveDuplicateSequences = false;
-
-                mParseProteinFile.LogMessagesToFile = mLogMessagesToFile;
-                mParseProteinFile.LogFilePath = mLogFilePath;
-                mParseProteinFile.LogDirectoryPath = mLogDirectoryPath;
-
-                if (mRecurseDirectories)
+                var proteinFileParser = new ProteinFileParser(options)
                 {
-                    if (mParseProteinFile.ProcessFilesAndRecurseDirectories(mInputFilePath, mOutputDirectoryPath,
-                                                                            mOutputDirectoryAlternatePath, mRecreateDirectoryHierarchyInAlternatePath,
-                                                                            mParameterFilePath, mMaxLevelsToRecurse))
-                    {
-                        returnCode = 0;
-                    }
-                    else
-                    {
-                        returnCode = (int)mParseProteinFile.ErrorCode;
-                    }
+                    LogMessagesToFile = options.LogEnabled,
+                    LogFilePath = options.LogFilePath
+                };
+
+                proteinFileParser.ProgressUpdate += Processing_ProgressChanged;
+                proteinFileParser.ProgressReset += Processing_ProgressReset;
+
+                if (options.RecurseDirectories)
+                {
+                    return ProcessFilesAndRecurse(proteinFileParser, options);
                 }
-                else if (mParseProteinFile.ProcessFilesWildcard(mInputFilePath, mOutputDirectoryPath, mParameterFilePath))
+
+                // Do not provide a parameter file here, since the CommandLineParser will have already loaded options from a Key=Value parameter file
+                if (proteinFileParser.ProcessFilesWildcard(options.InputFilePath, options.OutputDirectoryPath))
                 {
-                    returnCode = 0;
+                    DisplayProgressPercent(mLastProgressReportValue, true);
+                    return 0;
+                }
+
+                int returnCode;
+                if (proteinFileParser.ErrorCode != ProcessFilesBase.ProcessFilesErrorCodes.NoError)
+                {
+                    returnCode = (int)proteinFileParser.ErrorCode;
+                    ShowErrorMessage("Error while processing: " + proteinFileParser.GetErrorMessage());
                 }
                 else
                 {
-                    returnCode = (int)mParseProteinFile.ErrorCode;
-                    if (returnCode != 0)
-                    {
-                        ShowErrorMessage("Error while processing: " + mParseProteinFile.GetErrorMessage());
-                    }
+                    returnCode = -1;
+                    ShowErrorMessage("Unknown error while processing");
                 }
 
-                DisplayProgressPercent(mLastProgressReportValue, true);
+                Thread.Sleep(750);
+                return returnCode;
             }
             catch (Exception ex)
             {
                 ShowErrorMessage("Error occurred in Program->Main", ex);
-                returnCode = -1;
+                Thread.Sleep(1500);
+                return -1;
+            }
+        }
+
+        private static int ProcessFilesAndRecurse(ProcessFilesBase proteinFileParser, DigestionSimulatorOptions options)
+        {
+            // Send an empty string for the parameter file path since the CommandLineParser will have already loaded options from a Key=Value parameter file
+
+            if (proteinFileParser.ProcessFilesAndRecurseDirectories(
+                options.InputFilePath,
+                options.OutputDirectoryPath,
+                options.OutputDirectoryAlternatePath,
+                options.RecreateDirectoryHierarchyInAlternatePath,
+                string.Empty,
+                options.MaxLevelsToRecurse))
+            {
+                return 0;
             }
 
-            Thread.Sleep(1500);
+            int errorCode;
+            if (proteinFileParser.ErrorCode != ProcessFilesBase.ProcessFilesErrorCodes.NoError)
+            {
+                errorCode = (int)proteinFileParser.ErrorCode;
+                ShowErrorMessage("Error while processing: " + proteinFileParser.GetErrorMessage());
+            }
+            else
+            {
+                errorCode = -1;
+                ShowErrorMessage("Unknown error while processing");
+            }
 
-            return returnCode;
+            Thread.Sleep(750);
+            return errorCode;
         }
 
         private static void DisplayProgressPercent(int percentComplete, bool addCarriageReturn)
@@ -219,107 +213,37 @@ namespace ProteinDigestionSimulator
             return Path.GetFileName(ProcessFilesOrDirectoriesBase.GetAppPath());
         }
 
-        private static bool SetOptionsUsingCommandLineParameters(clsParseCommandLine commandLineParser)
+        private static void OnDebugEvent(string message)
         {
-            // Returns True if no problems; otherwise, returns false
+            ConsoleMsgUtils.ShowDebug(message);
+        }
 
-            var validParameters = new List<string> { "I", "F", "D", "M", "AD", "O", "P", "S", "A", "R", "DEBUG" };
+        private static void OnErrorEvent(string message, Exception ex)
+        {
+            ShowErrorMessage(message, ex);
+        }
 
-            try
-            {
-                // Make sure no invalid parameters are present
-                if (commandLineParser.InvalidParametersPresent(validParameters))
-                {
-                    ConsoleMsgUtils.ShowErrors("Invalid command line parameters", commandLineParser.InvalidParameters(validParameters).ConvertAll(x => "/" + x));
-                    return false;
-                }
+        private static void OnStatusEvent(string message)
+        {
+            Console.WriteLine(message);
+        }
 
-                // Query commandLineParser to see if various parameters are present
-                if (commandLineParser.RetrieveValueForParameter("I", out var value))
-                {
-                    mInputFilePath = value;
-                }
-                else if (commandLineParser.NonSwitchParameterCount > 0)
-                {
-                    mInputFilePath = commandLineParser.RetrieveNonSwitchParameter(0);
-                }
+        private static void OnWarningEvent(string message)
+        {
+            ConsoleMsgUtils.ShowWarning(message);
+        }
 
-                if (commandLineParser.RetrieveValueForParameter("F", out value))
-                {
-                    mAssumeFastaFile = true;
-                }
-
-                if (commandLineParser.RetrieveValueForParameter("D", out value))
-                {
-                    mCreateDigestedProteinOutputFile = true;
-                }
-
-                if (commandLineParser.RetrieveValueForParameter("M", out value))
-                {
-                    mComputeProteinMass = true;
-                }
-
-                if (commandLineParser.RetrieveValueForParameter("AD", out value))
-                {
-                    mInputFileDelimiter = value[0];
-                }
-
-                if (commandLineParser.RetrieveValueForParameter("O", out value))
-                {
-                    mOutputDirectoryPath = value;
-                }
-
-                if (commandLineParser.RetrieveValueForParameter("P", out value))
-                {
-                    mParameterFilePath = value;
-                }
-
-                if (commandLineParser.RetrieveValueForParameter("S", out value))
-                {
-                    mRecurseDirectories = true;
-                    if (int.TryParse(value, out var valueInt))
-                    {
-                        mMaxLevelsToRecurse = valueInt;
-                    }
-                }
-
-                if (commandLineParser.RetrieveValueForParameter("A", out value))
-                {
-                    mOutputDirectoryAlternatePath = value;
-                }
-
-                if (commandLineParser.RetrieveValueForParameter("R", out value))
-                {
-                    mRecreateDirectoryHierarchyInAlternatePath = true;
-                }
-
-                //if (commandLineParser.RetrieveValueForParameter("L", out value))
-                //{
-                //    mLogMessagesToFile = true;
-                //    if (!string.IsNullOrEmpty(value))
-                //        mLogFilePath = value;
-                //}
-
-                //if (commandLineParser.RetrieveValueForParameter("LogDir", out value))
-                //{
-                //    mLogMessagesToFile = true;
-                //    if (!string.IsNullOrEmpty(value))
-                //        mLogDirectoryPath = value;
-                //}
-
-                if (commandLineParser.RetrieveValueForParameter("DEBUG", out value))
-                {
-                    mShowDebugPrompts = true;
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                ShowErrorMessage("Error parsing the command line parameters: " + ex.Message, ex);
-            }
-
-            return false;
+        /// <summary>
+        /// Use this method to chain events between classes
+        /// </summary>
+        /// <param name="sourceClass"></param>
+        private static void RegisterEvents(IEventNotifier sourceClass)
+        {
+            sourceClass.DebugEvent += OnDebugEvent;
+            sourceClass.StatusEvent += OnStatusEvent;
+            sourceClass.ErrorEvent += OnErrorEvent;
+            sourceClass.WarningEvent += OnWarningEvent;
+            // Ignore: sourceClass.ProgressUpdate += OnProgressUpdate;
         }
 
         private static void ShowErrorMessage(string message, Exception ex = null)
@@ -344,8 +268,8 @@ namespace ProteinDigestionSimulator
 
                 try
                 {
-                    Application.EnableVisualStyles();
-                    Application.DoEvents();
+                    System.Windows.Forms.Application.EnableVisualStyles();
+                    System.Windows.Forms.Application.DoEvents();
                 }
                 catch (Exception ex)
                 {
@@ -395,64 +319,6 @@ namespace ProteinDigestionSimulator
             {
                 ShowWindow(hWndConsole, SW_SHOW);
             }
-        }
-
-        private static void ShowProgramHelp()
-        {
-            try
-            {
-                Console.WriteLine(WrapParagraph(
-                    "This program can be used to read a FASTA file or tab delimited file containing protein or peptide sequences, then output " +
-                    "the data to a tab-delimited file. It can optionally digest the input sequences using trypsin or partial trypsin rules, " +
-                    "and can add the predicted normalized elution time (NET) values for the peptides. Additionally, it can calculate the " +
-                    "number of uniquely identifiable peptides, using only mass, or both mass and NET, with appropriate tolerances."));
-                Console.WriteLine();
-                Console.WriteLine("Program syntax:");
-                Console.WriteLine(WrapParagraph(
-                    GetExecutableName() +
-                    " /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimiter] " +
-                    "[/O:OutputDirectoryPath] [/P:ParameterFilePath] [/S:[MaxLevel]] " +
-                    "[/A:AlternateOutputDirectoryPath] [/R]"));
-                Console.WriteLine();
-                Console.WriteLine(WrapParagraph("The input file path can contain the wildcard character * and should point to a FASTA file or tab-delimited text file."));
-                Console.WriteLine();
-                Console.WriteLine(WrapParagraph("Use /F to indicate that the input file is a FASTA file. If /F is not used, the format will be assumed to be FASTA only if the filename ends with .fasta or .fasta.gz"));
-                Console.WriteLine();
-                Console.WriteLine(WrapParagraph("Use /D to indicate that an in-silico digestion of the proteins should be performed. Digestion options must be specified in the Parameter file."));
-                Console.WriteLine();
-                Console.WriteLine(WrapParagraph("Use /M to indicate that protein mass should be computed."));
-                Console.WriteLine();
-                Console.WriteLine(WrapParagraph("Use /AD to specify a delimiter other than the Tab character (not applicable for FASTA files)."));
-                Console.WriteLine();
-                Console.WriteLine(WrapParagraph("The output directory path is optional. If omitted, the output files will be created in the same directory as the input file."));
-                Console.WriteLine();
-                Console.WriteLine(WrapParagraph("The parameter file path is optional. If included, it should point to a valid XML parameter file."));
-                Console.WriteLine();
-                Console.WriteLine(WrapParagraph("Use /S to process all valid files in the input directory and subdirectories. Include a number after /S (like /S:2) to limit the level of subdirectories to examine."));
-                Console.WriteLine();
-                Console.WriteLine(WrapParagraph("When using /S, you can redirect the output of the results using /A."));
-                Console.WriteLine();
-                Console.WriteLine(WrapParagraph("When using /S, you can use /R to re-create the input directory hierarchy in the alternate output directory (if defined)."));
-                Console.WriteLine();
-                Console.WriteLine("Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004");
-                Console.WriteLine("Version: " + GetAppVersion());
-                Console.WriteLine();
-                Console.WriteLine("E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov");
-                Console.WriteLine("Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics");
-                Console.WriteLine();
-                Console.WriteLine(WrapParagraph(Disclaimer.GetKangasPetritisDisclaimerText(false)));
-
-                Thread.Sleep(750);
-            }
-            catch (Exception ex)
-            {
-                ShowErrorMessage("Error displaying the program syntax", ex);
-            }
-        }
-
-        private static string WrapParagraph(string message, int wrapWidth = 80)
-        {
-            return CommandLineParser<clsParseCommandLine>.WrapParagraph(message, wrapWidth);
         }
 
         private static void WriteToErrorStream(string errorMessage)
