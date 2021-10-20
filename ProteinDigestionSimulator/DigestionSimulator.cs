@@ -1277,8 +1277,6 @@ namespace ProteinDigestionSimulator
         /// <returns>True if successful, false if an error or if processing is aborted</returns>
         private bool LoadProteinsOrPeptidesWork(string proteinInputFilePath)
         {
-            bool success;
-
             Dictionary<string, int> masterSequences = null;
 
             try
@@ -1306,7 +1304,7 @@ namespace ProteinDigestionSimulator
                 ProcessingOptions.CreateProteinOutputFile = false;
 
                 // Load the proteins in the input file into memory
-                success = ProteinFileParser.ParseProteinFile(proteinInputFilePath, string.Empty);
+                var proteinsLoaded = ProteinFileParser.ParseProteinFile(proteinInputFilePath, string.Empty);
 
                 var skipMessage = string.Empty;
                 if (ProteinFileParser.InputFileLineSkipCount > 0 && !isFastaFile)
@@ -1319,15 +1317,14 @@ namespace ProteinDigestionSimulator
                     mLastErrorMessage = string.Copy(skipMessage);
                 }
 
-                if (ProteinFileParser.GetProteinCountCached() <= 0)
+                if (ProteinFileParser.GetProteinCountCached() == 0)
                 {
-                    if (success)
+                    if (proteinsLoaded)
                     {
                         // File was successfully loaded, but no proteins were found
                         // This could easily happen for delimited files that only have a header line, or that don't have a format that matches what the user specified
                         SetLocalErrorCode(ErrorCodes.ProteinsNotFoundInInputFile);
                         mLastErrorMessage = string.Empty;
-                        success = false;
                     }
                     else
                     {
@@ -1344,63 +1341,66 @@ namespace ProteinDigestionSimulator
 
                         mLastErrorMessage += skipMessage;
                     }
+
+                    return false;
                 }
-                else if (success)
+
+                if (!proteinsLoaded)
                 {
-                    // Re-enable mass calculation
-                    ProcessingOptions.ComputeProteinMass = true;
+                    return false;
+                }
 
-                    ResetProgress("Digesting proteins in input file");
+                // Re-enable mass calculation
+                ProcessingOptions.ComputeProteinMass = true;
 
-                    for (var proteinIndex = 0; proteinIndex < ProteinFileParser.GetProteinCountCached(); proteinIndex++)
+                ResetProgress("Digesting proteins in input file");
+
+                for (var proteinIndex = 0; proteinIndex < ProteinFileParser.GetProteinCountCached(); proteinIndex++)
+                {
+                    var proteinOrPeptide = ProteinFileParser.GetCachedProtein(proteinIndex);
+
+                    var peptideCount = ProteinFileParser.GetDigestedPeptidesForCachedProtein(proteinIndex, out var digestedPeptides);
+
+                    if (peptideCount > 0)
                     {
-                        var proteinOrPeptide = ProteinFileParser.GetCachedProtein(proteinIndex);
-
-                        var peptideCount = ProteinFileParser.GetDigestedPeptidesForCachedProtein(proteinIndex, out var digestedPeptides);
-
-                        if (peptideCount > 0)
+                        foreach (var digestedPeptide in digestedPeptides)
                         {
-                            foreach (var digestedPeptide in digestedPeptides)
+                            int uniqueSeqID;
+
+                            if (generateUniqueSequenceID)
                             {
-                                int uniqueSeqID;
-
-                                if (generateUniqueSequenceID)
-                                {
-                                    uniqueSeqID = GetNextUniqueSequenceID(digestedPeptide.SequenceOneLetter, masterSequences, ref nextUniqueIDForMasterSeqs);
-                                }
-                                else
-                                {
-                                    // Must assume each sequence is unique; probably an incorrect assumption
-                                    uniqueSeqID = nextUniqueIDForMasterSeqs;
-                                    nextUniqueIDForMasterSeqs++;
-                                }
-
-                                AddOrUpdatePeptide(uniqueSeqID,
-                                                   digestedPeptide.Mass, digestedPeptide.NET, 0, 0,
-                                                   proteinOrPeptide.Name,
-                                                   ProteinCollection.CleavageStateConstants.Unknown,
-                                                   digestedPeptide.PeptideName);
+                                uniqueSeqID = GetNextUniqueSequenceID(digestedPeptide.SequenceOneLetter, masterSequences, ref nextUniqueIDForMasterSeqs);
                             }
-                        }
+                            else
+                            {
+                                // Must assume each sequence is unique; probably an incorrect assumption
+                                uniqueSeqID = nextUniqueIDForMasterSeqs;
+                                nextUniqueIDForMasterSeqs++;
+                            }
 
-                        UpdateProgress((float)((proteinIndex + 1) / (double)ProteinFileParser.GetProteinCountCached() * 100d));
-
-                        if (AbortProcessing)
-                        {
-                            break;
+                            AddOrUpdatePeptide(uniqueSeqID,
+                                digestedPeptide.Mass, digestedPeptide.NET, 0, 0,
+                                proteinOrPeptide.Name,
+                                ProteinCollection.CleavageStateConstants.Unknown,
+                                digestedPeptide.PeptideName);
                         }
                     }
 
-                    success = !AbortProcessing;
+                    UpdateProgress((float)((proteinIndex + 1) / (double)ProteinFileParser.GetProteinCountCached() * 100d));
+
+                    if (AbortProcessing)
+                    {
+                        break;
+                    }
                 }
+
+                return !AbortProcessing;
             }
             catch (Exception ex)
             {
                 SetLocalErrorCode(ErrorCodes.ErrorReadingInputFile, ex);
-                success = false;
+                return false;
             }
-
-            return success;
         }
 
         private void InitializeBinningRanges(
