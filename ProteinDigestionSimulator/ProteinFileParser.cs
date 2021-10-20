@@ -745,7 +745,7 @@ namespace ProteinDigestionSimulator
 
             var lookForAddnlRefInDescription = default(bool);
 
-            AddnlRef[] addnlRefsToOutput = null;
+            var addnlRefsToOutput = new List<AddnlRef>();
 
             var generateUniqueSequenceID = default(bool);
 
@@ -897,6 +897,7 @@ namespace ProteinDigestionSimulator
                     }
 
                     startTime = DateTime.UtcNow;
+                    addnlRefsToOutput.Clear();
 
                     if (ProcessingOptions.CreateProteinOutputFile && ParsedFileIsFastaFile && allowLookForAddnlRefInDescription)
                     {
@@ -908,21 +909,17 @@ namespace ProteinDigestionSimulator
                         if (addnlRefMasterNames.Count > 0)
                         {
                             // Need to extract out the key names from addnlRefMasterNames and sort them alphabetically
-                            addnlRefsToOutput = new AddnlRef[addnlRefMasterNames.Count];
                             lookForAddnlRefInDescription = true;
 
                             var index = 0;
                             foreach (var addnlRef in addnlRefMasterNames)
                             {
-                                addnlRefsToOutput[index].RefName = string.Copy(addnlRef);
+                                addnlRefsToOutput[index].RefName = addnlRef;
                                 index++;
                             }
-
-                            Array.Sort(addnlRefsToOutput);
                         }
                         else
                         {
-                            addnlRefsToOutput = new AddnlRef[1];
                             lookForAddnlRefInDescription = false;
                         }
                     }
@@ -938,7 +935,7 @@ namespace ProteinDigestionSimulator
 
                         if (lookForAddnlRefInDescription)
                         {
-                            foreach (var addnlRef in addnlRefsToOutput)
+                            foreach (var addnlRef in (from item in addnlRefsToOutput orderby item.RefName select item))
                             {
                                 outLine.AppendFormat("{0}{1}", addnlRef.RefName, outputFileDelimiter);
                             }
@@ -1353,7 +1350,7 @@ namespace ProteinDigestionSimulator
             ProteinInfo protein,
             StringBuilder outLine,
             bool lookForAddnlRefInDescription,
-            ref AddnlRef[] addnlRefsToOutput)
+            List<AddnlRef> addnlRefsToOutput)
         {
             // Write the entry to the protein output file, and possibly digest it
 
@@ -1380,10 +1377,10 @@ namespace ProteinDigestionSimulator
                     }
                 }
 
-                outLine.AppendFormat("{0}{1}", protein.Name, mOutputFileDelimiter);
-                foreach (var addnlRef in addnlRefsToOutput)
+                outLine.AppendFormat("{0}{1}", protein.Name, outputFileDelimiter);
+                foreach (var addnlRef in (from item in addnlRefsToOutput orderby item.RefName select item))
                 {
-                    outLine.AppendFormat("{0}{1}", addnlRef.RefAccession, mOutputFileDelimiter);
+                    outLine.AppendFormat("{0}{1}", addnlRef.RefAccession, outputFileDelimiter);
                 }
 
                 if (!ProcessingOptions.ExcludeProteinDescription)
