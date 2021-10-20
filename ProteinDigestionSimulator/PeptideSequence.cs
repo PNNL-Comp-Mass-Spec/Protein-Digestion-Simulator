@@ -1073,7 +1073,7 @@ namespace ProteinDigestionSimulator
                             // Exception char matched; can't count this as the cleavage point
                             matchFound = false;
                             var recursiveCheck = false;
-                            var newStartResidueNum = default(int);
+                            var newStartResidueNum = 0;
 
                             if (cleavageRule.ReversedCleavageDirection)
                             {
@@ -1738,7 +1738,7 @@ namespace ProteinDigestionSimulator
         private void UpdateSequenceMass()
         {
             double runningTotal;
-            var protonatedNTerminus = default(bool);
+            var protonatedNTerminus = false;
 
             if (mDelayUpdateResidueMass)
             {

@@ -741,19 +741,19 @@ namespace ProteinDigestionSimulator
             StreamWriter scrambledFileWriter = null;
 
             bool success;
-            var headerChecked = default(bool);
+            var headerChecked = false;
 
-            var lookForAddnlRefInDescription = default(bool);
+            var lookForAddnlRefInDescription = false;
 
             var addnlRefsToOutput = new List<AddnlRef>();
 
-            var generateUniqueSequenceID = default(bool);
+            var generateUniqueSequenceID = false;
 
             Random randomNumberGenerator = null;
 
             var residueCache = new ScramblingResidueCache(ProcessingOptions);
 
-            var startTime = default(DateTime);
+            var startTime = DateTime.UtcNow;
 
             ProcessingSummary = string.Empty;
 

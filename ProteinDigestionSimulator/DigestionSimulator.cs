@@ -575,8 +575,8 @@ namespace ProteinDigestionSimulator
 
         public bool GenerateUniquenessStats(string proteinInputFilePath, string outputFolderPath, string outputFilenameBase)
         {
-            var progressStepCount = default(int);
-            var progressStep = default(int);
+            var progressStepCount = 0;
+            var progressStep = 0;
 
             bool success;
 
@@ -1227,7 +1227,7 @@ namespace ProteinDigestionSimulator
 
             bool success;
 
-            var inputFileLineSkipCount = default(int);
+            var inputFileLineSkipCount = 0;
 
             try
             {
@@ -1560,7 +1560,7 @@ namespace ProteinDigestionSimulator
         {
             // Returns True if success, False if failure
 
-            var success = default(bool);
+            var success = false;
 
             if (resetErrorCode)
             {
@@ -1649,7 +1649,7 @@ namespace ProteinDigestionSimulator
             string outputFilenameBase,
             StreamWriter peptideUniquenessWriter)
         {
-            var matchCount = default(int);
+            var matchCount = 0;
 
             bool success;
 
@@ -1819,7 +1819,7 @@ namespace ProteinDigestionSimulator
             string outputFolderPath, string outputFilenameBase,
             StreamWriter proteinStatsWriter)
         {
-            var matchCount = default(int);
+            var matchCount = 0;
 
             bool success;
 

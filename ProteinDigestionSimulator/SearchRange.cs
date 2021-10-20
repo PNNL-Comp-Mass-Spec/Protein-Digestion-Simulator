@@ -64,14 +64,18 @@ namespace ProteinDigestionSimulator
                     case DataTypeToUse.IntegerType:
                     case DataTypeToUse.FillingIntegerType:
                         return mDataInt.Length;
+
                     case DataTypeToUse.SingleType:
                     case DataTypeToUse.FillingSingleType:
                         return mDataSingle.Length;
+
                     case DataTypeToUse.DoubleType:
                     case DataTypeToUse.FillingDoubleType:
                         return mDataDouble.Length;
+
                     case DataTypeToUse.NoDataPresent:
                         return 0;
+
                     default:
                         Console.WriteLine("Unknown data type encountered: " + mDataType);
                         return 0;
@@ -108,8 +112,8 @@ namespace ProteinDigestionSimulator
         {
             // Recursive search function
 
-            var leftDone = default(bool);
-            var rightDone = default(bool);
+            var leftDone = false;
+            var rightDone = false;
 
             var indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
             if (indexMidpoint == matchIndexStart)
@@ -181,8 +185,8 @@ namespace ProteinDigestionSimulator
         {
             // Recursive search function
 
-            var leftDone = default(bool);
-            var rightDone = default(bool);
+            var leftDone = false;
+            var rightDone = false;
 
             var indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
             if (indexMidpoint == matchIndexStart)
@@ -254,8 +258,8 @@ namespace ProteinDigestionSimulator
         {
             // Recursive search function
 
-            var leftDone = default(bool);
-            var rightDone = default(bool);
+            var leftDone = false;
+            var rightDone = false;
 
             var indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
             if (indexMidpoint == matchIndexStart)

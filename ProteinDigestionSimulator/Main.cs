@@ -289,17 +289,21 @@ namespace ProteinDigestionSimulator
             // Returns true if the PM_THRESHOLDS_DATA_TABLE is empty or if it was cleared
             // Returns false if the user is queried about clearing and they do not click Yes
 
-            var result = default(DialogResult);
-
             var success = false;
             if (mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].Rows.Count > 0)
             {
+                DialogResult result;
+
                 if (confirmReplaceExistingResults)
                 {
                     result = MessageBox.Show("Are you sure you want to clear the thresholds?", "Clear Thresholds", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
                 }
+                else
+                {
+                    result = DialogResult.Yes;
+                }
 
-                if (result == DialogResult.Yes || !confirmReplaceExistingResults)
+                if (result == DialogResult.Yes)
                 {
                     mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].Rows.Clear();
                     success = true;
@@ -594,7 +598,7 @@ namespace ProteinDigestionSimulator
                         }
                     }
 
-                    var massToleranceType = default(PeakMatching.SearchThresholds.MassToleranceConstants);
+                    PeakMatching.SearchThresholds.MassToleranceConstants massToleranceType;
                     if (cboMassTolType.SelectedIndex >= 0)
                     {
                         massToleranceType = (PeakMatching.SearchThresholds.MassToleranceConstants)cboMassTolType.SelectedIndex;
@@ -1560,8 +1564,8 @@ namespace ProteinDigestionSimulator
 
                                         var useSLiC = !chkAutoDefineSLiCScoreTolerances.Checked && dataColumns.Length >= 4;
 
-                                        var slicMassStDev = default(double);
-                                        var slicNETStDev = default(double);
+                                        double slicMassStDev = 0;
+                                        double slicNETStDev = 0;
 
                                         if (useSLiC)
                                         {
@@ -2186,7 +2190,7 @@ namespace ProteinDigestionSimulator
 
             const int SAMPLING_LINE_COUNT = 10000;
 
-            var totalLineCount = default(int);
+            var totalLineCount = 0;
 
             var suggestEnableSqlServer = false;
             var suggestDisableSqlServer = false;
