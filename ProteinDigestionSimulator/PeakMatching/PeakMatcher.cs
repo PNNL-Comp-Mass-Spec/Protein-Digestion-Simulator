@@ -39,7 +39,7 @@ namespace ProteinDigestionSimulator.PeakMatching
         public float ProgressPct { get; private set; }
 
         private void ComputeSLiCScores(
-            ref FeatureInfo featureToIdentify,
+            FeatureInfo featureToIdentify,
             PMFeatureMatchResults featureMatchResults,
             List<PeakMatchingRawMatches> rawMatches,
             PMComparisonFeatureInfo comparisonFeatures,
@@ -325,7 +325,7 @@ namespace ProteinDigestionSimulator.PeakMatching
                                 rawMatches.Capacity = rawMatches.Count;
                                 // Store the FeatureIDIndex in featureMatchResults
                                 // Compute the SLiC Scores and store the results
-                                ComputeSLiCScores(ref currentFeatureToIdentify, featureMatchResults, rawMatches, comparisonFeatures, searchThresholds, computedTolerances);
+                                ComputeSLiCScores(currentFeatureToIdentify, featureMatchResults, rawMatches, comparisonFeatures, searchThresholds, computedTolerances);
                             }
                         }
                     }

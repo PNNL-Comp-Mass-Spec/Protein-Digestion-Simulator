@@ -23,7 +23,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             Clear();
         }
 
-        public bool Add(ref FeatureInfo featureInfo, float peptideNETStDev, float peptideDiscriminantScore)
+        public bool Add(FeatureInfo featureInfo, float peptideNETStDev, float peptideDiscriminantScore)
         {
             return Add(featureInfo.FeatureID, featureInfo.FeatureName, featureInfo.Mass, featureInfo.NET, peptideNETStDev, peptideDiscriminantScore);
         }

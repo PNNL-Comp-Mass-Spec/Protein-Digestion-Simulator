@@ -401,7 +401,7 @@ namespace ProteinDigestionSimulator
             mDataDouble = new double[dataCountToReserve];
         }
 
-        public bool FillWithData(ref int[] values)
+        public bool FillWithData(int[] values)
         {
             bool success;
 
@@ -448,7 +448,7 @@ namespace ProteinDigestionSimulator
             return success;
         }
 
-        public bool FillWithData(ref float[] values)
+        public bool FillWithData(float[] values)
         {
             bool success;
 
@@ -495,7 +495,7 @@ namespace ProteinDigestionSimulator
             return success;
         }
 
-        public bool FillWithData(ref double[] values)
+        public bool FillWithData(double[] values)
         {
             bool success;
 
