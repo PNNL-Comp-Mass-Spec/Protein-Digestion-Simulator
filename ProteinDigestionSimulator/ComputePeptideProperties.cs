@@ -160,7 +160,6 @@ namespace ProteinDigestionSimulator
         // ReSharper disable once UnusedMember.Global
         public int CalculateSequenceChargeState(string seq, double pH)
         {
-            int chargeState;
             if (string.IsNullOrEmpty(seq))
             {
                 return 0;
@@ -168,7 +167,7 @@ namespace ProteinDigestionSimulator
 
             try
             {
-                chargeState = 0;
+                var chargeState = 0;
                 foreach (var c in seq)
                 {
                     switch (char.ToUpper(c))
@@ -178,65 +177,59 @@ namespace ProteinDigestionSimulator
                             {
                                 chargeState++;
                             }
-
                             break;
+
                         case 'D':
                             if (Dk > pH)
                             {
                                 chargeState++;
                             }
-
                             break;
+
                         case 'E':
                             if (Ek > pH)
                             {
                                 chargeState++;
                             }
-
                             break;
+
                         case 'H':
                             if (Hk > pH)
                             {
                                 chargeState++;
                             }
-
                             break;
+
                         case 'K':
                             if (Kk > pH)
                             {
                                 chargeState += 1 + 1;
                             }
-
                             break;
+
                         case 'R':
                             if (Rk > pH)
                             {
                                 chargeState++;
                             }
-
                             break;
+
                         case 'Y':
                             if (Yk > pH)
                             {
                                 chargeState++;
                             }
-
                             break;
                     }
                 }
 
-                if (chargeState == 0)
-                {
-                    chargeState = 1;
-                }
+                return chargeState >= 1 ? chargeState : 1;
             }
             catch
             {
                 // Error occurred
-                chargeState = 1;
+                return 1;
             }
-
-            return chargeState;
         }
 
         public float CalculateSequenceHydrophobicity(string seq)

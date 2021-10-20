@@ -825,8 +825,7 @@ namespace ProteinDigestionSimulator
 
         public override IList<string> GetDefaultExtensionsToParse()
         {
-            var extensionsToParse = new List<string> { ".fasta", ".txt" };
-            return extensionsToParse;
+            return new List<string> { ".fasta", ".txt" };
         }
 
         /// <summary>
@@ -1079,8 +1078,6 @@ namespace ProteinDigestionSimulator
         /// <returns>True if data was loaded, false if an error</returns>
         private bool LoadProteinsOrPeptides(string proteinInputFilePath)
         {
-            bool success;
-
             try
             {
                 mComparisonPeptideInfo = new PeakMatching.PMComparisonFeatureInfo();
@@ -1117,13 +1114,12 @@ namespace ProteinDigestionSimulator
                 {
                     case DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID:
                     case DelimitedProteinFileReader.ProteinFileFormatCode.UniqueID_Sequence:
-                        // Reading peptides from a delimited file; digestionEnabled is typically False, but could be true
-                        break;
                     case DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET:
                     case DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore:
                     case DelimitedProteinFileReader.ProteinFileFormatCode.UniqueID_Sequence_Mass_NET:
                         // Reading peptides from a delimited file; digestionEnabled is typically False, but could be true
                         break;
+
                     default:
                         // Force digest Sequences to true
                         digestionEnabled = true;
@@ -1131,6 +1127,8 @@ namespace ProteinDigestionSimulator
                 }
 
                 LogMessage("Digest sequences = " + digestionEnabled);
+
+                bool success;
 
                 if (digestionEnabled)
                 {
@@ -1143,6 +1141,7 @@ namespace ProteinDigestionSimulator
 
                     // Load each peptide using ProteinFileReader.DelimitedFileReader
                     success = LoadPeptidesFromDelimitedFile(proteinInputFilePath);
+
                     // ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
                 }
 
@@ -1150,14 +1149,14 @@ namespace ProteinDigestionSimulator
                 {
                     LogMessage("Loaded " + mComparisonPeptideInfo.Count + " peptides corresponding to " + mProteinInfo.Count + " proteins");
                 }
+
+                return success;
             }
             catch (Exception ex)
             {
                 SetLocalErrorCode(ErrorCodes.ErrorReadingInputFile, ex);
-                success = false;
+                return false;
             }
-
-            return success;
         }
 
         private bool LoadPeptidesFromDelimitedFile(string proteinInputFilePath)
@@ -1166,8 +1165,6 @@ namespace ProteinDigestionSimulator
             // They could optionally have Mass and NET values defined
 
             DelimitedProteinFileReader delimitedFileReader = null;
-
-            bool success;
 
             var inputFileLineSkipCount = 0;
 
@@ -1259,19 +1256,17 @@ namespace ProteinDigestionSimulator
                     mLastErrorMessage = string.Copy(skipMessage);
                 }
 
-                success = !AbortProcessing;
+                return !AbortProcessing;
             }
             catch (Exception ex)
             {
                 SetLocalErrorCode(ErrorCodes.ErrorReadingInputFile, ex);
-                success = false;
+                return false;
             }
             finally
             {
                 delimitedFileReader?.CloseFile();
             }
-
-            return success;
         }
 
         /// <summary>
