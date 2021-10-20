@@ -129,7 +129,7 @@ namespace ProteinDigestionSimulator.Options
 
             DigestSequences = false;
 
-            FragmentMassMode = Options.FragmentMassConstants.Monoisotopic;
+            FragmentMassMode = FragmentMassConstants.Monoisotopic;
 
             IncludePrefixAndSuffixResidues = false;
 
