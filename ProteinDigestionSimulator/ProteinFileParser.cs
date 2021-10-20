@@ -2120,6 +2120,18 @@ namespace ProteinDigestionSimulator
                 }
             }
 
+            // ReSharper disable CommentTypo
+
+            /// <summary>
+            /// <para>
+            /// Character between alternate protein accession names, as defined in a protein description
+            /// </para>
+            /// <para>
+            /// Example with three alternate names:
+            /// SWISS-PROT:O95793-1|TREMBL:Q59F99|ENSEMBL:ENSP00000346163
+            /// </para>
+            /// </summary>
+            /// <remarks>Default is a vertical bar</remarks>
             public char AddnlRefSepChar
             {
                 get => mAddnlRefSepChar;
@@ -2132,6 +2144,12 @@ namespace ProteinDigestionSimulator
                 }
             }
 
+            // ReSharper restore CommentTypo
+
+            /// <summary>
+            /// Character between the accession and the value
+            /// </summary>
+            /// <remarks>Default is a colon</remarks>
             public char AddnlRefAccessionSepChar
             {
                 get => mAddnlRefAccessionSepChar;

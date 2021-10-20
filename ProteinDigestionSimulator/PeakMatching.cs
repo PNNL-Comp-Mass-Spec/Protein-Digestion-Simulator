@@ -932,7 +932,7 @@ namespace ProteinDigestionSimulator
 
                     if (featuresToIdentify.GetFeatureInfoByRowIndex(featureIndex, out var currentFeatureToIdentify))
                     {
-                        // By Calling .ComputedSearchTolerances() with a mass, the tolerances will be auto re-computed
+                        // By Calling .GetComputedSearchTolerances() with a mass, the tolerances will be auto re-computed
                         var computedTolerances = searchThresholds.GetComputedSearchTolerances(currentFeatureToIdentify.Mass);
 
                         double netTol;
@@ -1098,7 +1098,7 @@ namespace ProteinDigestionSimulator
 
             public enum MassToleranceConstants
             {
-                PPM = 0,             // parts per million
+                PPM = 0,            // parts per million
                 Absolute = 1        // absolute (Da)
             }
 

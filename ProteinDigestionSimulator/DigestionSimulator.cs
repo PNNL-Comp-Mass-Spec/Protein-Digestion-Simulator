@@ -1278,7 +1278,10 @@ namespace ProteinDigestionSimulator
 
                 if (inputFileLineSkipCount > 0)
                 {
-                    var skipMessage = "Note that " + inputFileLineSkipCount + " out of " + inputFileLinesRead + " lines were skipped in the input file because they did not match the column order defined on the File Format Options Tab (" + mProteinFileParser.DelimitedFileFormatCode + ")";
+                    var skipMessage = "Note that " + inputFileLineSkipCount + " out of " + inputFileLinesRead + " lines were skipped in the input file " +
+                                      "because they did not match the column order defined on the File Format Options Tab (" +
+                                      ProcessingOptions.DelimitedFileFormatCode + ")";
+
                     LogMessage(skipMessage, MessageTypeConstants.Warning);
                     mLastErrorMessage = string.Copy(skipMessage);
                 }
