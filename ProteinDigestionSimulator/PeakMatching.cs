@@ -1221,33 +1221,42 @@ namespace ProteinDigestionSimulator
             {
                 // Thresholds are all half-widths; i.e. tolerance +- comparison value
 
-                var MWTolPPMBroad = default(double);
+                double massTolerancePPM;
+
                 switch (MassTolType)
                 {
                     case MassToleranceConstants.PPM:
                         ComputedSearchTolerances.MWTolAbsFinal = PPMToMass(mMassTolerance, referenceMass);
-                        MWTolPPMBroad = mMassTolerance;
+                        massTolerancePPM = mMassTolerance;
                         break;
+
                     case MassToleranceConstants.Absolute:
                         ComputedSearchTolerances.MWTolAbsFinal = mMassTolerance;
                         if (referenceMass > 0d)
                         {
-                            MWTolPPMBroad = MassToPPM(mMassTolerance, referenceMass);
+                            massTolerancePPM = MassToPPM(mMassTolerance, referenceMass);
                         }
                         else
                         {
-                            MWTolPPMBroad = mSLiCScoreOptions.MassPPMStDev;
+                            massTolerancePPM = mSLiCScoreOptions.MassPPMStDev;
                         }
 
                         break;
+
                     default:
                         Console.WriteLine("Programming error in DefinePeakMatchingTolerances; Unknown MassToleranceType: " + MassTolType);
+                        massTolerancePPM = 0;
                         break;
                 }
 
-                if (MWTolPPMBroad < mSLiCScoreOptions.MassPPMStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR)
+                double massToleranceToUse;
+                if (massTolerancePPM < mSLiCScoreOptions.MassPPMStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR)
                 {
-                    MWTolPPMBroad = mSLiCScoreOptions.MassPPMStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR;
+                    massToleranceToUse = mSLiCScoreOptions.MassPPMStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR;
+                }
+                else
+                {
+                    massToleranceToUse = massTolerancePPM;
                 }
 
                 ComputedSearchTolerances.NETTolBroad = mSLiCScoreOptions.NETStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR;
@@ -1259,7 +1268,7 @@ namespace ProteinDigestionSimulator
                 ComputedSearchTolerances.NETTolFinal = mNETTolerance;
 
                 // Convert from PPM to Absolute mass
-                ComputedSearchTolerances.MWTolAbsBroad = PPMToMass(MWTolPPMBroad, referenceMass);
+                ComputedSearchTolerances.MWTolAbsBroad = PPMToMass(massToleranceToUse, referenceMass);
             }
 
             private void InitializeSLiCScoreOptions(bool computeUsingSearchThresholds)
