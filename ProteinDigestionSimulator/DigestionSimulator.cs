@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using System.Text;
 using ProteinDigestionSimulator.Options;
 using DBUtils = PRISMDatabaseUtils.DataTableUtils;
@@ -30,7 +29,7 @@ namespace ProteinDigestionSimulator
     /// </summary>
     public class DigestionSimulator : PRISM.FileProcessor.ProcessFilesBase
     {
-        // Ignore Spelling: const, Da, pre, Sql
+        // Ignore Spelling: const, Da, pre
 
         /// <summary>
         /// Parameterless Constructor
@@ -146,7 +145,7 @@ namespace ProteinDigestionSimulator
         public ProteinFileParser ProteinFileParser { get; }
 
         public void AddSearchThresholdLevel(
-            PeakMatching.SearchThresholds.MassToleranceConstants massToleranceType,
+            PeakMatching.MassToleranceConstants massToleranceType,
             double massTolerance, double netTolerance,
             bool clearExistingThresholds)
         {
@@ -154,7 +153,7 @@ namespace ProteinDigestionSimulator
         }
 
         public void AddSearchThresholdLevel(
-            PeakMatching.SearchThresholds.MassToleranceConstants massToleranceType,
+            PeakMatching.MassToleranceConstants massToleranceType,
             double massTolerance, double netTolerance,
             bool autoDefineSLiCScoreThresholds,
             double slicScoreMassPPMStDev,
@@ -162,11 +161,14 @@ namespace ProteinDigestionSimulator
             bool slicScoreUseAMTNETStDev,
             bool clearExistingThresholds)
         {
-            AddSearchThresholdLevel(massToleranceType, massTolerance, netTolerance, autoDefineSLiCScoreThresholds, slicScoreMassPPMStDev, slicScoreNETStDev, slicScoreUseAMTNETStDev, clearExistingThresholds, PeakMatching.DEFAULT_SLIC_MAX_SEARCH_DISTANCE_MULTIPLIER);
+            AddSearchThresholdLevel(
+                massToleranceType, massTolerance, netTolerance,
+                autoDefineSLiCScoreThresholds, slicScoreMassPPMStDev, slicScoreNETStDev, slicScoreUseAMTNETStDev,
+                clearExistingThresholds, PeakMatching.SearchThresholds.DEFAULT_SLIC_MAX_SEARCH_DISTANCE_MULTIPLIER);
         }
 
         public void AddSearchThresholdLevel(
-            PeakMatching.SearchThresholds.MassToleranceConstants massToleranceType,
+            PeakMatching.MassToleranceConstants massToleranceType,
             double massTolerance,
             double netTolerance,
             bool autoDefineSLiCScoreThresholds,
@@ -490,7 +492,7 @@ namespace ProteinDigestionSimulator
             bool usingSLiCScoreForUniqueness,
             float minimumSLiCScore)
         {
-            PeakMatching.PMFeatureMatchResults.PeakMatchingResult[] matchResults = null;
+            PeakMatching.PeakMatchingResult[] matchResults = null;
 
             var uniqueMatch = false;
 
@@ -543,10 +545,10 @@ namespace ProteinDigestionSimulator
 
             switch (searchThresholds.MassTolType)
             {
-                case PeakMatching.SearchThresholds.MassToleranceConstants.Absolute:
+                case PeakMatching.MassToleranceConstants.Absolute:
                     outline.AppendFormat("{0} Da", Math.Round(searchThresholds.MassTolerance, 5));
                     break;
-                case PeakMatching.SearchThresholds.MassToleranceConstants.PPM:
+                case PeakMatching.MassToleranceConstants.PPM:
                     outline.AppendFormat("{0} ppm", Math.Round(searchThresholds.MassTolerance, 2));
                     break;
                 default:
@@ -683,7 +685,7 @@ namespace ProteinDigestionSimulator
 
                         LogMessage("Uniqueness Stats processing starting, Threshold Count = " + mThresholdLevels.Length);
 
-                        if (!PeakMatching.FillRangeSearchObject(rangeSearch, mComparisonPeptideInfo))
+                        if (!PeakMatching.PeakMatcher.FillRangeSearchObject(rangeSearch, mComparisonPeptideInfo))
                         {
                             success = false;
                         }
@@ -693,10 +695,10 @@ namespace ProteinDigestionSimulator
                             // Initialize the peak matching class
                             // ----------------------------------------------------
 
-                            var peakMatching = new PeakMatching(ProcessingOptions.PeakMatchingOptions);
+                            var peakMatcher = new PeakMatching.PeakMatcher(ProcessingOptions.PeakMatchingOptions);
 
-                            peakMatching.LogEvent += PeakMatching_LogEvent;
-                            peakMatching.ProgressChanged += PeakMatching_ProgressContinues;
+                            peakMatcher.LogEvent += PeakMatching_LogEvent;
+                            peakMatcher.ProgressChanged += PeakMatching_ProgressContinues;
 
                             // ----------------------------------------------------
                             // Initialize the output files if combining all results
@@ -721,7 +723,7 @@ namespace ProteinDigestionSimulator
 
                                 // Perform the actual peak matching
                                 LogMessage("Threshold " + (thresholdIndex + 1) + ", IdentifySequences");
-                                success = peakMatching.IdentifySequences(mThresholdLevels[thresholdIndex], featuresToIdentify, mComparisonPeptideInfo, out var featureMatchResults, rangeSearch);
+                                success = peakMatcher.IdentifySequences(mThresholdLevels[thresholdIndex], featuresToIdentify, mComparisonPeptideInfo, out var featureMatchResults, rangeSearch);
                                 mPeptideMatchResults = featureMatchResults;
                                 mPeptideMatchResults.SortingList += PeptideMatchResults_SortingList;
 
@@ -1635,8 +1637,6 @@ namespace ProteinDigestionSimulator
 
                 // Reserve memory for the bins, store the bin ranges for each bin, and reset the ResultIDs arrays
                 InitializeBinnedStats(peptideStatsBinned, peptideStatsBinned.BinCount);
-
-                // ToDo: When using Sql Server, switch this to use a SP that performs the same function as this For Loop, sorting the results in a table in the DB, but using Bulk Update queries
 
                 LogMessage("SummarizeResultsByPeptide starting, total feature count = " + featuresToIdentifyCount);
 

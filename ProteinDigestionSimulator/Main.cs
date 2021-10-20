@@ -115,10 +115,10 @@ namespace ProteinDigestionSimulator
 
         private class PredefinedPMThresholds
         {
-            public PeakMatching.SearchThresholds.MassToleranceConstants MassTolType { get; }
+            public PeakMatching.MassToleranceConstants MassTolType { get; }
             public List<PeakMatchingThresholds> Thresholds { get; }
 
-            public PredefinedPMThresholds(PeakMatching.SearchThresholds.MassToleranceConstants massTolType)
+            public PredefinedPMThresholds(PeakMatching.MassToleranceConstants massTolType)
             {
                 MassTolType = massTolType;
                 Thresholds = new List<PeakMatchingThresholds>();
@@ -391,7 +391,7 @@ namespace ProteinDigestionSimulator
             // All of the predefined thresholds have mass tolerances in units of PPM
             for (index = 0; index <= PREDEFINED_PM_THRESHOLDS_COUNT - 1; index++)
             {
-                mPredefinedPMThresholds[index] = new PredefinedPMThresholds(PeakMatching.SearchThresholds.MassToleranceConstants.PPM);
+                mPredefinedPMThresholds[index] = new PredefinedPMThresholds(PeakMatching.MassToleranceConstants.PPM);
             }
 
             var netValues = new double[3];
@@ -598,14 +598,14 @@ namespace ProteinDigestionSimulator
                         }
                     }
 
-                    PeakMatching.SearchThresholds.MassToleranceConstants massToleranceType;
+                    PeakMatching.MassToleranceConstants massToleranceType;
                     if (cboMassTolType.SelectedIndex >= 0)
                     {
-                        massToleranceType = (PeakMatching.SearchThresholds.MassToleranceConstants)cboMassTolType.SelectedIndex;
+                        massToleranceType = (PeakMatching.MassToleranceConstants)cboMassTolType.SelectedIndex;
                     }
                     else
                     {
-                        massToleranceType = PeakMatching.SearchThresholds.MassToleranceConstants.PPM;
+                        massToleranceType = PeakMatching.MassToleranceConstants.PPM;
                     }
 
                     var autoDefineSLiCScoreThresholds = chkAutoDefineSLiCScoreTolerances.Checked;
@@ -1734,9 +1734,9 @@ namespace ProteinDigestionSimulator
                 SetSelectedCleavageRule(CleavageRuleConstants.ConventionalTrypsin);
 
                 cboMassTolType.Items.Clear();
-                cboMassTolType.Items.Insert((int)PeakMatching.SearchThresholds.MassToleranceConstants.PPM, "PPM");
-                cboMassTolType.Items.Insert((int)PeakMatching.SearchThresholds.MassToleranceConstants.Absolute, "Absolute (Da)");
-                cboMassTolType.SelectedIndex = (int)PeakMatching.SearchThresholds.MassToleranceConstants.PPM;
+                cboMassTolType.Items.Insert((int)PeakMatching.MassToleranceConstants.PPM, "PPM");
+                cboMassTolType.Items.Insert((int)PeakMatching.MassToleranceConstants.Absolute, "Absolute (Da)");
+                cboMassTolType.SelectedIndex = (int)PeakMatching.MassToleranceConstants.PPM;
 
                 cboPMPredefinedThresholds.Items.Clear();
                 cboPMPredefinedThresholds.Items.Insert((int)PredefinedPMThresholdsConstants.OneMassOneNET, "5 ppm; 0.05 " + NET_UNITS);
