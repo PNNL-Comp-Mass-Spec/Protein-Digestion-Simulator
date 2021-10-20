@@ -15,7 +15,8 @@ using ProteinFileReader;
 using ValidateFastaFile;
 
 // -------------------------------------------------------------------------------
-// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004
+// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+// Started in 2004
 //
 // E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
 // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
@@ -25,7 +26,7 @@ using ValidateFastaFile;
 // in compliance with the License.  You may obtain a copy of the License at
 // https://opensource.org/licenses/BSD-2-Clause
 //
-// Copyright 2018 Battelle Memorial Institute
+// Copyright 2021 Battelle Memorial Institute
 
 namespace ProteinDigestionSimulator
 {

@@ -10,7 +10,8 @@ using ProteinDigestionSimulator.Options;
 // ReSharper disable LocalizableElement
 
 // -------------------------------------------------------------------------------
-// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2004
+// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+// Started in 2004
 //
 // E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
 // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
@@ -20,7 +21,7 @@ using ProteinDigestionSimulator.Options;
 // in compliance with the License.  You may obtain a copy of the License at
 // https://opensource.org/licenses/BSD-2-Clause
 //
-// Copyright 2018 Battelle Memorial Institute
+// Copyright 2021 Battelle Memorial Institute
 
 namespace ProteinDigestionSimulator
 {
@@ -84,7 +85,7 @@ namespace ProteinDigestionSimulator
                                   "the data to a tab-delimited file. It can optionally digest the input sequences using trypsin or partial trypsin rules, " +
                                   "and can add the predicted normalized elution time (NET) values for the peptides. Additionally, it can calculate the " +
                                   "number of uniquely identifiable peptides, using only mass, or both mass and NET, with appropriate tolerances.",
-                    ContactInfo = "Program written by Matthew Monroe for PNNL (Richland, WA) in 2004" + Environment.NewLine +
+                    ContactInfo = "Program written by Matthew Monroe for PNNL (Richland, WA)" + Environment.NewLine +
                                   "E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov" + Environment.NewLine +
                                   "Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics"
                 };
