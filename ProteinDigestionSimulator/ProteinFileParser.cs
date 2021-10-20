@@ -413,8 +413,7 @@ namespace ProteinDigestionSimulator
 
         public override IList<string> GetDefaultExtensionsToParse()
         {
-            var extensionsToParse = new List<string> { ".fasta", ".fasta.gz", ".txt" };
-            return extensionsToParse;
+            return new List<string> { ".fasta", ".fasta.gz", ".faa", ".faa.gz", ".txt" };
         }
 
         public override string GetErrorMessage()
@@ -493,7 +492,7 @@ namespace ProteinDigestionSimulator
         }
 
         /// <summary>
-        /// Examines the file's extension and returns true if it ends in .fasta or .fasta.gz
+        /// Examines the file's extension and returns true if it ends in .fasta, .fasta.gz, .faa, or .faa.gz
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="notifyErrorsWithMessageBox"></param>
@@ -506,7 +505,10 @@ namespace ProteinDigestionSimulator
                     return false;
                 }
 
-                return Path.GetExtension(StripExtension(filePath, ".gz")).Equals(".fasta", StringComparison.OrdinalIgnoreCase);
+                var extensionToCheck = Path.GetExtension(StripExtension(filePath, ".gz"));
+
+                return extensionToCheck.Equals(".fasta", StringComparison.OrdinalIgnoreCase) ||
+                       extensionToCheck.Equals(".faa", StringComparison.OrdinalIgnoreCase);
             }
             catch (Exception ex)
             {
@@ -1510,11 +1512,15 @@ namespace ProteinDigestionSimulator
                 {
                     outputFileName = Path.GetFileName(pathInfo.ProteinInputFilePath);
 
-                    if (Path.GetExtension(outputFileName).Equals(".fasta", StringComparison.OrdinalIgnoreCase))
+                    var fileExtension = Path.GetExtension(outputFileName);
+
+                    if (fileExtension.Equals(".fasta", StringComparison.OrdinalIgnoreCase) ||
+                        fileExtension.Equals(".faa", StringComparison.OrdinalIgnoreCase))
                     {
                         // Nothing special to do; will replace the extension below
                     }
-                    else if (outputFileName.EndsWith(".fasta.gz", StringComparison.OrdinalIgnoreCase))
+                    else if (outputFileName.EndsWith(".fasta.gz", StringComparison.OrdinalIgnoreCase) ||
+                             outputFileName.EndsWith(".faa.gz", StringComparison.OrdinalIgnoreCase))
                     {
                         // Remove .gz from outputFileName
                         outputFileName = StripExtension(outputFileName, ".gz");
