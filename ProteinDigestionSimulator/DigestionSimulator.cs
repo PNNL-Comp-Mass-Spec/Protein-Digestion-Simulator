@@ -1104,37 +1104,6 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        private bool LoadParameterFileSettings(string parameterFilePath)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(parameterFilePath))
-                {
-                    // No parameter file specified; nothing to load
-                    return true;
-                }
-
-                if (!File.Exists(parameterFilePath))
-                {
-                    // See if parameterFilePath points to a file in the same directory as the application
-                    parameterFilePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Path.GetFileName(parameterFilePath));
-                    if (!File.Exists(parameterFilePath))
-                    {
-                        SetBaseClassErrorCode(ProcessFilesErrorCodes.ParameterFileNotFound);
-                        return false;
-                    }
-                }
-
-                ProteinFileParser.LoadParameterFileSettings(parameterFilePath);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error in LoadParameterFileSettings", ex);
-            }
-
-            return true;
-        }
-
         private bool LoadProteinsOrPeptides(string proteinInputFilePath)
         {
             bool success;
@@ -1551,28 +1520,21 @@ namespace ProteinDigestionSimulator
             return (int)Math.Round(Math.Floor(WorkingMass / MassResolution));
         }
 
-        // Main processing function
+        /// <summary>
+        /// Main processing function
+        /// </summary>
+        /// <param name="inputFilePath"></param>
+        /// <param name="outputFolderPath"></param>
+        /// <param name="parameterFilePath">Ignored, since options are loaded from a Key=Value parameter file by the CommandLineParser</param>
+        /// <param name="resetErrorCode"></param>
+        /// <returns>True if successful, false if an error</returns>
         public override bool ProcessFile(string inputFilePath, string outputFolderPath, string parameterFilePath, bool resetErrorCode)
         {
-            // Returns True if success, False if failure
-
             var success = false;
 
             if (resetErrorCode)
             {
                 SetLocalErrorCode(ErrorCodes.NoError);
-            }
-
-            if (!LoadParameterFileSettings(parameterFilePath))
-            {
-                var statusMessage = "Parameter file load error: " + parameterFilePath;
-                ShowErrorMessage(statusMessage);
-                if (ErrorCode == ProcessFilesErrorCodes.NoError)
-                {
-                    SetBaseClassErrorCode(ProcessFilesErrorCodes.InvalidParameterFile);
-                }
-
-                return false;
             }
 
             try
