@@ -324,7 +324,7 @@ namespace ProteinDigestionSimulator
                                 {
                                     PossiblyAddPeptide(peptideSequence, trypticIndex, index,
                                                        residueStartLoc, residueEndLoc,
-                                                       ref proteinSequence, proteinSequenceLength,
+                                                       proteinSequence, proteinSequenceLength,
                                                        fragmentsUniqueList, peptideFragments,
                                                        filterByIsoelectricPoint,
                                                        minFragmentMass, maxFragmentMass);
@@ -340,7 +340,7 @@ namespace ProteinDigestionSimulator
                             {
                                 PossiblyAddPeptide(peptideSequence, trypticIndex, index,
                                                    residueStartLoc, residueEndLoc,
-                                                   ref proteinSequence, proteinSequenceLength,
+                                                   proteinSequence, proteinSequenceLength,
                                                    fragmentsUniqueList, peptideFragments,
                                                    filterByIsoelectricPoint,
                                                    minFragmentMass, maxFragmentMass);
@@ -404,7 +404,7 @@ namespace ProteinDigestionSimulator
                                 {
                                     PossiblyAddPeptide(peptideSequence, trypticIndex, index,
                                     residueStartLoc, residueEndLoc,
-                                    ref proteinSequence, proteinSequenceLength,
+                                    proteinSequence, proteinSequenceLength,
                                     fragmentsUniqueList, peptideFragments,
                                     filterByIsoelectricPoint,
                                     minFragmentMass, maxFragmentMass);
@@ -604,7 +604,7 @@ namespace ProteinDigestionSimulator
             int missedCleavageCount,
             int residueStartLoc,
             int residueEndLoc,
-            ref string proteinSequence,
+            string proteinSequence,
             int proteinSequenceLength,
             ISet<string> fragmentsUniqueList,
             ICollection<PeptideSequenceWithNET> peptideFragments,
@@ -612,8 +612,6 @@ namespace ProteinDigestionSimulator
             double minFragmentMass,
             double maxFragmentMass)
         {
-            // Note: proteinSequence is passed ByRef for speed purposes since passing a reference of a large string is easier than passing it ByVal
-            // It is not modified by this function
             var addFragment = true;
             if (DigestionOptions.RemoveDuplicateSequences)
             {

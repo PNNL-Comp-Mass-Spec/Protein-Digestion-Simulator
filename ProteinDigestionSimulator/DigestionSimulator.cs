@@ -317,7 +317,7 @@ namespace ProteinDigestionSimulator
                         linePrefix = (thresholdIndex + 1).ToString() + outputFileDelimiter;
                     }
 
-                    if (peptideMatchResults.GetMatchInfoByRowIndex(matchIndex, ref currentFeatureID, ref matchResultInfo))
+                    if (peptideMatchResults.GetMatchInfoByRowIndex(matchIndex, out var currentFeatureID, out var matchResultInfo))
                     {
                         if (currentFeatureID != cachedMatchCountFeatureID)
                         {
@@ -580,7 +580,7 @@ namespace ProteinDigestionSimulator
 
             bool success;
 
-            SearchRange rangeSearch = null;
+            var rangeSearch = new SearchRange();
 
             StreamWriter pmResultsWriter = null;
             StreamWriter peptideUniquenessWriter = null;
@@ -683,7 +683,7 @@ namespace ProteinDigestionSimulator
 
                         LogMessage("Uniqueness Stats processing starting, Threshold Count = " + mThresholdLevels.Length);
 
-                        if (!PeakMatching.FillRangeSearchObject(ref rangeSearch, mComparisonPeptideInfo))
+                        if (!PeakMatching.FillRangeSearchObject(rangeSearch, mComparisonPeptideInfo))
                         {
                             success = false;
                         }
@@ -721,7 +721,7 @@ namespace ProteinDigestionSimulator
 
                                 // Perform the actual peak matching
                                 LogMessage("Threshold " + (thresholdIndex + 1) + ", IdentifySequences");
-                                success = peakMatching.IdentifySequences(mThresholdLevels[thresholdIndex], ref featuresToIdentify, mComparisonPeptideInfo, out var featureMatchResults, ref rangeSearch);
+                                success = peakMatching.IdentifySequences(mThresholdLevels[thresholdIndex], featuresToIdentify, mComparisonPeptideInfo, out var featureMatchResults, rangeSearch);
                                 mPeptideMatchResults = featureMatchResults;
                                 mPeptideMatchResults.SortingList += PeptideMatchResults_SortingList;
 
@@ -1462,10 +1462,6 @@ namespace ProteinDigestionSimulator
             PeakMatching.PMFeatureMatchResults peptideMatchResults,
             BinnedPeptideCountStats peptideStatsBinned)
         {
-            var currentFeatureID = default(int);
-
-            var matchResultInfo = default(PeakMatching.PMFeatureMatchResults.PeakMatchingResult);
-
             if (peptideStatsBinned.Settings.AutoDetermineMassRange)
             {
                 // Examine peptideMatchResults to determine the minimum and maximum masses for features with matches
@@ -1478,7 +1474,7 @@ namespace ProteinDigestionSimulator
                 int matchIndex;
                 for (matchIndex = 0; matchIndex < peptideMatchResults.Count; matchIndex++)
                 {
-                    peptideMatchResults.GetMatchInfoByRowIndex(matchIndex, ref currentFeatureID, ref matchResultInfo);
+                    peptideMatchResults.GetMatchInfoByRowIndex(matchIndex, out var currentFeatureID, out _);
 
                     featuresToIdentify.GetFeatureInfoByFeatureID(currentFeatureID, out var featureInfo);
                     var featureMass = (float)featureInfo.Mass;

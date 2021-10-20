@@ -627,7 +627,7 @@ namespace ProteinDigestionSimulator
                 return matchesFound;
             }
 
-            public bool GetMatchInfoByRowIndex(int rowIndex, ref int featureID, ref PeakMatchingResult matchResultInfo)
+            public bool GetMatchInfoByRowIndex(int rowIndex, out int featureID, out PeakMatchingResult matchResultInfo)
             {
                 // Populates featureID and matchResultInfo with the peak matching results for the given row index
 
@@ -851,20 +851,13 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        internal static bool FillRangeSearchObject(ref SearchRange rangeSearch, PMComparisonFeatureInfo comparisonFeatures)
+        internal static bool FillRangeSearchObject(SearchRange rangeSearch, PMComparisonFeatureInfo comparisonFeatures)
         {
             // Initialize the range searching class
 
             const int LOAD_BLOCK_SIZE = 50000;
 
-            if (rangeSearch == null)
-            {
-                rangeSearch = new SearchRange();
-            }
-            else
-            {
-                rangeSearch.ClearData();
-            }
+            rangeSearch.ClearData();
 
             if (comparisonFeatures.Count == 0)
             {
@@ -888,7 +881,12 @@ namespace ProteinDigestionSimulator
             return rangeSearch.FinalizeDataFill();
         }
 
-        internal bool IdentifySequences(SearchThresholds searchThresholds, ref PMFeatureInfo featuresToIdentify, PMComparisonFeatureInfo comparisonFeatures, out PMFeatureMatchResults featureMatchResults, ref SearchRange rangeSearch)
+        internal bool IdentifySequences(
+            SearchThresholds searchThresholds,
+            PMFeatureInfo featuresToIdentify,
+            PMComparisonFeatureInfo comparisonFeatures,
+            out PMFeatureMatchResults featureMatchResults,
+            SearchRange rangeSearch)
         {
             // Returns True if success, False if the search is canceled
             // Will return true even if none of the features match any of the comparison features
@@ -905,9 +903,9 @@ namespace ProteinDigestionSimulator
             // else
             featureMatchResults = new PMFeatureMatchResults();
 
-            if (rangeSearch == null || rangeSearch.DataCount != comparisonFeatures.Count)
+            if (rangeSearch.DataCount != comparisonFeatures.Count)
             {
-                success = FillRangeSearchObject(ref rangeSearch, comparisonFeatures);
+                success = FillRangeSearchObject(rangeSearch, comparisonFeatures);
             }
             else
             {
@@ -1006,7 +1004,7 @@ namespace ProteinDigestionSimulator
                                 rawMatches.Capacity = rawMatches.Count;
                                 // Store the FeatureIDIndex in featureMatchResults
                                 // Compute the SLiC Scores and store the results
-                                ComputeSLiCScores(ref currentFeatureToIdentify, ref featureMatchResults, rawMatches, comparisonFeatures, ref searchThresholds, computedTolerances);
+                                ComputeSLiCScores(ref currentFeatureToIdentify, featureMatchResults, rawMatches, comparisonFeatures, searchThresholds, computedTolerances);
                             }
                         }
                     }
