@@ -82,38 +82,39 @@ The Protein Digestion Simulator supports the following enzymes:
 
 ### Parameter File Cleavage Rule Name
 
-When using an XML parameter file to define digestion options (i.e. select the enzyme) with parameter `CleavageRuleName`, 
+When using a parameter file to set the enzyme to use for digestion (via parameter `DigestionEnzyme`),
 use the name shown in the second column of the following table:
+* As an alternative to enzyme name, you can use the Enzyme ID
 
-| Human-readable Enzyme Name      | Cleavage Rule Name For Parameter File |
-|---------------------------------|---------------------------------------|
-| Fully Tryptic                   | ConventionalTrypsin                   |
-| Fully Tryptic (no Proline Rule) | TrypsinWithoutProlineException        |
-| Half (Partial) Trypsin          | KROneEnd                              |
-| Trypsin plus FVLEY              | TrypsinPlusFVLEY                      |
-| Trypsin plus Lys-C              | TrypsinPlusLysC                       |
-| Trypsin plus Thermolysin        | TrypsinPlusThermolysin                |
-| Acetic Acid Hydrolysis          | AceticAcidD                           |
-| Arg-C                           | ArgC                                  |
-| Asp-N                           | AspN                                  |
-| Chymotrypsin                    | Chymotrypsin                          |
-| Chymotrypsin plus Trypsin       | ChymotrypsinAndTrypsin                |
-| CyanBr                          | CyanBr                                |
-| Glu-C                           | GluC                                  |
-| Glu-C, just Glu                 | GluC_EOnly                            |
-| Lys-C                           | LysC                                  |
-| PepsinA                         | PepsinA                               |
-| PepsinB                         | PepsinB                               |
-| PepsinC                         | PepsinC                               |
-| PepsinD                         | PepsinD                               |
-| Proteinase K                    | ProteinaseK                           |
-| Thermolysin                     | Thermolysin                           |
-| No cleavage rule                | NoRule                                |
-| Peptide Database                | TerminiiOnly                          |
+| Human-readable Enzyme Name      | Enzyme Name For Parameter File        | Enzyme ID  |
+|---------------------------------|---------------------------------------|------------|
+| Fully Tryptic                   | ConventionalTrypsin                   | 1          |
+| Fully Tryptic (no Proline Rule) | TrypsinWithoutProlineException        | 2          |
+| Half (Partial) Trypsin          | KROneEnd                              | 5          |
+| Trypsin plus FVLEY              | TrypsinPlusFVLEY                      | 4          |
+| Trypsin plus Lys-C              | TrypsinPlusLysC                       | 21         |
+| Trypsin plus Thermolysin        | TrypsinPlusThermolysin                | 23         |
+| Acetic Acid Hydrolysis          | AceticAcidD                           | 20         |
+| Arg-C                           | ArgC                                  | 13         |
+| Asp-N                           | AspN                                  | 14         |
+| Chymotrypsin                    | Chymotrypsin                          | 7          |
+| Chymotrypsin plus Trypsin       | ChymotrypsinAndTrypsin                | 8          |
+| CyanBr                          | CyanBr                                | 10         |
+| Glu-C                           | GluC                                  | 9          |
+| Glu-C, just Glu                 | GluC_EOnly                            | 12         |
+| Lys-C                           | LysC                                  | 11         |
+| PepsinA                         | PepsinA                               | 16         |
+| PepsinB                         | PepsinB                               | 17         |
+| PepsinC                         | PepsinC                               | 18         |
+| PepsinD                         | PepsinD                               | 19         |
+| Proteinase K                    | ProteinaseK                           | 15         |
+| Thermolysin                     | Thermolysin                           | 22         |
+| No cleavage rule                | NoRule                                | 0          |
+| Peptide Database                | TerminiiOnly                          | 6          |
 
-For example, include this line in an XML parameter to set the enzyme to partial trypsin
-```xml
-    <item key="CleavageRuleName" value="KROneEnd" />
+For example, include this line in a Key=Value parameter file to select partial trypsin
+```ini
+DigestionEnzyme=KROneEnd
 ```
 
 ## Installation
@@ -125,13 +126,15 @@ For example, include this line in an XML parameter to set the enzyme to partial 
 
 ## Console Switches
 
-The Protein Digestion Simulator is typically used as a GUI application, but it also can be run from the Windows console, or on Linux using [Mono](https://www.mono-project.com/).  Syntax:
+The Protein Digestion Simulator is typically used as a GUI application, but it also can be run from the Windows console, 
+or on Linux using [Mono](https://www.mono-project.com/).  
 
+Syntax:
 ```
 ProteinDigestionSimulator.exe
   /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimiter]
   [/O:OutputDirectoryPath] [/P:ParameterFilePath] [/S:[MaxLevel]]
-  [/A:AlternateOutputDirectoryPath] [/R] [/Q]
+  [/A:AlternateOutputDirectoryPath] [/R]
 ```
 
 The input file path can contain the wildcard character * and should point to a FASTA file or tab-delimited text file
@@ -141,7 +144,7 @@ Use `/F` to indicate that the input file is a FASTA file
 * If `/F` is not used, the format will be assumed to be FASTA only if the filename ends with .fasta or .fasta.gz
 
 Use `/D` to indicate that an in-silico digestion of the proteins should be performed
-* Digestion options must be specified in the Parameter file
+* Digestion options must be specified in the parameter file
 
 Use `/M` to indicate that protein mass should be computed
 
@@ -151,11 +154,24 @@ The output directory path is optional
 * If omitted, the output files will be created in the same director as the input file
 
 The parameter file path is optional
-* If included, it should point to a valid XML parameter file
+* If included, it should point to a valid Name=Value parameter file
 
 Use `/S` to process all valid files in the input director and subdirectories. Include a number after `/S` (like `/S:2`) to limit the level of subdirectories to examine.
 * When using `/S`, you can redirect the output of the results using `/A`
 * When using `/S`, you can use `/R` to re-create the input director hierarchy in the alternate output director (if defined)
+
+Use `/L` or `/Log` to log messages to a file
+* By default, log files will include the current date, e.g. `ProteinDigestionSimulator_log_2021-10-20.txt`
+* You can define the name of the log file using `/L:LogFileName.txt`
+
+The processing options can be specified in a parameter file using `/ParamFile:Options.conf` or `/Conf:Options.conf` or `/P:Options.conf`
+* Define options using the format `ArgumentName=Value`
+* Lines starting with `#` or `;` will be treated as comments
+* Additional arguments on the command line can supplement or override the arguments in the parameter file
+
+Use `/CreateParamFile` to create an example parameter file
+* By default, the example parameter file content is shown at the console
+* To create a file named Options.conf, use `/CreateParamFile:Options.conf`
 
 ## Contacts
 
@@ -169,16 +185,8 @@ The Protein Digestion Simulator is licensed under the 2-Clause BSD License;
 you may not use this program except in compliance with the License.  You may obtain
 a copy of the License at https://opensource.org/licenses/BSD-2-Clause
 
-Copyright 2018 Battelle Memorial Institute
+Copyright 2021 Battelle Memorial Institute
 
 The NET Prediction DLL is licensed under the Reciprocal Public License v1.5;
 for details see file PNNL_NETPrediction_License.pdf\
 You may obtain a copy of the License at https://opensource.org/licenses/rpl1.5.txt
-
-All publications that result from the use of this software should include
-the following acknowledgment statement:
-> Portions of this research were supported by the W.R. Wiley Environmental
-> Molecular Science Laboratory, a national scientific user facility sponsored
-> by the U.S. Department of Energy's Office of Biological and Environmental
-> Research and located at PNNL.  PNNL is operated by Battelle Memorial Institute
-> for the U.S. Department of Energy under contract DE-AC05-76RL0 1830.
