@@ -82,10 +82,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="PRISM-DatabaseUtils">
-      <Version>1.1.8</Version>
+      <Version>1.1.13</Version>
     </PackageReference>
     <PackageReference Include="PRISM-Library">
-      <Version>2.6.28</Version>
+      <Version>2.6.37</Version>
     </PackageReference>
     <PackageReference Include="ProteinFileReader">
       <Version>2.0.7</Version>
