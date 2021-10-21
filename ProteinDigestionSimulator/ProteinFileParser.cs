@@ -43,13 +43,7 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: ComputepI, Cys, gi, hydrophobicity, Ile, Leu, pre, SepChar, silico, varchar
 
-        private const string PROGRAM_DATE = "October 20, 2021";
-
-        public const string XML_SECTION_OPTIONS = "ProteinDigestionSimulatorOptions";
-        public const string XML_SECTION_FASTA_OPTIONS = "FastaInputOptions";
-        public const string XML_SECTION_PROCESSING_OPTIONS = "ProcessingOptions";
-        public const string XML_SECTION_DIGESTION_OPTIONS = "DigestionOptions";
-        public const string XML_SECTION_UNIQUENESS_STATS_OPTIONS = "UniquenessStatsOptions";
+        private const string PROGRAM_DATE = "October 21, 2021";
 
         private const int SCRAMBLING_CACHE_LENGTH = 4000;
         private const string PROTEIN_PREFIX_SCRAMBLED = "Random_";
@@ -83,19 +77,6 @@ namespace ProteinDigestionSimulator
             None = 0,
             Reversed = 1,
             Randomized = 2
-        }
-
-        /// <summary>
-        /// Column delimiter to use when processing TSV or CSV files
-        /// </summary>
-        /// <remarks>The GUI uses this enum</remarks>
-        public enum DelimiterCharConstants
-        {
-            Space = 0,
-            Tab = 1,
-            Comma = 2,
-            // ReSharper disable once UnusedMember.Global
-            Other = 3
         }
 
         public class AddnlRef : IComparable<AddnlRef>
@@ -601,30 +582,6 @@ namespace ProteinDigestionSimulator
             }
 
             return success;
-        }
-
-        public static char LookupColumnDelimiterChar(int delimiterIndex, string customDelimiter, char defaultDelimiter)
-        {
-            var delimiter = delimiterIndex switch
-            {
-                (int)DelimiterCharConstants.Space => " ",
-                (int)DelimiterCharConstants.Tab => "\t",
-                (int)DelimiterCharConstants.Comma => ",",
-                _ => string.Copy(customDelimiter),// Includes DelimiterCharConstants.Other
-            };
-            if (delimiter.Length == 0)
-            {
-                delimiter = defaultDelimiter.ToString();
-            }
-
-            try
-            {
-                return delimiter[0];
-            }
-            catch
-            {
-                return '\t';
-            }
         }
 
         public bool ParseProteinFile(string proteinInputFilePath, string outputFolderPath)

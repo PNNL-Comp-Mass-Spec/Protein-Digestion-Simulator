@@ -33,9 +33,7 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: Da, pre
 
-        private const string PROGRAM_DATE = "October 20, 2021";
-
-        public const string XML_SECTION_PEAK_MATCHING_OPTIONS = "PeakMatchingOptions";
+        private const string PROGRAM_DATE = "October 21, 2021";
 
         private const string PROTEIN_ID_COLUMN = "ProteinID";
         private const string PEPTIDE_ID_MATCH_COLUMN = "PeptideIDMatch";

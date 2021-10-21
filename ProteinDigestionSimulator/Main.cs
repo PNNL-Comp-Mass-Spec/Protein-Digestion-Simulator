@@ -62,6 +62,13 @@ namespace ProteinDigestionSimulator
 
         private const string XML_SETTINGS_FILE_NAME = "ProteinDigestionSimulatorOptions.xml";
 
+        private const string XML_SECTION_OPTIONS = "ProteinDigestionSimulatorOptions";
+        private const string XML_SECTION_FASTA_OPTIONS = "FastaInputOptions";
+        private const string XML_SECTION_PROCESSING_OPTIONS = "ProcessingOptions";
+        private const string XML_SECTION_DIGESTION_OPTIONS = "DigestionOptions";
+        private const string XML_SECTION_UNIQUENESS_STATS_OPTIONS = "UniquenessStatsOptions";
+        private const string XML_SECTION_PEAK_MATCHING_OPTIONS = "PeakMatchingOptions";
+
         private const string OUTPUT_FILE_SUFFIX = "_output.txt";                         // Note that this const starts with an underscore
         private const string PEAK_MATCHING_STATS_FILE_SUFFIX = "_PeakMatching.txt";      // Note that this const starts with an underscore
 
@@ -77,6 +84,19 @@ namespace ProteinDigestionSimulator
         private const double DEFAULT_SLIC_NET_STDEV = 0.025d;
 
         private const int PROGRESS_TAB_INDEX = 4;
+
+        /// <summary>
+        /// Column delimiter to use when processing TSV or CSV files
+        /// </summary>
+        /// <remarks>The GUI uses this enum</remarks>
+        public enum DelimiterCharConstants
+        {
+            Space = 0,
+            Tab = 1,
+            Comma = 2,
+            // ReSharper disable once UnusedMember.Global
+            Other = 3
+        }
 
         /// <summary>
         /// Input file format constants
@@ -473,7 +493,7 @@ namespace ProteinDigestionSimulator
             lblInputFileColumnDelimiter.Enabled = enableDelimitedFileOptions;
             chkAssumeInputFileIsDigested.Enabled = enableDelimitedFileOptions;
 
-            txtInputFileColumnDelimiter.Enabled = cboInputFileColumnDelimiter.SelectedIndex == (int)ProteinFileParser.DelimiterCharConstants.Other && enableDelimitedFileOptions;
+            txtInputFileColumnDelimiter.Enabled = cboInputFileColumnDelimiter.SelectedIndex == (int)DelimiterCharConstants.Other && enableDelimitedFileOptions;
 
             var enableDigestionOptions = chkDigestProteins.Checked;
             if (enableDigestionOptions)
@@ -494,7 +514,7 @@ namespace ProteinDigestionSimulator
             fraDigestionOptions.Enabled = enableDigestionOptions;
             chkIncludePrefixAndSuffixResidues.Enabled = enableDigestionOptions;
 
-            txtOutputFileFieldDelimiter.Enabled = cboOutputFileFieldDelimiter.SelectedIndex == (int)ProteinFileParser.DelimiterCharConstants.Other;
+            txtOutputFileFieldDelimiter.Enabled = cboOutputFileFieldDelimiter.SelectedIndex == (int)DelimiterCharConstants.Other;
 
             enableDelimitedFileOptions = chkLookForAddnlRefInDescription.Checked;
             txtAddnlRefSepChar.Enabled = enableDelimitedFileOptions;
@@ -738,12 +758,12 @@ namespace ProteinDigestionSimulator
 
         private void IniFileLoadOptions()
         {
-            const string OptionsSection = ProteinFileParser.XML_SECTION_OPTIONS;
-            const string FASTAOptions = ProteinFileParser.XML_SECTION_FASTA_OPTIONS;
-            const string ProcessingOptions = ProteinFileParser.XML_SECTION_PROCESSING_OPTIONS;
-            const string DigestionOptions = ProteinFileParser.XML_SECTION_DIGESTION_OPTIONS;
-            const string UniquenessStatsOptions = ProteinFileParser.XML_SECTION_UNIQUENESS_STATS_OPTIONS;
-            const string PMOptions = DigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS;
+            const string OptionsSection = XML_SECTION_OPTIONS;
+            const string FASTAOptions = XML_SECTION_FASTA_OPTIONS;
+            const string ProcessingOptions = XML_SECTION_PROCESSING_OPTIONS;
+            const string DigestionOptions = XML_SECTION_DIGESTION_OPTIONS;
+            const string UniquenessStatsOptions = XML_SECTION_UNIQUENESS_STATS_OPTIONS;
+            const string PMOptions = XML_SECTION_PEAK_MATCHING_OPTIONS;
 
             const int MAX_AUTO_WINDOW_HEIGHT = 775;
 
@@ -951,12 +971,12 @@ namespace ProteinDigestionSimulator
 
         private void IniFileSaveOptions(bool showFilePath, bool saveWindowDimensionsOnly = false)
         {
-            const string OptionsSection = ProteinFileParser.XML_SECTION_OPTIONS;
-            const string FASTAOptions = ProteinFileParser.XML_SECTION_FASTA_OPTIONS;
-            const string ProcessingOptions = ProteinFileParser.XML_SECTION_PROCESSING_OPTIONS;
-            const string DigestionOptions = ProteinFileParser.XML_SECTION_DIGESTION_OPTIONS;
-            const string UniquenessStatsOptions = ProteinFileParser.XML_SECTION_UNIQUENESS_STATS_OPTIONS;
-            const string PMOptions = DigestionSimulator.XML_SECTION_PEAK_MATCHING_OPTIONS;
+            const string OptionsSection = XML_SECTION_OPTIONS;
+            const string FASTAOptions = XML_SECTION_FASTA_OPTIONS;
+            const string ProcessingOptions = XML_SECTION_PROCESSING_OPTIONS;
+            const string DigestionOptions = XML_SECTION_DIGESTION_OPTIONS;
+            const string UniquenessStatsOptions = XML_SECTION_UNIQUENESS_STATS_OPTIONS;
+            const string PMOptions = XML_SECTION_PEAK_MATCHING_OPTIONS;
 
             var xmlSettings = new XmlSettingsFileAccessor();
             var settingsFilePath = GetSettingsFilePath();
@@ -1328,12 +1348,30 @@ namespace ProteinDigestionSimulator
         {
             try
             {
-                return ProteinFileParser.LookupColumnDelimiterChar(delimiterCombobox.SelectedIndex, delimiterTextBox.Text, defaultDelimiter);
+                return LookupColumnDelimiter(delimiterCombobox.SelectedIndex, delimiterTextBox.Text, defaultDelimiter);
             }
             catch
             {
                 return '\t';
             }
+        }
+
+        private char LookupColumnDelimiter(int delimiterIndex, string customDelimiter, char defaultDelimiter)
+        {
+            var delimiter = delimiterIndex switch
+            {
+                (int)DelimiterCharConstants.Space => " ",
+                (int)DelimiterCharConstants.Tab => "\t",
+                (int)DelimiterCharConstants.Comma => ",",
+                _ => string.Copy(customDelimiter), // Includes DelimiterCharConstants.Other
+            };
+
+            if (delimiter.Length == 0)
+            {
+                delimiter = defaultDelimiter.ToString();
+            }
+
+            return delimiter[0];
         }
 
         private int LookupMaxpISequenceLength()
@@ -1654,11 +1692,11 @@ namespace ProteinDigestionSimulator
                 cboInputFileFormat.SelectedIndex = (int)InputFileFormatConstants.AutoDetermine;
 
                 cboInputFileColumnDelimiter.Items.Clear();
-                cboInputFileColumnDelimiter.Items.Insert((int)ProteinFileParser.DelimiterCharConstants.Space, "Space");
-                cboInputFileColumnDelimiter.Items.Insert((int)ProteinFileParser.DelimiterCharConstants.Tab, "Tab");
-                cboInputFileColumnDelimiter.Items.Insert((int)ProteinFileParser.DelimiterCharConstants.Comma, "Comma");
-                cboInputFileColumnDelimiter.Items.Insert((int)ProteinFileParser.DelimiterCharConstants.Other, "Other");
-                cboInputFileColumnDelimiter.SelectedIndex = (int)ProteinFileParser.DelimiterCharConstants.Tab;
+                cboInputFileColumnDelimiter.Items.Insert((int)DelimiterCharConstants.Space, "Space");
+                cboInputFileColumnDelimiter.Items.Insert((int)DelimiterCharConstants.Tab, "Tab");
+                cboInputFileColumnDelimiter.Items.Insert((int)DelimiterCharConstants.Comma, "Comma");
+                cboInputFileColumnDelimiter.Items.Insert((int)DelimiterCharConstants.Other, "Other");
+                cboInputFileColumnDelimiter.SelectedIndex = (int)DelimiterCharConstants.Tab;
 
                 cboOutputFileFieldDelimiter.Items.Clear();
                 for (var index = 0; index < cboInputFileColumnDelimiter.Items.Count; index++)
@@ -1666,7 +1704,7 @@ namespace ProteinDigestionSimulator
                     cboOutputFileFieldDelimiter.Items.Insert(index, cboInputFileColumnDelimiter.Items[index]);
                 }
 
-                cboOutputFileFieldDelimiter.SelectedIndex = (int)ProteinFileParser.DelimiterCharConstants.Space;
+                cboOutputFileFieldDelimiter.SelectedIndex = (int)DelimiterCharConstants.Space;
 
                 cboInputFileColumnOrdering.Items.Clear();
                 cboInputFileColumnOrdering.Items.Insert((int)DelimitedProteinFileReader.ProteinFileFormatCode.SequenceOnly, "Sequence Only");
@@ -1800,10 +1838,10 @@ namespace ProteinDigestionSimulator
             }
 
             cboInputFileFormat.SelectedIndex = (int)InputFileFormatConstants.AutoDetermine;
-            cboInputFileColumnDelimiter.SelectedIndex = (int)ProteinFileParser.DelimiterCharConstants.Tab;
+            cboInputFileColumnDelimiter.SelectedIndex = (int)DelimiterCharConstants.Tab;
             txtInputFileColumnDelimiter.Text = ";";
 
-            cboOutputFileFieldDelimiter.SelectedIndex = (int)ProteinFileParser.DelimiterCharConstants.Tab;
+            cboOutputFileFieldDelimiter.SelectedIndex = (int)DelimiterCharConstants.Tab;
             txtOutputFileFieldDelimiter.Text = ";";
 
             chkEnableLogging.Checked = false;
