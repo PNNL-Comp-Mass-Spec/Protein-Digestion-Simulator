@@ -301,7 +301,7 @@ namespace ProteinDigestionSimulator
         /// <returns>The number of digested peptides in peptideFragments</returns>
         public int DigestProteinSequence(
             string peptideSequence,
-            out List<InSilicoDigest.PeptideSequenceWithNET> peptideFragments,
+            out List<PeptideSequenceWithNET> peptideFragments,
             string proteinName = "")
         {
             try
@@ -316,7 +316,7 @@ namespace ProteinDigestionSimulator
             catch
             {
                 SetLocalErrorCode(ParseProteinFileErrorCodes.DigestProteinSequenceError);
-                peptideFragments = new List<InSilicoDigest.PeptideSequenceWithNET>();
+                peptideFragments = new List<PeptideSequenceWithNET>();
                 return 0;
             }
         }
@@ -465,14 +465,14 @@ namespace ProteinDigestionSimulator
         /// <returns>The number of peptides in digestedPeptides</returns>
         public int GetDigestedPeptidesForCachedProtein(
             int index,
-            out List<InSilicoDigest.PeptideSequenceWithNET> digestedPeptides)
+            out List<PeptideSequenceWithNET> digestedPeptides)
         {
             if (index < mProteins.Count)
             {
                 return DigestProteinSequence(mProteins[index].Sequence, out digestedPeptides, mProteins[index].Name);
             }
 
-            digestedPeptides = new List<InSilicoDigest.PeptideSequenceWithNET>();
+            digestedPeptides = new List<PeptideSequenceWithNET>();
             return 0;
         }
 

@@ -1195,7 +1195,7 @@ namespace ProteinDigestionSimulator
                 // Read each peptide in the input file and add to mComparisonPeptideInfo
 
                 // Also need to initialize newPeptide
-                var newPeptide = new InSilicoDigest.PeptideSequenceWithNET();
+                var newPeptide = new PeptideSequenceWithNET();
 
                 var delimitedFileHasMassAndNET = delimitedFileReader.DelimitedFileFormatCode switch
                 {

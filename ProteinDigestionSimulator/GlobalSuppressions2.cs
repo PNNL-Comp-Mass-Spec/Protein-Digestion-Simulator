@@ -5,7 +5,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Readability", "RCS1123:Add parentheses when necessary.", Justification = "Parentheses are correct", Scope = "member", Target = "~M:ProteinDigestionSimulator.InSilicoDigest.DigestSequence(System.String,System.Collections.Generic.List{ProteinDigestionSimulator.InSilicoDigest.PeptideSequenceWithNET}@,System.Boolean,System.String)~System.Int32")]
+[assembly: SuppressMessage("Readability", "RCS1123:Add parentheses when necessary.", Justification = "Parentheses are correct", Scope = "member", Target = "~M:ProteinDigestionSimulator.InSilicoDigest.DigestSequence(System.String,System.Collections.Generic.List{ProteinDigestionSimulator.PeptideSequenceWithNET}@,System.Boolean,System.String)~System.Int32")]
 [assembly: SuppressMessage("Readability", "RCS1123:Add parentheses when necessary.", Justification = "Parentheses are correct", Scope = "member", Target = "~M:ProteinDigestionSimulator.PeptideSequence.CheckSequenceAgainstCleavageRule(System.String,ProteinDigestionSimulator.CleavageRule,System.Int32@,System.String,System.Char,System.Boolean)~System.Boolean")]
 [assembly: SuppressMessage("Readability", "RCS1123:Add parentheses when necessary.", Justification = "Parentheses are correct", Scope = "member", Target = "~M:ProteinDigestionSimulator.PeptideSequence.ConvertAminoAcidSequenceSymbols(System.String,System.Boolean,System.Boolean,System.Boolean)~System.String")]
 [assembly: SuppressMessage("Readability", "RCS1123:Add parentheses when necessary.", Justification = "Parentheses not needed", Scope = "member", Target = "~M:ProteinDigestionSimulator.DigestionSimulator.GenerateUniquenessStats(System.String,System.String,System.String)~System.Boolean")]
