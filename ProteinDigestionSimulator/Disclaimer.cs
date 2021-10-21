@@ -44,7 +44,6 @@ namespace ProteinDigestionSimulator
         {
             txtNotice = new TextBox();
             cmdOK = new Button();
-            cmdOK.Click += cmdOK_Click;
             SuspendLayout();
             //
             // txtNotice
@@ -55,17 +54,18 @@ namespace ProteinDigestionSimulator
             txtNotice.Name = "txtNotice";
             txtNotice.ReadOnly = true;
             txtNotice.Size = new Size(440, 176);
-            txtNotice.TabIndex = 2;
+            txtNotice.TabIndex = 1;
             //
             // cmdOK
             //
             cmdOK.Location = new Point(168, 200);
             cmdOK.Name = "cmdOK";
             cmdOK.Size = new Size(104, 24);
-            cmdOK.TabIndex = 7;
+            cmdOK.TabIndex = 0;
             cmdOK.Text = "&OK";
+            cmdOK.Click += cmdOK_Click;
             //
-            // frmDisclaimer
+            // Disclaimer
             //
             AutoScaleBaseSize = new Size(5, 13);
             ClientSize = new Size(456, 238);
@@ -144,6 +144,7 @@ namespace ProteinDigestionSimulator
             {
                 cmdOK.Text = "&OK";
                 cmdOK.Enabled = true;
+                cmdOK.Focus();
                 mCloseDelayTimer.Enabled = false;
                 Application.DoEvents();
             }
