@@ -41,6 +41,10 @@ namespace ProteinDigestionSimulator.Options
             HelpText = "Specifies the column order in delimited input files; ignored if the input file is a FASTA file")]
         public DelimitedProteinFileReader.ProteinFileFormatCode DelimitedFileFormatCode { get; set; }
 
+        [Option("DelimitedFileHasHeaderLine", "InputFileHasHeader",
+            HelpText = "When true, assume the delimited input file has a header line")]
+        public bool DelimitedFileHasHeaderLine { get; set; }
+
         /// <summary>
         /// Input file delimiter
         /// </summary>
@@ -374,6 +378,7 @@ namespace ProteinDigestionSimulator.Options
             AssumeDelimitedFile = false;
 
             DelimitedFileFormatCode = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence;
+            DelimitedFileHasHeaderLine = true;
             InputFileDelimiter = '\t';
 
             ExcludeProteinDescription = false;
