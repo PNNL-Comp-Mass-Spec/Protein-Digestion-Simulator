@@ -52,10 +52,23 @@ namespace ProteinDigestionSimulator
             UnspecifiedError = -1
         }
 
+        /// <summary>
+        /// Container for tracking peptides with a mass greater than or equal to MassBinStart and less than MassBinEnd
+        /// </summary>
         private class SingleBinStats
         {
-            public double MassBinStart { get; }               // Mass is >= this value
-            public double MassBinEnd { get; }                 // Mass is < this value
+            /// <summary>
+            /// Starting mass for this bin
+            /// </summary>
+            public double MassBinStart { get; }
+
+            /// <summary>
+            /// Ending mass for this bin
+            /// </summary>
+            // ReSharper disable once MemberCanBePrivate.Local
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
+            public double MassBinEnd { get; }
+
             public int UniqueResultIDCount { get; set; }
             public int NonUniqueResultIDCount { get; set; }
             public int[] ResultIDCountDistribution { get; set; }
