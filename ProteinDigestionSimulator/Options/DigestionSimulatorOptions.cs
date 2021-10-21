@@ -1,4 +1,5 @@
-﻿using PRISM;
+﻿using System;
+using PRISM;
 using ProteinFileReader;
 
 namespace ProteinDigestionSimulator.Options
@@ -424,29 +425,34 @@ namespace ProteinDigestionSimulator.Options
             ProteinScramblingLoopCount = 1;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public bool Validate()
         {
             if (CreateDigestedProteinOutputFile && !CreateProteinOutputFile)
             {
                 OnDebugEvent("Auto-enabling CreateProteinOutputFile since CreateDigestedProteinOutputFile is true");
+                Console.WriteLine();
                 CreateProteinOutputFile = true;
             }
 
             if (CreateDigestedProteinOutputFile && CreateFastaOutputFile)
             {
                 OnDebugEvent("Auto-disabling CreateFastaOutputFile since CreateDigestedProteinOutputFile is true");
+                Console.WriteLine();
                 CreateFastaOutputFile = false;
             }
 
             if (CreateFastaOutputFile && CreateProteinOutputFile)
             {
                 OnDebugEvent("Auto-disabling CreateProteinOutputFile since CreateFastaOutputFile is true");
+                Console.WriteLine();
                 CreateProteinOutputFile = false;
             }
 
             if (!CreateFastaOutputFile && !CreateProteinOutputFile && !CreateDigestedProteinOutputFile)
             {
                 OnDebugEvent("Auto-enabling CreateProteinOutputFile since the output file mode was not defined");
+                Console.WriteLine();
                 CreateProteinOutputFile = true;
             }
 
