@@ -1913,7 +1913,7 @@ namespace ProteinDigestionSimulator
             SubtaskProgressChanged?.Invoke(description, mSubtaskProgressPercentComplete);
         }
 
-        private int mSortingListCount = 0;
+        private int mSortingListCount;
         private DateTime mSortingListLastPostTime = DateTime.UtcNow;
 
         private void ProteinInfo_SortingList()
@@ -1926,7 +1926,7 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        private int mSortingMappingsCount = 0;
+        private int mSortingMappingsCount;
         private DateTime mSortingMappingsLastPostTime = DateTime.UtcNow;
 
         private void ProteinInfo_SortingMappings()
@@ -1939,7 +1939,7 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        private int mResultsSortingListCount = 0;
+        private int mResultsSortingListCount;
         private DateTime mResultsSortingListLastPostTime = DateTime.UtcNow;
 
         private void PeptideMatchResults_SortingList()
