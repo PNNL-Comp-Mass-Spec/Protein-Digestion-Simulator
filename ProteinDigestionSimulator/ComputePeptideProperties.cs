@@ -84,21 +84,21 @@ namespace ProteinDigestionSimulator
 
         private double CalculateCharge(double pH, int numC, int numD, int numE, int numH, int numK, int numR, int numY)
         {
-            var value = 0d;
-            value += CalculateNp(pH, Ck, numC);
-            value += CalculateNp(pH, Dk, numD);
-            value += CalculateNp(pH, Ek, numE);
-            value += CalculateNp(pH, Hk, numH);
-            value += CalculateNp(pH, Kk, numK);
-            value += CalculateNp(pH, Rk, numR);
-            value += CalculateNp(pH, Yk, numY);
-            value += CalculateNp(pH, NH2k, 1);
-            value += CalculateNp(pH, COOHk, 1);
-            value -= numC + numD + numE + numY + 1;
-            return value;
+            var charge =
+                CalculateNp(pH, Ck, numC) +
+                CalculateNp(pH, Dk, numD) +
+                CalculateNp(pH, Ek, numE) +
+                CalculateNp(pH, Hk, numH) +
+                CalculateNp(pH, Kk, numK) +
+                CalculateNp(pH, Rk, numR) +
+                CalculateNp(pH, Yk, numY) +
+                CalculateNp(pH, NH2k, 1) +
+                CalculateNp(pH, COOHk, 1);
+
+            return charge - (numC + numD + numE + numY + 1);
         }
 
-        private double CalculateHydrophobicity(string seq, HydrophobicityTypeConstants HT)
+        private double CalculateHydrophobicity(string seq, HydrophobicityTypeConstants hydrophobicityMode)
         {
             var runningSum = 0d;
             var residueCount = 0;
@@ -114,28 +114,16 @@ namespace ProteinDigestionSimulator
                         continue;
                     }
 
-                    switch (HT)
+                    runningSum += hydrophobicityMode switch
                     {
-                        case HydrophobicityTypeConstants.HW:
-                            runningSum += aaInfo.HW;
-                            break;
-                        case HydrophobicityTypeConstants.KD:
-                            runningSum += aaInfo.KD;
-                            break;
-                        case HydrophobicityTypeConstants.Eisenberg:
-                            runningSum += aaInfo.Eisenberg;
-                            break;
-                        case HydrophobicityTypeConstants.GES:
-                            runningSum += aaInfo.GES;
-                            break;
-                        case HydrophobicityTypeConstants.MeekPH7p4:
-                            runningSum += aaInfo.MeekPH7p4;
-                            break;
-                        case HydrophobicityTypeConstants.MeekPH2p1:
-                            runningSum += aaInfo.MeekPH2p1;
-                            break;
-                    }
-
+                        HydrophobicityTypeConstants.HW => aaInfo.HW,
+                        HydrophobicityTypeConstants.KD => aaInfo.KD,
+                        HydrophobicityTypeConstants.Eisenberg => aaInfo.Eisenberg,
+                        HydrophobicityTypeConstants.GES => aaInfo.GES,
+                        HydrophobicityTypeConstants.MeekPH7p4 => aaInfo.MeekPH7p4,
+                        HydrophobicityTypeConstants.MeekPH2p1 => aaInfo.MeekPH2p1,
+                        _ => throw new ArgumentOutOfRangeException(nameof(hydrophobicityMode), hydrophobicityMode, null),
+                    };
                     residueCount++;
                 }
                 catch
@@ -241,12 +229,12 @@ namespace ProteinDigestionSimulator
 
             try
             {
-                if (ProcessingOptions.ReportMaximumpI && seq.Length > ProcessingOptions.SequenceWidthToExamineForMaximumpI)
+                if (ProcessingOptions.ReportMaximumpI && seq.Length > ProcessingOptions.SequenceLengthToExamineForMaximumpI)
                 {
                     var maxHydrophobicity = 0d;
-                    for (var index = 0; index < seq.Length - ProcessingOptions.SequenceWidthToExamineForMaximumpI; index++)
+                    for (var index = 0; index < seq.Length - ProcessingOptions.SequenceLengthToExamineForMaximumpI; index++)
                     {
-                        var segmentHydrophobicity = CalculateHydrophobicity(seq.Substring(index, ProcessingOptions.SequenceWidthToExamineForMaximumpI), ProcessingOptions.HydrophobicityMode);
+                        var segmentHydrophobicity = CalculateHydrophobicity(seq.Substring(index, ProcessingOptions.SequenceLengthToExamineForMaximumpI), ProcessingOptions.HydrophobicityMode);
                         if (segmentHydrophobicity > maxHydrophobicity)
                         {
                             maxHydrophobicity = segmentHydrophobicity;
@@ -266,10 +254,10 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        public float CalculateSequencepI(string seq)
+        public float CalculateSequencepI(string peptideSequence)
         {
             double pH;
-            if (string.IsNullOrEmpty(seq))
+            if (string.IsNullOrEmpty(peptideSequence))
             {
                 return 0f;
             }
@@ -283,9 +271,10 @@ namespace ProteinDigestionSimulator
                 var numK = 0;
                 var numR = 0;
                 var numY = 0;
-                foreach (var c in seq)
+
+                foreach (var oneLetterSymbol in peptideSequence)
                 {
-                    switch (char.ToUpper(c))
+                    switch (char.ToUpper(oneLetterSymbol))
                     {
                         case 'C':
                             numC++;
@@ -311,21 +300,22 @@ namespace ProteinDigestionSimulator
                     }
                 }
 
-                pH = 1d;
-                var delta = 1d;
-                var Value = CalculateCharge(pH, numC, numD, numE, numH, numK, numR, numY) + 1d;
+                pH = 1;
+                double delta = 1;
+                var charge = CalculateCharge(pH, numC, numD, numE, numH, numK, numR, numY) + 1;
+
                 while (true)
                 {
-                    var value1 = CalculateCharge(pH, numC, numD, numE, numH, numK, numR, numY);
-                    if (Math.Abs(value1) <= Math.Abs(Value))
+                    var alternateCharge = CalculateCharge(pH, numC, numD, numE, numH, numK, numR, numY);
+                    if (Math.Abs(alternateCharge) <= Math.Abs(charge))
                     {
-                        Value = value1;
+                        charge = alternateCharge;
                         pH += delta;
                     }
                     else
                     {
                         delta /= -10;
-                        Value = value1;
+                        charge = alternateCharge;
                         pH += delta;
                         if (Math.Abs(delta) < 0.01d)
                         {

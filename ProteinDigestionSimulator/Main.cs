@@ -325,7 +325,7 @@ namespace ProteinDigestionSimulator
                 return;
             }
 
-            var sequence = txtSequenceForpI.Text;
+            var peptideSequence = txtSequenceForpI.Text;
             float lcNET = 0;
             float scxNET = 0;
 
@@ -335,23 +335,23 @@ namespace ProteinDigestionSimulator
             }
 
             mProteinDigestionSimulator.ProcessingOptions.ReportMaximumpI = chkMaxpIModeEnabled.Checked;
-            mProteinDigestionSimulator.ProcessingOptions.SequenceWidthToExamineForMaximumpI = LookupMaxpISequenceLength();
+            mProteinDigestionSimulator.ProcessingOptions.SequenceLengthToExamineForMaximumpI = LookupMaxpISequenceLength();
 
-            var pI = mProteinDigestionSimulator.IsoelectricPointCalculator.CalculateSequencepI(sequence);
-            var hydrophobicity = mProteinDigestionSimulator.IsoelectricPointCalculator.CalculateSequenceHydrophobicity(sequence);
+            var pI = mProteinDigestionSimulator.IsoelectricPointCalculator.CalculateSequencepI(peptideSequence);
+            var hydrophobicity = mProteinDigestionSimulator.IsoelectricPointCalculator.CalculateSequenceHydrophobicity(peptideSequence);
 
-            // Could compute charge state: pICalculator.CalculateSequenceChargeState(sequence, pI)
+            // Could compute charge state: pICalculator.CalculateSequenceChargeState(peptideSequence, pI);
 
             if (NETCalculator != null)
             {
                 // Compute the LC-based normalized elution time
-                lcNET = NETCalculator.GetElutionTime(sequence);
+                lcNET = NETCalculator.GetElutionTime(peptideSequence);
             }
 
             if (SCXNETCalculator != null)
             {
                 // Compute the SCX-based normalized elution time
-                scxNET = SCXNETCalculator.GetElutionTime(sequence);
+                scxNET = SCXNETCalculator.GetElutionTime(peptideSequence);
             }
 
             var message = "pI = " + pI + Environment.NewLine +
@@ -1258,7 +1258,7 @@ namespace ProteinDigestionSimulator
             }
 
             options.ReportMaximumpI = chkMaxpIModeEnabled.Checked;
-            options.SequenceWidthToExamineForMaximumpI = LookupMaxpISequenceLength();
+            options.SequenceLengthToExamineForMaximumpI = LookupMaxpISequenceLength();
 
             options.IncludeXResiduesInMass = chkIncludeXResidues.Checked;
 

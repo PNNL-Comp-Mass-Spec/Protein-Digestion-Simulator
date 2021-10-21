@@ -7,7 +7,7 @@ namespace ProteinDigestionSimulator.Options
     {
         // Ignore Spelling: Hydrophobicity, Ile, isoleucine, Leu, leucine, silico
 
-        private int mSequenceWidthToExamineForMaximumpI;
+        private int mSequenceLengthToExamineForMaximumpI;
 
         /// <summary>
         /// Input file path
@@ -145,23 +145,23 @@ namespace ProteinDigestionSimulator.Options
         public HydrophobicityTypeConstants HydrophobicityMode { get; set; }
 
         [Option("ReportMaximumpI", "ReportMaxpI",
-            HelpText = "When ComputepI is true, set this to true to examine the protein residues in chunks of SequenceWidthToExamineForMaximumpI, " +
+            HelpText = "When ComputepI is true, set this to true to examine the protein residues in chunks of SequenceLengthMaximumpI, " +
                        "compute the pI for each chunk, then report the largest pI")]
         public bool ReportMaximumpI { get; set; }
 
-        [Option("SequenceWidthMaximumpI", "SequenceWidthMaxpI",
+        [Option("SequenceLengthMaximumpI", "SequenceLengthMaxpI",
             HelpText = "When ReportMaxpI is true, use this to specify the number of residues to group together for computing localized pI")]
-        public int SequenceWidthToExamineForMaximumpI
+        public int SequenceLengthToExamineForMaximumpI
         {
-            get => mSequenceWidthToExamineForMaximumpI;
+            get => mSequenceLengthToExamineForMaximumpI;
             set
             {
                 if (value < 1)
                 {
-                    mSequenceWidthToExamineForMaximumpI = 1;
+                    mSequenceLengthToExamineForMaximumpI = 1;
                 }
 
-                mSequenceWidthToExamineForMaximumpI = value;
+                mSequenceLengthToExamineForMaximumpI = value;
             }
         }
 
@@ -295,7 +295,7 @@ namespace ProteinDigestionSimulator.Options
             HydrophobicityMode = HydrophobicityTypeConstants.HW;
 
             ReportMaximumpI = false;
-            SequenceWidthToExamineForMaximumpI = 10;
+            SequenceLengthToExamineForMaximumpI = 10;
 
             ComputeProteinMass = true;
             ElementMassMode = PeptideSequence.ElementModeConstants.IsotopicMass;
