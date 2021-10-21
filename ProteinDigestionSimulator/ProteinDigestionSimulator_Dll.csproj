@@ -89,7 +89,7 @@
       <Version>2.6.37</Version>
     </PackageReference>
     <PackageReference Include="ProteinFileReader">
-      <Version>2.0.7</Version>
+      <Version>3.0.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup />
