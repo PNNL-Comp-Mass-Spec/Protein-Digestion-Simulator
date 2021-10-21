@@ -44,7 +44,6 @@ namespace ProteinDigestionSimulator
         public enum ErrorCodes
         {
             NoError = 0,
-            ProteinDigestionSimulatorSectionNotFound = 1,
             ErrorReadingInputFile = 2,
             ProteinsNotFoundInInputFile = 4,
             ErrorIdentifyingSequences = 8,
@@ -839,7 +838,6 @@ namespace ProteinDigestionSimulator
                 errorMessage = LocalErrorCode switch
                 {
                     ErrorCodes.NoError => string.Empty,
-                    ErrorCodes.ProteinDigestionSimulatorSectionNotFound => "The section " + ProteinFileParser.XML_SECTION_OPTIONS + " was not found in the parameter file",
                     ErrorCodes.ErrorReadingInputFile => "Error reading input file",
                     ErrorCodes.ProteinsNotFoundInInputFile => "No proteins were found in the input file (make sure the Column Order is correct on the File Format Options tab)",
                     ErrorCodes.ErrorIdentifyingSequences => "Error identifying sequences",

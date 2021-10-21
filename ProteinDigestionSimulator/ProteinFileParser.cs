@@ -61,7 +61,6 @@ namespace ProteinDigestionSimulator
         public enum ParseProteinFileErrorCodes
         {
             NoError = 0,
-            ProteinFileParsingOptionsSectionNotFound = 1,
             ErrorReadingInputFile = 2,
             ErrorCreatingProteinOutputFile = 4,
             ErrorCreatingDigestedProteinOutputFile = 8,
@@ -409,8 +408,6 @@ namespace ProteinDigestionSimulator
             return LocalErrorCode switch
             {
                 ParseProteinFileErrorCodes.NoError => string.Empty,
-                ParseProteinFileErrorCodes.ProteinFileParsingOptionsSectionNotFound => "The section " + XML_SECTION_OPTIONS +
-                                                                                       " was not found in the parameter file",
                 ParseProteinFileErrorCodes.ErrorReadingInputFile => "Error reading input file",
                 ParseProteinFileErrorCodes.ErrorCreatingProteinOutputFile => "Error creating parsed proteins output file",
                 ParseProteinFileErrorCodes.ErrorCreatingDigestedProteinOutputFile => "Error creating digested proteins output file",
