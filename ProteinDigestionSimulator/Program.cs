@@ -112,6 +112,7 @@ namespace ProteinDigestionSimulator
 
                 var proteinFileParser = new ProteinFileParser(options)
                 {
+                    ArchiveOldLogFiles = false,
                     LogMessagesToFile = options.LogEnabled,
                     LogFilePath = options.LogFilePath
                 };
