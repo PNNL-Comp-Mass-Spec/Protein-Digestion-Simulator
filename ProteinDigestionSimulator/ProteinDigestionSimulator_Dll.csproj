@@ -60,7 +60,6 @@
     <Compile Include="GlobalSuppressions2.cs" />
     <Compile Include="Options\DigestionOptions.cs" />
     <Compile Include="Options\DigestionSimulatorOptions.cs" />
-    <Compile Include="Options\DigestionSimulatorOptionsGUI.cs" />
     <Compile Include="Options\Enums.cs" />
     <Compile Include="Options\PeakMatchingOptions.cs" />
     <Compile Include="PeakMatching\FeatureInfo.cs" />
