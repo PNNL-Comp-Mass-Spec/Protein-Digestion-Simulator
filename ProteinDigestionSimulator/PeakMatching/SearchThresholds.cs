@@ -156,15 +156,9 @@ namespace ProteinDigestionSimulator.PeakMatching
 
                 case MassToleranceConstants.Absolute:
                     ComputedSearchTolerances.MWTolAbsFinal = mMassTolerance;
-                    if (referenceMass > 0d)
-                    {
-                        massTolerancePPM = MassToPPM(mMassTolerance, referenceMass);
-                    }
-                    else
-                    {
-                        massTolerancePPM = mSLiCScoreOptions.MassPPMStDev;
-                    }
-
+                    massTolerancePPM = referenceMass > 0d
+                        ? MassToPPM(mMassTolerance, referenceMass)
+                        : mSLiCScoreOptions.MassPPMStDev;
                     break;
 
                 default:
