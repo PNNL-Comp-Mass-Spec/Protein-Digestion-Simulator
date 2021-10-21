@@ -5,7 +5,7 @@ namespace ProteinDigestionSimulator.Options
 {
     public class DigestionSimulatorOptions : EventNotifier
     {
-        // Ignore Spelling: Hydrophobicity, Ile, isoleucine, Leu, leucine, silico
+        // Ignore Spelling: Cysteine, Hydrophobicity, Ile, isoleucine, Leu, leucine, silico
 
         private int mSequenceLengthToExamineForMaximumpI;
 
@@ -124,7 +124,7 @@ namespace ProteinDigestionSimulator.Options
 
         public bool LogEnabled { get; set; }
 
-        [Option("Log", "L",
+        [Option("LogFile", "Log", "L",
             HelpText = "If specified, write to a log file. Can optionally provide a log file path", ArgExistsProperty = nameof(LogEnabled))]
         public string LogFilePath { get; set; }
 
@@ -180,6 +180,102 @@ namespace ProteinDigestionSimulator.Options
         [Option("DigestProteins", "D",
             HelpText = "When true, in-silico digest the proteins in the input file")]
         public bool CreateDigestedProteinOutputFile { get; set; }
+
+        [Option("DigestionEnzyme", "CleavageRuleID",
+            HelpText = "Enzyme to use for protein digestion")]
+        public CleavageRuleConstants DigestionEnzyme
+        {
+            get => DigestionOptions.CleavageRuleID;
+            set => DigestionOptions.CleavageRuleID = value;
+        }
+
+        [Option("MaxMissedCleavages",
+            HelpText = "Maximum number of missed cleavages when digesting proteins")]
+        public int MaxMissedCleavages
+        {
+            get => DigestionOptions.MaxMissedCleavages;
+            set => DigestionOptions.MaxMissedCleavages = value;
+        }
+
+        [Option("MinimumFragmentResidueCount", "MinimumResidueCount",
+            HelpText = "Minimum length of peptides to allow when digesting proteins")]
+        public int MinFragmentResidueCount
+        {
+            get => DigestionOptions.MinFragmentResidueCount;
+            set => DigestionOptions.MinFragmentResidueCount = value;
+        }
+
+        [Option("MinimumFragmentMass",
+            HelpText = "Maximum fragment mass to allow when digesting proteins")]
+        public int MinFragmentMass
+        {
+            get => DigestionOptions.MinFragmentMass;
+            set => DigestionOptions.MinFragmentMass = value;
+        }
+
+        [Option("MaximumFragmentMass",
+            HelpText = "Maximum fragment mass to allow when digesting proteins")]
+        public int MaxFragmentMass
+        {
+            get => DigestionOptions.MaxFragmentMass;
+            set => DigestionOptions.MaxFragmentMass = value;
+        }
+
+        [Option("FragmentMassMode",
+            HelpText = "Fragment mass mode to use when digesting proteins")]
+        public FragmentMassConstants FragmentMassMode
+        {
+            get => DigestionOptions.FragmentMassMode;
+            set => DigestionOptions.FragmentMassMode = value;
+        }
+
+        [Option("MinimumIsoelectricPoint", "MinimumpI",
+            HelpText = "Minimum pI value to allow when digesting proteins; only used if ComputepI is true")]
+        public float MinIsoelectricPoint
+        {
+            get => DigestionOptions.MinIsoelectricPoint;
+            set => DigestionOptions.MinIsoelectricPoint = value;
+        }
+
+        [Option("MaximumIsoelectricPoint", "MaximumpI",
+            HelpText = "Maximum pI value to allow when digesting proteins; only used if ComputepI is true")]
+        public float MaxIsoelectricPoint
+        {
+            get => DigestionOptions.MaxIsoelectricPoint;
+            set => DigestionOptions.MaxIsoelectricPoint = value;
+        }
+
+        [Option("CysTreatmentMode",
+            HelpText = "Cysteine treatment mode to use when digesting proteins")]
+        public PeptideSequence.CysTreatmentModeConstants CysTreatmentMode
+        {
+            get => DigestionOptions.CysTreatmentMode;
+            set => DigestionOptions.CysTreatmentMode = value;
+        }
+
+        [Option("CysPeptidesOnly",
+            HelpText = "If true, only report peptides with at least one cysteine residue when digesting proteins")]
+        public bool CysPeptidesOnly
+        {
+            get => DigestionOptions.CysPeptidesOnly;
+            set => DigestionOptions.CysPeptidesOnly = value;
+        }
+
+        [Option("RemoveDuplicateSequences", "RemoveDuplicates",
+            HelpText = "If true, remove duplicate sequences when digesting proteins")]
+        public bool RemoveDuplicateSequences
+        {
+            get => DigestionOptions.RemoveDuplicateSequences;
+            set => DigestionOptions.RemoveDuplicateSequences = value;
+        }
+
+        [Option("IncludePrefixAndSuffixResidues", "IncludePrefixAndSuffix",
+            HelpText = "If true, include prefix and suffix residues in the output file when digesting proteins")]
+        public bool IncludePrefixAndSuffixResidues
+        {
+            get => DigestionOptions.IncludePrefixAndSuffixResidues;
+            set => DigestionOptions.IncludePrefixAndSuffixResidues = value;
+        }
 
         /// <summary>
         /// True to create a FASTA output file; false for a tab-delimited text file
@@ -249,16 +345,25 @@ namespace ProteinDigestionSimulator.Options
         /// </summary>
         public DigestionSimulatorOptions()
         {
-            DigestionOptions = new DigestionOptions
-            {
-                CleavageRuleID = CleavageRuleConstants.ConventionalTrypsin,
-                MaxMissedCleavages = 1,
-                MinFragmentResidueCount = 0,
-                MinFragmentMass = 600,
-                MaxFragmentMass = 3000,
-                RemoveDuplicateSequences = true,
-                IncludePrefixAndSuffixResidues = false
-            };
+            DigestionOptions = new DigestionOptions();
+
+            DigestionEnzyme = CleavageRuleConstants.ConventionalTrypsin;
+            MaxMissedCleavages = 0;
+            MinFragmentResidueCount = 4;
+
+            MinFragmentMass = 400;
+            MaxFragmentMass = 6000;
+
+            FragmentMassMode = FragmentMassConstants.Monoisotopic;
+
+            MinIsoelectricPoint = 0;
+            MaxIsoelectricPoint = 14;
+
+            CysTreatmentMode = PeptideSequence.CysTreatmentModeConstants.Untreated;
+            CysPeptidesOnly = false;
+
+            RemoveDuplicateSequences = false;
+            IncludePrefixAndSuffixResidues = false;
 
             FastaFileOptions = new ProteinFileParser.FastaFileParseOptions();
 
