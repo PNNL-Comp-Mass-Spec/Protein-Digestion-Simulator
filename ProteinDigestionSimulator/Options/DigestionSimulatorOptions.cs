@@ -49,7 +49,7 @@ namespace ProteinDigestionSimulator.Options
         /// </remarks>
         private char mInputFileDelimiter;
 
-        [Option("InputFileDelimiter", "InputDelimiter",
+        [Option("InputFileDelimiter", "InputDelimiter", "AD",
             HelpText = "Input file delimiter (only used for delimited protein input files, not FASTA files); " +
                        "default is the tab character",
             HelpShowsDefault = false)]
@@ -165,7 +165,7 @@ namespace ProteinDigestionSimulator.Options
             }
         }
 
-        [Option("ComputeProteinMass", "ComputeMass", "M",
+        [Option("ComputeProteinMass", "ComputeMass", "Mass", "M",
             HelpText = "When true, compute mass values for digested peptides and/or for entries in a tab-delimited text output file")]
         public bool ComputeProteinMass { get; set; }
 
@@ -177,7 +177,7 @@ namespace ProteinDigestionSimulator.Options
             HelpText = "When true, include X residues when computing protein mass (using the mass of Ile/Leu)")]
         public bool IncludeXResiduesInMass { get; set; }
 
-        [Option("DigestProteins", "D",
+        [Option("DigestProteins", "Digest", "D",
             HelpText = "When true, in-silico digest the proteins in the input file")]
         public bool CreateDigestedProteinOutputFile { get; set; }
 
