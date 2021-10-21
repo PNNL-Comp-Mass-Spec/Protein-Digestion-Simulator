@@ -306,7 +306,6 @@ namespace ProteinDigestionSimulator
 
                 var outputFileDelimiter = ProcessingOptions.OutputFileDelimiter;
 
-                // ToDo: Grab chunks of data from the server if caching into SqlServer (change this to a while loop)
                 int matchIndex;
                 for (matchIndex = 0; matchIndex < peptideMatchResults.Count; matchIndex++)
                 {
@@ -618,8 +617,6 @@ namespace ProteinDigestionSimulator
                 // ----------------------------------------------------
                 LogMessage("Load proteins or peptides from " + Path.GetFileName(proteinInputFilePath));
                 success = LoadProteinsOrPeptides(proteinInputFilePath);
-
-                // ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
 
                 progressStep = 1;
                 UpdateProgress((float)(progressStep / (double)progressStepCount * 100d));
@@ -1137,8 +1134,6 @@ namespace ProteinDigestionSimulator
 
                     // Load each peptide using ProteinFileReader.DelimitedFileReader
                     success = LoadPeptidesFromDelimitedFile(proteinInputFilePath);
-
-                    // ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
                 }
 
                 if (success)
@@ -1231,8 +1226,6 @@ namespace ProteinDigestionSimulator
                         AddOrUpdatePeptide(delimitedFileReader.EntryUniqueID, delimitedFileReader.PeptideMass, delimitedFileReader.PeptideNET,
                             delimitedFileReader.PeptideNETStDev, delimitedFileReader.PeptideDiscriminantScore,
                             delimitedFileReader.ProteinName, ProteinCollection.CleavageStateConstants.Unknown, string.Empty);
-
-                        // ToDo: Possibly enable this here if the input file contained NETStDev values: SLiCScoreUseAMTNETStDev = True
                     }
 
                     UpdateProgress(delimitedFileReader.PercentFileProcessed());
