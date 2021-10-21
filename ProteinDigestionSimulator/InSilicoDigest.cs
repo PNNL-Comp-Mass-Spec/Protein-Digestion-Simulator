@@ -402,11 +402,11 @@ namespace ProteinDigestionSimulator
                                 if (peptideSequence.Length >= DigestionOptions.MinFragmentResidueCount)
                                 {
                                     PossiblyAddPeptide(peptideSequence, trypticIndex, index,
-                                    residueStartLoc, residueEndLoc,
-                                    proteinSequence, proteinSequenceLength,
-                                    fragmentsUniqueList, peptideFragments,
-                                    filterByIsoelectricPoint,
-                                    minFragmentMass, maxFragmentMass);
+                                                       residueStartLoc, residueEndLoc,
+                                                       proteinSequence, proteinSequenceLength,
+                                                       fragmentsUniqueList, peptideFragments,
+                                                       filterByIsoelectricPoint,
+                                                       minFragmentMass, maxFragmentMass);
                                 }
                             }
 
