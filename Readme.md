@@ -80,9 +80,9 @@ The Protein Digestion Simulator supports the following enzymes:
 | No cleavage rule                | Cleave after any residue |              |                                                          |
 | Peptide Database                | Do not cleavage after any residue |     | Use to extract peptides in a given mass range            |
 
-### Parameter File Cleavage Rule Name
+### Parameter File Enzyme Name
 
-When using a parameter file to set the enzyme to use for digestion (via parameter `DigestionEnzyme`),
+When using a parameter file to define the enzyme to use for digestion (via parameter `DigestionEnzyme`),
 use the name shown in the second column of the following table:
 * As an alternative to enzyme name, you can use the Enzyme ID
 
@@ -119,20 +119,22 @@ DigestionEnzyme=KROneEnd
 
 ## Installation
 
-* Download Protein-Digestion-Simulator.zip from [AppVeyor](https://ci.appveyor.com/project/PNNLCompMassSpec/protein-digestion-simulator/build/artifacts)
-  * Alternatively, download from the [GitHub release page](https://github.com/PNNL-Comp-Mass-Spec/Protein-Digestion-Simulator/releases)
-* Extract the files
-* Run ProteinDigestionSimulator.exe to start the GUI
+* Option 1: Download a zip file with the installer from the [GitHub release page](https://github.com/PNNL-Comp-Mass-Spec/Protein-Digestion-Simulator/releases)
+  * ProteinDigestionSimulator_Installer.zip
+  * Extract and run ProteinDigestionSimulator_Installer.exe
+* Option 2: Download Protein-Digestion-Simulator.zip from the [GitHub release page](https://github.com/PNNL-Comp-Mass-Spec/Protein-Digestion-Simulator/releases)
+  * Extract the files
+  * Run ProteinDigestionSimulator.exe to start the GUI
 
 ## Console Switches
 
 The Protein Digestion Simulator is typically used as a GUI application, but it also can be run from the Windows console, 
-or on Linux using [Mono](https://www.mono-project.com/).  
+or on Linux using [Mono](https://www.mono-project.com/).
 
 Syntax:
 ```
 ProteinDigestionSimulator.exe
-  /I:SourceFastaOrTextFile [/F] [/D] [/M] [/AD:AlternateDelimiter]
+  /I:SourceFastaOrTextFile [/F] [/D] [/M:False] [/AD:AlternateDelimiter]
   [/O:OutputDirectoryPath] [/P:ParameterFilePath] [/S:[MaxLevel]]
   [/A:AlternateOutputDirectoryPath] [/R]
 ```
@@ -146,19 +148,23 @@ Use `/F` to indicate that the input file is a FASTA file
 Use `/D` to indicate that an in-silico digestion of the proteins should be performed
 * Digestion options must be specified in the parameter file
 
-Use `/M` to indicate that protein mass should be computed
+By default, when converting a FASTA file to a tab-delimited file, monoisotopic mass values are computed for the proteins
+* Optionally use  `/M:False` to disable this
 
-Use `/AD `to specify a delimiter other than the Tab character (not applicable for FASTA files)
+If the input file is not a FASTA file, it is assumed to be tab-delimited
+* Use `/AD`to customize delimiter (not applicable for FASTA files)
+* For example, for .csv files use `/AD:,`
 
 The output directory path is optional
-* If omitted, the output files will be created in the same director as the input file
+* If omitted, the output files will be created in the same directory as the input file
 
 The parameter file path is optional
 * If included, it should point to a valid Name=Value parameter file
+* An example parameter file is available in the [Documentation folder on GitHub](https://github.com/PNNL-Comp-Mass-Spec/Protein-Digestion-Simulator/tree/master/Documentation)
 
-Use `/S` to process all valid files in the input director and subdirectories. Include a number after `/S` (like `/S:2`) to limit the level of subdirectories to examine.
+Use `/S` to process all valid files in the input directory and subdirectories. Include a number after `/S` (like `/S:2`) to limit the level of subdirectories to examine.
 * When using `/S`, you can redirect the output of the results using `/A`
-* When using `/S`, you can use `/R` to re-create the input director hierarchy in the alternate output director (if defined)
+* When using `/S`, you can use `/R` to re-create the input directory hierarchy in the alternate output directory (if defined)
 
 Use `/L` or `/Log` to log messages to a file
 * By default, log files will include the current date, e.g. `ProteinDigestionSimulator_log_2021-10-20.txt`
