@@ -33,7 +33,7 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: Da, pre
 
-        private const string PROGRAM_DATE = "October 21, 2021";
+        private const string PROGRAM_DATE = "October 22, 2021";
 
         private const string PROTEIN_ID_COLUMN = "ProteinID";
         private const string PEPTIDE_ID_MATCH_COLUMN = "PeptideIDMatch";
@@ -1176,7 +1176,7 @@ namespace ProteinDigestionSimulator
             {
                 delimitedFileReader = new DelimitedProteinFileReader
                 {
-                    Delimiter = ProcessingOptions.InputFileDelimiterCharacter,
+                    Delimiter = ProcessingOptions.InputFileDelimiter,
                     DelimitedFileFormatCode = ProcessingOptions.DelimitedFileFormatCode
                 };
 

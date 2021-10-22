@@ -1343,7 +1343,7 @@ namespace ProteinDigestionSimulator
             return true;
         }
 
-        private string LookupColumnDelimiter(ListControl delimiterCombobox, Control delimiterTextBox, char defaultDelimiter)
+        private char LookupColumnDelimiter(ListControl delimiterCombobox, Control delimiterTextBox, char defaultDelimiter)
         {
             try
             {
@@ -1351,11 +1351,11 @@ namespace ProteinDigestionSimulator
             }
             catch
             {
-                return "\t";
+                return '\t';
             }
         }
 
-        private string LookupColumnDelimiter(int delimiterIndex, string customDelimiter, char defaultDelimiter)
+        private char LookupColumnDelimiter(int delimiterIndex, string customDelimiter, char defaultDelimiter)
         {
             var delimiter = delimiterIndex switch
             {
@@ -1365,7 +1365,7 @@ namespace ProteinDigestionSimulator
                 _ => string.Copy(customDelimiter), // Includes DelimiterCharConstants.Other
             };
 
-            return delimiter.Length == 0 ? defaultDelimiter.ToString() : delimiter;
+            return delimiter.Length == 0 ? defaultDelimiter : delimiter[0];
         }
 
         private int LookupMaxpISequenceLength()

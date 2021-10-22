@@ -43,7 +43,7 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: ComputepI, Cys, gi, hydrophobicity, Ile, Leu, pre, SepChar, silico, varchar
 
-        private const string PROGRAM_DATE = "October 21, 2021";
+        private const string PROGRAM_DATE = "October 22, 2021";
 
         private const int SCRAMBLING_CACHE_LENGTH = 4000;
         private const string PROTEIN_PREFIX_SCRAMBLED = "Random_";
@@ -681,7 +681,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 mNextUniqueIDForMasterSeqs = 1;
-                var outputFileDelimiter = ProcessingOptions.OutputFileDelimiterCharacter;
+                var outputFileDelimiter = ProcessingOptions.OutputFileDelimiter;
 
                 if (ProcessingOptions.CreateProteinOutputFile &&
                     ProcessingOptions.CreateDigestedProteinOutputFile &&
@@ -977,7 +977,7 @@ namespace ProteinDigestionSimulator
                     else
                     {
                         message += "Make sure that " + ProcessingOptions.DelimitedFileFormatCode + " is the appropriate format for this file (see the File Format Options tab in the GUI or command line argument DelimitedFileFormat).";
-                        if (ProcessingOptions.InputFileDelimiterCharacter == '\t')
+                        if (ProcessingOptions.InputFileDelimiter == '\t')
                             message += " Also confirm that the file is tab-delimited.";
                         else
                             message += " Also confirm that data in the file is delimited with a " + ProcessingOptions.InputFileDelimiter;
@@ -1356,7 +1356,7 @@ namespace ProteinDigestionSimulator
             {
                 proteinFileReader = new DelimitedProteinFileReader
                 {
-                    Delimiter = ProcessingOptions.InputFileDelimiterCharacter,
+                    Delimiter = ProcessingOptions.InputFileDelimiter,
                     DelimitedFileFormatCode = ProcessingOptions.DelimitedFileFormatCode,
                     SkipFirstLine = ProcessingOptions.DelimitedFileHasHeaderLine
                 };
