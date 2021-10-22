@@ -616,8 +616,6 @@ namespace ProteinDigestionSimulator
 
             var residueCache = new ScramblingResidueCache(ProcessingOptions);
 
-            var startTime = DateTime.UtcNow;
-
             ProcessingSummary = string.Empty;
 
             var pathInfo = new FilePathInfo
@@ -759,7 +757,6 @@ namespace ProteinDigestionSimulator
                         scramblingMode = ProteinScramblingModeConstants.None;
                     }
 
-                    startTime = DateTime.UtcNow;
                     addnlRefsToOutput.Clear();
 
                     if (ProcessingOptions.CreateProteinOutputFile && ParsedFileIsFastaFile && allowLookForAddnlRefInDescription)
