@@ -683,7 +683,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 mNextUniqueIDForMasterSeqs = 1;
-                var outputFileDelimiter = ProcessingOptions.OutputFileDelimiter;
+                var outputFileDelimiter = ProcessingOptions.OutputFileDelimiterCharacter;
 
                 if (ProcessingOptions.CreateProteinOutputFile &&
                     ProcessingOptions.CreateDigestedProteinOutputFile &&
@@ -980,7 +980,7 @@ namespace ProteinDigestionSimulator
                     else
                     {
                         message += "Make sure that " + ProcessingOptions.DelimitedFileFormatCode + " is the appropriate format for this file (see the File Format Options tab in the GUI or command line argument DelimitedFileFormat).";
-                        if (ProcessingOptions.InputFileDelimiter == '\t')
+                        if (ProcessingOptions.InputFileDelimiterCharacter == '\t')
                             message += " Also confirm that the file is tab-delimited.";
                         else
                             message += " Also confirm that data in the file is delimited with a " + ProcessingOptions.InputFileDelimiter;
@@ -1359,7 +1359,7 @@ namespace ProteinDigestionSimulator
             {
                 proteinFileReader = new DelimitedProteinFileReader
                 {
-                    Delimiter = ProcessingOptions.InputFileDelimiter,
+                    Delimiter = ProcessingOptions.InputFileDelimiterCharacter,
                     DelimitedFileFormatCode = ProcessingOptions.DelimitedFileFormatCode,
                     SkipFirstLine = ProcessingOptions.DelimitedFileHasHeaderLine
                 };

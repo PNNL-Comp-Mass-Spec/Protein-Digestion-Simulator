@@ -74,6 +74,11 @@ namespace ProteinDigestionSimulator.Options
             }
         }
 
+        /// <summary>
+        /// Input file delimiter, as a char
+        /// </summary>
+        public char InputFileDelimiterCharacter => mInputFileDelimiter;
+
         [Option("ExcludeProteinDescription", "ExcludeDescription",
             HelpText = "When true, do not include protein description in the output file")]
         public bool ExcludeProteinDescription { get; set; }
@@ -114,6 +119,11 @@ namespace ProteinDigestionSimulator.Options
                 }
             }
         }
+
+        /// <summary>
+        /// Output file delimiter, as a char
+        /// </summary>
+        public char OutputFileDelimiterCharacter => mOutputFileDelimiter;
 
         [Option("Recurse", "S",
             HelpText = "Search in subdirectories")]
