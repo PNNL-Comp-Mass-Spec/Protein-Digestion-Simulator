@@ -25,9 +25,9 @@
   <section name="ProcessingOptions">
     <item key="ExcludeProteinSequence" value="False" />
     <item key="ComputeProteinMass" value="False" />
-    <item key="ComputepI" value="True" />
-    <item key="ComputeNET" value="True" />
-    <item key="ComputeSCX" value="True" />
+    <item key="ComputepI" value="False" />
+    <item key="ComputeNET" value="False" />
+    <item key="ComputeSCX" value="False" />
     <item key="IncludeXResidues" value="False" />
     <item key="ComputeSequenceHashValues" value="True" />
     <item key="ComputeSequenceHashIgnoreILDiff" value="True" />
