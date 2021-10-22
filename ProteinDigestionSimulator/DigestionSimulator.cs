@@ -1176,7 +1176,7 @@ namespace ProteinDigestionSimulator
             {
                 delimitedFileReader = new DelimitedProteinFileReader
                 {
-                    Delimiter = ProcessingOptions.InputFileDelimiter,
+                    Delimiter = ProcessingOptions.InputFileDelimiterCharacter,
                     DelimitedFileFormatCode = ProcessingOptions.DelimitedFileFormatCode
                 };
 
