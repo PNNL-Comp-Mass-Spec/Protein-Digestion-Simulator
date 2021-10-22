@@ -14,8 +14,10 @@ WelcomeLabel2=This will install [name/ver] on your computer.
 [Files]
 Source: ..\ProteinDigestionSimulator\bin\ProteinDigestionSimulator.exe               ; DestDir: {app}
 Source: ..\ProteinDigestionSimulator\bin\ProteinDigestionSimulator.pdb               ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\CsvHelper.dll                               ; DestDir: {app}
 Source: ..\ProteinDigestionSimulator\bin\FlexibleFileSortUtility.dll                 ; DestDir: {app}
 Source: ..\ProteinDigestionSimulator\bin\Microsoft.Bcl.AsyncInterfaces.dll           ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\Microsoft.Bcl.HashCode.dll                  ; DestDir: {app}
 Source: ..\ProteinDigestionSimulator\bin\NETPrediction.dll                           ; DestDir: {app}
 Source: ..\ProteinDigestionSimulator\bin\Npgsql.dll                                  ; DestDir: {app}
 Source: ..\ProteinDigestionSimulator\bin\PRISM.dll                                   ; DestDir: {app}
@@ -32,9 +34,15 @@ Source: ..\ProteinDigestionSimulator\bin\System.Threading.Tasks.Extensions.dll  
 Source: ..\ProteinDigestionSimulator\bin\System.ValueTuple.dll                       ; DestDir: {app}
 Source: ..\ProteinDigestionSimulator\bin\ValidateFastaFile.dll                       ; DestDir: {app}
 
-Source: ..\ProteinDigestionSimulator\bin\QC_Standards_2004-01-21.fasta                          ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\QC_Standards_2004-01-21.txt                            ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\QC_Standards_2004-01-21_digested_Mass400to6000.txt     ; DestDir: {app}
+Source: ..\Documentation\ProteinDigestionSimulatorOptions.conf                       ; DestDir: {app}\ExampleData\
+
+Source: ..\ExampleData\QC_Standards_2004-01-21.fasta                                 ; DestDir: {app}\ExampleData\
+Source: ..\ExampleData\QC_Standards_2004-01-21.txt                                   ; DestDir: {app}\ExampleData\
+Source: ..\ExampleData\QC_Standards_2004-01-21_digested_Mass400to6000.txt            ; DestDir: {app}\ExampleData\
+Source: ..\ExampleData\JunkTest.fasta                                                ; DestDir: {app}\ExampleData\
+Source: ..\ExampleData\TestProteins.csv                                              ; DestDir: {app}\ExampleData\
+Source: ..\ExampleData\TestProteins_parsed.txt                                       ; DestDir: {app}\ExampleData\
+Source: ..\ExampleData\Run_Program.bat                                               ; DestDir: {app}\ExampleData\
 
 Source: ..\ProteinDigestionSimulator\bin\ProteinDigestionSimulatorOptions.xml   ; DestDir: {app}
 Source: ..\ProteinDigestionSimulator\bin\Elute1052.wts                          ; DestDir: {app}
@@ -47,7 +55,7 @@ Source: ..\RevisionHistory.txt                        ; DestDir: {app}
 Source: ..\PNNL_NETPrediction_License.pdf             ; DestDir: {app}
 Source: Images\delete_16x.ico                         ; DestDir: {app}
 
-Source: ..\Docs\ProteinDigestionSimulatorOptions.xml     ; DestDir: {app}\Docs
+Source: ..\Documentation\ProteinDigestionSimulator_CommandLineSyntax.txt        ; DestDir: {app}\ExampleData\
 
 [Dirs]
 Name: {commonappdata}\ProteinDigestionSimulator; Flags: uninsalwaysuninstall
