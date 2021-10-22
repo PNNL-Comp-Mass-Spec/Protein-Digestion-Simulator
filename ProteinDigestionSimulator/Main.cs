@@ -571,8 +571,7 @@ namespace ProteinDigestionSimulator
                         mProteinDigestionSimulator.LogMessagesToFile = true;
 
                         var appFolderPath = ProcessFilesOrDirectoriesBase.GetAppDataDirectoryPath("ProteinDigestionSimulator");
-                        var logFilePath = Path.Combine(appFolderPath, "ProteinDigestionSimulatorLog.txt");
-                        mProteinDigestionSimulator.LogFilePath = logFilePath;
+                        mProteinDigestionSimulator.LogFilePath = Path.Combine(appFolderPath, "ProteinDigestionSimulatorLog.txt");
                     }
 
                     var success = InitializeProteinFileParserGeneralOptions(mProteinDigestionSimulator.ProcessingOptions);
