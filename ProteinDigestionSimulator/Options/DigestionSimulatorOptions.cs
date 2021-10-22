@@ -54,18 +54,22 @@ namespace ProteinDigestionSimulator.Options
         /// </remarks>
         private char mInputFileDelimiter;
 
+        /// <summary>
+        /// Input file delimiter, as a string
+        /// </summary>
+        /// <remarks>Need to use type string to allow for reading the delimiter from a parameter file</remarks>
         [Option("InputFileDelimiter", "InputDelimiter", "AD",
             HelpText = "Input file delimiter (only used for delimited protein input files, not FASTA files); " +
                        "default is the tab character",
             HelpShowsDefault = false)]
-        public char InputFileDelimiter
+        public string InputFileDelimiter
         {
-            get => mInputFileDelimiter;
+            get => mInputFileDelimiter.ToString();
             set
             {
-                if (value != default)
+                if (!string.IsNullOrEmpty(value))
                 {
-                    mInputFileDelimiter = value;
+                    mInputFileDelimiter = value[0];
                 }
             }
         }
@@ -92,17 +96,21 @@ namespace ProteinDigestionSimulator.Options
 
         private char mOutputFileDelimiter;
 
+        /// <summary>
+        /// Output file delimiter, as a string
+        /// </summary>
+        /// <remarks>Need to use type string to allow for reading the delimiter from a parameter file</remarks>
         [Option("OutputFileDelimiter",
             HelpText = "Output file delimiter; default is a tab character",
             HelpShowsDefault = false)]
-        public char OutputFileDelimiter
+        public string OutputFileDelimiter
         {
-            get => mOutputFileDelimiter;
+            get => mOutputFileDelimiter.ToString();
             set
             {
-                if (value != default)
+                if (!string.IsNullOrEmpty(value))
                 {
-                    mOutputFileDelimiter = value;
+                    mOutputFileDelimiter = value[0];
                 }
             }
         }
@@ -380,7 +388,7 @@ namespace ProteinDigestionSimulator.Options
 
             DelimitedFileFormatCode = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence;
             DelimitedFileHasHeaderLine = true;
-            InputFileDelimiter = '\t';
+            InputFileDelimiter = "\t";
 
             ExcludeProteinDescription = false;
             ExcludeProteinSequence = false;
@@ -388,7 +396,7 @@ namespace ProteinDigestionSimulator.Options
 
             OutputDirectoryPath = string.Empty;
 
-            OutputFileDelimiter = '\t';
+            OutputFileDelimiter = "\t";
 
             RecurseDirectories = false;
             MaxLevelsToRecurse = 0;
