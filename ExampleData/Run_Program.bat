@@ -24,12 +24,11 @@ echo.
 echo Processing with %ExePath%
 echo.
 
-rem %ExePath% JunkTest.fasta
+%ExePath% JunkTest.fasta
 
-echo %ExePath% JunkTest.fasta /P:%ParamFilePath%
+%ExePath% JunkTest.fasta /P:%ParamFilePath%
 
-rem %ExePath% JunkTest.fasta /P:%ParamFilePath%
-goto Done
+%ExePath% QC_Standards_2004-01-21.fasta /conf:%ParamFilePath%
 
 %ExePath% QC_Standards_2004-01-21.fasta /Digest
 
@@ -37,9 +36,9 @@ goto Done
 
 %ExePath% QC_Standards_2004-01-21_digested_peptides.txt /DelimitedFileFormat:SequenceOnly /Hash /Mass:False /InputFileHasHeader:False
 
-%ExePath% QC_Standards_2004-01-21.fasta ..\ProteinDigestionSimulatorOptions.conf
-
 %ExePath% TestProteins.csv
+
+%ExePath% TestProteins.csv /ad:,
 
 :Done
 
