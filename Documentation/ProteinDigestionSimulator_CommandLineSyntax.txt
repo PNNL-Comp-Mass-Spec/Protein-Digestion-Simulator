@@ -1,0 +1,264 @@
+
+This program can be used to read a FASTA file or tab delimited file containing
+protein or peptide sequences, then output the data to a tab-delimited file. It
+can optionally digest the input sequences using trypsin or partial trypsin rules,
+and can add the predicted normalized elution time (NET) values for the peptides.
+Additionally, it can calculate the number of uniquely identifiable peptides,
+using only mass, or both mass and NET, with appropriate tolerances.
+
+Usage: ProteinDigestionSimulator.exe
+
+  -?, -help            Show this help screen
+
+  -Input, -InputFile,  Required. The name of the FASTA file to process (.fasta,
+  -I, arg#1            .faa, .fasta.gz, or .faa.gz); alternatively, a
+                       tab-delimited text file with protein info. Either define
+                       this at the command line using /I or in a parameter file.
+                       When using /I at the command line, surround the filename
+                       with double quotes if it contains spaces (Default: "")
+
+  -AssumeFasta, -F     Optionally set this to true to indicate that the input
+                       file is a FASTA file. If false, the format will be
+                       assumed to be FASTA only if the filename ends with
+                       .fasta, .faa, .fasta.gz, or .faa.gz (Default: False)
+
+  -DelimitedFileFormat  Specifies the column order in delimited input files;
+                       ignored if the input file is a FASTA file
+                       (Default: ProteinName_Description_Sequence (or 2))
+                       Possible values are: 
+                         0 or 'SequenceOnly'
+                         1 or 'ProteinName_Sequence'
+                         2 or 'ProteinName_Description_Sequence'
+                         3 or 'UniqueID_Sequence'
+                         4 or 'ProteinName_PeptideSequence_UniqueID'
+                         5 or 'ProteinName_PeptideSequence_UniqueID_Mass_NET'
+                         6 or
+                         'ProteinName_PeptideSequence_UniqueID_Mass_NET_NETStDev_DiscriminantScore'
+                         7 or 'UniqueID_Sequence_Mass_NET'
+                         8 or 'ProteinName_Description_Hash_Sequence'
+
+  -InputFileHasHeader  When true, assume the delimited input file has a header
+                       line (Default: True)
+
+  -InputDelimiter,     Input file delimiter (only used for delimited protein
+  -AD                  input files, not FASTA files); default is the tab
+                       character
+
+  -ExcludeDescription  When true, do not include protein description in the
+                       output file (Default: False)
+
+  -ExcludeSequence     When true, do not include protein sequence in the output
+                       file (Default: False)
+
+  -TruncateDescription  When true, truncate protein descriptions longer than 7995
+                       characters (Default: True)
+
+  -Output,             Output directory name (or full path). If omitted, the
+  -OutputDirectory,    output files will be created in the program directory
+  -O                   (Default: "")
+
+  -OutputFileDelimiter  Output file delimiter; default is a tab character
+
+  -Recurse, -S         Search in subdirectories (Default: False)
+
+  -RecurseDepth        When searching in subdirectories, the maximum depth to
+                       search. When 0 or negative, recurse infinitely. When 1,
+                       only process the current directory. When 2, process the
+                       current directory and files in its subdirectories.
+                       (Default: 0)
+
+  -A                   Optionally provide a directory path to write results to
+                       when searching in subdirectories (Default: "")
+
+  -R                   When searching in subdirectories, if an alternate output
+                       directory has been defined, this can be set to true to
+                       re-create the input directory hierarchy in the alternate
+                       output directory (Default: False)
+
+  -LogFile, -Log, -L   If specified, write to a log file. Can optionally provide
+                       a log file path (Default: "")
+
+  -ComputeNET          When true, compute predicted elution time values for
+                       digested peptides and/or for entries in a tab-delimited
+                       text output file (Default: True)
+
+  -ComputepI           When true, compute pI values for digested peptides and/or
+                       for entries in a tab-delimited text output file
+                       (Default: True)
+
+  -ComputeSCX          When true, compute predicted SCX values for digested
+                       peptides and/or for entries in a tab-delimited text
+                       output file (Default: True)
+
+  -Hydrophobicity      Hydrophobicity mode to use when ComputepI is true
+                       (Default: HW (or 0))
+                       Possible values are: 
+                         0 or 'HW'
+                         1 or 'KD'
+                         2 or 'Eisenberg'
+                         3 or 'GES'
+                         4 or 'MeekPH7p4'
+                         5 or 'MeekPH2p1'
+
+  -ReportMaximumpI,    When ComputepI is true, set this to true to examine the
+  -ReportMaxpI         protein residues in chunks of SequenceLengthMaximumpI,
+                       compute the pI for each chunk, then report the largest pI
+                       (Default: False)
+
+  -SequenceLengthMaxpI  When ReportMaxpI is true, use this to specify the number
+                       of residues to group together for computing localized pI
+                       (Default: 10)
+
+  -ComputeMass,        When true, compute mass values for digested peptides
+  -Mass, -M            and/or for entries in a tab-delimited text output file
+                       (Default: True)
+
+  -ElementMassMode,    Mass mode to use when computing mass values
+  -MassMode            (Default: IsotopicMass (or 1))
+                       Possible values are: 
+                         0 or 'AverageMass'
+                         1 or 'IsotopicMass'
+
+  -IncludeXResidues    When true, include X residues when computing protein mass
+                       (using the mass of Ile/Leu) (Default: False)
+
+  -DigestProteins,     When true, in-silico digest the proteins in the input
+  -Digest, -D          file (Default: False)
+
+  -DigestionEnzyme,    Enzyme to use for protein digestion
+  -CleavageRuleID      (Default: ConventionalTrypsin (or 1))
+                       Possible values are: 
+                         0 or 'NoRule'
+                         1 or 'ConventionalTrypsin'
+                         2 or 'TrypsinWithoutProlineException'
+                         3 or 'EricPartialTrypsin'
+                         4 or 'TrypsinPlusFVLEY'
+                         5 or 'KROneEnd'
+                         6 or 'TerminiiOnly'
+                         7 or 'Chymotrypsin'
+                         8 or 'ChymotrypsinAndTrypsin'
+                         9 or 'GluC'
+                         10 or 'CyanBr'
+                         11 or 'LysC'
+                         12 or 'GluC_EOnly'
+                         13 or 'ArgC'
+                         14 or 'AspN'
+                         15 or 'ProteinaseK'
+                         16 or 'PepsinA'
+                         17 or 'PepsinB'
+                         18 or 'PepsinC'
+                         19 or 'PepsinD'
+                         20 or 'AceticAcidD'
+                         21 or 'TrypsinPlusLysC'
+                         22 or 'Thermolysin'
+                         23 or 'TrypsinPlusThermolysin'
+
+  -MaxMissedCleavages  Maximum number of missed cleavages when digesting
+                       proteins (Default: 3)
+
+  -MinimumResidueCount  Minimum length of peptides to allow when digesting
+                       proteins (Default: 1)
+
+  -MinimumFragmentMass  Maximum fragment mass to allow when digesting proteins
+                       (Default: 400)
+
+  -MaximumFragmentMass  Maximum fragment mass to allow when digesting proteins
+                       (Default: 6000)
+
+  -FragmentMassMode    Fragment mass mode to use when digesting proteins
+                       (Default: Monoisotopic (or 0))
+                       Possible values are: 
+                         0 or 'Monoisotopic'
+                         1 or 'MH'
+
+  -MinimumpI           Minimum pI value to allow when digesting proteins; only
+                       used if ComputepI is true (Default: 0)
+
+  -MaximumpI           Maximum pI value to allow when digesting proteins; only
+                       used if ComputepI is true (Default: 14)
+
+  -CysTreatmentMode    Cysteine treatment mode to use when digesting proteins
+                       (Default: Untreated (or 0))
+                       Possible values are: 
+                         0 or 'Untreated'
+                         1 or 'Iodoacetamide'
+                         2 or 'IodoaceticAcid'
+
+  -CysPeptidesOnly     If true, only report peptides with at least one cysteine
+                       residue when digesting proteins (Default: False)
+
+  -RemoveDuplicates    If true, remove duplicate sequences when digesting
+                       proteins (Default: False)
+
+  -IncludePrefixAndSuffix  If true, include prefix and suffix residues in the output
+                       file when digesting proteins (Default: False)
+
+  -FastaOutputFile,    When true, write the output file as a FASTA file; only
+  -FastaOutput         valid if DigestProteins is false. An error will occur if
+                       the input file is a FASTA file (Default: False)
+
+  -ProteinOutput       When true, writes the proteins to a file; when false,
+                       then caches the results in memory (Default: False)
+
+  -Hash                When true, compute sequence hash values for digested
+                       peptides and/or for entries in a tab-delimited text
+                       output file (Default: False)
+
+  -IgnoreILDiff        When true and computing sequence hash values, treat
+                       isoleucine and leucine as the same residue
+                       (Default: True)
+
+  -GenerateUniqueIDs   When true, assign UniqueID values to the digested
+                       peptides (requires more memory); only valid if
+                       CreateDigestedProteinOutputFile is True (Default: True)
+
+  -ScrambleMode        When creating a protein output file (and thus not
+                       digesting), optionally use this to specify that reversed
+                       or scrambled sequences be written (Default: None (or 0))
+                       Possible values are: 
+                         0 or 'None'
+                         1 or 'Reversed'
+                         2 or 'Randomized'
+
+  -ScrambleSamplePercent  When creating a reversed or scrambled output file, set
+                       this to a value less than 100 to only include a portion
+                       of the residues from the input file in the output file
+                       (Default: 100)
+
+  -ScrambleCount       When creating a reversed or scrambled output file, set
+                       this to a value greater than 1 to create multiple
+                       scrambled versions of the input file (Default: 1)
+
+  -QuietMode, -Q       When true, do not show protein names while digesting
+                       proteins (Default: False)
+
+  -ParamFile, -Conf,   Path to a file containing program parameters. Additional
+  -P                   arguments on the command line can supplement or override
+                       the arguments in the param file. Lines starting with '#'
+                       or ';' will be treated as comments; blank lines are
+                       ignored. Lines that start with text that does not match a
+                       parameter will also be ignored.
+
+  -CreateParamFile     Create an example parameter file. Can supply a path; if
+                       path is not supplied, the example parameter file content
+                       will output to the console.
+
+  NOTE:                arg#1, arg#2, etc. refer to positional arguments, used
+                       like "AppName.exe [arg#1] [arg#2] [other args]".
+
+Examples:
+
+Program mode #1:
+ProteinDigestionSimulator.exe SourceFile.fasta
+
+Program mode #1:
+ProteinDigestionSimulator.exe SourceFile.fasta /O:OutputDirectoryPath
+
+Program mode #1:
+ProteinDigestionSimulator.exe SourceFile.fasta /P:ParameterFilePath
+
+
+Program written by Matthew Monroe for PNNL (Richland, WA)
+E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
+Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or
+https://www.pnnl.gov/integrative-omics
