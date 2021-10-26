@@ -1,9 +1,9 @@
 Protein Digestion Simulator Change Log
 
-Version 2.4.7963; October 20, 2021
-	- When running the program from the console with command line arguments, 
-      the parameter file format is now a Key=Value parameter file 
-      instead of an XML-based parameter file
+Version 2.4.7969; October 26, 2021
+	- When running the program from the console with command line arguments,
+	  the parameter file format is now a Key=Value parameter file
+	  instead of an XML-based parameter file
 
 Version 2.4.7943; October 1, 2021
 	- Converted to C#

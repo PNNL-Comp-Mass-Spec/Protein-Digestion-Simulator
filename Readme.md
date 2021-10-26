@@ -2,7 +2,7 @@
 # Protein Digestion Simulator
 
 The Protein Digestion Simulator is a utility for processing [FASTA files](https://en.wikipedia.org/wiki/FASTA_format)
-including converting to/from tab delimited text.  It also supports FASTA file validation.
+including converting to/from tab delimited text.  The GUI also supports FASTA file validation.
 
 ## Downloads
 
@@ -26,7 +26,10 @@ protein or peptide sequences (FASTA format or delimited text) then output the
 data to a tab-delimited file.  It can optionally digest the input sequences
 using trypsin, partial trpysin, or various other enzymes, and can add the predicted
 normalized elution time (NET) values for the peptides.  It can also validate a FASTA file,
-testing it against a set of rules that identify common formatting errors.
+testing it against a set of rules that identify common formatting errors. If you need to
+validate FASTA files in batch mode from the console, download the 
+[ValidateFastaFile Program](https://github.com/PNNL-Comp-Mass-Spec/Validate-Fasta-File) from its
+[Releases Page](https://github.com/PNNL-Comp-Mass-Spec/Validate-Fasta-File/releases) on GitHub.
 
 As an alternative to digesting the peptides, the software can read in a FASTA file and
 create a new FASTA file with all of the protein sequences reversed or even
@@ -135,12 +138,12 @@ Syntax:
 ```
 ProteinDigestionSimulator.exe
   /I:SourceFastaOrTextFile [/F] [/D] [/M:False] [/AD:AlternateDelimiter]
-  [/O:OutputDirectoryPath] [/P:ParameterFilePath] [/S:[MaxLevel]]
-  [/A:AlternateOutputDirectoryPath] [/R]
+  [/O:OutputDirectoryPath] [/P:ParameterFilePath] [/Q]
+  [/S:[MaxLevel]] [/A:AlternateOutputDirectoryPath] [/R]
 ```
 
 The input file path can contain the wildcard character * and should point to a FASTA file or tab-delimited text file
-* Gzipped FASTA files are also supported, e.g. E_coli_K12_UniProt.fasta.gz
+* Gzipped FASTA files are also supported, e.g. E\_coli\_K12_UniProt.fasta.gz
 
 Use `/F` to indicate that the input file is a FASTA file
 * If `/F` is not used, the format will be assumed to be FASTA only if the filename ends with .fasta or .fasta.gz
@@ -152,7 +155,7 @@ By default, when converting a FASTA file to a tab-delimited file, monoisotopic m
 * Optionally use  `/M:False` to disable this
 
 If the input file is not a FASTA file, it is assumed to be tab-delimited
-* Use `/AD`to customize delimiter (not applicable for FASTA files)
+* Use `/AD` to customize the delimiter (not applicable for FASTA files)
 * For example, for .csv files use `/AD:,`
 
 The output directory path is optional
@@ -161,6 +164,9 @@ The output directory path is optional
 The parameter file path is optional
 * If included, it should point to a valid Name=Value parameter file
 * An example parameter file is available in the [Documentation folder on GitHub](https://github.com/PNNL-Comp-Mass-Spec/Protein-Digestion-Simulator/tree/master/Documentation)
+
+When digesting protein sequences, the protein names are shown at the console
+* To disable this, use `/Q` at the command line or define `QuietMode=True` in the parameter file
 
 Use `/S` to process all valid files in the input directory and subdirectories. Include a number after `/S` (like `/S:2`) to limit the level of subdirectories to examine.
 * When using `/S`, you can redirect the output of the results using `/A`
@@ -194,5 +200,5 @@ a copy of the License at https://opensource.org/licenses/BSD-2-Clause
 Copyright 2021 Battelle Memorial Institute
 
 The NET Prediction DLL is licensed under the Reciprocal Public License v1.5;
-for details see file PNNL_NETPrediction_License.pdf\
+for details see file PNNL\_NETPrediction\_License.pdf\
 You may obtain a copy of the License at https://opensource.org/licenses/rpl1.5.txt
