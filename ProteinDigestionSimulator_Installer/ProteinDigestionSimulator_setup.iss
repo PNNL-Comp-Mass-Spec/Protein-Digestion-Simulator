@@ -30,10 +30,12 @@ Source: ..\ProteinDigestionSimulator\bin\System.Numerics.Vectors.dll            
 Source: ..\ProteinDigestionSimulator\bin\System.Runtime.CompilerServices.Unsafe.dll  ; DestDir: {app}
 Source: ..\ProteinDigestionSimulator\bin\System.Text.Encodings.Web.dll               ; DestDir: {app}
 Source: ..\ProteinDigestionSimulator\bin\System.Text.Json.dll                        ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\System.Threading.Channels.dll               ; DestDir: {app}
 Source: ..\ProteinDigestionSimulator\bin\System.Threading.Tasks.Extensions.dll       ; DestDir: {app}
 Source: ..\ProteinDigestionSimulator\bin\System.ValueTuple.dll                       ; DestDir: {app}
 Source: ..\ProteinDigestionSimulator\bin\ValidateFastaFile.dll                       ; DestDir: {app}
 
+Source: ..\Documentation\ProteinDigestionSimulator_CommandLineSyntax.txt             ; DestDir: {app}\ExampleData\
 Source: ..\Documentation\ProteinDigestionSimulatorOptions.conf                       ; DestDir: {app}\ExampleData\
 
 Source: ..\ExampleData\QC_Standards_2004-01-21.fasta                                 ; DestDir: {app}\ExampleData\
