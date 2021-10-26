@@ -117,6 +117,8 @@ namespace ProteinDigestionSimulator
                     LogFilePath = options.LogFilePath
                 };
 
+                proteinFileParser.ShowProcessingOptions();
+
                 proteinFileParser.ProgressUpdate += Processing_ProgressChanged;
                 proteinFileParser.ProgressReset += Processing_ProgressReset;
 

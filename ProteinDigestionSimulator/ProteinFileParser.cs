@@ -1595,6 +1595,46 @@ namespace ProteinDigestionSimulator
             }
         }
 
+        public void ShowProcessingOptions()
+        {
+            var digestPeptides = ProcessingOptions.CreateProteinOutputFile &&
+                                 ProcessingOptions.CreateDigestedProteinOutputFile &&
+                                 !ProcessingOptions.CreateFastaOutputFile;
+
+            Console.WriteLine("{0,-31} {1}", "Create FASTA output file:", ProcessingOptions.CreateFastaOutputFile);
+            Console.WriteLine("{0,-31} {1}", "Create protein .txt file:", ProcessingOptions.CreateProteinOutputFile);
+            Console.WriteLine("{0,-31} {1}", "Digest input file:", digestPeptides);
+            Console.WriteLine();
+            Console.WriteLine("{0,-31} {1}", "Exclude protein sequence:", ProcessingOptions.ExcludeProteinSequence);
+            Console.WriteLine("{0,-31} {1}", "Exclude protein description:", ProcessingOptions.ExcludeProteinDescription);
+            Console.WriteLine("{0,-31} {1}", "Compute protein mass:", ProcessingOptions.ComputeProteinMass);
+            Console.WriteLine("{0,-31} {1}", "Element mass mode:", ProcessingOptions.ElementMassMode);
+            Console.WriteLine("{0,-31} {1}", "Include X residues in mass:", ProcessingOptions.IncludeXResiduesInMass);
+            Console.WriteLine("{0,-31} {1}", "Compute NET:", ProcessingOptions.ComputeNET);
+            Console.WriteLine("{0,-31} {1}", "Compute isoelectric point (pI):", ProcessingOptions.ComputepI);
+            Console.WriteLine("{0,-31} {1}", "Compute sequence hash values:", ProcessingOptions.ComputeSequenceHashValues);
+            Console.WriteLine("{0,-31} {1}", "Hash ignores I/L differences:", ProcessingOptions.ComputeSequenceHashIgnoreILDiff);
+            Console.WriteLine("{0,-31} {1}", "Truncate protein description:", ProcessingOptions.TruncateProteinDescription);
+            Console.WriteLine();
+
+            if (digestPeptides)
+            {
+                Console.WriteLine("{0,-31} {1}", "Digestion enzyme:", ProcessingOptions.DigestionEnzyme);
+                Console.WriteLine("{0,-31} {1}", "Minimum fragment mass:", ProcessingOptions.DigestionOptions.MinFragmentMass);
+                Console.WriteLine("{0,-31} {1}", "Maximum fragment mass:", ProcessingOptions.DigestionOptions.MaxFragmentMass);
+                Console.WriteLine("{0,-31} {1}", "Minimum fragment length:", ProcessingOptions.DigestionOptions.MinFragmentResidueCount);
+                Console.WriteLine("{0,-31} {1}", "Maximum missed cleavages:", ProcessingOptions.DigestionOptions.MaxMissedCleavages);
+                Console.WriteLine("{0,-31} {1}", "Minimum pI:", ProcessingOptions.DigestionOptions.MinIsoelectricPoint);
+                Console.WriteLine("{0,-31} {1}", "Maximum pI:", ProcessingOptions.DigestionOptions.MaxIsoelectricPoint);
+                Console.WriteLine("{0,-31} {1}", "Generate unique ID values:", ProcessingOptions.GenerateUniqueIDValuesForPeptides);
+                Console.WriteLine("{0,-31} {1}", "Remove duplicate sequences:", ProcessingOptions.DigestionOptions.RemoveDuplicateSequences);
+                Console.WriteLine("{0,-31} {1}", "Only include cys peptides:", ProcessingOptions.DigestionOptions.CysPeptidesOnly);
+                Console.WriteLine("{0,-31} {1}", "Cysteine treatment mode:", ProcessingOptions.DigestionOptions.CysTreatmentMode);
+            }
+
+            Console.WriteLine();
+        }
+
         /// <summary>
         /// If filePath ends with extension, remove it
         /// Supports multi-part extensions like .fasta.gz
