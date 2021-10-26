@@ -336,6 +336,10 @@ namespace ProteinDigestionSimulator.Options
                        "set this to a value greater than 1 to create multiple scrambled versions of the input file")]
         public int ProteinScramblingLoopCount { get; set; }
 
+        [Option("QuietMode", "Q",
+            HelpText = "When true, do not show protein names while digesting proteins")]
+        public bool QuietMode { get; set; }
+
         /// <summary>
         /// In-silico digestion options
         /// </summary>
@@ -429,6 +433,8 @@ namespace ProteinDigestionSimulator.Options
             ProteinScramblingMode = ProteinFileParser.ProteinScramblingModeConstants.None;
             ProteinScramblingSamplingPercentage = 100;
             ProteinScramblingLoopCount = 1;
+
+            QuietMode = false;
         }
 
         // ReSharper disable once UnusedMember.Global

@@ -113,6 +113,8 @@ namespace ProteinDigestionSimulator.Options
 
         public float MaxIsoelectricPoint { get; set; }
 
+        public bool QuietMode { get; set; }
+
         public bool RemoveDuplicateSequences { get; set; }
         public bool IncludePrefixAndSuffixResidues { get; set; }
 
@@ -142,6 +144,8 @@ namespace ProteinDigestionSimulator.Options
             IncludePrefixAndSuffixResidues = false;
 
             DigestInputSequencesForUniquenessStats = false;
+
+            QuietMode = false;
         }
 
         // ReSharper disable once UnusedMember.Global

@@ -207,7 +207,12 @@ namespace ProteinDigestionSimulator
             InSilicoDigester = new InSilicoDigest(ProcessingOptions);
 
             InSilicoDigester.ErrorEvent += InSilicoDigest_ErrorEvent;
-            InSilicoDigester.ProgressChanged += InSilicoDigest_ProgressChanged;
+
+            if (!ProcessingOptions.QuietMode)
+            {
+                InSilicoDigester.ProgressChanged += InSilicoDigest_ProgressChanged;
+            }
+
             InSilicoDigester.ProgressReset += InSilicoDigest_ProgressReset;
 
             try
