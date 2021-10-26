@@ -1234,12 +1234,15 @@ namespace ProteinDigestionSimulator
             switch (cboInputFileFormat.SelectedIndex)
             {
                 case (int)InputFileFormatConstants.FastaFile:
+                    options.AssumeDelimitedFile = false;
                     options.AssumeFastaFile = true;
                     break;
                 case (int)InputFileFormatConstants.DelimitedText:
                     options.AssumeDelimitedFile = true;
+                    options.AssumeFastaFile = false;
                     break;
                 default:
+                    options.AssumeDelimitedFile = false;
                     options.AssumeFastaFile = false;
                     break;
             }

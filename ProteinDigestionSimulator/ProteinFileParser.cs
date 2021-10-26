@@ -1301,13 +1301,17 @@ namespace ProteinDigestionSimulator
         {
             string outputFileName;
 
-            if (ProcessingOptions.AssumeFastaFile || IsFastaFile(pathInfo.ProteinInputFilePath, true))
+            if (ProcessingOptions.AssumeFastaFile)
             {
-                ParsedFileIsFastaFile = !ProcessingOptions.AssumeDelimitedFile;
+                ParsedFileIsFastaFile = true;
+            }
+            else if (ProcessingOptions.AssumeDelimitedFile)
+            {
+                ParsedFileIsFastaFile = false;
             }
             else
             {
-                ParsedFileIsFastaFile = false;
+                ParsedFileIsFastaFile = IsFastaFile(pathInfo.ProteinInputFilePath);
             }
 
             if (ProcessingOptions.CreateDigestedProteinOutputFile)
