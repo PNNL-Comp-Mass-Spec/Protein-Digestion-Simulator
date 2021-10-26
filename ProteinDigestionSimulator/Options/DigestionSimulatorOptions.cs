@@ -359,8 +359,8 @@ namespace ProteinDigestionSimulator.Options
             DigestionOptions = new DigestionOptions();
 
             DigestionEnzyme = CleavageRuleConstants.ConventionalTrypsin;
-            MaxMissedCleavages = 0;
-            MinFragmentResidueCount = 4;
+            MaxMissedCleavages = 3;
+            MinFragmentResidueCount = 0;
 
             MinFragmentMass = 400;
             MaxFragmentMass = 6000;

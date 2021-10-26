@@ -124,24 +124,22 @@ namespace ProteinDigestionSimulator.Options
             AminoAcidResidueFilterChars = new List<char>();
 
             CleavageRuleID = CleavageRuleConstants.ConventionalTrypsin;
-
-            CysTreatmentMode = PeptideSequence.CysTreatmentModeConstants.Untreated;
-
-            FragmentMassMode = FragmentMassConstants.Monoisotopic;
-
-            IncludePrefixAndSuffixResidues = false;
+            MaxMissedCleavages = 3;
+            MinFragmentResidueCount = 0;
 
             MinFragmentMass = 0;
             MaxFragmentMass = 6000;
 
-            MinFragmentResidueCount = 4;
+            FragmentMassMode = FragmentMassConstants.Monoisotopic;
 
             MinIsoelectricPoint = 0f;
             MaxIsoelectricPoint = 100f;
 
-            MaxMissedCleavages = 0;
+            CysTreatmentMode = PeptideSequence.CysTreatmentModeConstants.Untreated;
+            CysPeptidesOnly = false;
 
             RemoveDuplicateSequences = false;
+            IncludePrefixAndSuffixResidues = false;
 
             DigestInputSequencesForUniquenessStats = false;
         }
