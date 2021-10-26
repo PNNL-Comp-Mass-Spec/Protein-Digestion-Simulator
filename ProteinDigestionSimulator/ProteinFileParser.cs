@@ -41,9 +41,9 @@ namespace ProteinDigestionSimulator
     /// </summary>
     public class ProteinFileParser : ProcessFilesBase
     {
-        // Ignore Spelling: ComputepI, Cys, gi, hydrophobicity, Ile, Leu, pre, SepChar, silico, varchar
+        // Ignore Spelling: ComputepI, Cys, Cysteine, gi, hydrophobicity, Ile, isoelectric, Leu, pre, SepChar, silico, varchar
 
-        private const string PROGRAM_DATE = "October 22, 2021";
+        private const string PROGRAM_DATE = "October 26, 2021";
 
         private const int SCRAMBLING_CACHE_LENGTH = 4000;
         private const string PROTEIN_PREFIX_SCRAMBLED = "Random_";

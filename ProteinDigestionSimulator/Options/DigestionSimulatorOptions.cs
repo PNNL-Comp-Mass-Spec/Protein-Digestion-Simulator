@@ -437,7 +437,6 @@ namespace ProteinDigestionSimulator.Options
             QuietMode = false;
         }
 
-        // ReSharper disable once UnusedMember.Global
         public bool Validate()
         {
             if (CreateDigestedProteinOutputFile && !CreateProteinOutputFile)

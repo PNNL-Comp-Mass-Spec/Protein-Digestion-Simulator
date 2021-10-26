@@ -952,6 +952,7 @@ namespace ProteinDigestionSimulator
 
                 returnResidueStart = startLoc;
                 returnResidueEnd = endLoc;
+
                 return trypticName;
             }
 

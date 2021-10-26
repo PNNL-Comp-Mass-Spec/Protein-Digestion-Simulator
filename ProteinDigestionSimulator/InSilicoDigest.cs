@@ -335,6 +335,7 @@ namespace ProteinDigestionSimulator
                             // Normal cleavage rule
                             residueEndLoc = trypticFragCache[trypticIndex + index].EndLoc;
                             peptideSequence += trypticFragCache[trypticIndex + index].Sequence;
+
                             if (peptideSequence.Length >= DigestionOptions.MinFragmentResidueCount)
                             {
                                 PossiblyAddPeptide(peptideSequence, trypticIndex, index,
