@@ -44,7 +44,7 @@ namespace ProteinDigestionSimulator.Options
         /// When true, digest protein sequences when computing uniqueness stats
         /// </summary>
         /// <remarks>Ignored for FASTA files; they are always digested</remarks>
-        public bool DigestSequences { get; set; }
+        public bool DigestInputSequencesForUniquenessStats { get; set; }
 
         public FragmentMassConstants FragmentMassMode { get; set; }
 
@@ -127,8 +127,6 @@ namespace ProteinDigestionSimulator.Options
 
             CysTreatmentMode = PeptideSequence.CysTreatmentModeConstants.Untreated;
 
-            DigestSequences = false;
-
             FragmentMassMode = FragmentMassConstants.Monoisotopic;
 
             IncludePrefixAndSuffixResidues = false;
@@ -144,6 +142,8 @@ namespace ProteinDigestionSimulator.Options
             MaxMissedCleavages = 0;
 
             RemoveDuplicateSequences = false;
+
+            DigestInputSequencesForUniquenessStats = false;
         }
 
         // ReSharper disable once UnusedMember.Global

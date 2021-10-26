@@ -643,7 +643,7 @@ namespace ProteinDigestionSimulator
                         }
                     }
 
-                    mProteinDigestionSimulator.ProcessingOptions.DigestionOptions.DigestSequences = !chkAssumeInputFileIsDigested.Checked;
+                    mProteinDigestionSimulator.ProcessingOptions.DigestionOptions.DigestInputSequencesForUniquenessStats = !chkAssumeInputFileIsDigested.Checked;
                     mProteinDigestionSimulator.ProcessingOptions.DigestionOptions.CysPeptidesOnly = chkCysPeptidesOnly.Checked;
 
                     if (cboElementMassMode.SelectedIndex >= 0)

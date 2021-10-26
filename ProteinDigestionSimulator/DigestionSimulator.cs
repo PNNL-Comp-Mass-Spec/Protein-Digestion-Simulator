@@ -1113,7 +1113,7 @@ namespace ProteinDigestionSimulator
                 {
                     delimitedFileFormatCode = ProcessingOptions.DelimitedFileFormatCode;
                     LogMessage("Input file format = " + delimitedFileFormatCode);
-                    digestionEnabled = ProcessingOptions.DigestionOptions.DigestSequences;
+                    digestionEnabled = ProcessingOptions.DigestionOptions.DigestInputSequencesForUniquenessStats;
                 }
 
                 switch (delimitedFileFormatCode)
