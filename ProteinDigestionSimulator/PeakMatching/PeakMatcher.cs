@@ -120,8 +120,8 @@ namespace ProteinDigestionSimulator.PeakMatching
             if (rawMatches.Count > 0)
             {
                 // Compute the DelSLiC value
-                // If there is only one match, then the DelSLiC value is 1
-                // If there is more than one match, then the highest scoring match gets a DelSLiC value,
+                // If there is only one match, the DelSLiC value is 1
+                // If there is more than one match, the highest scoring match gets a DelSLiC value,
                 // computed by subtracting the next lower scoring value from the highest scoring value; all
                 // other matches get a DelSLiC score of 0
                 // This allows one to quickly identify the features with a single match (DelSLiC = 1) or with a match
@@ -374,7 +374,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             // the half-widths of the ellipse and x and y are the coordinates of each point on the ellipse's perimeter
             //
             // This function takes x, y, a, and b as inputs and computes the result of this equation
-            // If the result is <= 1, then the point at x,y is inside the ellipse
+            // If the result is <= 1, the point at x,y is inside the ellipse
 
             try
             {

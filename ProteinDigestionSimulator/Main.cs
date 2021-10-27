@@ -2308,7 +2308,7 @@ namespace ProteinDigestionSimulator
 
             if (suggestEnableSqlServer && !chkUseSqlServerDBToCacheData.Checked)
             {
-                var response = MessageBox.Show("Warning, memory usage could be quite large.  Enable Sql Server caching using Server " + txtSqlServerName.Text + "?  If no, then will continue using memory caching.", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                var response = MessageBox.Show("Warning, memory usage could be quite large.  Enable Sql Server caching using Server " + txtSqlServerName.Text + "?  If no, will continue using memory caching.", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 if (response == DialogResult.Yes)
                 {
                     chkUseSqlServerDBToCacheData.Checked = true;
@@ -2319,7 +2319,7 @@ namespace ProteinDigestionSimulator
 
             if (suggestDisableSqlServer && chkUseSqlServerDBToCacheData.Checked)
             {
-                var response = MessageBox.Show("Memory usage is expected to be minimal.  Continue caching data using Server " + txtSqlServerName.Text + "?  If no, then will switch to using memory caching.", "Note", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
+                var response = MessageBox.Show("Memory usage is expected to be minimal.  Continue caching data using Server " + txtSqlServerName.Text + "?  If no, will switch to using memory caching.", "Note", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
                 if (response == DialogResult.No)
                 {
                     chkUseSqlServerDBToCacheData.Checked = false;

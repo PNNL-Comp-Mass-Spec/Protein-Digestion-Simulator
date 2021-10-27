@@ -142,7 +142,7 @@ namespace ProteinDigestionSimulator
 
         private class ScramblingResidueCache
         {
-            public string Cache { get; set; }                          // Cache of residues parsed; when this reaches 4000 characters, then a portion of this text is appended to ResiduesToWrite
+            public string Cache { get; set; }                          // Cache of residues parsed; when this reaches 4000 characters, a portion of this text is appended to ResiduesToWrite
             public int CacheLength { get; set; }
             public int SamplingPercentage { get; }
             public int OutputCount { get; set; }

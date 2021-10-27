@@ -1489,8 +1489,8 @@ namespace ProteinDigestionSimulator
         private int MassToBinIndex(double ThisMass, double StartMass, double MassResolution)
         {
             // First subtract StartMass from ThisMass
-            // For example, if StartMass is 500 and ThisMass is 500.28, then WorkingMass = 0.28
-            // Or, if StartMass is 500 and ThisMass is 530.83, then WorkingMass = 30.83
+            // For example, if StartMass is 500 and ThisMass is 500.28, WorkingMass will be 0.28
+            // Or, if StartMass is 500 and ThisMass is 530.83, WorkingMass will be 30.83
             var WorkingMass = ThisMass - StartMass;
 
             // Now, dividing WorkingMass by MassResolution and rounding to the nearest integer

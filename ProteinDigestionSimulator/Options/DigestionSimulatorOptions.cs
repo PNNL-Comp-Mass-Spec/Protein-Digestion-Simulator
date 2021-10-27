@@ -305,7 +305,7 @@ namespace ProteinDigestionSimulator.Options
         public bool CreateFastaOutputFile { get; set; }
 
         [Option("CreateProteinOutputFile", "ProteinOutputFile", "ProteinOutput",
-            HelpText = "When true, writes the proteins to a file; when false, then caches the results in memory")]
+            HelpText = "When true, writes the proteins to a file; when false, caches the results in memory")]
         public bool CreateProteinOutputFile { get; set; }
 
         [Option("ComputeHashValues", "Hash", "ComputeSequenceHashValues",

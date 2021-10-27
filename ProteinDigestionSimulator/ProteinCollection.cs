@@ -84,7 +84,7 @@ namespace ProteinDigestionSimulator
             // Adds the protein by name
             // Uses the given protein ID if autoDefineProteinID = False or auto-assigns the ID value if autoDefineProteinID = True
             // Returns ByRef the protein ID via proteinID
-            // If the protein already exists, then returns True and populates proteinID
+            // If the protein already exists, returns True and populates proteinID
 
             // First, look for an existing entry in mProteins
             // Once a protein is present in the table, its ID cannot be updated

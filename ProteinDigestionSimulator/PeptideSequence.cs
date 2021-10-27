@@ -236,7 +236,7 @@ namespace ProteinDigestionSimulator
             suffix = string.Empty;
 
             // First look if sequence is in the form A.BCDEFG.Z or -.BCDEFG.Z or A.BCDEFG.-
-            // If so, then need to strip out the preceding A and Z residues since they aren't really part of the sequence
+            // If so, need to strip out the preceding A and Z residues since they aren't really part of the sequence
             if (sequence.Length > 1 && sequence.IndexOf(".", StringComparison.Ordinal) >= 0)
             {
                 if (sequence[1].ToString() == "." && sequence.Length > 2)
@@ -300,7 +300,7 @@ namespace ProteinDigestionSimulator
             var terminusCount = 0;
 
             // First, make sure the sequence is in the form A.BCDEFG.H or A.BCDEFG or BCDEFG.H
-            // If it isn't, then we can't check it (we'll return true)
+            // If it isn't, we can't check it (we'll return true)
 
             if (string.IsNullOrEmpty(cleavageRule.CleavageResidues))
             {
@@ -815,7 +815,7 @@ namespace ProteinDigestionSimulator
             // If the peptide residues are not present in proteinResidues, returns ""
             // Since a peptide can occur multiple times in a protein, one can set proteinSearchStartLoc to a value larger than 1 to ignore previous hits
 
-            // If icr2LSCompatible is True, then the values returned when a peptide is not tryptic are modified to
+            // If icr2LSCompatible is True, the values returned when a peptide is not tryptic are modified to
             // range from the starting residue, to the ending residue +1
             // returnResidueEnd is always equal to the position of the final residue, regardless of icr2LSCompatible
 
@@ -828,7 +828,7 @@ namespace ProteinDigestionSimulator
             // Then when peptideResidues = "KANR", the TrypticName is 3.6
             // Then when peptideResidues = "NR", the TrypticName is 5.6
 
-            // However, if icr2LSCompatible = True, then the last three are changed to:
+            // However, if icr2LSCompatible = True, the last three are changed to:
             // Then when peptideResidues = "IG", the TrypticName is 1.3
             // Then when peptideResidues = "KANR", the TrypticName is 3.7
             // Then when peptideResidues = "NR", the TrypticName is 5.7
@@ -1440,7 +1440,7 @@ namespace ProteinDigestionSimulator
             var stringLength = workingSequence.Length;
             if (stringLength >= 5 && string.Equals(workingSequence.Substring(stringLength - 2, 2), "OH", StringComparison.OrdinalIgnoreCase))
             {
-                // If previous character is not a character, then remove the OH (and the character preceding)
+                // If previous character is not a character, remove the OH (and the character preceding)
                 if (!char.IsLetter(workingSequence[stringLength - 3]))
                 {
                     workingSequence = workingSequence.Substring(0, stringLength - 3);
