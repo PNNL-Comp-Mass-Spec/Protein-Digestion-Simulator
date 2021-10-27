@@ -90,9 +90,10 @@ namespace ProteinDigestionSimulator
                                   "Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics"
                 };
 
-                cmdLineParser.UsageExamples.Add("Program mode #1:\n" + exeName + " SourceFile.fasta");
-                cmdLineParser.UsageExamples.Add("Program mode #1:\n" + exeName + " SourceFile.fasta /O:OutputDirectoryPath");
-                cmdLineParser.UsageExamples.Add("Program mode #1:\n" + exeName + " SourceFile.fasta /P:ParameterFilePath");
+                cmdLineParser.UsageExamples.Add(exeName + " SourceFile.fasta");
+                cmdLineParser.UsageExamples.Add(exeName + " SourceFile.fasta /Digest");
+                cmdLineParser.UsageExamples.Add(exeName + " SourceFile.fasta /O:OutputDirectoryPath");
+                cmdLineParser.UsageExamples.Add(exeName + " SourceFile.fasta /P:ParameterFilePath");
 
                 // The default argument name for parameter files is /ParamFile or -ParamFile
                 // Also allow /Conf or /P
