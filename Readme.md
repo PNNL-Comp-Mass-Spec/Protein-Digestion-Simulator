@@ -51,7 +51,7 @@ algorithm, please see:
 > "Improved peptide elution time prediction for reversed-phase liquid
 > chromatography-MS by incorporating peptide sequence information",
 > Analytical Chemistry, 78, (14), 5026-5039 (2006). \
-> [PMID: 16841926](https://www.ncbi.nlm.nih.gov/pubmed/16841926)
+> [PMID: 16841926](https://pubmed.ncbi.nlm.nih.gov/16841926/)
 
 ### Enzymes
 
