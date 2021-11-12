@@ -46,7 +46,7 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: conf, silico
 
-        public const string PROGRAM_DATE = "October 26, 2021";
+        public const string PROGRAM_DATE = "November 11, 2021";
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
@@ -79,7 +79,8 @@ namespace ProteinDigestionSimulator
                 var programName = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name;
                 var exePath = ProcessFilesOrDirectoriesBase.GetAppPath();
                 var exeName = Path.GetFileName(exePath);
-                var cmdLineParser = new CommandLineParser<DigestionSimulatorOptions>(programName, GetAppVersion())
+
+                var parser = new CommandLineParser<DigestionSimulatorOptions>(programName, GetAppVersion())
                 {
                     ProgramInfo = "This program can be used to read a FASTA file or tab delimited file containing protein or peptide sequences, then output " +
                                   "the data to a tab-delimited file. It can optionally digest the input sequences using trypsin or partial trypsin rules, " +
@@ -90,22 +91,27 @@ namespace ProteinDigestionSimulator
                                   "Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics"
                 };
 
-                cmdLineParser.UsageExamples.Add(exeName + " SourceFile.fasta");
-                cmdLineParser.UsageExamples.Add(exeName + " SourceFile.fasta /Digest");
-                cmdLineParser.UsageExamples.Add(exeName + " SourceFile.fasta /O:OutputDirectoryPath");
-                cmdLineParser.UsageExamples.Add(exeName + " SourceFile.fasta /P:ParameterFilePath");
+                parser.UsageExamples.Add(exeName + " SourceFile.fasta");
+                parser.UsageExamples.Add(exeName + " SourceFile.fasta /Digest");
+                parser.UsageExamples.Add(exeName + " SourceFile.fasta /O:OutputDirectoryPath");
+                parser.UsageExamples.Add(exeName + " SourceFile.fasta /P:ParameterFilePath");
 
                 // The default argument name for parameter files is /ParamFile or -ParamFile
                 // Also allow /Conf or /P
-                cmdLineParser.AddParamFileKey("Conf");
-                cmdLineParser.AddParamFileKey("P");
+                parser.AddParamFileKey("Conf");
+                parser.AddParamFileKey("P");
 
-                var result = cmdLineParser.ParseArgs(args);
+                var result = parser.ParseArgs(args);
                 var options = result.ParsedResults;
                 RegisterEvents(options);
 
                 if (!result.Success || !options.Validate())
                 {
+                    if (parser.CreateParamFileProvided)
+                    {
+                        return 0;
+                    }
+
                     // Delay for 750 msec in case the user double clicked this file from within Windows Explorer (or started the program via a shortcut)
                     Thread.Sleep(750);
                     return -1;
