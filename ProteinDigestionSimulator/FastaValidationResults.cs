@@ -776,7 +776,7 @@ namespace ProteinDigestionSimulator
         {
             var message = new StringBuilder();
 
-            message.AppendLine("FASTA File Validation module written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2005");
+            message.AppendLine("FASTA File Validation module written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)");
             message.AppendLine("Copyright 2018 Battelle Memorial Institute");
             message.AppendLine();
             message.AppendFormat("This is version {0} ({1})", Application.ProductVersion, Program.PROGRAM_DATE);
