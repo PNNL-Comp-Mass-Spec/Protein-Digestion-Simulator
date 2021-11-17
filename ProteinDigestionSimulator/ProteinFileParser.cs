@@ -193,6 +193,8 @@ namespace ProteinDigestionSimulator
 
         public bool ParsedFileIsFastaFile { get; private set; }
 
+        public int SequenceCountLikelyDNA { get; private set; }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -477,6 +479,30 @@ namespace ProteinDigestionSimulator
         }
 
         /// <summary>
+        /// Return true if all of the characters in sequence are A, T, C, and G
+        /// </summary>
+        /// <param name="sequence"></param>
+        private bool IsLikelyDNA(string sequence)
+        {
+            var aminoAcidCount = 0;
+            var dnaCount = 0;
+
+            foreach (var character in sequence.Where(char.IsLetter))
+            {
+                if (character is 'A' or 'T' or 'C' or 'G')
+                {
+                    dnaCount++;
+                }
+                else
+                {
+                    aminoAcidCount++;
+                }
+            }
+
+            return dnaCount > 0 && aminoAcidCount == 0;
+        }
+
+        /// <summary>
         /// Examines the file's extension and returns true if it ends in .fasta, .fasta.gz, .faa, or .faa.gz
         /// </summary>
         /// <param name="filePath"></param>
@@ -686,6 +712,9 @@ namespace ProteinDigestionSimulator
                 }
 
                 mNextUniqueIDForMasterSeqs = 1;
+                SequenceCountLikelyDNA = 0;
+                var totalFragmentCount = 0;
+
                 var outputFileDelimiter = ProcessingOptions.OutputFileDelimiter;
 
                 if (ProcessingOptions.CreateProteinOutputFile &&
@@ -898,6 +927,12 @@ namespace ProteinDigestionSimulator
 
                         var protein = ParseProteinFileStoreProtein(proteinFileReader, lookForAddnlRefInDescription);
 
+                        if (loopIndex == 1 && IsLikelyDNA(protein.Sequence))
+                        {
+                            OnWarningEvent("Protein {0} appears to be a DNA sequence; this program is designed for amino acid based FASTA files", protein.Name);
+                            SequenceCountLikelyDNA++;
+                        }
+
                         if (ProcessingOptions.CreateProteinOutputFile)
                         {
                             if (loopIndex == 1)
@@ -914,7 +949,9 @@ namespace ProteinDigestionSimulator
 
                             if (loopIndex == 1 && digestFileWriter != null)
                             {
-                                ParseProteinFileWriteDigested(digestFileWriter, outputFileDelimiter, protein, outLine, generateUniqueSequenceID);
+                                var peptideFragmentCount = ParseProteinFileWriteDigested(digestFileWriter, outputFileDelimiter, protein, outLine, generateUniqueSequenceID);
+
+                                totalFragmentCount += peptideFragmentCount;
                             }
 
                             if (scramblingMode != ProteinScramblingModeConstants.None)
@@ -963,7 +1000,18 @@ namespace ProteinDigestionSimulator
 
                     proteinFileWriter?.Close();
 
-                    digestFileWriter?.Close();
+                    if (loopIndex == 1 && digestFileWriter != null)
+                    {
+                        if (totalFragmentCount == 0 && SequenceCountLikelyDNA > 0)
+                        {
+                            digestFileWriter.WriteLine(
+                                "Warning:{0}Proteins in the input file are likely DNA sequences; " +
+                                "this program is designed for amino acid based proteins",
+                                outputFileDelimiter);
+                        }
+
+                        digestFileWriter.Close();
+                    }
 
                     scrambledFileWriter?.Close();
                 }
@@ -999,6 +1047,18 @@ namespace ProteinDigestionSimulator
                     }
                 }
 
+                if (SequenceCountLikelyDNA > 0)
+                {
+                    message.AppendLine();
+                    message.AppendLine();
+
+                    if (SequenceCountLikelyDNA == 1)
+                        message.Append("The protein in the input file appears to be a DNA sequence");
+                    else
+                        message.AppendFormat("{0} proteins in the input file appear to be DNA sequences", SequenceCountLikelyDNA);
+
+                    message.Append("; this program is designed for amino acid based proteins");
+                }
 
                 if (loopCount > 1)
                 {
@@ -1108,14 +1168,23 @@ namespace ProteinDigestionSimulator
             return protein;
         }
 
-        private void ParseProteinFileWriteDigested(
+        /// <summary>
+        /// Digest the protein sequence and append the fragments to the writer
+        /// </summary>
+        /// <param name="digestFileWriter"></param>
+        /// <param name="outputFileDelimiter"></param>
+        /// <param name="protein"></param>
+        /// <param name="outLine"></param>
+        /// <param name="generateUniqueSequenceID"></param>
+        /// <returns>The number of digested peptides written</returns>
+        private int ParseProteinFileWriteDigested(
             TextWriter digestFileWriter,
             char outputFileDelimiter,
             ProteinInfo protein,
             StringBuilder outLine,
             bool generateUniqueSequenceID)
         {
-            DigestProteinSequence(protein.Sequence, out var peptideFragments, protein.Name);
+            var peptideFragmentCount = DigestProteinSequence(protein.Sequence, out var peptideFragments, protein.Name);
 
             foreach (var peptideFragment in peptideFragments)
             {
@@ -1191,6 +1260,8 @@ namespace ProteinDigestionSimulator
 
                 digestFileWriter.WriteLine(outLine.ToString());
             }
+
+            return peptideFragmentCount;
         }
 
         private void ParseProteinFileWriteFasta(TextWriter proteinFileWriter, ProteinInfo protein, StringBuilder outLine)
