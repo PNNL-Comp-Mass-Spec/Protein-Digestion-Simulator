@@ -11,7 +11,7 @@ namespace ProteinDigestionSimulator
 
         public PeptideSequenceWithNET()
         {
-            NETPredictor ??= new NETPrediction.ElutionTimePredictionKangas();
+            NETPredictor ??= new ElutionTimePredictionKangas();
 
             // Disable mAutoComputeNET for now so that the call to SetSequence() below doesn't auto-call UpdateNET
             AutoComputeNET = false;
