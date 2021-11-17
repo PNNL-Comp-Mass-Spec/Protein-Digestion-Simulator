@@ -1234,7 +1234,10 @@ namespace ProteinDigestionSimulator
                     returnResidueEnd = ruleResidueNum;
                 }
 
-                return proteinResidues.Substring(returnResidueStart - 1, returnResidueEnd - returnResidueStart + 1);
+                if (proteinResidues != null)
+                {
+                    return proteinResidues.Substring(returnResidueStart - 1, returnResidueEnd - returnResidueStart + 1);
+                }
             }
 
             returnResidueStart = 1;
