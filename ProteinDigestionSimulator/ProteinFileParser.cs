@@ -1352,9 +1352,9 @@ namespace ProteinDigestionSimulator
                             outputFilePath = pathInfo.OutputFileNameBaseOverride + ".fasta";
                         }
                     }
-                    else if (Path.GetExtension(outputFileName).Length > 4)
+                    else if (!fileExtension.Equals(".txt") && !fileExtension.Equals(".tsv"))
                     {
-                        outputFileName += ".txt";
+                        outputFilePath = pathInfo.OutputFileNameBaseOverride + ".txt";
                     }
                 }
                 else if (ProcessingOptions.CreateFastaOutputFile)
