@@ -968,32 +968,47 @@ namespace ProteinDigestionSimulator
                     scrambledFileWriter?.Close();
                 }
 
-                var message = "Done: Processed " + InputFileProteinsProcessed.ToString("###,##0") + " proteins (" + InputFileLinesRead.ToString("###,###,##0") + " lines)";
+                var message = new StringBuilder();
+                message.AppendFormat("Done: Processed {0:###,##0} {1} ({2:###,###,##0} lines)",
+                    InputFileProteinsProcessed,
+                    InputFileProteinsProcessed == 1 ? "protein" : "proteins",
+                    InputFileLinesRead);
+
                 if (InputFileLineSkipCount > 0)
                 {
-                    message += Environment.NewLine + "Note that " + InputFileLineSkipCount.ToString("###,##0") + " lines were skipped in the input file due to having an unexpected format. ";
+                    message.AppendLine();
+                    message.AppendFormat("Note that {0:###,##0} {1} skipped in the input file due to having an unexpected format.",
+                        InputFileLineSkipCount,
+                        InputFileLineSkipCount == 1 ? "line was" : "lines were");
+
                     if (ParsedFileIsFastaFile)
                     {
-                        message += "This is an unexpected error for FASTA files.";
+                        message.Append(" This is an unexpected error for FASTA files.");
                     }
                     else
                     {
-                        message += "Make sure that " + ProcessingOptions.DelimitedFileFormatCode + " is the appropriate format for this file (see the File Format Options tab in the GUI or command line argument DelimitedFileFormat).";
+                        message.AppendFormat(
+                            " Make sure that {0} is the appropriate format for this file " +
+                            "(see the File Format Options tab in the GUI or command line argument DelimitedFileFormat).",
+                            ProcessingOptions.DelimitedFileFormatCode);
+
                         if (ProcessingOptions.InputFileDelimiter == '\t')
-                            message += " Also confirm that the file is tab-delimited.";
+                            message.Append(" Also confirm that the file is tab-delimited.");
                         else
-                            message += " Also confirm that data in the file is delimited with a " + ProcessingOptions.InputFileDelimiter;
+                            message.AppendFormat(" Also confirm that data in the file is delimited with a {0}", ProcessingOptions.InputFileDelimiter) ;
                     }
                 }
 
+
                 if (loopCount > 1)
                 {
-                    message += Environment.NewLine + "Created " + loopCount + " replicates of the scrambled output file";
+                    message.AppendLine();
+                    message.AppendFormat("Created {0} replicates of the scrambled output file", loopCount);
                 }
 
-                ProcessingSummary = message;
+                ProcessingSummary = message.ToString();
                 Console.WriteLine();
-                OnStatusEvent(message);
+                OnStatusEvent(message.ToString());
 
                 success = true;
             }
