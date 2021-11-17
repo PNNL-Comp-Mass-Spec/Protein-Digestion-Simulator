@@ -1425,94 +1425,96 @@ namespace ProteinDigestionSimulator
 
         private void ParseProteinInputFile()
         {
-            if (!mWorking && ConfirmFilePaths())
+            if (mWorking || !ConfirmFilePaths())
             {
-                try
+                return;
+            }
+
+            try
+            {
+                if (mParseProteinFile == null)
                 {
-                    if (mParseProteinFile == null)
-                    {
-                        mParseProteinFile = new ProteinFileParser(mProteinDigestionSimulator.ProcessingOptions);
-                        mParseProteinFile.ErrorEvent += ParseProteinFile_ErrorEvent;
-                        mParseProteinFile.ProgressUpdate += ParseProteinFile_ProgressChanged;
-                        mParseProteinFile.ProgressComplete += ParseProteinFile_ProgressComplete;
-                        mParseProteinFile.ProgressReset += ParseProteinFile_ProgressReset;
-                        mParseProteinFile.SubtaskProgressChanged += ParseProteinFile_SubtaskProgressChanged;
-                    }
-
-                    // Update options based on GUI control values
-                    var success = InitializeProteinFileParserGeneralOptions(mProteinDigestionSimulator.ProcessingOptions);
-                    if (!success)
-                    {
-                        return;
-                    }
-
-                    mProteinDigestionSimulator.ProcessingOptions.CreateProteinOutputFile = true;
-
-                    if (cboProteinReversalOptions.SelectedIndex >= 0)
-                    {
-                        mProteinDigestionSimulator.ProcessingOptions.ProteinScramblingMode = (ProteinFileParser.ProteinScramblingModeConstants)cboProteinReversalOptions.SelectedIndex;
-                    }
-
-                    mProteinDigestionSimulator.ProcessingOptions.ProteinScramblingSamplingPercentage = TextBoxUtils.ParseTextBoxValueInt(txtProteinReversalSamplingPercentage, string.Empty, out _, 100);
-                    mProteinDigestionSimulator.ProcessingOptions.ProteinScramblingLoopCount = TextBoxUtils.ParseTextBoxValueInt(txtProteinScramblingLoopCount, string.Empty, out _, 1);
-                    mProteinDigestionSimulator.ProcessingOptions.CreateDigestedProteinOutputFile = chkDigestProteins.Checked;
-                    mProteinDigestionSimulator.ProcessingOptions.CreateFastaOutputFile = chkCreateFastaOutputFile.Checked;
-
-                    if (cboElementMassMode.SelectedIndex >= 0)
-                    {
-                        mProteinDigestionSimulator.ProcessingOptions.ElementMassMode = (PeptideSequence.ElementModeConstants)cboElementMassMode.SelectedIndex;
-                    }
-
-                    Cursor.Current = Cursors.WaitCursor;
-                    mWorking = true;
-                    cmdParseInputFile.Enabled = false;
-
-                    ResetProgress();
-                    SwitchToProgressTab();
-
-                    var outputFolderPath = string.Empty;
-                    var outputFileNameBaseOverride = string.Empty;
-
-                    if (txtProteinOutputFilePath.TextLength > 0)
-                    {
-                        outputFolderPath = Path.GetDirectoryName(txtProteinOutputFilePath.Text);
-                        outputFileNameBaseOverride = Path.GetFileNameWithoutExtension(txtProteinOutputFilePath.Text);
-                    }
-
-                    success = mParseProteinFile.ParseProteinFile(GetProteinInputFilePath(), outputFolderPath, outputFileNameBaseOverride);
-
-                    Cursor.Current = Cursors.Default;
-
-                    if (success)
-                    {
-                        MessageBox.Show(mParseProteinFile.ProcessingSummary, "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        SwitchFromProgressTab();
-                    }
-                    else
-                    {
-                        ShowErrorMessage("Error parsing protein file: " + mParseProteinFile.GetErrorMessage());
-                    }
+                    mParseProteinFile = new ProteinFileParser(mProteinDigestionSimulator.ProcessingOptions);
+                    mParseProteinFile.ErrorEvent += ParseProteinFile_ErrorEvent;
+                    mParseProteinFile.ProgressUpdate += ParseProteinFile_ProgressChanged;
+                    mParseProteinFile.ProgressComplete += ParseProteinFile_ProgressComplete;
+                    mParseProteinFile.ProgressReset += ParseProteinFile_ProgressReset;
+                    mParseProteinFile.SubtaskProgressChanged += ParseProteinFile_SubtaskProgressChanged;
                 }
-                catch (Exception ex)
+
+                // Update options based on GUI control values
+                var success = InitializeProteinFileParserGeneralOptions(mProteinDigestionSimulator.ProcessingOptions);
+                if (!success)
                 {
-                    ShowErrorMessage("Error in frmMain->ParseProteinInputFile: " + ex.Message);
+                    return;
                 }
-                finally
-                {
-                    mWorking = false;
-                    cmdParseInputFile.Enabled = true;
-                    if (mParseProteinFile != null)
-                    {
-                        mParseProteinFile.CloseLogFileNow();
-                        mParseProteinFile.ErrorEvent -= ParseProteinFile_ErrorEvent;
-                        mParseProteinFile.ProgressUpdate -= ParseProteinFile_ProgressChanged;
-                        mParseProteinFile.ProgressComplete -= ParseProteinFile_ProgressComplete;
-                        mParseProteinFile.ProgressReset -= ParseProteinFile_ProgressReset;
-                        mParseProteinFile.SubtaskProgressChanged -= ParseProteinFile_SubtaskProgressChanged;
-                    }
 
-                    mParseProteinFile = null;
+                mProteinDigestionSimulator.ProcessingOptions.CreateProteinOutputFile = true;
+
+                if (cboProteinReversalOptions.SelectedIndex >= 0)
+                {
+                    mProteinDigestionSimulator.ProcessingOptions.ProteinScramblingMode = (ProteinFileParser.ProteinScramblingModeConstants)cboProteinReversalOptions.SelectedIndex;
                 }
+
+                mProteinDigestionSimulator.ProcessingOptions.ProteinScramblingSamplingPercentage = TextBoxUtils.ParseTextBoxValueInt(txtProteinReversalSamplingPercentage, string.Empty, out _, 100);
+                mProteinDigestionSimulator.ProcessingOptions.ProteinScramblingLoopCount = TextBoxUtils.ParseTextBoxValueInt(txtProteinScramblingLoopCount, string.Empty, out _, 1);
+                mProteinDigestionSimulator.ProcessingOptions.CreateDigestedProteinOutputFile = chkDigestProteins.Checked;
+                mProteinDigestionSimulator.ProcessingOptions.CreateFastaOutputFile = chkCreateFastaOutputFile.Checked;
+
+                if (cboElementMassMode.SelectedIndex >= 0)
+                {
+                    mProteinDigestionSimulator.ProcessingOptions.ElementMassMode = (PeptideSequence.ElementModeConstants)cboElementMassMode.SelectedIndex;
+                }
+
+                Cursor.Current = Cursors.WaitCursor;
+                mWorking = true;
+                cmdParseInputFile.Enabled = false;
+
+                ResetProgress();
+                SwitchToProgressTab();
+
+                var outputFolderPath = string.Empty;
+                var outputFileNameBaseOverride = string.Empty;
+
+                if (txtProteinOutputFilePath.TextLength > 0)
+                {
+                    outputFolderPath = Path.GetDirectoryName(txtProteinOutputFilePath.Text);
+                    outputFileNameBaseOverride = Path.GetFileNameWithoutExtension(txtProteinOutputFilePath.Text);
+                }
+
+                success = mParseProteinFile.ParseProteinFile(GetProteinInputFilePath(), outputFolderPath, outputFileNameBaseOverride);
+
+                Cursor.Current = Cursors.Default;
+
+                if (success)
+                {
+                    MessageBox.Show(mParseProteinFile.ProcessingSummary, "Done", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    SwitchFromProgressTab();
+                }
+                else
+                {
+                    ShowErrorMessage("Error parsing protein file: " + mParseProteinFile.GetErrorMessage());
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Error in frmMain->ParseProteinInputFile: " + ex.Message);
+            }
+            finally
+            {
+                mWorking = false;
+                cmdParseInputFile.Enabled = true;
+                if (mParseProteinFile != null)
+                {
+                    mParseProteinFile.CloseLogFileNow();
+                    mParseProteinFile.ErrorEvent -= ParseProteinFile_ErrorEvent;
+                    mParseProteinFile.ProgressUpdate -= ParseProteinFile_ProgressChanged;
+                    mParseProteinFile.ProgressComplete -= ParseProteinFile_ProgressComplete;
+                    mParseProteinFile.ProgressReset -= ParseProteinFile_ProgressReset;
+                    mParseProteinFile.SubtaskProgressChanged -= ParseProteinFile_SubtaskProgressChanged;
+                }
+
+                mParseProteinFile = null;
             }
         }
 
