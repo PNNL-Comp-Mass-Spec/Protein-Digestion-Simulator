@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace ProteinDigestionSimulator
 {
@@ -121,7 +122,7 @@ namespace ProteinDigestionSimulator
 
         private static CleavageRule mTrypticCleavageRule;
 
-        private string mResidues;
+        private readonly StringBuilder mResidues;
 
         /// <summary>
         /// Formula on the N-Terminus
@@ -190,7 +191,7 @@ namespace ProteinDigestionSimulator
                 mSharedArraysInitialized = true;
             }
 
-            mResidues = string.Empty;
+            mResidues = new StringBuilder();
         }
 
         /// <summary>
@@ -617,7 +618,7 @@ namespace ProteinDigestionSimulator
         /// <param name="use3LetterCode"></param>
         public string GetResidue(int residueNumber, bool use3LetterCode = false)
         {
-            if (mResidues != null && residueNumber > 0 && residueNumber <= mResidues.Length)
+            if (residueNumber > 0 && residueNumber <= mResidues.Length)
             {
                 if (use3LetterCode)
                 {
@@ -632,11 +633,6 @@ namespace ProteinDigestionSimulator
 
         public int GetResidueCount()
         {
-            if (mResidues == null)
-            {
-                return 0;
-            }
-
             return mResidues.Length;
         }
 
@@ -649,7 +645,7 @@ namespace ProteinDigestionSimulator
         {
             char searchResidue1Letter;
 
-            if (string.IsNullOrEmpty(mResidues))
+            if (mResidues.Length == 0)
             {
                 return 0;
             }
@@ -672,9 +668,12 @@ namespace ProteinDigestionSimulator
 
             var residueIndex = -1;
             var residueCount = 0;
+
+            var sequence = mResidues.ToString();
+
             while (true)
             {
-                residueIndex = mResidues.IndexOf(searchResidue1Letter, residueIndex + 1);
+                residueIndex = sequence.IndexOf(searchResidue1Letter, residueIndex + 1);
                 if (residueIndex >= 0)
                 {
                     residueCount++;
@@ -701,10 +700,10 @@ namespace ProteinDigestionSimulator
             bool separateResiduesWithDash = false,
             bool includeNAndCTerminii = false)
         {
-            string sequence;
+            var sequence = new StringBuilder();
             var dashAdd = string.Empty;
 
-            if (mResidues == null)
+            if (mResidues.Length == 0)
             {
                 return string.Empty;
             }
@@ -712,7 +711,7 @@ namespace ProteinDigestionSimulator
             if (!use3LetterCode && !addSpaceEvery10Residues && !separateResiduesWithDash)
             {
                 // Simply return the sequence, possibly with the N and C terminii
-                sequence = mResidues;
+                sequence.Append(mResidues);
             }
             else
             {
@@ -725,8 +724,8 @@ namespace ProteinDigestionSimulator
                     dashAdd = string.Empty;
                 }
 
-                sequence = string.Empty;
                 var lastIndex = mResidues.Length - 1;
+
                 for (var index = 0; index <= lastIndex; index++)
                 {
                     if (use3LetterCode)
@@ -738,11 +737,11 @@ namespace ProteinDigestionSimulator
                             symbol3Letter = UNKNOWN_SYMBOL_THREE_LETTERS;
                         }
 
-                        sequence += symbol3Letter;
+                        sequence.Append(symbol3Letter);
                     }
                     else
                     {
-                        sequence += mResidues[index].ToString();
+                        sequence.Append(mResidues[index]);
                     }
 
                     if (index < lastIndex)
@@ -751,16 +750,16 @@ namespace ProteinDigestionSimulator
                         {
                             if ((index + 1) % 10 == 0)
                             {
-                                sequence += " ";
+                                sequence.Append(" ");
                             }
                             else
                             {
-                                sequence += dashAdd;
+                                sequence.Append(dashAdd);
                             }
                         }
                         else
                         {
-                            sequence += dashAdd;
+                            sequence.Append(dashAdd);
                         }
                     }
                 }
@@ -768,10 +767,12 @@ namespace ProteinDigestionSimulator
 
             if (includeNAndCTerminii)
             {
-                sequence = mNTerminus.Formula + dashAdd + sequence + dashAdd + mCTerminus.Formula;
+                return mNTerminus.Formula + dashAdd + sequence + dashAdd + mCTerminus.Formula;
             }
-
-            return sequence;
+            else
+            {
+                return sequence.ToString();
+            }
         }
 
         public double GetSequenceMass()
@@ -1643,7 +1644,7 @@ namespace ProteinDigestionSimulator
             bool oneLetterCheckForPrefixAndSuffixResidues = true,
             bool threeLetterCheckForPrefixHandSuffixOH = true)
         {
-            mResidues = string.Empty;
+            mResidues.Clear();
 
             sequence = sequence.Trim();
             var sequenceStrLength = sequence.Length;
@@ -1669,7 +1670,7 @@ namespace ProteinDigestionSimulator
                     if (char.IsLetter(sequence[index]))
                     {
                         // Character found
-                        mResidues += sequence[index].ToString();
+                        mResidues.Append(sequence[index]);
                     }
                 }
             }
@@ -1702,7 +1703,7 @@ namespace ProteinDigestionSimulator
                                 oneLetterSymbol = UNKNOWN_SYMBOL_ONE_LETTER.ToString();
                             }
 
-                            mResidues += oneLetterSymbol;
+                            mResidues.Append(oneLetterSymbol);
                             index += 3;
                         }
                         else
@@ -1739,7 +1740,8 @@ namespace ProteinDigestionSimulator
         /// <param name="sequenceNoPrefixOrSuffix"></param>
         public virtual void SetSequenceOneLetterCharactersOnly(string sequenceNoPrefixOrSuffix)
         {
-            mResidues = sequenceNoPrefixOrSuffix;
+            mResidues.Clear();
+            mResidues.Append(sequenceNoPrefixOrSuffix);
             UpdateSequenceMass();
         }
 
@@ -1777,7 +1779,7 @@ namespace ProteinDigestionSimulator
                     runningTotal -= mHydrogenMass;
                 }
 
-                foreach (var oneLetterSymbol in mResidues)
+                foreach (var oneLetterSymbol in mResidues.ToString())
                 {
                     try
                     {
