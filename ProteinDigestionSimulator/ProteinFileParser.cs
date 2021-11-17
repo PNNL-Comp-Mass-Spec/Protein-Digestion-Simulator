@@ -868,31 +868,28 @@ namespace ProteinDigestionSimulator
                             continue;
                         }
 
-                        if (!headerChecked)
+                        if (!headerChecked && !ParsedFileIsFastaFile)
                         {
-                            if (!ParsedFileIsFastaFile)
+                            headerChecked = true;
+
+                            // This may be a header line; possibly skip it
+                            if (proteinFileReader.ProteinName.StartsWith("protein", StringComparison.OrdinalIgnoreCase))
                             {
-                                headerChecked = true;
-
-                                // This may be a header line; possibly skip it
-                                if (proteinFileReader.ProteinName.StartsWith("protein", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    if (proteinFileReader.ProteinDescription.IndexOf("description", StringComparison.OrdinalIgnoreCase) >= 0 &&
-                                        proteinFileReader.ProteinSequence.IndexOf("sequence", StringComparison.OrdinalIgnoreCase) >= 0)
-                                    {
-                                        // Skip this entry since it's a header line, for example:
-                                        // ProteinName    Description    Sequence
-                                        continue;
-                                    }
-                                }
-
-                                if (proteinFileReader.ProteinName.IndexOf("protein", StringComparison.OrdinalIgnoreCase) >= 0 &&
-                                    FractionLowercase(proteinFileReader.ProteinSequence) > 0.2d)
+                                if (proteinFileReader.ProteinDescription.IndexOf("description", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                                    proteinFileReader.ProteinSequence.IndexOf("sequence", StringComparison.OrdinalIgnoreCase) >= 0)
                                 {
                                     // Skip this entry since it's a header line, for example:
-                                    // FirstProtein    ProteinDesc    Sequence
+                                    // ProteinName    Description    Sequence
                                     continue;
                                 }
+                            }
+
+                            if (proteinFileReader.ProteinName.IndexOf("protein", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                                FractionLowercase(proteinFileReader.ProteinSequence) > 0.2d)
+                            {
+                                // Skip this entry since it's a header line, for example:
+                                // FirstProtein    ProteinDesc    Sequence
+                                continue;
                             }
                         }
 
