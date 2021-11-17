@@ -772,10 +772,8 @@ namespace ProteinDigestionSimulator
             {
                 return mNTerminus.Formula + dashAdd + sequence + dashAdd + mCTerminus.Formula;
             }
-            else
-            {
-                return sequence.ToString();
-            }
+
+            return sequence.ToString();
         }
 
         public double GetSequenceMass()
