@@ -1,6 +1,6 @@
 ﻿namespace ProteinDigestionSimulator.Options
 {
-    // Ignore Spelling: Eisenberg, Engelman, Hydrophilicity, Hydrophobicity, Hopp, Kyte, Mant
+    // Ignore Spelling: al., Eisenberg, Engelman, Hydrophilicity, Hydrophobicity, Hopp, Kyte, Mant
 
     /// <summary>
     /// Enzyme cleavage rules

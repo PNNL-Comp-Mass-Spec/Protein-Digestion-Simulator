@@ -8,6 +8,7 @@ namespace ProteinDigestionSimulator
     public class PeptideSequenceWithNET : PeptideSequence
     {
         // Adds NET computation to the PeptideSequence
+        // Ignore Spelling: alkylated, cysteine
 
         public PeptideSequenceWithNET()
         {
