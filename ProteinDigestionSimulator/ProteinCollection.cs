@@ -374,8 +374,10 @@ namespace ProteinDigestionSimulator
                     {
                         return 1;
                     }
+
                     // Sort by ProteinID, then by PeptideID
                     var proteinIdComparison = ProteinID.CompareTo(other.ProteinID);
+
                     if (proteinIdComparison != 0)
                     {
                         return proteinIdComparison;

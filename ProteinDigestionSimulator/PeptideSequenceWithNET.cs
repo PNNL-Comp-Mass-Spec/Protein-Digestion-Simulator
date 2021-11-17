@@ -5,11 +5,16 @@ namespace ProteinDigestionSimulator
     /// <summary>
     /// This class is an extension of PeptideSequence, adding NET computation
     /// </summary>
+    /// <remarks>
+    /// Adds NET computation to the PeptideSequence
+    /// </remarks>
     public class PeptideSequenceWithNET : PeptideSequence
     {
-        // Adds NET computation to the PeptideSequence
         // Ignore Spelling: alkylated, cysteine
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public PeptideSequenceWithNET()
         {
             NETPredictor ??= new ElutionTimePredictionKangas();
