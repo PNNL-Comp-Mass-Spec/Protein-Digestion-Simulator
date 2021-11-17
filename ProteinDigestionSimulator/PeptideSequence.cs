@@ -344,7 +344,7 @@ namespace ProteinDigestionSimulator
             {
                 // periodIndex1 must be 0; assume we're at the protein terminus
                 prefix = terminiiSymbol;
-                sequenceStart = sequence[periodIndex1 + 1];
+                sequenceStart = sequence[1];
             }
 
             if (periodIndex2 > periodIndex1 + 1 && periodIndex2 <= sequence.Length - 2)
