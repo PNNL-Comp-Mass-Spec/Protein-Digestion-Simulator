@@ -1316,8 +1316,6 @@ namespace ProteinDigestionSimulator
             FilePathInfo pathInfo,
             out ProteinFileReaderBaseClass proteinFileReader)
         {
-            string outputFileName;
-
             if (ProcessingOptions.AssumeFastaFile)
             {
                 ParsedFileIsFastaFile = true;
@@ -1337,17 +1335,21 @@ namespace ProteinDigestionSimulator
                 ProcessingOptions.CreateFastaOutputFile = false;
             }
 
+            string outputFilePath;
+
             if (!string.IsNullOrEmpty(pathInfo.OutputFileNameBaseOverride))
             {
+                outputFilePath = pathInfo.OutputFileNameBaseOverride;
+
                 if (Path.HasExtension(pathInfo.OutputFileNameBaseOverride))
                 {
-                    outputFileName = string.Copy(pathInfo.OutputFileNameBaseOverride);
+                    var fileExtension = Path.GetExtension(pathInfo.OutputFileNameBaseOverride);
 
                     if (ProcessingOptions.CreateFastaOutputFile)
                     {
-                        if (!Path.GetExtension(outputFileName).Equals(".fasta", StringComparison.OrdinalIgnoreCase))
+                        if (fileExtension.Equals(".fasta", StringComparison.OrdinalIgnoreCase))
                         {
-                            outputFileName += ".fasta";
+                            outputFilePath = pathInfo.OutputFileNameBaseOverride + ".fasta";
                         }
                     }
                     else if (Path.GetExtension(outputFileName).Length > 4)
@@ -1357,16 +1359,16 @@ namespace ProteinDigestionSimulator
                 }
                 else if (ProcessingOptions.CreateFastaOutputFile)
                 {
-                    outputFileName = pathInfo.OutputFileNameBaseOverride + ".fasta";
+                    outputFilePath = pathInfo.OutputFileNameBaseOverride + ".fasta";
                 }
                 else
                 {
-                    outputFileName = pathInfo.OutputFileNameBaseOverride + ".txt";
+                    outputFilePath = pathInfo.OutputFileNameBaseOverride + ".txt";
                 }
             }
             else
             {
-                outputFileName = string.Empty;
+                outputFilePath = string.Empty;
             }
 
             if (ParsedFileIsFastaFile)
@@ -1393,93 +1395,93 @@ namespace ProteinDigestionSimulator
 
             if (ParsedFileIsFastaFile)
             {
-                if (outputFileName.Length == 0)
+                if (outputFilePath.Length == 0)
                 {
-                    outputFileName = Path.GetFileName(pathInfo.ProteinInputFilePath);
+                    outputFilePath = Path.GetFileName(pathInfo.ProteinInputFilePath);
 
-                    var fileExtension = Path.GetExtension(outputFileName);
+                    var fileExtension = Path.GetExtension(outputFilePath);
 
                     if (fileExtension.Equals(".fasta", StringComparison.OrdinalIgnoreCase) ||
                         fileExtension.Equals(".faa", StringComparison.OrdinalIgnoreCase))
                     {
                         // Nothing special to do; will replace the extension below
                     }
-                    else if (outputFileName.EndsWith(".fasta.gz", StringComparison.OrdinalIgnoreCase) ||
-                             outputFileName.EndsWith(".faa.gz", StringComparison.OrdinalIgnoreCase))
+                    else if (outputFilePath.EndsWith(".fasta.gz", StringComparison.OrdinalIgnoreCase) ||
+                             outputFilePath.EndsWith(".faa.gz", StringComparison.OrdinalIgnoreCase))
                     {
-                        // Remove .gz from outputFileName
-                        outputFileName = StripExtension(outputFileName, ".gz");
+                        // Remove .gz from outputFilePath
+                        outputFilePath = StripExtension(outputFilePath, ".gz");
                     }
                     else
                     {
                         // .Fasta appears somewhere in the middle
                         // Remove the text .Fasta, then add the extension .txt (unless it already ends in .txt)
-                        var charIndex = outputFileName.ToLower().LastIndexOf(".fasta", StringComparison.Ordinal);
+                        var charIndex = outputFilePath.ToLower().LastIndexOf(".fasta", StringComparison.Ordinal);
                         if (charIndex > 0)
                         {
-                            if (charIndex < outputFileName.Length)
+                            if (charIndex < outputFilePath.Length)
                             {
-                                outputFileName = outputFileName.Substring(0, charIndex) + outputFileName.Substring(charIndex + 6);
+                                outputFilePath = outputFilePath.Substring(0, charIndex) + outputFilePath.Substring(charIndex + 6);
                             }
                             else
                             {
-                                outputFileName = outputFileName.Substring(0, charIndex);
+                                outputFilePath = outputFilePath.Substring(0, charIndex);
                             }
                         }
                     }
 
                     if (ProcessingOptions.CreateFastaOutputFile)
                     {
-                        outputFileName = Path.GetFileNameWithoutExtension(outputFileName) + "_new.fasta";
+                        outputFilePath = Path.GetFileNameWithoutExtension(outputFilePath) + "_new.fasta";
                     }
                     else
                     {
-                        outputFileName = Path.ChangeExtension(outputFileName, ".txt");
+                        outputFilePath = Path.ChangeExtension(outputFilePath, ".txt");
                     }
                 }
             }
-            else if (outputFileName.Length == 0)
+            else if (outputFilePath.Length == 0)
             {
                 if (ProcessingOptions.CreateFastaOutputFile)
                 {
-                    outputFileName = Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath) + ".fasta";
+                    outputFilePath = Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath) + ".fasta";
                 }
                 else
                 {
-                    outputFileName = Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath) + "_parsed.txt";
+                    outputFilePath = Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath) + "_parsed.txt";
                 }
             }
 
             // Make sure the output file isn't the same as the input file
-            if (string.Equals(Path.GetFileName(pathInfo.ProteinInputFilePath), Path.GetFileName(outputFileName), StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(Path.GetFileName(pathInfo.ProteinInputFilePath), Path.GetFileName(outputFilePath), StringComparison.OrdinalIgnoreCase))
             {
-                outputFileName = Path.GetFileNameWithoutExtension(outputFileName) + "_new" + Path.GetExtension(outputFileName);
+                outputFilePath = Path.GetFileNameWithoutExtension(outputFilePath) + "_new" + Path.GetExtension(outputFilePath);
             }
 
             // Define the full path to the parsed proteins output file
-            pathInfo.ProteinOutputFilePath = Path.Combine(pathInfo.OutputFolderPath, outputFileName);
+            pathInfo.ProteinOutputFilePath = Path.Combine(pathInfo.OutputFolderPath, outputFilePath);
 
-            if (outputFileName.EndsWith("_parsed.txt"))
+            if (outputFilePath.EndsWith("_parsed.txt"))
             {
-                outputFileName = outputFileName.Substring(0, outputFileName.Length - "_parsed.txt".Length) + "_digested";
+                outputFilePath = outputFilePath.Substring(0, outputFilePath.Length - "_parsed.txt".Length) + "_digested";
             }
             else
             {
-                outputFileName = Path.GetFileNameWithoutExtension(outputFileName) + "_digested";
+                outputFilePath = Path.GetFileNameWithoutExtension(outputFilePath) + "_digested";
             }
 
-            outputFileName += "_Mass" + Math.Round((decimal)ProcessingOptions.DigestionOptions.MinFragmentMass, 0) + "to" + Math.Round((decimal)ProcessingOptions.DigestionOptions.MaxFragmentMass, 0);
+            outputFilePath += "_Mass" + Math.Round((decimal)ProcessingOptions.DigestionOptions.MinFragmentMass, 0) + "to" + Math.Round((decimal)ProcessingOptions.DigestionOptions.MaxFragmentMass, 0);
 
             if (ProcessingOptions.ComputepI && (ProcessingOptions.DigestionOptions.MinIsoelectricPoint > 0f || ProcessingOptions.DigestionOptions.MaxIsoelectricPoint < 14f))
             {
-                outputFileName += "_pI" + Math.Round(ProcessingOptions.DigestionOptions.MinIsoelectricPoint, 1) +
+                outputFilePath += "_pI" + Math.Round(ProcessingOptions.DigestionOptions.MinIsoelectricPoint, 1) +
                                   "to" + Math.Round(ProcessingOptions.DigestionOptions.MaxIsoelectricPoint, 2);
             }
 
-            outputFileName += ".txt";
+            outputFilePath += ".txt";
 
             // Define the full path to the digested proteins output file
-            pathInfo.DigestedProteinOutputFilePath = Path.Combine(pathInfo.OutputFolderPath, outputFileName);
+            pathInfo.DigestedProteinOutputFilePath = Path.Combine(pathInfo.OutputFolderPath, outputFilePath);
 
             return true;
         }
