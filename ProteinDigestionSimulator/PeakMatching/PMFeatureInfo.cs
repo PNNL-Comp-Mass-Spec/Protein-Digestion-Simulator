@@ -21,6 +21,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             Clear();
         }
 
+        // ReSharper disable once UnusedMember.Global
         public bool Add(FeatureInfo featureInfo)
         {
             return Add(featureInfo.FeatureID, featureInfo.FeatureName, featureInfo.Mass, featureInfo.NET);
@@ -233,6 +234,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             return masses;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public double GetMassByRowIndex(int rowIndex)
         {
             if (rowIndex >= 0 && rowIndex < mFeatureCount)

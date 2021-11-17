@@ -1092,6 +1092,7 @@ namespace ProteinDigestionSimulator
 
                 digestFileWriter?.Close();
 
+                // ReSharper disable once ConstantConditionalAccessQualifier
                 scrambledFileWriter?.Close();
             }
 

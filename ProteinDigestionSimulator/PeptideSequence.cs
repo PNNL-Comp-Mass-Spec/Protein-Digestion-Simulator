@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable UnusedMember.Global
+
 namespace ProteinDigestionSimulator
 {
     /// <summary>
@@ -1540,6 +1543,8 @@ namespace ProteinDigestionSimulator
                 _ => 1,
             };
         }
+
+        // ReSharper disable once CommentTypo
 
         /// <summary>
         /// Define the N-terminus using an empirical formula
