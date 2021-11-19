@@ -885,16 +885,15 @@ namespace ProteinDigestionSimulator
                     InputFileProteinsProcessed = 0;
                     InputFileLineSkipCount = 0;
                     InputFileLinesRead = 0;
-                    var inputProteinFound = true; // set to true for loop entry
 
-                    while (inputProteinFound)
+                    while (true)
                     {
-                        inputProteinFound = proteinFileReader.ReadNextProteinEntry();
+                        var inputProteinFound = proteinFileReader.ReadNextProteinEntry();
                         InputFileLineSkipCount += proteinFileReader.LineSkipCount;
 
                         if (!inputProteinFound)
                         {
-                            continue;
+                            break;
                         }
 
                         if (!headerChecked && !ParsedFileIsFastaFile)
@@ -1641,35 +1640,37 @@ namespace ProteinDigestionSimulator
                 ResetProgress("Pre-reading FASTA file; looking for possible additional reference names");
 
                 // Read each protein in the output file and process appropriately
-                var inputProteinFound = true; // set to true for loop entry
-                while (inputProteinFound)
+
+                while (true)
                 {
-                    inputProteinFound = reader.ReadNextProteinEntry();
+                    var inputProteinFound = reader.ReadNextProteinEntry();
 
-                    if (inputProteinFound)
+                    if (!inputProteinFound)
                     {
-                        protein.Name = reader.ProteinName;
-                        protein.Description = reader.ProteinDescription;
+                        break;
+                    }
 
-                        // Look for additional protein names in .Description, delimited by FastaFileOptions.AddnlRefSepChar
-                        ExtractAlternateProteinNamesFromDescription(protein);
+                    protein.Name = reader.ProteinName;
+                    protein.Description = reader.ProteinDescription;
 
-                        // Make sure each of the names in .AlternateNames[] is in addnlRefMasterNames
-                        int index;
-                        for (index = 0; index < protein.AlternateNameCount; index++)
+                    // Look for additional protein names in .Description, delimited by FastaFileOptions.AddnlRefSepChar
+                    ExtractAlternateProteinNamesFromDescription(protein);
+
+                    // Make sure each of the names in .AlternateNames[] is in addnlRefMasterNames
+                    int index;
+                    for (index = 0; index < protein.AlternateNameCount; index++)
+                    {
+                        if (!addnlRefMasterNames.Contains(protein.AlternateNames[index].RefName))
                         {
-                            if (!addnlRefMasterNames.Contains(protein.AlternateNames[index].RefName))
-                            {
-                                addnlRefMasterNames.Add(protein.AlternateNames[index].RefName);
-                            }
+                            addnlRefMasterNames.Add(protein.AlternateNames[index].RefName);
                         }
+                    }
 
-                        UpdateProgress(reader.PercentFileProcessed());
+                    UpdateProgress(reader.PercentFileProcessed());
 
-                        if (AbortProcessing)
-                        {
-                            break;
-                        }
+                    if (AbortProcessing)
+                    {
+                        break;
                     }
                 }
 

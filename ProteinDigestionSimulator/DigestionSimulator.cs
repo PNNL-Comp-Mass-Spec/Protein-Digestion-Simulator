@@ -1213,18 +1213,17 @@ namespace ProteinDigestionSimulator
                 // they are passed to AddOrUpdatePeptide rather than the computed values
                 newPeptide.AutoComputeNET = true;
                 var inputFileLinesRead = 0;
-                var inputPeptideFound = true; // set to true for loop entry
 
-                while (inputPeptideFound)
+                while (true)
                 {
-                    inputPeptideFound = delimitedFileReader.ReadNextProteinEntry();
+                    var inputPeptideFound = delimitedFileReader.ReadNextProteinEntry();
 
                     inputFileLinesRead = delimitedFileReader.LinesRead;
                     inputFileLineSkipCount += delimitedFileReader.LineSkipCount;
 
                     if (!inputPeptideFound)
                     {
-                        continue;
+                        break;
                     }
 
                     newPeptide.SequenceOneLetter = delimitedFileReader.ProteinSequence;
