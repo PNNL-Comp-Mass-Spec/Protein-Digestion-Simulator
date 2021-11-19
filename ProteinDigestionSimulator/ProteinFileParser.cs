@@ -726,6 +726,20 @@ namespace ProteinDigestionSimulator
             return success;
         }
 
+        /// <summary>
+        /// Checks headerLine to see if it starts with the given column names, separated by tabs
+        /// </summary>
+        /// <param name="headerLine"></param>
+        /// <param name="columnNames"></param>
+        /// <returns>True if the given header names are found, otherwise false</returns>
+        private bool MatchesOrStartsWith(string headerLine, params string[] columnNames)
+        {
+            var tabDelimitedHeaders = string.Join("\t", columnNames);
+
+            return headerLine.Equals(tabDelimitedHeaders, StringComparison.OrdinalIgnoreCase) ||
+                   headerLine.StartsWith(tabDelimitedHeaders + "\t", StringComparison.CurrentCultureIgnoreCase);
+        }
+
         public bool ParseProteinFile(string proteinInputFilePath, string outputFolderPath)
         {
             return ParseProteinFile(proteinInputFilePath, outputFolderPath, string.Empty);
@@ -1697,6 +1711,48 @@ namespace ProteinDigestionSimulator
                 else
                 {
                     outputFilePath = Path.GetFileNameWithoutExtension(pathInfo.ProteinInputFilePath) + "_parsed.txt";
+                }
+            }
+
+            if (proteinFileReader is DelimitedProteinFileReader { Delimiter: '\t' } delimitedReader && !string.IsNullOrWhiteSpace(pathInfo.ProteinInputFilePath))
+            {
+                // Read the first line of the input file and auto-update DelimitedFileFormatCode if we find known headers
+                using var reader = new StreamReader(new FileStream(pathInfo.ProteinInputFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+
+                if (!reader.EndOfStream)
+                {
+                    var headerLine = reader.ReadLine();
+                    if (!string.IsNullOrWhiteSpace(headerLine))
+                    {
+                        DelimitedProteinFileReader.ProteinFileFormatCode fileFormat;
+
+                        if (MatchesOrStartsWith(headerLine, "ProteinName", "Sequence") ||
+                            MatchesOrStartsWith(headerLine, "Protein", "Sequence"))
+                        {
+                            fileFormat = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Sequence;
+                        }
+                        else if (MatchesOrStartsWith(headerLine, "ProteinName", "Description", "Sequence") ||
+                                 MatchesOrStartsWith(headerLine, "Protein", "Description", "Sequence"))
+                        {
+                            fileFormat = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Sequence;
+                        }
+                        else if (MatchesOrStartsWith(headerLine, "ProteinName", "Description", "SequenceHash", "Sequence") ||
+                                 MatchesOrStartsWith(headerLine, "Protein", "Description", "SequenceHash", "Sequence"))
+                        {
+                            fileFormat = DelimitedProteinFileReader.ProteinFileFormatCode.ProteinName_Description_Hash_Sequence;
+                        }
+                        else
+                        {
+                            fileFormat = delimitedReader.DelimitedFileFormatCode;
+                        }
+
+                        if (delimitedReader.DelimitedFileFormatCode != fileFormat)
+                        {
+                            OnWarningEvent("Auto changing the delimited protein file format to {0} based on the actual header line", fileFormat);
+
+                            delimitedReader.DelimitedFileFormatCode = fileFormat;
+                        }
+                    }
                 }
             }
 
