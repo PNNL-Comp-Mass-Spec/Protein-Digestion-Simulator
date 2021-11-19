@@ -189,6 +189,8 @@ namespace ProteinDigestionSimulator
 
         public int InputFileLineSkipCount { get; private set; }
 
+        public Exception MostRecentException { get; private set; }
+
         public ParseProteinFileErrorCodes LocalErrorCode { get; private set; }
 
         public bool ParsedFileIsFastaFile { get; private set; }
@@ -222,10 +224,10 @@ namespace ProteinDigestionSimulator
                 mNETCalculator = new ElutionTimePredictionKangas();
                 mNETCalculator.ErrorEvent += NETCalculator_ErrorEvent;
             }
-            catch
+            catch (Exception ex)
             {
                 ShowErrorMessage("Error initializing LC NET Calculation class");
-                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables);
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables, ex);
             }
 
             try
@@ -233,10 +235,10 @@ namespace ProteinDigestionSimulator
                 mSCXNETCalculator = new SCXElutionTimePredictionKangas();
                 mSCXNETCalculator.ErrorEvent += SCXNETCalculator_ErrorEvent;
             }
-            catch
+            catch (Exception ex)
             {
                 ShowErrorMessage("Error initializing SCX NET Calculation class");
-                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables);
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorInitializingObjectVariables, ex);
             }
         }
 
@@ -300,9 +302,9 @@ namespace ProteinDigestionSimulator
 
                 return InSilicoDigester.DigestSequence(peptideSequence, out peptideFragments, ProcessingOptions.ComputepI, proteinName);
             }
-            catch
+            catch (Exception ex)
             {
-                SetLocalErrorCode(ParseProteinFileErrorCodes.DigestProteinSequenceError);
+                SetLocalErrorCode(ParseProteinFileErrorCodes.DigestProteinSequenceError, ex);
                 peptideFragments = new List<PeptideSequenceWithNET>();
                 return 0;
             }
@@ -412,7 +414,7 @@ namespace ProteinDigestionSimulator
                 return GetBaseClassErrorMessage();
             }
 
-            return LocalErrorCode switch
+            var errorMessage = LocalErrorCode switch
             {
                 ParseProteinFileErrorCodes.NoError => string.Empty,
                 ParseProteinFileErrorCodes.ErrorReadingInputFile => "Error reading input file",
@@ -425,6 +427,10 @@ namespace ProteinDigestionSimulator
                 ParseProteinFileErrorCodes.UnspecifiedError => "Unspecified localized error",
                 _ => "Unknown error state", // This shouldn't happen
             };
+
+            return MostRecentException == null
+                ? errorMessage
+                : string.Format("{0}: \n{1}", errorMessage, MostRecentException.Message);
         }
 
         public int GetProteinCountCached()
@@ -602,9 +608,10 @@ namespace ProteinDigestionSimulator
                 scrambledFileWriter = new StreamWriter(scrambledFastaOutputFilePath);
                 success = true;
             }
-            catch
+            catch (Exception ex)
             {
-                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorCreatingScrambledProteinOutputFile);
+                OnWarningEvent("Error creating {0} output FASTA file {1}: {2}", scrambleModeName, scrambledSequenceFastaFile.FullName, ex.Message);
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorCreatingScrambledProteinOutputFile, ex);
                 success = false;
                 scrambledFileWriter = null;
             }
@@ -628,6 +635,7 @@ namespace ProteinDigestionSimulator
             string outputFolderPath,
             string outputFileNameBaseOverride)
         {
+            MostRecentException = null;
             ProteinFileReaderBaseClass proteinFileReader = null;
 
             StreamWriter proteinFileWriter = null;
@@ -668,9 +676,9 @@ namespace ProteinDigestionSimulator
 
                 success = ParseProteinFileGetReaderAndDefineOutputFile(pathInfo, out proteinFileReader);
             }
-            catch
+            catch (Exception ex)
             {
-                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile);
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile, ex);
                 success = false;
             }
 
@@ -690,9 +698,10 @@ namespace ProteinDigestionSimulator
                         // This will cause an error if the input file is the same as the output file
                         proteinFileWriter = new StreamWriter(pathInfo.ProteinOutputFilePath);
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorCreatingProteinOutputFile);
+                        OnWarningEvent("Error creating protein output file {0}: {1}", pathInfo.ProteinOutputFilePath, ex.Message);
+                        SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorCreatingProteinOutputFile, ex);
                         success = false;
                     }
 
@@ -1016,10 +1025,21 @@ namespace ProteinDigestionSimulator
                 }
 
                 var message = new StringBuilder();
-                message.AppendFormat("Done: Processed {0:###,##0} {1} ({2:###,###,##0} lines)",
-                    InputFileProteinsProcessed,
-                    InputFileProteinsProcessed == 1 ? "protein" : "proteins",
-                    InputFileLinesRead);
+
+                var errorMessage = GetErrorMessage();
+
+                if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    message.Append(errorMessage);
+                    message.AppendLine();
+                }
+                else
+                {
+                    message.AppendFormat("Done: Processed {0:###,##0} {1} ({2:###,###,##0} lines)",
+                        InputFileProteinsProcessed,
+                        InputFileProteinsProcessed == 1 ? "protein" : "proteins",
+                        InputFileLinesRead);
+                }
 
                 if (InputFileLineSkipCount > 0)
                 {
@@ -1076,12 +1096,12 @@ namespace ProteinDigestionSimulator
                 ShowErrorMessage("Error in ParseProteinFile: " + ex.Message);
                 if (ProcessingOptions.CreateProteinOutputFile || ProcessingOptions.CreateDigestedProteinOutputFile)
                 {
-                    SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorWritingOutputFile);
+                    SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorWritingOutputFile, ex);
                     success = false;
                 }
                 else
                 {
-                    SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile);
+                    SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile, ex);
                     success = false;
                 }
             }
@@ -1595,9 +1615,9 @@ namespace ProteinDigestionSimulator
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
-                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorCreatingDigestedProteinOutputFile);
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorCreatingDigestedProteinOutputFile, ex);
                 return false;
             }
         }
@@ -1623,9 +1643,9 @@ namespace ProteinDigestionSimulator
 
                 success = true;
             }
-            catch
+            catch (Exception ex)
             {
-                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile);
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile, ex);
                 success = false;
             }
 
@@ -1676,9 +1696,9 @@ namespace ProteinDigestionSimulator
 
                 reader.CloseFile();
             }
-            catch
+            catch (Exception ex)
             {
-                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile);
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorReadingInputFile, ex);
             }
         }
 
@@ -1981,6 +2001,7 @@ namespace ProteinDigestionSimulator
             if (resetErrorCode)
             {
                 SetLocalErrorCode(ParseProteinFileErrorCodes.NoError);
+                MostRecentException = null;
             }
 
             try
@@ -2024,7 +2045,7 @@ namespace ProteinDigestionSimulator
             return success;
         }
 
-        private void SetLocalErrorCode(ParseProteinFileErrorCodes newErrorCode, bool leaveExistingErrorCodeUnchanged = false)
+        private void SetLocalErrorCode(ParseProteinFileErrorCodes newErrorCode, Exception ex = null, bool leaveExistingErrorCodeUnchanged = false)
         {
             if (leaveExistingErrorCodeUnchanged && LocalErrorCode != ParseProteinFileErrorCodes.NoError)
             {
@@ -2039,11 +2060,14 @@ namespace ProteinDigestionSimulator
                     if (ErrorCode == ProcessFilesErrorCodes.LocalizedError)
                     {
                         SetBaseClassErrorCode(ProcessFilesErrorCodes.NoError);
+                        MostRecentException = null;
                     }
                 }
                 else
                 {
                     SetBaseClassErrorCode(ProcessFilesErrorCodes.LocalizedError);
+                    if (ex != null)
+                        MostRecentException = ex;
                 }
             }
         }
