@@ -1726,6 +1726,7 @@ namespace ProteinDigestionSimulator
                 cboProteinReversalOptions.Items.Insert((int)ProteinFileParser.ProteinScramblingModeConstants.None, "Normal output");
                 cboProteinReversalOptions.Items.Insert((int)ProteinFileParser.ProteinScramblingModeConstants.Reversed, "Reverse ORF sequences");
                 cboProteinReversalOptions.Items.Insert((int)ProteinFileParser.ProteinScramblingModeConstants.Randomized, "Randomized ORF sequences");
+                cboProteinReversalOptions.Items.Insert((int)ProteinFileParser.ProteinScramblingModeConstants.Decoy, "Decoy (forward & reverse)");
                 cboProteinReversalOptions.SelectedIndex = (int)ProteinFileParser.ProteinScramblingModeConstants.None;
 
                 var inSilicoDigest = mProteinDigestionSimulator.InSilicoDigester;

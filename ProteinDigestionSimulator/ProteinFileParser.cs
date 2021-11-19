@@ -74,9 +74,25 @@ namespace ProteinDigestionSimulator
 
         public enum ProteinScramblingModeConstants
         {
+            /// <summary>
+            /// Leave protein sequences unchanged
+            /// </summary>
             None = 0,
+
+            /// <summary>
+            /// Reverse protein sequences
+            /// </summary>
             Reversed = 1,
-            Randomized = 2
+
+            /// <summary>
+            /// Randomize (scramble) protein sequences
+            /// </summary>
+            Randomized = 2,
+
+            /// <summary>
+            /// Write out both forward and reverse protein sequences
+            /// </summary>
+            Decoy = 3
         }
 
         public class AddnlRef : IComparable<AddnlRef>
@@ -130,6 +146,7 @@ namespace ProteinDigestionSimulator
             public float Hydrophobicity { get; set; }
             public float ProteinNET { get; set; }
             public float ProteinSCXNET { get; set; }
+
             /// <summary>
             /// Show the protein name
             /// </summary>
@@ -303,6 +320,52 @@ namespace ProteinDigestionSimulator
             }
 
             return mSCXNETCalculator.GetElutionTime(peptideSequence);
+        }
+
+        private void CreateDecoyFastaFile(string forwardSequenceFastaFile, FileInfo reverseSequenceFastaFile)
+        {
+            try
+            {
+                var decoyFastaFilePath = reverseSequenceFastaFile.FullName;
+
+                var sourceReversedProteinsTempFile = new FileInfo(reverseSequenceFastaFile.FullName + ".SourceReverseProteins");
+                if (sourceReversedProteinsTempFile.Exists)
+                {
+                    sourceReversedProteinsTempFile.Delete();
+                }
+
+                // Rename the reversed sequences file
+                reverseSequenceFastaFile.MoveTo(sourceReversedProteinsTempFile.FullName);
+
+                // Duplicate the forward sequences file
+                var forwardProteinsFile = new FileInfo(forwardSequenceFastaFile);
+
+                forwardProteinsFile.CopyTo(decoyFastaFilePath);
+
+                // Append the reverse protein sequences to the decoy FASTA file
+                using var decoyFileWriter = new StreamWriter(new FileStream(decoyFastaFilePath, FileMode.Append, FileAccess.Write, FileShare.Read));
+
+                var decoyFileReader = new FastaFileReader();
+                decoyFileReader.OpenFile(sourceReversedProteinsTempFile.FullName);
+
+                while (decoyFileReader.ReadNextProteinEntry())
+                {
+                    var headerLine = string.Format("{0}{1}{2}{3}",
+                        FastaFileReader.PROTEIN_LINE_START_CHAR, decoyFileReader.ProteinName,
+                        FastaFileReader.PROTEIN_LINE_ACCESSION_TERMINATOR, decoyFileReader.ProteinDescription);
+
+                    WriteFastaProteinAndResidues(decoyFileWriter, headerLine, decoyFileReader.ProteinSequence);
+                }
+
+                decoyFileReader.CloseFile();
+
+                sourceReversedProteinsTempFile.Delete();
+            }
+            catch (Exception ex)
+            {
+                ShowErrorMessage("Error in CreateDecoyFastaFile: " + ex.Message);
+                SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorWritingOutputFile, ex);
+            }
         }
 
         /// <summary>
@@ -570,11 +633,11 @@ namespace ProteinDigestionSimulator
             FilePathInfo pathInfo,
             ScramblingResidueCache residueCache,
             ProteinScramblingModeConstants scramblingMode,
+            out FileInfo scrambledSequenceFastaFile,
             out StreamWriter scrambledFileWriter,
             out Random randomNumberGenerator)
         {
             bool success;
-            string suffix;
 
             // Wait to allow the timer to advance.
             Thread.Sleep(1);
@@ -582,10 +645,27 @@ namespace ProteinDigestionSimulator
 
             randomNumberGenerator = new Random(randomNumberSeed);
 
+            var scrambleModeName = scramblingMode switch
+            {
+                ProteinScramblingModeConstants.Reversed => "reversed",
+                ProteinScramblingModeConstants.Decoy => "decoy",
+                ProteinScramblingModeConstants.Randomized => "scrambled",
+                _ => throw new InvalidEnumArgumentException(nameof(scramblingMode))
+            };
+
+            var suffix = "_" + scrambleModeName;
+
             if (scramblingMode == ProteinScramblingModeConstants.Reversed)
             {
-                // Reversed FASTA file
-                suffix = "_reversed";
+                // Reversed FASTA file, suffix _reversed
+                if (residueCache.SamplingPercentage < 100)
+                {
+                    suffix += "_" + residueCache.SamplingPercentage + "pct";
+                }
+            }
+            else if (scramblingMode == ProteinScramblingModeConstants.Decoy)
+            {
+                // Decoy FASTA file, suffix _decoy
                 if (residueCache.SamplingPercentage < 100)
                 {
                     suffix += "_" + residueCache.SamplingPercentage + "pct";
@@ -593,8 +673,8 @@ namespace ProteinDigestionSimulator
             }
             else
             {
-                // Scrambled FASTA file
-                suffix = "_scrambled_seed" + randomNumberSeed;
+                // Scrambled FASTA file, with suffix _scrambled_seed
+                suffix += "_seed" + randomNumberSeed;
                 if (residueCache.SamplingPercentage < 100)
                 {
                     suffix += "_" + residueCache.SamplingPercentage + "pct";
@@ -626,10 +706,13 @@ namespace ProteinDigestionSimulator
 
             // Make sure there aren't any spaces in the abbreviated filename
             mFileNameAbbreviated = mFileNameAbbreviated.Replace(" ", "_");
+
+            scrambledSequenceFastaFile = new FileInfo(scrambledFastaOutputFilePath);
+
             try
             {
-                // Open the scrambled protein output FASTA file (if required)
-                scrambledFileWriter = new StreamWriter(scrambledFastaOutputFilePath);
+                // Create the scrambled protein output FASTA file
+                scrambledFileWriter = new StreamWriter(new FileStream(scrambledSequenceFastaFile.FullName, FileMode.Create, FileAccess.Write, FileShare.Read));
                 success = true;
             }
             catch (Exception ex)
@@ -714,13 +797,33 @@ namespace ProteinDigestionSimulator
 
             try
             {
-                if (ProcessingOptions.CreateProteinOutputFile)
+                bool createProteinOutputFile;
+
+                if (ProcessingOptions.ProteinScramblingMode == ProteinScramblingModeConstants.Decoy)
+                {
+                    // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
+                    if (ParsedFileIsFastaFile)
+                    {
+                        // Since the input file is a FASTA file and we're creating a decoy output file, do not create a new forward-sequence protein output file
+                        createProteinOutputFile = false;
+                    }
+                    else
+                    {
+                        createProteinOutputFile = true;
+                    }
+                }
+                else
+                {
+                    createProteinOutputFile = ProcessingOptions.CreateProteinOutputFile;
+                }
+
+                if (createProteinOutputFile)
                 {
                     try
                     {
                         // Open the protein output file (if required)
                         // This will cause an error if the input file is the same as the output file
-                        proteinFileWriter = new StreamWriter(pathInfo.ProteinOutputFilePath);
+                        proteinFileWriter = new StreamWriter(new FileStream(pathInfo.ProteinOutputFilePath, FileMode.Create, FileAccess.Write, FileShare.Read));
                     }
                     catch (Exception ex)
                     {
@@ -750,7 +853,7 @@ namespace ProteinDigestionSimulator
 
                 var outputFileDelimiter = ProcessingOptions.OutputFileDelimiter;
 
-                if (ProcessingOptions.CreateProteinOutputFile &&
+                if (createProteinOutputFile &&
                     ProcessingOptions.CreateDigestedProteinOutputFile &&
                     !ProcessingOptions.CreateFastaOutputFile)
                 {
@@ -801,7 +904,9 @@ namespace ProteinDigestionSimulator
                     }
 
                     ProteinScramblingModeConstants scramblingMode;
-                    if (ProcessingOptions.CreateProteinOutputFile)
+                    FileInfo scrambledSequenceFastaFile;
+
+                    if (createProteinOutputFile || ProcessingOptions.ProteinScramblingMode != ProteinScramblingModeConstants.None)
                     {
                         scramblingMode = ProcessingOptions.ProteinScramblingMode;
 
@@ -812,21 +917,31 @@ namespace ProteinDigestionSimulator
 
                         if (scramblingMode != ProteinScramblingModeConstants.None)
                         {
-                            success = InitializeScrambledOutput(pathInfo, residueCache, scramblingMode, out scrambledFileWriter, out randomNumberGenerator);
+                            success = InitializeScrambledOutput(
+                                pathInfo, residueCache, scramblingMode,
+                                out scrambledSequenceFastaFile,
+                                out scrambledFileWriter,
+                                out randomNumberGenerator);
+
                             if (!success)
                             {
                                 break;
                             }
                         }
+                        else
+                        {
+                            scrambledSequenceFastaFile = null;
+                        }
                     }
                     else
                     {
                         scramblingMode = ProteinScramblingModeConstants.None;
+                        scrambledSequenceFastaFile = null;
                     }
 
                     addnlRefsToOutput.Clear();
 
-                    if (ProcessingOptions.CreateProteinOutputFile && ParsedFileIsFastaFile && allowLookForAddnlRefInDescription)
+                    if (createProteinOutputFile && ParsedFileIsFastaFile && allowLookForAddnlRefInDescription)
                     {
                         // Need to pre-scan the FASTA file to find all of the possible additional reference values
 
@@ -853,7 +968,7 @@ namespace ProteinDigestionSimulator
 
                     ResetProgress("Parsing protein input file");
 
-                    if (ProcessingOptions.CreateProteinOutputFile && !ProcessingOptions.CreateFastaOutputFile)
+                    if (createProteinOutputFile && !ProcessingOptions.CreateFastaOutputFile)
                     {
                         outLine.Clear();
 
@@ -965,9 +1080,9 @@ namespace ProteinDigestionSimulator
                             SequenceCountLikelyDNA++;
                         }
 
-                        if (ProcessingOptions.CreateProteinOutputFile)
+                        if (createProteinOutputFile || scramblingMode != ProteinScramblingModeConstants.None)
                         {
-                            if (loopIndex == 1)
+                            if (createProteinOutputFile && loopIndex == 1)
                             {
                                 if (ProcessingOptions.CreateFastaOutputFile)
                                 {
@@ -988,7 +1103,7 @@ namespace ProteinDigestionSimulator
 
                             if (scramblingMode != ProteinScramblingModeConstants.None)
                             {
-                                WriteScrambledFasta(scrambledFileWriter, ref randomNumberGenerator, protein, scramblingMode, residueCache);
+                                WriteScrambledFasta(scrambledFileWriter, randomNumberGenerator, protein, scramblingMode, residueCache);
                             }
                         }
                         else
@@ -1006,12 +1121,12 @@ namespace ProteinDigestionSimulator
                         }
                     }
 
-                    if (ProcessingOptions.CreateProteinOutputFile && scramblingMode != ProteinScramblingModeConstants.None)
+                    if (createProteinOutputFile && scramblingMode != ProteinScramblingModeConstants.None)
                     {
                         // Write out anything remaining in the cache
 
                         string proteinNamePrefix;
-                        if (scramblingMode == ProteinScramblingModeConstants.Reversed)
+                        if (scramblingMode is ProteinScramblingModeConstants.Reversed or ProteinScramblingModeConstants.Decoy)
                         {
                             proteinNamePrefix = PROTEIN_PREFIX_REVERSED;
                         }
@@ -1046,6 +1161,19 @@ namespace ProteinDigestionSimulator
                     }
 
                     scrambledFileWriter?.Close();
+
+                    if (scramblingMode == ProteinScramblingModeConstants.Decoy)
+                    {
+                        // Create the decoy .fasta file by combining the original proteins with the reversed proteins
+                        if (ParsedFileIsFastaFile)
+                        {
+                            CreateDecoyFastaFile(pathInfo.ProteinInputFilePath, scrambledSequenceFastaFile);
+                        }
+                        else
+                        {
+                            CreateDecoyFastaFile(pathInfo.ProteinOutputFilePath, scrambledSequenceFastaFile);
+                        }
+                    }
                 }
 
                 var message = new StringBuilder();
@@ -1118,7 +1246,7 @@ namespace ProteinDigestionSimulator
             catch (Exception ex)
             {
                 ShowErrorMessage("Error in ParseProteinFile: " + ex.Message);
-                if (ProcessingOptions.CreateProteinOutputFile || ProcessingOptions.CreateDigestedProteinOutputFile)
+                if (ProcessingOptions.CreateProteinOutputFile || ProcessingOptions.CreateDigestedProteinOutputFile || ProcessingOptions.ProteinScramblingMode != ProteinScramblingModeConstants.None)
                 {
                     SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorWritingOutputFile, ex);
                     success = false;
@@ -1449,6 +1577,11 @@ namespace ProteinDigestionSimulator
                 // Make sure mCreateFastaOutputFile is false
                 ProcessingOptions.CreateFastaOutputFile = false;
             }
+            else if (!ParsedFileIsFastaFile && ProcessingOptions.ProteinScramblingMode == ProteinScramblingModeConstants.Decoy)
+            {
+                // Force the output file format to be a FASTA file
+                ProcessingOptions.CreateFastaOutputFile = true;
+            }
 
             string outputFilePath;
 
@@ -1733,7 +1866,15 @@ namespace ProteinDigestionSimulator
                                  !ProcessingOptions.CreateFastaOutputFile;
 
             Console.WriteLine("{0,-31} {1}", "Create FASTA output file:", ProcessingOptions.CreateFastaOutputFile);
-            Console.WriteLine("{0,-31} {1}", "Create protein .txt file:", ProcessingOptions.CreateProteinOutputFile);
+            if (ProcessingOptions.ProteinScramblingMode == ProteinScramblingModeConstants.None)
+            {
+                Console.WriteLine("{0,-31} {1}", "Create protein .txt file:", ProcessingOptions.CreateProteinOutputFile);
+            }
+            else
+            {
+                Console.WriteLine("{0,-31} {1}", "Reverse/Scrambled mode:", ProcessingOptions.ProteinScramblingMode);
+            }
+
             Console.WriteLine("{0,-31} {1}", "Digest input file:", digestPeptides);
             Console.WriteLine();
             Console.WriteLine("{0,-31} {1}", "Exclude protein sequence:", ProcessingOptions.ExcludeProteinSequence);
@@ -1918,13 +2059,18 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        private void WriteScrambledFasta(TextWriter scrambledFileWriter, ref Random randomNumberGenerator, ProteinInfo protein, ProteinScramblingModeConstants scramblingMode, ScramblingResidueCache residueCache)
+        private void WriteScrambledFasta(
+            TextWriter scrambledFileWriter,
+            Random randomNumberGenerator,
+            ProteinInfo protein,
+            ProteinScramblingModeConstants scramblingMode,
+            ScramblingResidueCache residueCache)
         {
             string scrambledSequence;
             string proteinNamePrefix;
             int residueCount;
 
-            if (scramblingMode == ProteinScramblingModeConstants.Reversed)
+            if (scramblingMode is ProteinScramblingModeConstants.Reversed or ProteinScramblingModeConstants.Decoy)
             {
                 proteinNamePrefix = PROTEIN_PREFIX_REVERSED;
                 var seqArray = protein.Sequence.ToCharArray();
