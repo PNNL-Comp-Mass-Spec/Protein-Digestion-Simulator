@@ -1054,7 +1054,7 @@ namespace ProteinDigestionSimulator
                     InputFileLineSkipCount = 0;
                     InputFileLinesRead = 0;
 
-                    while (true)
+                    do
                     {
                         var inputProteinFound = proteinFileReader.ReadNextProteinEntry();
                         InputFileLineSkipCount += proteinFileReader.LineSkipCount;
@@ -1134,12 +1134,8 @@ namespace ProteinDigestionSimulator
 
                         var percentProcessed = (loopIndex - 1) / (float)loopCount * 100.0f + proteinFileReader.PercentFileProcessed() / loopCount;
                         UpdateProgress(percentProcessed);
-
-                        if (AbortProcessing)
-                        {
-                            break;
-                        }
                     }
+                    while (!AbortProcessing);
 
                     if (createProteinOutputFile && scramblingMode != ProteinScramblingModeConstants.None)
                     {
@@ -1880,7 +1876,7 @@ namespace ProteinDigestionSimulator
 
                 // Read each protein in the output file and process appropriately
 
-                while (true)
+                do
                 {
                     var inputProteinFound = reader.ReadNextProteinEntry();
 
@@ -1906,12 +1902,8 @@ namespace ProteinDigestionSimulator
                     }
 
                     UpdateProgress(reader.PercentFileProcessed());
-
-                    if (AbortProcessing)
-                    {
-                        break;
-                    }
                 }
+                while (!AbortProcessing);
 
                 reader.CloseFile();
             }

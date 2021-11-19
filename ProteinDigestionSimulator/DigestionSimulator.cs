@@ -1214,7 +1214,7 @@ namespace ProteinDigestionSimulator
                 newPeptide.AutoComputeNET = true;
                 var inputFileLinesRead = 0;
 
-                while (true)
+                do
                 {
                     var inputPeptideFound = delimitedFileReader.ReadNextProteinEntry();
 
@@ -1242,11 +1242,8 @@ namespace ProteinDigestionSimulator
                     }
 
                     UpdateProgress(delimitedFileReader.PercentFileProcessed());
-                    if (AbortProcessing)
-                    {
-                        break;
-                    }
                 }
+                while (!AbortProcessing);
 
                 if (inputFileLineSkipCount > 0)
                 {
