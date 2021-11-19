@@ -666,7 +666,7 @@ namespace ProteinDigestionSimulator
                     return false;
                 }
 
-                success = ParseProteinFileCreateOutputFile(pathInfo, out proteinFileReader);
+                success = ParseProteinFileGetReaderAndDefineOutputFile(pathInfo, out proteinFileReader);
             }
             catch
             {
@@ -1383,7 +1383,7 @@ namespace ProteinDigestionSimulator
             proteinFileWriter.WriteLine(outLine.ToString());
         }
 
-        private bool ParseProteinFileCreateOutputFile(
+        private bool ParseProteinFileGetReaderAndDefineOutputFile(
             FilePathInfo pathInfo,
             out ProteinFileReaderBaseClass proteinFileReader)
         {
