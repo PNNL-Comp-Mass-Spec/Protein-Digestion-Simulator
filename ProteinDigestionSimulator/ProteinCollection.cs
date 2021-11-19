@@ -99,7 +99,6 @@ namespace ProteinDigestionSimulator
                 if (mProteinCount >= mProteins.Length)
                 {
                     Array.Resize(ref mProteins, mProteins.Length * 2);
-                    //Array.Resize(ref mProteins, mProteins.Length + MEMORY_RESERVE_CHUNK - 1);
                 }
 
                 if (autoDefineProteinID)
@@ -404,7 +403,6 @@ namespace ProteinDigestionSimulator
                 if (mMappingCount >= mMappings.Length)
                 {
                     Array.Resize(ref mMappings, mMappings.Length * 2);
-                    //Array.Resize(ref mMappings, mMappings.Length + MEMORY_RESERVE_CHUNK - 1);
                 }
 
                 mMappings[mMappingCount] = new ProteinToPeptideMappingEntry(proteinID, peptideID, cleavageState);
@@ -542,7 +540,6 @@ namespace ProteinDigestionSimulator
                         if (matchCount >= matchingIDs.Length)
                         {
                             Array.Resize(ref matchingIDs, matchingIDs.Length * 2);
-                            //Array.Resize(ref matchingIDs, matchingIDs.Length + ARRAY_ALLOCATION_CHUNK - 1);
                         }
 
                         matchingIDs[matchCount] = mMappings[index].ProteinID;

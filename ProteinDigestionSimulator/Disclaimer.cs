@@ -113,7 +113,6 @@ namespace ProteinDigestionSimulator
         {
             txtNotice.Text = GetKangasPetritisDisclaimerText();
             txtNotice.SelectionStart = 0;
-            //txtNotice.SelectionLength = 0;
 
             cmdOK.Text = FORM_CLOSE_DELAY_SECONDS.ToString();
             cmdOK.Enabled = false;
