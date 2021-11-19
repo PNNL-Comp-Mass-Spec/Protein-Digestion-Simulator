@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -129,6 +130,13 @@ namespace ProteinDigestionSimulator
             public float Hydrophobicity { get; set; }
             public float ProteinNET { get; set; }
             public float ProteinSCXNET { get; set; }
+            /// <summary>
+            /// Show the protein name
+            /// </summary>
+            public override string ToString()
+            {
+                return Name ?? string.Empty;
+            }
         }
 
         private class FilePathInfo
@@ -138,6 +146,14 @@ namespace ProteinDigestionSimulator
             public string OutputFolderPath { get; set; }
             public string ProteinOutputFilePath { get; set; }
             public string DigestedProteinOutputFilePath { get; set; }
+
+            /// <summary>
+            /// Show the input file path
+            /// </summary>
+            public override string ToString()
+            {
+                return ProteinInputFilePath ?? string.Empty;
+            }
         }
 
         private class ScramblingResidueCache
@@ -155,6 +171,14 @@ namespace ProteinDigestionSimulator
                     <= 0 or > 100 => 100,
                     _ => options.ProteinScramblingSamplingPercentage,
                 };
+            }
+
+            /// <summary>
+            /// Show the cached residues
+            /// </summary>
+            public override string ToString()
+            {
+                return ResiduesToWrite ?? string.Empty;
             }
         }
 
