@@ -1234,7 +1234,7 @@ namespace ProteinDigestionSimulator
                         if (ProcessingOptions.InputFileDelimiter == '\t')
                             message.Append(" Also confirm that the file is tab-delimited.");
                         else
-                            message.AppendFormat(" Also confirm that data in the file is delimited with a {0}", ProcessingOptions.InputFileDelimiter) ;
+                            message.AppendFormat(" Also confirm that data in the file is delimited with a {0}", ProcessingOptions.InputFileDelimiter);
                     }
                 }
 
@@ -1594,7 +1594,7 @@ namespace ProteinDigestionSimulator
 
             if (ProcessingOptions.CreateDigestedProteinOutputFile)
             {
-                // Make sure mCreateFastaOutputFile is false
+                // Make sure CreateFastaOutputFile is false
                 ProcessingOptions.CreateFastaOutputFile = false;
             }
             else if (!ParsedFileIsFastaFile && ProcessingOptions.ProteinScramblingMode == ProteinScramblingModeConstants.Decoy)
