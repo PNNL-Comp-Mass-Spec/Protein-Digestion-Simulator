@@ -32,1625 +32,1650 @@ namespace ProteinDigestionSimulator
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
-            txtProteinInputFilePath = new TextBox();
-            txtProteinInputFilePath.TextChanged += new EventHandler(txtProteinInputFilePath_TextChanged);
-            optUseRectangleSearchRegion = new RadioButton();
-            optUseEllipseSearchRegion = new RadioButton();
-            lblUniquenessCalculationsNote = new Label();
-            lblProteinScramblingLoopCount = new Label();
-            fraPeakMatchingOptions = new GroupBox();
-            txtMaxPeakMatchingResultsPerFeatureToSave = new TextBox();
-            txtMaxPeakMatchingResultsPerFeatureToSave.KeyPress += new KeyPressEventHandler(txtMaxPeakMatchingResultsPerFeatureToSave_KeyPress);
-            txtMaxPeakMatchingResultsPerFeatureToSave.Validating += new System.ComponentModel.CancelEventHandler(txtMaxPeakMatchingResultsPerFeatureToSave_Validating);
-            lblMaxPeakMatchingResultsPerFeatureToSave = new Label();
-            chkExportPeakMatchingResults = new CheckBox();
-            txtMinimumSLiCScore = new TextBox();
-            txtMinimumSLiCScore.KeyPress += new KeyPressEventHandler(txtMinimumSLiCScore_KeyPress);
-            txtMinimumSLiCScore.Validating += new System.ComponentModel.CancelEventHandler(txtMinimumSLiCScore_Validating);
-            lblMinimumSLiCScore = new Label();
-            chkUseSLiCScoreForUniqueness = new CheckBox();
-            chkUseSLiCScoreForUniqueness.CheckedChanged += new EventHandler(chkUseSLiCScoreForUniqueness_CheckedChanged);
-            TabPageUniquenessStats = new TabPage();
-            fraSqlServerOptions = new GroupBox();
-            chkSqlServerUseExistingData = new CheckBox();
-            chkAllowSqlServerCaching = new CheckBox();
-            chkAllowSqlServerCaching.CheckedChanged += new EventHandler(chkAllowSqlServerCaching_CheckedChanged);
-            lblSqlServerPassword = new Label();
-            lblSqlServerUsername = new Label();
-            txtSqlServerPassword = new TextBox();
-            txtSqlServerUsername = new TextBox();
-            lblSqlServerDatabase = new Label();
-            lblSqlServerServerName = new Label();
-            chkSqlServerUseIntegratedSecurity = new CheckBox();
-            chkSqlServerUseIntegratedSecurity.CheckedChanged += new EventHandler(chkSqlServerUseIntegratedSecurity_CheckedChanged);
-            txtSqlServerDatabase = new TextBox();
-            txtSqlServerName = new TextBox();
-            chkUseSqlServerDBToCacheData = new CheckBox();
-            chkUseSqlServerDBToCacheData.CheckedChanged += new EventHandler(chkUseSqlServerDBToCacheData_CheckedChanged);
-            fraUniquenessBinningOptions = new GroupBox();
-            lblPeptideUniquenessMassMode = new Label();
-            txtUniquenessBinWidth = new TextBox();
-            txtUniquenessBinWidth.KeyPress += new KeyPressEventHandler(txtUniquenessBinWidth_KeyPress);
-            lblUniquenessBinWidth = new Label();
-            chkAutoComputeRangeForBinning = new CheckBox();
-            chkAutoComputeRangeForBinning.CheckedChanged += new EventHandler(chkAutoComputeRangeForBinning_CheckedChanged);
-            txtUniquenessBinEndMass = new TextBox();
-            txtUniquenessBinEndMass.KeyPress += new KeyPressEventHandler(txtUniquenessBinEndMass_KeyPress);
-            lblUniquenessBinEndMass = new Label();
-            txtUniquenessBinStartMass = new TextBox();
-            txtUniquenessBinStartMass.KeyPress += new KeyPressEventHandler(txtUniquenessBinStartMass_KeyPress);
-            lblUniquenessBinStartMass = new Label();
-            lblUniquenessStatsNote = new Label();
-            cmdGenerateUniquenessStats = new Button();
-            cmdGenerateUniquenessStats.Click += new EventHandler(cmdGenerateUniquenessStats_Click);
-            chkAssumeInputFileIsDigested = new CheckBox();
-            txtProteinScramblingLoopCount = new TextBox();
-            txtProteinScramblingLoopCount.KeyPress += new KeyPressEventHandler(txtProteinScramblingLoopCount_KeyPress);
-            lblSamplingPercentageUnits = new Label();
-            txtMaxpISequenceLength = new TextBox();
-            txtMaxpISequenceLength.KeyDown += new KeyEventHandler(txtMaxpISequenceLength_KeyDown);
-            txtMaxpISequenceLength.KeyPress += new KeyPressEventHandler(txtMaxpISequenceLength_KeyPress);
-            txtMaxpISequenceLength.Validating += new System.ComponentModel.CancelEventHandler(txtMaxpISequenceLength_Validating);
-            txtMaxpISequenceLength.Validated += new EventHandler(txtMaxpISequenceLength_Validated);
-            lblProteinReversalSamplingPercentage = new Label();
-            lblMaxpISequenceLength = new Label();
-            chkMaxpIModeEnabled = new CheckBox();
-            chkMaxpIModeEnabled.CheckedChanged += new EventHandler(chkMaxpIModeEnabled_CheckedChanged);
-            frapIAndHydrophobicity = new GroupBox();
-            lblHydrophobicityMode = new Label();
-            cboHydrophobicityMode = new ComboBox();
-            cboHydrophobicityMode.SelectedIndexChanged += new EventHandler(cboHydrophobicityMode_SelectedIndexChanged);
-            txtpIStats = new TextBox();
-            txtSequenceForpI = new TextBox();
-            txtSequenceForpI.TextChanged += new EventHandler(txtSequenceForpI_TextChanged);
-            lblSequenceForpI = new Label();
-            fraDelimitedFileOptions = new GroupBox();
-            cboInputFileColumnOrdering = new ComboBox();
-            lblInputFileColumnOrdering = new Label();
-            txtInputFileColumnDelimiter = new TextBox();
-            lblInputFileColumnDelimiter = new Label();
-            cboInputFileColumnDelimiter = new ComboBox();
-            cboInputFileColumnDelimiter.SelectedIndexChanged += new EventHandler(cboInputFileColumnDelimiter_SelectedIndexChanged);
-            TabPageFileFormatOptions = new TabPage();
-            tbsOptions = new TabControl();
-            TabPageParseAndDigest = new TabPage();
-            fraProcessingOptions = new GroupBox();
-            txtProteinReversalSamplingPercentage = new TextBox();
-            txtProteinReversalSamplingPercentage.KeyPress += new KeyPressEventHandler(txtProteinReversalSamplingPercentage_KeyPress);
-            lbltxtAddnlRefAccessionSepChar = new Label();
-            chkLookForAddnlRefInDescription = new CheckBox();
-            chkLookForAddnlRefInDescription.CheckedChanged += new EventHandler(chkLookForAddnlRefInDescription_CheckedChanged);
-            cboProteinReversalOptions = new ComboBox();
-            cboProteinReversalOptions.SelectedIndexChanged += new EventHandler(cboProteinReversalOptions_SelectedIndexChanged);
-            lblProteinReversalOptions = new Label();
-            chkDigestProteins = new CheckBox();
-            chkDigestProteins.CheckedChanged += new EventHandler(chkDigestProteins_CheckedChanged);
-            lblAddnlRefSepChar = new Label();
-            txtAddnlRefAccessionSepChar = new TextBox();
-            txtAddnlRefSepChar = new TextBox();
-            chkCreateFastaOutputFile = new CheckBox();
-            chkCreateFastaOutputFile.CheckedChanged += new EventHandler(chkCreateFastaOutputFile_CheckedChanged);
-            fraCalculationOptions = new GroupBox();
-            cmdNETInfo = new Button();
-            cmdNETInfo.Click += new EventHandler(cmdNETInfo_Click);
-            chkExcludeProteinDescription = new CheckBox();
-            chkComputeSequenceHashIgnoreILDiff = new CheckBox();
-            chkTruncateProteinDescription = new CheckBox();
-            chkComputeSequenceHashValues = new CheckBox();
-            chkComputeSequenceHashValues.CheckedChanged += new EventHandler(chkComputeSequenceHashValues_CheckedChanged);
-            lblMassMode = new Label();
-            cboElementMassMode = new ComboBox();
-            cboElementMassMode.SelectedIndexChanged += new EventHandler(cboElementMassMode_SelectedIndexChanged);
-            chkExcludeProteinSequence = new CheckBox();
-            chkComputepIandNET = new CheckBox();
-            chkComputepIandNET.CheckedChanged += new EventHandler(chkComputepI_CheckedChanged);
-            chkIncludeXResidues = new CheckBox();
-            chkComputeProteinMass = new CheckBox();
-            fraDigestionOptions = new GroupBox();
-            cboFragmentMassMode = new ComboBox();
-            lblFragmentMassMode = new Label();
-            cboCysTreatmentMode = new ComboBox();
-            lblCysTreatment = new Label();
-            txtDigestProteinsMaximumpI = new TextBox();
-            lblDigestProteinsMaximumpI = new Label();
-            txtDigestProteinsMinimumpI = new TextBox();
-            lblDigestProteinsMinimumpI = new Label();
-            chkGenerateUniqueIDValues = new CheckBox();
-            chkCysPeptidesOnly = new CheckBox();
-            txtDigestProteinsMinimumResidueCount = new TextBox();
-            txtDigestProteinsMinimumResidueCount.KeyPress += new KeyPressEventHandler(txtDigestProteinsMinimumResidueCount_KeyPress);
-            lblDigestProteinsMinimumResidueCount = new Label();
-            txtDigestProteinsMaximumMissedCleavages = new TextBox();
-            txtDigestProteinsMaximumMissedCleavages.KeyPress += new KeyPressEventHandler(txtDigestProteinsMaximumMissedCleavages_KeyPress);
-            lblDigestProteinsMaximumMissedCleavages = new Label();
-            txtDigestProteinsMaximumMass = new TextBox();
-            txtDigestProteinsMaximumMass.KeyPress += new KeyPressEventHandler(txtDigestProteinsMaximumMass_KeyPress);
-            lblDigestProteinsMaximumMass = new Label();
-            txtDigestProteinsMinimumMass = new TextBox();
-            txtDigestProteinsMinimumMass.KeyPress += new KeyPressEventHandler(txtDigestProteinsMinimumMass_KeyPress);
-            lblDigestProteinsMinimumMass = new Label();
-            cboCleavageRuleType = new ComboBox();
-            chkIncludeDuplicateSequences = new CheckBox();
-            cmdParseInputFile = new Button();
-            cmdParseInputFile.Click += new EventHandler(cmdParseInputFile_Click);
-            TabPagePeakMatchingThresholds = new TabPage();
-            chkAutoDefineSLiCScoreTolerances = new CheckBox();
-            chkAutoDefineSLiCScoreTolerances.CheckedChanged += new EventHandler(chkAutoDefineSLiCScoreTolerances_CheckedChanged);
-            cmdPastePMThresholdsList = new Button();
-            cmdPastePMThresholdsList.Click += new EventHandler(cmdPastePMThresholdsList_Click);
-            cboPMPredefinedThresholds = new ComboBox();
-            cmdPMThresholdsAutoPopulate = new Button();
-            cmdPMThresholdsAutoPopulate.Click += new EventHandler(cmdPMThresholdsAutoPopulate_Click);
-            cmdClearPMThresholdsList = new Button();
-            cmdClearPMThresholdsList.Click += new EventHandler(cmdClearPMThresholdsList_Click);
-            cboMassTolType = new ComboBox();
-            lblMassTolType = new Label();
-            dgPeakMatchingThresholds = new DataGrid();
-            TabPageProgress = new TabPage();
-            pbarProgress = new ProgressBar();
-            lblErrorMessage = new Label();
-            lblSubtaskProgress = new Label();
-            lblProgress = new Label();
-            lblSubtaskProgressDescription = new Label();
-            lblProgressDescription = new Label();
-            cmdAbortProcessing = new Button();
-            cmdAbortProcessing.Click += new EventHandler(cmdAbortProcessing_Click);
-            mnuHelpAboutElutionTime = new MenuItem();
-            mnuHelpAboutElutionTime.Click += new EventHandler(mnuHelpAboutElutionTime_Click);
-            cboInputFileFormat = new ComboBox();
-            cboInputFileFormat.SelectedIndexChanged += new EventHandler(cboInputFileFormat_SelectedIndexChanged);
-            lblInputFileFormat = new Label();
-            cmdSelectFile = new Button();
-            cmdSelectFile.Click += new EventHandler(cmdSelectFile_Click);
-            fraInputFilePath = new GroupBox();
-            cmdValidateFastaFile = new Button();
-            cmdValidateFastaFile.Click += new EventHandler(cmdValidateFastaFile_Click);
-            chkEnableLogging = new CheckBox();
-            mnuFileSelectOutputFile = new MenuItem();
-            mnuFileSelectOutputFile.Click += new EventHandler(mnuFileSelectOutputFile_Click);
-            cmdSelectOutputFile = new Button();
-            cmdSelectOutputFile.Click += new EventHandler(cmdSelectOutputFile_Click);
-            mnuFileSep1 = new MenuItem();
-            mnuFile = new MenuItem();
-            mnuFileSelectInputFile = new MenuItem();
-            mnuFileSelectInputFile.Click += new EventHandler(mnuFileSelectInputFile_Click);
-            mnuFileSaveDefaultOptions = new MenuItem();
-            mnuFileSaveDefaultOptions.Click += new EventHandler(mnuFileSaveDefaultOptions_Click);
-            mnuFileSep2 = new MenuItem();
-            mnuFileExit = new MenuItem();
-            mnuFileExit.Click += new EventHandler(mnuFileExit_Click);
-            txtProteinOutputFilePath = new TextBox();
-            chkIncludePrefixAndSuffixResidues = new CheckBox();
-            mnuEditResetOptions = new MenuItem();
-            mnuEditResetOptions.Click += new EventHandler(mnuEditResetOptions_Click);
-            mnuHelp = new MenuItem();
-            mnuHelpAbout = new MenuItem();
-            mnuHelpAbout.Click += new EventHandler(mnuHelpAbout_Click);
-            mnuEditSep1 = new MenuItem();
-            mnuEditMakeUniquenessStats = new MenuItem();
-            mnuEditMakeUniquenessStats.Click += new EventHandler(mnuEditMakeUniquenessStats_Click);
-            mnuEdit = new MenuItem();
-            mnuEditParseFile = new MenuItem();
-            mnuEditParseFile.Click += new EventHandler(mnuEditParseFile_Click);
-            MainMenuControl = new MainMenu(components);
-            lblOutputFileFieldDelimiter = new Label();
-            cboOutputFileFieldDelimiter = new ComboBox();
-            cboOutputFileFieldDelimiter.SelectedIndexChanged += new EventHandler(cboOutputFileFieldDelimiter_SelectedIndexChanged);
-            txtOutputFileFieldDelimiter = new TextBox();
-            fraOutputTextOptions = new GroupBox();
-            fraPeakMatchingOptions.SuspendLayout();
-            TabPageUniquenessStats.SuspendLayout();
-            fraSqlServerOptions.SuspendLayout();
-            fraUniquenessBinningOptions.SuspendLayout();
-            frapIAndHydrophobicity.SuspendLayout();
-            fraDelimitedFileOptions.SuspendLayout();
-            TabPageFileFormatOptions.SuspendLayout();
-            tbsOptions.SuspendLayout();
-            TabPageParseAndDigest.SuspendLayout();
-            fraProcessingOptions.SuspendLayout();
-            fraCalculationOptions.SuspendLayout();
-            fraDigestionOptions.SuspendLayout();
-            TabPagePeakMatchingThresholds.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)dgPeakMatchingThresholds).BeginInit();
-            TabPageProgress.SuspendLayout();
-            fraInputFilePath.SuspendLayout();
-            fraOutputTextOptions.SuspendLayout();
-            SuspendLayout();
-            //
+            this.components = new System.ComponentModel.Container();
+            this.txtProteinInputFilePath = new System.Windows.Forms.TextBox();
+            this.optUseRectangleSearchRegion = new System.Windows.Forms.RadioButton();
+            this.optUseEllipseSearchRegion = new System.Windows.Forms.RadioButton();
+            this.lblUniquenessCalculationsNote = new System.Windows.Forms.Label();
+            this.lblProteinScramblingLoopCount = new System.Windows.Forms.Label();
+            this.fraPeakMatchingOptions = new System.Windows.Forms.GroupBox();
+            this.txtMaxPeakMatchingResultsPerFeatureToSave = new System.Windows.Forms.TextBox();
+            this.lblMaxPeakMatchingResultsPerFeatureToSave = new System.Windows.Forms.Label();
+            this.chkExportPeakMatchingResults = new System.Windows.Forms.CheckBox();
+            this.txtMinimumSLiCScore = new System.Windows.Forms.TextBox();
+            this.lblMinimumSLiCScore = new System.Windows.Forms.Label();
+            this.chkUseSLiCScoreForUniqueness = new System.Windows.Forms.CheckBox();
+            this.TabPageUniquenessStats = new System.Windows.Forms.TabPage();
+            this.fraSqlServerOptions = new System.Windows.Forms.GroupBox();
+            this.chkSqlServerUseExistingData = new System.Windows.Forms.CheckBox();
+            this.chkAllowSqlServerCaching = new System.Windows.Forms.CheckBox();
+            this.lblSqlServerPassword = new System.Windows.Forms.Label();
+            this.lblSqlServerUsername = new System.Windows.Forms.Label();
+            this.txtSqlServerPassword = new System.Windows.Forms.TextBox();
+            this.txtSqlServerUsername = new System.Windows.Forms.TextBox();
+            this.lblSqlServerDatabase = new System.Windows.Forms.Label();
+            this.lblSqlServerServerName = new System.Windows.Forms.Label();
+            this.chkSqlServerUseIntegratedSecurity = new System.Windows.Forms.CheckBox();
+            this.txtSqlServerDatabase = new System.Windows.Forms.TextBox();
+            this.txtSqlServerName = new System.Windows.Forms.TextBox();
+            this.chkUseSqlServerDBToCacheData = new System.Windows.Forms.CheckBox();
+            this.fraUniquenessBinningOptions = new System.Windows.Forms.GroupBox();
+            this.lblPeptideUniquenessMassMode = new System.Windows.Forms.Label();
+            this.txtUniquenessBinWidth = new System.Windows.Forms.TextBox();
+            this.lblUniquenessBinWidth = new System.Windows.Forms.Label();
+            this.chkAutoComputeRangeForBinning = new System.Windows.Forms.CheckBox();
+            this.txtUniquenessBinEndMass = new System.Windows.Forms.TextBox();
+            this.lblUniquenessBinEndMass = new System.Windows.Forms.Label();
+            this.txtUniquenessBinStartMass = new System.Windows.Forms.TextBox();
+            this.lblUniquenessBinStartMass = new System.Windows.Forms.Label();
+            this.lblUniquenessStatsNote = new System.Windows.Forms.Label();
+            this.cmdGenerateUniquenessStats = new System.Windows.Forms.Button();
+            this.chkAssumeInputFileIsDigested = new System.Windows.Forms.CheckBox();
+            this.txtProteinScramblingLoopCount = new System.Windows.Forms.TextBox();
+            this.lblSamplingPercentageUnits = new System.Windows.Forms.Label();
+            this.txtMaxpISequenceLength = new System.Windows.Forms.TextBox();
+            this.lblProteinReversalSamplingPercentage = new System.Windows.Forms.Label();
+            this.lblMaxpISequenceLength = new System.Windows.Forms.Label();
+            this.chkMaxpIModeEnabled = new System.Windows.Forms.CheckBox();
+            this.frapIAndHydrophobicity = new System.Windows.Forms.GroupBox();
+            this.lblHydrophobicityMode = new System.Windows.Forms.Label();
+            this.cboHydrophobicityMode = new System.Windows.Forms.ComboBox();
+            this.txtpIStats = new System.Windows.Forms.TextBox();
+            this.txtSequenceForpI = new System.Windows.Forms.TextBox();
+            this.lblSequenceForpI = new System.Windows.Forms.Label();
+            this.fraDelimitedFileOptions = new System.Windows.Forms.GroupBox();
+            this.cboInputFileColumnOrdering = new System.Windows.Forms.ComboBox();
+            this.lblInputFileColumnOrdering = new System.Windows.Forms.Label();
+            this.txtInputFileColumnDelimiter = new System.Windows.Forms.TextBox();
+            this.lblInputFileColumnDelimiter = new System.Windows.Forms.Label();
+            this.cboInputFileColumnDelimiter = new System.Windows.Forms.ComboBox();
+            this.TabPageFileFormatOptions = new System.Windows.Forms.TabPage();
+            this.tbsOptions = new System.Windows.Forms.TabControl();
+            this.TabPageParseAndDigest = new System.Windows.Forms.TabPage();
+            this.fraProcessingOptions = new System.Windows.Forms.GroupBox();
+            this.txtProteinReversalSamplingPercentage = new System.Windows.Forms.TextBox();
+            this.lbltxtAddnlRefAccessionSepChar = new System.Windows.Forms.Label();
+            this.chkLookForAddnlRefInDescription = new System.Windows.Forms.CheckBox();
+            this.cboProteinReversalOptions = new System.Windows.Forms.ComboBox();
+            this.lblProteinReversalOptions = new System.Windows.Forms.Label();
+            this.chkDigestProteins = new System.Windows.Forms.CheckBox();
+            this.lblAddnlRefSepChar = new System.Windows.Forms.Label();
+            this.txtAddnlRefAccessionSepChar = new System.Windows.Forms.TextBox();
+            this.txtAddnlRefSepChar = new System.Windows.Forms.TextBox();
+            this.chkCreateFastaOutputFile = new System.Windows.Forms.CheckBox();
+            this.fraCalculationOptions = new System.Windows.Forms.GroupBox();
+            this.cmdNETInfo = new System.Windows.Forms.Button();
+            this.chkExcludeProteinDescription = new System.Windows.Forms.CheckBox();
+            this.chkComputeSequenceHashIgnoreILDiff = new System.Windows.Forms.CheckBox();
+            this.chkTruncateProteinDescription = new System.Windows.Forms.CheckBox();
+            this.chkComputeSequenceHashValues = new System.Windows.Forms.CheckBox();
+            this.lblMassMode = new System.Windows.Forms.Label();
+            this.cboElementMassMode = new System.Windows.Forms.ComboBox();
+            this.chkExcludeProteinSequence = new System.Windows.Forms.CheckBox();
+            this.chkComputepIandNET = new System.Windows.Forms.CheckBox();
+            this.chkIncludeXResidues = new System.Windows.Forms.CheckBox();
+            this.chkComputeProteinMass = new System.Windows.Forms.CheckBox();
+            this.fraDigestionOptions = new System.Windows.Forms.GroupBox();
+            this.cboFragmentMassMode = new System.Windows.Forms.ComboBox();
+            this.lblFragmentMassMode = new System.Windows.Forms.Label();
+            this.cboCysTreatmentMode = new System.Windows.Forms.ComboBox();
+            this.lblCysTreatment = new System.Windows.Forms.Label();
+            this.txtDigestProteinsMaximumpI = new System.Windows.Forms.TextBox();
+            this.lblDigestProteinsMaximumpI = new System.Windows.Forms.Label();
+            this.txtDigestProteinsMinimumpI = new System.Windows.Forms.TextBox();
+            this.lblDigestProteinsMinimumpI = new System.Windows.Forms.Label();
+            this.chkGenerateUniqueIDValues = new System.Windows.Forms.CheckBox();
+            this.chkCysPeptidesOnly = new System.Windows.Forms.CheckBox();
+            this.txtDigestProteinsMinimumResidueCount = new System.Windows.Forms.TextBox();
+            this.lblDigestProteinsMinimumResidueCount = new System.Windows.Forms.Label();
+            this.txtDigestProteinsMaximumMissedCleavages = new System.Windows.Forms.TextBox();
+            this.lblDigestProteinsMaximumMissedCleavages = new System.Windows.Forms.Label();
+            this.txtDigestProteinsMaximumMass = new System.Windows.Forms.TextBox();
+            this.lblDigestProteinsMaximumMass = new System.Windows.Forms.Label();
+            this.txtDigestProteinsMinimumMass = new System.Windows.Forms.TextBox();
+            this.lblDigestProteinsMinimumMass = new System.Windows.Forms.Label();
+            this.cboCleavageRuleType = new System.Windows.Forms.ComboBox();
+            this.chkIncludeDuplicateSequences = new System.Windows.Forms.CheckBox();
+            this.cmdParseInputFile = new System.Windows.Forms.Button();
+            this.TabPagePeakMatchingThresholds = new System.Windows.Forms.TabPage();
+            this.chkAutoDefineSLiCScoreTolerances = new System.Windows.Forms.CheckBox();
+            this.cmdPastePMThresholdsList = new System.Windows.Forms.Button();
+            this.cboPMPredefinedThresholds = new System.Windows.Forms.ComboBox();
+            this.cmdPMThresholdsAutoPopulate = new System.Windows.Forms.Button();
+            this.cmdClearPMThresholdsList = new System.Windows.Forms.Button();
+            this.cboMassTolType = new System.Windows.Forms.ComboBox();
+            this.lblMassTolType = new System.Windows.Forms.Label();
+            this.dgPeakMatchingThresholds = new System.Windows.Forms.DataGrid();
+            this.TabPageProgress = new System.Windows.Forms.TabPage();
+            this.pbarProgress = new System.Windows.Forms.ProgressBar();
+            this.lblErrorMessage = new System.Windows.Forms.Label();
+            this.lblSubtaskProgress = new System.Windows.Forms.Label();
+            this.lblProgress = new System.Windows.Forms.Label();
+            this.lblSubtaskProgressDescription = new System.Windows.Forms.Label();
+            this.lblProgressDescription = new System.Windows.Forms.Label();
+            this.cmdAbortProcessing = new System.Windows.Forms.Button();
+            this.mnuHelpAboutElutionTime = new System.Windows.Forms.MenuItem();
+            this.cboInputFileFormat = new System.Windows.Forms.ComboBox();
+            this.lblInputFileFormat = new System.Windows.Forms.Label();
+            this.cmdSelectFile = new System.Windows.Forms.Button();
+            this.fraInputFilePath = new System.Windows.Forms.GroupBox();
+            this.cmdValidateFastaFile = new System.Windows.Forms.Button();
+            this.chkEnableLogging = new System.Windows.Forms.CheckBox();
+            this.mnuFileSelectOutputFile = new System.Windows.Forms.MenuItem();
+            this.cmdSelectOutputFile = new System.Windows.Forms.Button();
+            this.mnuFileSep1 = new System.Windows.Forms.MenuItem();
+            this.mnuFile = new System.Windows.Forms.MenuItem();
+            this.mnuFileSelectInputFile = new System.Windows.Forms.MenuItem();
+            this.mnuFileSaveDefaultOptions = new System.Windows.Forms.MenuItem();
+            this.mnuFileSep2 = new System.Windows.Forms.MenuItem();
+            this.mnuFileExit = new System.Windows.Forms.MenuItem();
+            this.txtProteinOutputFilePath = new System.Windows.Forms.TextBox();
+            this.chkIncludePrefixAndSuffixResidues = new System.Windows.Forms.CheckBox();
+            this.mnuEditResetOptions = new System.Windows.Forms.MenuItem();
+            this.mnuHelp = new System.Windows.Forms.MenuItem();
+            this.mnuHelpAbout = new System.Windows.Forms.MenuItem();
+            this.mnuEditSep1 = new System.Windows.Forms.MenuItem();
+            this.mnuEditMakeUniquenessStats = new System.Windows.Forms.MenuItem();
+            this.mnuEdit = new System.Windows.Forms.MenuItem();
+            this.mnuEditParseFile = new System.Windows.Forms.MenuItem();
+            this.MainMenuControl = new System.Windows.Forms.MainMenu(this.components);
+            this.lblOutputFileFieldDelimiter = new System.Windows.Forms.Label();
+            this.cboOutputFileFieldDelimiter = new System.Windows.Forms.ComboBox();
+            this.txtOutputFileFieldDelimiter = new System.Windows.Forms.TextBox();
+            this.fraOutputTextOptions = new System.Windows.Forms.GroupBox();
+            this.fraPeakMatchingOptions.SuspendLayout();
+            this.TabPageUniquenessStats.SuspendLayout();
+            this.fraSqlServerOptions.SuspendLayout();
+            this.fraUniquenessBinningOptions.SuspendLayout();
+            this.frapIAndHydrophobicity.SuspendLayout();
+            this.fraDelimitedFileOptions.SuspendLayout();
+            this.TabPageFileFormatOptions.SuspendLayout();
+            this.tbsOptions.SuspendLayout();
+            this.TabPageParseAndDigest.SuspendLayout();
+            this.fraProcessingOptions.SuspendLayout();
+            this.fraCalculationOptions.SuspendLayout();
+            this.fraDigestionOptions.SuspendLayout();
+            this.TabPagePeakMatchingThresholds.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgPeakMatchingThresholds)).BeginInit();
+            this.TabPageProgress.SuspendLayout();
+            this.fraInputFilePath.SuspendLayout();
+            this.fraOutputTextOptions.SuspendLayout();
+            this.SuspendLayout();
+            // 
             // txtProteinInputFilePath
-            //
-            txtProteinInputFilePath.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtProteinInputFilePath.Location = new Point(104, 26);
-            txtProteinInputFilePath.Name = "txtProteinInputFilePath";
-            txtProteinInputFilePath.Size = new Size(611, 20);
-            txtProteinInputFilePath.TabIndex = 1;
-            //
+            // 
+            this.txtProteinInputFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtProteinInputFilePath.Location = new System.Drawing.Point(104, 26);
+            this.txtProteinInputFilePath.Name = "txtProteinInputFilePath";
+            this.txtProteinInputFilePath.Size = new System.Drawing.Size(611, 20);
+            this.txtProteinInputFilePath.TabIndex = 1;
+            this.txtProteinInputFilePath.TextChanged += new System.EventHandler(this.txtProteinInputFilePath_TextChanged);
+            // 
             // optUseRectangleSearchRegion
-            //
-            optUseRectangleSearchRegion.Location = new Point(232, 96);
-            optUseRectangleSearchRegion.Name = "optUseRectangleSearchRegion";
-            optUseRectangleSearchRegion.Size = new Size(136, 16);
-            optUseRectangleSearchRegion.TabIndex = 7;
-            optUseRectangleSearchRegion.Text = "Use rectangle region";
-            //
+            // 
+            this.optUseRectangleSearchRegion.Location = new System.Drawing.Point(232, 96);
+            this.optUseRectangleSearchRegion.Name = "optUseRectangleSearchRegion";
+            this.optUseRectangleSearchRegion.Size = new System.Drawing.Size(136, 16);
+            this.optUseRectangleSearchRegion.TabIndex = 7;
+            this.optUseRectangleSearchRegion.Text = "Use rectangle region";
+            // 
             // optUseEllipseSearchRegion
-            //
-            optUseEllipseSearchRegion.Checked = true;
-            optUseEllipseSearchRegion.Location = new Point(232, 72);
-            optUseEllipseSearchRegion.Name = "optUseEllipseSearchRegion";
-            optUseEllipseSearchRegion.Size = new Size(152, 16);
-            optUseEllipseSearchRegion.TabIndex = 6;
-            optUseEllipseSearchRegion.TabStop = true;
-            optUseEllipseSearchRegion.Text = "Use ellipse search region";
-            //
+            // 
+            this.optUseEllipseSearchRegion.Checked = true;
+            this.optUseEllipseSearchRegion.Location = new System.Drawing.Point(232, 72);
+            this.optUseEllipseSearchRegion.Name = "optUseEllipseSearchRegion";
+            this.optUseEllipseSearchRegion.Size = new System.Drawing.Size(152, 16);
+            this.optUseEllipseSearchRegion.TabIndex = 6;
+            this.optUseEllipseSearchRegion.TabStop = true;
+            this.optUseEllipseSearchRegion.Text = "Use ellipse search region";
+            // 
             // lblUniquenessCalculationsNote
-            //
-            lblUniquenessCalculationsNote.Location = new Point(240, 192);
-            lblUniquenessCalculationsNote.Name = "lblUniquenessCalculationsNote";
-            lblUniquenessCalculationsNote.Size = new Size(384, 88);
-            lblUniquenessCalculationsNote.TabIndex = 6;
-            //
+            // 
+            this.lblUniquenessCalculationsNote.Location = new System.Drawing.Point(240, 192);
+            this.lblUniquenessCalculationsNote.Name = "lblUniquenessCalculationsNote";
+            this.lblUniquenessCalculationsNote.Size = new System.Drawing.Size(384, 88);
+            this.lblUniquenessCalculationsNote.TabIndex = 6;
+            // 
             // lblProteinScramblingLoopCount
-            //
-            lblProteinScramblingLoopCount.Location = new Point(232, 42);
-            lblProteinScramblingLoopCount.Name = "lblProteinScramblingLoopCount";
-            lblProteinScramblingLoopCount.Size = new Size(72, 16);
-            lblProteinScramblingLoopCount.TabIndex = 12;
-            lblProteinScramblingLoopCount.Text = "Loop Count";
-            lblProteinScramblingLoopCount.TextAlign = ContentAlignment.TopRight;
-            //
+            // 
+            this.lblProteinScramblingLoopCount.Location = new System.Drawing.Point(232, 42);
+            this.lblProteinScramblingLoopCount.Name = "lblProteinScramblingLoopCount";
+            this.lblProteinScramblingLoopCount.Size = new System.Drawing.Size(72, 16);
+            this.lblProteinScramblingLoopCount.TabIndex = 12;
+            this.lblProteinScramblingLoopCount.Text = "Loop Count";
+            this.lblProteinScramblingLoopCount.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // fraPeakMatchingOptions
-            //
-            fraPeakMatchingOptions.Controls.Add(optUseRectangleSearchRegion);
-            fraPeakMatchingOptions.Controls.Add(optUseEllipseSearchRegion);
-            fraPeakMatchingOptions.Controls.Add(txtMaxPeakMatchingResultsPerFeatureToSave);
-            fraPeakMatchingOptions.Controls.Add(lblMaxPeakMatchingResultsPerFeatureToSave);
-            fraPeakMatchingOptions.Controls.Add(chkExportPeakMatchingResults);
-            fraPeakMatchingOptions.Controls.Add(txtMinimumSLiCScore);
-            fraPeakMatchingOptions.Controls.Add(lblMinimumSLiCScore);
-            fraPeakMatchingOptions.Controls.Add(chkUseSLiCScoreForUniqueness);
-            fraPeakMatchingOptions.Location = new Point(232, 48);
-            fraPeakMatchingOptions.Name = "fraPeakMatchingOptions";
-            fraPeakMatchingOptions.Size = new Size(392, 136);
-            fraPeakMatchingOptions.TabIndex = 2;
-            fraPeakMatchingOptions.TabStop = false;
-            fraPeakMatchingOptions.Text = "Peak Matching Options";
-            //
+            // 
+            this.fraPeakMatchingOptions.Controls.Add(this.optUseRectangleSearchRegion);
+            this.fraPeakMatchingOptions.Controls.Add(this.optUseEllipseSearchRegion);
+            this.fraPeakMatchingOptions.Controls.Add(this.txtMaxPeakMatchingResultsPerFeatureToSave);
+            this.fraPeakMatchingOptions.Controls.Add(this.lblMaxPeakMatchingResultsPerFeatureToSave);
+            this.fraPeakMatchingOptions.Controls.Add(this.chkExportPeakMatchingResults);
+            this.fraPeakMatchingOptions.Controls.Add(this.txtMinimumSLiCScore);
+            this.fraPeakMatchingOptions.Controls.Add(this.lblMinimumSLiCScore);
+            this.fraPeakMatchingOptions.Controls.Add(this.chkUseSLiCScoreForUniqueness);
+            this.fraPeakMatchingOptions.Location = new System.Drawing.Point(232, 48);
+            this.fraPeakMatchingOptions.Name = "fraPeakMatchingOptions";
+            this.fraPeakMatchingOptions.Size = new System.Drawing.Size(392, 136);
+            this.fraPeakMatchingOptions.TabIndex = 2;
+            this.fraPeakMatchingOptions.TabStop = false;
+            this.fraPeakMatchingOptions.Text = "Peak Matching Options";
+            // 
             // txtMaxPeakMatchingResultsPerFeatureToSave
-            //
-            txtMaxPeakMatchingResultsPerFeatureToSave.Location = new Point(272, 16);
-            txtMaxPeakMatchingResultsPerFeatureToSave.Name = "txtMaxPeakMatchingResultsPerFeatureToSave";
-            txtMaxPeakMatchingResultsPerFeatureToSave.Size = new Size(40, 20);
-            txtMaxPeakMatchingResultsPerFeatureToSave.TabIndex = 1;
-            txtMaxPeakMatchingResultsPerFeatureToSave.Text = "3";
-            //
+            // 
+            this.txtMaxPeakMatchingResultsPerFeatureToSave.Location = new System.Drawing.Point(272, 16);
+            this.txtMaxPeakMatchingResultsPerFeatureToSave.Name = "txtMaxPeakMatchingResultsPerFeatureToSave";
+            this.txtMaxPeakMatchingResultsPerFeatureToSave.Size = new System.Drawing.Size(40, 20);
+            this.txtMaxPeakMatchingResultsPerFeatureToSave.TabIndex = 1;
+            this.txtMaxPeakMatchingResultsPerFeatureToSave.Text = "3";
+            this.txtMaxPeakMatchingResultsPerFeatureToSave.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtMaxPeakMatchingResultsPerFeatureToSave_KeyPress);
+            this.txtMaxPeakMatchingResultsPerFeatureToSave.Validating += new System.ComponentModel.CancelEventHandler(this.txtMaxPeakMatchingResultsPerFeatureToSave_Validating);
+            // 
             // lblMaxPeakMatchingResultsPerFeatureToSave
-            //
-            lblMaxPeakMatchingResultsPerFeatureToSave.Location = new Point(16, 18);
-            lblMaxPeakMatchingResultsPerFeatureToSave.Name = "lblMaxPeakMatchingResultsPerFeatureToSave";
-            lblMaxPeakMatchingResultsPerFeatureToSave.Size = new Size(256, 16);
-            lblMaxPeakMatchingResultsPerFeatureToSave.TabIndex = 0;
-            lblMaxPeakMatchingResultsPerFeatureToSave.Text = "Max Peak Matching Results Per Feature To Save";
-            //
+            // 
+            this.lblMaxPeakMatchingResultsPerFeatureToSave.Location = new System.Drawing.Point(16, 18);
+            this.lblMaxPeakMatchingResultsPerFeatureToSave.Name = "lblMaxPeakMatchingResultsPerFeatureToSave";
+            this.lblMaxPeakMatchingResultsPerFeatureToSave.Size = new System.Drawing.Size(256, 16);
+            this.lblMaxPeakMatchingResultsPerFeatureToSave.TabIndex = 0;
+            this.lblMaxPeakMatchingResultsPerFeatureToSave.Text = "Max Peak Matching Results Per Feature To Save";
+            // 
             // chkExportPeakMatchingResults
-            //
-            chkExportPeakMatchingResults.Location = new Point(32, 36);
-            chkExportPeakMatchingResults.Name = "chkExportPeakMatchingResults";
-            chkExportPeakMatchingResults.Size = new Size(192, 17);
-            chkExportPeakMatchingResults.TabIndex = 2;
-            chkExportPeakMatchingResults.Text = "Export peak matching results";
-            //
+            // 
+            this.chkExportPeakMatchingResults.Location = new System.Drawing.Point(32, 36);
+            this.chkExportPeakMatchingResults.Name = "chkExportPeakMatchingResults";
+            this.chkExportPeakMatchingResults.Size = new System.Drawing.Size(192, 17);
+            this.chkExportPeakMatchingResults.TabIndex = 2;
+            this.chkExportPeakMatchingResults.Text = "Export peak matching results";
+            // 
             // txtMinimumSLiCScore
-            //
-            txtMinimumSLiCScore.Location = new Point(144, 104);
-            txtMinimumSLiCScore.Name = "txtMinimumSLiCScore";
-            txtMinimumSLiCScore.Size = new Size(40, 20);
-            txtMinimumSLiCScore.TabIndex = 5;
-            txtMinimumSLiCScore.Text = "0.99";
-            //
+            // 
+            this.txtMinimumSLiCScore.Location = new System.Drawing.Point(144, 104);
+            this.txtMinimumSLiCScore.Name = "txtMinimumSLiCScore";
+            this.txtMinimumSLiCScore.Size = new System.Drawing.Size(40, 20);
+            this.txtMinimumSLiCScore.TabIndex = 5;
+            this.txtMinimumSLiCScore.Text = "0.99";
+            this.txtMinimumSLiCScore.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtMinimumSLiCScore_KeyPress);
+            this.txtMinimumSLiCScore.Validating += new System.ComponentModel.CancelEventHandler(this.txtMinimumSLiCScore_Validating);
+            // 
             // lblMinimumSLiCScore
-            //
-            lblMinimumSLiCScore.Location = new Point(16, 96);
-            lblMinimumSLiCScore.Name = "lblMinimumSLiCScore";
-            lblMinimumSLiCScore.Size = new Size(128, 32);
-            lblMinimumSLiCScore.TabIndex = 4;
-            lblMinimumSLiCScore.Text = "Minimum SLiC score to be considered unique";
-            //
+            // 
+            this.lblMinimumSLiCScore.Location = new System.Drawing.Point(16, 96);
+            this.lblMinimumSLiCScore.Name = "lblMinimumSLiCScore";
+            this.lblMinimumSLiCScore.Size = new System.Drawing.Size(128, 32);
+            this.lblMinimumSLiCScore.TabIndex = 4;
+            this.lblMinimumSLiCScore.Text = "Minimum SLiC score to be considered unique";
+            // 
             // chkUseSLiCScoreForUniqueness
-            //
-            chkUseSLiCScoreForUniqueness.Checked = true;
-            chkUseSLiCScoreForUniqueness.CheckState = CheckState.Checked;
-            chkUseSLiCScoreForUniqueness.Location = new Point(16, 60);
-            chkUseSLiCScoreForUniqueness.Name = "chkUseSLiCScoreForUniqueness";
-            chkUseSLiCScoreForUniqueness.Size = new Size(168, 32);
-            chkUseSLiCScoreForUniqueness.TabIndex = 3;
-            chkUseSLiCScoreForUniqueness.Text = "Use SLiC Score when gauging peptide uniqueness";
-            //
+            // 
+            this.chkUseSLiCScoreForUniqueness.Checked = true;
+            this.chkUseSLiCScoreForUniqueness.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkUseSLiCScoreForUniqueness.Location = new System.Drawing.Point(16, 60);
+            this.chkUseSLiCScoreForUniqueness.Name = "chkUseSLiCScoreForUniqueness";
+            this.chkUseSLiCScoreForUniqueness.Size = new System.Drawing.Size(168, 32);
+            this.chkUseSLiCScoreForUniqueness.TabIndex = 3;
+            this.chkUseSLiCScoreForUniqueness.Text = "Use SLiC Score when gauging peptide uniqueness";
+            this.chkUseSLiCScoreForUniqueness.CheckedChanged += new System.EventHandler(this.chkUseSLiCScoreForUniqueness_CheckedChanged);
+            // 
             // TabPageUniquenessStats
-            //
-            TabPageUniquenessStats.Controls.Add(lblUniquenessCalculationsNote);
-            TabPageUniquenessStats.Controls.Add(fraPeakMatchingOptions);
-            TabPageUniquenessStats.Controls.Add(fraSqlServerOptions);
-            TabPageUniquenessStats.Controls.Add(fraUniquenessBinningOptions);
-            TabPageUniquenessStats.Controls.Add(lblUniquenessStatsNote);
-            TabPageUniquenessStats.Controls.Add(cmdGenerateUniquenessStats);
-            TabPageUniquenessStats.Controls.Add(chkAssumeInputFileIsDigested);
-            TabPageUniquenessStats.Location = new Point(4, 22);
-            TabPageUniquenessStats.Name = "TabPageUniquenessStats";
-            TabPageUniquenessStats.Size = new Size(696, 328);
-            TabPageUniquenessStats.TabIndex = 1;
-            TabPageUniquenessStats.Text = "Peptide Uniqueness Options";
-            TabPageUniquenessStats.UseVisualStyleBackColor = true;
-            //
+            // 
+            this.TabPageUniquenessStats.Controls.Add(this.lblUniquenessCalculationsNote);
+            this.TabPageUniquenessStats.Controls.Add(this.fraPeakMatchingOptions);
+            this.TabPageUniquenessStats.Controls.Add(this.fraSqlServerOptions);
+            this.TabPageUniquenessStats.Controls.Add(this.fraUniquenessBinningOptions);
+            this.TabPageUniquenessStats.Controls.Add(this.lblUniquenessStatsNote);
+            this.TabPageUniquenessStats.Controls.Add(this.cmdGenerateUniquenessStats);
+            this.TabPageUniquenessStats.Controls.Add(this.chkAssumeInputFileIsDigested);
+            this.TabPageUniquenessStats.Location = new System.Drawing.Point(4, 22);
+            this.TabPageUniquenessStats.Name = "TabPageUniquenessStats";
+            this.TabPageUniquenessStats.Size = new System.Drawing.Size(696, 328);
+            this.TabPageUniquenessStats.TabIndex = 1;
+            this.TabPageUniquenessStats.Text = "Peptide Uniqueness Options";
+            this.TabPageUniquenessStats.UseVisualStyleBackColor = true;
+            // 
             // fraSqlServerOptions
-            //
-            fraSqlServerOptions.Controls.Add(chkSqlServerUseExistingData);
-            fraSqlServerOptions.Controls.Add(chkAllowSqlServerCaching);
-            fraSqlServerOptions.Controls.Add(lblSqlServerPassword);
-            fraSqlServerOptions.Controls.Add(lblSqlServerUsername);
-            fraSqlServerOptions.Controls.Add(txtSqlServerPassword);
-            fraSqlServerOptions.Controls.Add(txtSqlServerUsername);
-            fraSqlServerOptions.Controls.Add(lblSqlServerDatabase);
-            fraSqlServerOptions.Controls.Add(lblSqlServerServerName);
-            fraSqlServerOptions.Controls.Add(chkSqlServerUseIntegratedSecurity);
-            fraSqlServerOptions.Controls.Add(txtSqlServerDatabase);
-            fraSqlServerOptions.Controls.Add(txtSqlServerName);
-            fraSqlServerOptions.Controls.Add(chkUseSqlServerDBToCacheData);
-            fraSqlServerOptions.Location = new Point(232, 192);
-            fraSqlServerOptions.Name = "fraSqlServerOptions";
-            fraSqlServerOptions.Size = new Size(376, 112);
-            fraSqlServerOptions.TabIndex = 4;
-            fraSqlServerOptions.TabStop = false;
-            fraSqlServerOptions.Text = "SQL Server Options";
-            fraSqlServerOptions.Visible = false;
-            //
+            // 
+            this.fraSqlServerOptions.Controls.Add(this.chkSqlServerUseExistingData);
+            this.fraSqlServerOptions.Controls.Add(this.chkAllowSqlServerCaching);
+            this.fraSqlServerOptions.Controls.Add(this.lblSqlServerPassword);
+            this.fraSqlServerOptions.Controls.Add(this.lblSqlServerUsername);
+            this.fraSqlServerOptions.Controls.Add(this.txtSqlServerPassword);
+            this.fraSqlServerOptions.Controls.Add(this.txtSqlServerUsername);
+            this.fraSqlServerOptions.Controls.Add(this.lblSqlServerDatabase);
+            this.fraSqlServerOptions.Controls.Add(this.lblSqlServerServerName);
+            this.fraSqlServerOptions.Controls.Add(this.chkSqlServerUseIntegratedSecurity);
+            this.fraSqlServerOptions.Controls.Add(this.txtSqlServerDatabase);
+            this.fraSqlServerOptions.Controls.Add(this.txtSqlServerName);
+            this.fraSqlServerOptions.Controls.Add(this.chkUseSqlServerDBToCacheData);
+            this.fraSqlServerOptions.Location = new System.Drawing.Point(232, 192);
+            this.fraSqlServerOptions.Name = "fraSqlServerOptions";
+            this.fraSqlServerOptions.Size = new System.Drawing.Size(376, 112);
+            this.fraSqlServerOptions.TabIndex = 4;
+            this.fraSqlServerOptions.TabStop = false;
+            this.fraSqlServerOptions.Text = "SQL Server Options";
+            this.fraSqlServerOptions.Visible = false;
+            // 
             // chkSqlServerUseExistingData
-            //
-            chkSqlServerUseExistingData.Checked = true;
-            chkSqlServerUseExistingData.CheckState = CheckState.Checked;
-            chkSqlServerUseExistingData.Location = new Point(8, 88);
-            chkSqlServerUseExistingData.Name = "chkSqlServerUseExistingData";
-            chkSqlServerUseExistingData.Size = new Size(144, 16);
-            chkSqlServerUseExistingData.TabIndex = 11;
-            chkSqlServerUseExistingData.Text = "Use Existing Data";
-            //
+            // 
+            this.chkSqlServerUseExistingData.Checked = true;
+            this.chkSqlServerUseExistingData.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkSqlServerUseExistingData.Location = new System.Drawing.Point(8, 88);
+            this.chkSqlServerUseExistingData.Name = "chkSqlServerUseExistingData";
+            this.chkSqlServerUseExistingData.Size = new System.Drawing.Size(144, 16);
+            this.chkSqlServerUseExistingData.TabIndex = 11;
+            this.chkSqlServerUseExistingData.Text = "Use Existing Data";
+            // 
             // chkAllowSqlServerCaching
-            //
-            chkAllowSqlServerCaching.Location = new Point(8, 16);
-            chkAllowSqlServerCaching.Name = "chkAllowSqlServerCaching";
-            chkAllowSqlServerCaching.Size = new Size(144, 32);
-            chkAllowSqlServerCaching.TabIndex = 0;
-            chkAllowSqlServerCaching.Text = "Allow data caching using SQL Server";
-            //
+            // 
+            this.chkAllowSqlServerCaching.Location = new System.Drawing.Point(8, 16);
+            this.chkAllowSqlServerCaching.Name = "chkAllowSqlServerCaching";
+            this.chkAllowSqlServerCaching.Size = new System.Drawing.Size(144, 32);
+            this.chkAllowSqlServerCaching.TabIndex = 0;
+            this.chkAllowSqlServerCaching.Text = "Allow data caching using SQL Server";
+            this.chkAllowSqlServerCaching.CheckedChanged += new System.EventHandler(this.chkAllowSqlServerCaching_CheckedChanged);
+            // 
             // lblSqlServerPassword
-            //
-            lblSqlServerPassword.Location = new Point(264, 64);
-            lblSqlServerPassword.Name = "lblSqlServerPassword";
-            lblSqlServerPassword.Size = new Size(56, 16);
-            lblSqlServerPassword.TabIndex = 9;
-            lblSqlServerPassword.Text = "Password";
-            //
+            // 
+            this.lblSqlServerPassword.Location = new System.Drawing.Point(264, 64);
+            this.lblSqlServerPassword.Name = "lblSqlServerPassword";
+            this.lblSqlServerPassword.Size = new System.Drawing.Size(56, 16);
+            this.lblSqlServerPassword.TabIndex = 9;
+            this.lblSqlServerPassword.Text = "Password";
+            // 
             // lblSqlServerUsername
-            //
-            lblSqlServerUsername.Location = new Point(184, 64);
-            lblSqlServerUsername.Name = "lblSqlServerUsername";
-            lblSqlServerUsername.Size = new Size(56, 16);
-            lblSqlServerUsername.TabIndex = 7;
-            lblSqlServerUsername.Text = "Username";
-            //
+            // 
+            this.lblSqlServerUsername.Location = new System.Drawing.Point(184, 64);
+            this.lblSqlServerUsername.Name = "lblSqlServerUsername";
+            this.lblSqlServerUsername.Size = new System.Drawing.Size(56, 16);
+            this.lblSqlServerUsername.TabIndex = 7;
+            this.lblSqlServerUsername.Text = "Username";
+            // 
             // txtSqlServerPassword
-            //
-            txtSqlServerPassword.Location = new Point(264, 80);
-            txtSqlServerPassword.Name = "txtSqlServerPassword";
-            txtSqlServerPassword.PasswordChar = '*';
-            txtSqlServerPassword.Size = new Size(88, 20);
-            txtSqlServerPassword.TabIndex = 10;
-            txtSqlServerPassword.Text = "Password";
-            //
+            // 
+            this.txtSqlServerPassword.Location = new System.Drawing.Point(264, 80);
+            this.txtSqlServerPassword.Name = "txtSqlServerPassword";
+            this.txtSqlServerPassword.PasswordChar = '*';
+            this.txtSqlServerPassword.Size = new System.Drawing.Size(88, 20);
+            this.txtSqlServerPassword.TabIndex = 10;
+            this.txtSqlServerPassword.Text = "Password";
+            // 
             // txtSqlServerUsername
-            //
-            txtSqlServerUsername.Location = new Point(184, 80);
-            txtSqlServerUsername.Name = "txtSqlServerUsername";
-            txtSqlServerUsername.Size = new Size(72, 20);
-            txtSqlServerUsername.TabIndex = 8;
-            txtSqlServerUsername.Text = "user";
-            //
+            // 
+            this.txtSqlServerUsername.Location = new System.Drawing.Point(184, 80);
+            this.txtSqlServerUsername.Name = "txtSqlServerUsername";
+            this.txtSqlServerUsername.Size = new System.Drawing.Size(72, 20);
+            this.txtSqlServerUsername.TabIndex = 8;
+            this.txtSqlServerUsername.Text = "user";
+            // 
             // lblSqlServerDatabase
-            //
-            lblSqlServerDatabase.Location = new Point(264, 16);
-            lblSqlServerDatabase.Name = "lblSqlServerDatabase";
-            lblSqlServerDatabase.Size = new Size(56, 16);
-            lblSqlServerDatabase.TabIndex = 4;
-            lblSqlServerDatabase.Text = "Database";
-            //
+            // 
+            this.lblSqlServerDatabase.Location = new System.Drawing.Point(264, 16);
+            this.lblSqlServerDatabase.Name = "lblSqlServerDatabase";
+            this.lblSqlServerDatabase.Size = new System.Drawing.Size(56, 16);
+            this.lblSqlServerDatabase.TabIndex = 4;
+            this.lblSqlServerDatabase.Text = "Database";
+            // 
             // lblSqlServerServerName
-            //
-            lblSqlServerServerName.Location = new Point(184, 16);
-            lblSqlServerServerName.Name = "lblSqlServerServerName";
-            lblSqlServerServerName.Size = new Size(56, 16);
-            lblSqlServerServerName.TabIndex = 2;
-            lblSqlServerServerName.Text = "Server";
-            //
+            // 
+            this.lblSqlServerServerName.Location = new System.Drawing.Point(184, 16);
+            this.lblSqlServerServerName.Name = "lblSqlServerServerName";
+            this.lblSqlServerServerName.Size = new System.Drawing.Size(56, 16);
+            this.lblSqlServerServerName.TabIndex = 2;
+            this.lblSqlServerServerName.Text = "Server";
+            // 
             // chkSqlServerUseIntegratedSecurity
-            //
-            chkSqlServerUseIntegratedSecurity.Checked = true;
-            chkSqlServerUseIntegratedSecurity.CheckState = CheckState.Checked;
-            chkSqlServerUseIntegratedSecurity.Location = new Point(8, 72);
-            chkSqlServerUseIntegratedSecurity.Name = "chkSqlServerUseIntegratedSecurity";
-            chkSqlServerUseIntegratedSecurity.Size = new Size(144, 16);
-            chkSqlServerUseIntegratedSecurity.TabIndex = 6;
-            chkSqlServerUseIntegratedSecurity.Text = "Use Integrated Security";
-            //
+            // 
+            this.chkSqlServerUseIntegratedSecurity.Checked = true;
+            this.chkSqlServerUseIntegratedSecurity.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkSqlServerUseIntegratedSecurity.Location = new System.Drawing.Point(8, 72);
+            this.chkSqlServerUseIntegratedSecurity.Name = "chkSqlServerUseIntegratedSecurity";
+            this.chkSqlServerUseIntegratedSecurity.Size = new System.Drawing.Size(144, 16);
+            this.chkSqlServerUseIntegratedSecurity.TabIndex = 6;
+            this.chkSqlServerUseIntegratedSecurity.Text = "Use Integrated Security";
+            this.chkSqlServerUseIntegratedSecurity.CheckedChanged += new System.EventHandler(this.chkSqlServerUseIntegratedSecurity_CheckedChanged);
+            // 
             // txtSqlServerDatabase
-            //
-            txtSqlServerDatabase.Location = new Point(264, 32);
-            txtSqlServerDatabase.Name = "txtSqlServerDatabase";
-            txtSqlServerDatabase.Size = new Size(88, 20);
-            txtSqlServerDatabase.TabIndex = 5;
-            txtSqlServerDatabase.Text = "TempDB";
-            //
+            // 
+            this.txtSqlServerDatabase.Location = new System.Drawing.Point(264, 32);
+            this.txtSqlServerDatabase.Name = "txtSqlServerDatabase";
+            this.txtSqlServerDatabase.Size = new System.Drawing.Size(88, 20);
+            this.txtSqlServerDatabase.TabIndex = 5;
+            this.txtSqlServerDatabase.Text = "TempDB";
+            // 
             // txtSqlServerName
-            //
-            txtSqlServerName.Location = new Point(184, 32);
-            txtSqlServerName.Name = "txtSqlServerName";
-            txtSqlServerName.Size = new Size(72, 20);
-            txtSqlServerName.TabIndex = 3;
-            txtSqlServerName.Text = "Monroe";
-            //
+            // 
+            this.txtSqlServerName.Location = new System.Drawing.Point(184, 32);
+            this.txtSqlServerName.Name = "txtSqlServerName";
+            this.txtSqlServerName.Size = new System.Drawing.Size(72, 20);
+            this.txtSqlServerName.TabIndex = 3;
+            this.txtSqlServerName.Text = "Monroe";
+            // 
             // chkUseSqlServerDBToCacheData
-            //
-            chkUseSqlServerDBToCacheData.Checked = true;
-            chkUseSqlServerDBToCacheData.CheckState = CheckState.Checked;
-            chkUseSqlServerDBToCacheData.Location = new Point(8, 56);
-            chkUseSqlServerDBToCacheData.Name = "chkUseSqlServerDBToCacheData";
-            chkUseSqlServerDBToCacheData.Size = new Size(144, 16);
-            chkUseSqlServerDBToCacheData.TabIndex = 1;
-            chkUseSqlServerDBToCacheData.Text = "Enable data caching";
-            //
+            // 
+            this.chkUseSqlServerDBToCacheData.Checked = true;
+            this.chkUseSqlServerDBToCacheData.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkUseSqlServerDBToCacheData.Location = new System.Drawing.Point(8, 56);
+            this.chkUseSqlServerDBToCacheData.Name = "chkUseSqlServerDBToCacheData";
+            this.chkUseSqlServerDBToCacheData.Size = new System.Drawing.Size(144, 16);
+            this.chkUseSqlServerDBToCacheData.TabIndex = 1;
+            this.chkUseSqlServerDBToCacheData.Text = "Enable data caching";
+            this.chkUseSqlServerDBToCacheData.CheckedChanged += new System.EventHandler(this.chkUseSqlServerDBToCacheData_CheckedChanged);
+            // 
             // fraUniquenessBinningOptions
-            //
-            fraUniquenessBinningOptions.Controls.Add(lblPeptideUniquenessMassMode);
-            fraUniquenessBinningOptions.Controls.Add(txtUniquenessBinWidth);
-            fraUniquenessBinningOptions.Controls.Add(lblUniquenessBinWidth);
-            fraUniquenessBinningOptions.Controls.Add(chkAutoComputeRangeForBinning);
-            fraUniquenessBinningOptions.Controls.Add(txtUniquenessBinEndMass);
-            fraUniquenessBinningOptions.Controls.Add(lblUniquenessBinEndMass);
-            fraUniquenessBinningOptions.Controls.Add(txtUniquenessBinStartMass);
-            fraUniquenessBinningOptions.Controls.Add(lblUniquenessBinStartMass);
-            fraUniquenessBinningOptions.Location = new Point(8, 120);
-            fraUniquenessBinningOptions.Name = "fraUniquenessBinningOptions";
-            fraUniquenessBinningOptions.Size = new Size(208, 160);
-            fraUniquenessBinningOptions.TabIndex = 3;
-            fraUniquenessBinningOptions.TabStop = false;
-            fraUniquenessBinningOptions.Text = "Binning Options";
-            //
+            // 
+            this.fraUniquenessBinningOptions.Controls.Add(this.lblPeptideUniquenessMassMode);
+            this.fraUniquenessBinningOptions.Controls.Add(this.txtUniquenessBinWidth);
+            this.fraUniquenessBinningOptions.Controls.Add(this.lblUniquenessBinWidth);
+            this.fraUniquenessBinningOptions.Controls.Add(this.chkAutoComputeRangeForBinning);
+            this.fraUniquenessBinningOptions.Controls.Add(this.txtUniquenessBinEndMass);
+            this.fraUniquenessBinningOptions.Controls.Add(this.lblUniquenessBinEndMass);
+            this.fraUniquenessBinningOptions.Controls.Add(this.txtUniquenessBinStartMass);
+            this.fraUniquenessBinningOptions.Controls.Add(this.lblUniquenessBinStartMass);
+            this.fraUniquenessBinningOptions.Location = new System.Drawing.Point(8, 120);
+            this.fraUniquenessBinningOptions.Name = "fraUniquenessBinningOptions";
+            this.fraUniquenessBinningOptions.Size = new System.Drawing.Size(208, 160);
+            this.fraUniquenessBinningOptions.TabIndex = 3;
+            this.fraUniquenessBinningOptions.TabStop = false;
+            this.fraUniquenessBinningOptions.Text = "Binning Options";
+            // 
             // lblPeptideUniquenessMassMode
-            //
-            lblPeptideUniquenessMassMode.Location = new Point(16, 136);
-            lblPeptideUniquenessMassMode.Name = "lblPeptideUniquenessMassMode";
-            lblPeptideUniquenessMassMode.Size = new Size(176, 16);
-            lblPeptideUniquenessMassMode.TabIndex = 7;
-            lblPeptideUniquenessMassMode.Text = "Using monoisotopic masses";
-            //
+            // 
+            this.lblPeptideUniquenessMassMode.Location = new System.Drawing.Point(16, 136);
+            this.lblPeptideUniquenessMassMode.Name = "lblPeptideUniquenessMassMode";
+            this.lblPeptideUniquenessMassMode.Size = new System.Drawing.Size(176, 16);
+            this.lblPeptideUniquenessMassMode.TabIndex = 7;
+            this.lblPeptideUniquenessMassMode.Text = "Using monoisotopic masses";
+            // 
             // txtUniquenessBinWidth
-            //
-            txtUniquenessBinWidth.Location = new Point(80, 24);
-            txtUniquenessBinWidth.Name = "txtUniquenessBinWidth";
-            txtUniquenessBinWidth.Size = new Size(40, 20);
-            txtUniquenessBinWidth.TabIndex = 1;
-            txtUniquenessBinWidth.Text = "25";
-            //
+            // 
+            this.txtUniquenessBinWidth.Location = new System.Drawing.Point(80, 24);
+            this.txtUniquenessBinWidth.Name = "txtUniquenessBinWidth";
+            this.txtUniquenessBinWidth.Size = new System.Drawing.Size(40, 20);
+            this.txtUniquenessBinWidth.TabIndex = 1;
+            this.txtUniquenessBinWidth.Text = "25";
+            this.txtUniquenessBinWidth.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtUniquenessBinWidth_KeyPress);
+            // 
             // lblUniquenessBinWidth
-            //
-            lblUniquenessBinWidth.Location = new Point(16, 26);
-            lblUniquenessBinWidth.Name = "lblUniquenessBinWidth";
-            lblUniquenessBinWidth.Size = new Size(64, 16);
-            lblUniquenessBinWidth.TabIndex = 0;
-            lblUniquenessBinWidth.Text = "Bin Width";
-            //
+            // 
+            this.lblUniquenessBinWidth.Location = new System.Drawing.Point(16, 26);
+            this.lblUniquenessBinWidth.Name = "lblUniquenessBinWidth";
+            this.lblUniquenessBinWidth.Size = new System.Drawing.Size(64, 16);
+            this.lblUniquenessBinWidth.TabIndex = 0;
+            this.lblUniquenessBinWidth.Text = "Bin Width";
+            // 
             // chkAutoComputeRangeForBinning
-            //
-            chkAutoComputeRangeForBinning.Checked = true;
-            chkAutoComputeRangeForBinning.CheckState = CheckState.Checked;
-            chkAutoComputeRangeForBinning.Location = new Point(16, 56);
-            chkAutoComputeRangeForBinning.Name = "chkAutoComputeRangeForBinning";
-            chkAutoComputeRangeForBinning.Size = new Size(184, 17);
-            chkAutoComputeRangeForBinning.TabIndex = 2;
-            chkAutoComputeRangeForBinning.Text = "Auto compute range for binning";
-            //
+            // 
+            this.chkAutoComputeRangeForBinning.Checked = true;
+            this.chkAutoComputeRangeForBinning.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkAutoComputeRangeForBinning.Location = new System.Drawing.Point(16, 56);
+            this.chkAutoComputeRangeForBinning.Name = "chkAutoComputeRangeForBinning";
+            this.chkAutoComputeRangeForBinning.Size = new System.Drawing.Size(184, 17);
+            this.chkAutoComputeRangeForBinning.TabIndex = 2;
+            this.chkAutoComputeRangeForBinning.Text = "Auto compute range for binning";
+            this.chkAutoComputeRangeForBinning.CheckedChanged += new System.EventHandler(this.chkAutoComputeRangeForBinning_CheckedChanged);
+            // 
             // txtUniquenessBinEndMass
-            //
-            txtUniquenessBinEndMass.Location = new Point(80, 104);
-            txtUniquenessBinEndMass.Name = "txtUniquenessBinEndMass";
-            txtUniquenessBinEndMass.Size = new Size(40, 20);
-            txtUniquenessBinEndMass.TabIndex = 6;
-            txtUniquenessBinEndMass.Text = "6000";
-            //
+            // 
+            this.txtUniquenessBinEndMass.Location = new System.Drawing.Point(80, 104);
+            this.txtUniquenessBinEndMass.Name = "txtUniquenessBinEndMass";
+            this.txtUniquenessBinEndMass.Size = new System.Drawing.Size(40, 20);
+            this.txtUniquenessBinEndMass.TabIndex = 6;
+            this.txtUniquenessBinEndMass.Text = "6000";
+            this.txtUniquenessBinEndMass.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtUniquenessBinEndMass_KeyPress);
+            // 
             // lblUniquenessBinEndMass
-            //
-            lblUniquenessBinEndMass.Location = new Point(16, 106);
-            lblUniquenessBinEndMass.Name = "lblUniquenessBinEndMass";
-            lblUniquenessBinEndMass.Size = new Size(64, 16);
-            lblUniquenessBinEndMass.TabIndex = 5;
-            lblUniquenessBinEndMass.Text = "End Mass";
-            //
+            // 
+            this.lblUniquenessBinEndMass.Location = new System.Drawing.Point(16, 106);
+            this.lblUniquenessBinEndMass.Name = "lblUniquenessBinEndMass";
+            this.lblUniquenessBinEndMass.Size = new System.Drawing.Size(64, 16);
+            this.lblUniquenessBinEndMass.TabIndex = 5;
+            this.lblUniquenessBinEndMass.Text = "End Mass";
+            // 
             // txtUniquenessBinStartMass
-            //
-            txtUniquenessBinStartMass.Location = new Point(80, 80);
-            txtUniquenessBinStartMass.Name = "txtUniquenessBinStartMass";
-            txtUniquenessBinStartMass.Size = new Size(40, 20);
-            txtUniquenessBinStartMass.TabIndex = 4;
-            txtUniquenessBinStartMass.Text = "400";
-            //
+            // 
+            this.txtUniquenessBinStartMass.Location = new System.Drawing.Point(80, 80);
+            this.txtUniquenessBinStartMass.Name = "txtUniquenessBinStartMass";
+            this.txtUniquenessBinStartMass.Size = new System.Drawing.Size(40, 20);
+            this.txtUniquenessBinStartMass.TabIndex = 4;
+            this.txtUniquenessBinStartMass.Text = "400";
+            this.txtUniquenessBinStartMass.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtUniquenessBinStartMass_KeyPress);
+            // 
             // lblUniquenessBinStartMass
-            //
-            lblUniquenessBinStartMass.Location = new Point(16, 82);
-            lblUniquenessBinStartMass.Name = "lblUniquenessBinStartMass";
-            lblUniquenessBinStartMass.Size = new Size(64, 16);
-            lblUniquenessBinStartMass.TabIndex = 3;
-            lblUniquenessBinStartMass.Text = "Start Mass";
-            //
+            // 
+            this.lblUniquenessBinStartMass.Location = new System.Drawing.Point(16, 82);
+            this.lblUniquenessBinStartMass.Name = "lblUniquenessBinStartMass";
+            this.lblUniquenessBinStartMass.Size = new System.Drawing.Size(64, 16);
+            this.lblUniquenessBinStartMass.TabIndex = 3;
+            this.lblUniquenessBinStartMass.Text = "Start Mass";
+            // 
             // lblUniquenessStatsNote
-            //
-            lblUniquenessStatsNote.Location = new Point(8, 56);
-            lblUniquenessStatsNote.Name = "lblUniquenessStatsNote";
-            lblUniquenessStatsNote.Size = new Size(200, 48);
-            lblUniquenessStatsNote.TabIndex = 1;
-            lblUniquenessStatsNote.Text = "Note that Digestion Options and Mass Calculation Options also apply for uniqueness stats generation.";
-            //
+            // 
+            this.lblUniquenessStatsNote.Location = new System.Drawing.Point(8, 56);
+            this.lblUniquenessStatsNote.Name = "lblUniquenessStatsNote";
+            this.lblUniquenessStatsNote.Size = new System.Drawing.Size(200, 48);
+            this.lblUniquenessStatsNote.TabIndex = 1;
+            this.lblUniquenessStatsNote.Text = "Note that Digestion Options and Mass Calculation Options also apply for uniquenes" +
+    "s stats generation.";
+            // 
             // cmdGenerateUniquenessStats
-            //
-            cmdGenerateUniquenessStats.Location = new Point(232, 16);
-            cmdGenerateUniquenessStats.Name = "cmdGenerateUniquenessStats";
-            cmdGenerateUniquenessStats.Size = new Size(176, 24);
-            cmdGenerateUniquenessStats.TabIndex = 5;
-            cmdGenerateUniquenessStats.Text = "&Generate Uniqueness Stats";
-            //
+            // 
+            this.cmdGenerateUniquenessStats.Location = new System.Drawing.Point(232, 16);
+            this.cmdGenerateUniquenessStats.Name = "cmdGenerateUniquenessStats";
+            this.cmdGenerateUniquenessStats.Size = new System.Drawing.Size(176, 24);
+            this.cmdGenerateUniquenessStats.TabIndex = 5;
+            this.cmdGenerateUniquenessStats.Text = "&Generate Uniqueness Stats";
+            this.cmdGenerateUniquenessStats.Click += new System.EventHandler(this.cmdGenerateUniquenessStats_Click);
+            // 
             // chkAssumeInputFileIsDigested
-            //
-            chkAssumeInputFileIsDigested.Location = new Point(8, 16);
-            chkAssumeInputFileIsDigested.Name = "chkAssumeInputFileIsDigested";
-            chkAssumeInputFileIsDigested.Size = new Size(192, 32);
-            chkAssumeInputFileIsDigested.TabIndex = 0;
-            chkAssumeInputFileIsDigested.Text = "Assume input file is already digested (for Delimited files only)";
-            //
+            // 
+            this.chkAssumeInputFileIsDigested.Location = new System.Drawing.Point(8, 16);
+            this.chkAssumeInputFileIsDigested.Name = "chkAssumeInputFileIsDigested";
+            this.chkAssumeInputFileIsDigested.Size = new System.Drawing.Size(192, 32);
+            this.chkAssumeInputFileIsDigested.TabIndex = 0;
+            this.chkAssumeInputFileIsDigested.Text = "Assume input file is already digested (for Delimited files only)";
+            // 
             // txtProteinScramblingLoopCount
-            //
-            txtProteinScramblingLoopCount.Location = new Point(312, 40);
-            txtProteinScramblingLoopCount.MaxLength = 3;
-            txtProteinScramblingLoopCount.Name = "txtProteinScramblingLoopCount";
-            txtProteinScramblingLoopCount.Size = new Size(32, 20);
-            txtProteinScramblingLoopCount.TabIndex = 13;
-            txtProteinScramblingLoopCount.Text = "1";
-            //
+            // 
+            this.txtProteinScramblingLoopCount.Location = new System.Drawing.Point(312, 40);
+            this.txtProteinScramblingLoopCount.MaxLength = 3;
+            this.txtProteinScramblingLoopCount.Name = "txtProteinScramblingLoopCount";
+            this.txtProteinScramblingLoopCount.Size = new System.Drawing.Size(32, 20);
+            this.txtProteinScramblingLoopCount.TabIndex = 13;
+            this.txtProteinScramblingLoopCount.Text = "1";
+            this.txtProteinScramblingLoopCount.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtProteinScramblingLoopCount_KeyPress);
+            // 
             // lblSamplingPercentageUnits
-            //
-            lblSamplingPercentageUnits.Location = new Point(208, 42);
-            lblSamplingPercentageUnits.Name = "lblSamplingPercentageUnits";
-            lblSamplingPercentageUnits.Size = new Size(16, 16);
-            lblSamplingPercentageUnits.TabIndex = 4;
-            lblSamplingPercentageUnits.Text = "%";
-            //
+            // 
+            this.lblSamplingPercentageUnits.Location = new System.Drawing.Point(208, 42);
+            this.lblSamplingPercentageUnits.Name = "lblSamplingPercentageUnits";
+            this.lblSamplingPercentageUnits.Size = new System.Drawing.Size(16, 16);
+            this.lblSamplingPercentageUnits.TabIndex = 4;
+            this.lblSamplingPercentageUnits.Text = "%";
+            // 
             // txtMaxpISequenceLength
-            //
-            txtMaxpISequenceLength.Location = new Point(168, 70);
-            txtMaxpISequenceLength.Name = "txtMaxpISequenceLength";
-            txtMaxpISequenceLength.Size = new Size(40, 20);
-            txtMaxpISequenceLength.TabIndex = 4;
-            txtMaxpISequenceLength.Text = "10";
-            //
+            // 
+            this.txtMaxpISequenceLength.Location = new System.Drawing.Point(168, 70);
+            this.txtMaxpISequenceLength.Name = "txtMaxpISequenceLength";
+            this.txtMaxpISequenceLength.Size = new System.Drawing.Size(40, 20);
+            this.txtMaxpISequenceLength.TabIndex = 4;
+            this.txtMaxpISequenceLength.Text = "10";
+            this.txtMaxpISequenceLength.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtMaxpISequenceLength_KeyDown);
+            this.txtMaxpISequenceLength.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtMaxpISequenceLength_KeyPress);
+            this.txtMaxpISequenceLength.Validating += new System.ComponentModel.CancelEventHandler(this.txtMaxpISequenceLength_Validating);
+            this.txtMaxpISequenceLength.Validated += new System.EventHandler(this.txtMaxpISequenceLength_Validated);
+            // 
             // lblProteinReversalSamplingPercentage
-            //
-            lblProteinReversalSamplingPercentage.Location = new Point(48, 42);
-            lblProteinReversalSamplingPercentage.Name = "lblProteinReversalSamplingPercentage";
-            lblProteinReversalSamplingPercentage.Size = new Size(112, 16);
-            lblProteinReversalSamplingPercentage.TabIndex = 2;
-            lblProteinReversalSamplingPercentage.Text = "Sampling Percentage";
-            lblProteinReversalSamplingPercentage.TextAlign = ContentAlignment.TopRight;
-            //
+            // 
+            this.lblProteinReversalSamplingPercentage.Location = new System.Drawing.Point(48, 42);
+            this.lblProteinReversalSamplingPercentage.Name = "lblProteinReversalSamplingPercentage";
+            this.lblProteinReversalSamplingPercentage.Size = new System.Drawing.Size(112, 16);
+            this.lblProteinReversalSamplingPercentage.TabIndex = 2;
+            this.lblProteinReversalSamplingPercentage.Text = "Sampling Percentage";
+            this.lblProteinReversalSamplingPercentage.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // lblMaxpISequenceLength
-            //
-            lblMaxpISequenceLength.Location = new Point(32, 72);
-            lblMaxpISequenceLength.Name = "lblMaxpISequenceLength";
-            lblMaxpISequenceLength.Size = new Size(144, 16);
-            lblMaxpISequenceLength.TabIndex = 3;
-            lblMaxpISequenceLength.Text = "Sub-sequence Length";
-            //
+            // 
+            this.lblMaxpISequenceLength.Location = new System.Drawing.Point(32, 72);
+            this.lblMaxpISequenceLength.Name = "lblMaxpISequenceLength";
+            this.lblMaxpISequenceLength.Size = new System.Drawing.Size(144, 16);
+            this.lblMaxpISequenceLength.TabIndex = 3;
+            this.lblMaxpISequenceLength.Text = "Sub-sequence Length";
+            // 
             // chkMaxpIModeEnabled
-            //
-            chkMaxpIModeEnabled.Location = new Point(8, 48);
-            chkMaxpIModeEnabled.Name = "chkMaxpIModeEnabled";
-            chkMaxpIModeEnabled.Size = new Size(224, 16);
-            chkMaxpIModeEnabled.TabIndex = 2;
-            chkMaxpIModeEnabled.Text = "Report maximum of all sub-sequences";
-            //
+            // 
+            this.chkMaxpIModeEnabled.Location = new System.Drawing.Point(8, 48);
+            this.chkMaxpIModeEnabled.Name = "chkMaxpIModeEnabled";
+            this.chkMaxpIModeEnabled.Size = new System.Drawing.Size(224, 16);
+            this.chkMaxpIModeEnabled.TabIndex = 2;
+            this.chkMaxpIModeEnabled.Text = "Report maximum of all sub-sequences";
+            this.chkMaxpIModeEnabled.CheckedChanged += new System.EventHandler(this.chkMaxpIModeEnabled_CheckedChanged);
+            // 
             // frapIAndHydrophobicity
-            //
-            frapIAndHydrophobicity.Controls.Add(txtMaxpISequenceLength);
-            frapIAndHydrophobicity.Controls.Add(lblMaxpISequenceLength);
-            frapIAndHydrophobicity.Controls.Add(chkMaxpIModeEnabled);
-            frapIAndHydrophobicity.Controls.Add(lblHydrophobicityMode);
-            frapIAndHydrophobicity.Controls.Add(cboHydrophobicityMode);
-            frapIAndHydrophobicity.Controls.Add(txtpIStats);
-            frapIAndHydrophobicity.Controls.Add(txtSequenceForpI);
-            frapIAndHydrophobicity.Controls.Add(lblSequenceForpI);
-            frapIAndHydrophobicity.Location = new Point(8, 108);
-            frapIAndHydrophobicity.Name = "frapIAndHydrophobicity";
-            frapIAndHydrophobicity.Size = new Size(616, 136);
-            frapIAndHydrophobicity.TabIndex = 2;
-            frapIAndHydrophobicity.TabStop = false;
-            frapIAndHydrophobicity.Text = "pI And Hydrophobicity";
-            //
+            // 
+            this.frapIAndHydrophobicity.Controls.Add(this.txtMaxpISequenceLength);
+            this.frapIAndHydrophobicity.Controls.Add(this.lblMaxpISequenceLength);
+            this.frapIAndHydrophobicity.Controls.Add(this.chkMaxpIModeEnabled);
+            this.frapIAndHydrophobicity.Controls.Add(this.lblHydrophobicityMode);
+            this.frapIAndHydrophobicity.Controls.Add(this.cboHydrophobicityMode);
+            this.frapIAndHydrophobicity.Controls.Add(this.txtpIStats);
+            this.frapIAndHydrophobicity.Controls.Add(this.txtSequenceForpI);
+            this.frapIAndHydrophobicity.Controls.Add(this.lblSequenceForpI);
+            this.frapIAndHydrophobicity.Location = new System.Drawing.Point(8, 108);
+            this.frapIAndHydrophobicity.Name = "frapIAndHydrophobicity";
+            this.frapIAndHydrophobicity.Size = new System.Drawing.Size(616, 136);
+            this.frapIAndHydrophobicity.TabIndex = 2;
+            this.frapIAndHydrophobicity.TabStop = false;
+            this.frapIAndHydrophobicity.Text = "pI And Hydrophobicity";
+            // 
             // lblHydrophobicityMode
-            //
-            lblHydrophobicityMode.Location = new Point(8, 24);
-            lblHydrophobicityMode.Name = "lblHydrophobicityMode";
-            lblHydrophobicityMode.Size = new Size(120, 16);
-            lblHydrophobicityMode.TabIndex = 0;
-            lblHydrophobicityMode.Text = "Hydrophobicity Mode";
-            //
+            // 
+            this.lblHydrophobicityMode.Location = new System.Drawing.Point(8, 24);
+            this.lblHydrophobicityMode.Name = "lblHydrophobicityMode";
+            this.lblHydrophobicityMode.Size = new System.Drawing.Size(120, 16);
+            this.lblHydrophobicityMode.TabIndex = 0;
+            this.lblHydrophobicityMode.Text = "Hydrophobicity Mode";
+            // 
             // cboHydrophobicityMode
-            //
-            cboHydrophobicityMode.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboHydrophobicityMode.DropDownWidth = 70;
-            cboHydrophobicityMode.Location = new Point(128, 18);
-            cboHydrophobicityMode.Name = "cboHydrophobicityMode";
-            cboHydrophobicityMode.Size = new Size(184, 21);
-            cboHydrophobicityMode.TabIndex = 1;
-            //
+            // 
+            this.cboHydrophobicityMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboHydrophobicityMode.DropDownWidth = 70;
+            this.cboHydrophobicityMode.Location = new System.Drawing.Point(128, 18);
+            this.cboHydrophobicityMode.Name = "cboHydrophobicityMode";
+            this.cboHydrophobicityMode.Size = new System.Drawing.Size(184, 21);
+            this.cboHydrophobicityMode.TabIndex = 1;
+            this.cboHydrophobicityMode.SelectedIndexChanged += new System.EventHandler(this.cboHydrophobicityMode_SelectedIndexChanged);
+            // 
             // txtpIStats
-            //
-            txtpIStats.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
-            txtpIStats.Location = new Point(336, 48);
-            txtpIStats.MaxLength = 1;
-            txtpIStats.Multiline = true;
-            txtpIStats.Name = "txtpIStats";
-            txtpIStats.ReadOnly = true;
-            txtpIStats.Size = new Size(272, 80);
-            txtpIStats.TabIndex = 7;
-            //
+            // 
+            this.txtpIStats.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.txtpIStats.Location = new System.Drawing.Point(336, 48);
+            this.txtpIStats.MaxLength = 1;
+            this.txtpIStats.Multiline = true;
+            this.txtpIStats.Name = "txtpIStats";
+            this.txtpIStats.ReadOnly = true;
+            this.txtpIStats.Size = new System.Drawing.Size(272, 80);
+            this.txtpIStats.TabIndex = 7;
+            // 
             // txtSequenceForpI
-            //
-            txtSequenceForpI.Location = new Point(400, 16);
-            txtSequenceForpI.Name = "txtSequenceForpI";
-            txtSequenceForpI.Size = new Size(208, 20);
-            txtSequenceForpI.TabIndex = 6;
-            txtSequenceForpI.Text = "FKDLGEEQFK";
-            //
+            // 
+            this.txtSequenceForpI.Location = new System.Drawing.Point(400, 16);
+            this.txtSequenceForpI.Name = "txtSequenceForpI";
+            this.txtSequenceForpI.Size = new System.Drawing.Size(208, 20);
+            this.txtSequenceForpI.TabIndex = 6;
+            this.txtSequenceForpI.Text = "FKDLGEEQFK";
+            this.txtSequenceForpI.TextChanged += new System.EventHandler(this.txtSequenceForpI_TextChanged);
+            // 
             // lblSequenceForpI
-            //
-            lblSequenceForpI.Location = new Point(328, 20);
-            lblSequenceForpI.Name = "lblSequenceForpI";
-            lblSequenceForpI.Size = new Size(72, 16);
-            lblSequenceForpI.TabIndex = 5;
-            lblSequenceForpI.Text = "Sequence";
-            //
+            // 
+            this.lblSequenceForpI.Location = new System.Drawing.Point(328, 20);
+            this.lblSequenceForpI.Name = "lblSequenceForpI";
+            this.lblSequenceForpI.Size = new System.Drawing.Size(72, 16);
+            this.lblSequenceForpI.TabIndex = 5;
+            this.lblSequenceForpI.Text = "Sequence";
+            // 
             // fraDelimitedFileOptions
-            //
-            fraDelimitedFileOptions.Controls.Add(cboInputFileColumnOrdering);
-            fraDelimitedFileOptions.Controls.Add(lblInputFileColumnOrdering);
-            fraDelimitedFileOptions.Controls.Add(txtInputFileColumnDelimiter);
-            fraDelimitedFileOptions.Controls.Add(lblInputFileColumnDelimiter);
-            fraDelimitedFileOptions.Controls.Add(cboInputFileColumnDelimiter);
-            fraDelimitedFileOptions.Location = new Point(8, 12);
-            fraDelimitedFileOptions.Name = "fraDelimitedFileOptions";
-            fraDelimitedFileOptions.Size = new Size(496, 88);
-            fraDelimitedFileOptions.TabIndex = 1;
-            fraDelimitedFileOptions.TabStop = false;
-            fraDelimitedFileOptions.Text = "Delimited Input File Options";
-            //
+            // 
+            this.fraDelimitedFileOptions.Controls.Add(this.cboInputFileColumnOrdering);
+            this.fraDelimitedFileOptions.Controls.Add(this.lblInputFileColumnOrdering);
+            this.fraDelimitedFileOptions.Controls.Add(this.txtInputFileColumnDelimiter);
+            this.fraDelimitedFileOptions.Controls.Add(this.lblInputFileColumnDelimiter);
+            this.fraDelimitedFileOptions.Controls.Add(this.cboInputFileColumnDelimiter);
+            this.fraDelimitedFileOptions.Location = new System.Drawing.Point(8, 12);
+            this.fraDelimitedFileOptions.Name = "fraDelimitedFileOptions";
+            this.fraDelimitedFileOptions.Size = new System.Drawing.Size(496, 88);
+            this.fraDelimitedFileOptions.TabIndex = 1;
+            this.fraDelimitedFileOptions.TabStop = false;
+            this.fraDelimitedFileOptions.Text = "Delimited Input File Options";
+            // 
             // cboInputFileColumnOrdering
-            //
-            cboInputFileColumnOrdering.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboInputFileColumnOrdering.DropDownWidth = 70;
-            cboInputFileColumnOrdering.Location = new Point(88, 24);
-            cboInputFileColumnOrdering.Name = "cboInputFileColumnOrdering";
-            cboInputFileColumnOrdering.Size = new Size(392, 21);
-            cboInputFileColumnOrdering.TabIndex = 1;
-            //
+            // 
+            this.cboInputFileColumnOrdering.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboInputFileColumnOrdering.DropDownWidth = 70;
+            this.cboInputFileColumnOrdering.Location = new System.Drawing.Point(88, 24);
+            this.cboInputFileColumnOrdering.Name = "cboInputFileColumnOrdering";
+            this.cboInputFileColumnOrdering.Size = new System.Drawing.Size(392, 21);
+            this.cboInputFileColumnOrdering.TabIndex = 1;
+            // 
             // lblInputFileColumnOrdering
-            //
-            lblInputFileColumnOrdering.Location = new Point(8, 26);
-            lblInputFileColumnOrdering.Name = "lblInputFileColumnOrdering";
-            lblInputFileColumnOrdering.Size = new Size(80, 16);
-            lblInputFileColumnOrdering.TabIndex = 0;
-            lblInputFileColumnOrdering.Text = "Column Order";
-            //
+            // 
+            this.lblInputFileColumnOrdering.Location = new System.Drawing.Point(8, 26);
+            this.lblInputFileColumnOrdering.Name = "lblInputFileColumnOrdering";
+            this.lblInputFileColumnOrdering.Size = new System.Drawing.Size(80, 16);
+            this.lblInputFileColumnOrdering.TabIndex = 0;
+            this.lblInputFileColumnOrdering.Text = "Column Order";
+            // 
             // txtInputFileColumnDelimiter
-            //
-            txtInputFileColumnDelimiter.Location = new Point(192, 56);
-            txtInputFileColumnDelimiter.MaxLength = 1;
-            txtInputFileColumnDelimiter.Name = "txtInputFileColumnDelimiter";
-            txtInputFileColumnDelimiter.Size = new Size(32, 20);
-            txtInputFileColumnDelimiter.TabIndex = 4;
-            txtInputFileColumnDelimiter.Text = ";";
-            //
+            // 
+            this.txtInputFileColumnDelimiter.Location = new System.Drawing.Point(192, 56);
+            this.txtInputFileColumnDelimiter.MaxLength = 1;
+            this.txtInputFileColumnDelimiter.Name = "txtInputFileColumnDelimiter";
+            this.txtInputFileColumnDelimiter.Size = new System.Drawing.Size(32, 20);
+            this.txtInputFileColumnDelimiter.TabIndex = 4;
+            this.txtInputFileColumnDelimiter.Text = ";";
+            // 
             // lblInputFileColumnDelimiter
-            //
-            lblInputFileColumnDelimiter.Location = new Point(8, 58);
-            lblInputFileColumnDelimiter.Name = "lblInputFileColumnDelimiter";
-            lblInputFileColumnDelimiter.Size = new Size(96, 16);
-            lblInputFileColumnDelimiter.TabIndex = 2;
-            lblInputFileColumnDelimiter.Text = "Column Delimiter";
-            //
+            // 
+            this.lblInputFileColumnDelimiter.Location = new System.Drawing.Point(8, 58);
+            this.lblInputFileColumnDelimiter.Name = "lblInputFileColumnDelimiter";
+            this.lblInputFileColumnDelimiter.Size = new System.Drawing.Size(96, 16);
+            this.lblInputFileColumnDelimiter.TabIndex = 2;
+            this.lblInputFileColumnDelimiter.Text = "Column Delimiter";
+            // 
             // cboInputFileColumnDelimiter
-            //
-            cboInputFileColumnDelimiter.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboInputFileColumnDelimiter.DropDownWidth = 70;
-            cboInputFileColumnDelimiter.Location = new Point(112, 56);
-            cboInputFileColumnDelimiter.Name = "cboInputFileColumnDelimiter";
-            cboInputFileColumnDelimiter.Size = new Size(70, 21);
-            cboInputFileColumnDelimiter.TabIndex = 3;
-            //
+            // 
+            this.cboInputFileColumnDelimiter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboInputFileColumnDelimiter.DropDownWidth = 70;
+            this.cboInputFileColumnDelimiter.Location = new System.Drawing.Point(112, 56);
+            this.cboInputFileColumnDelimiter.Name = "cboInputFileColumnDelimiter";
+            this.cboInputFileColumnDelimiter.Size = new System.Drawing.Size(70, 21);
+            this.cboInputFileColumnDelimiter.TabIndex = 3;
+            this.cboInputFileColumnDelimiter.SelectedIndexChanged += new System.EventHandler(this.cboInputFileColumnDelimiter_SelectedIndexChanged);
+            // 
             // TabPageFileFormatOptions
-            //
-            TabPageFileFormatOptions.Controls.Add(frapIAndHydrophobicity);
-            TabPageFileFormatOptions.Controls.Add(fraDelimitedFileOptions);
-            TabPageFileFormatOptions.Location = new Point(4, 22);
-            TabPageFileFormatOptions.Name = "TabPageFileFormatOptions";
-            TabPageFileFormatOptions.Size = new Size(696, 328);
-            TabPageFileFormatOptions.TabIndex = 2;
-            TabPageFileFormatOptions.Text = "File Format Options";
-            TabPageFileFormatOptions.UseVisualStyleBackColor = true;
-            //
+            // 
+            this.TabPageFileFormatOptions.Controls.Add(this.frapIAndHydrophobicity);
+            this.TabPageFileFormatOptions.Controls.Add(this.fraDelimitedFileOptions);
+            this.TabPageFileFormatOptions.Location = new System.Drawing.Point(4, 22);
+            this.TabPageFileFormatOptions.Name = "TabPageFileFormatOptions";
+            this.TabPageFileFormatOptions.Size = new System.Drawing.Size(696, 328);
+            this.TabPageFileFormatOptions.TabIndex = 2;
+            this.TabPageFileFormatOptions.Text = "File Format Options";
+            this.TabPageFileFormatOptions.UseVisualStyleBackColor = true;
+            // 
             // tbsOptions
-            //
-            tbsOptions.Controls.Add(TabPageFileFormatOptions);
-            tbsOptions.Controls.Add(TabPageParseAndDigest);
-            tbsOptions.Controls.Add(TabPageUniquenessStats);
-            tbsOptions.Controls.Add(TabPagePeakMatchingThresholds);
-            tbsOptions.Controls.Add(TabPageProgress);
-            tbsOptions.Location = new Point(12, 212);
-            tbsOptions.Name = "tbsOptions";
-            tbsOptions.SelectedIndex = 0;
-            tbsOptions.Size = new Size(704, 354);
-            tbsOptions.TabIndex = 5;
-            //
+            // 
+            this.tbsOptions.Controls.Add(this.TabPageFileFormatOptions);
+            this.tbsOptions.Controls.Add(this.TabPageParseAndDigest);
+            this.tbsOptions.Controls.Add(this.TabPageUniquenessStats);
+            this.tbsOptions.Controls.Add(this.TabPagePeakMatchingThresholds);
+            this.tbsOptions.Controls.Add(this.TabPageProgress);
+            this.tbsOptions.Location = new System.Drawing.Point(12, 212);
+            this.tbsOptions.Name = "tbsOptions";
+            this.tbsOptions.SelectedIndex = 0;
+            this.tbsOptions.Size = new System.Drawing.Size(704, 354);
+            this.tbsOptions.TabIndex = 5;
+            // 
             // TabPageParseAndDigest
-            //
-            TabPageParseAndDigest.Controls.Add(fraProcessingOptions);
-            TabPageParseAndDigest.Controls.Add(fraCalculationOptions);
-            TabPageParseAndDigest.Controls.Add(fraDigestionOptions);
-            TabPageParseAndDigest.Controls.Add(cmdParseInputFile);
-            TabPageParseAndDigest.Location = new Point(4, 22);
-            TabPageParseAndDigest.Name = "TabPageParseAndDigest";
-            TabPageParseAndDigest.Size = new Size(696, 328);
-            TabPageParseAndDigest.TabIndex = 0;
-            TabPageParseAndDigest.Text = "Parse and Digest File Options";
-            TabPageParseAndDigest.UseVisualStyleBackColor = true;
-            //
+            // 
+            this.TabPageParseAndDigest.Controls.Add(this.fraProcessingOptions);
+            this.TabPageParseAndDigest.Controls.Add(this.fraCalculationOptions);
+            this.TabPageParseAndDigest.Controls.Add(this.fraDigestionOptions);
+            this.TabPageParseAndDigest.Controls.Add(this.cmdParseInputFile);
+            this.TabPageParseAndDigest.Location = new System.Drawing.Point(4, 22);
+            this.TabPageParseAndDigest.Name = "TabPageParseAndDigest";
+            this.TabPageParseAndDigest.Size = new System.Drawing.Size(696, 328);
+            this.TabPageParseAndDigest.TabIndex = 0;
+            this.TabPageParseAndDigest.Text = "Parse and Digest File Options";
+            this.TabPageParseAndDigest.UseVisualStyleBackColor = true;
+            // 
             // fraProcessingOptions
-            //
-            fraProcessingOptions.Controls.Add(lblProteinScramblingLoopCount);
-            fraProcessingOptions.Controls.Add(txtProteinScramblingLoopCount);
-            fraProcessingOptions.Controls.Add(lblSamplingPercentageUnits);
-            fraProcessingOptions.Controls.Add(lblProteinReversalSamplingPercentage);
-            fraProcessingOptions.Controls.Add(txtProteinReversalSamplingPercentage);
-            fraProcessingOptions.Controls.Add(lbltxtAddnlRefAccessionSepChar);
-            fraProcessingOptions.Controls.Add(chkLookForAddnlRefInDescription);
-            fraProcessingOptions.Controls.Add(cboProteinReversalOptions);
-            fraProcessingOptions.Controls.Add(lblProteinReversalOptions);
-            fraProcessingOptions.Controls.Add(chkDigestProteins);
-            fraProcessingOptions.Controls.Add(lblAddnlRefSepChar);
-            fraProcessingOptions.Controls.Add(txtAddnlRefAccessionSepChar);
-            fraProcessingOptions.Controls.Add(txtAddnlRefSepChar);
-            fraProcessingOptions.Controls.Add(chkCreateFastaOutputFile);
-            fraProcessingOptions.Location = new Point(8, 8);
-            fraProcessingOptions.Name = "fraProcessingOptions";
-            fraProcessingOptions.Size = new Size(360, 176);
-            fraProcessingOptions.TabIndex = 0;
-            fraProcessingOptions.TabStop = false;
-            fraProcessingOptions.Text = "Processing Options";
-            //
+            // 
+            this.fraProcessingOptions.Controls.Add(this.lblProteinScramblingLoopCount);
+            this.fraProcessingOptions.Controls.Add(this.txtProteinScramblingLoopCount);
+            this.fraProcessingOptions.Controls.Add(this.lblSamplingPercentageUnits);
+            this.fraProcessingOptions.Controls.Add(this.lblProteinReversalSamplingPercentage);
+            this.fraProcessingOptions.Controls.Add(this.txtProteinReversalSamplingPercentage);
+            this.fraProcessingOptions.Controls.Add(this.lbltxtAddnlRefAccessionSepChar);
+            this.fraProcessingOptions.Controls.Add(this.chkLookForAddnlRefInDescription);
+            this.fraProcessingOptions.Controls.Add(this.cboProteinReversalOptions);
+            this.fraProcessingOptions.Controls.Add(this.lblProteinReversalOptions);
+            this.fraProcessingOptions.Controls.Add(this.chkDigestProteins);
+            this.fraProcessingOptions.Controls.Add(this.lblAddnlRefSepChar);
+            this.fraProcessingOptions.Controls.Add(this.txtAddnlRefAccessionSepChar);
+            this.fraProcessingOptions.Controls.Add(this.txtAddnlRefSepChar);
+            this.fraProcessingOptions.Controls.Add(this.chkCreateFastaOutputFile);
+            this.fraProcessingOptions.Location = new System.Drawing.Point(8, 8);
+            this.fraProcessingOptions.Name = "fraProcessingOptions";
+            this.fraProcessingOptions.Size = new System.Drawing.Size(360, 176);
+            this.fraProcessingOptions.TabIndex = 0;
+            this.fraProcessingOptions.TabStop = false;
+            this.fraProcessingOptions.Text = "Processing Options";
+            // 
             // txtProteinReversalSamplingPercentage
-            //
-            txtProteinReversalSamplingPercentage.Location = new Point(168, 40);
-            txtProteinReversalSamplingPercentage.MaxLength = 3;
-            txtProteinReversalSamplingPercentage.Name = "txtProteinReversalSamplingPercentage";
-            txtProteinReversalSamplingPercentage.Size = new Size(32, 20);
-            txtProteinReversalSamplingPercentage.TabIndex = 3;
-            txtProteinReversalSamplingPercentage.Text = "100";
-            //
+            // 
+            this.txtProteinReversalSamplingPercentage.Location = new System.Drawing.Point(168, 40);
+            this.txtProteinReversalSamplingPercentage.MaxLength = 3;
+            this.txtProteinReversalSamplingPercentage.Name = "txtProteinReversalSamplingPercentage";
+            this.txtProteinReversalSamplingPercentage.Size = new System.Drawing.Size(32, 20);
+            this.txtProteinReversalSamplingPercentage.TabIndex = 3;
+            this.txtProteinReversalSamplingPercentage.Text = "100";
+            this.txtProteinReversalSamplingPercentage.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtProteinReversalSamplingPercentage_KeyPress);
+            // 
             // lbltxtAddnlRefAccessionSepChar
-            //
-            lbltxtAddnlRefAccessionSepChar.Location = new Point(96, 96);
-            lbltxtAddnlRefAccessionSepChar.Name = "lbltxtAddnlRefAccessionSepChar";
-            lbltxtAddnlRefAccessionSepChar.Size = new Size(160, 16);
-            lbltxtAddnlRefAccessionSepChar.TabIndex = 8;
-            lbltxtAddnlRefAccessionSepChar.Text = "Addnl Ref Accession Sep Char";
-            lbltxtAddnlRefAccessionSepChar.TextAlign = ContentAlignment.TopRight;
-            //
+            // 
+            this.lbltxtAddnlRefAccessionSepChar.Location = new System.Drawing.Point(96, 96);
+            this.lbltxtAddnlRefAccessionSepChar.Name = "lbltxtAddnlRefAccessionSepChar";
+            this.lbltxtAddnlRefAccessionSepChar.Size = new System.Drawing.Size(160, 16);
+            this.lbltxtAddnlRefAccessionSepChar.TabIndex = 8;
+            this.lbltxtAddnlRefAccessionSepChar.Text = "Addnl Ref Accession Sep Char";
+            this.lbltxtAddnlRefAccessionSepChar.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // chkLookForAddnlRefInDescription
-            //
-            chkLookForAddnlRefInDescription.Location = new Point(16, 72);
-            chkLookForAddnlRefInDescription.Name = "chkLookForAddnlRefInDescription";
-            chkLookForAddnlRefInDescription.Size = new Size(120, 32);
-            chkLookForAddnlRefInDescription.TabIndex = 5;
-            chkLookForAddnlRefInDescription.Text = "Look for addnl Ref in description";
-            //
+            // 
+            this.chkLookForAddnlRefInDescription.Location = new System.Drawing.Point(16, 72);
+            this.chkLookForAddnlRefInDescription.Name = "chkLookForAddnlRefInDescription";
+            this.chkLookForAddnlRefInDescription.Size = new System.Drawing.Size(120, 32);
+            this.chkLookForAddnlRefInDescription.TabIndex = 5;
+            this.chkLookForAddnlRefInDescription.Text = "Look for addnl Ref in description";
+            this.chkLookForAddnlRefInDescription.CheckedChanged += new System.EventHandler(this.chkLookForAddnlRefInDescription_CheckedChanged);
+            // 
             // cboProteinReversalOptions
-            //
-            cboProteinReversalOptions.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboProteinReversalOptions.Location = new Point(168, 16);
-            cboProteinReversalOptions.Name = "cboProteinReversalOptions";
-            cboProteinReversalOptions.Size = new Size(184, 21);
-            cboProteinReversalOptions.TabIndex = 1;
-            //
+            // 
+            this.cboProteinReversalOptions.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboProteinReversalOptions.Location = new System.Drawing.Point(168, 16);
+            this.cboProteinReversalOptions.Name = "cboProteinReversalOptions";
+            this.cboProteinReversalOptions.Size = new System.Drawing.Size(184, 21);
+            this.cboProteinReversalOptions.TabIndex = 1;
+            this.cboProteinReversalOptions.SelectedIndexChanged += new System.EventHandler(this.cboProteinReversalOptions_SelectedIndexChanged);
+            // 
             // lblProteinReversalOptions
-            //
-            lblProteinReversalOptions.Location = new Point(16, 20);
-            lblProteinReversalOptions.Name = "lblProteinReversalOptions";
-            lblProteinReversalOptions.Size = new Size(160, 16);
-            lblProteinReversalOptions.TabIndex = 0;
-            lblProteinReversalOptions.Text = "Protein Reversal / Scrambling";
-            //
+            // 
+            this.lblProteinReversalOptions.Location = new System.Drawing.Point(3, 20);
+            this.lblProteinReversalOptions.Name = "lblProteinReversalOptions";
+            this.lblProteinReversalOptions.Size = new System.Drawing.Size(170, 16);
+            this.lblProteinReversalOptions.TabIndex = 0;
+            this.lblProteinReversalOptions.Text = "Protein Reversal / Scrambling";
+            // 
             // chkDigestProteins
-            //
-            chkDigestProteins.Location = new Point(16, 115);
-            chkDigestProteins.Name = "chkDigestProteins";
-            chkDigestProteins.Size = new Size(160, 32);
-            chkDigestProteins.TabIndex = 10;
-            chkDigestProteins.Text = "In Silico digest of all proteins in input file";
-            //
+            // 
+            this.chkDigestProteins.Location = new System.Drawing.Point(16, 115);
+            this.chkDigestProteins.Name = "chkDigestProteins";
+            this.chkDigestProteins.Size = new System.Drawing.Size(160, 32);
+            this.chkDigestProteins.TabIndex = 10;
+            this.chkDigestProteins.Text = "In Silico digest of all proteins in input file";
+            this.chkDigestProteins.CheckedChanged += new System.EventHandler(this.chkDigestProteins_CheckedChanged);
+            // 
             // lblAddnlRefSepChar
-            //
-            lblAddnlRefSepChar.Location = new Point(144, 72);
-            lblAddnlRefSepChar.Name = "lblAddnlRefSepChar";
-            lblAddnlRefSepChar.Size = new Size(112, 16);
-            lblAddnlRefSepChar.TabIndex = 6;
-            lblAddnlRefSepChar.Text = "Addnl Ref Sep Char";
-            lblAddnlRefSepChar.TextAlign = ContentAlignment.TopRight;
-            //
+            // 
+            this.lblAddnlRefSepChar.Location = new System.Drawing.Point(144, 72);
+            this.lblAddnlRefSepChar.Name = "lblAddnlRefSepChar";
+            this.lblAddnlRefSepChar.Size = new System.Drawing.Size(112, 16);
+            this.lblAddnlRefSepChar.TabIndex = 6;
+            this.lblAddnlRefSepChar.Text = "Addnl Ref Sep Char";
+            this.lblAddnlRefSepChar.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // txtAddnlRefAccessionSepChar
-            //
-            txtAddnlRefAccessionSepChar.Location = new Point(264, 96);
-            txtAddnlRefAccessionSepChar.MaxLength = 1;
-            txtAddnlRefAccessionSepChar.Name = "txtAddnlRefAccessionSepChar";
-            txtAddnlRefAccessionSepChar.Size = new Size(32, 20);
-            txtAddnlRefAccessionSepChar.TabIndex = 9;
-            txtAddnlRefAccessionSepChar.Text = ":";
-            //
+            // 
+            this.txtAddnlRefAccessionSepChar.Location = new System.Drawing.Point(264, 96);
+            this.txtAddnlRefAccessionSepChar.MaxLength = 1;
+            this.txtAddnlRefAccessionSepChar.Name = "txtAddnlRefAccessionSepChar";
+            this.txtAddnlRefAccessionSepChar.Size = new System.Drawing.Size(32, 20);
+            this.txtAddnlRefAccessionSepChar.TabIndex = 9;
+            this.txtAddnlRefAccessionSepChar.Text = ":";
+            // 
             // txtAddnlRefSepChar
-            //
-            txtAddnlRefSepChar.Location = new Point(264, 72);
-            txtAddnlRefSepChar.MaxLength = 1;
-            txtAddnlRefSepChar.Name = "txtAddnlRefSepChar";
-            txtAddnlRefSepChar.Size = new Size(32, 20);
-            txtAddnlRefSepChar.TabIndex = 7;
-            txtAddnlRefSepChar.Text = "|";
-            //
+            // 
+            this.txtAddnlRefSepChar.Location = new System.Drawing.Point(264, 72);
+            this.txtAddnlRefSepChar.MaxLength = 1;
+            this.txtAddnlRefSepChar.Name = "txtAddnlRefSepChar";
+            this.txtAddnlRefSepChar.Size = new System.Drawing.Size(32, 20);
+            this.txtAddnlRefSepChar.TabIndex = 7;
+            this.txtAddnlRefSepChar.Text = "|";
+            // 
             // chkCreateFastaOutputFile
-            //
-            chkCreateFastaOutputFile.Location = new Point(192, 128);
-            chkCreateFastaOutputFile.Name = "chkCreateFastaOutputFile";
-            chkCreateFastaOutputFile.Size = new Size(160, 16);
-            chkCreateFastaOutputFile.TabIndex = 11;
-            chkCreateFastaOutputFile.Text = "Create FASTA Output File";
-            //
+            // 
+            this.chkCreateFastaOutputFile.Location = new System.Drawing.Point(192, 128);
+            this.chkCreateFastaOutputFile.Name = "chkCreateFastaOutputFile";
+            this.chkCreateFastaOutputFile.Size = new System.Drawing.Size(160, 16);
+            this.chkCreateFastaOutputFile.TabIndex = 11;
+            this.chkCreateFastaOutputFile.Text = "Create FASTA Output File";
+            this.chkCreateFastaOutputFile.CheckedChanged += new System.EventHandler(this.chkCreateFastaOutputFile_CheckedChanged);
+            // 
             // fraCalculationOptions
-            //
-            fraCalculationOptions.Controls.Add(cmdNETInfo);
-            fraCalculationOptions.Controls.Add(chkExcludeProteinDescription);
-            fraCalculationOptions.Controls.Add(chkComputeSequenceHashIgnoreILDiff);
-            fraCalculationOptions.Controls.Add(chkTruncateProteinDescription);
-            fraCalculationOptions.Controls.Add(chkComputeSequenceHashValues);
-            fraCalculationOptions.Controls.Add(lblMassMode);
-            fraCalculationOptions.Controls.Add(cboElementMassMode);
-            fraCalculationOptions.Controls.Add(chkExcludeProteinSequence);
-            fraCalculationOptions.Controls.Add(chkComputepIandNET);
-            fraCalculationOptions.Controls.Add(chkIncludeXResidues);
-            fraCalculationOptions.Controls.Add(chkComputeProteinMass);
-            fraCalculationOptions.Location = new Point(376, 40);
-            fraCalculationOptions.Name = "fraCalculationOptions";
-            fraCalculationOptions.Size = new Size(308, 150);
-            fraCalculationOptions.TabIndex = 1;
-            fraCalculationOptions.TabStop = false;
-            fraCalculationOptions.Text = "Calculation Options";
-            //
+            // 
+            this.fraCalculationOptions.Controls.Add(this.cmdNETInfo);
+            this.fraCalculationOptions.Controls.Add(this.chkExcludeProteinDescription);
+            this.fraCalculationOptions.Controls.Add(this.chkComputeSequenceHashIgnoreILDiff);
+            this.fraCalculationOptions.Controls.Add(this.chkTruncateProteinDescription);
+            this.fraCalculationOptions.Controls.Add(this.chkComputeSequenceHashValues);
+            this.fraCalculationOptions.Controls.Add(this.lblMassMode);
+            this.fraCalculationOptions.Controls.Add(this.cboElementMassMode);
+            this.fraCalculationOptions.Controls.Add(this.chkExcludeProteinSequence);
+            this.fraCalculationOptions.Controls.Add(this.chkComputepIandNET);
+            this.fraCalculationOptions.Controls.Add(this.chkIncludeXResidues);
+            this.fraCalculationOptions.Controls.Add(this.chkComputeProteinMass);
+            this.fraCalculationOptions.Location = new System.Drawing.Point(376, 40);
+            this.fraCalculationOptions.Name = "fraCalculationOptions";
+            this.fraCalculationOptions.Size = new System.Drawing.Size(308, 150);
+            this.fraCalculationOptions.TabIndex = 1;
+            this.fraCalculationOptions.TabStop = false;
+            this.fraCalculationOptions.Text = "Calculation Options";
+            // 
             // cmdNETInfo
-            //
-            cmdNETInfo.Location = new Point(268, 87);
-            cmdNETInfo.Margin = new Padding(1);
-            cmdNETInfo.Name = "cmdNETInfo";
-            cmdNETInfo.Size = new Size(34, 20);
-            cmdNETInfo.TabIndex = 4;
-            cmdNETInfo.Text = "Info";
-            //
+            // 
+            this.cmdNETInfo.Location = new System.Drawing.Point(268, 87);
+            this.cmdNETInfo.Margin = new System.Windows.Forms.Padding(1);
+            this.cmdNETInfo.Name = "cmdNETInfo";
+            this.cmdNETInfo.Size = new System.Drawing.Size(34, 20);
+            this.cmdNETInfo.TabIndex = 4;
+            this.cmdNETInfo.Text = "Info";
+            this.cmdNETInfo.Click += new System.EventHandler(this.cmdNETInfo_Click);
+            // 
             // chkExcludeProteinDescription
-            //
-            chkExcludeProteinDescription.Location = new Point(185, 128);
-            chkExcludeProteinDescription.Name = "chkExcludeProteinDescription";
-            chkExcludeProteinDescription.Size = new Size(120, 19);
-            chkExcludeProteinDescription.TabIndex = 9;
-            chkExcludeProteinDescription.Text = "Exclude Description";
-            //
+            // 
+            this.chkExcludeProteinDescription.Location = new System.Drawing.Point(185, 128);
+            this.chkExcludeProteinDescription.Name = "chkExcludeProteinDescription";
+            this.chkExcludeProteinDescription.Size = new System.Drawing.Size(120, 19);
+            this.chkExcludeProteinDescription.TabIndex = 9;
+            this.chkExcludeProteinDescription.Text = "Exclude Description";
+            // 
             // chkComputeSequenceHashIgnoreILDiff
-            //
-            chkComputeSequenceHashIgnoreILDiff.Checked = true;
-            chkComputeSequenceHashIgnoreILDiff.CheckState = CheckState.Checked;
-            chkComputeSequenceHashIgnoreILDiff.Location = new Point(185, 107);
-            chkComputeSequenceHashIgnoreILDiff.Name = "chkComputeSequenceHashIgnoreILDiff";
-            chkComputeSequenceHashIgnoreILDiff.Size = new Size(104, 19);
-            chkComputeSequenceHashIgnoreILDiff.TabIndex = 8;
-            chkComputeSequenceHashIgnoreILDiff.Text = "Ignore I/L Diff";
-            //
+            // 
+            this.chkComputeSequenceHashIgnoreILDiff.Checked = true;
+            this.chkComputeSequenceHashIgnoreILDiff.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkComputeSequenceHashIgnoreILDiff.Location = new System.Drawing.Point(185, 107);
+            this.chkComputeSequenceHashIgnoreILDiff.Name = "chkComputeSequenceHashIgnoreILDiff";
+            this.chkComputeSequenceHashIgnoreILDiff.Size = new System.Drawing.Size(104, 19);
+            this.chkComputeSequenceHashIgnoreILDiff.TabIndex = 8;
+            this.chkComputeSequenceHashIgnoreILDiff.Text = "Ignore I/L Diff";
+            // 
             // chkTruncateProteinDescription
-            //
-            chkTruncateProteinDescription.Checked = true;
-            chkTruncateProteinDescription.CheckState = CheckState.Checked;
-            chkTruncateProteinDescription.Location = new Point(16, 128);
-            chkTruncateProteinDescription.Name = "chkTruncateProteinDescription";
-            chkTruncateProteinDescription.Size = new Size(164, 19);
-            chkTruncateProteinDescription.TabIndex = 7;
-            chkTruncateProteinDescription.Text = "Truncate long description";
-            //
+            // 
+            this.chkTruncateProteinDescription.Checked = true;
+            this.chkTruncateProteinDescription.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkTruncateProteinDescription.Location = new System.Drawing.Point(16, 128);
+            this.chkTruncateProteinDescription.Name = "chkTruncateProteinDescription";
+            this.chkTruncateProteinDescription.Size = new System.Drawing.Size(164, 19);
+            this.chkTruncateProteinDescription.TabIndex = 7;
+            this.chkTruncateProteinDescription.Text = "Truncate long description";
+            // 
             // chkComputeSequenceHashValues
-            //
-            chkComputeSequenceHashValues.Checked = true;
-            chkComputeSequenceHashValues.CheckState = CheckState.Checked;
-            chkComputeSequenceHashValues.Location = new Point(16, 107);
-            chkComputeSequenceHashValues.Name = "chkComputeSequenceHashValues";
-            chkComputeSequenceHashValues.Size = new Size(164, 19);
-            chkComputeSequenceHashValues.TabIndex = 6;
-            chkComputeSequenceHashValues.Text = "Compute sequence hashes";
-            //
+            // 
+            this.chkComputeSequenceHashValues.Checked = true;
+            this.chkComputeSequenceHashValues.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkComputeSequenceHashValues.Location = new System.Drawing.Point(16, 107);
+            this.chkComputeSequenceHashValues.Name = "chkComputeSequenceHashValues";
+            this.chkComputeSequenceHashValues.Size = new System.Drawing.Size(164, 19);
+            this.chkComputeSequenceHashValues.TabIndex = 6;
+            this.chkComputeSequenceHashValues.Text = "Compute sequence hashes";
+            this.chkComputeSequenceHashValues.CheckedChanged += new System.EventHandler(this.chkComputeSequenceHashValues_CheckedChanged);
+            // 
             // lblMassMode
-            //
-            lblMassMode.Location = new Point(16, 66);
-            lblMassMode.Name = "lblMassMode";
-            lblMassMode.Size = new Size(64, 16);
-            lblMassMode.TabIndex = 5;
-            lblMassMode.Text = "Mass type";
-            lblMassMode.TextAlign = ContentAlignment.TopRight;
-            //
+            // 
+            this.lblMassMode.Location = new System.Drawing.Point(16, 66);
+            this.lblMassMode.Name = "lblMassMode";
+            this.lblMassMode.Size = new System.Drawing.Size(64, 16);
+            this.lblMassMode.TabIndex = 5;
+            this.lblMassMode.Text = "Mass type";
+            this.lblMassMode.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
             // cboElementMassMode
-            //
-            cboElementMassMode.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboElementMassMode.Location = new Point(88, 65);
-            cboElementMassMode.Name = "cboElementMassMode";
-            cboElementMassMode.Size = new Size(144, 21);
-            cboElementMassMode.TabIndex = 4;
-            //
+            // 
+            this.cboElementMassMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboElementMassMode.Location = new System.Drawing.Point(88, 65);
+            this.cboElementMassMode.Name = "cboElementMassMode";
+            this.cboElementMassMode.Size = new System.Drawing.Size(144, 21);
+            this.cboElementMassMode.TabIndex = 4;
+            this.cboElementMassMode.SelectedIndexChanged += new System.EventHandler(this.cboElementMassMode_SelectedIndexChanged);
+            // 
             // chkExcludeProteinSequence
-            //
-            chkExcludeProteinSequence.Location = new Point(16, 16);
-            chkExcludeProteinSequence.Name = "chkExcludeProteinSequence";
-            chkExcludeProteinSequence.Size = new Size(192, 16);
-            chkExcludeProteinSequence.TabIndex = 0;
-            chkExcludeProteinSequence.Text = "Exclude Protein Sequence";
-            //
+            // 
+            this.chkExcludeProteinSequence.Location = new System.Drawing.Point(16, 16);
+            this.chkExcludeProteinSequence.Name = "chkExcludeProteinSequence";
+            this.chkExcludeProteinSequence.Size = new System.Drawing.Size(192, 16);
+            this.chkExcludeProteinSequence.TabIndex = 0;
+            this.chkExcludeProteinSequence.Text = "Exclude Protein Sequence";
+            // 
             // chkComputepIandNET
-            //
-            chkComputepIandNET.Location = new Point(16, 89);
-            chkComputepIandNET.Name = "chkComputepIandNET";
-            chkComputepIandNET.Size = new Size(252, 18);
-            chkComputepIandNET.TabIndex = 3;
-            chkComputepIandNET.Text = "Compute pI and Normalized Elution Time (NET)";
-            //
+            // 
+            this.chkComputepIandNET.Location = new System.Drawing.Point(16, 89);
+            this.chkComputepIandNET.Name = "chkComputepIandNET";
+            this.chkComputepIandNET.Size = new System.Drawing.Size(252, 18);
+            this.chkComputepIandNET.TabIndex = 3;
+            this.chkComputepIandNET.Text = "Compute pI and Normalized Elution Time (NET)";
+            this.chkComputepIandNET.CheckedChanged += new System.EventHandler(this.chkComputepI_CheckedChanged);
+            // 
             // chkIncludeXResidues
-            //
-            chkIncludeXResidues.Location = new Point(16, 49);
-            chkIncludeXResidues.Name = "chkIncludeXResidues";
-            chkIncludeXResidues.Size = new Size(216, 16);
-            chkIncludeXResidues.TabIndex = 2;
-            chkIncludeXResidues.Text = "Include X Residues in Mass (113 Da)";
-            //
+            // 
+            this.chkIncludeXResidues.Location = new System.Drawing.Point(16, 49);
+            this.chkIncludeXResidues.Name = "chkIncludeXResidues";
+            this.chkIncludeXResidues.Size = new System.Drawing.Size(216, 16);
+            this.chkIncludeXResidues.TabIndex = 2;
+            this.chkIncludeXResidues.Text = "Include X Residues in Mass (113 Da)";
+            // 
             // chkComputeProteinMass
-            //
-            chkComputeProteinMass.Location = new Point(16, 33);
-            chkComputeProteinMass.Name = "chkComputeProteinMass";
-            chkComputeProteinMass.Size = new Size(144, 16);
-            chkComputeProteinMass.TabIndex = 1;
-            chkComputeProteinMass.Text = "Compute Protein Mass";
-            //
+            // 
+            this.chkComputeProteinMass.Location = new System.Drawing.Point(16, 33);
+            this.chkComputeProteinMass.Name = "chkComputeProteinMass";
+            this.chkComputeProteinMass.Size = new System.Drawing.Size(144, 16);
+            this.chkComputeProteinMass.TabIndex = 1;
+            this.chkComputeProteinMass.Text = "Compute Protein Mass";
+            // 
             // fraDigestionOptions
-            //
-            fraDigestionOptions.Controls.Add(cboFragmentMassMode);
-            fraDigestionOptions.Controls.Add(lblFragmentMassMode);
-            fraDigestionOptions.Controls.Add(cboCysTreatmentMode);
-            fraDigestionOptions.Controls.Add(lblCysTreatment);
-            fraDigestionOptions.Controls.Add(txtDigestProteinsMaximumpI);
-            fraDigestionOptions.Controls.Add(lblDigestProteinsMaximumpI);
-            fraDigestionOptions.Controls.Add(txtDigestProteinsMinimumpI);
-            fraDigestionOptions.Controls.Add(lblDigestProteinsMinimumpI);
-            fraDigestionOptions.Controls.Add(chkGenerateUniqueIDValues);
-            fraDigestionOptions.Controls.Add(chkCysPeptidesOnly);
-            fraDigestionOptions.Controls.Add(txtDigestProteinsMinimumResidueCount);
-            fraDigestionOptions.Controls.Add(lblDigestProteinsMinimumResidueCount);
-            fraDigestionOptions.Controls.Add(txtDigestProteinsMaximumMissedCleavages);
-            fraDigestionOptions.Controls.Add(lblDigestProteinsMaximumMissedCleavages);
-            fraDigestionOptions.Controls.Add(txtDigestProteinsMaximumMass);
-            fraDigestionOptions.Controls.Add(lblDigestProteinsMaximumMass);
-            fraDigestionOptions.Controls.Add(txtDigestProteinsMinimumMass);
-            fraDigestionOptions.Controls.Add(lblDigestProteinsMinimumMass);
-            fraDigestionOptions.Controls.Add(cboCleavageRuleType);
-            fraDigestionOptions.Controls.Add(chkIncludeDuplicateSequences);
-            fraDigestionOptions.Location = new Point(8, 190);
-            fraDigestionOptions.Name = "fraDigestionOptions";
-            fraDigestionOptions.Size = new Size(675, 128);
-            fraDigestionOptions.TabIndex = 2;
-            fraDigestionOptions.TabStop = false;
-            fraDigestionOptions.Text = "Digestion Options";
-            //
+            // 
+            this.fraDigestionOptions.Controls.Add(this.cboFragmentMassMode);
+            this.fraDigestionOptions.Controls.Add(this.lblFragmentMassMode);
+            this.fraDigestionOptions.Controls.Add(this.cboCysTreatmentMode);
+            this.fraDigestionOptions.Controls.Add(this.lblCysTreatment);
+            this.fraDigestionOptions.Controls.Add(this.txtDigestProteinsMaximumpI);
+            this.fraDigestionOptions.Controls.Add(this.lblDigestProteinsMaximumpI);
+            this.fraDigestionOptions.Controls.Add(this.txtDigestProteinsMinimumpI);
+            this.fraDigestionOptions.Controls.Add(this.lblDigestProteinsMinimumpI);
+            this.fraDigestionOptions.Controls.Add(this.chkGenerateUniqueIDValues);
+            this.fraDigestionOptions.Controls.Add(this.chkCysPeptidesOnly);
+            this.fraDigestionOptions.Controls.Add(this.txtDigestProteinsMinimumResidueCount);
+            this.fraDigestionOptions.Controls.Add(this.lblDigestProteinsMinimumResidueCount);
+            this.fraDigestionOptions.Controls.Add(this.txtDigestProteinsMaximumMissedCleavages);
+            this.fraDigestionOptions.Controls.Add(this.lblDigestProteinsMaximumMissedCleavages);
+            this.fraDigestionOptions.Controls.Add(this.txtDigestProteinsMaximumMass);
+            this.fraDigestionOptions.Controls.Add(this.lblDigestProteinsMaximumMass);
+            this.fraDigestionOptions.Controls.Add(this.txtDigestProteinsMinimumMass);
+            this.fraDigestionOptions.Controls.Add(this.lblDigestProteinsMinimumMass);
+            this.fraDigestionOptions.Controls.Add(this.cboCleavageRuleType);
+            this.fraDigestionOptions.Controls.Add(this.chkIncludeDuplicateSequences);
+            this.fraDigestionOptions.Location = new System.Drawing.Point(8, 190);
+            this.fraDigestionOptions.Name = "fraDigestionOptions";
+            this.fraDigestionOptions.Size = new System.Drawing.Size(675, 128);
+            this.fraDigestionOptions.TabIndex = 2;
+            this.fraDigestionOptions.TabStop = false;
+            this.fraDigestionOptions.Text = "Digestion Options";
+            // 
             // cboFragmentMassMode
-            //
-            cboFragmentMassMode.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboFragmentMassMode.Location = new Point(75, 104);
-            cboFragmentMassMode.Name = "cboFragmentMassMode";
-            cboFragmentMassMode.Size = new Size(117, 21);
-            cboFragmentMassMode.TabIndex = 19;
-            //
+            // 
+            this.cboFragmentMassMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboFragmentMassMode.Location = new System.Drawing.Point(75, 104);
+            this.cboFragmentMassMode.Name = "cboFragmentMassMode";
+            this.cboFragmentMassMode.Size = new System.Drawing.Size(117, 21);
+            this.cboFragmentMassMode.TabIndex = 19;
+            // 
             // lblFragmentMassMode
-            //
-            lblFragmentMassMode.Location = new Point(8, 106);
-            lblFragmentMassMode.Name = "lblFragmentMassMode";
-            lblFragmentMassMode.Size = new Size(68, 16);
-            lblFragmentMassMode.TabIndex = 18;
-            lblFragmentMassMode.Text = "Mass Mode";
-            //
+            // 
+            this.lblFragmentMassMode.Location = new System.Drawing.Point(8, 106);
+            this.lblFragmentMassMode.Name = "lblFragmentMassMode";
+            this.lblFragmentMassMode.Size = new System.Drawing.Size(68, 16);
+            this.lblFragmentMassMode.TabIndex = 18;
+            this.lblFragmentMassMode.Text = "Mass Mode";
+            // 
             // cboCysTreatmentMode
-            //
-            cboCysTreatmentMode.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboCysTreatmentMode.Location = new Point(553, 76);
-            cboCysTreatmentMode.Name = "cboCysTreatmentMode";
-            cboCysTreatmentMode.Size = new Size(117, 21);
-            cboCysTreatmentMode.TabIndex = 17;
-            //
+            // 
+            this.cboCysTreatmentMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboCysTreatmentMode.Location = new System.Drawing.Point(553, 76);
+            this.cboCysTreatmentMode.Name = "cboCysTreatmentMode";
+            this.cboCysTreatmentMode.Size = new System.Drawing.Size(117, 21);
+            this.cboCysTreatmentMode.TabIndex = 17;
+            // 
             // lblCysTreatment
-            //
-            lblCysTreatment.Location = new Point(553, 56);
-            lblCysTreatment.Name = "lblCysTreatment";
-            lblCysTreatment.Size = new Size(104, 21);
-            lblCysTreatment.TabIndex = 16;
-            lblCysTreatment.Text = "Cys treatment:";
-            //
+            // 
+            this.lblCysTreatment.Location = new System.Drawing.Point(553, 56);
+            this.lblCysTreatment.Name = "lblCysTreatment";
+            this.lblCysTreatment.Size = new System.Drawing.Size(104, 21);
+            this.lblCysTreatment.TabIndex = 16;
+            this.lblCysTreatment.Text = "Cys treatment:";
+            // 
             // txtDigestProteinsMaximumpI
-            //
-            txtDigestProteinsMaximumpI.Location = new Point(497, 80);
-            txtDigestProteinsMaximumpI.Name = "txtDigestProteinsMaximumpI";
-            txtDigestProteinsMaximumpI.Size = new Size(40, 20);
-            txtDigestProteinsMaximumpI.TabIndex = 13;
-            txtDigestProteinsMaximumpI.Text = "14";
-            //
+            // 
+            this.txtDigestProteinsMaximumpI.Location = new System.Drawing.Point(497, 80);
+            this.txtDigestProteinsMaximumpI.Name = "txtDigestProteinsMaximumpI";
+            this.txtDigestProteinsMaximumpI.Size = new System.Drawing.Size(40, 20);
+            this.txtDigestProteinsMaximumpI.TabIndex = 13;
+            this.txtDigestProteinsMaximumpI.Text = "14";
+            // 
             // lblDigestProteinsMaximumpI
-            //
-            lblDigestProteinsMaximumpI.Location = new Point(420, 80);
-            lblDigestProteinsMaximumpI.Name = "lblDigestProteinsMaximumpI";
-            lblDigestProteinsMaximumpI.Size = new Size(72, 16);
-            lblDigestProteinsMaximumpI.TabIndex = 12;
-            lblDigestProteinsMaximumpI.Text = "Maximum pI";
-            //
+            // 
+            this.lblDigestProteinsMaximumpI.Location = new System.Drawing.Point(420, 80);
+            this.lblDigestProteinsMaximumpI.Name = "lblDigestProteinsMaximumpI";
+            this.lblDigestProteinsMaximumpI.Size = new System.Drawing.Size(72, 16);
+            this.lblDigestProteinsMaximumpI.TabIndex = 12;
+            this.lblDigestProteinsMaximumpI.Text = "Maximum pI";
+            // 
             // txtDigestProteinsMinimumpI
-            //
-            txtDigestProteinsMinimumpI.Location = new Point(497, 56);
-            txtDigestProteinsMinimumpI.Name = "txtDigestProteinsMinimumpI";
-            txtDigestProteinsMinimumpI.Size = new Size(40, 20);
-            txtDigestProteinsMinimumpI.TabIndex = 11;
-            txtDigestProteinsMinimumpI.Text = "0";
-            //
+            // 
+            this.txtDigestProteinsMinimumpI.Location = new System.Drawing.Point(497, 56);
+            this.txtDigestProteinsMinimumpI.Name = "txtDigestProteinsMinimumpI";
+            this.txtDigestProteinsMinimumpI.Size = new System.Drawing.Size(40, 20);
+            this.txtDigestProteinsMinimumpI.TabIndex = 11;
+            this.txtDigestProteinsMinimumpI.Text = "0";
+            // 
             // lblDigestProteinsMinimumpI
-            //
-            lblDigestProteinsMinimumpI.Location = new Point(420, 56);
-            lblDigestProteinsMinimumpI.Name = "lblDigestProteinsMinimumpI";
-            lblDigestProteinsMinimumpI.Size = new Size(72, 16);
-            lblDigestProteinsMinimumpI.TabIndex = 10;
-            lblDigestProteinsMinimumpI.Text = "Minimum pI";
-            //
+            // 
+            this.lblDigestProteinsMinimumpI.Location = new System.Drawing.Point(420, 56);
+            this.lblDigestProteinsMinimumpI.Name = "lblDigestProteinsMinimumpI";
+            this.lblDigestProteinsMinimumpI.Size = new System.Drawing.Size(72, 16);
+            this.lblDigestProteinsMinimumpI.TabIndex = 10;
+            this.lblDigestProteinsMinimumpI.Text = "Minimum pI";
+            // 
             // chkGenerateUniqueIDValues
-            //
-            chkGenerateUniqueIDValues.Checked = true;
-            chkGenerateUniqueIDValues.CheckState = CheckState.Checked;
-            chkGenerateUniqueIDValues.Location = new Point(218, 102);
-            chkGenerateUniqueIDValues.Name = "chkGenerateUniqueIDValues";
-            chkGenerateUniqueIDValues.Size = new Size(176, 16);
-            chkGenerateUniqueIDValues.TabIndex = 14;
-            chkGenerateUniqueIDValues.Text = "Generate UniqueID Values";
-            //
+            // 
+            this.chkGenerateUniqueIDValues.Checked = true;
+            this.chkGenerateUniqueIDValues.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkGenerateUniqueIDValues.Location = new System.Drawing.Point(218, 102);
+            this.chkGenerateUniqueIDValues.Name = "chkGenerateUniqueIDValues";
+            this.chkGenerateUniqueIDValues.Size = new System.Drawing.Size(176, 16);
+            this.chkGenerateUniqueIDValues.TabIndex = 14;
+            this.chkGenerateUniqueIDValues.Text = "Generate UniqueID Values";
+            // 
             // chkCysPeptidesOnly
-            //
-            chkCysPeptidesOnly.Location = new Point(486, 16);
-            chkCysPeptidesOnly.Name = "chkCysPeptidesOnly";
-            chkCysPeptidesOnly.Size = new Size(112, 32);
-            chkCysPeptidesOnly.TabIndex = 15;
-            chkCysPeptidesOnly.Text = "Include cysteine peptides only";
-            //
+            // 
+            this.chkCysPeptidesOnly.Location = new System.Drawing.Point(486, 16);
+            this.chkCysPeptidesOnly.Name = "chkCysPeptidesOnly";
+            this.chkCysPeptidesOnly.Size = new System.Drawing.Size(112, 32);
+            this.chkCysPeptidesOnly.TabIndex = 15;
+            this.chkCysPeptidesOnly.Text = "Include cysteine peptides only";
+            // 
             // txtDigestProteinsMinimumResidueCount
-            //
-            txtDigestProteinsMinimumResidueCount.Location = new Point(359, 56);
-            txtDigestProteinsMinimumResidueCount.Name = "txtDigestProteinsMinimumResidueCount";
-            txtDigestProteinsMinimumResidueCount.Size = new Size(32, 20);
-            txtDigestProteinsMinimumResidueCount.TabIndex = 7;
-            txtDigestProteinsMinimumResidueCount.Text = "0";
-            //
+            // 
+            this.txtDigestProteinsMinimumResidueCount.Location = new System.Drawing.Point(359, 56);
+            this.txtDigestProteinsMinimumResidueCount.Name = "txtDigestProteinsMinimumResidueCount";
+            this.txtDigestProteinsMinimumResidueCount.Size = new System.Drawing.Size(32, 20);
+            this.txtDigestProteinsMinimumResidueCount.TabIndex = 7;
+            this.txtDigestProteinsMinimumResidueCount.Text = "0";
+            this.txtDigestProteinsMinimumResidueCount.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtDigestProteinsMinimumResidueCount_KeyPress);
+            // 
             // lblDigestProteinsMinimumResidueCount
-            //
-            lblDigestProteinsMinimumResidueCount.Location = new Point(216, 58);
-            lblDigestProteinsMinimumResidueCount.Name = "lblDigestProteinsMinimumResidueCount";
-            lblDigestProteinsMinimumResidueCount.Size = new Size(136, 16);
-            lblDigestProteinsMinimumResidueCount.TabIndex = 6;
-            lblDigestProteinsMinimumResidueCount.Text = "Minimum Residue Count";
-            //
+            // 
+            this.lblDigestProteinsMinimumResidueCount.Location = new System.Drawing.Point(216, 58);
+            this.lblDigestProteinsMinimumResidueCount.Name = "lblDigestProteinsMinimumResidueCount";
+            this.lblDigestProteinsMinimumResidueCount.Size = new System.Drawing.Size(136, 16);
+            this.lblDigestProteinsMinimumResidueCount.TabIndex = 6;
+            this.lblDigestProteinsMinimumResidueCount.Text = "Minimum Residue Count";
+            // 
             // txtDigestProteinsMaximumMissedCleavages
-            //
-            txtDigestProteinsMaximumMissedCleavages.Location = new Point(359, 80);
-            txtDigestProteinsMaximumMissedCleavages.Name = "txtDigestProteinsMaximumMissedCleavages";
-            txtDigestProteinsMaximumMissedCleavages.Size = new Size(32, 20);
-            txtDigestProteinsMaximumMissedCleavages.TabIndex = 9;
-            txtDigestProteinsMaximumMissedCleavages.Text = "3";
-            //
+            // 
+            this.txtDigestProteinsMaximumMissedCleavages.Location = new System.Drawing.Point(359, 80);
+            this.txtDigestProteinsMaximumMissedCleavages.Name = "txtDigestProteinsMaximumMissedCleavages";
+            this.txtDigestProteinsMaximumMissedCleavages.Size = new System.Drawing.Size(32, 20);
+            this.txtDigestProteinsMaximumMissedCleavages.TabIndex = 9;
+            this.txtDigestProteinsMaximumMissedCleavages.Text = "3";
+            this.txtDigestProteinsMaximumMissedCleavages.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtDigestProteinsMaximumMissedCleavages_KeyPress);
+            // 
             // lblDigestProteinsMaximumMissedCleavages
-            //
-            lblDigestProteinsMaximumMissedCleavages.Location = new Point(216, 82);
-            lblDigestProteinsMaximumMissedCleavages.Name = "lblDigestProteinsMaximumMissedCleavages";
-            lblDigestProteinsMaximumMissedCleavages.Size = new Size(136, 16);
-            lblDigestProteinsMaximumMissedCleavages.TabIndex = 8;
-            lblDigestProteinsMaximumMissedCleavages.Text = "Max Missed Cleavages";
-            //
+            // 
+            this.lblDigestProteinsMaximumMissedCleavages.Location = new System.Drawing.Point(216, 82);
+            this.lblDigestProteinsMaximumMissedCleavages.Name = "lblDigestProteinsMaximumMissedCleavages";
+            this.lblDigestProteinsMaximumMissedCleavages.Size = new System.Drawing.Size(136, 16);
+            this.lblDigestProteinsMaximumMissedCleavages.TabIndex = 8;
+            this.lblDigestProteinsMaximumMissedCleavages.Text = "Max Missed Cleavages";
+            // 
             // txtDigestProteinsMaximumMass
-            //
-            txtDigestProteinsMaximumMass.Location = new Point(152, 80);
-            txtDigestProteinsMaximumMass.Name = "txtDigestProteinsMaximumMass";
-            txtDigestProteinsMaximumMass.Size = new Size(40, 20);
-            txtDigestProteinsMaximumMass.TabIndex = 5;
-            txtDigestProteinsMaximumMass.Text = "6000";
-            //
+            // 
+            this.txtDigestProteinsMaximumMass.Location = new System.Drawing.Point(152, 80);
+            this.txtDigestProteinsMaximumMass.Name = "txtDigestProteinsMaximumMass";
+            this.txtDigestProteinsMaximumMass.Size = new System.Drawing.Size(40, 20);
+            this.txtDigestProteinsMaximumMass.TabIndex = 5;
+            this.txtDigestProteinsMaximumMass.Text = "6000";
+            this.txtDigestProteinsMaximumMass.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtDigestProteinsMaximumMass_KeyPress);
+            // 
             // lblDigestProteinsMaximumMass
-            //
-            lblDigestProteinsMaximumMass.Location = new Point(8, 82);
-            lblDigestProteinsMaximumMass.Name = "lblDigestProteinsMaximumMass";
-            lblDigestProteinsMaximumMass.Size = new Size(144, 16);
-            lblDigestProteinsMaximumMass.TabIndex = 4;
-            lblDigestProteinsMaximumMass.Text = "Maximum Fragment Mass";
-            //
+            // 
+            this.lblDigestProteinsMaximumMass.Location = new System.Drawing.Point(8, 82);
+            this.lblDigestProteinsMaximumMass.Name = "lblDigestProteinsMaximumMass";
+            this.lblDigestProteinsMaximumMass.Size = new System.Drawing.Size(144, 16);
+            this.lblDigestProteinsMaximumMass.TabIndex = 4;
+            this.lblDigestProteinsMaximumMass.Text = "Maximum Fragment Mass";
+            // 
             // txtDigestProteinsMinimumMass
-            //
-            txtDigestProteinsMinimumMass.Location = new Point(152, 56);
-            txtDigestProteinsMinimumMass.Name = "txtDigestProteinsMinimumMass";
-            txtDigestProteinsMinimumMass.Size = new Size(40, 20);
-            txtDigestProteinsMinimumMass.TabIndex = 3;
-            txtDigestProteinsMinimumMass.Text = "400";
-            //
+            // 
+            this.txtDigestProteinsMinimumMass.Location = new System.Drawing.Point(152, 56);
+            this.txtDigestProteinsMinimumMass.Name = "txtDigestProteinsMinimumMass";
+            this.txtDigestProteinsMinimumMass.Size = new System.Drawing.Size(40, 20);
+            this.txtDigestProteinsMinimumMass.TabIndex = 3;
+            this.txtDigestProteinsMinimumMass.Text = "400";
+            this.txtDigestProteinsMinimumMass.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtDigestProteinsMinimumMass_KeyPress);
+            // 
             // lblDigestProteinsMinimumMass
-            //
-            lblDigestProteinsMinimumMass.Location = new Point(8, 58);
-            lblDigestProteinsMinimumMass.Name = "lblDigestProteinsMinimumMass";
-            lblDigestProteinsMinimumMass.Size = new Size(144, 16);
-            lblDigestProteinsMinimumMass.TabIndex = 2;
-            lblDigestProteinsMinimumMass.Text = "Minimum Fragment Mass";
-            //
+            // 
+            this.lblDigestProteinsMinimumMass.Location = new System.Drawing.Point(8, 58);
+            this.lblDigestProteinsMinimumMass.Name = "lblDigestProteinsMinimumMass";
+            this.lblDigestProteinsMinimumMass.Size = new System.Drawing.Size(144, 16);
+            this.lblDigestProteinsMinimumMass.TabIndex = 2;
+            this.lblDigestProteinsMinimumMass.Text = "Minimum Fragment Mass";
+            // 
             // cboCleavageRuleType
-            //
-            cboCleavageRuleType.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboCleavageRuleType.Location = new Point(8, 24);
-            cboCleavageRuleType.Name = "cboCleavageRuleType";
-            cboCleavageRuleType.Size = new Size(288, 21);
-            cboCleavageRuleType.TabIndex = 0;
-            //
+            // 
+            this.cboCleavageRuleType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboCleavageRuleType.Location = new System.Drawing.Point(8, 24);
+            this.cboCleavageRuleType.Name = "cboCleavageRuleType";
+            this.cboCleavageRuleType.Size = new System.Drawing.Size(288, 21);
+            this.cboCleavageRuleType.TabIndex = 0;
+            // 
             // chkIncludeDuplicateSequences
-            //
-            chkIncludeDuplicateSequences.Location = new Point(312, 16);
-            chkIncludeDuplicateSequences.Name = "chkIncludeDuplicateSequences";
-            chkIncludeDuplicateSequences.Size = new Size(168, 32);
-            chkIncludeDuplicateSequences.TabIndex = 1;
-            chkIncludeDuplicateSequences.Text = "Include duplicate sequences for given protein";
-            //
+            // 
+            this.chkIncludeDuplicateSequences.Location = new System.Drawing.Point(312, 16);
+            this.chkIncludeDuplicateSequences.Name = "chkIncludeDuplicateSequences";
+            this.chkIncludeDuplicateSequences.Size = new System.Drawing.Size(168, 32);
+            this.chkIncludeDuplicateSequences.TabIndex = 1;
+            this.chkIncludeDuplicateSequences.Text = "Include duplicate sequences for given protein";
+            // 
             // cmdParseInputFile
-            //
-            cmdParseInputFile.Location = new Point(384, 8);
-            cmdParseInputFile.Name = "cmdParseInputFile";
-            cmdParseInputFile.Size = new Size(112, 24);
-            cmdParseInputFile.TabIndex = 3;
-            cmdParseInputFile.Text = "&Parse and Digest";
-            //
+            // 
+            this.cmdParseInputFile.Location = new System.Drawing.Point(384, 8);
+            this.cmdParseInputFile.Name = "cmdParseInputFile";
+            this.cmdParseInputFile.Size = new System.Drawing.Size(112, 24);
+            this.cmdParseInputFile.TabIndex = 3;
+            this.cmdParseInputFile.Text = "&Parse and Digest";
+            this.cmdParseInputFile.Click += new System.EventHandler(this.cmdParseInputFile_Click);
+            // 
             // TabPagePeakMatchingThresholds
-            //
-            TabPagePeakMatchingThresholds.Controls.Add(chkAutoDefineSLiCScoreTolerances);
-            TabPagePeakMatchingThresholds.Controls.Add(cmdPastePMThresholdsList);
-            TabPagePeakMatchingThresholds.Controls.Add(cboPMPredefinedThresholds);
-            TabPagePeakMatchingThresholds.Controls.Add(cmdPMThresholdsAutoPopulate);
-            TabPagePeakMatchingThresholds.Controls.Add(cmdClearPMThresholdsList);
-            TabPagePeakMatchingThresholds.Controls.Add(cboMassTolType);
-            TabPagePeakMatchingThresholds.Controls.Add(lblMassTolType);
-            TabPagePeakMatchingThresholds.Controls.Add(dgPeakMatchingThresholds);
-            TabPagePeakMatchingThresholds.Location = new Point(4, 22);
-            TabPagePeakMatchingThresholds.Name = "TabPagePeakMatchingThresholds";
-            TabPagePeakMatchingThresholds.Size = new Size(696, 328);
-            TabPagePeakMatchingThresholds.TabIndex = 3;
-            TabPagePeakMatchingThresholds.Text = "Peak Matching Thresholds";
-            TabPagePeakMatchingThresholds.UseVisualStyleBackColor = true;
-            //
+            // 
+            this.TabPagePeakMatchingThresholds.Controls.Add(this.chkAutoDefineSLiCScoreTolerances);
+            this.TabPagePeakMatchingThresholds.Controls.Add(this.cmdPastePMThresholdsList);
+            this.TabPagePeakMatchingThresholds.Controls.Add(this.cboPMPredefinedThresholds);
+            this.TabPagePeakMatchingThresholds.Controls.Add(this.cmdPMThresholdsAutoPopulate);
+            this.TabPagePeakMatchingThresholds.Controls.Add(this.cmdClearPMThresholdsList);
+            this.TabPagePeakMatchingThresholds.Controls.Add(this.cboMassTolType);
+            this.TabPagePeakMatchingThresholds.Controls.Add(this.lblMassTolType);
+            this.TabPagePeakMatchingThresholds.Controls.Add(this.dgPeakMatchingThresholds);
+            this.TabPagePeakMatchingThresholds.Location = new System.Drawing.Point(4, 22);
+            this.TabPagePeakMatchingThresholds.Name = "TabPagePeakMatchingThresholds";
+            this.TabPagePeakMatchingThresholds.Size = new System.Drawing.Size(696, 328);
+            this.TabPagePeakMatchingThresholds.TabIndex = 3;
+            this.TabPagePeakMatchingThresholds.Text = "Peak Matching Thresholds";
+            this.TabPagePeakMatchingThresholds.UseVisualStyleBackColor = true;
+            // 
             // chkAutoDefineSLiCScoreTolerances
-            //
-            chkAutoDefineSLiCScoreTolerances.Checked = true;
-            chkAutoDefineSLiCScoreTolerances.CheckState = CheckState.Checked;
-            chkAutoDefineSLiCScoreTolerances.Location = new Point(16, 256);
-            chkAutoDefineSLiCScoreTolerances.Name = "chkAutoDefineSLiCScoreTolerances";
-            chkAutoDefineSLiCScoreTolerances.Size = new Size(208, 16);
-            chkAutoDefineSLiCScoreTolerances.TabIndex = 3;
-            chkAutoDefineSLiCScoreTolerances.Text = "Auto Define SLiC Score Tolerances";
-            //
+            // 
+            this.chkAutoDefineSLiCScoreTolerances.Checked = true;
+            this.chkAutoDefineSLiCScoreTolerances.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkAutoDefineSLiCScoreTolerances.Location = new System.Drawing.Point(16, 256);
+            this.chkAutoDefineSLiCScoreTolerances.Name = "chkAutoDefineSLiCScoreTolerances";
+            this.chkAutoDefineSLiCScoreTolerances.Size = new System.Drawing.Size(208, 16);
+            this.chkAutoDefineSLiCScoreTolerances.TabIndex = 3;
+            this.chkAutoDefineSLiCScoreTolerances.Text = "Auto Define SLiC Score Tolerances";
+            this.chkAutoDefineSLiCScoreTolerances.CheckedChanged += new System.EventHandler(this.chkAutoDefineSLiCScoreTolerances_CheckedChanged);
+            // 
             // cmdPastePMThresholdsList
-            //
-            cmdPastePMThresholdsList.Location = new Point(456, 96);
-            cmdPastePMThresholdsList.Name = "cmdPastePMThresholdsList";
-            cmdPastePMThresholdsList.Size = new Size(104, 24);
-            cmdPastePMThresholdsList.TabIndex = 6;
-            cmdPastePMThresholdsList.Text = "Paste Values";
-            //
+            // 
+            this.cmdPastePMThresholdsList.Location = new System.Drawing.Point(456, 96);
+            this.cmdPastePMThresholdsList.Name = "cmdPastePMThresholdsList";
+            this.cmdPastePMThresholdsList.Size = new System.Drawing.Size(104, 24);
+            this.cmdPastePMThresholdsList.TabIndex = 6;
+            this.cmdPastePMThresholdsList.Text = "Paste Values";
+            this.cmdPastePMThresholdsList.Click += new System.EventHandler(this.cmdPastePMThresholdsList_Click);
+            // 
             // cboPMPredefinedThresholds
-            //
-            cboPMPredefinedThresholds.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboPMPredefinedThresholds.Location = new Point(336, 256);
-            cboPMPredefinedThresholds.Name = "cboPMPredefinedThresholds";
-            cboPMPredefinedThresholds.Size = new Size(264, 21);
-            cboPMPredefinedThresholds.TabIndex = 5;
-            //
+            // 
+            this.cboPMPredefinedThresholds.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboPMPredefinedThresholds.Location = new System.Drawing.Point(336, 256);
+            this.cboPMPredefinedThresholds.Name = "cboPMPredefinedThresholds";
+            this.cboPMPredefinedThresholds.Size = new System.Drawing.Size(264, 21);
+            this.cboPMPredefinedThresholds.TabIndex = 5;
+            // 
             // cmdPMThresholdsAutoPopulate
-            //
-            cmdPMThresholdsAutoPopulate.Location = new Point(336, 224);
-            cmdPMThresholdsAutoPopulate.Name = "cmdPMThresholdsAutoPopulate";
-            cmdPMThresholdsAutoPopulate.Size = new Size(104, 24);
-            cmdPMThresholdsAutoPopulate.TabIndex = 4;
-            cmdPMThresholdsAutoPopulate.Text = "Auto-Populate";
-            //
+            // 
+            this.cmdPMThresholdsAutoPopulate.Location = new System.Drawing.Point(336, 224);
+            this.cmdPMThresholdsAutoPopulate.Name = "cmdPMThresholdsAutoPopulate";
+            this.cmdPMThresholdsAutoPopulate.Size = new System.Drawing.Size(104, 24);
+            this.cmdPMThresholdsAutoPopulate.TabIndex = 4;
+            this.cmdPMThresholdsAutoPopulate.Text = "Auto-Populate";
+            this.cmdPMThresholdsAutoPopulate.Click += new System.EventHandler(this.cmdPMThresholdsAutoPopulate_Click);
+            // 
             // cmdClearPMThresholdsList
-            //
-            cmdClearPMThresholdsList.Location = new Point(456, 128);
-            cmdClearPMThresholdsList.Name = "cmdClearPMThresholdsList";
-            cmdClearPMThresholdsList.Size = new Size(104, 24);
-            cmdClearPMThresholdsList.TabIndex = 7;
-            cmdClearPMThresholdsList.Text = "Clear List";
-            //
+            // 
+            this.cmdClearPMThresholdsList.Location = new System.Drawing.Point(456, 128);
+            this.cmdClearPMThresholdsList.Name = "cmdClearPMThresholdsList";
+            this.cmdClearPMThresholdsList.Size = new System.Drawing.Size(104, 24);
+            this.cmdClearPMThresholdsList.TabIndex = 7;
+            this.cmdClearPMThresholdsList.Text = "Clear List";
+            this.cmdClearPMThresholdsList.Click += new System.EventHandler(this.cmdClearPMThresholdsList_Click);
+            // 
             // cboMassTolType
-            //
-            cboMassTolType.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboMassTolType.Location = new Point(144, 224);
-            cboMassTolType.Name = "cboMassTolType";
-            cboMassTolType.Size = new Size(136, 21);
-            cboMassTolType.TabIndex = 2;
-            //
+            // 
+            this.cboMassTolType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboMassTolType.Location = new System.Drawing.Point(144, 224);
+            this.cboMassTolType.Name = "cboMassTolType";
+            this.cboMassTolType.Size = new System.Drawing.Size(136, 21);
+            this.cboMassTolType.TabIndex = 2;
+            // 
             // lblMassTolType
-            //
-            lblMassTolType.Location = new Point(16, 226);
-            lblMassTolType.Name = "lblMassTolType";
-            lblMassTolType.Size = new Size(136, 16);
-            lblMassTolType.TabIndex = 1;
-            lblMassTolType.Text = "Mass Tolerance Type";
-            //
+            // 
+            this.lblMassTolType.Location = new System.Drawing.Point(16, 226);
+            this.lblMassTolType.Name = "lblMassTolType";
+            this.lblMassTolType.Size = new System.Drawing.Size(136, 16);
+            this.lblMassTolType.TabIndex = 1;
+            this.lblMassTolType.Text = "Mass Tolerance Type";
+            // 
             // dgPeakMatchingThresholds
-            //
-            dgPeakMatchingThresholds.CaptionText = "Peak Matching Thresholds";
-            dgPeakMatchingThresholds.DataMember = "";
-            dgPeakMatchingThresholds.HeaderForeColor = SystemColors.ControlText;
-            dgPeakMatchingThresholds.Location = new Point(16, 8);
-            dgPeakMatchingThresholds.Name = "dgPeakMatchingThresholds";
-            dgPeakMatchingThresholds.Size = new Size(424, 208);
-            dgPeakMatchingThresholds.TabIndex = 0;
-            //
+            // 
+            this.dgPeakMatchingThresholds.CaptionText = "Peak Matching Thresholds";
+            this.dgPeakMatchingThresholds.DataMember = "";
+            this.dgPeakMatchingThresholds.HeaderForeColor = System.Drawing.SystemColors.ControlText;
+            this.dgPeakMatchingThresholds.Location = new System.Drawing.Point(16, 8);
+            this.dgPeakMatchingThresholds.Name = "dgPeakMatchingThresholds";
+            this.dgPeakMatchingThresholds.Size = new System.Drawing.Size(424, 208);
+            this.dgPeakMatchingThresholds.TabIndex = 0;
+            // 
             // TabPageProgress
-            //
-            TabPageProgress.Controls.Add(pbarProgress);
-            TabPageProgress.Controls.Add(lblErrorMessage);
-            TabPageProgress.Controls.Add(lblSubtaskProgress);
-            TabPageProgress.Controls.Add(lblProgress);
-            TabPageProgress.Controls.Add(lblSubtaskProgressDescription);
-            TabPageProgress.Controls.Add(lblProgressDescription);
-            TabPageProgress.Controls.Add(cmdAbortProcessing);
-            TabPageProgress.Location = new Point(4, 22);
-            TabPageProgress.Name = "TabPageProgress";
-            TabPageProgress.Size = new Size(696, 328);
-            TabPageProgress.TabIndex = 4;
-            TabPageProgress.Text = "Progress";
-            TabPageProgress.UseVisualStyleBackColor = true;
-            //
+            // 
+            this.TabPageProgress.Controls.Add(this.pbarProgress);
+            this.TabPageProgress.Controls.Add(this.lblErrorMessage);
+            this.TabPageProgress.Controls.Add(this.lblSubtaskProgress);
+            this.TabPageProgress.Controls.Add(this.lblProgress);
+            this.TabPageProgress.Controls.Add(this.lblSubtaskProgressDescription);
+            this.TabPageProgress.Controls.Add(this.lblProgressDescription);
+            this.TabPageProgress.Controls.Add(this.cmdAbortProcessing);
+            this.TabPageProgress.Location = new System.Drawing.Point(4, 22);
+            this.TabPageProgress.Name = "TabPageProgress";
+            this.TabPageProgress.Size = new System.Drawing.Size(696, 328);
+            this.TabPageProgress.TabIndex = 4;
+            this.TabPageProgress.Text = "Progress";
+            this.TabPageProgress.UseVisualStyleBackColor = true;
+            // 
             // pbarProgress
-            //
-            pbarProgress.Location = new Point(13, 12);
-            pbarProgress.Name = "pbarProgress";
-            pbarProgress.Size = new Size(122, 20);
-            pbarProgress.TabIndex = 12;
-            //
+            // 
+            this.pbarProgress.Location = new System.Drawing.Point(13, 12);
+            this.pbarProgress.Name = "pbarProgress";
+            this.pbarProgress.Size = new System.Drawing.Size(122, 20);
+            this.pbarProgress.TabIndex = 12;
+            // 
             // lblErrorMessage
-            //
-            lblErrorMessage.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            lblErrorMessage.Location = new Point(137, 112);
-            lblErrorMessage.Name = "lblErrorMessage";
-            lblErrorMessage.Size = new Size(515, 32);
-            lblErrorMessage.TabIndex = 11;
-            lblErrorMessage.Text = "Error message ...";
-            lblErrorMessage.Visible = false;
-            //
+            // 
+            this.lblErrorMessage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblErrorMessage.Location = new System.Drawing.Point(137, 112);
+            this.lblErrorMessage.Name = "lblErrorMessage";
+            this.lblErrorMessage.Size = new System.Drawing.Size(515, 32);
+            this.lblErrorMessage.TabIndex = 11;
+            this.lblErrorMessage.Text = "Error message ...";
+            this.lblErrorMessage.Visible = false;
+            // 
             // lblSubtaskProgress
-            //
-            lblSubtaskProgress.Location = new Point(13, 61);
-            lblSubtaskProgress.Name = "lblSubtaskProgress";
-            lblSubtaskProgress.Size = new Size(118, 18);
-            lblSubtaskProgress.TabIndex = 8;
-            lblSubtaskProgress.Text = "0";
-            lblSubtaskProgress.Visible = false;
-            //
+            // 
+            this.lblSubtaskProgress.Location = new System.Drawing.Point(13, 61);
+            this.lblSubtaskProgress.Name = "lblSubtaskProgress";
+            this.lblSubtaskProgress.Size = new System.Drawing.Size(118, 18);
+            this.lblSubtaskProgress.TabIndex = 8;
+            this.lblSubtaskProgress.Text = "0";
+            this.lblSubtaskProgress.Visible = false;
+            // 
             // lblProgress
-            //
-            lblProgress.Location = new Point(13, 35);
-            lblProgress.Name = "lblProgress";
-            lblProgress.Size = new Size(118, 18);
-            lblProgress.TabIndex = 7;
-            lblProgress.Text = "0";
-            //
+            // 
+            this.lblProgress.Location = new System.Drawing.Point(13, 35);
+            this.lblProgress.Name = "lblProgress";
+            this.lblProgress.Size = new System.Drawing.Size(118, 18);
+            this.lblProgress.TabIndex = 7;
+            this.lblProgress.Text = "0";
+            // 
             // lblSubtaskProgressDescription
-            //
-            lblSubtaskProgressDescription.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            lblSubtaskProgressDescription.Location = new Point(140, 61);
-            lblSubtaskProgressDescription.Name = "lblSubtaskProgressDescription";
-            lblSubtaskProgressDescription.Size = new Size(515, 32);
-            lblSubtaskProgressDescription.TabIndex = 6;
-            lblSubtaskProgressDescription.Text = "Subtask progress description ...";
-            lblSubtaskProgressDescription.Visible = false;
-            //
+            // 
+            this.lblSubtaskProgressDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblSubtaskProgressDescription.Location = new System.Drawing.Point(140, 61);
+            this.lblSubtaskProgressDescription.Name = "lblSubtaskProgressDescription";
+            this.lblSubtaskProgressDescription.Size = new System.Drawing.Size(515, 32);
+            this.lblSubtaskProgressDescription.TabIndex = 6;
+            this.lblSubtaskProgressDescription.Text = "Subtask progress description ...";
+            this.lblSubtaskProgressDescription.Visible = false;
+            // 
             // lblProgressDescription
-            //
-            lblProgressDescription.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            lblProgressDescription.Location = new Point(140, 12);
-            lblProgressDescription.Name = "lblProgressDescription";
-            lblProgressDescription.Size = new Size(515, 32);
-            lblProgressDescription.TabIndex = 5;
-            lblProgressDescription.Text = "Progress description ...";
-            //
+            // 
+            this.lblProgressDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblProgressDescription.Location = new System.Drawing.Point(140, 12);
+            this.lblProgressDescription.Name = "lblProgressDescription";
+            this.lblProgressDescription.Size = new System.Drawing.Size(515, 32);
+            this.lblProgressDescription.TabIndex = 5;
+            this.lblProgressDescription.Text = "Progress description ...";
+            // 
             // cmdAbortProcessing
-            //
-            cmdAbortProcessing.Location = new Point(10, 106);
-            cmdAbortProcessing.Name = "cmdAbortProcessing";
-            cmdAbortProcessing.Size = new Size(121, 24);
-            cmdAbortProcessing.TabIndex = 4;
-            cmdAbortProcessing.Text = "Abort Processing";
-            //
+            // 
+            this.cmdAbortProcessing.Location = new System.Drawing.Point(10, 106);
+            this.cmdAbortProcessing.Name = "cmdAbortProcessing";
+            this.cmdAbortProcessing.Size = new System.Drawing.Size(121, 24);
+            this.cmdAbortProcessing.TabIndex = 4;
+            this.cmdAbortProcessing.Text = "Abort Processing";
+            this.cmdAbortProcessing.Click += new System.EventHandler(this.cmdAbortProcessing_Click);
+            // 
             // mnuHelpAboutElutionTime
-            //
-            mnuHelpAboutElutionTime.Index = 1;
-            mnuHelpAboutElutionTime.Text = "About &Elution Time Prediction";
-            //
+            // 
+            this.mnuHelpAboutElutionTime.Index = 1;
+            this.mnuHelpAboutElutionTime.Text = "About &Elution Time Prediction";
+            this.mnuHelpAboutElutionTime.Click += new System.EventHandler(this.mnuHelpAboutElutionTime_Click);
+            // 
             // cboInputFileFormat
-            //
-            cboInputFileFormat.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboInputFileFormat.Location = new Point(112, 56);
-            cboInputFileFormat.Name = "cboInputFileFormat";
-            cboInputFileFormat.Size = new Size(112, 21);
-            cboInputFileFormat.TabIndex = 3;
-            //
+            // 
+            this.cboInputFileFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboInputFileFormat.Location = new System.Drawing.Point(112, 56);
+            this.cboInputFileFormat.Name = "cboInputFileFormat";
+            this.cboInputFileFormat.Size = new System.Drawing.Size(112, 21);
+            this.cboInputFileFormat.TabIndex = 3;
+            this.cboInputFileFormat.SelectedIndexChanged += new System.EventHandler(this.cboInputFileFormat_SelectedIndexChanged);
+            // 
             // lblInputFileFormat
-            //
-            lblInputFileFormat.Location = new Point(8, 58);
-            lblInputFileFormat.Name = "lblInputFileFormat";
-            lblInputFileFormat.Size = new Size(104, 16);
-            lblInputFileFormat.TabIndex = 2;
-            lblInputFileFormat.Text = "Input File Format";
-            //
+            // 
+            this.lblInputFileFormat.Location = new System.Drawing.Point(8, 58);
+            this.lblInputFileFormat.Name = "lblInputFileFormat";
+            this.lblInputFileFormat.Size = new System.Drawing.Size(104, 16);
+            this.lblInputFileFormat.TabIndex = 2;
+            this.lblInputFileFormat.Text = "Input File Format";
+            // 
             // cmdSelectFile
-            //
-            cmdSelectFile.Location = new Point(8, 24);
-            cmdSelectFile.Name = "cmdSelectFile";
-            cmdSelectFile.Size = new Size(80, 24);
-            cmdSelectFile.TabIndex = 0;
-            cmdSelectFile.Text = "&Select file";
-            //
+            // 
+            this.cmdSelectFile.Location = new System.Drawing.Point(8, 24);
+            this.cmdSelectFile.Name = "cmdSelectFile";
+            this.cmdSelectFile.Size = new System.Drawing.Size(80, 24);
+            this.cmdSelectFile.TabIndex = 0;
+            this.cmdSelectFile.Text = "&Select file";
+            this.cmdSelectFile.Click += new System.EventHandler(this.cmdSelectFile_Click);
+            // 
             // fraInputFilePath
-            //
-            fraInputFilePath.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            fraInputFilePath.Controls.Add(cmdValidateFastaFile);
-            fraInputFilePath.Controls.Add(cboInputFileFormat);
-            fraInputFilePath.Controls.Add(lblInputFileFormat);
-            fraInputFilePath.Controls.Add(cmdSelectFile);
-            fraInputFilePath.Controls.Add(txtProteinInputFilePath);
-            fraInputFilePath.Location = new Point(12, 12);
-            fraInputFilePath.Name = "fraInputFilePath";
-            fraInputFilePath.Size = new Size(730, 88);
-            fraInputFilePath.TabIndex = 3;
-            fraInputFilePath.TabStop = false;
-            fraInputFilePath.Text = "Protein Input File Path (FASTA or Tab-delimited)";
-            //
+            // 
+            this.fraInputFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.fraInputFilePath.Controls.Add(this.cmdValidateFastaFile);
+            this.fraInputFilePath.Controls.Add(this.cboInputFileFormat);
+            this.fraInputFilePath.Controls.Add(this.lblInputFileFormat);
+            this.fraInputFilePath.Controls.Add(this.cmdSelectFile);
+            this.fraInputFilePath.Controls.Add(this.txtProteinInputFilePath);
+            this.fraInputFilePath.Location = new System.Drawing.Point(12, 12);
+            this.fraInputFilePath.Name = "fraInputFilePath";
+            this.fraInputFilePath.Size = new System.Drawing.Size(730, 88);
+            this.fraInputFilePath.TabIndex = 3;
+            this.fraInputFilePath.TabStop = false;
+            this.fraInputFilePath.Text = "Protein Input File Path (FASTA or Tab-delimited)";
+            // 
             // cmdValidateFastaFile
-            //
-            cmdValidateFastaFile.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            cmdValidateFastaFile.Location = new Point(595, 56);
-            cmdValidateFastaFile.Name = "cmdValidateFastaFile";
-            cmdValidateFastaFile.Size = new Size(120, 24);
-            cmdValidateFastaFile.TabIndex = 4;
-            cmdValidateFastaFile.Text = "&Validate FASTA File";
-            //
+            // 
+            this.cmdValidateFastaFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmdValidateFastaFile.Location = new System.Drawing.Point(595, 56);
+            this.cmdValidateFastaFile.Name = "cmdValidateFastaFile";
+            this.cmdValidateFastaFile.Size = new System.Drawing.Size(120, 24);
+            this.cmdValidateFastaFile.TabIndex = 4;
+            this.cmdValidateFastaFile.Text = "&Validate FASTA File";
+            this.cmdValidateFastaFile.Click += new System.EventHandler(this.cmdValidateFastaFile_Click);
+            // 
             // chkEnableLogging
-            //
-            chkEnableLogging.Checked = true;
-            chkEnableLogging.CheckState = CheckState.Checked;
-            chkEnableLogging.Location = new Point(422, 19);
-            chkEnableLogging.Name = "chkEnableLogging";
-            chkEnableLogging.Size = new Size(112, 24);
-            chkEnableLogging.TabIndex = 4;
-            chkEnableLogging.Text = "Enable logging";
-            //
+            // 
+            this.chkEnableLogging.Checked = true;
+            this.chkEnableLogging.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkEnableLogging.Location = new System.Drawing.Point(422, 19);
+            this.chkEnableLogging.Name = "chkEnableLogging";
+            this.chkEnableLogging.Size = new System.Drawing.Size(112, 24);
+            this.chkEnableLogging.TabIndex = 4;
+            this.chkEnableLogging.Text = "Enable logging";
+            // 
             // mnuFileSelectOutputFile
-            //
-            mnuFileSelectOutputFile.Index = 1;
-            mnuFileSelectOutputFile.Text = "Select &Output File...";
-            //
+            // 
+            this.mnuFileSelectOutputFile.Index = 1;
+            this.mnuFileSelectOutputFile.Text = "Select &Output File...";
+            this.mnuFileSelectOutputFile.Click += new System.EventHandler(this.mnuFileSelectOutputFile_Click);
+            // 
             // cmdSelectOutputFile
-            //
-            cmdSelectOutputFile.Location = new Point(8, 56);
-            cmdSelectOutputFile.Name = "cmdSelectOutputFile";
-            cmdSelectOutputFile.Size = new Size(88, 33);
-            cmdSelectOutputFile.TabIndex = 5;
-            cmdSelectOutputFile.Text = "Select / &Create File";
-            //
+            // 
+            this.cmdSelectOutputFile.Location = new System.Drawing.Point(8, 56);
+            this.cmdSelectOutputFile.Name = "cmdSelectOutputFile";
+            this.cmdSelectOutputFile.Size = new System.Drawing.Size(88, 33);
+            this.cmdSelectOutputFile.TabIndex = 5;
+            this.cmdSelectOutputFile.Text = "Select / &Create File";
+            this.cmdSelectOutputFile.Click += new System.EventHandler(this.cmdSelectOutputFile_Click);
+            // 
             // mnuFileSep1
-            //
-            mnuFileSep1.Index = 2;
-            mnuFileSep1.Text = "-";
-            //
+            // 
+            this.mnuFileSep1.Index = 2;
+            this.mnuFileSep1.Text = "-";
+            // 
             // mnuFile
-            //
-            mnuFile.Index = 0;
-            mnuFile.MenuItems.AddRange(new MenuItem[] { mnuFileSelectInputFile, mnuFileSelectOutputFile, mnuFileSep1, mnuFileSaveDefaultOptions, mnuFileSep2, mnuFileExit });
-            mnuFile.Text = "&File";
-            //
+            // 
+            this.mnuFile.Index = 0;
+            this.mnuFile.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.mnuFileSelectInputFile,
+            this.mnuFileSelectOutputFile,
+            this.mnuFileSep1,
+            this.mnuFileSaveDefaultOptions,
+            this.mnuFileSep2,
+            this.mnuFileExit});
+            this.mnuFile.Text = "&File";
+            // 
             // mnuFileSelectInputFile
-            //
-            mnuFileSelectInputFile.Index = 0;
-            mnuFileSelectInputFile.Text = "Select &Input File...";
-            //
+            // 
+            this.mnuFileSelectInputFile.Index = 0;
+            this.mnuFileSelectInputFile.Text = "Select &Input File...";
+            this.mnuFileSelectInputFile.Click += new System.EventHandler(this.mnuFileSelectInputFile_Click);
+            // 
             // mnuFileSaveDefaultOptions
-            //
-            mnuFileSaveDefaultOptions.Index = 3;
-            mnuFileSaveDefaultOptions.Text = "Save &Default Options";
-            //
+            // 
+            this.mnuFileSaveDefaultOptions.Index = 3;
+            this.mnuFileSaveDefaultOptions.Text = "Save &Default Options";
+            this.mnuFileSaveDefaultOptions.Click += new System.EventHandler(this.mnuFileSaveDefaultOptions_Click);
+            // 
             // mnuFileSep2
-            //
-            mnuFileSep2.Index = 4;
-            mnuFileSep2.Text = "-";
-            //
+            // 
+            this.mnuFileSep2.Index = 4;
+            this.mnuFileSep2.Text = "-";
+            // 
             // mnuFileExit
-            //
-            mnuFileExit.Index = 5;
-            mnuFileExit.Text = "E&xit";
-            //
+            // 
+            this.mnuFileExit.Index = 5;
+            this.mnuFileExit.Text = "E&xit";
+            this.mnuFileExit.Click += new System.EventHandler(this.mnuFileExit_Click);
+            // 
             // txtProteinOutputFilePath
-            //
-            txtProteinOutputFilePath.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtProteinOutputFilePath.Location = new Point(104, 62);
-            txtProteinOutputFilePath.Name = "txtProteinOutputFilePath";
-            txtProteinOutputFilePath.Size = new Size(611, 20);
-            txtProteinOutputFilePath.TabIndex = 6;
-            //
+            // 
+            this.txtProteinOutputFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtProteinOutputFilePath.Location = new System.Drawing.Point(104, 62);
+            this.txtProteinOutputFilePath.Name = "txtProteinOutputFilePath";
+            this.txtProteinOutputFilePath.Size = new System.Drawing.Size(611, 20);
+            this.txtProteinOutputFilePath.TabIndex = 6;
+            // 
             // chkIncludePrefixAndSuffixResidues
-            //
-            chkIncludePrefixAndSuffixResidues.Location = new Point(256, 16);
-            chkIncludePrefixAndSuffixResidues.Name = "chkIncludePrefixAndSuffixResidues";
-            chkIncludePrefixAndSuffixResidues.Size = new Size(160, 32);
-            chkIncludePrefixAndSuffixResidues.TabIndex = 3;
-            chkIncludePrefixAndSuffixResidues.Text = "Include prefix and suffix residues for the sequences";
-            //
+            // 
+            this.chkIncludePrefixAndSuffixResidues.Location = new System.Drawing.Point(256, 16);
+            this.chkIncludePrefixAndSuffixResidues.Name = "chkIncludePrefixAndSuffixResidues";
+            this.chkIncludePrefixAndSuffixResidues.Size = new System.Drawing.Size(160, 32);
+            this.chkIncludePrefixAndSuffixResidues.TabIndex = 3;
+            this.chkIncludePrefixAndSuffixResidues.Text = "Include prefix and suffix residues for the sequences";
+            // 
             // mnuEditResetOptions
-            //
-            mnuEditResetOptions.Index = 3;
-            mnuEditResetOptions.Text = "&Reset options to Defaults...";
-            //
+            // 
+            this.mnuEditResetOptions.Index = 3;
+            this.mnuEditResetOptions.Text = "&Reset options to Defaults...";
+            this.mnuEditResetOptions.Click += new System.EventHandler(this.mnuEditResetOptions_Click);
+            // 
             // mnuHelp
-            //
-            mnuHelp.Index = 2;
-            mnuHelp.MenuItems.AddRange(new MenuItem[] { mnuHelpAbout, mnuHelpAboutElutionTime });
-            mnuHelp.Text = "&Help";
-            //
+            // 
+            this.mnuHelp.Index = 2;
+            this.mnuHelp.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.mnuHelpAbout,
+            this.mnuHelpAboutElutionTime});
+            this.mnuHelp.Text = "&Help";
+            // 
             // mnuHelpAbout
-            //
-            mnuHelpAbout.Index = 0;
-            mnuHelpAbout.Text = "&About";
-            //
+            // 
+            this.mnuHelpAbout.Index = 0;
+            this.mnuHelpAbout.Text = "&About";
+            this.mnuHelpAbout.Click += new System.EventHandler(this.mnuHelpAbout_Click);
+            // 
             // mnuEditSep1
-            //
-            mnuEditSep1.Index = 2;
-            mnuEditSep1.Text = "-";
-            //
+            // 
+            this.mnuEditSep1.Index = 2;
+            this.mnuEditSep1.Text = "-";
+            // 
             // mnuEditMakeUniquenessStats
-            //
-            mnuEditMakeUniquenessStats.Index = 1;
-            mnuEditMakeUniquenessStats.Text = "&Make Uniqueness Stats";
-            //
+            // 
+            this.mnuEditMakeUniquenessStats.Index = 1;
+            this.mnuEditMakeUniquenessStats.Text = "&Make Uniqueness Stats";
+            this.mnuEditMakeUniquenessStats.Click += new System.EventHandler(this.mnuEditMakeUniquenessStats_Click);
+            // 
             // mnuEdit
-            //
-            mnuEdit.Index = 1;
-            mnuEdit.MenuItems.AddRange(new MenuItem[] { mnuEditParseFile, mnuEditMakeUniquenessStats, mnuEditSep1, mnuEditResetOptions });
-            mnuEdit.Text = "&Edit";
-            //
+            // 
+            this.mnuEdit.Index = 1;
+            this.mnuEdit.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.mnuEditParseFile,
+            this.mnuEditMakeUniquenessStats,
+            this.mnuEditSep1,
+            this.mnuEditResetOptions});
+            this.mnuEdit.Text = "&Edit";
+            // 
             // mnuEditParseFile
-            //
-            mnuEditParseFile.Index = 0;
-            mnuEditParseFile.Text = "&Parse File";
-            //
+            // 
+            this.mnuEditParseFile.Index = 0;
+            this.mnuEditParseFile.Text = "&Parse File";
+            this.mnuEditParseFile.Click += new System.EventHandler(this.mnuEditParseFile_Click);
+            // 
             // MainMenuControl
-            //
-            MainMenuControl.MenuItems.AddRange(new MenuItem[] { mnuFile, mnuEdit, mnuHelp });
-            //
+            // 
+            this.MainMenuControl.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.mnuFile,
+            this.mnuEdit,
+            this.mnuHelp});
+            // 
             // lblOutputFileFieldDelimiter
-            //
-            lblOutputFileFieldDelimiter.Location = new Point(8, 26);
-            lblOutputFileFieldDelimiter.Name = "lblOutputFileFieldDelimiter";
-            lblOutputFileFieldDelimiter.Size = new Size(112, 18);
-            lblOutputFileFieldDelimiter.TabIndex = 0;
-            lblOutputFileFieldDelimiter.Text = "Field delimiter";
-            //
+            // 
+            this.lblOutputFileFieldDelimiter.Location = new System.Drawing.Point(8, 26);
+            this.lblOutputFileFieldDelimiter.Name = "lblOutputFileFieldDelimiter";
+            this.lblOutputFileFieldDelimiter.Size = new System.Drawing.Size(112, 18);
+            this.lblOutputFileFieldDelimiter.TabIndex = 0;
+            this.lblOutputFileFieldDelimiter.Text = "Field delimiter";
+            // 
             // cboOutputFileFieldDelimiter
-            //
-            cboOutputFileFieldDelimiter.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboOutputFileFieldDelimiter.Location = new Point(128, 24);
-            cboOutputFileFieldDelimiter.Name = "cboOutputFileFieldDelimiter";
-            cboOutputFileFieldDelimiter.Size = new Size(70, 21);
-            cboOutputFileFieldDelimiter.TabIndex = 1;
-            //
+            // 
+            this.cboOutputFileFieldDelimiter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboOutputFileFieldDelimiter.Location = new System.Drawing.Point(128, 24);
+            this.cboOutputFileFieldDelimiter.Name = "cboOutputFileFieldDelimiter";
+            this.cboOutputFileFieldDelimiter.Size = new System.Drawing.Size(70, 21);
+            this.cboOutputFileFieldDelimiter.TabIndex = 1;
+            this.cboOutputFileFieldDelimiter.SelectedIndexChanged += new System.EventHandler(this.cboOutputFileFieldDelimiter_SelectedIndexChanged);
+            // 
             // txtOutputFileFieldDelimiter
-            //
-            txtOutputFileFieldDelimiter.Location = new Point(208, 24);
-            txtOutputFileFieldDelimiter.MaxLength = 1;
-            txtOutputFileFieldDelimiter.Name = "txtOutputFileFieldDelimiter";
-            txtOutputFileFieldDelimiter.Size = new Size(32, 20);
-            txtOutputFileFieldDelimiter.TabIndex = 2;
-            txtOutputFileFieldDelimiter.Text = ";";
-            //
+            // 
+            this.txtOutputFileFieldDelimiter.Location = new System.Drawing.Point(208, 24);
+            this.txtOutputFileFieldDelimiter.MaxLength = 1;
+            this.txtOutputFileFieldDelimiter.Name = "txtOutputFileFieldDelimiter";
+            this.txtOutputFileFieldDelimiter.Size = new System.Drawing.Size(32, 20);
+            this.txtOutputFileFieldDelimiter.TabIndex = 2;
+            this.txtOutputFileFieldDelimiter.Text = ";";
+            // 
             // fraOutputTextOptions
-            //
-            fraOutputTextOptions.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            fraOutputTextOptions.Controls.Add(chkEnableLogging);
-            fraOutputTextOptions.Controls.Add(cmdSelectOutputFile);
-            fraOutputTextOptions.Controls.Add(txtProteinOutputFilePath);
-            fraOutputTextOptions.Controls.Add(chkIncludePrefixAndSuffixResidues);
-            fraOutputTextOptions.Controls.Add(cboOutputFileFieldDelimiter);
-            fraOutputTextOptions.Controls.Add(txtOutputFileFieldDelimiter);
-            fraOutputTextOptions.Controls.Add(lblOutputFileFieldDelimiter);
-            fraOutputTextOptions.Location = new Point(12, 108);
-            fraOutputTextOptions.Name = "fraOutputTextOptions";
-            fraOutputTextOptions.Size = new Size(730, 96);
-            fraOutputTextOptions.TabIndex = 4;
-            fraOutputTextOptions.TabStop = false;
-            fraOutputTextOptions.Text = "Output Options";
-            //
-            // frmMain
-            //
-            AutoScaleDimensions = new SizeF(6.0f, 13.0f);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(754, 577);
-            Controls.Add(tbsOptions);
-            Controls.Add(fraInputFilePath);
-            Controls.Add(fraOutputTextOptions);
-            Menu = MainMenuControl;
-            Name = "frmMain";
-            Text = "Protein Digestion Simulator";
-            fraPeakMatchingOptions.ResumeLayout(false);
-            fraPeakMatchingOptions.PerformLayout();
-            TabPageUniquenessStats.ResumeLayout(false);
-            fraSqlServerOptions.ResumeLayout(false);
-            fraSqlServerOptions.PerformLayout();
-            fraUniquenessBinningOptions.ResumeLayout(false);
-            fraUniquenessBinningOptions.PerformLayout();
-            frapIAndHydrophobicity.ResumeLayout(false);
-            frapIAndHydrophobicity.PerformLayout();
-            fraDelimitedFileOptions.ResumeLayout(false);
-            fraDelimitedFileOptions.PerformLayout();
-            TabPageFileFormatOptions.ResumeLayout(false);
-            tbsOptions.ResumeLayout(false);
-            TabPageParseAndDigest.ResumeLayout(false);
-            fraProcessingOptions.ResumeLayout(false);
-            fraProcessingOptions.PerformLayout();
-            fraCalculationOptions.ResumeLayout(false);
-            fraDigestionOptions.ResumeLayout(false);
-            fraDigestionOptions.PerformLayout();
-            TabPagePeakMatchingThresholds.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)dgPeakMatchingThresholds).EndInit();
-            TabPageProgress.ResumeLayout(false);
-            fraInputFilePath.ResumeLayout(false);
-            fraInputFilePath.PerformLayout();
-            fraOutputTextOptions.ResumeLayout(false);
-            fraOutputTextOptions.PerformLayout();
-            Load += new EventHandler(frmMain_Load);
-            Closing += new System.ComponentModel.CancelEventHandler(frmMain_Closing);
-            ResumeLayout(false);
+            // 
+            this.fraOutputTextOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.fraOutputTextOptions.Controls.Add(this.chkEnableLogging);
+            this.fraOutputTextOptions.Controls.Add(this.cmdSelectOutputFile);
+            this.fraOutputTextOptions.Controls.Add(this.txtProteinOutputFilePath);
+            this.fraOutputTextOptions.Controls.Add(this.chkIncludePrefixAndSuffixResidues);
+            this.fraOutputTextOptions.Controls.Add(this.cboOutputFileFieldDelimiter);
+            this.fraOutputTextOptions.Controls.Add(this.txtOutputFileFieldDelimiter);
+            this.fraOutputTextOptions.Controls.Add(this.lblOutputFileFieldDelimiter);
+            this.fraOutputTextOptions.Location = new System.Drawing.Point(12, 108);
+            this.fraOutputTextOptions.Name = "fraOutputTextOptions";
+            this.fraOutputTextOptions.Size = new System.Drawing.Size(730, 96);
+            this.fraOutputTextOptions.TabIndex = 4;
+            this.fraOutputTextOptions.TabStop = false;
+            this.fraOutputTextOptions.Text = "Output Options";
+            // 
+            // Main
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(754, 577);
+            this.Controls.Add(this.tbsOptions);
+            this.Controls.Add(this.fraInputFilePath);
+            this.Controls.Add(this.fraOutputTextOptions);
+            this.Menu = this.MainMenuControl;
+            this.Name = "Main";
+            this.Text = "Protein Digestion Simulator";
+            this.Closing += new System.ComponentModel.CancelEventHandler(this.frmMain_Closing);
+            this.Load += new System.EventHandler(this.frmMain_Load);
+            this.fraPeakMatchingOptions.ResumeLayout(false);
+            this.fraPeakMatchingOptions.PerformLayout();
+            this.TabPageUniquenessStats.ResumeLayout(false);
+            this.fraSqlServerOptions.ResumeLayout(false);
+            this.fraSqlServerOptions.PerformLayout();
+            this.fraUniquenessBinningOptions.ResumeLayout(false);
+            this.fraUniquenessBinningOptions.PerformLayout();
+            this.frapIAndHydrophobicity.ResumeLayout(false);
+            this.frapIAndHydrophobicity.PerformLayout();
+            this.fraDelimitedFileOptions.ResumeLayout(false);
+            this.fraDelimitedFileOptions.PerformLayout();
+            this.TabPageFileFormatOptions.ResumeLayout(false);
+            this.tbsOptions.ResumeLayout(false);
+            this.TabPageParseAndDigest.ResumeLayout(false);
+            this.fraProcessingOptions.ResumeLayout(false);
+            this.fraProcessingOptions.PerformLayout();
+            this.fraCalculationOptions.ResumeLayout(false);
+            this.fraDigestionOptions.ResumeLayout(false);
+            this.fraDigestionOptions.PerformLayout();
+            this.TabPagePeakMatchingThresholds.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgPeakMatchingThresholds)).EndInit();
+            this.TabPageProgress.ResumeLayout(false);
+            this.fraInputFilePath.ResumeLayout(false);
+            this.fraInputFilePath.PerformLayout();
+            this.fraOutputTextOptions.ResumeLayout(false);
+            this.fraOutputTextOptions.PerformLayout();
+            this.ResumeLayout(false);
+
         }
 
         private TextBox txtProteinInputFilePath;
