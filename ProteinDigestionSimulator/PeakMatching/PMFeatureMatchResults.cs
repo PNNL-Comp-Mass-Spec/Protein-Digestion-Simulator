@@ -44,6 +44,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             Clear();
         }
 
+        // ReSharper disable once UnusedMember.Global
         public bool AddMatch(int featureID, ref PeakMatchingResult matchResultInfo)
         {
             return AddMatch(featureID, matchResultInfo.MatchingID,
