@@ -47,7 +47,7 @@ namespace ProteinDigestionSimulator
 
         private const int SCRAMBLING_CACHE_LENGTH = 4000;
         private const string PROTEIN_PREFIX_SCRAMBLED = "Random_";
-        private const string PROTEIN_PREFIX_REVERSED = "XXX.";
+        private const string PROTEIN_PREFIX_REVERSED = "XXX_";
 
         private const int MAXIMUM_PROTEIN_NAME_LENGTH = 512;
 
