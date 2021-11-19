@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.4.7992; November 18, 2021
+	- Add option to create decoy FASTA files (with both forward and reversed protein sequences in the same file)
+
 Version 2.4.7991; November 17, 2021
 	- Warn the user if protein sequences appear to be DNA
 	- Assure that the output file extension is .fasta, .txt, or .tsv
