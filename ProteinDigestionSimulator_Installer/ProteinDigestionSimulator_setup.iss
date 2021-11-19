@@ -40,6 +40,7 @@ Source: ..\Documentation\ProteinDigestionSimulatorOptions.conf                  
 
 Source: ..\ExampleData\QC_Standards_2004-01-21.fasta                                 ; DestDir: {app}\ExampleData\
 Source: ..\ExampleData\QC_Standards_2004-01-21.txt                                   ; DestDir: {app}\ExampleData\
+Source: ..\ExampleData\QC_Standards_2004-01-21_decoy.fasta                           ; DestDir: {app}\ExampleData\
 Source: ..\ExampleData\QC_Standards_2004-01-21_digested_Mass400to6000.txt            ; DestDir: {app}\ExampleData\
 Source: ..\ExampleData\JunkTest.fasta                                                ; DestDir: {app}\ExampleData\
 Source: ..\ExampleData\TestProteins.csv                                              ; DestDir: {app}\ExampleData\

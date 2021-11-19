@@ -36,6 +36,8 @@ echo.
 
 %ExePath% QC_Standards_2004-01-21_digested_peptides.txt /DelimitedFileFormat:SequenceOnly /Hash /Mass:False /InputFileHasHeader:False
 
+%ExePath% QC_Standards_2004-01-21.fasta /ScrambleMode:Decoy
+
 %ExePath% TestProteins.csv
 
 %ExePath% TestProteins.csv /ad:,
