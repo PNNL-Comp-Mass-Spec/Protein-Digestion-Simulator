@@ -128,7 +128,7 @@
       <Version>1.0.16</Version>
     </PackageReference>
     <PackageReference Include="ProteinFileReader">
-      <Version>3.0.1</Version>
+      <Version>3.0.2</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
