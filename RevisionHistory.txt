@@ -1,5 +1,10 @@
 Protein Digestion Simulator Change Log
 
+Version 2.4.7993; November 19, 2021
+	- Updated FASTA file validator that checks for a Unicode replacement character after the protein name
+	- Updated ProteinFileReader DLL
+	  - Looks for a non-breaking space and a Unicode replacement character after protein names
+
 Version 2.4.7992; November 18, 2021
 	- Add option to create decoy FASTA files (with both forward and reversed protein sequences in the same file)
 

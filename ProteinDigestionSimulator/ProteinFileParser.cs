@@ -44,7 +44,7 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: ComputepI, Cys, Cysteine, gi, hydrophobicity, Ile, isoelectric, Leu, pre, SepChar, silico, varchar
 
-        private const string PROGRAM_DATE = "November 18, 2021";
+        private const string PROGRAM_DATE = "November 19, 2021";
 
         private const int SCRAMBLING_CACHE_LENGTH = 4000;
         private const string PROTEIN_PREFIX_SCRAMBLED = "Random_";
