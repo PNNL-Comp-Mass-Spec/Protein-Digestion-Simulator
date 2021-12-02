@@ -26,6 +26,8 @@ echo.
 
 %ExePath% JunkTest.fasta
 
+%ExePath% QC_Standards_with_DNA.fasta
+
 %ExePath% JunkTest.fasta /P:%ParamFilePath%
 
 %ExePath% QC_Standards_2004-01-21.fasta /conf:%ParamFilePath%
