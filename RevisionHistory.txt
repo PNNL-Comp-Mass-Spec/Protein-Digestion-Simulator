@@ -1,5 +1,8 @@
 Protein Digestion Simulator Change Log
 
+Version 2.4.8005; December 1, 2021
+	- Updated FASTA file validator that reports an error if the majority of the sequences appear to be DNA
+
 Version 2.4.7993; November 19, 2021
 	- Updated FASTA file validator that checks for a Unicode replacement character after the protein name
 	- Updated ProteinFileReader DLL
