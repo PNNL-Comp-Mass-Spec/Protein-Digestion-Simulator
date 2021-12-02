@@ -44,7 +44,7 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: ComputepI, Cys, Cysteine, gi, hydrophobicity, Ile, isoelectric, Leu, pre, SepChar, silico, varchar
 
-        private const string PROGRAM_DATE = "November 19, 2021";
+        private const string PROGRAM_DATE = "November 20, 2021";
 
         private const int SCRAMBLING_CACHE_LENGTH = 4000;
         private const string PROTEIN_PREFIX_SCRAMBLED = "Random_";
@@ -578,7 +578,7 @@ namespace ProteinDigestionSimulator
         }
 
         /// <summary>
-        /// Return true if all of the characters in sequence are A, T, C, and G
+        /// Return true if all of the characters in sequence are A, T, C, or G
         /// </summary>
         /// <param name="sequence"></param>
         private bool IsLikelyDNA(string sequence)
