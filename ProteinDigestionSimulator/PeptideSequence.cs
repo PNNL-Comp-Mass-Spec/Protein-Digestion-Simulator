@@ -1175,6 +1175,8 @@ namespace ProteinDigestionSimulator
             return GetTrypticPeptideNext(proteinResidues, searchStartLoc, mTrypticCleavageRule, out returnResidueStart, out returnResidueEnd);
         }
 
+        // ReSharper disable once GrammarMistakeInComment
+
         /// <summary>
         /// Finds the next tryptic peptide in proteinResidues, starting the search as searchStartLoc
         /// </summary>

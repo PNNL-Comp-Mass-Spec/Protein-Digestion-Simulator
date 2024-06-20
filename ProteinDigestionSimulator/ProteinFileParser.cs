@@ -30,6 +30,8 @@ using ValidateFastaFile;
 
 namespace ProteinDigestionSimulator
 {
+    // ReSharper disable once GrammarMistakeInComment
+
     /// <summary>
     /// <para>
     /// This class will read a protein FASTA file or delimited protein info file and parse it
@@ -42,7 +44,7 @@ namespace ProteinDigestionSimulator
     /// </summary>
     public class ProteinFileParser : ProcessFilesBase
     {
-        // Ignore Spelling: ComputepI, Cys, Cysteine, gi, hydrophobicity, Ile, isoelectric, Leu, pre, SepChar, silico, varchar
+        // Ignore Spelling: addnl, ComputepI, Cys, Cysteine, fasta, gi, hydrophobicity, Ile, isoelectric, Leu, pre, SepChar, silico, varchar
 
         private const string PROGRAM_DATE = "November 20, 2021";
 
@@ -577,6 +579,8 @@ namespace ProteinDigestionSimulator
             mFileNameAbbreviated = string.Empty;
         }
 
+        // ReSharper disable once GrammarMistakeInComment
+
         /// <summary>
         /// Return true if all of the characters in sequence are A, T, C, or G
         /// </summary>
@@ -963,6 +967,8 @@ namespace ProteinDigestionSimulator
 
                     if (createProteinOutputFile && ParsedFileIsFastaFile && allowLookForAddnlRefInDescription)
                     {
+                        // ReSharper disable once GrammarMistakeInComment
+
                         // Need to pre-scan the FASTA file to find all of the possible additional reference values
 
                         var addnlRefMasterNames = new SortedSet<string>(StringComparer.CurrentCultureIgnoreCase);
@@ -1895,10 +1901,7 @@ namespace ProteinDigestionSimulator
                     int index;
                     for (index = 0; index < protein.AlternateNameCount; index++)
                     {
-                        if (!addnlRefMasterNames.Contains(protein.AlternateNames[index].RefName))
-                        {
-                            addnlRefMasterNames.Add(protein.AlternateNames[index].RefName);
-                        }
+                        addnlRefMasterNames.Add(protein.AlternateNames[index].RefName);
                     }
 
                     UpdateProgress(reader.PercentFileProcessed());
