@@ -409,7 +409,7 @@ namespace ProteinDigestionSimulator
 
             mPredefinedPMThresholds = new PredefinedPMThresholds[5];
 
-            // All of the predefined thresholds have mass tolerances in units of PPM
+            // Each of the predefined thresholds have mass tolerances in units of PPM
             for (index = 0; index <= PREDEFINED_PM_THRESHOLDS_COUNT - 1; index++)
             {
                 mPredefinedPMThresholds[index] = new PredefinedPMThresholds(PeakMatching.MassToleranceConstants.PPM);

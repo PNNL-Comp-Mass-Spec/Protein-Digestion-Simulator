@@ -824,7 +824,7 @@ namespace ProteinDigestionSimulator
                     // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
                     if (ParsedFileIsFastaFile)
                     {
-                        // Since the input file is a FASTA file and we're creating a decoy output file, do not create a new forward-sequence protein output file
+                        // Since the input file is a FASTA file, and we're creating a decoy output file, do not create a new forward-sequence protein output file
                         createProteinOutputFile = false;
                     }
                     else

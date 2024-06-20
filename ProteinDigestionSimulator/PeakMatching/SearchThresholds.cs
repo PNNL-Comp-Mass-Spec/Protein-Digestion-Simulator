@@ -33,7 +33,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             public float MaxSearchDistanceMultiplier { get; set; }   // Default 2
         }
 
-        // Note that all of these tolerances are half-widths, i.e. tolerance +- comparison value
+        // Note that these tolerances are half-widths, i.e. tolerance +- comparison value
         public class SearchTolerances
         {
             public double MWTolAbsBroad { get; set; }

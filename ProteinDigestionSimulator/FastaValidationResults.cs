@@ -323,7 +323,7 @@ namespace ProteinDigestionSimulator
             txtFilterData.Text = string.Empty;
             if (mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.ErrorMsg, FastaValidator.ErrorWarningCountTypes.Specified) > 0)
             {
-                // List all of the errors
+                // List each of the errors
                 PopulateMsgResultsDataGrid(dgErrors, mErrorsDataset, mValidateFastaFile.FileErrorList);
             }
             else
@@ -333,7 +333,7 @@ namespace ProteinDigestionSimulator
 
             if (mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.WarningMsg, FastaValidator.ErrorWarningCountTypes.Specified) > 0)
             {
-                // List all of the warnings in the DataGrid
+                // List each of the warnings in the DataGrid
                 PopulateMsgResultsDataGrid(dgWarnings, mWarningsDataset, mValidateFastaFile.FileWarningList);
             }
             else

@@ -503,7 +503,7 @@ namespace ProteinDigestionSimulator
 
             public int[] GetPeptideIDsMappedToProteinID(int proteinID)
             {
-                // Returns all of the peptides for the given protein ID
+                // Returns the peptides for the given protein ID
 
                 int[] matchingIDs;
 
@@ -565,7 +565,7 @@ namespace ProteinDigestionSimulator
 
                 if (indexFirst >= 0)
                 {
-                    // Match found; need to find all of the rows with proteinID
+                    // Match found; need to find the rows with proteinID
                     indexLast = indexFirst;
 
                     // Step backward through mMappings to find the first match for proteinID

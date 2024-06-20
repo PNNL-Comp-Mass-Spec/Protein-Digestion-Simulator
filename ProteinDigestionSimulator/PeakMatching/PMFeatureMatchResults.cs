@@ -133,7 +133,7 @@ namespace ProteinDigestionSimulator.PeakMatching
 
         public bool GetMatchInfoByFeatureID(int featureID, ref PeakMatchingResult[] matchResults, ref int matchCount)
         {
-            // Returns all of the matches for the given feature ID row index
+            // Returns each of the matches for the given feature ID row index
             // Returns false if the feature has no matches
             // Note that this function never shrinks matchResults; it only expands it if needed
 
@@ -199,7 +199,7 @@ namespace ProteinDigestionSimulator.PeakMatching
 
             if (indexFirst >= 0)
             {
-                // Match found; need to find all of the rows with featureID
+                // Match found; need to find the rows with featureID
                 indexLast = indexFirst;
 
                 // Step backward through mPMResults to find the first match for featureID

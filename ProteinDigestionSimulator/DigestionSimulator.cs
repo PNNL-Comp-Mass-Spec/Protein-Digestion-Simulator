@@ -33,7 +33,7 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: Da, pre
 
-        private const string PROGRAM_DATE = "October 26, 2021";
+        private const string PROGRAM_DATE = "June 19, 2024";
 
         private const string PROTEIN_ID_COLUMN = "ProteinID";
         private const string PEPTIDE_ID_MATCH_COLUMN = "PeptideIDMatch";
@@ -979,7 +979,7 @@ namespace ProteinDigestionSimulator
 
             int thresholdIndex;
 
-            // Combine all of the data together in one output file
+            // Combine the data together in one output file
             var workingFilenameBase = outputFilenameBase + "_PMResults.txt";
             var outputFilePath = Path.Combine(outputFolderPath, workingFilenameBase);
 
