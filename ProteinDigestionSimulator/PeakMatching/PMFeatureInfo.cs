@@ -105,12 +105,9 @@ namespace ProteinDigestionSimulator.PeakMatching
                     }
                 }
 
-                if (midIndex >= firstIndex && midIndex <= lastIndex)
+                if (midIndex >= firstIndex && midIndex <= lastIndex && mFeatures[midIndex].FeatureID == featureIDToFind)
                 {
-                    if (mFeatures[midIndex].FeatureID == featureIDToFind)
-                    {
-                        matchingRowIndex = midIndex;
-                    }
+                    matchingRowIndex = midIndex;
                 }
             }
             catch

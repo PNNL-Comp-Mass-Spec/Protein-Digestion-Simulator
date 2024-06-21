@@ -191,12 +191,9 @@ namespace ProteinDigestionSimulator
                     }
                 }
 
-                if (midIndex >= firstIndex && midIndex <= lastIndex)
+                if (midIndex >= firstIndex && midIndex <= lastIndex && (mProteins[midIndex].Name ?? string.Empty) == (proteinName ?? string.Empty))
                 {
-                    if ((mProteins[midIndex].Name ?? string.Empty) == (proteinName ?? string.Empty))
-                    {
-                        matchingRowIndex = midIndex;
-                    }
+                    matchingRowIndex = midIndex;
                 }
             }
             catch
@@ -487,12 +484,9 @@ namespace ProteinDigestionSimulator
                         }
                     }
 
-                    if (midIndex >= firstIndex && midIndex <= lastIndex)
+                    if (midIndex >= firstIndex && midIndex <= lastIndex && mMappings[midIndex].ProteinID == proteinIDToFind)
                     {
-                        if (mMappings[midIndex].ProteinID == proteinIDToFind)
-                        {
-                            matchingRowIndex = midIndex;
-                        }
+                        matchingRowIndex = midIndex;
                     }
                 }
                 catch
