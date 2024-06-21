@@ -102,6 +102,7 @@ namespace ProteinDigestionSimulator
             public string RefName { get; set; }                // e.g. in gi:12334  the RefName is "gi" and the RefAccession is "1234"
             public string RefAccession { get; set; }
 
+            // ReSharper disable once ConvertToPrimaryConstructor
             public AddnlRef(string refName, string refAccession)
             {
                 RefName = refName;
@@ -189,6 +190,7 @@ namespace ProteinDigestionSimulator
             public int OutputCount { get; set; }
             public string ResiduesToWrite { get; set; }
 
+            // ReSharper disable once ConvertToPrimaryConstructor
             public ScramblingResidueCache(DigestionSimulatorOptions options)
             {
                 SamplingPercentage = options.ProteinScramblingSamplingPercentage switch

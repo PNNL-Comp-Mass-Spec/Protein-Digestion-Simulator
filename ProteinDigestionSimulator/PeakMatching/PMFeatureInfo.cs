@@ -17,7 +17,10 @@ namespace ProteinDigestionSimulator.PeakMatching
         /// </summary>
         public PMFeatureInfo()
         {
-            UseFeatureIDDictionary = true;                       // Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
+            // ReSharper disable once GrammarMistakeInComment
+
+            // Set this to false to conserve memory; you must call Clear() after changing this for it to take effect
+            UseFeatureIDDictionary = true;
             Clear();
         }
 

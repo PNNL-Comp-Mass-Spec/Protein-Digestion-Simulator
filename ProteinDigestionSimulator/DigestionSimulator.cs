@@ -74,6 +74,7 @@ namespace ProteinDigestionSimulator
             public int[] ResultIDCountDistribution { get; set; }
             public float PercentUnique { get; set; }          // UniqueResultIDs[].length / (UniqueResultIDs[].length + NonUniqueResultIDs[].length)
 
+            // ReSharper disable once ConvertToPrimaryConstructor
             public SingleBinStats(double massBinStart, double massBinEnd)
             {
                 MassBinStart = massBinStart;
@@ -91,6 +92,7 @@ namespace ProteinDigestionSimulator
             public int BinCount { get; set; }
             public SingleBinStats[] Bins { get; set; }
 
+            // ReSharper disable once ConvertToPrimaryConstructor
             public BinnedPeptideCountStats(PeakMatchingOptions.MassBinningOptions settings)
             {
                 Settings = settings;

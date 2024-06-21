@@ -12,6 +12,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             public int FeatureID { get; }
             public PeakMatchingResult Details { get; }
 
+            // ReSharper disable once ConvertToPrimaryConstructor
             public PeakMatchingResults(int featureId, PeakMatchingResult details)
             {
                 FeatureID = featureId;

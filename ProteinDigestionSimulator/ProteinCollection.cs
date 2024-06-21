@@ -22,6 +22,7 @@ namespace ProteinDigestionSimulator
             public string Name { get; }
             public int ProteinID { get; }
 
+            // ReSharper disable once ConvertToPrimaryConstructor
             public ProteinEntry(string name, int proteinId)
             {
                 Name = name;
@@ -66,8 +67,11 @@ namespace ProteinDigestionSimulator
         /// </summary>
         public ProteinCollection()
         {
-            // Set this to False to conserve memory; you must call Clear() after changing this for it to take effect
+            // ReSharper disable once GrammarMistakeInComment
+
+            // Set this to false to conserve memory; you must call Clear() after changing this for it to take effect
             UseProteinNameDictionary = true;
+
             Clear();
             mProteinToPeptideMapping = new ProteinToPeptideMappingInfo();
             mProteinToPeptideMapping.SortingList += ProteinToPeptideMapping_SortingList;
@@ -123,6 +127,7 @@ namespace ProteinDigestionSimulator
             return true;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public bool AddProteinToPeptideMapping(int proteinID, int peptideID)
         {
             return AddProteinToPeptideMapping(proteinID, peptideID, CleavageStateConstants.Unknown);
@@ -133,6 +138,7 @@ namespace ProteinDigestionSimulator
             return mProteinToPeptideMapping.AddProteinToPeptideMapping(proteinID, peptideID, cleavageState);
         }
 
+        // ReSharper disable once UnusedMember.Global
         public bool AddProteinToPeptideMapping(string proteinName, int peptideID)
         {
             return AddProteinToPeptideMapping(proteinName, peptideID, CleavageStateConstants.Unknown);
@@ -230,6 +236,7 @@ namespace ProteinDigestionSimulator
 
         public int Count => mProteinCount;
 
+        // ReSharper disable once UnusedMember.Global
         public int[] GetPeptideIDsMappedToProteinID(int proteinID)
         {
             return mProteinToPeptideMapping.GetPeptideIDsMappedToProteinID(proteinID);
@@ -245,6 +252,7 @@ namespace ProteinDigestionSimulator
             return mProteinToPeptideMapping.GetProteinIDsMappedToPeptideID(peptideID);
         }
 
+        // ReSharper disable once UnusedMember.Global
         public bool GetProteinNameByProteinID(int proteinID, out string proteinName)
         {
             // Since mProteins is sorted by Protein Name, we must fully search the array to obtain the protein name for proteinID
@@ -330,6 +338,8 @@ namespace ProteinDigestionSimulator
             return mProteinArrayIsSorted;
         }
 
+        // ReSharper disable once GrammarMistakeInComment
+
         /// <summary>
         /// When true, store protein names in a dictionary
         /// </summary>
@@ -355,6 +365,7 @@ namespace ProteinDigestionSimulator
                 // ReSharper disable once NotAccessedField.Local
                 public readonly CleavageStateConstants CleavageState;
 
+                // ReSharper disable once ConvertToPrimaryConstructor
                 public ProteinToPeptideMappingEntry(int proteinId, int peptideId, CleavageStateConstants cleavageState)
                 {
                     ProteinID = proteinId;
