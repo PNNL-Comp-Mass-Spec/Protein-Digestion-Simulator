@@ -419,52 +419,52 @@ namespace ProteinDigestionSimulator
             {
                 var proteinNames = protein.Description.Split(ProcessingOptions.FastaFileOptions.AddnlRefSepChar);
 
-                if (proteinNames.Length > 0)
+                if (proteinNames.Length == 0)
+                    return;
+
+                for (var index = 0; index < proteinNames.Length; index++)
                 {
-                    for (var index = 0; index < proteinNames.Length; index++)
+                    var charIndex = proteinNames[index].IndexOf(ProcessingOptions.FastaFileOptions.AddnlRefAccessionSepChar);
+
+                    if (charIndex > 0)
                     {
-                        var charIndex = proteinNames[index].IndexOf(ProcessingOptions.FastaFileOptions.AddnlRefAccessionSepChar);
-
-                        if (charIndex > 0)
+                        if (index == proteinNames.Length - 1)
                         {
-                            if (index == proteinNames.Length - 1)
+                            // Need to find the next space after charIndex and truncate proteinNames[] at that location
+                            var spaceIndex = proteinNames[index].IndexOf(' ', charIndex);
+                            if (spaceIndex >= 0)
                             {
-                                // Need to find the next space after charIndex and truncate proteinNames[] at that location
-                                var spaceIndex = proteinNames[index].IndexOf(' ', charIndex);
-                                if (spaceIndex >= 0)
-                                {
-                                    proteinNames[index] = proteinNames[index].Substring(0, spaceIndex);
-                                }
+                                proteinNames[index] = proteinNames[index].Substring(0, spaceIndex);
                             }
+                        }
 
-                            if (charIndex >= proteinNames[index].Length - 1)
-                            {
-                                // No accession after the colon; invalid entry so discard this entry and stop parsing
-                                break;
-                            }
+                        if (charIndex >= proteinNames[index].Length - 1)
+                        {
+                            // No accession after the colon; invalid entry so discard this entry and stop parsing
+                            break;
+                        }
 
-                            protein.AlternateNames.Add(new AddnlRef(proteinNames[index].Substring(0, charIndex), proteinNames[index].Substring(charIndex + 1)));
-                            charIndex = protein.Description.IndexOf(proteinNames[index], StringComparison.Ordinal);
-                            if (charIndex >= 0)
+                        protein.AlternateNames.Add(new AddnlRef(proteinNames[index].Substring(0, charIndex), proteinNames[index].Substring(charIndex + 1)));
+                        charIndex = protein.Description.IndexOf(proteinNames[index], StringComparison.Ordinal);
+                        if (charIndex >= 0)
+                        {
+                            if (charIndex + proteinNames[index].Length + 1 < protein.Description.Length)
                             {
-                                if (charIndex + proteinNames[index].Length + 1 < protein.Description.Length)
-                                {
-                                    protein.Description = protein.Description.Substring(charIndex + proteinNames[index].Length + 1);
-                                }
-                                else
-                                {
-                                    protein.Description = string.Empty;
-                                }
+                                protein.Description = protein.Description.Substring(charIndex + proteinNames[index].Length + 1);
                             }
                             else
                             {
-                                ShowErrorMessage("This code in ExtractAlternateProteinNamesFromDescription should never be reached");
+                                protein.Description = string.Empty;
                             }
                         }
                         else
                         {
-                            break;
+                            ShowErrorMessage("This code in ExtractAlternateProteinNamesFromDescription should never be reached");
                         }
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
             }
