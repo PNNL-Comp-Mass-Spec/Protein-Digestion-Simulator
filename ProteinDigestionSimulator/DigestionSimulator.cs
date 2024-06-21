@@ -13,7 +13,7 @@ using ProteinFileReader;
 // Started in 2004
 //
 // E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
-// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://www.pnnl.gov/integrative-omics
 // -------------------------------------------------------------------------------
 //
 // Licensed under the 2-Clause BSD License; you may not use this file except
@@ -33,7 +33,7 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: Da, Isoelectric, pre, silico, slic, tol
 
-        private const string PROGRAM_DATE = "June 19, 2024";
+        private const string PROGRAM_DATE = "June 20, 2024";
 
         private const string PROTEIN_ID_COLUMN = "ProteinID";
         private const string PEPTIDE_ID_MATCH_COLUMN = "PeptideIDMatch";

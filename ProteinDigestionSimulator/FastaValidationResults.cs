@@ -790,7 +790,7 @@ namespace ProteinDigestionSimulator
             message.AppendLine();
             message.AppendLine();
             message.AppendLine("E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov");
-            message.AppendLine("Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics");
+            message.AppendLine("Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://www.pnnl.gov/integrative-omics");
             message.AppendLine();
             message.AppendLine("Licensed under the 2-Clause BSD License; https://opensource.org/licenses/BSD-2-Clause");
             message.AppendLine();
