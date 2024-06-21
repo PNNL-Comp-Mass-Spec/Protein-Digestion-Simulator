@@ -12,28 +12,30 @@ WelcomeLabel2=This will install [name/ver] on your computer.
 ; WelcomeLabel2=Welcome message%n%nAdditional sentence
 
 [Files]
-Source: ..\ProteinDigestionSimulator\bin\ProteinDigestionSimulator.exe               ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\ProteinDigestionSimulator.pdb               ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\CsvHelper.dll                               ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\FlexibleFileSortUtility.dll                 ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\Microsoft.Bcl.AsyncInterfaces.dll           ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\Microsoft.Bcl.HashCode.dll                  ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\NETPrediction.dll                           ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\Npgsql.dll                                  ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\PRISM.dll                                   ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\PRISMDatabaseUtils.dll                      ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\PRISMWin.dll                                ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\ProteinFileReader.dll                       ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\System.Buffers.dll                          ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\System.Memory.dll                           ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\System.Numerics.Vectors.dll                 ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\System.Runtime.CompilerServices.Unsafe.dll  ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\System.Text.Encodings.Web.dll               ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\System.Text.Json.dll                        ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\System.Threading.Channels.dll               ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\System.Threading.Tasks.Extensions.dll       ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\System.ValueTuple.dll                       ; DestDir: {app}
-Source: ..\ProteinDigestionSimulator\bin\ValidateFastaFile.dll                       ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\CsvHelper.dll                                             ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\FlexibleFileSortUtility.dll                               ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\Microsoft.Bcl.AsyncInterfaces.dll                         ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\Microsoft.Bcl.HashCode.dll                                ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\Microsoft.Extensions.DependencyInjection.Abstractions.dll ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\Microsoft.Extensions.Logging.Abstractions.dll             ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\NETPrediction.dll                                         ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\Npgsql.dll                                                ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\PRISM.dll                                                 ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\PRISMDatabaseUtils.dll                                    ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\PRISMWin.dll                                              ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\ProteinFileReader.dll                                     ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\System.Buffers.dll                                        ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\System.Collections.Immutable.dll                          ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\System.Diagnostics.DiagnosticSource.dll                   ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\System.Memory.dll                                         ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\System.Numerics.Vectors.dll                               ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\System.Runtime.CompilerServices.Unsafe.dll                ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\System.Text.Encodings.Web.dll                             ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\System.Text.Json.dll                                      ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\System.Threading.Channels.dll                             ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\System.Threading.Tasks.Extensions.dll                     ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\System.ValueTuple.dll                                     ; DestDir: {app}
+Source: ..\ProteinDigestionSimulator\bin\ValidateFastaFile.dll                                     ; DestDir: {app}
 
 Source: ..\Documentation\ProteinDigestionSimulator_CommandLineSyntax.txt             ; DestDir: {app}\ExampleData\
 Source: ..\Documentation\ProteinDigestionSimulatorOptions.conf                       ; DestDir: {app}\ExampleData\
