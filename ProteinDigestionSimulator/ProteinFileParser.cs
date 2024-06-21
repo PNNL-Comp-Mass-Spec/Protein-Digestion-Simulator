@@ -123,6 +123,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 var refNameComparison = string.CompareOrdinal(RefName, other.RefName);
+
                 if (refNameComparison != 0)
                 {
                     return refNameComparison;
@@ -339,6 +340,7 @@ namespace ProteinDigestionSimulator
                 var decoyFastaFilePath = reverseSequenceFastaFile.FullName;
 
                 var sourceReversedProteinsTempFile = new FileInfo(reverseSequenceFastaFile.FullName + ".SourceReverseProteins");
+
                 if (sourceReversedProteinsTempFile.Exists)
                 {
                     sourceReversedProteinsTempFile.Delete();
@@ -432,6 +434,7 @@ namespace ProteinDigestionSimulator
                         {
                             // Need to find the next space after charIndex and truncate proteinNames[] at that location
                             var spaceIndex = proteinNames[index].IndexOf(' ', charIndex);
+
                             if (spaceIndex >= 0)
                             {
                                 proteinNames[index] = proteinNames[index].Substring(0, spaceIndex);
@@ -446,6 +449,7 @@ namespace ProteinDigestionSimulator
 
                         protein.AlternateNames.Add(new AddnlRef(proteinNames[index].Substring(0, charIndex), proteinNames[index].Substring(charIndex + 1)));
                         charIndex = protein.Description.IndexOf(proteinNames[index], StringComparison.Ordinal);
+
                         if (charIndex >= 0)
                         {
                             if (charIndex + proteinNames[index].Length + 1 < protein.Description.Length)
@@ -687,6 +691,7 @@ namespace ProteinDigestionSimulator
             {
                 // Scrambled FASTA file, with suffix _scrambled_seed
                 suffix += "_seed" + randomNumberSeed;
+
                 if (residueCache.SamplingPercentage < 100)
                 {
                     suffix += "_" + residueCache.SamplingPercentage + "pct";
@@ -884,6 +889,7 @@ namespace ProteinDigestionSimulator
                     !ProcessingOptions.CreateFastaOutputFile)
                 {
                     success = ParseProteinFileCreateDigestedProteinOutputFile(pathInfo.DigestedProteinOutputFilePath, ref digestFileWriter, outputFileDelimiter);
+
                     if (!success)
                     {
                         return false;
@@ -898,9 +904,11 @@ namespace ProteinDigestionSimulator
 
                 var loopCount = 1;
                 bool allowLookForAddnlRefInDescription;
+
                 if (ProcessingOptions.ProteinScramblingMode == ProteinScramblingModeConstants.Randomized)
                 {
                     loopCount = ProcessingOptions.ProteinScramblingLoopCount;
+
                     if (loopCount < 1)
                     {
                         loopCount = 1;
@@ -1150,6 +1158,7 @@ namespace ProteinDigestionSimulator
                         // Write out anything remaining in the cache
 
                         string proteinNamePrefix;
+
                         if (scramblingMode is ProteinScramblingModeConstants.Reversed or ProteinScramblingModeConstants.Decoy)
                         {
                             proteinNamePrefix = PROTEIN_PREFIX_REVERSED;
@@ -1270,6 +1279,7 @@ namespace ProteinDigestionSimulator
             catch (Exception ex)
             {
                 ShowErrorMessage("Error in ParseProteinFile: " + ex.Message);
+
                 if (ProcessingOptions.CreateProteinOutputFile || ProcessingOptions.CreateDigestedProteinOutputFile || ProcessingOptions.ProteinScramblingMode != ProteinScramblingModeConstants.None)
                 {
                     SetLocalErrorCode(ParseProteinFileErrorCodes.ErrorWritingOutputFile, ex);
@@ -1474,6 +1484,7 @@ namespace ProteinDigestionSimulator
 
             outLine.Clear();
             outLine.AppendFormat("{0}{1}", FastaFileReader.PROTEIN_LINE_START_CHAR, protein.Name);
+
             if (!ProcessingOptions.ExcludeProteinDescription)
             {
                 outLine.AppendFormat("{0}{1}", FastaFileReader.PROTEIN_LINE_ACCESSION_TERMINATOR, protein.Description);
@@ -1484,6 +1495,7 @@ namespace ProteinDigestionSimulator
             if (!ProcessingOptions.ExcludeProteinSequence)
             {
                 var index = 0;
+
                 while (index < protein.Sequence.Length)
                 {
                     var length = Math.Min(60, protein.Sequence.Length - index);
@@ -1540,6 +1552,7 @@ namespace ProteinDigestionSimulator
             else
             {
                 outLine.AppendFormat("{0}{1}", protein.Name, outputFileDelimiter);
+
                 if (!ProcessingOptions.ExcludeProteinDescription)
                 {
                     outLine.Append(protein.Description);
@@ -1689,6 +1702,7 @@ namespace ProteinDigestionSimulator
                         // .Fasta appears somewhere in the middle
                         // Remove the text .Fasta, then add the extension .txt (unless it already ends in .txt)
                         var charIndex = outputFilePath.ToLower().LastIndexOf(".fasta", StringComparison.Ordinal);
+
                         if (charIndex > 0)
                         {
                             if (charIndex < outputFilePath.Length)
@@ -1732,6 +1746,7 @@ namespace ProteinDigestionSimulator
                 if (!reader.EndOfStream)
                 {
                     var headerLine = reader.ReadLine();
+
                     if (!string.IsNullOrWhiteSpace(headerLine))
                     {
                         DelimitedProteinFileReader.ProteinFileFormatCode fileFormat;
@@ -1808,6 +1823,7 @@ namespace ProteinDigestionSimulator
                 digestFileWriter = new StreamWriter(digestedProteinOutputFilePath);
 
                 string lineOut;
+
                 if (!ProcessingOptions.ExcludeProteinSequence)
                 {
                     lineOut = "Protein_Name" + outputFileDelimiter + "Sequence" + outputFileDelimiter;
@@ -1901,6 +1917,7 @@ namespace ProteinDigestionSimulator
 
                     // Make sure each of the names in .AlternateNames[] is in addnlRefMasterNames
                     int index;
+
                     for (index = 0; index < protein.AlternateNameCount; index++)
                     {
                         addnlRefMasterNames.Add(protein.AlternateNames[index].RefName);
@@ -1925,6 +1942,7 @@ namespace ProteinDigestionSimulator
                                  !ProcessingOptions.CreateFastaOutputFile;
 
             Console.WriteLine("{0,-31} {1}", "Create FASTA output file:", ProcessingOptions.CreateFastaOutputFile);
+
             if (ProcessingOptions.ProteinScramblingMode == ProteinScramblingModeConstants.None)
             {
                 Console.WriteLine("{0,-31} {1}", "Create protein .txt file:", ProcessingOptions.CreateProteinOutputFile);
@@ -2023,6 +2041,7 @@ namespace ProteinDigestionSimulator
             if (residueCache.Cache.Length > 0)
             {
                 var residueCount = (int)Math.Round(Math.Round(residueCache.Cache.Length * residueCache.SamplingPercentage / 100.0d, 0));
+
                 if (residueCount < 1)
                 {
                     residueCount = 1;
@@ -2103,6 +2122,7 @@ namespace ProteinDigestionSimulator
         private void WriteFastaProteinAndResidues(TextWriter scrambledFileWriter, string headerLine, string sequence)
         {
             scrambledFileWriter.WriteLine(headerLine);
+
             while (sequence.Length > 0)
             {
                 if (sequence.Length >= 60)
@@ -2295,6 +2315,7 @@ namespace ProteinDigestionSimulator
                 else
                 {
                     SetBaseClassErrorCode(ProcessFilesErrorCodes.LocalizedError);
+
                     if (ex != null)
                         MostRecentException = ex;
                 }

@@ -237,6 +237,7 @@ namespace ProteinDigestionSimulator
             dialog.Title = "Select/Create file to save custom rule definitions";
 
             dialog.ShowDialog();
+
             if (dialog.FileName.Length > 0)
             {
                 var customRuleDefinitionsFilePath = dialog.FileName;
@@ -321,6 +322,7 @@ namespace ProteinDigestionSimulator
 
             // Clear the filters
             txtFilterData.Text = string.Empty;
+
             if (mValidateFastaFile.GetErrorWarningCounts(FastaValidator.MsgTypeConstants.ErrorMsg, FastaValidator.ErrorWarningCountTypes.Specified) > 0)
             {
                 // List each of the errors
@@ -398,6 +400,7 @@ namespace ProteinDigestionSimulator
             try
             {
                 var columnCount = dvDataView.Table.Columns.Count;
+
                 for (var index = 0; index < columnCount; index++)
                 {
                     if (index < columnCount - 1)
@@ -450,6 +453,7 @@ namespace ProteinDigestionSimulator
             try
             {
                 var filter = string.Empty;
+
                 if (txtFilterData.TextLength > 0)
                 {
                     filter = "[" + COL_NAME_PROTEIN + "] LIKE '%" + txtFilterData.Text + "%' OR [" + COL_NAME_DESCRIPTION + "] LIKE '%" + txtFilterData.Text + "%' OR [" + COL_NAME_CONTEXT + "] LIKE '%" + txtFilterData.Text + "%'";
@@ -593,6 +597,7 @@ namespace ProteinDigestionSimulator
                 var currentRow = dsDataset.Tables[0].NewRow();
                 currentRow[COL_NAME_LINE] = item.LineNumber;
                 currentRow[COL_NAME_COLUMN] = item.ColNumber;
+
                 if (string.IsNullOrEmpty(item.ProteinName))
                 {
                     currentRow[COL_NAME_PROTEIN] = "N/A";
@@ -677,6 +682,7 @@ namespace ProteinDigestionSimulator
             dgWarnings.Top = dgErrors.Top + dgErrors.Height + 10;
 
             desiredHeight = (int)Math.Round(Math.Round(desiredHeight / errorToWarningsRatio, 0));
+
             if (desiredHeight < 5)
             {
                 desiredHeight = 5;
@@ -753,6 +759,7 @@ namespace ProteinDigestionSimulator
             dialog.Title = "Select custom rules file";
 
             dialog.ShowDialog();
+
             if (dialog.FileName.Length > 0)
             {
                 txtCustomValidationRulesFilePath.Text = dialog.FileName;
@@ -884,6 +891,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 var parameterFilePath = txtCustomValidationRulesFilePath.Text;
+
                 if (parameterFilePath.Length > 0)
                 {
                     bool fileExists;
@@ -1141,6 +1149,7 @@ namespace ProteinDigestionSimulator
                 // Check whether the FASTA file is over 250 MB in size
                 // If it is, auto-disable the check for duplicate proteins (to avoid using too much memory)
                 var fastaFile = new FileInfo(FastaFilePath);
+
                 if (fastaFile.Exists)
                 {
                     if (fastaFile.Length > 250 * 1024 * 1024)

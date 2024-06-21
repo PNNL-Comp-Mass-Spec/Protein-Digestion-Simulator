@@ -23,6 +23,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             {
                 // Sort by .FeatureID ascending, and by .Details.MatchingID ascending
                 var featureIdComparison = FeatureID.CompareTo(other.FeatureID);
+
                 if (featureIdComparison != 0)
                 {
                     return featureIdComparison;
@@ -83,6 +84,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             try
             {
                 var midIndex = lastIndex / 2;
+
                 if (midIndex < firstIndex)
                 {
                     midIndex = firstIndex;
@@ -144,6 +146,7 @@ namespace ProteinDigestionSimulator.PeakMatching
                 if (GetRowIndicesForFeatureID(featureID, out var indexFirst, out var indexLast))
                 {
                     matchCount = indexLast - indexFirst + 1;
+
                     if (matchResults == null || matchCount > matchResults.Length)
                     {
                         matchResults = new PeakMatchingResult[matchCount];

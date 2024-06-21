@@ -31,6 +31,7 @@ namespace ProteinDigestionSimulator.Options
                 mCysPeptidesOnly = value;
 
                 AminoAcidResidueFilterChars.Clear();
+
                 if (mCysPeptidesOnly)
                 {
                     AminoAcidResidueFilterChars.Add('C');

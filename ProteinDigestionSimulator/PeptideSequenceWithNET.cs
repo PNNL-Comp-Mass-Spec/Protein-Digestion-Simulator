@@ -128,6 +128,7 @@ namespace ProteinDigestionSimulator
             bool threeLetterCheckForPrefixHandSuffixOH = true)
         {
             var returnVal = base.SetSequence(sequence, nTerminus, cTerminus, is3LetterCode, oneLetterCheckForPrefixAndSuffixResidues, threeLetterCheckForPrefixHandSuffixOH);
+
             if (AutoComputeNET)
             {
                 UpdateNET();
@@ -145,6 +146,7 @@ namespace ProteinDigestionSimulator
         public override void SetSequenceOneLetterCharactersOnly(string sequenceNoPrefixOrSuffix)
         {
             base.SetSequenceOneLetterCharactersOnly(sequenceNoPrefixOrSuffix);
+
             if (AutoComputeNET)
             {
                 UpdateNET();
@@ -159,6 +161,7 @@ namespace ProteinDigestionSimulator
             try
             {
                 var sequence = GetSequence();
+
                 if (CysTreatmentMode != CysTreatmentModeConstants.Untreated)
                 {
                     // Change cysteine residues to lowercase so that the NET predictor will recognize them as alkylated

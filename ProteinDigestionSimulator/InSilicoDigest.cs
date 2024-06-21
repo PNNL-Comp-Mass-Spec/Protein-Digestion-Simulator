@@ -163,6 +163,7 @@ namespace ProteinDigestionSimulator
                     while (true)
                     {
                         var fragment = mPeptideSequence.GetTrypticPeptideNext(sequence, startSearchLoc, out _, out var returnResidueEnd);
+
                         if (fragment.Length > 0)
                         {
                             trypticCount++;
@@ -215,6 +216,7 @@ namespace ProteinDigestionSimulator
                                   string proteinName)
         {
             var fragmentsUniqueList = new SortedSet<string>();
+
             peptideFragments = new List<PeptideSequenceWithNET>();
 
             if (string.IsNullOrWhiteSpace(proteinSequence))
@@ -227,6 +229,7 @@ namespace ProteinDigestionSimulator
             try
             {
                 var success = GetCleavageRuleById(DigestionOptions.CleavageRuleID, out var cleavageRule);
+
                 if (!success)
                 {
                     ReportError("DigestSequence", new Exception("Invalid cleavage rule: " + (int)DigestionOptions.CleavageRuleID));
@@ -247,6 +250,7 @@ namespace ProteinDigestionSimulator
                 while (true)
                 {
                     var peptideSequence = mPeptideSequence.GetTrypticPeptideNext(proteinSequence, searchStartLoc, cleavageRule, out var residueStartLoc, out var residueEndLoc);
+
                     if (peptideSequence.Length > 0)
                     {
                         trypticFragCache.Add(new TrypticFragment(peptideSequence, residueStartLoc, residueEndLoc));
@@ -289,13 +293,16 @@ namespace ProteinDigestionSimulator
                         }
 
                         int residueEndLoc;
+
                         if (DigestionOptions.CleavageRuleID == CleavageRuleConstants.KROneEnd)
                         {
                             // Partially tryptic cleavage rule: Add all partially tryptic fragments
                             int residueLengthStart;
+
                             if (index == 0)
                             {
                                 residueLengthStart = DigestionOptions.MinFragmentResidueCount;
+
                                 if (residueLengthStart < 1)
                                 {
                                     residueLengthStart = 1;
@@ -613,6 +620,7 @@ namespace ProteinDigestionSimulator
             double maxFragmentMass)
         {
             var addFragment = true;
+
             if (DigestionOptions.RemoveDuplicateSequences)
             {
                 if (fragmentsUniqueList.Contains(peptideSequence))
@@ -751,6 +759,7 @@ namespace ProteinDigestionSimulator
         private void UpdateProgress(string description, float percentComplete)
         {
             mProgressStepDescription = string.Copy(description);
+
             if (percentComplete < 0f)
             {
                 percentComplete = 0f;

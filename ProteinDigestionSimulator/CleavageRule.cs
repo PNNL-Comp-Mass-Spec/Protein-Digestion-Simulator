@@ -81,6 +81,7 @@ namespace ProteinDigestionSimulator
             if (ReversedCleavageDirection)
             {
                 detailedDescription.AppendFormat("before {0}", CleavageResidues);
+
                 if (ExceptionResidues.Length > 0)
                 {
                     detailedDescription.AppendFormat(" not preceded by {0}", ExceptionResidues);
@@ -94,6 +95,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 detailedDescription.Append(CleavageResidues);
+
                 if (ExceptionResidues.Length > 0)
                 {
                     detailedDescription.AppendFormat(" not {0}", ExceptionResidues);

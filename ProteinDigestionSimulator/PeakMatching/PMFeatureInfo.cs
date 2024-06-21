@@ -80,6 +80,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             try
             {
                 var midIndex = lastIndex / 2;            // Note: Using Integer division
+
                 if (midIndex < firstIndex)
                 {
                     midIndex = firstIndex;
@@ -100,6 +101,7 @@ namespace ProteinDigestionSimulator.PeakMatching
 
                     // Compute the new midpoint
                     midIndex = (firstIndex + lastIndex) / 2;
+
                     if (midIndex < firstIndex)
                     {
                         break;
@@ -221,6 +223,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             }
 
             var matchCount = 0;
+
             for (var index = rowIndexStart; index <= rowIndexEnd; index++)
             {
                 masses[matchCount] = mFeatures[index].Mass;

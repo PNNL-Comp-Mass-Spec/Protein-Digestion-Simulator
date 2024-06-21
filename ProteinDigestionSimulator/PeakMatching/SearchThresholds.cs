@@ -61,6 +61,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             set
             {
                 mMassTolerance = value;
+
                 if (AutoDefineSLiCScoreThresholds)
                 {
                     InitializeSLiCScoreOptions(true);
@@ -74,6 +75,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             set
             {
                 mNETTolerance = value;
+
                 if (AutoDefineSLiCScoreThresholds)
                 {
                     InitializeSLiCScoreOptions(true);
@@ -126,6 +128,7 @@ namespace ProteinDigestionSimulator.PeakMatching
                 }
 
                 mSLiCScoreMaxSearchDistanceMultiplier = value;
+
                 if (AutoDefineSLiCScoreThresholds)
                 {
                     InitializeSLiCScoreOptions(true);
@@ -168,6 +171,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             }
 
             double massToleranceToUse;
+
             if (massTolerancePPM < mSLiCScoreOptions.MassPPMStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR)
             {
                 massToleranceToUse = mSLiCScoreOptions.MassPPMStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR;
@@ -178,6 +182,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             }
 
             ComputedSearchTolerances.NETTolBroad = mSLiCScoreOptions.NETStDev * mSLiCScoreOptions.MaxSearchDistanceMultiplier * STDEV_SCALING_FACTOR;
+
             if (ComputedSearchTolerances.NETTolBroad < mNETTolerance)
             {
                 ComputedSearchTolerances.NETTolBroad = mNETTolerance;
@@ -218,6 +223,7 @@ namespace ProteinDigestionSimulator.PeakMatching
 
             mSLiCScoreOptions.UseAMTNETStDev = false;
             mSLiCScoreOptions.MaxSearchDistanceMultiplier = mSLiCScoreMaxSearchDistanceMultiplier;
+
             if (mSLiCScoreOptions.MaxSearchDistanceMultiplier < 1f)
             {
                 mSLiCScoreOptions.MaxSearchDistanceMultiplier = DEFAULT_SLIC_MAX_SEARCH_DISTANCE_MULTIPLIER;

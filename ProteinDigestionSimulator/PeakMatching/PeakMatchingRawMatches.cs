@@ -56,6 +56,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             }
 
             var sLiCScoreComparison = other.SLiCScore.CompareTo(SLiCScore);
+
             if (sLiCScoreComparison != 0)
             {
                 return sLiCScoreComparison;

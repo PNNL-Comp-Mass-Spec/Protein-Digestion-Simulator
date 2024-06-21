@@ -142,6 +142,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 int returnCode;
+
                 if (proteinFileParser.ErrorCode != ProcessFilesBase.ProcessFilesErrorCodes.NoError)
                 {
                     returnCode = (int)proteinFileParser.ErrorCode;
@@ -180,6 +181,7 @@ namespace ProteinDigestionSimulator
             }
 
             int errorCode;
+
             if (proteinFileParser.ErrorCode != ProcessFilesBase.ProcessFilesErrorCodes.NoError)
             {
                 errorCode = (int)proteinFileParser.ErrorCode;
@@ -208,6 +210,7 @@ namespace ProteinDigestionSimulator
             }
 
             Console.Write("Processing: " + percentComplete + "% ");
+
             if (addCarriageReturn)
             {
                 Console.WriteLine();

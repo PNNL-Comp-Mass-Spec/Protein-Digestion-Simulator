@@ -121,6 +121,7 @@ namespace ProteinDigestionSimulator
             var rightDone = false;
 
             var indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
+
             if (indexMidpoint == matchIndexStart)
             {
                 // Min and Max are next to each other
@@ -153,9 +154,11 @@ namespace ProteinDigestionSimulator
             {
                 // Inside range; figure out the borders
                 var leftIndex = indexMidpoint;
+
                 while (!leftDone)
                 {
                     leftIndex--;
+
                     if (leftIndex < matchIndexStart)
                     {
                         leftDone = true;
@@ -171,6 +174,7 @@ namespace ProteinDigestionSimulator
                 while (!rightDone)
                 {
                     rightIndex++;
+
                     if (rightIndex > matchIndexEnd)
                     {
                         rightDone = true;
@@ -194,6 +198,7 @@ namespace ProteinDigestionSimulator
             var rightDone = false;
 
             var indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
+
             if (indexMidpoint == matchIndexStart)
             {
                 // Min and Max are next to each other
@@ -226,9 +231,11 @@ namespace ProteinDigestionSimulator
             {
                 // Inside range; figure out the borders
                 var leftIndex = indexMidpoint;
+
                 while (!leftDone)
                 {
                     leftIndex--;
+
                     if (leftIndex < matchIndexStart)
                     {
                         leftDone = true;
@@ -244,6 +251,7 @@ namespace ProteinDigestionSimulator
                 while (!rightDone)
                 {
                     rightIndex++;
+
                     if (rightIndex > matchIndexEnd)
                     {
                         rightDone = true;
@@ -267,6 +275,7 @@ namespace ProteinDigestionSimulator
             var rightDone = false;
 
             var indexMidpoint = (matchIndexStart + matchIndexEnd) / 2;
+
             if (indexMidpoint == matchIndexStart)
             {
                 // Min and Max are next to each other
@@ -299,9 +308,11 @@ namespace ProteinDigestionSimulator
             {
                 // Inside range; figure out the borders
                 var leftIndex = indexMidpoint;
+
                 while (!leftDone)
                 {
                     leftIndex--;
+
                     if (leftIndex < matchIndexStart)
                     {
                         leftDone = true;
@@ -317,6 +328,7 @@ namespace ProteinDigestionSimulator
                 while (!rightDone)
                 {
                     rightIndex++;
+
                     if (rightIndex > matchIndexEnd)
                     {
                         rightDone = true;
@@ -420,6 +432,7 @@ namespace ProteinDigestionSimulator
                 {
                     mDataInt = new int[values.Length];
                     values.CopyTo(mDataInt, 0);
+
                     if (UsePointerIndexArray)
                     {
                         InitializePointerIndexArray(mDataInt.Length);
@@ -467,6 +480,7 @@ namespace ProteinDigestionSimulator
                 {
                     mDataSingle = new float[values.Length];
                     values.CopyTo(mDataSingle, 0);
+
                     if (UsePointerIndexArray)
                     {
                         InitializePointerIndexArray(mDataSingle.Length);
@@ -950,6 +964,7 @@ namespace ProteinDigestionSimulator
             {
                 matchIndexStart = 0;
                 matchIndexEnd = mDataSingle.Length - 1;
+
                 if (mDataSingle.Length == 0)
                 {
                     matchIndexEnd = -1;
@@ -1059,6 +1074,7 @@ namespace ProteinDigestionSimulator
             try
             {
                 var index = Array.IndexOf(mPointerIndices, indexOriginal);
+
                 if (index >= 0)
                 {
                     switch (mDataType)

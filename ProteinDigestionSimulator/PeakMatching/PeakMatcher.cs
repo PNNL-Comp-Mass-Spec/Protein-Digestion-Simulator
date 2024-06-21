@@ -51,12 +51,14 @@ namespace ProteinDigestionSimulator.PeakMatching
             // Compute the match scores (aka SLiC scores)
 
             var massStDevPPM = searchThresholds.SLiCScoreMassPPMStDev;
+
             if (massStDevPPM <= 0d)
             {
                 massStDevPPM = 3d;
             }
 
             var massStDevAbs = searchThresholds.PPMToMass(massStDevPPM, featureToIdentify.Mass);
+
             if (massStDevAbs <= 0d)
             {
                 message = "Assertion failed in ComputeSLiCScores; massStDevAbs is <= 0, which isn't allowed; will assume 0.003";
@@ -67,9 +69,11 @@ namespace ProteinDigestionSimulator.PeakMatching
 
             // Compute the standardized squared distance and the numerator sum
             var numeratorSum = 0d;
+
             for (index = 0; index < rawMatches.Count; index++)
             {
                 double netStDevCombined;
+
                 if (searchThresholds.SLiCScoreUseAMTNETStDev)
                 {
                     // The NET StDev is computed by combining the default NETStDev value with the Comparison Features' specific NETStDev
@@ -147,6 +151,7 @@ namespace ProteinDigestionSimulator.PeakMatching
                 // When testing whether to keep the match or not, we're testing whether the match is in the ellipse bounded by MWTolAbsFinal and NETTolFinal
                 // Note that these are half-widths of the ellipse
                 var newMatches = new List<PeakMatchingRawMatches>();
+
                 for (index = 0; index < rawMatches.Count; index++)
                 {
                     if (TestPointInEllipse(rawMatches[index].NETErr, rawMatches[index].MassErr, computedTolerances.NETTolFinal, computedTolerances.MWTolAbsFinal))
@@ -192,6 +197,7 @@ namespace ProteinDigestionSimulator.PeakMatching
             //     rangeSearch.FillWithDataAddPoint(comparisonFeatures.GetMassByRowIndex(index));
 
             var comparisonFeatureCount = comparisonFeatures.Count;
+
             while (index < comparisonFeatureCount)
             {
                 rangeSearch.FillWithDataAddBlock(comparisonFeatures.GetMassArrayByRowRange(index, index + LOAD_BLOCK_SIZE - 1));
@@ -257,6 +263,7 @@ namespace ProteinDigestionSimulator.PeakMatching
 
                         double netTol;
                         double massTol;
+
                         if (PeakMatchingOptions.UseMaxSearchDistanceMultiplierAndSLiCScore)
                         {
                             massTol = computedTolerances.MWTolAbsBroad;
@@ -284,9 +291,11 @@ namespace ProteinDigestionSimulator.PeakMatching
                                 if (comparisonFeatures.GetFeatureInfoByRowIndex(comparisonFeaturesOriginalRowIndex, out var currentComparisonFeature))
                                 {
                                     double netDiff = currentFeatureToIdentify.NET - currentComparisonFeature.NET;
+
                                     if (Math.Abs(netDiff) <= netTol)
                                     {
                                         bool storeMatch;
+
                                         if (PeakMatchingOptions.UseMaxSearchDistanceMultiplierAndSLiCScore)
                                         {
                                             // Store this match
@@ -338,6 +347,7 @@ namespace ProteinDigestionSimulator.PeakMatching
                     if (featureIndex % 100 == 0)
                     {
                         UpdateProgress((float)(featureIndex / (double)featureCount * 100d));
+
                         if (mAbortProcessing)
                         {
                             break;

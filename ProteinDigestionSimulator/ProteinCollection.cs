@@ -73,6 +73,7 @@ namespace ProteinDigestionSimulator
             UseProteinNameDictionary = true;
 
             Clear();
+
             mProteinToPeptideMapping = new ProteinToPeptideMappingInfo();
             mProteinToPeptideMapping.SortingList += ProteinToPeptideMapping_SortingList;
         }
@@ -166,6 +167,7 @@ namespace ProteinDigestionSimulator
             try
             {
                 var midIndex = lastIndex / 2;
+
                 if (midIndex < firstIndex)
                 {
                     midIndex = firstIndex;
@@ -186,6 +188,7 @@ namespace ProteinDigestionSimulator
 
                     // Compute the new midpoint
                     midIndex = (firstIndex + lastIndex) / 2;
+
                     if (midIndex < firstIndex)
                     {
                         break;
@@ -460,6 +463,7 @@ namespace ProteinDigestionSimulator
                 try
                 {
                     var midIndex = lastIndex / 2; // Note: Using Integer division
+
                     if (midIndex < firstIndex)
                     {
                         midIndex = firstIndex;
@@ -480,6 +484,7 @@ namespace ProteinDigestionSimulator
 
                         // Compute the new midpoint
                         midIndex = (firstIndex + lastIndex) / 2;
+
                         if (midIndex < firstIndex)
                         {
                             break;

@@ -232,9 +232,11 @@ namespace ProteinDigestionSimulator
                 if (ProcessingOptions.ReportMaximumpI && seq.Length > ProcessingOptions.SequenceLengthToExamineForMaximumpI)
                 {
                     var maxHydrophobicity = 0d;
+
                     for (var index = 0; index < seq.Length - ProcessingOptions.SequenceLengthToExamineForMaximumpI; index++)
                     {
                         var segmentHydrophobicity = CalculateHydrophobicity(seq.Substring(index, ProcessingOptions.SequenceLengthToExamineForMaximumpI), ProcessingOptions.HydrophobicityMode);
+
                         if (segmentHydrophobicity > maxHydrophobicity)
                         {
                             maxHydrophobicity = segmentHydrophobicity;
@@ -257,6 +259,7 @@ namespace ProteinDigestionSimulator
         public float CalculateSequencepI(string peptideSequence)
         {
             double pH;
+
             if (string.IsNullOrEmpty(peptideSequence))
             {
                 return 0f;
@@ -307,6 +310,7 @@ namespace ProteinDigestionSimulator
                 while (true)
                 {
                     var alternateCharge = CalculateCharge(pH, numC, numD, numE, numH, numK, numR, numY);
+
                     if (Math.Abs(alternateCharge) <= Math.Abs(charge))
                     {
                         charge = alternateCharge;
@@ -317,6 +321,7 @@ namespace ProteinDigestionSimulator
                         delta /= -10;
                         charge = alternateCharge;
                         pH += delta;
+
                         if (Math.Abs(delta) < 0.01d)
                         {
                             break;

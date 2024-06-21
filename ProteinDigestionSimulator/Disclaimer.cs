@@ -91,6 +91,7 @@ namespace ProteinDigestionSimulator
         public static string GetKangasPetritisDisclaimerText(bool addNewlines = true)
         {
             string newlineText;
+
             if (addNewlines)
             {
                 newlineText = Environment.NewLine + Environment.NewLine;
@@ -129,6 +130,7 @@ namespace ProteinDigestionSimulator
         private void CloseDelayTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             var secondsRemaining = (int)Math.Round(Math.Round(FORM_CLOSE_DELAY_SECONDS - DateTime.UtcNow.Subtract(mTimerStartTime).TotalSeconds, 0));
+
             if (secondsRemaining < 0)
             {
                 secondsRemaining = 0;
