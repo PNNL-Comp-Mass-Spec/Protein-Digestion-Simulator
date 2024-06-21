@@ -160,9 +160,9 @@ namespace ProteinDigestionSimulator.PeakMatching
 
             if (UseFeatureIDDictionary)
             {
-                if (featureIDToRowIndex.ContainsKey(featureID))
+                if (featureIDToRowIndex.TryGetValue(featureID, out var index))
                 {
-                    rowIndex = featureIDToRowIndex[featureID];
+                    rowIndex = index;
                 }
                 else
                 {

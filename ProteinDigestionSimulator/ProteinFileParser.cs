@@ -1390,9 +1390,9 @@ namespace ProteinDigestionSimulator
                 {
                     try
                     {
-                        if (mMasterSequencesDictionary.ContainsKey(peptideFragment.SequenceOneLetter))
+                        if (mMasterSequencesDictionary.TryGetValue(peptideFragment.SequenceOneLetter, out var sequenceID))
                         {
-                            uniqueSeqID = mMasterSequencesDictionary[peptideFragment.SequenceOneLetter];
+                            uniqueSeqID = sequenceID;
                         }
                         else
                         {

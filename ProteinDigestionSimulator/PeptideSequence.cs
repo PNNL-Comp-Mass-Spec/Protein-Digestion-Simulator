@@ -592,9 +592,10 @@ namespace ProteinDigestionSimulator
             {
                 // 1 letter to 3 letter
                 var symbol = symbolToParse.Substring(0, 1).ToUpper()[0];
-                if (AminoAcidSymbols.ContainsKey(symbol))
+
+                if (AminoAcidSymbols.TryGetValue(symbol, out var threeLetterSymbol))
                 {
-                    return AminoAcidSymbols[symbol];
+                    return threeLetterSymbol;
                 }
 
                 return string.Empty;

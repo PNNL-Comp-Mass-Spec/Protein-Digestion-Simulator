@@ -286,9 +286,9 @@ namespace ProteinDigestionSimulator
 
             if (UseProteinNameDictionary)
             {
-                if (mProteinNameToRowIndex.ContainsKey(proteinName))
+                if (mProteinNameToRowIndex.TryGetValue(proteinName, out var index))
                 {
-                    rowIndex = mProteinNameToRowIndex[proteinName];
+                    rowIndex = index;
                 }
                 else
                 {

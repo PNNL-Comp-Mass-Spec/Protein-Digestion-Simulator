@@ -878,9 +878,9 @@ namespace ProteinDigestionSimulator
 
             try
             {
-                if (masterSequences.ContainsKey(sequence))
+                if (masterSequences.TryGetValue(sequence, out var sequenceID))
                 {
-                    uniqueSeqID = masterSequences[sequence];
+                    uniqueSeqID = sequenceID;
                 }
                 else
                 {
@@ -1034,11 +1034,11 @@ namespace ProteinDigestionSimulator
                 DBUtils.AppendColumnStringToTable(mProteinToIdentifiedPeptideMappingTable, PEPTIDE_ID_MATCH_COLUMN);
 
                 // Define the PROTEIN_ID_COLUMN AND PEPTIDE_ID_COLUMN columns to be the primary key
-                mProteinToIdentifiedPeptideMappingTable.PrimaryKey = new[]
-                {
+                mProteinToIdentifiedPeptideMappingTable.PrimaryKey =
+                [
                     mProteinToIdentifiedPeptideMappingTable.Columns[PROTEIN_ID_COLUMN],
                     mProteinToIdentifiedPeptideMappingTable.Columns[PEPTIDE_ID_MATCH_COLUMN]
-                };
+                ];
             }
             else
             {
@@ -1214,7 +1214,7 @@ namespace ProteinDigestionSimulator
                 // However, if delimitedFileHasMassAndNET = True and valid Mass and NET values were read from the text file,
                 // they are passed to AddOrUpdatePeptide rather than the computed values
                 newPeptide.AutoComputeNET = true;
-                var inputFileLinesRead = 0;
+                int inputFileLinesRead;
 
                 do
                 {
@@ -1785,7 +1785,7 @@ namespace ProteinDigestionSimulator
 
                             for (proteinIndex = 0; proteinIndex < proteinIDs.Length; proteinIndex++)
                             {
-                                if (!mProteinToIdentifiedPeptideMappingTable.Rows.Contains(new object[] { proteinIDs[proteinIndex], featureInfo.FeatureID }))
+                                if (!mProteinToIdentifiedPeptideMappingTable.Rows.Contains([proteinIDs[proteinIndex], featureInfo.FeatureID]))
                                 {
                                     var newDataRow = mProteinToIdentifiedPeptideMappingTable.NewRow();
                                     newDataRow[PROTEIN_ID_COLUMN] = proteinIDs[proteinIndex];
