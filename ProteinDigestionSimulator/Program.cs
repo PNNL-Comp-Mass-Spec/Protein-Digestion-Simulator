@@ -77,7 +77,7 @@ namespace ProteinDigestionSimulator
                 }
 
                 var programName = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name;
-                var exePath = ProcessFilesOrDirectoriesBase.GetAppPath();
+                var exePath = AppUtils.GetAppPath();
                 var exeName = Path.GetFileName(exePath);
 
                 var parser = new CommandLineParser<DigestionSimulatorOptions>(programName, GetAppVersion())
@@ -216,12 +216,12 @@ namespace ProteinDigestionSimulator
 
         private static string GetAppVersion()
         {
-            return ProcessFilesOrDirectoriesBase.GetAppVersion(PROGRAM_DATE);
+            return AppUtils.GetAppVersion(PROGRAM_DATE);
         }
 
         private static string GetExecutableName()
         {
-            return Path.GetFileName(ProcessFilesOrDirectoriesBase.GetAppPath());
+            return Path.GetFileName(AppUtils.GetAppPath());
         }
 
         private static void OnDebugEvent(string message)

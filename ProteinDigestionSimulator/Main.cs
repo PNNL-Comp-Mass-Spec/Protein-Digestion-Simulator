@@ -570,7 +570,7 @@ namespace ProteinDigestionSimulator
                     {
                         mProteinDigestionSimulator.LogMessagesToFile = true;
 
-                        var appFolderPath = ProcessFilesOrDirectoriesBase.GetAppDataDirectoryPath("ProteinDigestionSimulator");
+                        var appFolderPath = AppUtils.GetAppDataDirectoryPath("ProteinDigestionSimulator");
                         mProteinDigestionSimulator.LogFilePath = Path.Combine(appFolderPath, "ProteinDigestionSimulatorLog.txt");
                     }
 
