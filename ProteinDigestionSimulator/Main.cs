@@ -34,7 +34,7 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: al, cbo, chk, combobox, ComputepI, const, CrLf, Cys, Da, diff, Eisenberg, Engleman
         // Ignore Spelling: frm, gauging, Hopp, Hydrophobicity, Iodoacetamide, Iodoacetic, Kangas, Kostas, Kyte
-        // Ignore Spelling: MaximumpI, MaxpI, MinimumpI, Petritis, Sep, Sql, tryptic
+        // Ignore Spelling: MaximumpI, MaxpI, MinimumpI, Petritis, Sep, Sql, Tol, tryptic
 
         public Main()
         {
@@ -146,7 +146,7 @@ namespace ProteinDigestionSimulator
             }
         }
 
-        // The following is used to lookup the default symbols for FASTA files, and should thus be treated as ReadOnly
+        // The following is used to look up the default symbols for FASTA files, and should thus be treated as ReadOnly
         private readonly ProteinFileParser.FastaFileParseOptions mDefaultFastaFileOptions;
 
         private DataSet mPeakMatchingThresholdsDataset;
@@ -308,7 +308,7 @@ namespace ProteinDigestionSimulator
         private bool ClearPMThresholdsList(bool confirmReplaceExistingResults)
         {
             // Returns true if the PM_THRESHOLDS_DATA_TABLE is empty or if it was cleared
-            // Returns false if the user is queried about clearing and they do not click Yes
+            // Returns false if the user is asked about clearing the table, and they do not click Yes
 
             var success = false;
             if (mPeakMatchingThresholdsDataset.Tables[PM_THRESHOLDS_DATA_TABLE].Rows.Count > 0)
@@ -594,7 +594,7 @@ namespace ProteinDigestionSimulator
                     }
                     else
                     {
-                        // Replace _output.txt" in outputFilePath with PEAK_MATCHING_STATS_FILE_SUFFIX
+                        // Replace "_output.txt" in outputFilePath with PEAK_MATCHING_STATS_FILE_SUFFIX
                         var charIndex = outputFilePath.IndexOf(OUTPUT_FILE_SUFFIX, StringComparison.OrdinalIgnoreCase);
                         if (charIndex > 0)
                         {
@@ -775,7 +775,7 @@ namespace ProteinDigestionSimulator
 
             try
             {
-                // Pass False to .LoadSettings() here to turn off case sensitive matching
+                // Pass False to .LoadSettings() here to turn off case-sensitive matching
                 xmlSettings.LoadSettings(settingsFilePath, false);
                 ProcessFilesOrDirectoriesBase.CreateSettingsFileIfMissing(settingsFilePath);
 

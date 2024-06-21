@@ -44,7 +44,7 @@ namespace ProteinDigestionSimulator
     /// </summary>
     public class ProteinFileParser : ProcessFilesBase
     {
-        // Ignore Spelling: addnl, ComputepI, Cys, Cysteine, fasta, gi, hydrophobicity, Ile, isoelectric, Leu, pre, SepChar, silico, varchar
+        // Ignore Spelling: addnl, ComputepI, Cys, Cysteine, fasta, gi, hydrophobicity, Ile, isoelectric, Leu, pre, Sep, SepChar, silico, varchar
 
         private const string PROGRAM_DATE = "November 20, 2021";
 
@@ -1968,7 +1968,7 @@ namespace ProteinDigestionSimulator
 
         /// <summary>
         /// If filePath ends with extension, remove it
-        /// Supports multi-part extensions like .fasta.gz
+        /// Supports multipart extensions like .fasta.gz
         /// </summary>
         /// <param name="filePath">File name or path</param>
         /// <param name="extension">Extension, with or without the leading period</param>

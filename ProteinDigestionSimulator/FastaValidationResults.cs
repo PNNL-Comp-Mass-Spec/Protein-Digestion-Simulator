@@ -16,7 +16,7 @@ namespace ProteinDigestionSimulator
 
     public partial class FastaValidation
     {
-        // Ignore Spelling: validator, dt, ds, chk
+        // Ignore Spelling: chk, ds, dt, fasta, validator
 
         public FastaValidation(string fastaFilePath)
         {

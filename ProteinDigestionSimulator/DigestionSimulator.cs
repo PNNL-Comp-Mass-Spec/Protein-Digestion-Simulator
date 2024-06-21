@@ -31,7 +31,7 @@ namespace ProteinDigestionSimulator
     /// </summary>
     public class DigestionSimulator : PRISM.FileProcessor.ProcessFilesBase
     {
-        // Ignore Spelling: Da, pre
+        // Ignore Spelling: Da, Isoelectric, pre, silico, slic, tol
 
         private const string PROGRAM_DATE = "June 19, 2024";
 

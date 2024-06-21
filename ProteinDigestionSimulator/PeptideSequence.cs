@@ -13,7 +13,7 @@ namespace ProteinDigestionSimulator
     /// </summary>
     public class PeptideSequence
     {
-        // Ignore Spelling: acetyl, alkylated, carbamyl, cys, cysteine, Da, iodoacetamide, proline, terminii, tryptic, xxx
+        // Ignore Spelling: acetyl, alkylated, carbamyl, cys, cysteine, Da, icr, iodoacetamide, Loc, proline, terminii, tryptic, xxx
 
         private const char UNKNOWN_SYMBOL_ONE_LETTER = 'X';
         private const string UNKNOWN_SYMBOL_THREE_LETTERS = "Xxx";
@@ -582,8 +582,8 @@ namespace ProteinDigestionSimulator
         /// </summary>
         /// <param name="symbolToParse">Amino acid symbol to parse</param>
         /// <param name="oneLetterTo3Letter">
-        /// When true, converting 1 letter codes to 3 letter codes
-        /// Otherwise, converting 3 letter codes to 1 letter codes
+        /// When true, converting 1-letter codes to 3-letter codes
+        /// Otherwise, converting 3-letter codes to 1-letter codes
         /// </param>
         /// <returns>Converted amino acid symbol if a valid amino acid symbol, otherwise an empty string</returns>
         private string GetAminoAcidSymbolConversion(string symbolToParse, bool oneLetterTo3Letter)

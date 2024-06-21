@@ -97,7 +97,8 @@ namespace ProteinDigestionSimulator.PeakMatching
                         // Search the upper half
                         firstIndex = midIndex + 1;
                     }
-                    // Compute the new mid point
+
+                    // Compute the new midpoint
                     midIndex = (firstIndex + lastIndex) / 2;
                     if (midIndex < firstIndex)
                     {
