@@ -46,7 +46,7 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: conf, silico
 
-        public const string PROGRAM_DATE = "June 20, 2024";
+        public const string PROGRAM_DATE = "July 19, 2024";
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);

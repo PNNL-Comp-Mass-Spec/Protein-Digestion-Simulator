@@ -33,7 +33,7 @@ namespace ProteinDigestionSimulator
     {
         // Ignore Spelling: Da, Isoelectric, pre, silico, slic, tol
 
-        private const string PROGRAM_DATE = "June 20, 2024";
+        private const string PROGRAM_DATE = "July 19, 2024";
 
         private const string PROTEIN_ID_COLUMN = "ProteinID";
         private const string PEPTIDE_ID_MATCH_COLUMN = "PeptideIDMatch";
