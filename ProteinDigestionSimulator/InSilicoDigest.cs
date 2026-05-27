@@ -374,7 +374,7 @@ namespace ProteinDigestionSimulator
 
                         for (var index = 0; index <= DigestionOptions.MaxMissedCleavages; index++)
                         {
-                            if (trypticIndex - index < 0)
+                            if (trypticIndex < index)
                             {
                                 break;
                             }
