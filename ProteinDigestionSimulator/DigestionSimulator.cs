@@ -1393,7 +1393,7 @@ namespace ProteinDigestionSimulator
 
                             AddOrUpdatePeptide(uniqueSeqID,
                                 digestedPeptide.Mass, digestedPeptide.NET, 0, 0,
-                                proteinOrPeptide.Name,
+                                proteinOrPeptide?.Name ?? string.Empty,
                                 ProteinCollection.CleavageStateConstants.Unknown,
                                 digestedPeptide.PeptideName);
                         }
